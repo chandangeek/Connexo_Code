@@ -9,6 +9,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyGetEndDeviceEventsWebService;
 
@@ -20,6 +21,8 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -83,14 +86,15 @@ public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointP
     @Override
     public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents, String correlationId) {
         GetEndDeviceEventsRequestMessageType message = createResponseMessage(createEndDeviceEvents(endDeviceEvents), correlationId);
-        Set<String> values = new HashSet<>();
-                endDeviceEvents.forEach(event->{
-                values.add(event.getEndDevice().getName());
-                values.add(event.getEndDevice().getMRID());
+        SetMultimap<String, String> values = HashMultimap.create();
+        endDeviceEvents.forEach(event->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getEndDevice().getName());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getMRID());
         });
+
         using("getEndDeviceEvents")
                 .toEndpoints(endPointConfiguration)
-                //.withRelatedObject("Device",values)
+                .withRelatedObject(values)
                 .send(message);
     }
 

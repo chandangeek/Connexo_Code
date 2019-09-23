@@ -58,7 +58,6 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
             Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
             if (device.isPresent()) {
                 try {
-
                     sapCustomPropertySets.setPod(device.get(), podMsg.podId);
                 } catch (LocalizedException ex) {
                     log(LogLevel.WARNING, thesaurus.getFormat(ex.getMessageSeed()).format(ex.getMessageArgs()));

@@ -41,7 +41,6 @@ public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<M
         if (message != null) {
             if (endPointConfiguration.isInbound()) {
                 String payload = MessageUtils.getIncomingPayload(message);
-
                 long id = webServicesService.startOccurrence(endPointConfiguration,
                         MessageUtils.getRequestName(payload),
                         getApplicationName(endPointConfiguration),

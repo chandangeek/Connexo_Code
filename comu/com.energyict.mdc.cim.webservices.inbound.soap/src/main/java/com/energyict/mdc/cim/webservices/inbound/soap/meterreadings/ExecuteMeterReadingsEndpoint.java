@@ -204,8 +204,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 SetMultimap<String, String> values = HashMultimap.create();
 
                 usagePoints.forEach(usp->{
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), usp.getNames().get(0).getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), usp.getMRID());
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
                 });
 
                 values.keys().forEach(key->{

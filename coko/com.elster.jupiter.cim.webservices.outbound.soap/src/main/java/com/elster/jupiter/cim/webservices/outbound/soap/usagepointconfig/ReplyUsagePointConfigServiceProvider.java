@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.replyusagepointconfig.ReplyUsagePointConfig;
@@ -23,6 +24,8 @@ import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -120,18 +123,20 @@ public class ReplyUsagePointConfigServiceProvider
             default:
                 throw new UnsupportedOperationException(operation + " isn't supported.");
         }
-        Set<String> values = new HashSet<>();
+
+        SetMultimap<String, String> values = HashMultimap.create();
+
         successList.forEach(up->{
-            values.add(up.getName());
-            values.add(up.getMRID());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
         });
         failureList.forEach(upO->{
-            values.add(upO.getUsagePointName());
-            values.add(upO.getUsagePointMrid());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upO.getUsagePointMrid());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upO.getUsagePointName());
         });
         using(method)
                 .toEndpoints(endPointConfiguration)
-                //.withRelatedObject("UsagePoint", values)
+                .withRelatedObject(values)
                 .send(message);
     }
 

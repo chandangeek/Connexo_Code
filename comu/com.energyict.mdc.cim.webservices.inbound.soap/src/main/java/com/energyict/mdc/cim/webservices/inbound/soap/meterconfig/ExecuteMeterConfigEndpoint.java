@@ -94,7 +94,6 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             String meterName = null;
-
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
@@ -102,7 +101,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
-                    //TO-DO create objects from SET -> check that parameter is uniq in scope of this occurrence. And only after that try to create
+
                     SetMultimap<String, String> values = HashMultimap.create();
 
                     meterConfig.getMeter().stream().forEach(meter -> {

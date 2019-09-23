@@ -19,7 +19,6 @@ import java.util.Map;
 public class CimAttributesProvider implements WebServiceCallRelatedObjectTypeProvider {
 
     public static final String COMPONENT_NAME = "WSS";
-    //extends TranslationKeyProvider
 
     public String getComponentName(){
         return COMPONENT_NAME;

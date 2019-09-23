@@ -17,6 +17,6 @@ Ext.define('Wss.store.RelatedObjectStore', {
         reader: {
             type: 'json',
             root: 'data'
-        }//,
+        }
     }
 });

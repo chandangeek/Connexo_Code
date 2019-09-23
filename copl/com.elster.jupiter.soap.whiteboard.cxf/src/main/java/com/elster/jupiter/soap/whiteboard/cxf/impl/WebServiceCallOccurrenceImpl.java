@@ -39,7 +39,6 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private WebServiceCallOccurrenceStatus status;
     private String applicationName;
     private String payload;
-    private long relatedObjectId;
 
     public enum Fields {
         ID("id"),
@@ -49,8 +48,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         ENDPOINT_CONFIGURATION("endPointConfiguration"),
         STATUS("status"),
         APPLICATION_NAME("applicationName"),
-        PAYLOAD("payload"),
-        RELATED_OBJECT_ID("relatedObjectId");
+        PAYLOAD("payload");
 
         private final String javaFieldName;
 
@@ -158,9 +156,6 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     public void setPayload(String payload) {
         this.payload = payload;
     }
-
-    @Override
-    public void setRelatedObjectId(long relatedObjectId) {this.relatedObjectId = relatedObjectId;}
 
     @Override
     public void log(LogLevel logLevel, String message) {

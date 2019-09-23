@@ -6,11 +6,14 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceBulkCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOutService;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -59,12 +62,14 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutbo
 
     @Override
     public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
-        Set<String> values = new HashSet<>();
+        SetMultimap<String, String> values = HashMultimap.create();
+
         msg.getConfirmationMessage().getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage().forEach(message->{
-            values.add(message.getUtilitiesDevice().getID().getValue());
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    message.getUtilitiesDevice().getID().getValue());
         });
         using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
-                //.withRelatedObject("DeviceX", values)
+                .withRelatedObject(values)
                 .send(msg.getConfirmationMessage());
     }
 

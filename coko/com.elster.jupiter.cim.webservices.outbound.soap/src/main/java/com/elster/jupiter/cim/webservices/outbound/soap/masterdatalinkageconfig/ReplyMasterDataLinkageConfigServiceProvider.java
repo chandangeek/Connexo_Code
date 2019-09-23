@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
@@ -24,6 +25,8 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -92,18 +95,18 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 			default:
 				throw new UnsupportedOperationException(operation + " isn't supported.");
 		}
-		Set<String> values = new HashSet<>();
+		SetMultimap<String, String> values = HashMultimap.create();
 		successfulLinkages.forEach(link->{
-			values.add(link.getMeterMrid());
-			values.add(link.getMeterName());
+			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
 		});
 		failedLinkages.forEach(link->{
-			values.add(link.getMeterMrid());
-			values.add(link.getMeterName());
+			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
 		});
 		using(method)
 				.toEndpoints(endPointConfiguration)
-				//.withRelatedObject("Device", values)
+				.withRelatedObject(values)
 				.send(message);
 	}
 

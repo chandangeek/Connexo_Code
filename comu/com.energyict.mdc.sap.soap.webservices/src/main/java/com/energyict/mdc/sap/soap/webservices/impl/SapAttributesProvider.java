@@ -19,7 +19,6 @@ import java.util.Map;
 public class SapAttributesProvider implements WebServiceCallRelatedObjectTypeProvider {
 
         public static final String COMPONENT_NAME = "SAP";
-        //extends TranslationKeyProvider
 
         public String getComponentName(){
             return COMPONENT_NAME;

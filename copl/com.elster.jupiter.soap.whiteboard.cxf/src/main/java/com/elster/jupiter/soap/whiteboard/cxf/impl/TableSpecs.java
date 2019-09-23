@@ -152,11 +152,6 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
 
-            /*table.column("TYPE_DOMAIN")
-                    .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.TYPE_DOMAIN.fieldName())
-                   .add();*/
-
             table.column("OBJECT_KEY")
                     .varChar(NAME_LENGTH)
                     .map(WebServiceCallRelatedObjectImpl.Fields.OBJECT_KEY.fieldName())

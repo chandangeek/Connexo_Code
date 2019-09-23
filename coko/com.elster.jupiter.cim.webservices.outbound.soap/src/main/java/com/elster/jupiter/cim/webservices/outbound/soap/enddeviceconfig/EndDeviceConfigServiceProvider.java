@@ -7,6 +7,7 @@ import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedD
 import com.elster.jupiter.metering.EndDeviceAttributesProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.events.LocalEvent;
@@ -19,6 +20,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -190,13 +193,14 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
             methodName = "changedEndDeviceConfig";
             message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED);
         }
-        Set<String> values = new HashSet();
-        values.add(endDevice.getMRID());
-        values.add(endDevice.getSerialNumber());
-        values.add(endDevice.getName());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), endDevice.getMRID());
+        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), endDevice.getSerialNumber());
+        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), endDevice.getName());
+
         using(methodName)
                 .toEndpoints(endPointConfigurations)
-                //.withRelatedObject(values)
+                .withRelatedObject(values)
                 .send(message);
     }
 

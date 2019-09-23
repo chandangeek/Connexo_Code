@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -13,6 +14,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirma
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -66,10 +69,12 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
 
     @Override
     public void call(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
-        Set<String> values = new HashSet<>();
-        values.add(msg.getUtilitiesDevice().getID().getValue());
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                msg.getUtilitiesDevice().getID().getValue());
         using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut")
-                //.withRelatedObject("DeviceX", values)
+                .withRelatedObject(values)
                 .send(msg);
     }
 
