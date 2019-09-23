@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class HasValidStatusAndFormatValidator implements ConstraintValidator<HasValidStatusAndFormat, SIMCardDomainExtension> {
-    Thesaurus thesaurus;
+    private Thesaurus thesaurus;
 
     @Inject
     public HasValidStatusAndFormatValidator(Thesaurus thesaurus) {
@@ -28,6 +28,7 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
 
     @Override
     public boolean isValid(SIMCardDomainExtension value, ConstraintValidatorContext context) {
+        boolean isValid = true;
         ArrayList<String> cardFormats = new ArrayList<>();
         cardFormats.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.CARD_FORMAT_DESCRIPTION, thesaurus));
         cardFormats.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.CARD_FORMAT_EMBEDDED, thesaurus));
@@ -43,7 +44,7 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
                     .addPropertyNode(SIMCardDomainExtension.FieldNames.CARD_FORMAT.javaName())
                     .addConstraintViolation()
                     .disableDefaultConstraintViolation();
-            return false;
+            isValid = false;
         }
         ArrayList<String> statuses = new ArrayList<>();
         statuses.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.STATUS_ACTIVE, thesaurus));
@@ -59,8 +60,8 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
                     .addPropertyNode(SIMCardDomainExtension.FieldNames.STATUS.javaName())
                     .addConstraintViolation()
                     .disableDefaultConstraintViolation();
-            return false;
+            isValid = false;
         }
-        return true;
+        return isValid;
     }
 }
