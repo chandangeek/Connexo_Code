@@ -8,9 +8,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceType;
 
 import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
@@ -61,24 +63,34 @@ public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
     private TimeOfUseCampaignInfo update(ResultSet resultSet) throws SQLException {
         TimeOfUseCampaignInfo touCampaignInfo = new TimeOfUseCampaignInfo();
         touCampaignInfo.serviceCall = resultSet.getLong("SERVICECALL");
-        touCampaignInfo.deviceType = resultSet.getLong("DEVICE_TYPE");
-        touCampaignInfo.activationOption = resultSet.getString("ACTIVATION_OPTION");
-        Optional<DeviceType> devType = deviceConfigurationService.findDeviceType(touCampaignInfo.deviceType);
+        long deviceType = resultSet.getLong("DEVICE_TYPE");
+        String activationOption = resultSet.getString("ACTIVATION_OPTION");
+        Optional<DeviceType> devType = deviceConfigurationService.findDeviceType(deviceType);
         if(devType.isPresent()){
             devType.get()
                     .getConfigurations().stream()
                     .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                    .forEach(cte -> cte.getComTask().getProtocolTasks().stream()
-                            .filter(protocolTask ->  protocolTask instanceof MessagesTask)
-                            .flatMap(task-> ((MessagesTask) task).getDeviceMessageCategories().stream())
-                            .filter(ctg -> ctg.getName().equals("Activity calendar"))
-                            .findAny()
-                            .ifPresent(x-> touCampaignInfo.calendarUploadComtaskId = cte.getComTask().getId()));
+                    .forEach(cte ->{
+                        if(!cte.isSuspended()) {
+                                cte.getComTask().getProtocolTasks().stream()
+                                        .filter(protocolTask -> protocolTask instanceof MessagesTask)
+                                        .flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream())
+                                        .filter(ctg -> ctg.getName().equals("Activity calendar"))
+                                        .findAny()
+                                        .ifPresent(x -> touCampaignInfo.calendarUploadComtaskId = cte.getComTask().getId());
+                            }
+                    });
 
-            if(!touCampaignInfo.activationOption.equals("withoutActivation")) {
+            if(!activationOption.equals("withoutActivation")) {
                 touCampaignInfo.validationComtaskId = devType.get().getConfigurations().stream()
                         .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                        .flatMap(cte -> cte.getComTask().getProtocolTasks().stream())
+                        .flatMap(cte -> {
+                            if(!cte.isSuspended()) {
+                                return cte.getComTask().getProtocolTasks().stream();
+                            }else{
+                                return new ArrayList<ProtocolTask>().stream();
+                            }
+                        })
                         .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
                         .findAny()
                         .map(cte -> cte.getComTask().getId())
@@ -91,8 +103,6 @@ public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
 
     private class TimeOfUseCampaignInfo {
         long serviceCall;
-        Long deviceType;
-        String activationOption;
         Long calendarUploadComtaskId;
         Long validationComtaskId;
     }

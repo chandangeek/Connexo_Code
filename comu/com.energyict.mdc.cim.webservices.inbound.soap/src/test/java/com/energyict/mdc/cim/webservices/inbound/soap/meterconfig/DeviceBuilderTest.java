@@ -3,6 +3,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -92,9 +93,6 @@ public class DeviceBuilderTest {
 	private MeterConfigFaultMessageFactory faultMessageFactory;
 
 	@Mock
-	private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-
-	@Mock
 	private DeviceType deviceType;
 
 	@Mock
@@ -128,6 +126,9 @@ public class DeviceBuilderTest {
 	private AuthorizedTransitionAction authorizedTransitionAction;
 
 	@Mock
+	private MeteringTranslationService meteringTranslationService;
+
+	@Mock
 	private StateTransition stateTransition;
 
 	@Mock
@@ -141,7 +142,7 @@ public class DeviceBuilderTest {
 	public void setUp() {
 		testable = new DeviceBuilder(batchService, Clock.fixed(NOW, Clock.systemDefaultZone().getZone()),
 				deviceLifeCycleService, deviceConfigurationService, deviceService, faultMessageFactory,
-				deviceLifeCycleConfigurationService);
+				meteringTranslationService);
 		meterInfo = new MeterInfo();
 		meterInfo.setDeviceType(DEVICE_TYPE);
 		meterInfo.setDeviceConfigurationName(DEVICE_CONFIG_NAME);
@@ -274,7 +275,7 @@ public class DeviceBuilderTest {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatuses(Arrays.asList(DefaultState.IN_STOCK.getDefaultFormat()));
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		testable.prepareChangeFrom(meterInfo).build();
 	}
@@ -299,7 +300,7 @@ public class DeviceBuilderTest {
 			throws FaultMessage {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatuses(Arrays.asList(STATUS_VALUE));
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getName()).thenReturn(DEVICE_NAME);
@@ -317,7 +318,7 @@ public class DeviceBuilderTest {
 	public void testPrepareChangeFrom_ChengeSecurityKeysNotAllowed_Exception_StatusListEmpty() throws FaultMessage {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatuses(new ArrayList<>());
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getName()).thenReturn(DEVICE_NAME);
@@ -337,7 +338,7 @@ public class DeviceBuilderTest {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatusesElementPresent(false);
 		meterInfo.getSecurityInfo().setDeviceStatuses(Arrays.asList(STATUS_VALUE));
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getName()).thenReturn(DEVICE_NAME);
