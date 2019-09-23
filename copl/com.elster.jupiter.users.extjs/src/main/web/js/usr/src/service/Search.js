@@ -61,8 +61,9 @@ Ext.define('Usr.service.Search', {
     createFixedColumns: function(){
         var actionColumn = {
             xtype: 'uni-actioncolumn',
+            header: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
             maxWidth: 120,
-            //privileges: Usr.privileges.Users.adminUsers,
+            privileges: Usr.privileges.Users.adminUsers,
             menu: {
                 xtype: 'user-action-menu'
             },

@@ -159,7 +159,7 @@ Ext.define('Usr.controller.User', {
         me.getApplication().fireEvent('changecontentevent', widget);
 
         searchDomains.clearFilter(true);
-        searchDomains.addFilter({property: 'application', value: 'COIN'});
+        searchDomains.addFilter({property: 'application', value: 'COKO'});
         searchDomains.load({
             callback: function (records) {
                 me.service.initState();
