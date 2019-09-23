@@ -168,8 +168,15 @@ public class EndPointConfigurationInfoFactory {
 
     public EndPointConfiguration updateEndPointConfiguration(OutboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         this.applyCommonChanges(endPointConfiguration, info);
-        endPointConfiguration.setPassword(info.password);
-        endPointConfiguration.setUsername(info.username);
+        if(endPointConfiguration.getAuthenticationMethod().name().compareToIgnoreCase("None") == 0)
+        {
+            endPointConfiguration.setPassword(null);
+            endPointConfiguration.setUsername(null);
+        }
+        else {
+            endPointConfiguration.setPassword(info.password);
+            endPointConfiguration.setUsername(info.username);
+        }
         return endPointConfiguration;
     }
 
