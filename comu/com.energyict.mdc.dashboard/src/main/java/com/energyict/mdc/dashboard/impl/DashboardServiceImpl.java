@@ -376,7 +376,11 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private List<ComSession.SuccessIndicator> orderedSuccessIndicators() {
-        return Arrays.asList(ComSession.SuccessIndicator.Success, ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
+        return Arrays.asList(ComSession.SuccessIndicator.Success,
+                ComSession.SuccessIndicator.SetupError,
+                ComSession.SuccessIndicator.Broken,
+                ComSession.SuccessIndicator.Interrupted,
+                ComSession.SuccessIndicator.NotExecuted);
     }
 
     private List<ComTask> availableComTasks() {

@@ -57,10 +57,7 @@ public class ComSessionInfoFactory {
         info.direction = thesaurus.getString(direction, direction);
         info.connectionType = partialConnectionTask.getPluggableClass().getName();
         ComSession.SuccessIndicator successIndicator = comSession.getSuccessIndicator();
-        info.status = successIndicator.equals(ComSession.SuccessIndicator.Success)
-                && comSession.getComTaskExecutionSessions().stream().allMatch(comTaskExecutionSession -> comTaskExecutionSession.getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Success))?
-                thesaurus.getFormat(ComSessionSuccessIndicatorTranslationKeys.SUCCESS).format():
-                thesaurus.getFormat(DefaultTranslationKey.FAILURE).format();
+        info.status = getStatus(comSession, successIndicator);
 
         info.result = new SuccessIndicatorInfo(successIndicator.name(), ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicator, thesaurus));
         if (!successIndicator.equals(ComSession.SuccessIndicator.Success) && connectionTask instanceof OutboundConnectionTask) {
@@ -77,6 +74,17 @@ public class ComSessionInfoFactory {
             ? comSession.getJournalEntries(EnumSet.of(ComServer.LogLevel.WARN)).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors.toList())
             : comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.WARN), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors.toList());
         return info;
+    }
+
+    private String getStatus(ComSession comSession, ComSession.SuccessIndicator successIndicator) {
+        if (successIndicator.equals(ComSession.SuccessIndicator.Success)
+                && comSession.getComTaskExecutionSessions().stream().allMatch(comTaskExecutionSession -> comTaskExecutionSession.getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Success))) {
+            return thesaurus.getFormat(ComSessionSuccessIndicatorTranslationKeys.SUCCESS).format();
+        }
+        if (successIndicator.equals(ComSession.SuccessIndicator.NotExecuted)) {
+            return thesaurus.getFormat(CompletionCodeTranslationKeys.NOT_EXECUTED).format();
+        }
+        return thesaurus.getFormat(DefaultTranslationKey.FAILURE).format();
     }
 
 }

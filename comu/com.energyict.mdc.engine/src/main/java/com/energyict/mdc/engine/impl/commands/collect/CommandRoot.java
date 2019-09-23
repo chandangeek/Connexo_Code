@@ -88,6 +88,10 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
 
     boolean hasConnectionBeenInterrupted();
 
+    void connectionNotExecuted();
+
+    boolean hasConnectionNotExecuted();
+
     List<? extends ComTaskExecution> getScheduledButNotPreparedComTaskExecutions();
 
     ServiceProvider getServiceProvider();

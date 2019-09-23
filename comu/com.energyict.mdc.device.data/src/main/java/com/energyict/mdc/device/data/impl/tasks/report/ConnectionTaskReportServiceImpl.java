@@ -397,7 +397,9 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         columnIndex++;
         long failureSetupError = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.SetupError));
         long failureBroken = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.Broken));
-        return Arrays.asList(atLeastOneFailure, completeSuccess, failureSetupError, failureBroken);
+        long failureInterrupted = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.Interrupted));
+        long failureNotExecuted = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.NotExecuted));
+        return Arrays.asList(atLeastOneFailure, completeSuccess, failureSetupError, failureBroken, failureInterrupted, failureNotExecuted);
     }
 
     private List<Long> missingSuccessIndicatorCounters(ConnectionTypePluggableClass connectionTypePluggableClass) {
@@ -410,10 +412,12 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
 
     private List<Long> orderSuccessIndicatorCounters(Map<ComSession.SuccessIndicator, Long> successIndicatorCounters, Map<ComSession.SuccessIndicator, Long> failingTaskCounters) {
         List<Long> counters = new ArrayList<>(ComSession.SuccessIndicator.values().length + 1);
-        this.addSuccessIndicatorCounter(counters, failingTaskCounters, ComSession.SuccessIndicator.Success);
-        this.addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Success);
-        this.addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.SetupError);
-        this.addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Broken);
+        addSuccessIndicatorCounter(counters, failingTaskCounters, ComSession.SuccessIndicator.Success);
+        addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Success);
+        addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.SetupError);
+        addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Broken);
+        addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Interrupted);
+        addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.NotExecuted);
         return counters;
     }
 
@@ -605,7 +609,11 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     }
 
     private List<ComSession.SuccessIndicator> connectionTypeHeapMapFailureIndicators() {
-        return Arrays.asList(ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
+        return Arrays.asList(ComSession.SuccessIndicator.SetupError,
+                ComSession.SuccessIndicator.Broken,
+                ComSession.SuccessIndicator.Interrupted,
+                ComSession.SuccessIndicator.NotExecuted
+        );
     }
 
     Clock clock() {

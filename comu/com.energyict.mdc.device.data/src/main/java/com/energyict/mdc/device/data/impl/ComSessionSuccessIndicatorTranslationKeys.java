@@ -14,7 +14,9 @@ public enum ComSessionSuccessIndicatorTranslationKeys implements TranslationKey 
 
     SUCCESS(ComSession.SuccessIndicator.Success, "Successful"),
     BROKEN(ComSession.SuccessIndicator.Broken, "Broken"),
-    SETUP_ERROR(ComSession.SuccessIndicator.SetupError, "Setup error");
+    SETUP_ERROR(ComSession.SuccessIndicator.SetupError, "Setup error"),
+    RESCHEDULED(ComSession.SuccessIndicator.Interrupted, "Interrupted"),
+    NOT_EXECUTED(ComSession.SuccessIndicator.NotExecuted, "Not executed");
 
     private ComSession.SuccessIndicator successIndicator;
     private String defaultFormat;
