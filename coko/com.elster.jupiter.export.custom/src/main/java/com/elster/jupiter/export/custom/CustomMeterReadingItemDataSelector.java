@@ -69,6 +69,8 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     private int updateCount;
     private Logger logger;
 
+    private Range<Instant> currentExportInterval;
+
     @Inject
     CustomMeterReadingItemDataSelector(Clock clock,
                              Thesaurus thesaurus,
@@ -97,11 +99,11 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        Range<Instant> exportInterval = adjustedExportPeriod(occurrence, item);
+        this.currentExportInterval = adjustedExportPeriod(occurrence, item);
 
-        warnIfExportPeriodCoversFuture(occurrence, exportInterval);
+        warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
-        List<BaseReading> readings = getReadings(item, exportInterval);
+        List<BaseReading> readings = getReadings(item, currentExportInterval);
 
         String itemDescription = item.getDescription();
 
@@ -110,9 +112,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             readings = filterReadings(readings);
 
             List<Instant> instants = new ArrayList<>();
-            Instant instant = truncateToDays(exportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
+            Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
 
-            while (!instant.isAfter(exportInterval.upperEndpoint())) {
+            while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
                 instants.add(instant);
                 instant = instant.plus(1, ChronoUnit.HOURS);
             }
@@ -136,7 +138,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarker(exportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -307,11 +309,11 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             DataExportRunParameters runParameters = (occurrence).getTask().getRunParameters(adhocTime.get()).get();
             baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
             base.add(baseRange);
-            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+            base.remove(currentExportInterval);
         } else {
             baseRange = determineBaseUpdateInterval(occurrence, item);
             base.add(baseRange);
-            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+            base.remove(currentExportInterval);
         }
         return base.asRanges().stream().findFirst().orElse(baseRange);
     }
