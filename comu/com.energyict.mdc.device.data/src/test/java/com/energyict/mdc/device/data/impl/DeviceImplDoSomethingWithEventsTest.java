@@ -55,7 +55,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.PkiModule;
@@ -329,7 +329,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new CalendarModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new DataVaultModule(),
                     new PkiModule(),
                     new IssuesModule(),

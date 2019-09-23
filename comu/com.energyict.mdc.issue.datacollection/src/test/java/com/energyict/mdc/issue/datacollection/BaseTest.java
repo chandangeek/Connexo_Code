@@ -47,7 +47,7 @@ import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -179,7 +179,7 @@ public abstract class BaseTest {
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new DataVaultModule(),
                 new com.elster.jupiter.tasks.impl.TaskModule(),
                 new KpiModule(),

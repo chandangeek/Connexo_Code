@@ -38,7 +38,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -222,7 +222,7 @@ public class SecurityPropertySetImplCrudIT {
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new DataVaultModule(),
                     new MdcReadingTypeUtilServiceModule(),
                     new MasterDataModule(),

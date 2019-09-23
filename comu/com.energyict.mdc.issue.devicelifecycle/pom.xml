@@ -133,7 +133,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
-            <version>1.0.1-Heracles-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
 

@@ -18,7 +18,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -156,7 +156,7 @@ public class DeviceProtocolPluggableClassImplTest {
                 new DomainUtilModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new DataVaultModule(),
                 new IssuesModule(),
                 new PluggableModule(),

@@ -29,7 +29,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -159,7 +159,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new MyMockModule(),
                 this.bootstrapModule,
                 new ThreadSecurityModule(this.principal),
-                new OrmModule(),
+                new H2OrmModule(),
                 new DataVaultModule(),
                 new EventsModule(),
                 new PubSubModule(),

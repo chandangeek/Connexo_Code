@@ -36,7 +36,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
@@ -210,7 +210,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new MeteringModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new DataVaultModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
