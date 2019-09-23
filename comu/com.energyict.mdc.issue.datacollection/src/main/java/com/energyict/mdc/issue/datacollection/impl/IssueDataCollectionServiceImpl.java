@@ -34,6 +34,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -142,7 +143,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         });
         upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
-                version(10, 4), UpgraderV10_4.class
+                version(10, 4), UpgraderV10_4.class,
+                version(10, 7), V10_7SimpleUpgrader.class
         ));
     }
 

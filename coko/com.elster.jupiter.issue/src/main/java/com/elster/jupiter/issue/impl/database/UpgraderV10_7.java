@@ -130,7 +130,7 @@ public class UpgraderV10_7 implements Upgrader {
                 "        " + Instant.now().toEpochMilli() + ",\n" +
                 "        " + Instant.now().toEpochMilli() + ",\n" +
                 "        DEFAULT)");
-        final IssueCreationService.CreationRuleUpdater creationRuleUpdater = creationRule.startUpdate();
-        creationRuleUpdater.complete();
+        // final IssueCreationService.CreationRuleUpdater creationRuleUpdater = creationRule.startUpdate();
+        // creationRuleUpdater.complete();
     }
 }
