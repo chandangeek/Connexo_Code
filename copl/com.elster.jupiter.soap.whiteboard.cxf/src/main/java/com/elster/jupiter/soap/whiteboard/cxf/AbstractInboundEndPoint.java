@@ -12,6 +12,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.SetMultimap;
 import org.apache.cxf.interceptor.Fault;
 
 import javax.annotation.Resource;
@@ -146,6 +147,12 @@ public abstract class AbstractInboundEndPoint {
         if (value != null && !value.isEmpty()) {
             webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).createRelatedObject(type, value);
         }
+    }
+
+    protected void createRelatedObjects(SetMultimap<String, String> values){
+        values.keys().forEach(key->{
+            createRelatedObjects(key, values.get(key));
+        });
     }
 
     protected void createRelatedObjects(String type, Set<String> values){

@@ -22,6 +22,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
@@ -56,9 +57,11 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.base.Strings;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeRangeSet;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -172,10 +175,19 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
                     fillNotFoundReadingTypesOnDevices(syncReplyIssue);
 
+                    SetMultimap<String, String> values = HashMultimap.create();
+
                     endDevices.forEach(device->{
-                        createRelatedObject( "name", device.getNames().get(0).getName());
-                        createRelatedObject( "mrID", device.getMRID());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
                     });
+
+
+                    values.keys().forEach(key->{
+                        createRelatedObjects(key, values.get(key));
+                    });
+
+
 
                     if (endDevices.size() > 1) {
                         syncReplyIssue.addErrorType((replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, END_DEVICE_LIST_ITEM)));
@@ -188,10 +200,18 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
                 // -UsagePoint
                 List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
+
+                SetMultimap<String, String> values = HashMultimap.create();
+
                 usagePoints.forEach(usp->{
-                    createRelatedObject( "name", usp.getNames().get(0).getName());
-                    createRelatedObject( "mrID", usp.getMRID());
+                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), usp.getMRID());
                 });
+
+                values.keys().forEach(key->{
+                    createRelatedObjects(key, values.get(key));
+                });
+
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 

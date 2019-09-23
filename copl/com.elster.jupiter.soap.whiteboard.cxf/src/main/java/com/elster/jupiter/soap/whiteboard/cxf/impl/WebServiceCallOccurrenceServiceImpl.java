@@ -6,34 +6,22 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectBinding;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.util.conditions.Condition;
 
-import com.google.common.collect.Range;
-
 import javax.inject.Inject;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static java.util.stream.Collectors.toList;
 
 public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurrenceService {
 
@@ -106,56 +94,31 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     }
 
     @Override
-    public Optional<WebServiceCallRelatedObject> getRelatedObjectById(long id){
-        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
-                .getUnique("id",id);
-        return relatedObject;
-    }
-
-    @Override
-    public Optional<WebServiceCallRelatedObject> getRelatedObjectByType(long id){
-        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
-                .getUnique("type",id);
-        return relatedObject;
-    }
-
-    @Override
-    public Optional<WebServiceCallRelatedObject> getRelatedObjectByOccurrence(long id){
-        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
-                .getUnique("WebServiceCallOccurrenceId",id);
-        return relatedObject;
-    }
-
-    @Override
-    public Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeById(long id){
-        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
-                .getUnique("id", id);
-        return relatedObjectType;
-    }
-
-    @Override
-    public Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByKeyAndValue(String key, String value){
-        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
-                .getUnique("key", key, "value", value);
-        return relatedObjectType;
-    }
-
-    @Override
-    public Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value){
+    public Optional<WebServiceCallRelatedObject> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value){
         String[] fieldName = {"typeDomain", "key", "value"};
         String[] values = {domain, key, value};
-        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
+        Optional<WebServiceCallRelatedObject> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObject.class)
                 .getUnique(fieldName, values);
         return relatedObjectType;
     }
 
     @Override
-    public List<WebServiceCallRelatedObjectType> getRelatedObjectTypeByValue(String value){
+    public List<WebServiceCallRelatedObject> getRelatedObjectByValue(String value){
         Condition typeCondition = Condition.TRUE;
 
         typeCondition = typeCondition.and(where("value").likeIgnoreCase(value));
 
-        return DefaultFinder.of(WebServiceCallRelatedObjectType.class, typeCondition, this.dataModel).find();
+        return DefaultFinder.of(WebServiceCallRelatedObject.class, typeCondition, this.dataModel).find();
+    };
+
+
+    @Override
+    public Optional<WebServiceCallRelatedObject> getRelatedObjectById(long id){
+
+        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
+                .getUnique("id",id);
+
+        return relatedObject;
     };
 
     @Override

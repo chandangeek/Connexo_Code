@@ -13,7 +13,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
@@ -22,10 +21,8 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -214,15 +211,15 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     public void createRelatedObject( String key, String value){
         String[] fieldName = {"key", "value"};
         String[] values = {key, value};
-        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
+        Optional<WebServiceCallRelatedObject> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObject.class)
                 .getUnique(fieldName, values);
         if(!relatedObjectType.isPresent()){
-            relatedObjectType = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectTypeImpl.class));
+            relatedObjectType = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectImpl.class));
             relatedObjectType.get().init(key,value);
             relatedObjectType.get().save();
         }
 
-        WebServiceCallRelatedObjectImpl relatedObject = dataModel.getInstance(WebServiceCallRelatedObjectImpl.class);
+        WebServiceCallRelatedObjectBindingImpl relatedObject = dataModel.getInstance(WebServiceCallRelatedObjectBindingImpl.class);
         relatedObject.init(this, relatedObjectType.get());
         relatedObject.save();
     }

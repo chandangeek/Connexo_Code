@@ -15,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -27,6 +28,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilitiesDeviceERPSmartMeterBulkCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrBlkCrteReqMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -64,9 +68,15 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
     @Override
     public void utilitiesDeviceERPSmartMeterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrBlkCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
+            SetMultimap<String, String> values = HashMultimap.create();
+
             request.getUtilitiesDeviceERPSmartMeterCreateRequestMessage().forEach(req->{
-                createRelatedObject("SerialID", req.getUtilitiesDevice().getSerialID());
-                createRelatedObject("UtilitiesDeviceID",req.getUtilitiesDevice().getID().getValue());
+                values.put(WebServiceRequestAttributesNames.SAP_SERIAL_ID.getAttributeName(), req.getUtilitiesDevice().getSerialID());
+                values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), req.getUtilitiesDevice().getID().getValue());
+            });
+
+            values.keys().forEach(key->{
+                createRelatedObjects(key, values.get(key));
             });
 
             if (!isAnyActiveEndpoint(UtilitiesDeviceBulkCreateConfirmation.NAME)) {

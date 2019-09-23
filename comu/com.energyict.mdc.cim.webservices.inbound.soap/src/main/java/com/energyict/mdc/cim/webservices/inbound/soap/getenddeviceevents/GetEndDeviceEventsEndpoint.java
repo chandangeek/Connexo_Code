@@ -7,6 +7,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
@@ -29,7 +30,9 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsResponseMessag
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -85,10 +88,16 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
                     createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, correlationId);
+
+                    SetMultimap<String, String> values = HashMultimap.create();
+
                     meters.stream().forEach(met->{
-                        createRelatedObject( "name", met.getNames().get(0).getName());
-                        createRelatedObject( "mrID", met.getMRID());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), met.getNames().get(0).getName());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), met.getNames().get(0).getName());
                     });
+
+                    createRelatedObjects(values);
+
                     return createQuickResponseMessage(correlationId);
                 } else if (meters.size() > 1) {
                     throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.SYNC_MODE_NOT_SUPPORTED);

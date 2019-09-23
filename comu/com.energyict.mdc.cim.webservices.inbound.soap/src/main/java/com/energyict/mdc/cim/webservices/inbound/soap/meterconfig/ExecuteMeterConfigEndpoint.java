@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
@@ -105,16 +106,14 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     SetMultimap<String, String> values = HashMultimap.create();
 
                     meterConfig.getMeter().stream().forEach(meter -> {
-                        values.put("CimDeviceName", meter.getNames().get(0).getName());
-                        values.put("CimDeviceMrID", meter.getMRID());
-                        values.put("CimDeviceSerialNumber", meter.getSerialNumber());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
                     });
                     values.keys().forEach(key->{
                         createRelatedObjects(key, values.get(key));
                     });
-                    /*createRelatedObject("DeviceX", "name", );
-                    createRelatedObject("DeviceX", "mrID", );
-                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());*/
+
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
@@ -127,9 +126,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             OperationEnum.CREATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
 
-                    createRelatedObject( "CimDeviceName", meterName);
-                    createRelatedObject( "CimDeviceMrID", meter.getMRID());
-                    createRelatedObject( "CimDeviceSerialNumber", meter.getSerialNumber());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meterName);
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
 
                     Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
 
@@ -179,19 +178,14 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     SetMultimap<String, String> values = HashMultimap.create();
 
                     meterConfig.getMeter().stream().forEach(meter -> {
-                        values.put("CimDeviceName", meter.getNames().get(0).getName());
-                        values.put("CimDeviceMrID", meter.getMRID());
-                        values.put("CimDeviceSerialNumber", meter.getSerialNumber());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
                     });
                     values.keys().forEach(key->{
                         createRelatedObjects(key, values.get(key));
                     });
 
-                    /*meterConfig.getMeter().stream().forEach(meter -> {
-                        createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
-                        createRelatedObject("DeviceX", "mrID", meter.getMRID());
-                        createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
-                    });*/
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
@@ -203,9 +197,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.UPDATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
-                    createRelatedObject( "CimDeviceName", meterName);
-                    createRelatedObject( "CimDeviceMrID", meter.getMRID());
-                    createRelatedObject( "CimDeviceSerialNumber", meter.getSerialNumber());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meterName);
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
 
                     Device changedDevice = deviceBuilder.prepareChangeFrom(meterInfo).build();
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
@@ -339,19 +333,14 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     SetMultimap<String, String> values = HashMultimap.create();
 
                     meterConfig.getMeter().stream().forEach(meter -> {
-                        values.put("CimDeviceName", meter.getNames().get(0).getName());
-                        values.put("CimDeviceMrID", meter.getMRID());
-                        values.put("CimDeviceSerialNumber", meter.getSerialNumber());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
                     });
                     values.keys().forEach(key->{
                         createRelatedObjects(key, values.get(key));
                     });
 
-                    /*meterConfig.getMeter().stream().forEach(meter -> {
-                        createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
-                        createRelatedObject("DeviceX", "mrID", meter.getMRID());
-                        createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
-                    });*/
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 } else {
                     // call synchronously
@@ -359,9 +348,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-                    createRelatedObject( "CimDeviceName", meter.getNames().stream().findFirst().map(Name::getName).orElse(null));
-                    createRelatedObject( "CimDeviceMrID", meter.getMRID());
-                    createRelatedObject( "CimDeviceSerialNumber", meter.getSerialNumber());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().stream().findFirst().map(Name::getName).orElse(null));
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
 
                     return createResponseMessage(device, HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }

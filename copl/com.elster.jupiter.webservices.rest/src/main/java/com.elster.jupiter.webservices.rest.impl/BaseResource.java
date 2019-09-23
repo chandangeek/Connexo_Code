@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
 import com.elster.jupiter.users.User;
 
 import com.google.common.collect.Range;
@@ -154,23 +155,16 @@ public abstract class BaseResource {
             }
         }
 
-        if (filter.hasProperty("domain")) {
-            if (filter.hasProperty("values")) {
-                finderBuilder.withDomainAndValues(filter.getStringList("domain")
-                        .stream()
-                        .collect(Collectors.toSet()),
-                        filter.getStringList("values")
-                        .stream()
-                        .collect(Collectors.toSet()));
-            }else{
-                finderBuilder.withDomain(filter.getStringList("domain")
-                        .stream()
-                        .collect(Collectors.toSet()));
+        if (filter.hasProperty("wsRelatedObjectId")) {
+            Integer objectId = filter.getInteger("wsRelatedObjectId");
+            if (objectId != null){
+                Optional<WebServiceCallRelatedObject> wscRo = webServiceCallOccurrenceService.getRelatedObjectById(objectId);
+                if (wscRo.isPresent()){
+                    finderBuilder.withRelatedObject(wscRo.get());
+                }
             }
-        }
 
-        if (filter.hasProperty("values") && !filter.hasProperty("domain")) {
-            finderBuilder.withDomainValueLike(filter.getStringList("values").get(0));
+
         }
 
         List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();

@@ -4,12 +4,10 @@ public class RelatedObjectInfo {
     public long id;
     public String value;
     public String key;
-    public String keyDisplayValue;//Translation
+    public String displayValue;
 
-    public RelatedObjectInfo(long id, String value, String key, String keyDisplayValue){
+    public RelatedObjectInfo(long id, String keyDisplayValue){
         this.id = id;
-        this.value = value;
-        this.key = key;
-        this.keyDisplayValue = keyDisplayValue;
+        this.displayValue = keyDisplayValue;
     }
 }

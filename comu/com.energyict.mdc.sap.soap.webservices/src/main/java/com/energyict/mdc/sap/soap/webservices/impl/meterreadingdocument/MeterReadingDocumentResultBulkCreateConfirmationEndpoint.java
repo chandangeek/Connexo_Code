@@ -5,9 +5,14 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MeterReadingDocumentERPResultBulkCreateConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MtrRdngDocERPRsltBulkCrteConfMsg;
+
+
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.HashMultimap;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -25,12 +30,20 @@ public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint extends Ab
     public void meterReadingDocumentERPResultBulkCreateConfirmationCIn(MtrRdngDocERPRsltBulkCrteConfMsg request) {
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage ->
+                    .ifPresent(requestMessage -> {
+                            SetMultimap<String, String> values = HashMultimap.create();
+                            request.getMeterReadingDocumentERPResultCreateConfirmationMessage().forEach(message->{
+                                values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                                        message.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
+                            });
+                            createRelatedObjects(values);
+
                             serviceCallCommands
                                     .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
                                             .builder()
                                             .from(requestMessage)
-                                            .build()));
+                                            .build());
+                    });
             return null;
         });
     }

@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -53,7 +54,7 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
         PodMessage podMsg = new PodMessage(msg);
         if (podMsg.isValid()) {
-            createRelatedObject("UtilitiesDeviceID", podMsg.deviceId);
+            createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), podMsg.deviceId);
             Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
             if (device.isPresent()) {
                 try {

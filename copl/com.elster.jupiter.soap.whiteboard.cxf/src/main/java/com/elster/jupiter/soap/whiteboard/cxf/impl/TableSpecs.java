@@ -14,8 +14,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectBinding;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -146,8 +146,8 @@ public enum TableSpecs {
     WS_OCC_RELATED_OBJECTS{
         @Override
         void addTo(DataModel dataModel) {
-            Table<WebServiceCallRelatedObjectType> table = dataModel.addTable(this.name(), WebServiceCallRelatedObjectType.class);
-            table.map(WebServiceCallRelatedObjectTypeImpl.class);
+            Table<WebServiceCallRelatedObject> table = dataModel.addTable(this.name(), WebServiceCallRelatedObject.class);
+            table.map(WebServiceCallRelatedObjectImpl.class);
             table.since(version(10, 7));
 
             Column idColumn = table.addAutoIdColumn();
@@ -159,11 +159,11 @@ public enum TableSpecs {
 
             table.column("OBJECT_KEY")
                     .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.OBJECT_KEY.fieldName())
+                    .map(WebServiceCallRelatedObjectImpl.Fields.OBJECT_KEY.fieldName())
                     .add();
             table.column("OBJECT_VALUE")
                     .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.OBJECT_VALUE.fieldName())
+                    .map(WebServiceCallRelatedObjectImpl.Fields.OBJECT_VALUE.fieldName())
                     .add();
 
             table.primaryKey("PK_WS_RELATED_OBJECTS").on(idColumn).add();
@@ -173,8 +173,8 @@ public enum TableSpecs {
     WS_OCC_BINDING {
         @Override
         void addTo(DataModel dataModel) {
-            Table<WebServiceCallRelatedObject> table = dataModel.addTable(this.name(), WebServiceCallRelatedObject.class);
-            table.map(WebServiceCallRelatedObjectImpl.class);
+            Table<WebServiceCallRelatedObjectBinding> table = dataModel.addTable(this.name(), WebServiceCallRelatedObjectBinding.class);
+            table.map(WebServiceCallRelatedObjectBindingImpl.class);
             table.since(version(10, 7));
 
             Column idColumn = table.addAutoIdColumn();
@@ -184,7 +184,7 @@ public enum TableSpecs {
                     .references(WS_CALL_OCCURRENCE.name())
                     .on(occurrence)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(WebServiceCallRelatedObjectImpl.Fields.OCCURRENCE.fieldName())
+                    .map(WebServiceCallRelatedObjectBindingImpl.Fields.OCCURRENCE.fieldName())
                     .add();
 
 
@@ -193,7 +193,7 @@ public enum TableSpecs {
                     .references(WS_OCC_RELATED_OBJECTS.name())
                     .on(type)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(WebServiceCallRelatedObjectImpl.Fields.TYPE.fieldName())
+                    .map(WebServiceCallRelatedObjectBindingImpl.Fields.TYPE.fieldName())
                     .add();
 
             table.primaryKey("PK_WS_OCC_BINDING").on(idColumn).add();

@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -91,8 +92,8 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
             String sapDeviceId = getDeviceId(msg);
             List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
 
-            createRelatedObject("SerialID", serialId);
-            createRelatedObject("UtilitiesDeviceID", sapDeviceId);
+            createRelatedObject(WebServiceRequestAttributesNames.SAP_SERIAL_ID.getAttributeName(), serialId);
+            createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
 
             try {
                 if (!devices.isEmpty()) {

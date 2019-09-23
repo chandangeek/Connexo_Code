@@ -34,6 +34,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+
+
 public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint implements UsagePointConfigPort, ApplicationSpecific {
     private static final String NOUN = "UsagePointConfig";
     private final ReplyTypeFactory replyTypeFactory;
@@ -105,8 +108,10 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(messageSeed,
                                 MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-                createRelatedObject( "name", usagePoint.getNames().get(0).getName());
-                createRelatedObject("mrID", usagePoint.getMRID());
+
+
+                createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
 
                 com.elster.jupiter.metering.UsagePoint connexoUsagePoint = synchronousProcessor.apply(usagePoint);
             String correlationId = message.getHeader() == null ? null : message.getHeader().getCorrelationID();

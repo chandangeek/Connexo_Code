@@ -2,28 +2,23 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
 public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObject, HasId {
+
     private final DataModel dataModel;
 
     private long id;
-    private Reference<WebServiceCallOccurrence> occurrence = Reference.empty();
-    private Reference<WebServiceCallRelatedObjectType> type = Reference.empty();
+    private String key;
+    private String value;
 
     public enum Fields {
         ID("id"),
-        OCCURRENCE("occurrence"),
-        TYPE("type");
+        OBJECT_KEY("key"),
+        OBJECT_VALUE("value");
 
         private final String javaFieldName;
 
@@ -43,10 +38,10 @@ public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObj
 
 
 
-    public WebServiceCallRelatedObjectImpl init(WebServiceCallOccurrence occurrence,
-                                                WebServiceCallRelatedObjectType type) {
-        this.occurrence.set(occurrence);
-        this.type.set(type);
+    public WebServiceCallRelatedObjectImpl init(String key,
+                                                String value) {
+        this.key = key;
+        this.value = value;
         return this;
     }
 
@@ -56,13 +51,10 @@ public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObj
     }
 
     @Override
-    public Optional<WebServiceCallOccurrence> getOccurrence(){
-        return this.occurrence.getOptional();
-    }
+    public String getKey(){return key;}
 
     @Override
-    public Optional<WebServiceCallRelatedObjectType> getType(){return this.type.getOptional();}
-
+    public String getValue(){return value;}
 
     public void save() {
         if (id > 0) {
@@ -72,4 +64,3 @@ public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObj
         }
     }
 }
-

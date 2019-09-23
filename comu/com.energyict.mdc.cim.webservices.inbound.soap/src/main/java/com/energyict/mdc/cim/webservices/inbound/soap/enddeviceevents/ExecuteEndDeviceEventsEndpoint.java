@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
@@ -71,8 +72,8 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                                 MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
                 EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
                 createdEndDeviceEvents.getEndDeviceEvent().stream().forEach(event -> {
-                        createRelatedObject( "mrID", event.getMRID());
-                        createRelatedObject( "name", event.getNames().get(0).getName());
+                        createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
+                        createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
                 });
                 return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1, correlationId);
             } catch (VerboseConstraintViolationException e) {
@@ -94,8 +95,8 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                                 MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
                 EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
                 closedEndDeviceEvents.getEndDeviceEvent().stream().forEach(event -> {
-                    createRelatedObject( "mrID", event.getMRID());
-                    createRelatedObject( "name", event.getNames().get(0).getName());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
+                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
                 });
                 return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1, correlationId);
             } catch (VerboseConstraintViolationException e) {

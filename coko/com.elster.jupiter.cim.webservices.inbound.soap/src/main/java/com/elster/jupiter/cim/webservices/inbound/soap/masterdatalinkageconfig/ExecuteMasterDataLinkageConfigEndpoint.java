@@ -18,11 +18,15 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.MasterDataLinkageConfigPort;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -81,11 +85,15 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
         masterDataLinkageMessageValidatorProvider.get().validate(message, action);
         return runInTransactionWithOccurrence(() -> {
             try {
+                SetMultimap<String, String> values = HashMultimap.create();
                 message.getPayload()
                         .getMasterDataLinkageConfig().getMeter().stream().forEach(meter ->{
-                            createRelatedObject("name", meter.getNames().get(0).getName());
-                            createRelatedObject("mrID", meter.getMRID());
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getNames().get(0).getName());
                 });
+
+                createRelatedObjects(values);
+
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     return processAsynchronously(message, action);
                 }

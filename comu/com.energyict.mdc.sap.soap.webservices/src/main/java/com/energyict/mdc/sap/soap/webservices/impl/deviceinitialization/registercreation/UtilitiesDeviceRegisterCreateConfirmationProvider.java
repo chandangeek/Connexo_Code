@@ -6,11 +6,14 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOutService;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -59,10 +62,11 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
 
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
-        Set<String> values = new HashSet<>();
-        values.add(msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")
-                //.withRelatedObject("DeviceX", values)
+                .withRelatedObject(values)
                 .send(msg.getConfirmationMessage().get());
     }
 

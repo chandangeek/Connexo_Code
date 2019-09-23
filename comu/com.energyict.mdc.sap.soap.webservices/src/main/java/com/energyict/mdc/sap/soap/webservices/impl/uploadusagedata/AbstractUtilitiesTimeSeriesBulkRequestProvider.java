@@ -20,14 +20,18 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
+
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -109,10 +113,12 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     public Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
         String uuid = UUID.randomUUID().toString();
         try {
-            MSG message = createMessage(data, uuid);
+            SetMultimap<String, String> values = HashMultimap.create();
+            MSG message = createMessage(data, uuid, values);
             if (message != null) {
                 Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                         .toEndpoints(endPointConfiguration)
+                        .withRelatedObject(values)
                         .send(message)
                         .keySet();
                 if (!processedEndpoints.contains(endPointConfiguration)) {
@@ -130,7 +136,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         }
     }
 
-    abstract MSG createMessage(Stream<? extends ExportData> data, String uuid);
+    abstract MSG createMessage(Stream<? extends ExportData> data, String uuid, SetMultimap<String, String> values);
 
     abstract String getMessageSenderMethod();
 

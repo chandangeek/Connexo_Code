@@ -20,19 +20,14 @@ public interface WebServiceCallOccurrenceService {
 
     OccurrenceLogFinderBuilder getOccurrenceLogFinderBuilder();
 
-    Optional<WebServiceCallRelatedObject> getRelatedObjectById(long id);
+    //Optional<WebServiceCallRelatedObjectBinding> getRelatedObjectById(long id);
 
-    Optional<WebServiceCallRelatedObject> getRelatedObjectByType(long id);
 
-    Optional<WebServiceCallRelatedObject> getRelatedObjectByOccurrence(long id);
+    Optional<WebServiceCallRelatedObject> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value);
 
-    Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeById(long id);
+    List<WebServiceCallRelatedObject> getRelatedObjectByValue(String value);
 
-    Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByKeyAndValue(String key, String value);
-
-    Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value);
-
-    List<WebServiceCallRelatedObjectType> getRelatedObjectTypeByValue(String value);
+    public Optional<WebServiceCallRelatedObject> getRelatedObjectById(long id);
 
     void addRelatedObjectTypes(String component, Layer layer, Map<String, TranslationKey> types);
 

@@ -1,15 +1,19 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-//import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectTypeImpl;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectImpl;
+import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.util.Optional;
-
 @ProviderType
-public interface WebServiceCallRelatedObject {
-    long getId();
-    Optional<WebServiceCallOccurrence> getOccurrence();
-    Optional<WebServiceCallRelatedObjectType> getType();
+public interface WebServiceCallRelatedObject extends HasId {
+
+    String getValue();
+
+    String getKey();
+
+    WebServiceCallRelatedObjectImpl init(String key, String value);
+
     void save();
+
 }

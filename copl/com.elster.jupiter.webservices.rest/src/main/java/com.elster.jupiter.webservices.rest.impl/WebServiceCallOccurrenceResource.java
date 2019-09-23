@@ -14,8 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
-//import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectType;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -35,7 +34,6 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -143,13 +141,11 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     public Response getRelatedObjects(@BeanParam JsonQueryParameters params) {
         String searchText = params.getLike();
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
-        List<WebServiceCallRelatedObjectType> listRelatedObjects = webServiceCallOccurrenceService.getRelatedObjectTypeByValue(dbSearchText);
+        List<WebServiceCallRelatedObject> listRelatedObjects = webServiceCallOccurrenceService.getRelatedObjectByValue(dbSearchText);
 
         List<RelatedObjectInfo> listInfo = listRelatedObjects.stream().map(obj-> {
             return new RelatedObjectInfo(obj.getId(),
-                                        obj.getValue(),
-                                        obj.getKey(),
-                                        webServiceCallOccurrenceService.getTranslationForType(obj.getKey()));
+                                        obj.getValue()+" ("+webServiceCallOccurrenceService.getTranslationForType(obj.getKey())+")");
         }).collect(toList());
 
         return Response.ok().entity(listInfo).build();
