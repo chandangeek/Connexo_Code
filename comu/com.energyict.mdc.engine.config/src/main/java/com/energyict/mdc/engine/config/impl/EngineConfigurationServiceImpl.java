@@ -282,7 +282,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder() {
+    public OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> newOfflineComServerBuilder() {
         return dataModel.getInstance(OfflineComServerImpl.OfflineComServerBuilderImpl.class);
     }
 

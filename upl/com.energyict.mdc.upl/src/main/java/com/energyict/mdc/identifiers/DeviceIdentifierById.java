@@ -18,7 +18,7 @@ import java.util.Set;
  * @since 2013-06-07 (09:31)
  */
 @XmlRootElement
-public class DeviceIdentifierById implements DeviceIdentifier {
+public final class DeviceIdentifierById implements DeviceIdentifier {
 
     private int id;
 
@@ -55,6 +55,11 @@ public class DeviceIdentifierById implements DeviceIdentifier {
         }
         DeviceIdentifierById identifier = (DeviceIdentifierById) obj;
         return identifier.getId() == this.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.valueOf(id).hashCode();
     }
 
     @XmlAttribute

@@ -64,6 +64,12 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
         );
     }
 
+    private Device createDevice() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        device.save();
+        return device;
+    }
+
     @Test
     @Transactional
     public void testMatchingIntrospectorResolvingForAllKnownDeviceIdentifierImplementations() throws Exception {
@@ -119,10 +125,10 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testDeviceDataDeviceIdentifierForAlreadyKnownDevice() throws Exception {
-        Device myDevice = mock(Device.class);
+        Device myDevice = createDevice();
         DeviceService spiedService = spy(deviceService);
         List<com.energyict.mdc.device.data.Device> devices = spiedService.findAllDevicesByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(myDevice.getId(), myDevice.getmRID()));
-        assertThat(devices).containsOnly(myDevice);
+        verify(spiedService).findDeviceById(myDevice.getId());
     }
 
     @Test

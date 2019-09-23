@@ -46,9 +46,10 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
     @Transactional
     public void testGetComServerBySystemName() throws Exception {
         HostName.setCurrent("lapbvn");
-        createOnlineComServer("serverOne");
-        createOfflineComServer("lapbvn").makeObsolete();
-        createOfflineComServer("lapbvn");
+        OnlineComServer onlineComServer = createOnlineComServer("onlineServer");
+        createOfflineComServer("serverOne", onlineComServer);
+        createOfflineComServer("lapbvn", onlineComServer).makeObsolete();
+        createOfflineComServer("lapbvn", onlineComServer);
         ComServer comServerBySystemName = getEngineModelService().findComServerBySystemName().get();
         assertThat(comServerBySystemName.getName()).isEqualTo("lapbvn");
     }
@@ -67,9 +68,10 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
     @Transactional
     public void testGetAllOfflineComServers() throws Exception {
         HostName.setCurrent("lapbvn");
-        createOfflineComServer("serverOne");
-        createOfflineComServer("serverTwo").makeObsolete();
-        createOfflineComServer("lapbvn");
+        OnlineComServer onlineComServer = createOnlineComServer("onlineServer");
+        createOfflineComServer("serverOne", onlineComServer);
+        createOfflineComServer("serverTwo", onlineComServer).makeObsolete();
+        createOfflineComServer("lapbvn", onlineComServer);
         List<OfflineComServer> allOfflineComServers = getEngineModelService().findAllOfflineComServers();
         assertThat(allOfflineComServers).hasSize(2);
         assertThat(allOfflineComServers.get(0).getName()).isEqualTo("serverOne");
@@ -129,14 +131,15 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
         return onlineComServer.create();
     }
 
-    private OfflineComServer createOfflineComServer(String name) {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+    private OfflineComServer createOfflineComServer(String name, OnlineComServer onlineComServer) {
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         offlineComServer.name(name);
         offlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
         offlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
         offlineComServer.changesInterPollDelay(new TimeDuration(600));
         offlineComServer.schedulingInterPollDelay(new TimeDuration(900));
         offlineComServer.active(false);
+        offlineComServer.onlineComServer(onlineComServer);
         return offlineComServer.create();
     }
 

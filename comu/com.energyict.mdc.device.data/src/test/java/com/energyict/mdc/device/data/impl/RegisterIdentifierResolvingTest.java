@@ -50,7 +50,6 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
     private static final ObisCode REGISTER_OBIS_CODE = ObisCode.fromString("0.0.96.1.0.255");
     private static RegisterServiceImpl registerService;
 
-    @Mock
     Device device;
 
     DeviceIdentifier deviceIdentifier;
@@ -62,8 +61,15 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
 
     @Before
     public void setUp() throws Exception {
+        device = createDevice();
         deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
-        when(device.getRegisterWithDeviceObisCode(REGISTER_OBIS_CODE)).thenReturn(Optional.empty());
+//        when(device.getRegisterWithDeviceObisCode(REGISTER_OBIS_CODE)).thenReturn(Optional.empty());
+    }
+
+    private Device createDevice() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        device.save();
+        return device;
     }
 
 
@@ -81,17 +87,6 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
                     .isPresent();
             assertThat(introspector.getRoles()).containsOnlyElementsOf(matchingIntrospectorType.get().getRoles()); // If not present, than above assert should already have failed
         }
-    }
-
-    @Test
-    @Transactional
-    public void testDeviceDataRegisterIdentifierByAlreadyKnownRegister() throws Exception {
-        RegisterService spiedService = spy(registerService);
-        Register myRegister = mock(Register.class);
-        when(myRegister.getDevice()).thenReturn(device);
-        Optional<Register> foundRegister = spiedService.findByIdentifier(new RegisterDataIdentifierByObisCodeAndDevice(myRegister));
-        assertThat(foundRegister).isPresent();
-        assertThat(foundRegister.get()).isEqualTo(myRegister);
     }
 
     @Test

@@ -36,7 +36,22 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateLoadOfflineComServer() throws Exception {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
+        String onlineName = "Online4Remote";
+        onlineComServerBuilder.name(onlineName);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
+        onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServerBuilder.active(false);
+        onlineComServerBuilder.storeTaskQueueSize(10);
+        onlineComServerBuilder.storeTaskThreadPriority(3);
+        onlineComServerBuilder.numberOfStoreTaskThreads(6);
+        onlineComServerBuilder.serverName(onlineName);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+        final OnlineComServer onlineComserver = onlineComServerBuilder.create();
+
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "Offline";
         offlineComServer.name(name);
         offlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
@@ -44,6 +59,7 @@ public class ComServerCrudTest extends PersistenceTest {
         offlineComServer.changesInterPollDelay(TEN_MINUTES);
         offlineComServer.schedulingInterPollDelay(FIFTEEN_MINUTES);
         offlineComServer.active(false);
+        offlineComServer.onlineComServer(onlineComserver);
         offlineComServer.create();
 
         OfflineComServer foundAfterCreate = (OfflineComServer) getEngineModelService().findComServer(name).get();
@@ -58,7 +74,22 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testFindOfflineComServerWithCaseInsensitiveName() throws Exception {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
+        String onlineName = "Online4Remote";
+        onlineComServerBuilder.name(onlineName);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
+        onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServerBuilder.active(false);
+        onlineComServerBuilder.storeTaskQueueSize(10);
+        onlineComServerBuilder.storeTaskThreadPriority(3);
+        onlineComServerBuilder.numberOfStoreTaskThreads(6);
+        onlineComServerBuilder.serverName(onlineName);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+        final OnlineComServer onlineComserver = onlineComServerBuilder.create();
+
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "OFFLINE";
         offlineComServer.name(name);
         offlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
@@ -66,6 +97,7 @@ public class ComServerCrudTest extends PersistenceTest {
         offlineComServer.changesInterPollDelay(TEN_MINUTES);
         offlineComServer.schedulingInterPollDelay(FIFTEEN_MINUTES);
         offlineComServer.active(false);
+        offlineComServer.onlineComServer(onlineComserver);
         offlineComServer.create();
 
         ComServer byLowerCaseName = getEngineModelService().findComServer(name.toLowerCase()).get();
@@ -92,7 +124,7 @@ public class ComServerCrudTest extends PersistenceTest {
         final OnlineComServer onlineComserver = onlineComServerBuilder.create();
 
         RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
-        String name = "Remote";
+        String name = "Offline";
         remoteComServer.name(name);
         remoteComServer.serverLogLevel(ComServer.LogLevel.WARN);
         remoteComServer.communicationLogLevel(ComServer.LogLevel.TRACE);

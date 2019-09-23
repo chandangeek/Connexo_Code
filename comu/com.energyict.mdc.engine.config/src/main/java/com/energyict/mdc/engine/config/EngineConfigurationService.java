@@ -111,7 +111,7 @@ public interface EngineConfigurationService {
 
     OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
 
-    ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder();
+    OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> newOfflineComServerBuilder();
 
     RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder();
 

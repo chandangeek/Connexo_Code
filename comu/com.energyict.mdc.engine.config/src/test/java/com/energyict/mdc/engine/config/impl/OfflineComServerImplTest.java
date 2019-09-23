@@ -10,11 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OfflineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.PersistenceTest;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.ports.ComPortType;
 import com.google.inject.Provider;
 import org.junit.Test;
@@ -24,6 +20,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -35,6 +32,8 @@ import static org.junit.Assert.assertTrue;
 */
 public class OfflineComServerImplTest extends PersistenceTest {
 
+    private static int onlineNameNumber = 1;
+    
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
     private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.TimeUnit.HOURS);
@@ -51,13 +50,15 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithoutComPortsWithoutViolations () throws SQLException {
         String name = NO_VIOLATIONS_NAME;
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OnlineComServer onlineComServer = this.createOnlineComServer();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name(name);
         comServer.active(true);
         comServer.serverLogLevel(SERVER_LOG_LEVEL);
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         comServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        comServer.onlineComServer(onlineComServer);
 
         // Business method
         final OfflineComServer offlineComServer = comServer.create();
@@ -69,20 +70,38 @@ public class OfflineComServerImplTest extends PersistenceTest {
         assertThat(COMMUNICATION_LOG_LEVEL).isEqualTo(offlineComServer.getCommunicationLogLevel());
         assertThat(CHANGES_INTER_POLL_DELAY).isEqualTo(offlineComServer.getChangesInterPollDelay());
         assertThat(SCHEDULING_INTER_POLL_DELAY).isEqualTo(offlineComServer.getSchedulingInterPollDelay());
+        assertEquals(onlineComServer.getId(), offlineComServer.getOnlineComServer().getId());
+    }
+
+    private OnlineComServer createOnlineComServer() {
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
+        String name = "Online-" + onlineNameNumber++;
+        onlineComServerBuilder.name(name);
+        onlineComServerBuilder.active(true);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.TRACE);
+        onlineComServerBuilder.changesInterPollDelay(new TimeDuration(60));
+        onlineComServerBuilder.schedulingInterPollDelay(new TimeDuration(90));
+        onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.storeTaskThreadPriority(1);
+        onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        onlineComServerBuilder.serverName(name);
+        onlineComServerBuilder.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
+        return onlineComServerBuilder.create();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "changesInterPollDelay")
     public void testTooSmallChangesInterPollDelay () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name("testTooSmallChangesInterPollDelay");
         comServer.active(true);
         comServer.serverLogLevel(SERVER_LOG_LEVEL);
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         comServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
+        comServer.onlineComServer(createOnlineComServer());
         comServer.create();
     }
 
@@ -90,14 +109,14 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}", property = "schedulingInterPollDelay")
     public void testTooSmallSchedulingInterPollDelay () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name("testTooSmallSchedulingInterPollDelay");
         comServer.active(true);
         comServer.serverLogLevel(SERVER_LOG_LEVEL);
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        comServer.onlineComServer(createOnlineComServer());
         comServer.schedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
-
         comServer.create();
     }
 
@@ -105,13 +124,15 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     public void loadTest() throws SQLException {
         String name = NO_VIOLATIONS_NAME;
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OnlineComServer onlineComServer = this.createOnlineComServer();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name(name);
         comServer.active(true);
         comServer.serverLogLevel(SERVER_LOG_LEVEL);
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         comServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        comServer.onlineComServer(onlineComServer);
 
         // Business method
         final OfflineComServer offlineComServer = comServer.create();
@@ -124,12 +145,13 @@ public class OfflineComServerImplTest extends PersistenceTest {
         assertThat(COMMUNICATION_LOG_LEVEL).isEqualTo(loadedOfflineServer.getCommunicationLogLevel());
         assertThat(CHANGES_INTER_POLL_DELAY).isEqualTo(loadedOfflineServer.getChangesInterPollDelay());
         assertThat(SCHEDULING_INTER_POLL_DELAY).isEqualTo(loadedOfflineServer.getSchedulingInterPollDelay());
+        assertEquals(onlineComServer.getId(), offlineComServer.getOnlineComServer().getId());
     }
 
     @Test
     @Transactional
     public void testCreateWithComPortWithoutViolations () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "With-ComPorts";
         offlineComServer.name(name);
         offlineComServer.active(true);
@@ -137,6 +159,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServer.onlineComServer(createOnlineComServer());
         final OfflineComServer comServer = offlineComServer.create();
         addComPort(comServer);
 
@@ -148,13 +171,13 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         offlineComServer.active(true);
         offlineComServer.serverLogLevel(SERVER_LOG_LEVEL);
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
+        offlineComServer.onlineComServer(createOnlineComServer());
         offlineComServer.create();
     }
 
@@ -162,7 +185,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "serverLogLevel")
     public void testCreateWithoutServerLogLevel () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Server-LogLevel";
         offlineComServer.name(name);
         offlineComServer.active(true);
@@ -170,7 +193,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
+        offlineComServer.onlineComServer(createOnlineComServer());
         offlineComServer.create();
     }
 
@@ -178,7 +201,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "communicationLogLevel")
     public void testCreateWithoutCommunicationLogLevel () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Communication-LogLevel";
         offlineComServer.name(name);
         offlineComServer.active(true);
@@ -186,7 +209,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.communicationLogLevel(null);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
+        offlineComServer.onlineComServer(createOnlineComServer());
         offlineComServer.create();
     }
 
@@ -194,7 +217,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "changesInterPollDelay")
     public void testCreateWithoutChangesInterPollDelay () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Changes-InterpollDelay";
         offlineComServer.name(name);
         offlineComServer.active(true);
@@ -202,7 +225,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(null);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
+        offlineComServer.onlineComServer(createOnlineComServer());
         offlineComServer.create();
     }
 
@@ -210,7 +233,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation( messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "schedulingInterPollDelay")
     public void testCreateWithoutSchedulingInterPollDelay () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "No-Scheduling-InterpollDelay";
         offlineComServer.name(name);
         offlineComServer.active(true);
@@ -218,7 +241,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(null);
-
+        offlineComServer.onlineComServer(createOnlineComServer());
         offlineComServer.create();
     }
 
@@ -227,23 +250,25 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER+"}", property = "name")
     public void testCreateWithExistingName () throws SQLException {
         String serverName = "Candidate-for-duplicate";
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OnlineComServer onlineComServer = createOnlineComServer();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         offlineComServer.name(serverName);
         offlineComServer.active(true);
         offlineComServer.serverLogLevel(SERVER_LOG_LEVEL);
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServer.onlineComServer(onlineComServer);
         offlineComServer.create();
 
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> duplicateComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> duplicateComServer = getEngineModelService().newOfflineComServerBuilder();
         duplicateComServer.name(serverName);
         duplicateComServer.active(false);
         duplicateComServer.serverLogLevel(SERVER_LOG_LEVEL);
         duplicateComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         duplicateComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         duplicateComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
+        duplicateComServer.onlineComServer(onlineComServer);
         duplicateComServer.create();
     }
 
@@ -251,31 +276,32 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithExistingButDeletedName () throws SQLException {
         String serverName = "Candidate-for-duplication";
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServerBuilder = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServerBuilder = getEngineModelService().newOfflineComServerBuilder();
         offlineComServerBuilder.name(serverName);
         offlineComServerBuilder.active(true);
         offlineComServerBuilder.serverLogLevel(SERVER_LOG_LEVEL);
         offlineComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServerBuilder.onlineComServer(createOnlineComServer());
         final OfflineComServer offlineComServer1 = offlineComServerBuilder.create();
         offlineComServer1.delete();
 
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> recreatedComServerBuilder = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> recreatedComServerBuilder = getEngineModelService().newOfflineComServerBuilder();
         recreatedComServerBuilder.name(serverName);
         recreatedComServerBuilder.active(true);
         recreatedComServerBuilder.serverLogLevel(SERVER_LOG_LEVEL);
         recreatedComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         recreatedComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         recreatedComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-
+        recreatedComServerBuilder.onlineComServer(createOnlineComServer());
         recreatedComServerBuilder.create();
     }
 
     @Test
     @Transactional
     public void testUpdateWithoutComPort () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "Update-Candidate";
         offlineComServer.name(name);
         offlineComServer.active(true);
@@ -283,6 +309,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServer.onlineComServer(createOnlineComServer());
         offlineComServer.create();
 
         OfflineComServer retrievedComServer = (OfflineComServer) getEngineModelService().findComServer(name).get();
@@ -313,7 +340,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testUpdateWithUpdatesToComPort () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> creationShadow = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> creationShadow = getEngineModelService().newOfflineComServerBuilder();
         String name = "Update-Candidate2";
         creationShadow.name(name);
         creationShadow.active(true);
@@ -321,6 +348,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         creationShadow.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         creationShadow.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         creationShadow.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        creationShadow.onlineComServer(createOnlineComServer());
         final OfflineComServer comServer = creationShadow.create();
         this.addComPort(comServer);
 
@@ -354,7 +382,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testUpdateWithoutUpdatesToComPort () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "Update-Candidate3";
         offlineComServer.name(name);
         offlineComServer.active(true);
@@ -362,6 +390,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         offlineComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         offlineComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         offlineComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        offlineComServer.onlineComServer(createOnlineComServer());
         final OfflineComServer comServer = offlineComServer.create();
         addComPort(comServer);
         OfflineComServer reloadedComServer = (OfflineComServer) getEngineModelService().findComServer(name).get();
@@ -392,7 +421,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testMakeObsoleteWithComPortsWithoutViolations () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "testMakeObsoleteWithComPortsWithoutViolations";
         comServer.name(name);
         comServer.active(true);
@@ -400,6 +429,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         comServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        comServer.onlineComServer(createOnlineComServer());
         final OfflineComServer offlineComServer = comServer.create();
         addComPort(offlineComServer);
         long id = offlineComServer.getId();
@@ -419,13 +449,14 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     public void testMakeObsolete () throws SQLException {
         String name = "testMakeObsolete";
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         comServer.name(name);
         comServer.active(true);
         comServer.serverLogLevel(SERVER_LOG_LEVEL);
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         comServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        comServer.onlineComServer(createOnlineComServer());
         final OfflineComServer offlineComServer = comServer.create();
         addComPort(offlineComServer);
         offlineComServer.makeObsolete();
@@ -446,7 +477,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
     public void testUpdateAfterMakeObsolete() throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "testUpdateAfterMakeObsolete";
         comServer.name(name);
         comServer.active(true);
@@ -454,6 +485,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         comServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        comServer.onlineComServer(createOnlineComServer());
         final OfflineComServer offlineComServer = comServer.create();
         addComPort(offlineComServer);
 
@@ -469,7 +501,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
     @Transactional
     @Expected(expected = TranslatableApplicationException.class)
     public void testMakeObsoleteTwice () throws SQLException {
-        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> comServer = getEngineModelService().newOfflineComServerBuilder();
+        OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> comServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "testMakeObsoleteTwice";
         comServer.name(name);
         comServer.active(true);
@@ -477,6 +509,7 @@ public class OfflineComServerImplTest extends PersistenceTest {
         comServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
         comServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
         comServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        comServer.onlineComServer(createOnlineComServer());
         final OfflineComServer offlineComServer = comServer.create();
         addComPort(offlineComServer);
 

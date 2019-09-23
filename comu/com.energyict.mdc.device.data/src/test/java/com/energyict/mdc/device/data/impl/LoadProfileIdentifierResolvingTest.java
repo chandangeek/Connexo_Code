@@ -46,7 +46,6 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     private static final ObisCode LOADPROFILE_OBIS_CODE = ObisCode.fromString("0.0.96.1.0.255");
     private static LoadProfileServiceImpl loadProfileService;
 
-    @Mock
     Device device;
 
     DeviceIdentifier deviceIdentifier;
@@ -58,7 +57,14 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
 
     @Before
     public void setUp() throws Exception {
+        device = createDevice();
         deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+    }
+
+    private Device createDevice() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        device.save();
+        return device;
     }
 
     @Test
@@ -79,20 +85,8 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
 
     @Test
     @Transactional
-    public void testDeviceDataLoadProfileIdentifierByAlreadyKnownLoadProfile() throws Exception {
-        LoadProfileService spiedService = spy(loadProfileService);
-        LoadProfile myLoadProfile = mock(LoadProfile.class);
-        when(myLoadProfile.getDevice()).thenReturn(device);
-        Optional<LoadProfile> foundLoadProfile = spiedService.findByIdentifier(new LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, myLoadProfile.getDeviceIdentifier()));
-        assertThat(foundLoadProfile).isPresent();
-        assertThat(foundLoadProfile.get()).isEqualTo(myLoadProfile);
-    }
-
-    @Test
-    @Transactional
     public void testDeviceDataLoadProfileIdentifierById() throws Exception {
         LoadProfileService spiedService = spy(loadProfileService);
-
         spiedService.findByIdentifier(new LoadProfileIdentifierById(1L, LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findById(1L);
     }
@@ -101,7 +95,6 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     @Transactional
     public void testDeviceDataLoadProfileIdentifierByObisCodeAndDevice() throws Exception {
         LoadProfileServiceImpl spiedService = spy(loadProfileService);
-
         spiedService.findByIdentifier(new LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findByDeviceAndObisCode(device, LOADPROFILE_OBIS_CODE);
     }

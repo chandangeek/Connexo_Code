@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -46,8 +47,7 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     private static DeviceMessageServiceImpl deviceMessageService;
 
-    @Mock
-    DeviceImpl device;
+    Device device;
 
     DeviceIdentifier deviceIdentifier;
 
@@ -62,7 +62,14 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+        device = spy(createDevice());
         deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+    }
+
+    private Device createDevice() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        device.save();
+        return device;
     }
 
     @Test
@@ -83,17 +90,6 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testDeviceDataDeviceMessageIdentifierForAlreadyKnownMessage() throws Exception {
-        DeviceMessageService spiedService = spy(deviceMessageService);
-        DeviceMessage myDeviceMessage = mock(DeviceMessage.class);
-        when(myDeviceMessage.getDevice()).thenReturn(device);
-        Optional<DeviceMessage> foundLogBook = spiedService.findDeviceMessageByIdentifier(new DeviceMessageIdentifierById(myDeviceMessage));
-        assertThat(foundLogBook).isPresent();
-        assertThat(foundLogBook.get()).isEqualTo(myDeviceMessage);
-    }
-
-    @Test
-    @Transactional
     public void testProtocolDeviceMessageIdentifierById() throws Exception {
         DeviceMessageService spiedService = spy(deviceMessageService);
 
@@ -105,7 +101,6 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void testProtocolDeviceMessageIdentifierByDeviceAndProtocolInfoParts() throws Exception {
         DeviceMessageServiceImpl spiedService = spy(deviceMessageService);
-
         spiedService.findDeviceMessageByIdentifier(new DeviceMessageIdentifierByDeviceAndProtocolInfoParts(deviceIdentifier, "part_A", "part_B"));
         verify(spiedService).findByDeviceAndProtocolInfoParts(device, "part_A", "part_B");
     }
