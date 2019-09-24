@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019  by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.config.impl;
@@ -14,7 +14,13 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 
 import com.google.inject.Provider;
 
@@ -25,7 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.RemoteComServer} interface.
+ * Provides an implementation for the {@link RemoteComServer} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:40)
@@ -129,7 +135,12 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
         return buildStatusUri(getServerName(), getStatusPort());
     }
 
-    static class RemoteComServerBuilderImpl extends AbstractComServerBuilder<RemoteComServerImpl, RemoteComServerBuilder> implements RemoteComServerBuilder<RemoteComServerImpl> {
+    @Override
+    public boolean supportsExecutionOfHighPriorityComTasks() {
+        return true;
+    }
+
+    public static class RemoteComServerBuilderImpl extends AbstractComServerBuilder<RemoteComServerImpl, RemoteComServerBuilder> implements RemoteComServerBuilder<RemoteComServerImpl> {
 
         @Inject
         RemoteComServerBuilderImpl(DataModel dataModel) {

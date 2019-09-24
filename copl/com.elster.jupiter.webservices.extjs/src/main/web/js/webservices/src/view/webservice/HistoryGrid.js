@@ -21,7 +21,9 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 flex: 1,
                 renderer: function (value, metaData, record) {
                     var basename = me.adminView ? 'administration' : 'workspace';
-                    var route = basename + '/webserviceendpoints/view/history/occurrence';
+                    var curOccurrenceRoute = (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices') ?
+                        '/webserviceendpoints/view/history/occurrence' : '/webservicehistory/view/occurrence');
+                    var route = basename + curOccurrenceRoute;
                     var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
 
                     var url = me.router.getRoute(route).buildUrl({
@@ -47,12 +49,16 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 hidden: Boolean(me.endpoint),
                 renderer: function(value, metaData, record) {
                     var endpoint = record.getEndpoint();
-                    var basename = me.adminView ? 'administration' : 'workspace';
-                    var url = me.router.getRoute(basename + '/webserviceendpoints/view').buildUrl({
-                        endpointId: endpoint.get('id')
-                    });
+                        if (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices')){
+                        var basename = me.adminView ? 'administration' : 'workspace';
+                        var url = me.router.getRoute(basename + '/webserviceendpoints/view').buildUrl({
+                            endpointId: endpoint.get('id')
+                        });
 
-                    return '<a href="' + url + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</a>';
+                        return '<a href="' + url + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</a>';
+                    }else{
+                        return Ext.String.htmlEncode(endpoint.get('name'));
+                    }
                 }
             },
             {

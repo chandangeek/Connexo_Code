@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
+import com.energyict.dlms.aso.*;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -11,7 +12,6 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.Integer8;
@@ -34,6 +34,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
+import com.energyict.sercurity.*;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -43,6 +44,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
 /**
@@ -133,21 +136,23 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         getProtocol().journal("Setting configuration object " + OBISCODE_CONFIGURATION_OBJECT+" bit "+bit+" to "+state);
 
         Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
-        Structure value;
+        Structure existingStructure;
         BitString flags;
         try {
-            value = (Structure) config.getValueAttr();
+            existingStructure = (Structure) config.getValueAttr();
+            int flagsIndex = getConfigurationObjectFlagsIndex();
+
             try {
-                AbstractDataType dataType = value.getDataType(0);
-                flags = (BitString) dataType;
-            } catch (IndexOutOfBoundsException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
+                flags = (BitString) existingStructure.getDataType(flagsIndex);
+                flags.set(bit, state);
             } catch (ClassCastException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
+                throw new ProtocolException("Couldn't write configuration. Expected element "+flagsIndex+
+                        " of structure to be of type 'BitString', but was of type '" + existingStructure.getDataType(flagsIndex).getClass().getSimpleName() + "'.");
             }
 
-            flags.set(bit, state);
-            config.setValueAttr(value);
+            existingStructure.setDataType(flagsIndex, flags);
+
+            config.setValueAttr(existingStructure);
         } catch (Exception e) {
             getProtocol().journal(Level.SEVERE, "Couldn't write configuration: " +e.getLocalizedMessage());
             throw new ProtocolException(e, "Couldn't write configuration.");
@@ -155,12 +160,45 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     }
 
+    /**
+     * DSMR 4.x:
+            Value ::= structure {
+                GPRS_operation_mode enum
+                Flags bitstring (16)
+            }
+
+     */
+    protected int getConfigurationObjectFlagsIndex(){
+        return 1;
+    }
+
     protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new ProtocolException("This message is not yet supported in DSMR4.0");
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        renewKey(wrappedKey, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId());
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
     }
 
     protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new ProtocolException("This message is not yet supported in DSMR4.0");
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        byte[] oldKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
+
+        renewKey(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId());
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+
+        //Reset frame counter, only if a different key has been written
+        if (Arrays.equals(oldKey, newSymmetricKey)) {
+            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+        };
     }
 
     @Override
@@ -171,10 +209,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     @Override
     protected void deactivateWakeUp() throws IOException {
-        AXDRDateTime axdrDateTime = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000
-        OctetString time = new OctetString(axdrDateTime.getBEREncodedByteArray(), 0);
+        AXDRDateTime axdrDateTimeStart = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000 00:00
+        AXDRDateTime axdrDateTimeEnd = convertUnixToDateTime(String.valueOf(946684900), getProtocol().getTimeZone());  //Jan 1st, 2000 00:01
+        OctetString startTime = new OctetString(axdrDateTimeStart.getBEREncodedByteArray(), 0);
+        OctetString endTime = new OctetString(axdrDateTimeEnd.getBEREncodedByteArray(), 0);
         getProtocol().journal("Closing SMS wake-up window");
-        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(time, time);   //Closed window, no SMSes are allowed
+        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(startTime, endTime);   //Closed window, no SMSes are allowed
     }
 
     protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {

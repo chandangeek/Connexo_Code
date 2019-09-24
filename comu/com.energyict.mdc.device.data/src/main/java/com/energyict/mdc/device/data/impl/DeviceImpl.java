@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -55,30 +56,117 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.ChannelEstimationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.ChannelValidationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.ConnectionInitiationTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceEstimation;
+import com.energyict.mdc.common.device.data.DeviceEstimationRuleSetActivation;
+import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LoadProfileJournalReading;
+import com.energyict.mdc.common.device.data.LoadProfileReading;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.device.data.PassiveCalendar;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.protocol.TrackingCategory;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TopologyTask;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.LockService;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.CannotSetMultipleComSchedulesWithSameComTask;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
+import com.energyict.mdc.device.data.exceptions.NoLifeCycleActiveAt;
+import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
+import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.constraintvalidators.*;
-import com.energyict.mdc.device.data.impl.pki.*;
-import com.energyict.mdc.device.data.impl.sync.*;
-import com.energyict.mdc.device.data.impl.tasks.*;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
+import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
+import com.energyict.mdc.device.data.impl.pki.CentrallyManagedDeviceSecurityAccessor;
+import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.HsmSymmetricKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.PlainTextSymmetricKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForSimpleUpdate;
+import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForConfigurationChange;
+import com.energyict.mdc.device.data.impl.sync.SynchNewDeviceWithKore;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.*;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.obis.ObisCode;
@@ -1280,8 +1368,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         // Merge the StateTimeline with the list of change events from my DeviceType.
         List<DeviceLifeCycleChangeEvent> deviceLifeChangeEvents = new ArrayList<>();
         Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
-        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-
+        Deque<com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
+        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
         boolean notReady;
         do {
             DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
@@ -1360,15 +1448,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (when.isAfter(modTime)) {
             return Optional.of(this); // current device, for sure
         }
-        if (when.isBefore(createTime)) {
+        if (when.isBefore(this.getLifecycleDates().getReceivedDate().orElse(createTime))) {
             return Optional.empty(); // there was no device
         }
-//        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
-//                .at(when)
-//                .find(ImmutableMap.of("id", this.getId()));
-//        return journalEntries.stream()
-//                .findFirst()
-//                .map(JournalEntry::get);
         return Optional.of(getFirstJournalEntryAfter(when)); // crutch for the case of gaps in journal table
     }
 
@@ -2146,11 +2228,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             for (IntervalReadingRecord meterReading : meterReadings) {
                 List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, meterReading.getTimeStamp());
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(mdcChannel, meterReading);
-                //Previously collected readingqualities are filtered and added to the loadProfile Reading
-                loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getReadingTimestamp().equals(meterReading.getTimeStamp()))
-                        .filter(rq -> channelReadingTypes.contains(rq.getReadingType())).collect(Collectors.toList()));
-                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+                if (loadProfileReading!=null) {
+                    loadProfileReading.setChannelData(mdcChannel, meterReading);
+                    //Previously collected readingqualities are filtered and added to the loadProfile Reading
+                    loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getReadingTimestamp().equals(meterReading.getTimeStamp()))
+                            .filter(rq -> channelReadingTypes.contains(rq.getReadingType())).collect(Collectors.toList()));
+                    loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+                }
             }
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (koreChannel.isPresent()) {
@@ -2380,12 +2464,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
          * So in case meter activation is at 8h13, the first reported interval will be (8:00,8:15]
          *    in case meter activation is exactly 8h15 , the first reported interval will be (8:15,8:30]
          */
-        ZonedDateTime nextAttempt =
-                ZonedDateTime
-                        .ofInstant(
-                                requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                                zoneId)
-                        .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
+        ZonedDateTime zonedLowerBoundary = ZonedDateTime.ofInstant(
+                                                                    requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                                                                    zoneId);
+        ZonedDateTime nextAttempt = zonedLowerBoundary.truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
         while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant()
                 .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
@@ -2834,7 +2916,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return scorePerProtocolTask;
     }
 
-    private List<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> getDeviceTypeLifeCycleChangeEvents() {
+    private List<com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent> getDeviceTypeLifeCycleChangeEvents() {
         return this.getDeviceType()
                 .getDeviceLifeCycleChangeEvents()
                 .stream()
@@ -2842,7 +2924,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .collect(Collectors.toList());
     }
 
-    private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
+    private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
         if (stateTimeSlices.isEmpty()) {
             return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
         } else if (deviceTypeChangeEvents.isEmpty()) {
@@ -2850,7 +2932,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             // Compare both timestamps and create event from the most recent one
             StateTimeSlice stateTimeSlice = stateTimeSlices.peekFirst();
-            com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents
+            com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents
                     .peekFirst();
             if (stateTimeSlice.getPeriod().lowerEndpoint().equals(deviceLifeCycleChangeEvent.getTimestamp())) {
                 // Give precedence to the device life cycle change but also consume the state change so the latter is ignored

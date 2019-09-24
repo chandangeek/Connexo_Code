@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

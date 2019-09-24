@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;

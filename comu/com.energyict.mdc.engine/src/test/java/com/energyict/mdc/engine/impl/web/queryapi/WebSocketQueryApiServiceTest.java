@@ -13,7 +13,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.h2.H2OrmModule;
+import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.TimeDuration;
@@ -24,15 +24,16 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.tasks.DataCompressor;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.config.impl.EngineConfigurationServiceImpl;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -41,12 +42,31 @@ import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.eclipse.jetty.websocket.api.BatchMode;
+import org.eclipse.jetty.websocket.api.CloseStatus;
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import org.eclipse.jetty.websocket.api.SuspendToken;
+import org.eclipse.jetty.websocket.api.UpgradeRequest;
+import org.eclipse.jetty.websocket.api.UpgradeResponse;
+import org.eclipse.jetty.websocket.api.WebSocketPolicy;
+import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.sql.SQLException;
+import java.util.concurrent.Future;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -55,11 +75,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.io.IOException;
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -143,7 +158,7 @@ public class WebSocketQueryApiServiceTest {
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
         WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
-        /*TestConnection connection = new TestConnection();
+        TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetThisComServer";
         String query = this.getThisComServerQueryString(queryId);
@@ -155,7 +170,7 @@ public class WebSocketQueryApiServiceTest {
         String receivedMessage = connection.getReceivedMessage();
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage).contains(queryId);
-        assertThat(receivedMessage).contains(comServer.getName());*/
+        assertThat(receivedMessage).contains(comServer.getName());
     }
 
     /**
@@ -171,7 +186,7 @@ public class WebSocketQueryApiServiceTest {
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
         WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
-        /*TestConnection connection = new TestConnection();
+        TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetComServer";
         String query = this.getComServerQueryString(queryId, hostName);
@@ -183,7 +198,7 @@ public class WebSocketQueryApiServiceTest {
         String receivedMessage = connection.getReceivedMessage();
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage).contains(queryId);
-        assertThat(receivedMessage).contains(comServer.getName());*/
+        assertThat(receivedMessage).contains(comServer.getName());
     }
 
     /**
@@ -202,7 +217,7 @@ public class WebSocketQueryApiServiceTest {
         RemoteComServer comServer = this.createRemoteComServer(remoteHostName, onlineComServer);
         when(comServerDAO.getComServer(remoteHostName)).thenReturn(comServer);
         WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
-        /*TestConnection connection = new TestConnection();
+        TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetRemoteComServer";
         String query = this.getComServerQueryString(queryId, remoteHostName);
@@ -214,7 +229,7 @@ public class WebSocketQueryApiServiceTest {
         String receivedMessage = connection.getReceivedMessage();
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage).contains(queryId);
-        assertThat(receivedMessage).contains(comServer.getName());*/
+        assertThat(receivedMessage).contains(comServer.getName());
     }
 
     /**
@@ -226,8 +241,8 @@ public class WebSocketQueryApiServiceTest {
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        /*WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
-        TestConnection connection = new TestConnection();
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetComServer";
         String query = this.getComServerQueryString(queryId, "Does.Not.Exist");
@@ -239,7 +254,7 @@ public class WebSocketQueryApiServiceTest {
         String receivedMessage = connection.getReceivedMessage();
         assertThat(receivedMessage).isNotNull();
         assertThat(receivedMessage).contains(queryId);
-        assertThat(receivedMessage).doesNotContain(comServer.getName());*/
+        assertThat(receivedMessage).doesNotContain(comServer.getName());
     }
 
     private String getThisComServerQueryString(String queryId) throws JSONException {
@@ -318,38 +333,77 @@ public class WebSocketQueryApiServiceTest {
         }
     }
 
-    /*private class TestConnection implements org.eclipse.jetty.websocket.WebSocket.Connection {
+    public class TestConnection implements org.eclipse.jetty.websocket.api.Session {
+        private TestRemoteEndpoint remote;
+        private boolean compressingEnabled;
 
-        private String receivedMessage;
-
-        private String getReceivedMessage() {
-            return receivedMessage;
+        public TestConnection(boolean compressingEnabled) {
+            remote = new TestRemoteEndpoint();
+            this.compressingEnabled = compressingEnabled;
         }
 
-        @Override
-        public String getProtocol() {
-            return null;
-        }
-
-        @Override
-        public void sendMessage(String data) throws IOException {
-            this.receivedMessage = data;
-        }
-
-        @Override
-        public void sendMessage(byte[] data, int offset, int length) throws IOException {
-        }
-
-        @Override
-        public void disconnect() {
+        public String getReceivedMessage() {
+            return remote.getReceivedMessage();
         }
 
         @Override
         public void close() {
+
         }
 
         @Override
-        public void close(int closeCode, String message) {
+        public void close(CloseStatus closeStatus) {
+
+        }
+
+        @Override
+        public void close(int statusCode, String reason) {
+
+        }
+
+        @Override
+        public void disconnect() throws IOException {
+
+        }
+
+        @Override
+        public long getIdleTimeout() {
+            return 0;
+        }
+
+        @Override
+        public InetSocketAddress getLocalAddress() {
+            return null;
+        }
+
+        @Override
+        public WebSocketPolicy getPolicy() {
+            return WebSocketPolicy.newServerPolicy();
+        }
+
+        @Override
+        public String getProtocolVersion() {
+            return null;
+        }
+
+        @Override
+        public RemoteEndpoint getRemote() {
+            return remote;
+        }
+
+        @Override
+        public InetSocketAddress getRemoteAddress() {
+            return null;
+        }
+
+        @Override
+        public UpgradeRequest getUpgradeRequest() {
+            return null;
+        }
+
+        @Override
+        public UpgradeResponse getUpgradeResponse() {
+            return null;
         }
 
         @Override
@@ -358,33 +412,107 @@ public class WebSocketQueryApiServiceTest {
         }
 
         @Override
-        public void setMaxIdleTime(int ms) {
+        public boolean isSecure() {
+            return false;
+        }
+
+        public boolean isCompressingEnabled() {
+            return compressingEnabled;
         }
 
         @Override
-        public void setMaxTextMessageSize(int size) {
+        public void setIdleTimeout(long ms) {
+
         }
 
         @Override
-        public void setMaxBinaryMessageSize(int size) {
+        public SuspendToken suspend() {
+            return null;
         }
 
-        @Override
-        public int getMaxIdleTime() {
-            return 0;
-        }
+        private class TestRemoteEndpoint implements RemoteEndpoint {
+            private String receivedMessage;
 
-        @Override
-        public int getMaxTextMessageSize() {
-            return Integer.MAX_VALUE;
-        }
+            private String getReceivedMessage() {
+                return receivedMessage;
+            }
 
-        @Override
-        public int getMaxBinaryMessageSize() {
-            return 0;
+            @Override
+            public void sendBytes(ByteBuffer data) throws IOException {
+                byte[] buffer = data.array();
+                receivedMessage = DataCompressor.decompressAndDecode(ProtocolUtils.getSubArray(buffer, 0, buffer.length - 1), isCompressingEnabled());
+            }
+
+            @Override
+            public Future<Void> sendBytesByFuture(ByteBuffer data) {
+                return null;
+            }
+
+            @Override
+            public void sendBytes(ByteBuffer data, WriteCallback callback) {
+                try {
+                    sendBytes(data);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void sendPartialBytes(ByteBuffer fragment, boolean isLast) throws IOException {
+
+            }
+
+            @Override
+            public void sendPartialString(String fragment, boolean isLast) throws IOException {
+
+            }
+
+            @Override
+            public void sendPing(ByteBuffer applicationData) throws IOException {
+
+            }
+
+            @Override
+            public void sendPong(ByteBuffer applicationData) throws IOException {
+
+            }
+
+            @Override
+            public void sendString(String text) {
+                receivedMessage = text;
+            }
+
+            @Override
+            public Future<Void> sendStringByFuture(String text) {
+                return null;
+            }
+
+            @Override
+            public void sendString(String text, WriteCallback callback) {
+                sendString(text);
+            }
+
+            @Override
+            public BatchMode getBatchMode() {
+                return null;
+            }
+
+            //        @Override
+            public void setBatchMode(BatchMode mode) {
+
+            }
+
+            //        @Override
+            public InetSocketAddress getInetSocketAddress() {
+                return null;
+            }
+
+            @Override
+            public void flush() throws IOException {
+
+            }
         }
     }
-    */
 
     private static class MockModule extends AbstractModule {
         private BundleContext bundleContext;

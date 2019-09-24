@@ -39,17 +39,25 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
@@ -67,12 +75,7 @@ import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemCustomProper
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -282,6 +285,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                         .map(DeviceProtocolPluggableClass::getDeviceProtocol)
                         .filter(DeviceProtocol::supportsCaConfigImageVersion)
                         .isPresent();
+            case AUXILIARY:
+                return deviceType.getDeviceProtocolPluggableClass()
+                        .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                        .filter(DeviceProtocol::supportsAuxiliaryFirmwareVersion)
+                        .isPresent();
             default:
                 throw new IllegalArgumentException("Unknown firmware type!");
         }
@@ -321,7 +329,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec() {
+    public Optional<com.energyict.mdc.common.protocol.DeviceMessageSpec> defaultFirmwareVersionSpec() {
         return deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue());
     }
 
@@ -452,6 +460,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public FirmwareCampaignManagementOptions newFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign) {
+        return dataModel.getInstance(FirmwareCampaignManagementOptionsImpl.class).init(firmwareCampaign);
+    }
+
+    @Override
     public List<DeviceType> getDeviceTypesWhichSupportFirmwareManagement() {
         Condition condition = where(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).isEqualTo(true)
                 .or(where(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName()).isEqualTo(true))
@@ -508,6 +521,21 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType) {
         return dataModel.mapper(FirmwareManagementOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+    }
+
+    @Override
+    public Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign) {
+        return dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName(), firmwareCampaign);
+    }
+
+    @Override
+    public void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware) {
+        dataModel.getInstance(FirmwareCampaignVersionSnapshotImpl.class).init(firmwareCampaign, foundFirmware).save();
+    }
+
+    @Override
+    public List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign) {
+        return dataModel.query(FirmwareCampaignVersionStateShapshot.class).select(where("firmwareCampaign").isEqualTo(firmwareCampaign));
     }
 
     @Override
@@ -577,7 +605,12 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device) {
-        return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
+        return getFirmwareManagementDeviceUtilsFor(device, false);
+    }
+
+    @Override
+    public FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device, boolean onlyLastMessagePerFirmwareType) {
+        return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device, onlyLastMessagePerFirmwareType);
     }
 
     @Override
@@ -856,8 +889,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
-                                                                                                             FirmwareVersion firmwareVersion) {
+    public Optional<com.energyict.mdc.common.protocol.DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
+                                                                                                FirmwareVersion firmwareVersion) {
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
         if (firmwareMessageId.isPresent()) {
             return deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.get().dbValue());

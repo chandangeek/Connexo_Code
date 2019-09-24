@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core.mocks;
 
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.ports.ComPortType;
 
 import java.time.Instant;

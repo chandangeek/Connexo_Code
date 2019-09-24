@@ -24,10 +24,10 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.SecurityAccessor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,6 +58,7 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
     private final Logger logger;
 
     private static final String CERTIFICATE_RENEWAL_PROCESS_NAME = "Certificate renewal";
+    private static final Integer CERTIFICATE_RENEWAL_EXPIRATION_DAYS = Integer.MAX_VALUE;
     private static final String ACTIVE_STATUS = "1";
 
     CertificateRenewalTaskExecutor(OrmService ormService,
@@ -70,8 +71,8 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
         this.bpmService = bpmService;
         this.eventService = eventService;
         this.clock = clock;
-        this.certRenewalBpmProcessDefinitionId = certRenewalBpmProcessDefinitionId;
-        this.certRenewalExpitationDays = certRenewalExpitationDays;
+        this.certRenewalBpmProcessDefinitionId = Optional.ofNullable(certRenewalBpmProcessDefinitionId).orElse(CERTIFICATE_RENEWAL_PROCESS_NAME);
+        this.certRenewalExpitationDays = Optional.ofNullable(certRenewalExpitationDays).orElse(CERTIFICATE_RENEWAL_EXPIRATION_DAYS);
         certRenewalBpmProcessCount = 0;
         logger = Logger.getAnonymousLogger();
     }
@@ -168,7 +169,7 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
         }
         boolean processDefinition = processDefinitionInfos.get().processes
                 .stream()
-                .anyMatch(processDefinitionInfo -> processDefinitionInfo.name.equalsIgnoreCase(CERTIFICATE_RENEWAL_PROCESS_NAME));
+                .anyMatch(processDefinitionInfo -> processDefinitionInfo.name.equalsIgnoreCase(certRenewalBpmProcessDefinitionId));
         if (!processDefinition) {
             String errorMsg = "No process definition found";
             postFailEvent(eventService, taskOccurrence, errorMsg);
@@ -178,7 +179,7 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
         List<ProcessInstanceInfo> processInstanceInfos = bpmService.getRunningProcesses(null, filter)
                 .processes
                 .stream()
-                .filter(p -> p.name.equalsIgnoreCase(CERTIFICATE_RENEWAL_PROCESS_NAME) && p.status.equalsIgnoreCase(ACTIVE_STATUS))
+                .filter(p -> p.name.equalsIgnoreCase(certRenewalBpmProcessDefinitionId) && p.status.equalsIgnoreCase(ACTIVE_STATUS))
                 .collect(Collectors.toList());
         if (processInstanceInfos.isEmpty()) {
             logger.log(Level.INFO, "No running processes found");
@@ -219,7 +220,7 @@ public class CertificateRenewalTaskExecutor implements TaskExecutor {
 
         Optional<BpmProcessDefinition> definition = bpmService.getAllBpmProcessDefinitions()
                 .stream()
-                .filter(p -> p.getProcessName().equalsIgnoreCase(CERTIFICATE_RENEWAL_PROCESS_NAME))
+                .filter(p -> p.getProcessName().equalsIgnoreCase(certRenewalBpmProcessDefinitionId))
                 .findAny();
 
         if (definition.isPresent()) {

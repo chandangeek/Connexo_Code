@@ -14,10 +14,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.upl.TypedProperties;
 
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -29,6 +29,7 @@ import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
+import ch.iec.tc57._2011.meterconfig.Zones;
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import org.osgi.service.component.annotations.Component;
@@ -157,6 +158,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
         simpleEndDeviceFunction.setMRID(deviceConfigRef);
         simpleEndDeviceFunction.setConfigID(deviceConfigName);
+        simpleEndDeviceFunction.setZones(new Zones());
         return simpleEndDeviceFunction;
     }
 

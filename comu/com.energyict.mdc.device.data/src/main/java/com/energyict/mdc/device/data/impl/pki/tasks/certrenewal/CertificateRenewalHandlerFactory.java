@@ -17,8 +17,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.CertificateRenewalService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.pki.PropertyValueRequiredException;
 
 import com.google.inject.Inject;
 import org.osgi.framework.BundleContext;
@@ -149,14 +147,14 @@ public class CertificateRenewalHandlerFactory implements CertificateRenewalServi
     }
 
     private void getTaskProperties(BundleContext bundleContext) {
-        certRenewalBpmProcessDefinitionId = getTaskProperty(bundleContext, CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY));
-        String expirationDays = getTaskProperty(bundleContext, CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY));
-        certRenewalExpitationDays = Integer.parseInt(expirationDays);
+        getTaskProperty(bundleContext, CERTIFICATE_RENEWAL_PROCESS_DEFINITION_PROPERTY)
+                .ifPresent(p -> certRenewalBpmProcessDefinitionId = p);
+        getTaskProperty(bundleContext, CERTIFICATE_DAYS_TILL_EXPIRATION_PROPERTY)
+                .map(p -> Integer.parseInt(p))
+                .ifPresent(expirationDays -> certRenewalExpitationDays = expirationDays);
     }
 
     private Optional<String> getTaskProperty(BundleContext context, String property) {
-        return Optional.ofNullable(context.getProperty(property));
+        return Optional.ofNullable(context.getProperty(property)).filter(p -> p.trim().length() > 0);
     }
 }

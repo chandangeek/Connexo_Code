@@ -19,12 +19,12 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterDataUpdater;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Reading;
+import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.data.RegisterDataUpdater;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 

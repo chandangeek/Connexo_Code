@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019  by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.config.impl;
@@ -7,6 +7,12 @@ package com.energyict.mdc.engine.config.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -21,7 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.OfflineComServer} interface.
+ * Provides an implementation for the {@link OfflineComServer} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:37)
@@ -66,7 +72,12 @@ public final class OfflineComServerImpl extends ComServerImpl implements Offline
         return true;
     }
 
-    static class OfflineComServerBuilderImpl extends AbstractComServerBuilder<OfflineComServerImpl, OfflineComServerBuilder> implements OfflineComServerBuilder<OfflineComServerImpl> {
+    @Override
+    public boolean supportsExecutionOfHighPriorityComTasks() {
+        return false;
+    }
+
+    public static class OfflineComServerBuilderImpl extends AbstractComServerBuilder<OfflineComServerImpl, OfflineComServerBuilder> implements OfflineComServerBuilder<OfflineComServerImpl> {
 
         @Inject
         public OfflineComServerBuilderImpl(DataModel dataModel) {

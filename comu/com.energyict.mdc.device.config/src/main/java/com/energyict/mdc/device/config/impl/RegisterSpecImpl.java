@@ -14,20 +14,19 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.obis.ObisCode;
-
 import com.energyict.mdc.common.ValidObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.DeleteEventType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
 
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;

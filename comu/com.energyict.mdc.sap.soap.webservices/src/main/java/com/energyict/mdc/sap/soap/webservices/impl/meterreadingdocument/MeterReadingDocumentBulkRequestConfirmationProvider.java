@@ -8,15 +8,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkRequestConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOutService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.Map;
 
@@ -24,19 +23,19 @@ import java.util.Map;
         service = {MeterReadingDocumentBulkRequestConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentBulkRequestConfirmation.SAP_METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATION})
-public class MeterReadingDocumentBulkRequestConfirmationProvider extends AbstractOutboundEndPointProvider<SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut> implements MeterReadingDocumentBulkRequestConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class MeterReadingDocumentBulkRequestConfirmationProvider extends AbstractOutboundEndPointProvider<SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut> implements MeterReadingDocumentBulkRequestConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public MeterReadingDocumentBulkRequestConfirmationProvider() {
         // for OSGI purposes
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addConfirmationPort(SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut port,
+    public void addConfirmationPort(SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut port,
                                     Map<String, Object> properties) {
         super.doAddEndpoint(port, properties);
     }
 
-    public void removeConfirmationPort(SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut port) {
+    public void removeConfirmationPort(SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut port) {
         super.doRemoveEndpoint(port);
     }
 
@@ -47,14 +46,12 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider extends Abstrac
 
     @Override
     public Service get() {
-        return new SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOutService(
-                getService().getClassLoader().getResource(RESOURCE), new QName(NAMESPACE_URI, LOCAL_PART)
-        );
+        return new SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOutService();
     }
 
     @Override
     public Class getService() {
-        return SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut.class;
+        return SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut.class;
     }
 
     @Override
@@ -64,7 +61,7 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider extends Abstrac
 
     @Override
     public void call(MeterReadingDocumentRequestConfirmationMessage confirmationMessage) {
-        using("smartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut")
+        using("smartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut")
                 .send(confirmationMessage.getBulkConfirmationMessage());
     }
 

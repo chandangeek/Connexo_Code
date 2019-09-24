@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.web.events.commands;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;

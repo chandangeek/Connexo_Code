@@ -23,11 +23,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 

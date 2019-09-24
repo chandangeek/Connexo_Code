@@ -213,6 +213,11 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService.booleanSpec()
+                        .named(CSRImporterTranslatedProperty.EXPORT_FLAT_DIR.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_FLAT_DIR)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_FLAT_DIR_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService.booleanSpec()
                         .named(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP)
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP_DESCRIPTION)
                         .fromThesaurus(thesaurus)

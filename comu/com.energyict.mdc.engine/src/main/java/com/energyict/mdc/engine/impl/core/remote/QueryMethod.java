@@ -9,11 +9,17 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.ObjectParser;
@@ -103,11 +109,11 @@ public enum QueryMethod {
             } else {
                 // Must be a ConnectionTask
                 Long connectionTaskId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
-                Long comServerId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMSERVER);
+                Long comPortId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
                 ConnectionTask connectionTask = serviceProvider.connectionTaskService().findConnectionTask(connectionTaskId).get();
-                Optional<ComServer> comServer = serviceProvider.engineConfigurationService().findComServer(comServerId);
-                if (comServer.isPresent()) {
-                    this.executionStarted(serviceProvider, connectionTask, comServer.get());
+                Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comPortId);
+                if (comPort.isPresent()) {
+                    this.executionStarted(serviceProvider, connectionTask, comPort.get());
                 }
             }
             return null;
@@ -126,12 +132,12 @@ public enum QueryMethod {
                 }
             } else {
                 // Must be a ConnectionTask
-                Long connectionTaskId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
-                Long comServerId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMSERVER);
+                Long connectionTaskId = getLong(parameters, parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
+                Long comportId = getLong(parameters, parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
                 OutboundConnectionTask connectionTask = serviceProvider.connectionTaskService().findOutboundConnectionTask(connectionTaskId).get();
-                Optional<ComServer> comServer = serviceProvider.engineConfigurationService().findComServer(comServerId);
-                if (comServer.isPresent()) {
-                    this.attemptLock(serviceProvider, connectionTask, comServer.get());
+                Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comportId);
+                if (comPort.isPresent()) {
+                    this.attemptLock(serviceProvider, connectionTask, comPort.get());
                 }
             }
             return null;
@@ -181,6 +187,28 @@ public enum QueryMethod {
                         this.executionRescheduled(serviceProvider, comTaskExecution.get(), rescheduleDate.toInstant());
                     }
                 }
+            } else if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK)) {
+                Integer connectionTaskId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
+                Optional<ConnectionTask> connectionTask = serviceProvider.connectionTaskService().findConnectionTask(connectionTaskId);
+                if (connectionTask.isPresent()) {
+                    executionRescheduled(serviceProvider, connectionTask.get());
+                }
+            }
+            return null;
+        }
+    },
+    ExecutionRescheduledToComWindow {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION)) {
+                Integer comTaskExecutionId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
+                Optional<ComTaskExecution> comTaskExecution = serviceProvider.communicationTaskService().findComTaskExecution(comTaskExecutionId);
+                if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE)) {
+                    Date rescheduleDate = new Date((Long) parameters.get(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE));
+                    if(comTaskExecution.isPresent()){
+                        executionRescheduledToComWindow(serviceProvider, comTaskExecution.get(), rescheduleDate.toInstant());
+                    }
+                }
             }
             return null;
         }
@@ -204,10 +232,10 @@ public enum QueryMethod {
     ReleaseInterruptedComTasks {
         @Override
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
-            Integer comServerId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.COMSERVER);
-            Optional<ComServer> comServer = serviceProvider.engineConfigurationService().findComServer(comServerId);
-            if (comServer.isPresent()) {
-                serviceProvider.comServerDAO().releaseInterruptedTasks(comServer.get());
+            Long comPortId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
+            Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comPortId);
+            if (comPort.isPresent()) {
+                serviceProvider.comServerDAO().releaseInterruptedTasks(comPort.get());
             }
             return null;
         }
@@ -215,9 +243,9 @@ public enum QueryMethod {
     ReleaseTimedOutComTasks {
         @Override
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
-            Long comServerId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMSERVER);
-            Optional<ComServer> comServer = serviceProvider.engineConfigurationService().findComServer(comServerId);
-            return new TimeDurationXmlWrapper(serviceProvider.comServerDAO().releaseTimedOutTasks(comServer.get()));
+            Long comPortId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
+            Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comPortId);
+            return new TimeDurationXmlWrapper(serviceProvider.comServerDAO().releaseTimedOutTasks(comPort.get()));
         }
     },
     ReleaseComTasks {
@@ -786,20 +814,20 @@ public enum QueryMethod {
             return null;
     }
 
-    protected void executionStarted(ServiceProvider serviceProvider, ConnectionTask connectionTask, ComServer comServer) {
+    protected void executionStarted(ServiceProvider serviceProvider, ConnectionTask connectionTask, ComPort comPort) {
         this.executeTransaction(serviceProvider, new VoidTransaction() {
             @Override
             public void doPerform() {
-                serviceProvider.comServerDAO().executionStarted(connectionTask, comServer);
+                serviceProvider.comServerDAO().executionStarted(connectionTask, comPort);
             }
         });
     }
 
-    protected void attemptLock(ServiceProvider serviceProvider, OutboundConnectionTask connectionTask, ComServer comServer) {
+    protected void attemptLock(ServiceProvider serviceProvider, OutboundConnectionTask connectionTask, ComPort comPort) {
         this.executeTransaction(serviceProvider, new VoidTransaction() {
             @Override
             public void doPerform() {
-                serviceProvider.comServerDAO().attemptLock(connectionTask, comServer);
+                serviceProvider.comServerDAO().attemptLock(connectionTask, comPort);
             }
         });
     }
@@ -849,6 +877,15 @@ public enum QueryMethod {
         });
     }
 
+    protected void executionRescheduled(ServiceProvider serviceProvider, ConnectionTask connectionTask) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().executionRescheduled(connectionTask);
+            }
+        });
+    }
+
     protected void executionRescheduled(ServiceProvider serviceProvider, ComTaskExecution comTaskExecution, Instant rescheduleDate) {
         this.executeTransaction(serviceProvider, new VoidTransaction() {
             @Override
@@ -858,6 +895,14 @@ public enum QueryMethod {
         });
     }
 
+    protected void executionRescheduledToComWindow(ServiceProvider serviceProvider, ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().executionRescheduledToComWindow(comTaskExecution, rescheduleDate);
+            }
+        });
+    }
     protected void executionStarted(ServiceProvider serviceProvider, ComPort comPort, ComTaskExecution comTaskExecution) {
         this.executeTransaction(serviceProvider, new VoidTransaction() {
             @Override
@@ -930,5 +975,4 @@ public enum QueryMethod {
         }
         return bb.toByteArray();
     }
-
 }

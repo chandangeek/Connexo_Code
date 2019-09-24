@@ -7,23 +7,15 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
@@ -38,24 +30,16 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.security.Principal;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-
-import com.google.common.collect.Range;
 
 /**
  * Resource to manage end point configurations
@@ -87,7 +71,9 @@ public class EndPointConfigurationResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES,
+            Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
+            Privileges.Constants.RETRY_WEB_SERVICES})
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
                                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                    @Context UriInfo uriInfo) {
@@ -123,7 +109,9 @@ public class EndPointConfigurationResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
-    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES,
+            Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
+            Privileges.Constants.RETRY_WEB_SERVICES})
     public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return endPointConfigurationService.getEndPointConfiguration(id)
                 .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))

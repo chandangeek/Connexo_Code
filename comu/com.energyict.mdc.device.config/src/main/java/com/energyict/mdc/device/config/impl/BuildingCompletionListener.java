@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
 
 /**
  * Defines the behavior for a component that is interested

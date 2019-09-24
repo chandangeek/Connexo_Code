@@ -21,6 +21,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.energyict.mdc.app.MdcAppService;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -163,6 +164,9 @@ public class MdcAppInstaller {
                     //Device communications
                     com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
 
+                    //Device communications
+                    com.energyict.mdc.device.data.security.Privileges.Constants.RUN_WITH_PRIO,
+
                     //Device data
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
 
@@ -173,13 +177,13 @@ public class MdcAppInstaller {
                     com.energyict.mdc.device.command.security.Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,
 
                     //Device life cycle
-                    com.energyict.mdc.device.lifecycle.config.Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE,
+                    com.energyict.mdc.common.device.lifecycle.config.Constants.VIEW_DEVICE_LIFE_CYCLE,
 
                     //Device master data
-                    com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_MASTER_DATA,
+                    DeviceConfigConstants.VIEW_MASTER_DATA,
 
                     //Device types
-                    com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
+                    DeviceConfigConstants.VIEW_DEVICE_TYPE,
 
                     //Devices
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE,

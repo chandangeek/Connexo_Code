@@ -7,9 +7,11 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -20,10 +22,7 @@ import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
@@ -309,6 +308,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     public List<? extends ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
         result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
+        result.add(new OutboundTcpIpWithWakeUpConnectionType(this.getPropertySpecService()));
         return result;
     }
 
@@ -405,7 +405,13 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return ESMR50RegisterFactory.ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE;
     }
 
-   //TODO This method must be overriden in all nta protocols. It had a different implementation in 8.11 AbstractSmartDlmsProtocol than in AbstractDlmsProtcol from connexo
+
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        return true;
+    }
+
+    //TODO This method must be overriden in all nta protocols. It had a different implementation in 8.11 AbstractSmartDlmsProtocol than in AbstractDlmsProtcol from connexo
     /**
      * E-meter has address 0. Subclasses can override to add MBus address functionality.
      */

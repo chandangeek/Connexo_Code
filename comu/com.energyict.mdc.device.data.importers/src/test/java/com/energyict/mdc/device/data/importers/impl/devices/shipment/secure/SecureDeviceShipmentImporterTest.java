@@ -10,12 +10,12 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.importers.ImporterExtension;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 

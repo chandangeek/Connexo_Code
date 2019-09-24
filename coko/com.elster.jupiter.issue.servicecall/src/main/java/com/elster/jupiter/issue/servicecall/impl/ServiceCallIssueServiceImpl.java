@@ -37,6 +37,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
@@ -59,9 +60,9 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue.servicecall.impl.ServiceCallIssueServiceImpl",
-           service = { TranslationKeyProvider.class, MessageSeedProvider.class, ServiceCallIssueService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
-           property = "name=" + ServiceCallIssueService.COMPONENT_NAME,
-           immediate = true)
+        service = { TranslationKeyProvider.class, MessageSeedProvider.class, ServiceCallIssueService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
+        property = "name=" + ServiceCallIssueService.COMPONENT_NAME,
+        immediate = true)
 public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider, IssueReasonTranslationProvider {
 
     private volatile IssueService issueService;
@@ -71,6 +72,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
     private volatile MessageService messageService;
+    private volatile ServiceCallService serviceCallService;
 
     private volatile DataModel dataModel;
 
@@ -111,7 +113,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 dataModel,
                 Installer.class,
                 Collections.emptyMap()
-                );
+        );
     }
 
     @Override

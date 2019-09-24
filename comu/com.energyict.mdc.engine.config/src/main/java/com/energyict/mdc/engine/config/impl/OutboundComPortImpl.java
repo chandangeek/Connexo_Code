@@ -9,11 +9,11 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
@@ -22,7 +22,7 @@ import java.util.List;
 
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.OutboundComPort} interface.
+ * Provides an implementation for the {@link OutboundComPort} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
@@ -82,7 +82,7 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
     }
 
     /**
-     * The type can only be changed, when this {@link com.energyict.mdc.engine.config.ComPort} is not a member of any {@link ComPortPool}
+     * The type can only be changed, when this {@link ComPort} is not a member of any {@link ComPortPool}
      */
     private void validatePoolType(ComPortType newType) {
         if (newType != this.getComPortType()) {

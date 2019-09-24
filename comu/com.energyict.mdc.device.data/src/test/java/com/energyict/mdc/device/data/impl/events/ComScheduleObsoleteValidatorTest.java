@@ -7,9 +7,9 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import org.junit.Before;
 import org.junit.Test;

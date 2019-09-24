@@ -11,7 +11,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
 
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.grid.column.Action'
+        'Uni.grid.column.Action',
+        'Uni.Auth'
     ],
 
     scheduleStore: undefined,
@@ -121,6 +122,13 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
                                 },
                                 {
+                                    text: Uni.I18n.translate('deviceCommunicationPlanning.runComTaskNowWithPriority', 'MDC', 'Run with priority'),
+                                    privileges: Mdc.privileges.Device.operateDeviceCommunication,
+                                    itemId: 'mdc-device-communication-planning-runDeviceComTaskNowWithPriority',
+                                    action: 'runDeviceComTaskNowWithPriority',
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
+                                },
+                                {
                                     text: Uni.I18n.translate('deviceCommunicationPlanning.activate', 'MDC', 'Activate'),
                                     privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                     itemId: 'mdc-device-communication-planning-activate-task',
@@ -154,28 +162,29 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                             listeners: {
                                 beforeshow: function () {
                                     var me = this,
+                                        canExecute = Uni.Auth.hasAnyPrivilege(me.record.get('comTask').privileges),
                                         activateMenuItem = me.down('#mdc-device-communication-planning-activate-task'),
                                         deactivateMenuItem = me.down('#mdc-device-communication-planning-deactivate-task'),
                                         runMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTask'),
                                         runNowMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTaskNow'),
+                                        runNowWithPriorityMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTaskNowWithPriority'),
                                         addScheduleMenuItem = me.down('#mdc-device-communication-planning-add-schedule'),
                                         changeScheduleMenuItem = me.down('#mdc-device-communication-planning-change-schedule'),
                                         removeScheduleMenuItem = me.down('#mdc-device-communication-planning-remove-schedule'),
                                         taskType = me.record.get('type'),
-                                        addScheduleVisible = taskType === 'ONREQUEST' || taskType === 'ADHOC',
-                                        changeAndRemoveSchedulePossible = taskType === 'INDIVIDUAL',
+                                        addScheduleVisible = canExecute && (taskType === 'ONREQUEST' || taskType === 'ADHOC'),
+                                        changeAndRemoveSchedulePossible = canExecute && (taskType === 'INDIVIDUAL'),
                                         isActive = me.record.get('active'),
                                         connectionDefinedOnDevice = me.record.get('connectionDefinedOnDevice'),
                                         isMinimize = !connectionDefinedOnDevice ? false : me.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
 
-                                        runNowEnabled = isActive && connectionDefinedOnDevice,
+                                        runNowEnabled = canExecute && isActive && connectionDefinedOnDevice,
                                         runEnabled = runNowEnabled && isMinimize,
                                         activateEnabled = !Ext.isEmpty(activateMenuItem) && !isActive,
                                         deactivateEnabled = !Ext.isEmpty(deactivateMenuItem) && isActive,
                                         addScheduleEnabled = !Ext.isEmpty(addScheduleMenuItem) && addScheduleVisible,
                                         changeScheduleEnabled = !Ext.isEmpty(changeScheduleMenuItem) && changeAndRemoveSchedulePossible,
                                         removeScheduleEnabled = !Ext.isEmpty(removeScheduleMenuItem) && changeAndRemoveSchedulePossible;
-
                                     if (runEnabled) {
                                         runMenuItem.show();
                                     } else {
@@ -183,8 +192,10 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                     }
                                     if (runNowEnabled) {
                                         runNowMenuItem.show();
+                                        runNowWithPriorityMenuItem.show();
                                     } else {
                                         runNowMenuItem.hide();
+                                        runNowWithPriorityMenuItem.hide();
                                     }
                                     if (addScheduleEnabled) {
                                         addScheduleMenuItem.show();
@@ -216,6 +227,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                         },
                         isDisabled: function (view, rowIndex, callIndex, item, record) {
                             var me = this,
+                            	canExecute = Uni.Auth.hasAnyPrivilege(record.get('comTask').privileges),
                                 activateMenuItem = me.menu.down('#mdc-device-communication-planning-activate-task'),
                                 deactivateMenuItem = me.menu.down('#mdc-device-communication-planning-deactivate-task'),
                                 addScheduleMenuItem = me.menu.down('#mdc-device-communication-planning-add-schedule'),
@@ -225,10 +237,10 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                 connectionDefinedOnDevice = record.get('connectionDefinedOnDevice'),
                                 isMinimize = !connectionDefinedOnDevice ? false : record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
                                 taskType = record.get('type'),
-                                addScheduleVisible = taskType === 'ONREQUEST' || taskType === 'ADHOC',
-                                changeAndRemoveScheduleVisible = taskType === 'INDIVIDUAL',
+                                addScheduleVisible = canExecute && (taskType === 'ONREQUEST' || taskType === 'ADHOC'),
+                                changeAndRemoveScheduleVisible = canExecute && (taskType === 'INDIVIDUAL'),
 
-                                runNowEnabled = isActive && connectionDefinedOnDevice,
+                                runNowEnabled = canExecute && isActive && connectionDefinedOnDevice,
                                 runEnabled = runNowEnabled && isMinimize,
                                 activateEnabled = !Ext.isEmpty(activateMenuItem) && !isActive,
                                 deactivateEnabled = !Ext.isEmpty(deactivateMenuItem) && isActive,

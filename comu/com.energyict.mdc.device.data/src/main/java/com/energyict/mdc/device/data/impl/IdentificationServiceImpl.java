@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import com.energyict.mdc.identifiers.DeviceIdentifierByDeviceName;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
@@ -17,8 +19,6 @@ import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.meterdata.LogBook;
@@ -120,7 +120,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
-        return new LogBookIdentifierForAlreadyKnowLogBook((com.energyict.mdc.device.data.LogBook) logBook, deviceIdentifier);     //Downcast to the Connexo LogBook
+        return new LogBookIdentifierForAlreadyKnowLogBook((com.energyict.mdc.common.device.data.LogBook) logBook, deviceIdentifier);     //Downcast to the Connexo LogBook
     }
 
     @Override

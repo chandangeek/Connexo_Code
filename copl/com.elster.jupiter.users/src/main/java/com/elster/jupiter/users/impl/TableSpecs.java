@@ -15,6 +15,7 @@ import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.WorkGroup;
 

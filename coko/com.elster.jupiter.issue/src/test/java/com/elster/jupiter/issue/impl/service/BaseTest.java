@@ -42,6 +42,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -186,7 +187,8 @@ public abstract class BaseTest {
                 new BasicPropertiesModule(),
                 new CustomPropertySetsModule(),
                 new AuditServiceModule(),
-                new WebServicesModule()
+                new WebServicesModule(),
+                new MeteringGroupsModule()
         );
 
         TransactionService transactionService = injector.getInstance(TransactionService.class);

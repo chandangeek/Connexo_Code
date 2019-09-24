@@ -97,6 +97,7 @@ import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorServ
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
 import com.energyict.mdc.upl.io.SerialComponentService;
 
 import com.google.common.collect.ImmutableMap;
@@ -214,7 +215,8 @@ public class InMemoryPersistence {
                 new AuditServiceModule(),
                 new FileImportModule(),
                 new MeteringZoneModule(),
-                new TaskIssueModule()
+                new TaskIssueModule(),
+                new TimeOfUseCampaignModule()
         );
     }
 

@@ -39,6 +39,7 @@ public class FirmwareVersionInfoFactory {
         info.rank = firmwareVersion.getRank();
         firmwareVersion.getMeterFirmwareDependency().ifPresent(fw -> info.meterFirmwareDependency = new IdWithNameInfo(fw.getId(), fw.getFirmwareVersion()));
         firmwareVersion.getCommunicationFirmwareDependency().ifPresent(fw -> info.communicationFirmwareDependency = new IdWithNameInfo(fw.getId(), fw.getFirmwareVersion()));
+        firmwareVersion.getAuxiliaryFirmwareDependency().ifPresent(fw -> info.auxiliaryFirmwareDependency = new IdWithNameInfo(fw.getId(), fw.getFirmwareVersion()));
         return info;
     }
 

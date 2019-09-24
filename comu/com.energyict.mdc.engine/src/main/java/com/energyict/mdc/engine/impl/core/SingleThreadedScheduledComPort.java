@@ -5,15 +5,20 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -24,7 +29,8 @@ import java.util.concurrent.ThreadFactory;
  */
 public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
-    private JobScheduler jobScheduler;
+    private final AtomicBoolean continueRunningAfterInterrupt = new AtomicBoolean(false);
+    private SingleThreadedJobScheduler jobScheduler;
 
     SingleThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
@@ -45,6 +51,27 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     @Override
+    protected void doRun() {
+        if (continueRunningAfterInterrupt.get()) {
+            resetThreadsInterruptedFlag();
+            getJobScheduler().executeHighPriorityTasks();
+            continueRunningAfterInterrupt.set(false);
+        } else {
+            goSleepIfWokeUpTooEarly();
+            executeTasks();
+        }
+    }
+
+    @Override
+    protected boolean continueRunning() {
+        return super.continueRunning() || continueRunningAfterInterrupt.get();
+    }
+
+    private boolean resetThreadsInterruptedFlag() {
+        return Thread.interrupted(); // Which will read and more important also clear the interrupted flag
+    }
+
+    @Override
     public int getThreadCount() {
         return 1;
     }
@@ -55,7 +82,36 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     @Override
-    protected JobScheduler getJobScheduler() {
+    public void updateLogLevel(OutboundComPort comPort) {
+        setComPort(comPort);
+    }
+
+    @Override
+    public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+        return getJobScheduler().isExecutingOneOf(comTaskExecutions);
+    }
+
+    @Override
+    public boolean isConnectedTo(OutboundConnectionTask connectionTask) {
+        return getJobScheduler().isConnectedTo(connectionTask);
+    }
+
+    @Override
+    public Map<Long, Integer> getHighPriorityLoadPerComPortPool() {
+        return getJobScheduler().getHighPriorityLoadPerComPortPool();
+    }
+
+    @Override
+    public void executeWithHighPriority(HighPriorityComJob job) {
+        // Schedule the task first
+        getJobScheduler().scheduleWithHighPriority(job);
+        // Then interrupt the thread but make sure that it keeps running so that it will pick up the task that was scheduled above as the first task
+        continueRunningAfterInterrupt.set(true);
+        interrupt();
+    }
+
+    @Override
+    protected SingleThreadedJobScheduler getJobScheduler() {
         if (this.jobScheduler == null) {
             this.jobScheduler = new SingleThreadedJobScheduler(this.getComPort().getComServer().getCommunicationLogLevel());
         }
@@ -70,10 +126,34 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
         private ComServer.LogLevel logLevel;
         private List<ScheduledJob> scheduledJobs = new ArrayList<>();
+        private SingleThreadedScheduledJobExecutor currentExecutor;
 
         private SingleThreadedJobScheduler(ComServer.LogLevel logLevel) {
             super();
             this.logLevel = logLevel;
+        }
+
+        public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+            return this.currentExecutor != null && this.currentExecutor.isExecutingOneOf(comTaskExecutions);
+        }
+
+        public boolean isConnectedTo(OutboundConnectionTask connectionTask) {
+            return this.currentExecutor != null && this.currentExecutor.isConnectedTo(connectionTask);
+        }
+
+        public Map<Long, Integer> getHighPriorityLoadPerComPortPool() {
+            Map<Long, Integer> loadPerComPortPool = new HashMap<>(scheduledJobs.size());
+            for (ScheduledJob scheduledJob : this.scheduledJobs) {
+                if (scheduledJob.isHighPriorityJob()) {
+                    long comPortPoolId = ((JobExecution) scheduledJob).getConnectionTask().getComPortPool().getId();
+                    if (loadPerComPortPool.containsKey(comPortPoolId)) {
+                        loadPerComPortPool.put(comPortPoolId, loadPerComPortPool.get(comPortPoolId) + 1);
+                    } else {
+                        loadPerComPortPool.put(comPortPoolId, 1);
+                    }
+                }
+            }
+            return loadPerComPortPool;
         }
 
         @Override
@@ -84,10 +164,31 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
         @Override
         public int scheduleAll(List<ComJob> jobs) {
             scheduledJobs = this.toScheduledJobs(jobs);
-            for (ScheduledJob job : scheduledJobs) {
-                new SingleThreadedScheduledJobExecutor(getServiceProvider().transactionService(), this.logLevel, getDeviceCommandExecutor()).acquireTokenAndPerformSingleJob(job);
-            }
+            executeScheduledJobs();
             return jobs.size();
+        }
+
+        private void executeScheduledJobs() {
+            for (ScheduledJob job : this.scheduledJobs) {
+                try {
+                    LOGGER.info("[" + Thread.currentThread().getName() + "] executing job on SingleThreadedScheduledJobExecutor");
+                    this.currentExecutor = new SingleThreadedScheduledJobExecutor(getServiceProvider().transactionService(), this.logLevel, getDeviceCommandExecutor());
+                    this.currentExecutor.acquireTokenAndPerformSingleJob(job);
+                } finally {
+                    this.currentExecutor = null;
+                    if (!Thread.currentThread().isInterrupted()) {
+                        this.scheduledJobs = new ArrayList<>();
+                    }
+                }
+            }
+        }
+
+        public void scheduleWithHighPriority(HighPriorityComJob job) {
+            this.scheduledJobs = this.toScheduledJobs(job);
+        }
+
+        public void executeHighPriorityTasks() {
+            this.executeScheduledJobs();
         }
 
         @Override
@@ -115,6 +216,12 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
             for (ComJob job : jobs) {
                 scheduledJobs.add(newComTaskGroup(job));
             }
+            return scheduledJobs;
+        }
+
+        private List<ScheduledJob> toScheduledJobs(HighPriorityComJob job) {
+            List<ScheduledJob> scheduledJobs = new ArrayList<>();
+            scheduledJobs.add(newComTaskGroup(job));
             return scheduledJobs;
         }
     }

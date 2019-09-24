@@ -11,11 +11,25 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
@@ -26,19 +40,35 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
@@ -70,6 +100,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     private Counter connectionTaskExecutionStarted = new Counter();
     private Counter connectionTaskExecutionCompleted = new Counter();
     private Counter connectionTaskExecutionFailed = new Counter();
+    private Counter connectionTaskExecutionRescheduled = new Counter();
     private Counter comTaskExecutionStarted = new Counter();
     private Counter comTaskExecutionCompleted = new Counter();
     private Counter executionFailed = new Counter();
@@ -115,6 +146,16 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         this.findExecutableComTasks.increment();
         return this.actual.findExecutableOutboundComTasks(comPort);
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
+        return null;
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date) {
+        return null;
     }
 
     @Override
@@ -165,7 +206,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
-        return this.actual.findProperties(connectionTask);
+        return actual.findProperties(connectionTask);
     }
 
     @Override
@@ -189,48 +230,60 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        return this.actual.attemptLock(connectionTask, comServer);
+    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
+        return actual.attemptLock(connectionTask, comPort);
     }
 
     @Override
-    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
-        return this.actual.attemptLock(connectionTask, comServer);
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
+        return actual.attemptLock(connectionTask, comPort);
     }
 
     @Override
     public void unlock(OutboundConnectionTask connectionTask) {
-        this.actual.unlock(connectionTask);
+        actual.unlock(connectionTask);
     }
 
     @Override
     public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
-        return this.actual.attemptLock(comTaskExecution, comPort);
+        return actual.attemptLock(comTaskExecution, comPort);
+    }
+
+    @Override
+    public boolean attemptLock(PriorityComTaskExecutionLink priorityComTaskExecutionLink, ComPort comPort) {
+        return actual.attemptLock(priorityComTaskExecutionLink, comPort);
     }
 
     @Override
     public void unlock(ComTaskExecution comTaskExecution) {
-        this.actual.unlock(comTaskExecution);
+        actual.unlock(comTaskExecution);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
-        this.connectionTaskExecutionStarted.increment();
-        this.actual.executionStarted(connectionTask, comServer);
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
+        connectionTaskExecutionStarted.increment();
+        actual.executionStarted(connectionTask, comPort);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
-        this.connectionTaskExecutionCompleted.increment();
-        this.actual.executionCompleted(connectionTask);
+        connectionTaskExecutionCompleted.increment();
+        actual.executionCompleted(connectionTask);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
-        this.connectionTaskExecutionFailed.increment();
-        this.actual.executionFailed(connectionTask);
+        connectionTaskExecutionFailed.increment();
+        actual.executionFailed(connectionTask);
+        return connectionTask;
+    }
+
+    @Override
+    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
+        this.connectionTaskExecutionRescheduled.increment();
+        this.actual.executionRescheduled(connectionTask);
         return connectionTask;
     }
 
@@ -248,6 +301,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        this.comTaskExecutionCompleted.increment();
+        this.actual.executionCompleted(comTaskExecution);
+    }
+
+    @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
         this.comTaskExecutionCompleted.increment();
         this.actual.executionCompleted(comTaskExecution);
     }
@@ -276,6 +335,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
         return this.actual.areStillPending(comTaskExecutionIds);
+    }
+
+    @Override
+    public boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionLinkIds) {
+        return false;
     }
 
     @Override
@@ -387,12 +451,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void releaseInterruptedTasks(ComServer comServer) {
+    public void releaseInterruptedTasks(ComPort comPort) {
         // No need to release when in monitoring mode
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks(ComServer comServer) {
+    public TimeDuration releaseTimedOutTasks(ComPort comPort) {
         // No need to release when in monitoring mode
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
@@ -536,6 +600,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return this.actual.getComServerUser();
     }
 
+    @Override
+    public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
+        return Collections.emptyList();
+    }
+
     private class VerifyingComServerDAO implements ComServerDAO {
         private CounterVerifier verifier;
 
@@ -575,6 +644,16 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
             this.verifier.verify(findExecutableComTasks);
+            return null;
+        }
+
+        @Override
+        public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
+            return null;
+        }
+
+        @Override
+        public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date) {
             return null;
         }
 
@@ -754,12 +833,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
+        public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
             return connectionTask;
         }
 
         @Override
-        public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+        public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
             return true;
         }
 
@@ -774,13 +853,18 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public boolean attemptLock(PriorityComTaskExecutionLink comTaskExecution, ComPort comPort) {
+            return true;
+        }
+
+        @Override
         public void unlock(ComTaskExecution comTaskExecution) {
             // No implementation required so far
         }
 
         @Override
-        public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
-            this.verifier.verify(connectionTaskExecutionStarted);
+        public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
+            verifier.verify(connectionTaskExecutionStarted);
             return connectionTask;
         }
 
@@ -793,6 +877,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
             this.verifier.verify(connectionTaskExecutionFailed);
+            return connectionTask;
+        }
+
+        @Override
+        public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
+            this.verifier.verify(connectionTaskExecutionRescheduled);
             return connectionTask;
         }
 
@@ -812,6 +902,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+
+        }
+
+        @Override
         public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
             comTaskExecutions.forEach(this::executionCompleted);
         }
@@ -827,12 +922,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void releaseInterruptedTasks(ComServer comServer) {
+        public void releaseInterruptedTasks(ComPort comPort) {
             // No implementation required
         }
 
         @Override
-        public TimeDuration releaseTimedOutTasks(ComServer comServer) {
+        public TimeDuration releaseTimedOutTasks(ComPort comPort) {
             // No implementation required
             return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
         }
@@ -961,6 +1056,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionLinkIds) {
+            return false;
+        }
+
+        @Override
         public ServerProcessStatus getStatus() {
             return null;
         }
@@ -990,6 +1090,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public User getComServerUser() {
             return null;
+        }
+
+        @Override
+        public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
+            return Collections.emptyList();
         }
     }
 }

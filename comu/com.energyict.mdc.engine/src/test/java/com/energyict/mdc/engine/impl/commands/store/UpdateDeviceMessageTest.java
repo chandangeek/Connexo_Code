@@ -5,18 +5,19 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+
+import java.time.Instant;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

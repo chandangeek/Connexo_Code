@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.identifiers;
 
-import com.energyict.mdc.upl.meterdata.LogBook;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.obis.ObisCode;

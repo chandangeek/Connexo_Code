@@ -7,8 +7,8 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.POST;

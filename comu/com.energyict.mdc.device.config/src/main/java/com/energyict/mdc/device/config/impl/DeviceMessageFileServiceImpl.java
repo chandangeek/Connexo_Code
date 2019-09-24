@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 
 import org.osgi.service.component.annotations.Component;

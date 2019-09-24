@@ -9,7 +9,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TemporalExpression;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.events.CreateEventType;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;

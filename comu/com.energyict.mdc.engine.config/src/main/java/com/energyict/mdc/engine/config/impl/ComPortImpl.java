@@ -13,10 +13,11 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPoolMember;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPoolMember;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.ports.ComPortType;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -35,7 +36,7 @@ import java.util.Set;
 
 /**
  * Serves as the root of class hierarchy that will provide
- * an implementation for the {@link com.energyict.mdc.engine.config.ComPort} interface hierarchy.
+ * an implementation for the {@link ComPort} interface hierarchy.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (12:48)
@@ -81,7 +82,7 @@ public abstract class ComPortImpl implements ComPort {
     private long version;
     private Instant createTime;
     private Instant modTime;
-    private final Reference<ComServerImpl> comServer = ValueReference.absent();
+    private final Reference<ComServer> comServer = ValueReference.absent();
     private boolean active;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
     private String description;
@@ -191,8 +192,8 @@ public abstract class ComPortImpl implements ComPort {
         return type;
     }
 
-    public void setComServer(ComServer comServer) {
-        this.comServer.set((ComServerImpl)comServer);
+    void setComServer(ComServer comServer) {
+        this.comServer.set(comServer);
     }
 
     public void setActive(boolean active) {

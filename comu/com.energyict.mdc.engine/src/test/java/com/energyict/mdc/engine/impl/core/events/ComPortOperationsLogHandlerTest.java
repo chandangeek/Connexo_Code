@@ -6,29 +6,24 @@ package com.energyict.mdc.engine.impl.core.events;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
@@ -45,7 +40,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,8 +51,6 @@ public class ComPortOperationsLogHandlerTest {
     ServiceProvider serviceProvider;
     @Mock
     private ComPort comPort;
-    @Mock
-    private RunningComServerImpl.ServiceProvider serviceComServerProvider;
     @Mock
     private DeviceService deviceService;
     @Mock
@@ -82,11 +74,7 @@ public class ComPortOperationsLogHandlerTest {
     @Mock
     private EventService eventService;
     @Mock
-    private ServerEventAPIStatistics eventApiStatistics;
-    @Mock
-    private ManagementBeanFactory managementBeanFactory;
-    @Mock(extraInterfaces = ComServerMonitor.class)
-    private ComServerMonitorImplMBean comServerMonitor;
+    private EventAPIStatistics eventApiStatistics;
 
     private ComPortOperationsLogger comPortOperationsLogger;
     private static final String eventRegistrationURL = "ws://localhost:8282/events/registration";
@@ -96,10 +84,6 @@ public class ComPortOperationsLogHandlerTest {
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(serviceProvider.eventPublisher()).thenReturn(eventPublisher);
-        when(serviceComServerProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
-        when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
-        ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
-        when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
 
         ComPortOperationsLogHandler comportOperationsLogHandler = new ComPortOperationsLogHandler(comPort, serviceProvider.eventPublisher(), serviceProvider);
         comPortOperationsLogger = LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getAnonymousLogger(comportOperationsLogHandler));

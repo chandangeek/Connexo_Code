@@ -10,6 +10,7 @@ import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailReference;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -61,7 +62,7 @@ public class AuditTrailCPSHandle implements AuditTrailDecoderHandle {
 
     @Override
     public List<String> getPrivileges() {
-        return Arrays.asList("privilege.view.anyUsagePoint", "privilege.administer.anyUsagePoint");
+        return Arrays.asList(Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT);
     }
 
     @Override

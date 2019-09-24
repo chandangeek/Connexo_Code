@@ -90,7 +90,7 @@ public class AM122PushEventNotificationParser extends EventPushNotificationParse
         final long alarmDescriptor2Value = alarmDescriptor2.getValue();
 
         List<MeterEvent> meterAlarmEvents = MeterAlarmParser.parseAlarmCode(pushDate, alarmDescriptor1Value, 1);
-        meterAlarmEvents.addAll( MeterAlarmParser.parseAlarmCode(pushDate, alarmDescriptor2Value, 2) );
+        meterAlarmEvents.addAll(MeterAlarmParser.parseAlarmCode(pushDate, alarmDescriptor2Value, 2) );
 
         createCollectedLogBook(meterAlarmEvents);
     }

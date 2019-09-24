@@ -10,23 +10,29 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -43,9 +49,6 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -53,6 +56,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -65,8 +69,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,7 +82,7 @@ import java.util.stream.Stream;
 import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
 /**
- * Provides code reuse for in- and outbound {@link com.energyict.mdc.engine.config.ComPort ComPorts }
+ * Provides code reuse for in- and outbound {@link ComPort ComPorts }
  * which perform one or more ComTasks.
  * It will be useful to group the AOP logging as well.
  * <p>
@@ -107,6 +113,10 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected static TypedProperties getProtocolDialectTypedProperties(ComServerDAO comServerDAO, ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
+        TypedProperties result = TypedProperties.empty();
+        if (protocolDialectConfigurationProperties == null) {
+            return result;
+        }
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
         TypedProperties protocolDialectProperties = comServerDAO.findProtocolDialectPropertiesFor(comTaskExecution.getId());
         TypedProperties result;
@@ -161,6 +171,17 @@ public abstract class JobExecution implements ScheduledJob {
      * @return the list of ComTaskExecutions
      */
     public abstract List<ComTaskExecution> getComTaskExecutions();
+
+    @Override
+    public boolean containsOneOf(List<ComTaskExecution> comTaskExecutions) {
+        Set<ComTaskExecution> comTaskExecutionSet = new HashSet<>(comTaskExecutions);
+        for (ComTaskExecution comTaskExecution : this.getComTaskExecutions()) {
+            if (comTaskExecutionSet.contains(comTaskExecution)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Indicate whether a connection has been set-up
@@ -366,6 +387,8 @@ public abstract class JobExecution implements ScheduledJob {
             successIndicator = ComSession.SuccessIndicator.Broken;
         } else if (commandRoot.hasGeneralSetupErrorOccurred()) {
             successIndicator = ComSession.SuccessIndicator.Broken;
+        } else if (commandRoot.hasConnectionBeenInterrupted()) {
+            successIndicator = ComSession.SuccessIndicator.Interrupted;
         }
 
         if (successIndicator.equals(ComSession.SuccessIndicator.Success)) {
@@ -460,6 +483,8 @@ public abstract class JobExecution implements ScheduledJob {
         FirmwareService firmwareService();
 
         ProtocolPluggableService protocolPluggableService();
+
+        TimeOfUseCampaignService touService();
 
     }
 

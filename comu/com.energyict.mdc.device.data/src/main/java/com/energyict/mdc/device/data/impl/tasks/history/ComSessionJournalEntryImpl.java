@@ -9,9 +9,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlElementRef;

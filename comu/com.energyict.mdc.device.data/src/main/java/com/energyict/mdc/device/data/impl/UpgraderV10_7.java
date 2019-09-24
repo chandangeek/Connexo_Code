@@ -3,49 +3,59 @@
  */
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
-import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class UpgraderV10_7 implements Upgrader {
 
     private final DataModel dataModel;
+    private final EventService eventService;
     private final MessageService messageService;
     private final ServiceCallService serviceCallService;
     private final Installer installer;
 
     @Inject
-    public UpgraderV10_7(DataModel dataModel, MessageService messageService, ServiceCallService serviceCallService, Installer installer) {
+    public UpgraderV10_7(DataModel dataModel, MessageService messageService, ServiceCallService serviceCallService,
+                         EventService eventService, Installer installer) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.serviceCallService = serviceCallService;
+        this.eventService = eventService;
         this.installer = installer;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
+        EventType.COMTASKEXECUTION_COMPLETION.createIfNotExists(eventService);
         deleteOldDestinations();
         installer.createPrioritizedMessageHandlers();
         createMessageHandlerLP();
         updateServiceCallTypes();
+        updateConnectionTaskJournalTable();
     }
 
     private void deleteOldDestinations() {
@@ -109,5 +119,19 @@ public class UpgraderV10_7 implements Upgrader {
     private void subscribeLP(DestinationSpec queue) {
         queue.activate();
         queue.subscribe(SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    private void updateConnectionTaskJournalTable() {
+        String sqlStatement = "ALTER TABLE DDC_CONNECTIONTASKJRNL RENAME COLUMN COMSERVER TO COMPORT";
+        try (Connection connection = dataModel.getConnection(true)) {
+            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
+                Logger.getAnonymousLogger().info("Executing: " + sqlStatement);
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 }

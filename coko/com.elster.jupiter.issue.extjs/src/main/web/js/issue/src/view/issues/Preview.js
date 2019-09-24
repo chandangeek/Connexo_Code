@@ -101,14 +101,46 @@ Ext.define('Isu.view.issues.Preview', {
                         }
                     },
                     {
+                        xtype: 'filter-display',
+                        itemId: 'issue-preview-webservice-endpoint',
+                        fieldLabel: Uni.I18n.translate('general.title.webserviceEndpoint', 'ISU', 'Web service endpoint'),
+                        name: 'webServiceEndpoint',
+                        renderer: function (value) {
+                            var url = '',
+                                result = '-';
+
+                            if (me.getRecord()) {
+                                me.down('#issue-preview-webservice-endpoint').setVisible(me.getRecord().get('issueType').uid === 'webservice');
+                            }
+
+                            if (value) {
+                                if (value && Wss.privileges.Webservices.canView()) {
+                                    url = me.router.getRoute('workspace/webserviceendpoints/view').buildUrl({endpointId: value.id});
+                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
+                                } else {
+                                    result = value.name;
+                                }
+                            }
+
+                            return result;
+                        }
+                    },
+                    {
                         itemId: 'issue-preview-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
                         name: 'usage_point',
                         renderer: function (value) {
+
                             if (me.getRecord()) {
-                                me.down('#issue-preview-usage-point').setVisible(me.getRecord().get('issueType').uid !== 'servicecall');
+                                if (me.getRecord().get('issueType').uid === 'webservice') {
+                                    me.down('#issue-preview-usage-point').setVisible(false);
+                                } else if (me.getRecord().get('issueType').uid === 'servicecall') {
+                                    me.down('#issue-preview-usage-point').setVisible(false);
+                                } else {
+                                    me.down('#issue-preview-usage-point').setVisible(true);
+                                }
                             }
-                            return value;
+                            return value && !Ext.isEmpty(value) ? value : '-';
                         }
                     },
                     {
@@ -120,9 +152,15 @@ Ext.define('Isu.view.issues.Preview', {
                             var url = '',
                                 result = '-';
 
-                            if (me.getRecord()) {
-                                me.down('#issue-preview-device').setVisible(me.getRecord().get('issueType').uid !== 'servicecall');
-                            }
+                                if (me.getRecord()) {
+                                    if (me.getRecord().get('issueType').uid === 'webservice') {
+                                        me.down('#issue-preview-device').setVisible(false);
+                                    } else if (me.getRecord().get('issueType').uid === 'servicecall') {
+                                        me.down('#issue-preview-device').setVisible(false);
+                                    } else {
+                                        me.down('#issue-preview-device').setVisible(true);
+                                    }
+                                }
 
                             if (value) {
                                 if (value.name && Isu.privileges.Device.canViewDeviceCommunication()) {

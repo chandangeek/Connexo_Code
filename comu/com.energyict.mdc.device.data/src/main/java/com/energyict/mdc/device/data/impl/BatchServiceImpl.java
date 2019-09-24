@@ -8,7 +8,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
 
 import javax.inject.Inject;

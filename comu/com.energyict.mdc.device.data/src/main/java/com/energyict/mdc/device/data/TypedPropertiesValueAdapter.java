@@ -4,7 +4,14 @@
 
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.HsmKey;
+import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.TrustedCertificate;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;

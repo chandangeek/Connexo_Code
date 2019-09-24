@@ -9,6 +9,7 @@ import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.Message;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKey;
@@ -58,6 +59,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.X509KeyManager;
 import java.io.IOException;
@@ -77,6 +80,8 @@ import java.util.Map;
         service = {HsmEnergyService.class, HsmProtocolService.class},
         immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolService {
+
+    private static final Logger logger = LoggerFactory.getLogger(HsmEnergyServiceImpl.class);
 
     private static final int AES_KEY_LENGTH = 16;
 
@@ -114,7 +119,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
+    public HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException, HsmNotConfiguredException {
+        logger.debug("Import request:" + importKeyRequest);
         HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
         if (importKeyRequest.getHsmKeyType().isReversible()) {
             return new ReversibleKeyImporter().importKey(importKeyRequest, hsmConfiguration, hsmEncryptService);

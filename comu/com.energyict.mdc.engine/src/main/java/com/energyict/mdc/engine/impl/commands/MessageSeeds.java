@@ -18,11 +18,11 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.MessageSeed {
     CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER(2066, "deviceIdentifier.not.found", "Could not find a device for identifier ''{0}''"),
     UNSUPPORTED_LOAD_PROFILE(5000, "loadProfile.notSupported", "Loadprofile ''{0}'' is not supported by the device"),
-    CHANNEL_UNIT_MISMATCH(5001, "channel.unit.mismatch", "Channel unit mismatch: load profile in the meter with OBIS code ''{0}'' has a channel ({1}) with the unit ''{2}'', whilst the configured unit for that channel is ''{3}''"),
+    CHANNEL_UNIT_MISMATCH(5001, "channel.unit.mismatch", "Channel unit mismatch: load profile with OBIS code ''{0}'' has a channel ({1}) with the unit ''{2}'' in the meter , but in Connexo the configured unit for that channel is ''{3}''"),
     LOAD_PROFILE_INTERVAL_MISMATCH(5002, "loadprofile.interval.mismatch", "Load profile interval mismatch; load profile with OBIS code ''{0}'' has a {1} second(s) interval on the device, while {2} second(s) is configured"),
     LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH(5003, "loadprofile.nbrOfChannels.mismatch", "Number of channels mismatch; load profile with OBIS code ''{0}'' has {1} channel(s) on the device, while there are {2} channel(s) configured"),
     LOAD_PROFILE_CHANNEL_MISSING(5054, "loadprofileobiscodeXmissingchannel", "Channel with OBIS code ''{0}'' not found for load profile ({1})"),
-    LOAD_PROFILE_NO_CHANNEL_MATCH(5055, "loadprofileobiscodeXmissingchannelOtherMatch", "No channel match for Load profile with OBIS code ''{0}'' "),
+    LOAD_PROFILE_NO_CHANNEL_MATCH(5055, "loadprofileobiscodeXmissingchannelOtherMatch", "Load profile with OBIS code ''{0}'' has channel ''{1}'' configured in Connexo, but the channel could not be found in the device! It was found only on the following devices: {2}"),
     COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE(5004, "collectedDeviceTopologyForUnKnownDevice", "The collected topology is for an unknown device ''{0}''"),
     COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE(5005, "collectedDeviceCacheForUnknownDevice", "Could not store the collected device cache: device ''{0}''  does not exist!"),
     SERIALS_REMOVED_FROM_TOPOLOGY(5006, "serialsRemovedFromTopology", "The following devices are removed from the topology: {0}"),
@@ -88,7 +88,9 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     UNKNOWN_DEVICE(5068, "collectedDeviceProtocolPropertyForUnknownDevice", "Protocol property for unknown device"),
     ANY_CHANNEL_OBIS_CODE_REQUIRES_SERIAL_NUMBER(5069, "anyChannelObisCodeRequiresSerialNumber", "The device serial number is required to resolve the x (any channel) in OBIS code ''{0}''"),
     COULD_NOT_PARSE_OBIS_CODE(5070, "couldNotParseObisCode", "Not a valid obis code: {0}"),
-    FAILED_TO_PARSE_IDENTIFIER_DATA(5071, "failedToParseIdentifierData", "Unable to parse the identifier: {0}");
+    NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED(5071, "notExecutedDueToConnectionInterrupted", "Communication task will be rescheduled due to an interrupted connection"),
+    COLLECTED_DATA_ISSUE(5072, "collectedDataIssue","Collected data issue for message ''{0}'': {1}");
+    FAILED_TO_PARSE_IDENTIFIER_DATA(5073, "failedToParseIdentifierData", "Unable to parse the identifier: {0}");
 
     private final int number;
     private final String key;

@@ -15,7 +15,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
@@ -45,6 +45,8 @@ import static com.elster.jupiter.servicecall.DefaultState.FAILED;
 import static com.elster.jupiter.servicecall.DefaultState.PARTIAL_SUCCESS;
 import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator.actualRecurrentTaskFrequency;
+import static com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay;
 
 public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "ParentGetMeterReadingsServiceCallHandler";
@@ -129,11 +131,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         if (timePeriodEnd == null) {
             timePeriodEnd = calculateEndDateFromChild(getChildDomainExtension(serviceCall));
         }
-        if (timePeriodStart == null) {
-            timePeriodStart = calculateStartDateFromChild(getChildDomainExtension(serviceCall));
-
+        RangeSet<Instant> timeRangeSet = TreeRangeSet.create();
+        if (timePeriodStart != null) {
+            timeRangeSet = getTimeRangeSet(timePeriodStart, timePeriodEnd);
         }
-        RangeSet<Instant> timeRangeSet = getTimeRangeSet(timePeriodStart, timePeriodEnd);
         Set<Meter> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
         Set<String> readingTypesMRIDs = getSetOfValuesFromString(readingTypesString);
         Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
@@ -149,7 +150,8 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     .withLoadProfiles(loadProfilesNames)
                     .withRegisterGroups(registerGroupsNames)
                     .inTimeIntervals(timeRangeSet)
-                    .withReadingTypesMRIDsTimeRangeMap(createReadingTypesMRIDsTimeRangeMap(endDevices, readingTypesMRIDs, timePeriodStart, timePeriodEnd))
+                    .withReadingTypesMRIDsTimeRangeMap(createReadingTypesMRIDsTimeRangeMap(endDevices, readingTypesMRIDs, loadProfilesNames, timePeriodStart, timePeriodEnd))
+                    .withRegisterUpperBoundShift(calculateRegisterUpperBoundShift())
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(FAILED);
@@ -176,6 +178,11 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
+    }
+
+    private int calculateRegisterUpperBoundShift() {
+        /// FIXME +5
+        return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 2;
     }
 
     private boolean sendResponse(ServiceCall serviceCall, MeterReadings meterReadings) {
@@ -209,6 +216,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
     private Map<String, RangeSet<Instant>> createReadingTypesMRIDsTimeRangeMap(Set<Meter> meters,
                                                                                Set<String> readingTypesMRIDs,
+                                                                               Set<String> loadProfilesNames,
                                                                                Instant start,
                                                                                Instant end) {
         if (start != null) { // required only for case when start date is absent
@@ -222,7 +230,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .forEach(loadProfile -> {
                     loadProfile.getLoadProfileSpec().getLoadProfileType().getChannelTypes().stream()
                             .map(ct -> ct.getReadingType().getMRID())
-                            .filter(mrid -> readingTypesMRIDs.contains(mrid))
+                            .filter(mrid -> readingTypesMRIDs.contains(mrid)
+                                    || loadProfilesNames.contains(loadProfile.getLoadProfileSpec()
+                                    .getLoadProfileType()
+                                    .getName()))
                             .forEach(mrid ->
                                     readingTypesMRIDsTimeRangeMap.put(mrid, getTimeRangeSet(loadProfile.getLastReading()
                                             .toInstant(), end))
@@ -238,11 +249,6 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .findChildren().stream().findFirst().get();
         return childServiceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for child service call"));
-    }
-
-    private Instant calculateStartDateFromChild(ChildGetMeterReadingsDomainExtension extension) {
-        return Optional.ofNullable(extension.getActualStartDate())
-                .orElseThrow(() -> new IllegalStateException("Unable to get actual start date for child service call"));
     }
 
     private Instant calculateEndDateFromChild(ChildGetMeterReadingsDomainExtension extension) {

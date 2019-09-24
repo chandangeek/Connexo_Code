@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

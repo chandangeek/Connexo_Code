@@ -1,10 +1,10 @@
 package com.energyict.mdc.engine.impl.web.events;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
+import org.eclipse.jetty.websocket.WebSocket;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -137,17 +138,13 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
 
     @Override
     public void onWebSocketText(String message) {
-        if ("ping".equals(message)) { // Keep alive
-            sendMessage("pong");
-            return;
-        }
         try {
-            Request request = parser.parse(message);
+            Request request = this.parser.parse(message);
             request.applyTo(this);
-            sendBinary = request.useBinaryEvents();
-            sendMessage("Copy " + message);
-        } catch (RequestParseException e) {
-            sendMessage("Message not understood: " + e.getMessage());
+            this.sendMessage("Copy " + message);  //No sense to send the message back  - just to debug
+        }
+        catch (RequestParseException e) {
+            this.sendMessage("Message not understood:" + e.getMessage());
         }
     }
 
@@ -161,6 +158,22 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
         this.session = null;
         this.eventPublisher.unregisterAllInterests(this);
         this.closeEventListener.closedFrom(this);
+        setClosed(true);
+    }
+
+    @Override
+    public void onWebSocketBinary(byte[] payload, int offset, int len) {
+        try {
+            if (isConnected()) {
+                session.getRemote().sendBytes(ByteBuffer.wrap(payload));
+            }
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+    @Override
+    public void onWebSocketError(Throwable cause) {
+        cause.printStackTrace(System.err);
     }
 
     @Override

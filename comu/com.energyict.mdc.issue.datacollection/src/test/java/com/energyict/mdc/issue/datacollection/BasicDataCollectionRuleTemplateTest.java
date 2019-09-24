@@ -5,6 +5,7 @@
 package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
@@ -18,26 +19,27 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.time.TimeService;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
-
 import com.google.inject.Injector;
+import org.junit.Test;
+import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -45,6 +47,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BasicDataCollectionRuleTemplateTest extends BaseTest {
+
+    @Test
+    @Transactional
+    public void testSaveDataCollectionEventToDatabase(){
+
+    }
 
     @Test
     @Transactional
@@ -128,7 +136,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     @Test
     @Transactional
     public void testCloseBaseIssue() {
-        ((IssueServiceImpl)getIssueService()).addIssueProvider((IssueProvider) getIssueDataCollectionService());
+        ((IssueServiceImpl) getIssueService()).addIssueProvider((IssueProvider) getIssueDataCollectionService());
 
         CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_CONNECTION_FAILED);
         Meter meter = createMeter("1", "Name");
@@ -136,8 +144,8 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
         OpenIssue issue = template.createIssue(createBaseIssue(rule, meter), event);
         Optional<? extends Issue> baseIssue = getIssueService().findIssue(issue.getId());
-        assertThat(baseIssue.get() instanceof  OpenIssueImpl).isTrue();
-        ((OpenIssue)baseIssue.get()).close(getIssueService().findStatus(IssueStatus.WONT_FIX).get());
+        assertThat(baseIssue.get() instanceof OpenIssueImpl).isTrue();
+        ((OpenIssue) baseIssue.get()).close(getIssueService().findStatus(IssueStatus.WONT_FIX).get());
         baseIssue = getIssueService().findIssue(issue.getId());
         assertThat(baseIssue.get() instanceof HistoricalIssueImpl).isTrue();
         assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
@@ -163,10 +171,12 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     private UnknownSlaveDeviceEvent getUnknownDeviceEvent(Long amrId) {
         DeviceService mockDeviceDataService = mock(DeviceService.class);
         TopologyService mockTopologyService = mock(TopologyService.class);
+        final TimeService timeService = mock(TimeService.class);
+        final Clock clock = mock(Clock.class);
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(amrId);
         when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(Optional.of(device));
-        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(getIssueDataCollectionService(), getMeteringService(), mockDeviceDataService, mockTopologyService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class));
+        UnknownSlaveDeviceEvent event = new UnknownSlaveDeviceEvent(getIssueDataCollectionService(), getMeteringService(), mockDeviceDataService, mockTopologyService, getCommunicationTaskService(), getThesaurus(), mock(Injector.class), timeService, getEventService(), clock);
         Map<String, Object> messageMap = new HashMap<>();
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());

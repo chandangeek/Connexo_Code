@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.rest.resource;
@@ -27,5 +27,11 @@ public class IssueRestModuleConst {
     public static final String END_INTERVAL = "startIntervalTo";
     public static final String APPLICATION = "application";
     public static final String USAGEPOINT = "usagePoint";
+    public static final String PRIORITY = "priority";
+
+    //extra filter fields
+    public static final String OPERATOR = "operator";
+    public static final String CRITERIA = "criteria";
+    public static final String LOCATION = "location";
     public static final String USAGEPOINT_GROUPS = "usagePointGroup";
 }

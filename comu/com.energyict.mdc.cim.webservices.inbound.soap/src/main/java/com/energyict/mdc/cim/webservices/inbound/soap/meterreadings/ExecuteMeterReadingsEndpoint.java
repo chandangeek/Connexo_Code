@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -21,17 +22,19 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.RegistersTask;
 
 import ch.iec.tc57._2011.getmeterreadings.DataSource;
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
@@ -109,6 +112,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final MasterDataService masterDataService;
+    private final Thesaurus thesaurus;
 
 
     @Inject
@@ -119,7 +123,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                                         Clock clock, ServiceCallCommands serviceCallCommands,
                                         EndPointConfigurationService endPointConfigurationService,
                                         WebServicesService webServicesService, MeteringService meteringService,
-                                        DeviceService deviceService, MasterDataService masterDataService) {
+                                        DeviceService deviceService, MasterDataService masterDataService, Thesaurus thesaurus) {
         this.readingBuilderProvider = readingBuilderProvider;
         this.syncReplyIssueProvider = syncReplyIssueProvider;
         this.replyTypeFactory = replyTypeFactory;
@@ -131,6 +135,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.masterDataService = masterDataService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -249,20 +254,24 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
             }
 
-            if (!checkDataSources(reading.getTimePeriod(), reading.getSource(), i, syncReplyIssue)) {
+            if (!checkDataSources(reading.getTimePeriod(), i, syncReplyIssue)) {
                 syncReplyIssue.addNotUsedReadingsDueToDataSources(i);
                 continue;
             }
 
-            fillDevicesComTaskExecutions(devices, reading, i, syncReplyIssue);
-            if (!checkComTaskExecutions(devices, readingItem, syncReplyIssue)) {
-                syncReplyIssue.addNotUsedReadingsDueToComTaskExecutions(i);
-                continue;
-            }
+            if (!reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
+                fillDevicesComTaskExecutions(devices, reading, i, syncReplyIssue);
+                if (!checkComTaskExecutions(devices, readingItem, syncReplyIssue)) {
+                    syncReplyIssue.addNotUsedReadingsDueToComTaskExecutions(i);
+                    continue;
+                }
 
-            if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices, syncReplyIssue)) {
-                syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
-                continue;
+                if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices, syncReplyIssue)) {
+                    syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
+                    continue;
+                }
+            } else {
+                syncReplyIssue.setSystemSource(true);
             }
 
             serviceCallCommands.createParentGetMeterReadingsServiceCallWithChildren(getMeterReadingsRequestMessage.getHeader(),
@@ -303,7 +312,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private void fillDevicesMessagesComTaskExecutions(Set<Device> devices, SyncReplyIssue syncReplyIssue) {
-        devices.forEach(device -> {
+        devices.forEach(originDevice -> {
+            Device device = deviceService.findAndLockDeviceById(originDevice.getId())
+                    .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
                 Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
                 if (comTaskExecutionOptional.isPresent()) {
@@ -314,7 +325,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private void fillDevicesComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue) {
-        for (Device device : devices) {
+        for (Device originDevice : devices) {
+            Device device = deviceService.findAndLockDeviceById(originDevice.getId())
+                    .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             final Class<?> clazz;
             if (isRegular) {
                 if (syncReplyIssue.getDeviceRegularComTaskExecutionMap().containsKey(device.getId())) {
@@ -479,7 +492,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .collect(Collectors.toList()))).stream().collect(Collectors.toSet()));
     }
 
-    private boolean checkDataSources(DateTimeInterval timePeriod, String source, int index, SyncReplyIssue syncReplyIssue) {
+    private boolean checkDataSources(DateTimeInterval timePeriod, int index, SyncReplyIssue syncReplyIssue) {
         Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
         Set<String> existedRegisterGroups = syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index);
 
@@ -514,7 +527,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return true;
     }
 
-    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) throws FaultMessage {
+    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) {
         List<Map<Long, ComTaskExecution>> deviceComTaskExecutionMaps = new ArrayList<>();
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceRegularComTaskExecutionMap());
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceIrregularComTaskExecutionMap());
@@ -524,7 +537,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         for (Map<Long, ComTaskExecution> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
             if (!deviceComTaskExecutionMap.isEmpty()) {
                 ComTaskExecution comTaskExecution = deviceComTaskExecutionMap.get(device.getId());
-                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod)) {
+                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
                     isOk = true;
                 } else {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
@@ -536,14 +549,16 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return isOk;
     }
 
-    private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
-            FaultMessage {
-        return comTaskExecution.getConnectionTask()
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_CONNECTION_TASK,
-                        comTaskExecution.getComTask().getName()))
-                .getPartialConnectionTask()
-                .getName()
-                .equalsIgnoreCase(connectionMethod);
+    private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod,
+                                                             SyncReplyIssue syncReplyIssue) {
+        Optional<ConnectionTask<?, ?>> connectionTaskOptional = comTaskExecution.getConnectionTask();
+        if (connectionTaskOptional.isPresent()) {
+            return connectionTaskOptional.get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod);
+        } else {
+            syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.NO_CONNECTION_TASK, null,
+                    comTaskExecution.getComTask().getName()));
+            return false;
+        }
     }
 
     private Set<LoadProfileType> getExistedLoadProfiles(Set<String> loadProfileNames, int index, SyncReplyIssue syncReplyIssue) {
@@ -900,7 +915,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         DateTimeInterval interval = reading.getTimePeriod();
         if (interval == null) {
             if (!asyncFlag) {
-                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null, null)
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, readingItem + ".timePeriod")
                         .get();
             }
             if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
@@ -910,6 +925,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (syncReplyIssue.getExistedReadingTypes().stream()
                     .anyMatch(readingType -> !readingType.isRegular())) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
+                return false;
             }
         } else {
             Instant start = interval.getStart();
@@ -932,6 +948,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 if (syncReplyIssue.getExistedReadingTypes().stream()
                         .anyMatch(readingType -> !readingType.isRegular())) {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
+                    return false;
                 }
             }
             if (start == null && end != null) {
@@ -940,9 +957,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 return false;
             }
             if (start != null && end != null && !end.isAfter(start)) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null,
-                        XsdDateTimeConverter.marshalDateTime(start), XsdDateTimeConverter.marshalDateTime(end)));
-                return false;
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
+                        XsdDateTimeConverter.marshalDateTime(start), XsdDateTimeConverter.marshalDateTime(end))
+                        .get();
             }
         }
         return true;

@@ -15,39 +15,39 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.protocol.security.SecurityPropertySpecProvider;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingConnectionMethodSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingSecuritySetSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
-import com.energyict.mdc.protocol.api.security.SecurityPropertySpecProvider;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 
@@ -612,11 +612,6 @@ public enum TableSpecs {
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
             table.column("CLIENT").varChar().map("clientDbValue").since(version(10, 3)).add();
-            table.column("C12User").varChar().map("C12User").since(version(10, 7)).add();
-            table.column("C12UserID").number().conversion(NUMBER2INT).notNull().map("C12UserID").since(version(10, 7)).add();
-            table.column("PasswordBinary").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("PasswordBinary").since(version(10, 7)).add();
-            table.column("C12CalledAPTitle").varChar().map("C12CalledAPTitle").since(version(10, 7)).add();
-            table.column("C12SecurityKey").varChar().map("C12SecurityKey").since(version(10, 7)).add();
             table.column("SECURITYSUITE").number().conversion(NUMBER2INT).notNull().installValue("-1").map("securitySuiteId").since(version(10, 3)).add();
             table.column("REQUESTSECURITYLEVEL").number().conversion(NUMBER2INT).notNull().installValue("-1").map("requestSecurityLevelId").since(version(10, 3)).add();
             table.column("RESPONSESECURITYLEVEL").number().conversion(NUMBER2INT).notNull().installValue("-1").map("responseSecurityLevelId").since(version(10, 3)).add();
@@ -1030,11 +1025,13 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.class);
             Column deviceTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
             Column secAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name()).number().notNull().add();
+            Column wrappingSecAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.WRAPPINGSECACCTYPE.name()).number().since(version(10,7)).add();
             Column defaultKeyColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.name())
                    .varChar(Table.MAX_STRING_LENGTH)
                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.fieldName())
                    .since(Version.version(10, 6))
                    .add();
+            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.KEYRENEWALMESSAGEID.name()).number().conversion(NUMBER2LONG).map("keyRenewalMessageIdIdDbValue").since(version(10, 7)).add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
             table.addAuditColumns();
             table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
@@ -1050,6 +1047,44 @@ public enum TableSpecs {
                     .on(secAccTypeColumn)
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName())
                     .add();
+            table.foreignKey("DTC_FK_WRPSECACTYDEVTYPE2SAT")
+                    .references(SecurityAccessorType.class)
+                    .on(wrappingSecAccTypeColumn)
+                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.WRAPPINGSECACCTYPE.fieldName())
+                    .add();
+        }
+    },
+
+    DTC_SECACCTYPES_KEYRENEW_CMD {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<SecurityAccessorTypeKeyRenewalImpl> table = dataModel.addTable(name(), SecurityAccessorTypeKeyRenewalImpl.class)
+                    .since(version(10, 7))
+                    .map(SecurityAccessorTypeKeyRenewalImpl.class);
+            Column deviceType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.name()).number().notNull().add();
+            Column secAccType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.name()).number().notNull().add();
+            Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
+            table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
+            table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
+            table.addAuditColumns();
+            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).add();
+            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_DT")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceType)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_ST")
+                    .references(SecurityAccessorType.class)
+                    .on(secAccType)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.fieldName())
+                    .add();
+            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD")
+                    .references(DTC_SECACCTYPES_ON_DEVICETYPE.name())
+                    .on(deviceType, secAccType)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SECURITYACCESSORTYPEONDEVICETYPE.fieldName())
+                    .reverseMap("securityAccessorTypeKeyRenewals")
+                    .composition()
+                    .add();
         }
     };
 
@@ -1057,5 +1092,6 @@ public enum TableSpecs {
 
     interface Constants {
         String DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE = "DTC_SECACCTYPESONDEVTYPE_JRNL";
+        String DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE = "DTC_SECACCTYPESONDTKRN_JRNL";
     }
 }

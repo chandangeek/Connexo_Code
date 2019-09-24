@@ -8,7 +8,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import com.energyict.mdc.identifiers.DeviceIdentifierByDeviceName;
@@ -23,6 +23,7 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 
+import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 import org.reflections.Reflections;
 
 import java.util.List;
@@ -127,7 +128,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     public void testDeviceDataDeviceIdentifierForAlreadyKnownDevice() throws Exception {
         Device myDevice = createDevice();
         DeviceService spiedService = spy(deviceService);
-        List<com.energyict.mdc.device.data.Device> devices = spiedService.findAllDevicesByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(myDevice.getId(), myDevice.getmRID()));
+        List<Device> devices = spiedService.findAllDevicesByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(myDevice));
         verify(spiedService).findDeviceById(myDevice.getId());
     }
 
@@ -151,7 +152,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void tesProtocolDeviceIdentifierById() throws Exception {
         DeviceService spiedService = spy(deviceService);
-        spiedService.findAllDevicesByIdentifier(new com.energyict.mdc.identifiers.DeviceIdentifierById(1));
+        spiedService.findAllDevicesByIdentifier(new com.energyict.protocolimplv2.identifiers.DeviceIdentifierById(1));
         verify(spiedService).findDeviceById(1);
     }
 
@@ -159,7 +160,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void tesProtocolDeviceIdentifierBySerialNumber() throws Exception {
         DeviceService spiedService = spy(deviceService);
-        spiedService.findAllDevicesByIdentifier(new com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber("mySerial"));
+        spiedService.findAllDevicesByIdentifier(new com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber("mySerial"));
         verify(spiedService).findDevicesBySerialNumber("mySerial");
     }
 
@@ -167,7 +168,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void tesProtocolDeviceIdentifierLikeSerialNumber() throws Exception {
         DeviceServiceImpl spiedService = spy(deviceService);
-        spiedService.findAllDevicesByIdentifier(new DeviceIdentifierLikeSerialNumber("mySerial"));
+        spiedService.findAllDevicesByIdentifier(new com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber("mySerial"));
         verify(spiedService).findDevicesBySerialNumberPattern("mySerial");
     }
 
@@ -175,7 +176,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void tesProtocolDeviceIdentifierBySystemTitle() throws Exception {
         DeviceServiceImpl spiedService = spy(deviceService);
-        spiedService.findAllDevicesByIdentifier(new DeviceIdentifierBySystemTitle("systemTitle"));
+        spiedService.findAllDevicesByIdentifier(new com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySystemTitle("systemTitle"));
         verify(spiedService).findDevicesByPropertySpecValue("DeviceSystemTitle", "systemTitle");
     }
 
@@ -183,7 +184,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void tesProtocolDeviceIdentifierByDialHomeId() throws Exception {
         DeviceServiceImpl spiedService = spy(deviceService);
-        spiedService.findAllDevicesByIdentifier(new DialHomeIdDeviceIdentifier("callHomeId"));
+        spiedService.findAllDevicesByIdentifier(new com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier("callHomeId"));
         verify(spiedService).findDevicesByPropertySpecValue(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "callHomeId");
     }
 
@@ -193,7 +194,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
         DeviceServiceImpl spiedService = spy(deviceService);
         CallHomeIdPlaceHolder callHomeIdPlaceHolder = new CallHomeIdPlaceHolder();
         callHomeIdPlaceHolder.setSerialNumber("systemTitle");
-        spiedService.findAllDevicesByIdentifier(new DialHomeIdPlaceHolderDeviceIdentifier(callHomeIdPlaceHolder));
+        spiedService.findAllDevicesByIdentifier(new com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier(callHomeIdPlaceHolder));
         verify(spiedService).findDevicesByPropertySpecValue(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "systemTitle");
     }
 
@@ -201,7 +202,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void testProtocolDeviceIdentifierByConnectionTypeAndProperty() throws Exception {
         DeviceService spiedService = spy(deviceService);
-        spiedService.findAllDevicesByIdentifier(new com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty(InboundIpConnectionTypeImpl.class, "myProperty", "myValue"));
+        spiedService.findAllDevicesByIdentifier(new com.energyict.protocolimplv2.identifiers.DeviceIdentifierByConnectionTypeAndProperty(InboundIpConnectionTypeImpl.class, "myProperty", "myValue"));
         verify(spiedService).findDevicesByConnectionTypeAndProperty(InboundIpConnectionTypeImpl.class, "myProperty", "myValue");
     }
 }

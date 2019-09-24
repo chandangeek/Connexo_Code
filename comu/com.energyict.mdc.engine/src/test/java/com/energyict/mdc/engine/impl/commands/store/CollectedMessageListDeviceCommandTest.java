@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
 import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;

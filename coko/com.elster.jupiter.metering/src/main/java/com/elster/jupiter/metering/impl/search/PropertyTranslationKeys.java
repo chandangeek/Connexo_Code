@@ -83,6 +83,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_METROLOGY_PURPOSE_NAME("usagepoint.metrology.purpose.name", "Purpose name"),
     USAGEPOINT_METROLOGY_PURPOSE_START_DATE("usagepoint.metrology.purpose.startDate", "Purpose start date"),
     USAGEPOINT_METROLOGY_PURPOSE_END_DATE("usagepoint.metrology.purpose.endDate", "Purpose end date"),
+    USAGEPOINT_CALENDAR("usagepoint.categorytou", "Time of use"),
     ;
 
     private String key;

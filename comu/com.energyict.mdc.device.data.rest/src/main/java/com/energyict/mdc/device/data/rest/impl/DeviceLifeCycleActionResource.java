@@ -16,11 +16,13 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InvalidLastCheckedException;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -28,10 +30,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -107,6 +106,7 @@ public class DeviceLifeCycleActionResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -115,42 +115,33 @@ public class DeviceLifeCycleActionResource {
             @PathParam("actionId") long actionId,
             @BeanParam JsonQueryParameters queryParameters,
             DeviceLifeCycleActionInfo info) {
-        TransactionContext transaction = null;
-        try {
-            transaction = transactionService.getContext();
-            Device device = resourceHelper.lockDeviceOrThrowException(info.device);
-            ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
-            DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
-            info.effectiveTimestamp = info.effectiveTimestamp == null ? clock.instant() : info.effectiveTimestamp;
-            wizardResult.effectiveTimestamp = info.effectiveTimestamp;
-            if (requestedAction.getAction() instanceof AuthorizedTransitionAction) {
-                AuthorizedTransitionAction authorizedAction = (AuthorizedTransitionAction) requestedAction.getAction();
-                wizardResult.targetState = getTargetStateName(authorizedAction);
-                if (info.properties != null) {
-                    Map<String, PropertySpec> allPropertySpecsForAction = authorizedAction.getActions()
-                            .stream()
-                            .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
-                            .collect(Collectors.toMap(PropertySpec::getName, Function.identity(), (prop1, prop2) -> prop1));
-                    List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
-                    try {
-                        requestedAction.execute(info.effectiveTimestamp, executableProperties);
-                        transaction.commit();
-                    } catch (RequiredMicroActionPropertiesException violationEx) {
-                        wrapWithFormValidationErrorAndRethrow(violationEx);
-                    } catch (MultipleMicroCheckViolationsException violationEx) {
-                        getFailedExecutionMessage(violationEx, wizardResult);
-                    } catch (SecurityException | InvalidLastCheckedException | DeviceLifeCycleActionViolationException ex) {
-                        wizardResult.result = false;
-                        wizardResult.message = ex.getLocalizedMessage();
-                    }
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
+        ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
+        DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
+        info.effectiveTimestamp = info.effectiveTimestamp == null ? clock.instant() : info.effectiveTimestamp;
+        wizardResult.effectiveTimestamp = info.effectiveTimestamp;
+        if (requestedAction.getAction() instanceof AuthorizedTransitionAction) {
+            AuthorizedTransitionAction authorizedAction = (AuthorizedTransitionAction) requestedAction.getAction();
+            wizardResult.targetState = getTargetStateName(authorizedAction);
+            if (info.properties != null) {
+                Map<String, PropertySpec> allPropertySpecsForAction = authorizedAction.getActions()
+                        .stream()
+                        .flatMap(microAction -> deviceLifeCycleService.getPropertySpecsFor(microAction).stream())
+                        .collect(Collectors.toMap(PropertySpec::getName, Function.identity(), (prop1, prop2) -> prop1));
+                List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
+                try {
+                    requestedAction.execute(info.effectiveTimestamp, executableProperties);
+                } catch (RequiredMicroActionPropertiesException violationEx) {
+                    wrapWithFormValidationErrorAndRethrow(violationEx);
+                } catch (MultipleMicroCheckViolationsException violationEx) {
+                    getFailedExecutionMessage(violationEx, wizardResult);
+                } catch (SecurityException | InvalidLastCheckedException | DeviceLifeCycleActionViolationException ex) {
+                    wizardResult.result = false;
+                    wizardResult.message = ex.getLocalizedMessage();
                 }
             }
-            return Response.ok(wizardResult).build();
-        } finally {
-            if (transaction != null && transactionService.isInTransaction()) {
-                transaction.close();
-            }
         }
+        return Response.ok(wizardResult).build();
     }
 
     private void wrapWithFormValidationErrorAndRethrow(RequiredMicroActionPropertiesException violationEx) {

@@ -12,7 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import org.osgi.service.component.annotations.Component;
@@ -134,16 +134,15 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                 .filter(epc -> !epc.isInbound())
                 .filter(epc -> epc.getUrl().equals(extensionFor.getCallbackURL()))
                 .findAny();
-		if (endPointConfiguration.isPresent()) {
-			ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
-			MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet())
-					.get();
-			OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
-			
-			replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
-					getSuccessfullyProcessedDevices(serviceCall), getUnsuccessfullyProcessedDevices(serviceCall),
-					extensionFor.getExpectedNumberOfCalls(), extensionFor.getCorrelationId());
-		}
+        if (endPointConfiguration.isPresent()) {
+            ServiceCall child = serviceCall.findChildren().stream().findFirst().get();
+            MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet())
+                    .get();
+            OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
+            replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
+                    getSuccessfullyProcessedDevices(serviceCall), getUnsuccessfullyProcessedDevices(serviceCall),
+                    extensionFor.getExpectedNumberOfCalls(), extensionFor.getCorrelationId());
+        }
     }
 
     private List<Device> getSuccessfullyProcessedDevices(ServiceCall serviceCall) {
@@ -151,7 +150,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         serviceCall.findChildren()
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.SUCCESSFUL))
-                .forEach(child ->  {
+                .forEach(child -> {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
                     Optional<Device> device = findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
                     if (device.isPresent()) {
@@ -166,7 +165,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
         serviceCall.findChildren()
                 .stream()
                 .filter(child -> child.getState().equals(DefaultState.FAILED))
-                .forEach(child ->  {
+                .forEach(child -> {
                     MeterConfigDomainExtension extensionFor = child.getExtensionFor(new MeterConfigCustomPropertySet()).get();
                     FailedMeterOperation failedMeterOperation = new FailedMeterOperation();
                     failedMeterOperation.setErrorCode(extensionFor.getErrorCode());

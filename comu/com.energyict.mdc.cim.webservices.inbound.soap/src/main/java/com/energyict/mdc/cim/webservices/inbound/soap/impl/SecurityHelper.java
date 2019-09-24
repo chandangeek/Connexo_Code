@@ -5,6 +5,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
@@ -17,14 +18,13 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -111,7 +111,7 @@ public class SecurityHelper {
 		com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey = null;
 		try {
 			hsmEncryptedKey = hsmEnergyService.importKey(createImportKeyRequest(securityInfo, securityAccessorType));
-		} catch (HsmBaseException hsmEx) {
+		} catch (HsmNotConfiguredException|HsmBaseException hsmEx) {
 			faultSituationHandler.logException(device, hsmEx, MessageSeeds.CANNOT_IMPORT_KEY_TO_HSM,
 					device.getName(), securityInfo.getSecurityAccessorName());
 			return;

@@ -6,9 +6,9 @@ package com.energyict.mdc.engine.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.openmbean.OpenDataException;

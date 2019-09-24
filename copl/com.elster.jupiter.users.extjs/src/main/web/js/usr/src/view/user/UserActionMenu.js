@@ -5,7 +5,6 @@
 Ext.define('Usr.view.user.UserActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.user-action-menu',
-    itemId: 'user-action-menu',
     initComponent: function () {
         this.items = [
             {
@@ -34,7 +33,7 @@ Ext.define('Usr.view.user.UserActionMenu', {
         beforeshow: function (menu) {
             var activate = menu.down('#activate-user'),
                 deactivate = menu.down('#deactivate-user'),
-                active = menu.record.get('active');
+                active = menu.record.raw.active;
 
             activate && activate.setVisible(!active);
             deactivate && deactivate.setVisible(active);

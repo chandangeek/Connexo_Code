@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

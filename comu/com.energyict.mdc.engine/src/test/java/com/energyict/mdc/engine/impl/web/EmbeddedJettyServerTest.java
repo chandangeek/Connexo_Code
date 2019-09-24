@@ -4,18 +4,18 @@
 
 package com.energyict.mdc.engine.impl.web;
 
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
+import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
-
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
+
 import org.eclipse.jetty.server.Server;
 
 import java.net.URI;
@@ -52,15 +52,13 @@ public class EmbeddedJettyServerTest {
     @Mock
     private EmbeddedJettyServer.ServiceProvider embeddedJettyServerServiceProvider;
     @Mock
+    EventAPIStatistics eventAPIStatistics;
+    @Mock
+    QueryAPIStatistics queryAPIStatistics;
+    @Mock
+    private ComServerDAO comServerDAO;
+    @Mock
     private RunningComServerImpl.ServiceProvider serviceProvider;
-    @Mock
-    private ManagementBeanFactory managementBeanFactory;
-    @Mock(extraInterfaces = ComServerMonitor.class)
-    private ComServerMonitorImplMBean comServerMonitor;
-    @Mock
-    private ServerEventAPIStatistics eventApiStatistics;
-    @Mock
-    private QueryAPIStatistics queryAPIStatistics;
 
     private EmbeddedJettyServer embeddedJettyServer;
     private Server jettyServer;
@@ -68,11 +66,6 @@ public class EmbeddedJettyServerTest {
     @Before
     public void setupServiceProvider () {
         when(this.embeddedJettyServerServiceProvider.webSocketEventPublisherFactory()).thenReturn(this.webSocketEventPublisherFactory);
-        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
-        when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
-        ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
-        when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
-        when(comServerMonitor.getQueryApiStatistics()).thenReturn(this.queryAPIStatistics);
     }
 
     @After
@@ -272,21 +265,21 @@ public class EmbeddedJettyServerTest {
         try {
             this.jettyServer = new Server(PORT_NUMBER);
             this.jettyServer.start();
-        }
-        catch (Exception e) {
+
+            OnlineComServer comServer = mock(OnlineComServer.class);
+            RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+            when(runningOnlineComServer.getComServer()).thenReturn(comServer);
+            this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
+
+            // Business method
+            this.embeddedJettyServer.start();
+
+            // Asserts
+            assertThat(this.embeddedJettyServer.getStatus()).isNotEqualTo(ServerProcessStatus.STARTED);
+        } catch (Exception e) {
             e.printStackTrace(System.err);
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
-        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer, queryAPIStatistics);
-
-        // Business method
-        this.embeddedJettyServer.start();
-
-        // Asserts
-        assertThat(this.embeddedJettyServer.getStatus()).isNotEqualTo(ServerProcessStatus.STARTED);
     }
 
     @Test

@@ -46,7 +46,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     protected static final ObisCode MODEM_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.2.0.2.8.255");
     protected static final ObisCode ACTIVE_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.0.0.2.8.255");
 
-    protected static final ObisCode AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("1.4.0.2.0.255");
+    public static final ObisCode AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("1.4.0.2.0.255");
     //Security
     protected static final ObisCode SECURITY_SETUP_OBISCODE = ObisCode.fromString("0.0.43.0.0.255");
     //Power
@@ -941,13 +941,11 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 }
             } // for - registers
 
-            protocol.journal("Finished adding attributes to read for ESMR5, asking parents to do for: "+registersForSuper.toString());
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registersForSuper, supportsBulkRequest);
             if (sRegisterList != null) {
                 dlmsAttributes.addAll(Arrays.asList(sRegisterList.getDlmsAttributesList()));
             }
 
-            protocol.journal("Composed registers: "+this.getComposedRegisterMap().toString());
             return new ComposedCosemObject(protocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
         }
         return null;
@@ -965,7 +963,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     }
 
     @Override
-    protected RegisterValue handleComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
+    protected RegisterValue readComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
         if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
             ScalerUnit su = new ScalerUnit(Unit.get(70)); // dbm = 70;
             try {
@@ -1007,7 +1005,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }
 
         } else {
-            return super.handleComposedRegister(registerComposedCosemObject, register);
+            return super.readComposedRegister(registerComposedCosemObject, register);
         }
 
         return new RegisterValue(register);

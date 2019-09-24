@@ -12,15 +12,16 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.energyict.obis.ObisCode;
-
 import com.energyict.mdc.common.ValidObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.DeleteEventType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
 import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.masterdata.LogBookType;
+
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

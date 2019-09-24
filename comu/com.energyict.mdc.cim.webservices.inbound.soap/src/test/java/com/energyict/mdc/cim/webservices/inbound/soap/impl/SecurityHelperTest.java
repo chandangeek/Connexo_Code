@@ -1,29 +1,8 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-
-import javax.crypto.spec.SecretKeySpec;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
@@ -39,11 +18,34 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+
+import javax.crypto.spec.SecretKeySpec;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityHelperTest {
@@ -141,7 +143,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmSuccessServiceCall() throws HsmBaseException {
+	public void testAddKeysHsmSuccessServiceCall() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -169,7 +171,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmSuccessNoServiceCall() throws HsmBaseException {
+	public void testAddKeysHsmSuccessNoServiceCall() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -246,7 +248,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmServiceCall_HsmBaseExceptionThrown() throws HsmBaseException {
+	public void testAddKeysHsmServiceCall_HsmBaseExceptionThrown() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -261,7 +263,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmNoServiceCall_HsmBaseExceptionThrown() throws HsmBaseException {
+	public void testAddKeysHsmNoServiceCall_HsmBaseExceptionThrown() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -304,7 +306,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmNoServiceCall_RuntimeExceptionThrown() throws HsmBaseException {
+	public void testAddKeysHsmNoServiceCall_RuntimeExceptionThrown() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);

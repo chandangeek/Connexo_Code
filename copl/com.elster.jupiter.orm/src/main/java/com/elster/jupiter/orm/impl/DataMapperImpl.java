@@ -562,8 +562,17 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return new SqlBuilder(getSqlGenerator().getSelectFromClause(alias, hints));
 	}
 
+	@Override
+	public SqlBuilder builderWithAdditionalColumns(String alias, String... columns) {
+		return new SqlBuilder(getSqlGenerator().getSelectFromClauseWithAdditionalColumns(alias, columns));
+	}
+
 	public DataModelImpl getDataModel() {
 		return getTable().getDataModel();
+	}
+
+	public <R extends T> DataMapperImpl<R> subMapper(Class<R> subApi) {
+		return getDataModel().mapper(subApi);
 	}
 
 	@Override

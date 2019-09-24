@@ -21,7 +21,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys.START_PROCESS_ACTION_PROCESS;
 
@@ -49,7 +48,7 @@ public class StartProcessAction extends AbstractIssueAction {
 
     private final BpmService bpmService;
 
-    private String reasonName;
+    private String reasonKey;
 
     @Inject
     protected StartProcessAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, BpmService bpmService) {
@@ -104,25 +103,37 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        Builder<PropertySpec> builder = ImmutableList.builder();
-        List<HasIdAndName> processInfos = bpmService.getBpmProcessDefinitions().stream().filter(this::getBpmProcessDefinitionFilter).map(ProcessInfo::new).collect(Collectors.toList());
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        ProcessInfo[] possibleValues = this.getPossibleProcesses();
         builder.add(
-                getPropertySpecService().specForValuesOf(new ProcessInfoValueFactory())
+                getPropertySpecService()
+                        .specForValuesOf(new ProcessInfoValueFactory())
                         .named(START_PROCESS_ACTION_PROCESS)
                         .fromThesaurus(getThesaurus())
                         .markRequired()
+                        .setDefaultValue(possibleValues.length == 1 ? possibleValues[0] : null)
+                        .addValues(possibleValues)
                         .markExhaustive()
-                        .addValues(processInfos)
                         .finish());
         return builder.build();
     }
 
-    private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition) {
-        Object props = processDefinition.getProperties().get(PROPERTY_NAME);
-        return ASSOCIATION.equals(processDefinition.getAssociation())
-                && (reasonName == null
-                || props instanceof List
-                && ((List<?>) props).stream().filter(HasIdAndName.class::isInstance).anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName)));
+    private ProcessInfo[] getPossibleProcesses() {
+        Stream<BpmProcessDefinition> applicableProcesses = bpmService.getActiveBpmProcessDefinitions()
+                .stream()
+                .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(ASSOCIATION));
+        if (reasonKey != null) {
+            applicableProcesses = applicableProcesses.filter(bpmProcessDefinition -> {
+                Object reasons = bpmProcessDefinition.getProperties().get(PROPERTY_NAME);
+                return reasons instanceof List && ((List<?>) reasons)
+                        .stream()
+                        .filter(HasIdAndName.class::isInstance)
+                        .map(HasIdAndName.class::cast)
+                        .anyMatch(reason -> reasonKey.equals(reason.getId()));
+            });
+        }
+        return applicableProcesses.map(ProcessInfo::new)
+                .toArray(ProcessInfo[]::new);
     }
 
     @Override
@@ -132,14 +143,25 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(String reasonName){
-        return super.isApplicable(reasonName) && bpmService.getActiveBpmProcessDefinitions().stream()
-                .anyMatch(this::getBpmProcessDefinitionFilter);
+        return bpmService.getActiveBpmProcessDefinitions()
+                .stream()
+                .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(ASSOCIATION))
+                .map(BpmProcessDefinition::getProperties)
+                .map(properties -> properties.get(PROPERTY_NAME))
+                .filter(List.class::isInstance)
+                .map(List.class::cast)
+                .flatMap(List::stream)
+                .filter(HasIdAndName.class::isInstance)
+                .map(HasIdAndName.class::cast)
+                .map(HasIdAndName::getId)
+                .map(Object::toString)
+                .anyMatch(reason -> reason.equals(reasonName));
     }
 
 
     @Override
-    public IssueAction setReasonName(String reasonName) {
-        this.reasonName = reasonName;
+    public IssueAction setReasonKey(String reasonKey) {
+        this.reasonKey = reasonKey;
         return this;
     }
 

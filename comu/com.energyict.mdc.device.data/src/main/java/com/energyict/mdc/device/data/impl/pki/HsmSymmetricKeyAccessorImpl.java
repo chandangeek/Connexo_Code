@@ -9,8 +9,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+
 import com.google.inject.Inject;
+
+import java.util.Optional;
 
 public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
@@ -25,20 +29,34 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
     @Override
     public void renew() {
-        //TODO: retreive somehow the masterKey so we can pass it instead of actual value...
-        //This is just to make it work on the very short term for beacon device. change it asap by a proper way of linking sec accessor AK,  EK, etc to their master key used for wrapping at keyRenewal
-        SecurityAccessorType masterKeyAccessorType = getDevice().getDeviceProtocolProperties().getTypedProperty("DlmsWanKEK");
-        if (masterKeyAccessorType == null) {
-            throw new PkiLocalizedException(thesaurus, MessageSeeds.ACTUAL_VALUE_NOT_SET);
+        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorType());
+
+        if (!wrappingSecurityAccessorType.isPresent()) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_DEFINED);
+        }
+        SecurityAccessorType masterKeyAccessorType = wrappingSecurityAccessorType.get();
+
+        Optional<SecurityAccessor> securityAccessor = getDevice().getSecurityAccessor(masterKeyAccessorType);
+        if (!securityAccessor.isPresent()) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
+        }
+        SecurityAccessor wrapperSecAccessor = securityAccessor.get();
+
+        Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualValue();
+        if (!actualValueWrapperAccessor.isPresent()) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
         }
 
-        HsmKey masterKey = (HsmKey) getDevice().getSecurityAccessor(masterKeyAccessorType).get().getActualPassphraseWrapperReference().get();
-
-        if (tempSymmetricKeyWrapperReference.isPresent()) {
-            clearTempValue();
+        if (actualValueWrapperAccessor.get() instanceof HsmKey) {
+            if (tempSymmetricKeyWrapperReference.isPresent()) {
+                clearTempValue();
+            }
+            doRenewValue((HsmKey) actualValueWrapperAccessor.get());
+        }
+        else {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.WRAPPER_NOT_HSMKEY);
         }
 
-        doRenewValue(masterKey);
     }
 
     private void doRenewValue(HsmKey masterKey) {

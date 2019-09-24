@@ -9,7 +9,9 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
 
     requires: [
         'Apr.store.QueuesByApplication',
-        'Apr.store.SuspendedTask'
+        'Apr.store.SuspendedTask',
+        'Uni.view.search.field.Numeric'
+
     ],
 
     initComponent: function () {
@@ -40,6 +42,7 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 multiSelect: true,
                 displayField: 'queue',
                 valueField: 'queue',
+                itemId: 'task-queue',
                 store: me.queuesStore
             },
             {
@@ -48,6 +51,21 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 dataIndexFrom: 'startedOnFrom',
                 dataIndexTo: 'startedOnTo',
                 text: Uni.I18n.translate('taskManagement.startedBetween', 'APR', 'Started between')
+            },
+            {
+                type: 'numeric',
+                dataIndex: 'priority',
+                itemId: 'filter-priority',
+                minValue: Number.NEGATIVE_INFINITY,
+                text: Uni.I18n.translate('general.priority', 'APR', 'Priority')
+            },
+            {
+                type: 'interval',
+                itemId: 'filter-nextRun',
+                dataIndex: 'nextRun',
+                dataIndexFrom: 'nextRunFrom',
+                dataIndexTo: 'nextRunTo',
+                text: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
             },
             {
                 type: 'combobox',

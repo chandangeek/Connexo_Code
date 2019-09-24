@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.a1860;
 
+import com.energyict.cim.EndDeviceType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -56,6 +57,8 @@ import java.util.Optional;
 
 public class A1860 extends AbstractDlmsProtocol {
 
+    private final EndDeviceType typeMeter = EndDeviceType.ELECTRICMETER;
+
     private A1860RegisterFactory registerFactory;
     private A1860LoadProfileDataReader loadProfileDataReader;
     private A1860LogBookFactory logBookFactory;
@@ -73,7 +76,7 @@ public class A1860 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-07-12 11:00:11 +0200 (Wed, 12 Jul 2017)$";
+        return "$Date: 2019-09-09$";
     }
 
     @Override
@@ -248,5 +251,9 @@ public class A1860 extends AbstractDlmsProtocol {
 
     public NlsService getNlsService() {
         return nlsService;
+    }
+
+    public EndDeviceType getTypeMeter() {
+        return typeMeter;
     }
 }

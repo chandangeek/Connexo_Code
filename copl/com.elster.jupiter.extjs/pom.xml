@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>extjs</artifactId>
     <packaging>bundle</packaging>
@@ -35,7 +35,7 @@
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
-                    <filesets>
+                    <filesets combine.children="append">
                         <fileset>
                             <directory>src/main/web/js/ext/packages</directory>
                             <includes>

@@ -22,13 +22,13 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.CertificateAccessor;
 import com.energyict.mdc.device.data.CertificateRenewalService;
 import com.energyict.mdc.device.data.CrlRequestService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyRenewalService;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 
 import org.bouncycastle.asn1.x500.X500NameBuilder;

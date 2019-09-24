@@ -13,15 +13,16 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelDataUpdater;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileJournalReading;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.ChannelDataUpdater;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LoadProfileJournalReading;
+import com.energyict.mdc.common.device.data.LoadProfileReading;
+import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -204,9 +205,9 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     }
 
     /**
-     * Provides an implementation of a Channel of a {@link com.energyict.mdc.device.data.Device},
-     * which is actually a wrapping around a {@link com.energyict.mdc.device.config.ChannelSpec}
-     * of the {@link com.energyict.mdc.device.config.DeviceConfiguration}.
+     * Provides an implementation of a Channel of a {@link Device},
+     * which is actually a wrapping around a {@link ChannelSpec}
+     * of the {@link DeviceConfiguration}.
      * <i>Currently a {@link Device} can only have Channel if it is owned by a LoadProfile</i>
      * <p>
      *
@@ -216,7 +217,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     private class ChannelImpl implements Channel {
 
         /**
-         * The {@link com.energyict.mdc.device.config.ChannelSpec} for which this channel is serving
+         * The {@link ChannelSpec} for which this channel is serving
          */
         private final ChannelSpec channelSpec;
 

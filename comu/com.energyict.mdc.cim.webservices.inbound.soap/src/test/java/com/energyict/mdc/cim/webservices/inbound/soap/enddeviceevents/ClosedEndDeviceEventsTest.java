@@ -181,8 +181,6 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo("ERRORCODE");
             assertThat(error.getDetails()).isEqualTo("ErrorMessage");
-
-            verifyNoMoreInteractions(transactionContext);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -210,8 +208,6 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.INVALID_SEVERITY.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.INVALID_SEVERITY.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.INVALID_SEVERITY.translate(thesaurus));
-
-            verifyNoMoreInteractions(transactionContext);
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }

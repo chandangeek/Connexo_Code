@@ -9,11 +9,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
@@ -60,7 +59,7 @@ public interface FirmwareService {
     EnumSet<FirmwareType> getSupportedFirmwareTypes(DeviceType deviceType);
     boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
     boolean isResumeFirmwareUploadEnabled(DeviceType deviceType);
-    Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec();
+    Optional<DeviceMessageSpec> defaultFirmwareVersionSpec();
     Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption, FirmwareVersion firmwareVersion);
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
     FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
@@ -107,6 +106,7 @@ public interface FirmwareService {
      * @return the utility class
      */
     FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device);
+    FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device, boolean onlyLastMessagePerFirmwareType);
 
     DeviceFirmwareHistory getFirmwareHistory(Device device);
 
@@ -123,4 +123,9 @@ public interface FirmwareService {
 
     Optional<DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
                                                        FirmwareVersion firmwareVersion);
+
+    FirmwareCampaignManagementOptions newFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign);
+    Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign);
+    void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware);
+    List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign);
 }

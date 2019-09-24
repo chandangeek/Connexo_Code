@@ -5,7 +5,7 @@
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,7 @@ public class ComTaskInfo {
     public List<ProtocolTaskInfo> commands;
     public List<MessageCategoryInfo> messages;
     public long version;
+    public List<ComTaskPrivilegeInfo> privileges;
     public boolean systemTask;
 
     public static ComTaskInfo from(ComTask comTask) {
@@ -63,6 +64,7 @@ public class ComTaskInfo {
         comTaskInfo.commands = new ArrayList<>();
         comTaskInfo.commands.addAll(ProtocolTaskInfo.from(comTask.getProtocolTasks(), thesaurus));
         comTaskInfo.messages = MessageCategoryInfo.fromTasks(comTask.getProtocolTasks());
+        comTaskInfo.privileges = ComTaskPrivilegeInfo.from(comTask.getUserActions(), thesaurus);
         return comTaskInfo;
     }
 }

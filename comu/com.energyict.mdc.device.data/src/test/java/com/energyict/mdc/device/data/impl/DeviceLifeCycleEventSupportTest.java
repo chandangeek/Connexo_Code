@@ -8,19 +8,20 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -184,6 +185,40 @@ public class DeviceLifeCycleEventSupportTest {
     public void extractFromComTaskExecutionUpdatedEventWithOtherLifeCycle() {
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(EventType.COMTASKEXECUTION_UPDATED.topic());
+        LocalEvent localEvent = mock(LocalEvent.class);
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(this.comTaskExecution);
+
+        // Business method
+        Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.otherFiniteStateMachine);
+
+        // Asserts
+        assertThat(extracted.isPresent()).isFalse();
+    }
+
+    @Test
+    public void extractFromComTaskExecutionCompletionEvent() {
+        com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+        when(eventType.getTopic()).thenReturn(EventType.COMTASKEXECUTION_COMPLETION.topic());
+        LocalEvent localEvent = mock(LocalEvent.class);
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(this.comTaskExecution);
+
+        // Business method
+        Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);
+
+        // Asserts
+        assertThat(extracted.isPresent()).isTrue();
+        CurrentStateExtractor.CurrentState currentState = extracted.get();
+        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DEVICE_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
+        assertThat(currentState.name).isEqualTo(STATE_NAME);
+    }
+
+    @Test
+    public void extractFromComTaskExecutionCompletionEventWithOtherLifeCycle() {
+        com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+        when(eventType.getTopic()).thenReturn(EventType.COMTASKEXECUTION_COMPLETION.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
         when(localEvent.getType()).thenReturn(eventType);
         when(localEvent.getSource()).thenReturn(this.comTaskExecution);

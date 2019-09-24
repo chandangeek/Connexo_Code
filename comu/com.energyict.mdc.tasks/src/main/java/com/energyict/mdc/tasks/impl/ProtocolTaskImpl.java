@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implementation for a {@link com.energyict.mdc.tasks.ProtocolTask}
+ * Implementation for a {@link ProtocolTask}
  *
  * @author gna
  * @since 23/04/12 - 11:47

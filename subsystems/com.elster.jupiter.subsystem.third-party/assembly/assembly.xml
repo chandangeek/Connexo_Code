@@ -33,6 +33,9 @@
                 <include>org.apache.commons:*</include>
                 <include>com.enterprisedt:edtftpj-pro</include>
                 <include>org.apache.aries.jmx:*</include>
+                <include>org.apache.santuario:xmlsec</include>
+                <include>io.dropwizard.metrics:metrics-core</include>
+                <include>com.elster.jupiter.bundles:com.elster.jupiter.bundles.opensaml</include>
             </includes>
 
             <unpack>false</unpack>

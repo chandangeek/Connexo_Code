@@ -9,14 +9,14 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
@@ -25,6 +25,7 @@ import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -83,7 +84,11 @@ public class RunningComServerImplTest {
     @Mock
     private NlsService nlsService;
     @Mock
+    private ComServerDAO comServerDAO;
+    @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private QueryAPIStatistics queryAPIStatistics;
 
     private Clock clock = Clock.systemDefaultZone();
 

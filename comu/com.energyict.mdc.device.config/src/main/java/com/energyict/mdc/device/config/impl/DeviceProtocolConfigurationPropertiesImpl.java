@@ -6,10 +6,10 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.common.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -85,8 +85,11 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
         TypedProperties defaultProperties = this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().map(DeviceProtocolPluggableClass::getProperties).orElse(TypedProperties.empty());
         TypedProperties properties = TypedProperties.inheritingFrom(defaultProperties);
         for (DeviceProtocolConfigurationProperty property : this.deviceConfiguration.getProtocolPropertyList()) {
-            ValueFactory<?> valueFactory = this.getPropertySpec(property.getName()).get().getValueFactory();
-            properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
+            this.getPropertySpec(property.getName())
+                    .ifPresent(propertySpec -> {
+                        ValueFactory<?> valueFactory = propertySpec.getValueFactory();
+                        properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
+                    });
         }
         return properties;
     }

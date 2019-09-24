@@ -15,13 +15,12 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.osgi.service.component.annotations.Component;
@@ -30,6 +29,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -91,7 +91,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         if (comTaskName != null && comTaskName.equals(domainExtension.getCommunicationTask())) {
             Instant triggerDate = domainExtension.getTriggerDate();
             serviceCall.log(LogLevel.SEVERE, String.format("Communication task execution '%s'(trigger date: %s) is failed",
-                    comTaskName, triggerDate));
+                    comTaskName, triggerDate.atZone(ZoneId.systemDefault())));
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
@@ -117,7 +117,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         if (clock.instant().isAfter(triggerDate) && comTaskName != null
                 && comTaskName.equals(domainExtension.getCommunicationTask())) {
             serviceCall.log(LogLevel.FINE, String.format("Communication task execution '%s'(trigger date: %s) is completed",
-                    comTaskName, triggerDate));
+                    comTaskName, triggerDate.atZone(ZoneId.systemDefault())));
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         }
@@ -136,19 +136,34 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Unable to find device message for service call with id:" + serviceCall
                             .getId()));
-            ;
-            if (deviceMessage.getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
-                        deviceMessage.getSpecification()
-                                .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else {
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
-                        deviceMessage.getSpecification()
-                                .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
-                serviceCall.requestTransition(DefaultState.FAILED);
+            switch (deviceMessage.getStatus()) {
+                case CONFIRMED:
+                    if (serviceCall.getState().isOpen()) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
+                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
+                                deviceMessage.getSpecification()
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
+                                        .atZone(ZoneId.systemDefault())));
+                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                    }
+                    break;
+                case CANCELED:
+                    if (serviceCall.getState().isOpen()) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
+                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is canceled",
+                                deviceMessage.getSpecification()
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
+                                        .atZone(ZoneId.systemDefault())));
+                        serviceCall.requestTransition(DefaultState.CANCELLED);
+                    }
+                    break;
+                default:
+                    serviceCall.requestTransition(DefaultState.ONGOING);
+                    serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
+                            deviceMessage.getSpecification()
+                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
+                                    .atZone(ZoneId.systemDefault())));
+                    serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
     }

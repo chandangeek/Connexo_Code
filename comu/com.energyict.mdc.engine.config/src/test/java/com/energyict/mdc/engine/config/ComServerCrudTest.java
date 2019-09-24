@@ -7,13 +7,18 @@ package com.energyict.mdc.engine.config;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.config.impl.MessageSeeds;
 import com.energyict.mdc.ports.ComPortType;
+
+import java.text.MessageFormat;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.text.MessageFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

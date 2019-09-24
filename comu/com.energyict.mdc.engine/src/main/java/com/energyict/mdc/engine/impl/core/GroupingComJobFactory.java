@@ -4,10 +4,13 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class GroupingComJobFactory implements ComJobFactory {
 
@@ -17,7 +20,6 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     private ComTaskExecution previous;
 
     public GroupingComJobFactory(int maximumJobs) {
-        super();
         this.maximumJobs = maximumJobs;
     }
 
@@ -26,36 +28,38 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     }
 
     protected int numberOfJobs() {
-        return this.jobs.size() + this.groups.values().size();
+        return jobs.size() + groups.values().size();
     }
 
     @Override
     public List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions) {
         while (comTaskExecutions.hasNext()) {
             ComTaskExecution comTaskExecution = comTaskExecutions.next();
-            if (continueFetching(comTaskExecution)) {
-                this.add(comTaskExecution);
-            } else {
-                break;
+            if (!comTaskExecution.shouldExecuteWithPriority()) {
+                if (continueFetching(comTaskExecution)) {
+                    add(comTaskExecution);
+                } else {
+                    break;
+                }
             }
         }
-        this.jobs.addAll(this.groups.values());
-        return this.jobs;
+        jobs.addAll(groups.values());
+        return jobs;
     }
 
     protected boolean continueFetching(ComTaskExecution comTaskExecution) {
-        if (this.needMoreJobs()) {
-            if (this.previous == null) {
+        if (needMoreJobs()) {
+            if (previous == null) {
                 // First ComTaskExecution
-                this.previous = comTaskExecution;
+                previous = comTaskExecution;
                 return true;
             } else {
                 /* Continue fetching as long as we are dealing with the
                  * same ConnectionTask and if we are switching to another
                  * ConnectionTask then we only continue fetching
                  * if we support switching to another ConnectionTask. */
-                boolean continueFetching = comTaskExecution.usesSameConnectionTaskAs(this.previous) || this.continueFetchingOnNewConnectionTask();
-                this.previous = comTaskExecution;
+                boolean continueFetching = comTaskExecution.usesSameConnectionTaskAs(previous) || continueFetchingOnNewConnectionTask();
+                previous = comTaskExecution;
                 return continueFetching;
             }
         } else {
@@ -66,29 +70,26 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     protected abstract boolean continueFetchingOnNewConnectionTask();
 
     private boolean needMoreJobs() {
-        return this.jobs.size() < this.maximumJobs;
+        return jobs.size() < maximumJobs;
     }
 
     protected void add(ComTaskExecution comTaskExecution) {
-        this.addToGroup(comTaskExecution);
+        addToGroup(comTaskExecution);
     }
 
     protected void addToGroup(ComTaskExecution comTaskExecution) {
-        // ComTaskExecution was returned by task query that joins it with the ConnectionTask so group cannot be <code>null</code>
-        Optional<ComTaskExecutionGroup> group = this.getComTaskGroup(comTaskExecution);
-        group.ifPresent(g -> g.add(comTaskExecution));
+        ComTaskExecutionGroup group = getComTaskGroup(comTaskExecution);
+        group.add(comTaskExecution);
     }
 
-    private Optional<ComTaskExecutionGroup> getComTaskGroup(ComTaskExecution comTaskExecution) {
+    private ComTaskExecutionGroup getComTaskGroup(ComTaskExecution comTaskExecution) {
         // ComTaskExecution was returned by task query that joins it with the ConnectionTask so it cannot be <code>null</code>
-        Optional<ConnectionTask<?, ?>> connectionTask = comTaskExecution.getConnectionTask();
-        if (!connectionTask.isPresent())
-            return Optional.empty();
-        ComTaskExecutionGroup group = this.groups.get(connectionTask.get().getId());
+        long connectionTaskId = comTaskExecution.getConnectionTaskId();
+        ComTaskExecutionGroup group = groups.get(connectionTaskId);
         if (group == null) {
-            group = new ComTaskExecutionGroup(connectionTask.get());
-            this.groups.put(connectionTask.get().getId(), group);
+            group = new ComTaskExecutionGroup(connectionTaskId);
+            groups.put(connectionTaskId, group);
         }
-        return Optional.of(group);
+        return group;
     }
 }

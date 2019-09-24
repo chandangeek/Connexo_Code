@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
 import com.energyict.mdc.upl.offline.OfflineLogBookSpec;
+
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;

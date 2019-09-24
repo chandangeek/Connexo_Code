@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import ch.iec.tc57._2011.schema.message.ErrorType;
 
@@ -32,6 +32,7 @@ public class SyncReplyIssue {
     private final ReplyTypeFactory replyTypeFactory;
 
     private boolean asyncFlag = false;
+    private boolean systemSource = false;
 
     // Meters aka EndDevices
     private Set<String> notFoundMRIDs;
@@ -79,6 +80,14 @@ public class SyncReplyIssue {
 
     public void setAsyncFlag(boolean asyncFlag) {
         this.asyncFlag = asyncFlag;
+    }
+
+    public boolean isSystemSource() {
+        return systemSource;
+    }
+
+    public void setSystemSource(boolean systemSource) {
+        this.systemSource = systemSource;
     }
 
     public Set<String> getNotFoundMRIDs() {
@@ -406,7 +415,7 @@ public class SyncReplyIssue {
                     String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToComTaskExecutions()))));
         }
 
-        if (asyncFlag && getDeviceRegularComTaskExecutionMap().isEmpty() && getDeviceIrregularComTaskExecutionMap().isEmpty()
+        if (asyncFlag && !systemSource && getDeviceRegularComTaskExecutionMap().isEmpty() && getDeviceIrregularComTaskExecutionMap().isEmpty()
                 && getDeviceMessagesComTaskExecutionMap().isEmpty()) {
             errorTypes.add(replyTypeFactory.errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOUND, null));
         }

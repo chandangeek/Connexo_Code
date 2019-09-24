@@ -6,12 +6,12 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.energyict.mdc.common.protocol.ConnectionProperty;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Models a {@link com.energyict.mdc.protocol.api.ConnectionType} for TCP/IP that does not support
+ * Models a {@link ConnectionType} for TCP/IP that does not support
  * multiple connections and that is designed for unit testing purposes only.
  *
  * @author Rudi Vankeirsbilck (rudi)

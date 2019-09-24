@@ -5,13 +5,12 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

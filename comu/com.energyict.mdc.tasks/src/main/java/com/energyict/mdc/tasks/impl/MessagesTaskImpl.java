@@ -7,8 +7,8 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SENT_MESSAGES_FLA
 import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
- * Implementation of a {@link com.energyict.mdc.tasks.MessagesTask}.
+ * Implementation of a {@link MessagesTask}.
  *
  * @author gna
  * @since 2/05/12 - 13:39

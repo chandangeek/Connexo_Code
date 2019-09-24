@@ -56,7 +56,6 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -221,7 +220,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         IssueActionType actionType = mock(IssueActionType.class);
         when(issueActionService.findActionType(5L)).thenReturn(Optional.of(actionType));
         IssueAction action = mock(IssueAction.class);
-        when(action.setReasonName(anyString())).thenReturn(action);
+        when(action.setReasonKey(anyString())).thenReturn(action);
         when(actionType.createIssueAction()).thenReturn(Optional.of(action));
         propertySpecs = mockPropertySpecs("property1", "property2");
         when(action.getPropertySpecs()).thenReturn(propertySpecs);
@@ -286,7 +285,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         IssueActionType actionType = mock(IssueActionType.class);
         when(issueActionService.findActionType(5L)).thenReturn(Optional.of(actionType));
         IssueAction action = mock(IssueAction.class);
-        when(action.setReasonName(anyString())).thenReturn(action);
+        when(action.setReasonKey(anyString())).thenReturn(action);
         when(actionType.createIssueAction()).thenReturn(Optional.of(action));
         propertySpecs = mockPropertySpecs("property1", "property2");
         when(action.getPropertySpecs()).thenReturn(propertySpecs);

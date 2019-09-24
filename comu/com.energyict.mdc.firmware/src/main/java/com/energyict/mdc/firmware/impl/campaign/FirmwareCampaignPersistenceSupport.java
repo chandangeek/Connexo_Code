@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 

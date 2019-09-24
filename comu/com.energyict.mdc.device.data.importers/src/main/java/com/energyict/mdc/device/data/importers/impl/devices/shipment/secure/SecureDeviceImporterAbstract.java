@@ -15,10 +15,10 @@ import com.elster.jupiter.pki.SymmetricAlgorithm;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.ReusableInputStream;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.ImporterExtension;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
@@ -50,8 +50,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toMap;
 
 public abstract class SecureDeviceImporterAbstract {
 
@@ -108,7 +106,7 @@ public abstract class SecureDeviceImporterAbstract {
             throw new RuntimeException(thesaurus.getFormat(MessageSeeds.SHIPMENT_CERTIFICATE_UNTRUSTED).format(e.getMessage()));
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
             log(logger, MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE);
-            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE).format());
+            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE).format(e.getMessage()));
         } catch (ImportFailedException e) {
             log(logger, e.getMessageSeed(), e.getMessageParameters());
             throw new RuntimeException(thesaurus.getFormat(e.getMessageSeed()).format(e.getMessageParameters()));

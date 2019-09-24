@@ -5,7 +5,7 @@
 package com.energyict.mdc.favorites;
 
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import java.time.Instant;
 

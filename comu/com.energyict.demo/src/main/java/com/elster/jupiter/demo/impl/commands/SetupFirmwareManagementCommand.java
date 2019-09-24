@@ -5,8 +5,8 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -18,10 +18,8 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
 
 public class SetupFirmwareManagementCommand extends CommandWithTransaction{

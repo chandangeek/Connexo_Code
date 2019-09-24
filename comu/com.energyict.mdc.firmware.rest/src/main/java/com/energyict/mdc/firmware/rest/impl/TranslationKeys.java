@@ -5,7 +5,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
 
 public enum TranslationKeys implements TranslationKey {
     STATUS_COMPLETED("completed", "Completed"),

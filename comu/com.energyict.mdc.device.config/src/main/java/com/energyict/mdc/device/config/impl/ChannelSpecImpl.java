@@ -15,12 +15,13 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.obis.ObisCode;
-
 import com.energyict.mdc.common.ValidObisCode;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeleteEventType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.device.config.exceptions.CannotChangeChannelTypeOfChannelSpecException;
 import com.energyict.mdc.device.config.exceptions.CannotChangeLoadProfileSpecOfChannelSpec;
 import com.energyict.mdc.device.config.exceptions.DuplicateChannelTypeException;
@@ -28,8 +29,8 @@ import com.energyict.mdc.device.config.exceptions.IntervalIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredException;
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.MeasurementType;
+
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -117,7 +118,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     }
 
     @Override
-    public com.energyict.mdc.masterdata.ChannelType getChannelType() {
+    public ChannelType getChannelType() {
         return channelType.isPresent() ? channelType.get() : null;
     }
 

@@ -23,8 +23,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.ExpectedErrorRule;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.inject.Guice;

@@ -12,9 +12,9 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
 
 import ch.iec.tc57._2011.enddeviceevents.Asset;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;

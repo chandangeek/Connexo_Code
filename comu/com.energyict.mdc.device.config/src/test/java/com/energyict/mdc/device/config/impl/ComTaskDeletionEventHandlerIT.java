@@ -5,10 +5,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import java.util.Optional;
 

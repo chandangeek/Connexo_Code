@@ -4,15 +4,12 @@
 
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
 
 import aQute.bnd.annotation.ProviderType;
 

@@ -7,14 +7,13 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
 
 import java.time.Instant;
 
@@ -33,10 +32,9 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
 
     @Test(expected = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class)
     @Transactional
-    public void makeObsoleteWhenDefaultConnectionTaskHasComServerFilledInTest() {
+    public void makeObsoleteWhenDefaultConnectionTaskHasComPortFilledInTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         OutboundComPort outboundComPort = createOutboundComPort();
-        ComServer comServer = outboundComPort.getComServer();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest", Instant.now());
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
@@ -45,7 +43,7 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
         device.save();
         ScheduledConnectionTaskImpl connectionTask = createASAPConnectionStandardTask(device);
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
-        inMemoryPersistence.update("update " + com.energyict.mdc.device.data.impl.TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + com.energyict.mdc.device.data.impl.TableSpecs.DDC_CONNECTIONTASK.name() + " set comport = " + outboundComPort.getId() + " where id = " + connectionTask.getId());
 
         // Business method
         device.removeComTaskExecution(comTaskExecution);

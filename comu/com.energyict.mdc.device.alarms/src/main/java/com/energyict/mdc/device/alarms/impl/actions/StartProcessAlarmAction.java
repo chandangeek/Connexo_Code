@@ -9,68 +9,59 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.PropertyType;
+import com.elster.jupiter.issue.share.entity.values.AssignIssueFormValue;
+import com.elster.jupiter.issue.share.entity.values.CloseIssueFormValue;
+import com.elster.jupiter.issue.share.entity.values.ProcessValue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.ProcessPropertyFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.google.common.collect.ImmutableList;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class StartProcessAlarmAction extends AbstractIssueAction {
 
     private static final String NAME = "StartProcessAlarm";
-    private static final String START_PROCESS = NAME + ".startprocess";
+    private static final String PROCESSES_COMBOBOX = NAME + ".processCombobox";
+    private static final String ASSIGN_ISSUE_FORM = "AssignAlarmForm";
+    private static final String CLOSE_ISSUE_FORM = "CloseAlarmForm";
 
-    private final IssueService issueService;
-    private final UserService userService;
-    private final ThreadPrincipalService threadPrincipalService;
     private final BpmService bpmService;
+    private final PropertyFactoriesProvider propertyFactoriesProvider;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final IssueService issueService;
 
-    private String reasonName;
+    private String reasonKey;
 
     @Inject
-    public StartProcessAlarmAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService, BpmService bpmService) {
+    public StartProcessAlarmAction(final DataModel dataModel,
+                                   final Thesaurus thesaurus,
+                                   final PropertySpecService propertySpecService,
+                                   final IssueService issueService,
+                                   final BpmService bpmService,
+                                   final PropertyFactoriesProvider propertyFactoriesProvider,
+                                   final ThreadPrincipalService threadPrincipalService1) {
         super(dataModel, thesaurus, propertySpecService);
-        this.issueService = issueService;
-        this.userService = userService;
-        this.threadPrincipalService = threadPrincipalService;
         this.bpmService = bpmService;
-    }
-
-    @Override
-    public boolean isApplicable(String reasonName){
-        //noinspection unchecked
-        return bpmService.getActiveBpmProcessDefinitions()
-                .stream()
-                //.filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals("devicealarm"))
-                .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals("devicelifecycleissue"))  // CXO-9377
-                .filter(f -> List.class.isInstance(f.getProperties().get("alarmReasons")))
-                .anyMatch(s -> ((List<Object>) s.getProperties().get("alarmReasons"))
-                        .stream()
-                        .filter(HasIdAndName.class::isInstance)
-                        .anyMatch(v -> ((HasIdAndName) v).getId().toString().equals(reasonName)));
+        this.propertyFactoriesProvider = propertyFactoriesProvider;
+        this.threadPrincipalService = threadPrincipalService1;
+        this.issueService = issueService;
     }
 
     @Override
@@ -80,156 +71,137 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
 
     @Override
     public IssueActionResult execute(Issue issue) {
-        IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
-        Object value = properties.get(START_PROCESS);
-        if(value != null) {
-            String jsonContent;
-            JSONArray arr = null;
-            String errorInvalidMessage = getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
-            String errorNotFoundMessage = getThesaurus().getString("error.flow.unavailable", "Connexo Flow is not available.");
-            try {
-                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
-                if (!"".equals(jsonContent)) {
-                    JSONObject jsnobject = new JSONObject(jsonContent);
-                    arr = jsnobject.getJSONArray("processDefinitionList");
-                }
-            } catch (JSONException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(errorInvalidMessage)
-                        .build());
-            } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(errorNotFoundMessage)
-                        .build());
-            }
-            ProcessDefinitionInfos bpmProcessDefinitions = new ProcessDefinitionInfos(arr);
-            @SuppressWarnings({"unchecked", "OptionalGetWithoutIsPresent"})
-            Long processId = Long.valueOf(getPropertySpec(START_PROCESS).get().getValueFactory().toStringValue(value));
-            Optional<BpmProcessDefinition> connexoProcess = bpmService.getActiveBpmProcessDefinitions()
+        final IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
+
+        final Optional<ProcessValue> processCombobox = getProcessCombobox();
+
+        if (processCombobox.isPresent()) {
+            final ProcessValue processCombo = processCombobox.get();
+            final Long processId = processCombo.getId();
+            final Optional<BpmProcessDefinition> bpmProcessDefinition = bpmService.getActiveBpmProcessDefinitions()
                     .stream()
-                    .filter(proc -> proc.getId() == processId)
+                    .filter(process -> process.getId() == processId)
                     .findFirst();
-            Map<String, Object> expectedParams = new HashMap<>();
-            expectedParams.put("alarmId", issue.getId());
-            connexoProcess.ifPresent(bpmProcessDefinition -> bpmProcessDefinitions.processes.stream()
-                    .filter(proc -> proc.name.equals(bpmProcessDefinition.getProcessName()) && proc.version.equals(bpmProcessDefinition
-                            .getVersion()))
-                    .forEach(p -> bpmService.startProcess(p.deploymentId, p.processId, expectedParams)));
+
+            if (bpmProcessDefinition.isPresent()) {
+                final BpmProcessDefinition processDefinition = bpmProcessDefinition.get();
+
+                final Map<String, Object> processInputParameters = new HashMap<>();
+                processInputParameters.put("alarmId", issue.getId());
+
+                if (bpmService.startProcess(processDefinition, processInputParameters)) {
+                    assignAlarmSubAction(issue);
+                    closeAlarmSubAction(issue);
+                    result.success(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_SUCCESS).format());
+                } else {
+                    result.fail(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_FAIL).format());
+                }
+            } else {
+                result.fail(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_PROCESS_IS_ABSENT).format());
+            }
+        } else {
+            result.fail(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_PROCESS_COMOBOX_IS_ABSENT).format());
         }
+
         return result;
     }
 
     @Override
-    public IssueAction setReasonName(String reasonName){
-        this.reasonName = reasonName;
+    public IssueAction setReasonKey(String reasonKey) {
+        this.reasonKey = reasonKey;
         return this;
+    }
+
+    private void assignAlarmSubAction(final Issue issue) {
+        final Optional<AssignIssueFormValue> assignIssueForm = getAssignIssueForm();
+        assignIssueForm.ifPresent(aif -> {
+            final Boolean checkboxValue = aif.getCheckbox().orElse(Boolean.FALSE);
+            if (checkboxValue) {
+                final Optional<User> user = assignIssueForm.get().getUser();
+                final Optional<WorkGroup> workGroup = assignIssueForm.get().getWorkgroup();
+                final Optional<String> assignIssueComment = assignIssueForm.get().getComment();
+                if (user.isPresent() && workGroup.isPresent()) {
+                    issue.assignTo(user.get().getId(), workGroup.get().getId());
+                }
+                assignIssueComment.map(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
+            }
+        });
+    }
+
+    private void closeAlarmSubAction(final Issue issue) {
+        final Optional<CloseIssueFormValue> closeIssueForm = getCloseIssueForm();
+        closeIssueForm.ifPresent(cif -> {
+            final Boolean checkboxValue = cif.getCheckbox().orElse(Boolean.FALSE);
+            if (checkboxValue) {
+                final Optional<IssueStatus> issueStatus = closeIssueForm.get().getIssueStatus();
+                final Optional<String> closeIssueComment = closeIssueForm.get().getComment();
+                final Optional<IssueStatus> status = issueService.findStatus(issueStatus.map(IssueStatus::getKey).orElse(IssueStatus.FORWARDED));
+                status.map(((OpenIssue) issue)::close);
+                closeIssueComment.map(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
+            }
+        });
+    }
+
+    private Optional<ProcessValue> getProcessCombobox() {
+        final Object processesCombobox = properties.get(PROCESSES_COMBOBOX);
+
+        if (Objects.isNull(processesCombobox)) {
+            return Optional.empty();
+        }
+
+        return Optional.of((ProcessValue) processesCombobox);
+    }
+
+    private Optional<AssignIssueFormValue> getAssignIssueForm() {
+        final Object assignIssueForm = properties.get(ASSIGN_ISSUE_FORM);
+
+        if (Objects.isNull(assignIssueForm)) {
+            return Optional.empty();
+        }
+
+        return Optional.of((AssignIssueFormValue) assignIssueForm);
+    }
+
+    private Optional<CloseIssueFormValue> getCloseIssueForm() {
+        final Object assignIssueForm = properties.get(CLOSE_ISSUE_FORM);
+
+        if (Objects.isNull(assignIssueForm)) {
+            return Optional.empty();
+        }
+
+        return Optional.of((CloseIssueFormValue) assignIssueForm);
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        Process[] possibleValues = this.getPossibleStatuses();
-            builder.add(
-                    getPropertySpecService()
-                            .specForValuesOf(new ProcessFactory())
-                            .named(START_PROCESS, TranslationKeys.ACTION_START_ALARM_PROCESS)
-                            .describedAs(TranslationKeys.ACTION_START_ALARM_PROCESS)
-                            .fromThesaurus(getThesaurus())
-                            .markRequired()
-                            .setDefaultValue(possibleValues.length == 1 ? possibleValues[0] : null)
-                            .addValues(possibleValues)
-                            .markExhaustive()
-                            .finish());
+
+        final PropertySpec processCombobox = propertyFactoriesProvider
+                .getFactory(PropertyType.PROCESS_COMBOBOX)
+                .getElement(PROCESSES_COMBOBOX, TranslationKeys.ACTION_START_ALARM_PROCESS, TranslationKeys.ACTION_START_ALARM_PROCESS);
+
+        final PropertySpec assigneeElementsGroup = propertyFactoriesProvider
+                .getFactory(PropertyType.ASSIGN_ISSUE_FORM)
+                .getElement(ASSIGN_ISSUE_FORM, TranslationKeys.ACTION_ASSIGN_ALARM, TranslationKeys.ACTION_ASSIGN_ALARM);
+
+        final PropertySpec closeIssueForm = propertyFactoriesProvider
+                .getFactory(PropertyType.CLOSE_ISSUE_FORM)
+                .getElement(CLOSE_ISSUE_FORM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM);
+
+        builder.add(processCombobox);
+        builder.add(assigneeElementsGroup);
+        builder.add(closeIssueForm);
+
+
         return builder.build();
     }
 
     @Override
     public String getFormattedProperties(Map<String, Object> props) {
-        Object value = props.get(START_PROCESS);
+        Object value = props.get(PROCESSES_COMBOBOX);
         if (value != null) {
-            return ((Process) value).getName();
+            return ((ProcessValue) value).getName();
         }
         return "";
-    }
-
-    private Process[] getPossibleStatuses() {
-        if(reasonName != null) {
-            //noinspection unchecked
-            return bpmService.getActiveBpmProcessDefinitions()
-                    .stream()
-                    .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals("devicealarm"))
-                    .filter(f -> List.class.isInstance(f.getProperties().get("alarmReasons")))
-                    .filter(s -> ((List<Object>) s.getProperties().get("alarmReasons"))
-                            .stream()
-                            .filter(HasIdAndName.class::isInstance)
-                            .anyMatch(v -> ((HasIdAndName) v).getId().toString().equals(reasonName)))
-                    .map(Process::new).toArray(Process[]::new);
-        }else{
-            return bpmService.getActiveBpmProcessDefinitions()
-                    .stream().map(Process::new).toArray(Process[]::new);
-        }
-    }
-
-    private class Process extends HasIdAndName {
-
-        private BpmProcessDefinition bpmProcess;
-
-        public Process(BpmProcessDefinition bpmProcess){
-            this.bpmProcess = bpmProcess;
-        }
-
-        @Override
-        public Object getId() {
-            return bpmProcess.getId();
-        }
-
-        @Override
-        public String getName() {
-            return bpmProcess.getProcessName();
-        }
-    }
-
-    private class ProcessFactory implements ValueFactory<HasIdAndName>, ProcessPropertyFactory {
-
-        @Override
-        public Process fromStringValue(String stringValue) {
-            return bpmService.getActiveBpmProcessDefinitions()
-                    .stream()
-                    .filter(p -> p.getId() == Long.valueOf(stringValue))
-                    .findFirst()
-                    .map(Process::new)
-                    .orElse(null);
-        }
-
-        @Override
-        public String toStringValue(HasIdAndName process) {
-            return String.valueOf(process.getId());
-        }
-
-        @Override
-        public Class<HasIdAndName> getValueType() {
-            return HasIdAndName.class;
-        }
-
-        @Override
-        public Process valueFromDatabase(Object object) {
-            return this.fromStringValue((String) object);
-        }
-
-        @Override
-        public Object valueToDatabase(HasIdAndName object) {
-            return this.toStringValue(object);
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws
-                SQLException {
-
-        }
-
-        @Override
-        public void bind(SqlBuilder builder, HasIdAndName value) {
-
-        }
     }
 }

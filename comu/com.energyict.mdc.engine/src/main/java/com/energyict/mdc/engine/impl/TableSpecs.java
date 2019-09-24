@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 
@@ -29,7 +29,7 @@ public enum TableSpecs {
                     .map("device")
                     .add();
         }
-    },;
+    };
 
     public abstract void addTo(DataModel component);
 

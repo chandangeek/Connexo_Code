@@ -94,27 +94,27 @@ public class ESMR50CommunicationSessionLog extends AbstractEvent {
             }
             break;
             case EVENT_METROLOGICAL_MAINTENANCE: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Metrological maintenance ["+counter+"]"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METROLOGICAL_MAINTENANCE, eventId, "Metrological maintenance ["+counter+"]"));
             }
             break;
             case EVENT_TECHNICAL_MAINTENANCE: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Technical maintenance ["+counter+"]"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TECHNICAL_MAINTENANCE, eventId, "Technical maintenance ["+counter+"]"));
             }
             break;
             case EVENT_RETRIEVE_METER_READINGS_E: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Retrieve meter readings E ["+counter+"]"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.RETREIVE_METER_READINGS_E, eventId, "Retrieve meter readings E ["+counter+"]"));
             }
             break;
             case EVENT_RETRIEVE_METER_READINGS_G: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Retrieve meter readings G ["+counter+"]"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.RETREIVE_METER_READINGS_G, eventId, "Retrieve meter readings G ["+counter+"]"));
             }
             break;
             case EVENT_RETRIEVE_INTERVAL_DATA_E: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Retrieve interval data E ["+counter+"]"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.RETREIVE_INTERVAL_DATA_E, eventId, "Retrieve interval data E ["+counter+"]"));
             }
             break;
             case EVENT_RETRIEVE_INTERVAL_DATA_G: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Retrieve interval data G ["+counter+"]"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.RETREIVE_INTERVAL_DATA_G, eventId, "Retrieve interval data G ["+counter+"]"));
             }
             break;
             default:

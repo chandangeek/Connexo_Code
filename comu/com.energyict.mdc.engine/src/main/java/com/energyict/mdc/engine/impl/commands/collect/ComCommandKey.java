@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 /**
  * Serves as a key for a {@link ComCommand} so that it can be used

@@ -8,8 +8,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.eventmanagement.MeterEventCreateRequestProviderImpl;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequest;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequestService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
 
 import com.google.common.collect.ImmutableMap;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
 
     @Mock
-    private SOAUtilitiesSmartMeterEventERPBulkCreateRequest port;
+    private UtilitiesSmartMeterEventERPBulkCreateRequestCOut port;
     @Mock
     private UtilsSmrtMtrEvtERPBulkCrteReqMsg reqMsg;
     @Mock
@@ -51,9 +51,9 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
     @Test
     public void testCall() {
         when(provider.using(anyString())).thenReturn(requestSender);
-        provider.addSOAUtilitiesSmartMeterEventERPBulkCreateRequest(port, ImmutableMap.of(AbstractOutboundEndPointProvider.ENDPOINT_CONFIGURATION_ID_PROPERTY, 1l));
+        provider.addUtilitiesSmartMeterEventERPBulkCreateRequestEOut(port, ImmutableMap.of(AbstractOutboundEndPointProvider.ENDPOINT_CONFIGURATION_ID_PROPERTY, 1l));
         provider.send(reqMsg);
-        verify(provider).using("soaUtilitiesSmartMeterEventERPBulkCreateRequest");
+        verify(provider).using("utilitiesSmartMeterEventERPBulkCreateRequestCOut");
         verify(requestSender).send(reqMsg);
     }
 
@@ -70,11 +70,11 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), SOAUtilitiesSmartMeterEventERPBulkCreateRequest.class);
+        Assert.assertEquals(provider.getService(), UtilitiesSmartMeterEventERPBulkCreateRequestCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), SOAUtilitiesSmartMeterEventERPBulkCreateRequestService.class);
+        Assert.assertEquals(provider.get().getClass(), UtilitiesSmartMeterEventERPBulkCreateRequestCOutService.class);
     }
 }

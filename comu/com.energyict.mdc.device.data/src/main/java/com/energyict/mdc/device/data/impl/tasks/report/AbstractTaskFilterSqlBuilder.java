@@ -11,7 +11,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 
 import java.time.Clock;

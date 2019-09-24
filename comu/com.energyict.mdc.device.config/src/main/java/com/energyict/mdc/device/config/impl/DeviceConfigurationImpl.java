@@ -18,43 +18,57 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
-import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeleteEventType;
+import com.energyict.mdc.common.device.config.DeviceCommunicationFunction;
+import com.energyict.mdc.common.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.common.device.config.ServerPartialConnectionTask;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
@@ -64,20 +78,7 @@ import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.energyict.obis.ObisCode;
 
@@ -236,7 +237,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name) {
         this.deviceType.set(deviceType);
         setName(name);
-        if (!getDeviceType().isDataloggerSlave() && !getDeviceType().isMultiElementSlave()) {
+        if (!getDeviceType().isDataloggerSlave() && ! getDeviceType().isMultiElementSlave()) {
             this.getDeviceType()
                     .getDeviceProtocolPluggableClass()
                     .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
@@ -1419,7 +1420,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (usage != null) {
             return usage.isRuleSetActive();
         }
-        throw new UnsupportedOperationException("Unable to retrieve the validation rule set status for validation rule set with name: " + validationRuleSet.getName());
+        throw new UnsupportedOperationException("Unable to retrieve the validation rule set status for validation rule set with name: "+validationRuleSet.getName());
     }
 
     private DeviceConfValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
@@ -1493,7 +1494,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (estimationRuleSetUsage.isPresent()) {
             return estimationRuleSetUsage.get().isRuleSetActive();
         }
-        throw new UnsupportedOperationException("Unable to retrieve the estimation rule set status for estimation rule set with name: " + estimationRuleSet.getName());
+        throw new UnsupportedOperationException("Unable to retrieve the estimation rule set status for estimation rule set with name: "+estimationRuleSet.getName());
     }
 
     @Override
@@ -1556,11 +1557,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void setDataloggerEnabled(boolean dataloggerEnabled) {
         if (isActive() && dataloggerEnabled != this.dataloggerEnabled) {
-            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG, this);
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG , this);
         }
         this.dataloggerEnabled = dataloggerEnabled;
     }
-
     @Override
     public boolean isDataloggerEnabled() {
         return this.dataloggerEnabled;
@@ -1568,7 +1568,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void setMultiElementEnabled(boolean multiElementEnabled) {
         if (isActive() && multiElementEnabled != this.multiElementEnabled) {
-            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG, this);
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG ,this);
         }
         this.multiElementEnabled = multiElementEnabled;
     }
@@ -1592,7 +1592,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         super.save();
     }
 
-    private void clearOldDefault() {
+    private void clearOldDefault(){
         getDataModel()
                 .query(DeviceConfigurationImpl.class)
                 .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true)
@@ -1663,7 +1663,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                     constraintViolations.addAll(e.getConstraintViolations());
                 }
             });
-            if (constraintViolations.size() > 0) {
+            if(constraintViolations.size() > 0 ) {
                 throw new VerboseConstraintViolationException(constraintViolations);
             }
             protocolProperties.addAll(this.newProperties.values());
@@ -1720,16 +1720,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor) {
             underConstruction.addConfigurationSecurityProperty(name, keyAccessor);
-            return this;
-        }
-
-
-        /*
-         Description: Method used for storing aditional propertyspecs values which cannot be converted to KeyAccessorType
-         */
-        @Override
-        public SecurityPropertySetBuilder additionalPropertyIfApplicable(PropertyInfo info) {
-            underConstruction.setAdditionalPropertyIfApplicable(info);
             return this;
         }
 

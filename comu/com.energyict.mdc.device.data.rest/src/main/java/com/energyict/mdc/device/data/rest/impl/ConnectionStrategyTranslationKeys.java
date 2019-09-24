@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
 
 import java.util.stream.Stream;
 

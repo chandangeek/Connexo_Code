@@ -4,11 +4,11 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
@@ -104,5 +104,14 @@ class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavio
                 }
             }
         }
+    }
+
+    @Override
+    protected Instant calculateNextRescheduleExecutionTimestamp() {
+        Instant nextConnectionRescheduleDate = null;
+        if (getConnectionTask() instanceof ScheduledConnectionTask) {
+            nextConnectionRescheduleDate = ((ScheduledConnectionTask) getConnectionTask()).getNextExecutionTimestamp();
+        }
+        return nextConnectionRescheduleDate;
     }
 }

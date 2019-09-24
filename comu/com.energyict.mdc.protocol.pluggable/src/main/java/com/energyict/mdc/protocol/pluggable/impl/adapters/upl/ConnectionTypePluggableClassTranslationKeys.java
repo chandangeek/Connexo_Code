@@ -6,7 +6,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -27,6 +27,7 @@ public enum ConnectionTypePluggableClassTranslationKeys implements TranslationKe
     TLSHsmConnectionType("TLSHSMConnectionType", "Outbound TLS HSM"),
     TcpIpPostDialConnectionType("TcpIpPostDialConnectionType", "Outbound TCP/IP post dial"),
     OutboundTcpIpConnectionType("OutboundTcpIpConnectionType", "Outbound TCP/IP"),
+    OutboundTcpIpWithWakeUpConnectionType("OutboundTcpIpWithWakeUpConnectionType", "Outbound TCP/IP with wakeup"),
     InboundIpConnectionType("InboundIpConnectionType", "Inbound IP"),
     CTRInboundDialHomeIdConnectionType("CTRInboundDialHomeIdConnectionType", "Inbound CTR"),
     WavenisSerialConnectionType("WavenisSerialConnectionType", "Wavenis serial"),

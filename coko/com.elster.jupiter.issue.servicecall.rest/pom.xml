@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>issue.servicecall.rest</artifactId>
@@ -163,6 +163,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

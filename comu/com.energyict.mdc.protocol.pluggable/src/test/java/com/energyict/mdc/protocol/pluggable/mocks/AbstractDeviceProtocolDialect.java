@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 

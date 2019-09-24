@@ -8,24 +8,25 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OutboundCapableComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceBreakerStatus;
 import com.energyict.mdc.engine.impl.meterdata.DeviceFirmwareVersion;
@@ -35,7 +36,7 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -43,13 +44,8 @@ import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -57,6 +53,13 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -121,6 +124,8 @@ public class ComServerDAOImplTest {
     private User comServerUser;
     @Mock
     private DeviceMessageService deviceMessageService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     private ComServerDAO comServerDAO;
 
@@ -135,6 +140,7 @@ public class ComServerDAOImplTest {
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.serviceProvider.deviceMessageService()).thenReturn(this.deviceMessageService);
         when(this.serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
@@ -243,21 +249,21 @@ public class ComServerDAOImplTest {
 
     public void testReleaseInterruptedComTasks() throws SQLException {
         // Business method
-        this.comServerDAO.releaseInterruptedTasks(this.comServer);
+        comServerDAO.releaseInterruptedTasks(comPort);
 
         // Asserts
-        verify(this.connectionTaskService).releaseInterruptedConnectionTasks(this.comServer);
-        verify(this.communicationTaskService).releaseInterruptedComTasks(this.comServer);
+        verify(connectionTaskService).releaseInterruptedConnectionTasks(comPort);
+        verify(communicationTaskService).releaseInterruptedComTasks(comPort);
     }
 
     @Test
     public void testReleaseTimedOutComTasks() throws SQLException {
         // Business method
-        this.comServerDAO.releaseTimedOutTasks(this.comServer);
+        comServerDAO.releaseTimedOutTasks(comPort);
 
         // Asserts
-        verify(this.connectionTaskService).releaseTimedOutConnectionTasks(this.comServer);
-        verify(this.communicationTaskService).releaseTimedOutComTasks(this.comServer);
+        verify(connectionTaskService).releaseTimedOutConnectionTasks(comPort);
+        verify(communicationTaskService).releaseTimedOutComTasks(comPort);
     }
 
     @Test

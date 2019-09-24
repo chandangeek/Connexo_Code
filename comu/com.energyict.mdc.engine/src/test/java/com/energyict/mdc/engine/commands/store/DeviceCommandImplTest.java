@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.commands.store;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CollectedFirmwareVersionDeviceCommand;

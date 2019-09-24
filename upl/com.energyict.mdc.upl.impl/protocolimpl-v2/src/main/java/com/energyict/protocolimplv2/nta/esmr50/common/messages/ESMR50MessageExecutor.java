@@ -331,4 +331,15 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
 
+    /**
+     * ESMR 5.0:
+     Value ::= structure {
+                    Flags bitstring (16)
+                }
+     */
+    @Override
+    protected int getConfigurationObjectFlagsIndex(){
+        return 0;
+    }
+
 }

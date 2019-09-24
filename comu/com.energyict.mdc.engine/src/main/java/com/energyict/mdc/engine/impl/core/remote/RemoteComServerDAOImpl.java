@@ -15,16 +15,33 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.SecurityPropertySetImpl;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.ObjectParser;
 import com.energyict.mdc.engine.impl.PropertyValueType;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.ServerProcess;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.tools.ProtocolUtils;
 import com.energyict.mdc.engine.impl.web.queryapi.DataCompressor;
@@ -34,8 +51,18 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
@@ -45,6 +72,9 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
@@ -60,7 +90,13 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -69,13 +105,22 @@ import java.util.concurrent.TimeoutException;
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
  * that will post a JSon representation of the query
- * to a companion {@link com.energyict.mdc.engine.config.OnlineComServer}
+ * to a companion {@link OnlineComServer}
  * that has a servlet running that will listen for these queries.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-21 (15:56)
  */
 public class RemoteComServerDAOImpl implements ComServerDAO {
+
+    public interface ServiceProvider {
+
+        Clock clock();
+
+        EngineConfigurationService engineConfigurationService();
+
+    }
+    public final static String CLIENT_PROPERTY = "client-name";
 
     private ServerProcess comServer;
     private long timeout;
@@ -175,6 +220,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public TypedProperties findProtocolDialectPropertiesFor(long comTaskExecutionId) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecutionId);
+        JSONObject response = post(QueryMethod.FindProtocolDialectPropertiesForComTaskExecution, queryParameters);
+        return toObject(response, new ObjectParser<TypedProperties>());
+    }
+
+    @Override
     public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
@@ -205,21 +258,21 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties findProtocolDialectPropertiesFor(long comTaskExecutionId) {
+    public ScheduledConnectionTask attemptLock (ScheduledConnectionTask connectionTask, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecutionId);
-        JSONObject response = post(QueryMethod.FindProtocolDialectPropertiesForComTaskExecution, queryParameters);
-        return toObject(response, new ObjectParser<TypedProperties>());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
+        JSONObject response = this.post(QueryMethod.AttemptLock, queryParameters);
+        return null; // TODO properly implement using orm's locking mechanism
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock (ScheduledConnectionTask connectionTask, ComServer comServer) {
-        return null;
-    }
-
-    @Override
-    public boolean attemptLock (OutboundConnectionTask connectionTask, ComServer comServer) {
-        return false;
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
+        JSONObject response = this.post(QueryMethod.AttemptLock, queryParameters);
+        return true; // TODO properly implement using orm's locking mechanism
     }
 
     @Override
@@ -239,6 +292,15 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public boolean attemptLock(PriorityComTaskExecutionLink comTaskExecution, ComPort comPort) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.HIGH_PRIORITY_COMTASKEXECUTION, comTaskExecution.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
+        JSONObject response = this.post(QueryMethod.AttemptLock, queryParameters);
+        return this.toBoolean(response);
+    }
+
+    @Override
     public void unlock (ComTaskExecution comTaskExecution) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
@@ -246,10 +308,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         this.post(QueryMethod.ExecutionStarted, queryParameters);
         return connectionTask;
     }
@@ -267,6 +329,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.ExecutionFailed, queryParameters);
+        return connectionTask;
+    }
+
+    @Override
+    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
+        post(QueryMethod.ExecutionRescheduled, queryParameters);
         return connectionTask;
     }
 
@@ -487,6 +557,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE, comWindowStartDate);
+        post(QueryMethod.ExecutionRescheduledToComWindow, queryParameters);
+    }
+
+    @Override
     public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION_COLLECTION, this.collectIds(comTaskExecutions));
@@ -508,16 +586,16 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void releaseInterruptedTasks (ComServer comServer) {
+    public void releaseInterruptedTasks(ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         this.post(QueryMethod.ReleaseInterruptedComTasks, queryParameters);
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks (ComServer comServer) {
+    public TimeDuration releaseTimedOutTasks(ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         JSONObject response = this.post(QueryMethod.ReleaseTimedOutComTasks, queryParameters);
         return this.toTimeDuration(response);
     }
@@ -747,6 +825,38 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return this.toBoolean(response);
     }
 
+    @Override
+    public boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionIds) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.HIGH_PRIORITY_COMTASKEXECUTION_COLLECTION, priorityComTaskExecutionIds);
+        JSONObject response = post(QueryMethod.AreStillPending, queryParameters);
+        return toBoolean(response);
+    }
+
+    private ComServer toComServer (JSONObject response) {
+        try {
+            return new ComServerParser().parse(response);
+        } catch (JSONException e) {
+            throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
+        }
+    }
+
+    private TimeDuration toTimeDuration(JSONObject response) {
+        try {
+            return new TimeDurationParser().parse(response);
+        } catch (JSONException e) {
+            throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
+        }
+    }
+
+    private boolean toBoolean(JSONObject response) {
+        try {
+            return new BooleanParser().parse(response);
+        } catch (JSONException e) {
+            throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
+        }
+    }
+
     private <T> T toObject(JSONObject response, ObjectParser<T> objectParser) {
         try {
             return response != null
@@ -762,30 +872,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             return response != null
                     ? objectParser.parseArray(response, RemoteComServerQueryJSonPropertyNames.SINGLE_OBJECT_RESULT, clazz)
                     : null;
-        } catch (JSONException e) {
-            throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
-        }
-    }
-
-    private boolean toBoolean(JSONObject response) {
-        try {
-            return new BooleanParser().parse(response);
-        } catch (JSONException e) {
-            throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
-        }
-    }
-
-    private ComServer toComServer(JSONObject response) {
-        try {
-            return new ComServerParser().parse(response);
-        } catch (JSONException e) {
-            throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
-        }
-    }
-
-    private TimeDuration toTimeDuration(JSONObject response) {
-        try {
-            return new TimeDurationParser().parse(response);
         } catch (JSONException e) {
             throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
         }
@@ -878,17 +964,24 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return ids;
     }
 
-    public class QueryWebSocket implements WebSocketListener {
+    private class QueryWebSocket implements WebSocketListener {
 
-        private Session connection;
+        private Session session;
+
+        public QueryWebSocket() {
+        }
+
+        public QueryWebSocket(Session session) {
+            this.session = session;
+        }
 
         public boolean isOpen() {
-            return connection != null && connection.isOpen();
+            return session != null && session.isOpen();
         }
 
         public void disconnect () {
-            if (this.connection != null) {
-                this.connection.close();
+            if (this.session != null) {
+                this.session.close();
             }
         }
 
@@ -896,9 +989,9 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             String serializedText = query.getSpecs().marshall();
             if (compressData) {
                 byte[] compressedData = DataCompressor.encodeAndCompress(serializedText, true);
-                connection.getRemote().sendBytes(ByteBuffer.wrap(compressedData));
+                session.getRemote().sendBytes(ByteBuffer.wrap(compressedData));
             } else {
-                connection.getRemote().sendString(serializedText);
+                session.getRemote().sendString(serializedText);
             }
         }
 
@@ -926,14 +1019,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         }
 
         @Override
-        public void onWebSocketClose(int i, String s) {
-            this.connection = null;
-            webSocketClosed();
+        public void onWebSocketConnect(Session session) {
+            this.session = session;
         }
 
         @Override
-        public void onWebSocketConnect(Session session) {
-            this.connection = session;
+        public void onWebSocketClose(int i, String s) {
+            this.session = null;
+            webSocketClosed();
         }
 
         @Override

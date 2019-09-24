@@ -143,9 +143,9 @@ public class PLCConfigurationDeviceMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime)) {
             setMaxInactiveMeterTime(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveRetries)) {
-            setKeepAliveRetries(pendingMessage);
+            setKeepAliveFailCount(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveTimeout)) {
-            setKeepAliveTimeout(pendingMessage);
+            setKeepAliveDelayBetweenPings(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableG3PLCInterface)) {
             enableG3PLCInterface(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WritePlcG3Timeout)) {
@@ -591,6 +591,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         getG3NetworkManagement().setKeepAliveScheduleInterval(getSingleIntegerAttribute(pendingMessage));
     }
 
+    @Deprecated
     private void setKeepAliveBucketSize(OfflineDeviceMessage pendingMessage) throws IOException {
         getG3NetworkManagement().setKeepAliveBucketSize(getSingleIntegerAttribute(pendingMessage));
     }
@@ -607,12 +608,12 @@ public class PLCConfigurationDeviceMessageExecutor {
         return this.session.getCosemObjectFactory().getG3NetworkManagement();
     }
 
-    private void setKeepAliveRetries(OfflineDeviceMessage pendingMessage) throws IOException {
-        getG3NetworkManagement().setKeepAliveRetries(getSingleIntegerAttribute(pendingMessage));
+    private void setKeepAliveFailCount(OfflineDeviceMessage pendingMessage) throws IOException {
+        getG3NetworkManagement().setKeepAliveFailCount(getSingleIntegerAttribute(pendingMessage));
     }
 
-    private void setKeepAliveTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
-        getG3NetworkManagement().setKeepAliveTimeout(getSingleIntegerAttribute(pendingMessage));
+    private void setKeepAliveDelayBetweenPings(OfflineDeviceMessage pendingMessage) throws IOException {
+        getG3NetworkManagement().setKeepAliveDelayBetweenPings(getSingleIntegerAttribute(pendingMessage));
     }
 
     private void enableG3PLCInterface(OfflineDeviceMessage pendingMessage) throws IOException {

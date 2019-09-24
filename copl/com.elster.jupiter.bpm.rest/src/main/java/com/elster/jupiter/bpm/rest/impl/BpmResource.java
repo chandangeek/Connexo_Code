@@ -744,6 +744,9 @@ public class BpmResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
 
+        /**
+         * TODO: make this pluggable via {@link ProcessAssociationProvider}
+         */
         HashMap<String, String> connexoFlowHashMap = new HashMap<>();
         connexoFlowHashMap.put("devicealarm", "alarmId");
         connexoFlowHashMap.put("device", "deviceId");
@@ -752,6 +755,7 @@ public class BpmResource {
         connexoFlowHashMap.put("devicelifecycleissue", "issueId");
         connexoFlowHashMap.put("taskissue", "issueId");
         connexoFlowHashMap.put("servicecallissue", "issueId");
+        connexoFlowHashMap.put("webserviceissue", "issueId");
 
         String requiredVariable = connexoFlowHashMap.get(info.type);
 
@@ -1251,6 +1255,10 @@ public class BpmResource {
             }
             if (obj != null) {
                 taskContentInfos = new TaskContentInfos(obj);
+                if ((taskContentInfos.id == null || taskContentInfos.id.equals("null")) &&
+                        (taskContentInfos.status == null || taskContentInfos.status.equals("null"))) {
+                    throw new NoTaskWithIdException(thesaurus, MessageSeeds.NO_TASK_WITH_ID, id);
+                }
             }
             return taskContentInfos;
         } catch (JSONException e) {

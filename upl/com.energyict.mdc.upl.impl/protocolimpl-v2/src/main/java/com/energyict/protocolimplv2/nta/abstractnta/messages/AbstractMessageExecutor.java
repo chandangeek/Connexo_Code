@@ -1,10 +1,5 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -16,13 +11,46 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -383,5 +411,25 @@ public abstract class AbstractMessageExecutor {
         vdt.addDataType(new Integer8(2));
         loadLimiter.writeMonitoredValue(vdt);
     }
+
+    protected byte[] getWrappedKey(OfflineDeviceMessage pendingMessage, String attributeName) throws ProtocolException {
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, attributeName));
+        return ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+    }
+
+    protected void renewKey(byte[] wrappedKey, int type) throws IOException {
+        renewKeyForClient(wrappedKey, type, getCosemObjectFactory().getSecuritySetup());
+    }
+
+    protected void renewKeyForClient(byte[] wrappedKey, int type, SecuritySetup securitySetup) throws IOException {
+        Array keyArray = new Array();
+        Structure keyData = new Structure();
+        keyData.addDataType(new TypeEnum(type)); // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey, 3 means keyType: masterKey
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
+        keyArray.addDataType(keyData);
+
+        securitySetup.transferGlobalKey(keyArray);
+    }
+
 
 }

@@ -5,9 +5,9 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
         return this.getComServerDAO().areStillPending(this.collectIds(this.comTaskExecutions));
     }
 
-    private Collection<Long> collectIds(List<? extends HasId> hasIds) {
+    protected Collection<Long> collectIds(List<? extends HasId> hasIds) {
         Collection<Long> ids = new ArrayList<>(hasIds.size());
         for (HasId hasId : hasIds) {
             ids.add(hasId.getId());
@@ -78,7 +78,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
             boolean connectionEstablished = false;
             this.createExecutionContext();
             commandRoot = this.prepareAll(this.comTaskExecutions);
-            if (!commandRoot.hasGeneralSetupErrorOccurred()) {
+            if (!commandRoot.hasGeneralSetupErrorOccurred() && !commandRoot.getCommands().isEmpty()) {
                 connectionEstablished = this.establishConnectionFor(this.getComPort());
             }
             commandRoot.execute(connectionEstablished);
@@ -88,7 +88,6 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
                 commandRoot.generalSetupErrorOccurred(e, getComTaskExecutions());
             }
             throw e;
-
         } finally {
             try {
                 this.completeConnection();

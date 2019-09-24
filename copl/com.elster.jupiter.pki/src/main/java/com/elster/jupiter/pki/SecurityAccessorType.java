@@ -105,6 +105,12 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
     boolean keyTypeIsHSM();
 
+    /**
+     *
+     * @return if underlying key is used to wrap other keys (master key)
+     */
+    boolean isWrapper();
+
     @ProviderType
     enum Purpose {
         DEVICE_OPERATIONS,
@@ -164,6 +170,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
 
         Builder reversible(boolean isreversible);
 
+        Builder isWrapper(boolean isWrapper);
+
         SecurityAccessorType add();
     }
 
@@ -186,6 +194,8 @@ public interface SecurityAccessorType extends HasId, HasName  {
         Updater keySize(int keySize);
 
         Updater reversible(boolean reversible);
+
+        Updater isWrapper(boolean isWrapper);
 
         SecurityAccessorType complete();
     }

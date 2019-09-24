@@ -6,6 +6,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
     extend: 'Ext.form.Panel',
     requires: [
         'Isu.view.creationrules.ActionsList',
+        'Isu.view.creationrules.DeviceGroupsList',
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
         'Isu.model.CreationRuleTemplate'
@@ -315,6 +316,37 @@ Ext.define('Isu.view.creationrules.EditForm', {
             },
             {
                 xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.excludedDeviceGroups', 'ISU', 'Excluded device groups'),
+                itemId: 'issues-creation-rules-edit-field-container-excl-device-groups',
+                width: 1000,
+                layout: 'hbox',
+                hidden: true,
+                items: [
+                    {
+                        xtype: 'issues-creation-rules-excl-device-groups-list',
+                        itemId: 'issues-creation-rules-excl-device-groups-grid',
+                        width: 500,
+                        padding: 0,
+                        maxHeight: 323,
+                        hidden: true
+                    },
+                    {
+                        xtype: 'displayfield',
+                        name: 'noexcludeddevicegroups',
+                        itemId: 'issues-creation-rule-no-excluded-device-groups',
+                        value: Uni.I18n.translate('issueCreationRules.noDeviceGroupsExcludedYet', 'ISU', 'There are no device groups excluded from this rule yet')
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'excludeDeviceGroup',
+                        text: Uni.I18n.translate('general.addDeviceGroup', 'ISU', 'Add device group'),
+                        action: 'excludeDeviceGroup',
+                        margin: '0 0 0 10'
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
                 ui: 'actions',
                 fieldLabel: ' ',
                 defaultType: 'button',
@@ -348,6 +380,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             dueIn = record.get('dueIn'),
             priority = record.get('priority'),
             actions = record.actions(),
+            exclGroups = record.exclGroups(),
             template;
 
         typeCombo.suspendEvent('change');
@@ -408,13 +441,32 @@ Ext.define('Isu.view.creationrules.EditForm', {
         if (template) {
             me.down('#rule-template-info').setInfoTooltip(template.get('description'));
         }
+        me.bindExcludedGroupsStore(exclGroups);
+        me.updateExcludedGroupsForm(typeCombo.getValue());
+        
         me.updateLayout();
         Ext.resumeLayouts(true);
 
         typeCombo.resumeEvent('change');
         templateCombo.resumeEvent('change');
     },
+    validateIssueReason: function(record){
+        var me = this,
+            comboReason = me.down('#issueReason'),
+            reasonEditedValue = comboReason.getRawValue(),
+            reason = comboReason.store.find('name', reasonEditedValue);
 
+            if (reason === -1){
+                if ( reasonEditedValue.trim() === '') {
+                   comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
+                   return false;
+                }else if (reasonEditedValue.length > 80){
+                    comboReason.markInvalid(Uni.I18n.translate('issues.maxLength', 'ISU', "This field's text length should be between 1 and 80 symbols"));
+                    return false;
+                }
+            }
+            return true;
+    },
     updateRecord: function () {
         var me = this,
             propertyForm = me.down('property-form'),
@@ -467,6 +519,47 @@ Ext.define('Isu.view.creationrules.EditForm', {
         }
         record.endEdit();
     },
+    
+    isDeviceIssueType: function (typeValue) {
+        var deviceIssueTypesArray = ['datacollection', 'datavalidation', 'devicelifecycle'];
+        return deviceIssueTypesArray.includes(typeValue);
+    },
+    
+    updateExcludedGroupsForm: function (typeValue) {
+        var me = this,
+            exclGroupsForm = me.down('#issues-creation-rules-edit-field-container-excl-device-groups'),
+            exclGroupsGrid = exclGroupsGrid = me.down('issues-creation-rules-excl-device-groups-list');
+        if (me.isDeviceIssueType(typeValue)) {
+            if (exclGroupsForm.isVisible() == false) {
+                exclGroupsForm.show();
+            }
+            me.refreshExcludedGroupsGrid();
+        } else {
+            if (exclGroupsForm.isVisible()) {
+                exclGroupsForm.hide();
+                exclGroupsGrid.getStore().removeAll();
+            }
+        }
+    },
+    
+    refreshExcludedGroupsGrid: function () {
+        var me = this,
+            exclGroupsGrid = me.down('issues-creation-rules-excl-device-groups-list'),
+            exclGroupsEmptyMsg = me.down('#issues-creation-rule-no-excluded-device-groups');
+        if (exclGroupsGrid.getStore().getCount()) {
+            exclGroupsGrid.show();
+            exclGroupsEmptyMsg.hide();
+        } else {
+            exclGroupsGrid.hide();
+            exclGroupsEmptyMsg.show();
+        }
+    },
+    
+    bindExcludedGroupsStore: function(recStore) {
+        var me = this,
+            exclGroupsGrid = me.down('issues-creation-rules-excl-device-groups-list');
+            exclGroupsGrid.bindStore(recStore);
+    },
 
     onTemplateChange: function (combo, newValue) {
         var me = this,
@@ -496,6 +589,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         if (type) {
             Ext.suspendLayouts();
+            me.updateExcludedGroupsForm(newValue);
             templateCombo.reset();
             me.down('#rule-template-info').setInfoTooltip(null);
             issueReasonCombo.reset();

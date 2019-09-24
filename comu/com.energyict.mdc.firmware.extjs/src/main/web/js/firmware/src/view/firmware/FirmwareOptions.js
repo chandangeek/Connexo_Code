@@ -127,8 +127,8 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                               if (targetFirmwareCheck && targetFirmwareCheck.activated){
                                                   var targetFirmwareOptionTemplate = [];
                                                   var targetFirmwareOptionsValues = {
-                                                      'FINAL' : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of the target firmware'),
-                                                      'TEST' :  Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of the target firmware')
+                                                      'FINAL' : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of target firmware'),
+                                                      'TEST' :  Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of target firmware')
                                                   };
                                                   targetFirmwareCheck['statuses'].sort();
                                                   targetFirmwareCheck['statuses'].forEach(function(item){
@@ -203,15 +203,15 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                         if (masterFirmwareCheck && masterFirmwareCheck.activated){
                                             var masterFirmwareOptionTemplate = [];
                                             var masterFirmwareOptionsValues = {
-                                                       'FINAL' : Uni.I18n.translate('general.masterFirmwareFinalOption', 'FWC', 'Final status of firmware on master device'),
-                                                       'TEST' : Uni.I18n.translate('general.masterFirmwareTestOption', 'FWC', 'Test status of firmware on master device')
+                                                       'FINAL' : Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of firmware on master device'),
+                                                       'TEST' : Uni.I18n.translate('general.upload.fw.masterFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device')
                                                     };
                                             masterFirmwareCheck['statuses'].sort();
                                             masterFirmwareCheck['statuses'].forEach(function(item){
                                                 masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
                                             })
                                             if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
-                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.masterFirmwareMainOption', 'FWC', 'Master has the latest firmware (both meter and communication)') + '</div>';
+                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.masterFirmwareCampaignMainOption', 'FWC', 'Master has the latest firmware (meter, communication and auxiliary)') + '</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
                                                 result += ('<div style="margin:0 0 10px 30px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
                                             }

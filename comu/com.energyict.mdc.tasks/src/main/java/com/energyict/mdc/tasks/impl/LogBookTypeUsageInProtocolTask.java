@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.tasks.LogBooksTask;
 
 public interface LogBookTypeUsageInProtocolTask {
 

@@ -10,25 +10,32 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
+
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
+import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.upl.tasks.TopologyAction;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
 
@@ -44,10 +51,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * An implementation for a User defined ComTask
@@ -55,11 +64,36 @@ import java.util.Objects;
  * @author gna
  * @since 2/05/12 - 16:10
  */
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME + "}")
-abstract class ComTaskImpl implements ComTask {
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.DUPLICATE_COMTASK_NAME + "}")
+abstract class ComTaskImpl implements ComTask, PersistenceAware {
+
+    static final class ComTaskUserActionRecord {
+        private ComTaskUserAction userAction;
+        private Reference<ComTask> comTask = ValueReference.absent();
+        @SuppressWarnings("unused")
+        private String userName;
+        @SuppressWarnings("unused")
+        private long version;
+        @SuppressWarnings("unused")
+        private Instant createTime;
+        @SuppressWarnings("unused")
+        private Instant modTime;
+
+        ComTaskUserActionRecord() {
+
+        }
+
+        ComTaskUserActionRecord(ComTask comTask, ComTaskUserAction userAction) {
+            this.comTask.set(comTask);
+            this.userAction = userAction;
+        }
+    }
 
     protected static final String USER_DEFINED_COMTASK = "1";
     protected static final String SYSTEM_DEFINED_COMTASK = "2";
+
+    private List<ComTaskUserActionRecord> comTaskUserActionRecords = new ArrayList<>();
+    private Set<ComTaskUserAction> comTaskUserActions = new HashSet<>();
 
     private DataModel dataModel;
     private Thesaurus thesaurus;
@@ -74,10 +108,8 @@ abstract class ComTaskImpl implements ComTask {
     private Provider<TopologyTaskImpl> topologyTaskProvider;
     private Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider;
 
-    static final Map<String, Class<? extends ComTask>> IMPLEMENTERS =
-            ImmutableMap.of(
-                    USER_DEFINED_COMTASK, ComTaskDefinedByUserImpl.class,
-                    SYSTEM_DEFINED_COMTASK, ComTaskDefinedBySystemImpl.class);
+    static final Map<String, Class<? extends ComTask>> IMPLEMENTERS = ImmutableMap.of(USER_DEFINED_COMTASK,
+            ComTaskDefinedByUserImpl.class, SYSTEM_DEFINED_COMTASK, ComTaskDefinedBySystemImpl.class);
 
     enum Fields {
         NAME("name"),
@@ -97,14 +129,14 @@ abstract class ComTaskImpl implements ComTask {
     }
 
     /**
-     * Holds a list of all {@link com.energyict.mdc.tasks.ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
+     * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
      */
     @Valid
     private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.CAN_NOT_BE_EMPTY + "}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
     @SuppressWarnings("unused") // Managed by ORM
@@ -121,7 +153,7 @@ abstract class ComTaskImpl implements ComTask {
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
      */
-    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.VALUE_TOO_SMALL + "}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.VALUE_TOO_SMALL + "}")
     private int maxNrOfTries = 3;
 
     public ComTaskImpl() {
@@ -129,18 +161,13 @@ abstract class ComTaskImpl implements ComTask {
     }
 
     @Inject
-    ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider,
-                       DataModel dataModel,
-                       Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
-                       Provider<MessagesTaskImpl> messagesTaskProvider,
-                       Provider<BasicCheckTaskImpl> basicCheckTaskProvider,
-                       Provider<RegistersTaskImpl> registersTaskProvider,
-                       EventService eventService,
-                       Provider<ClockTaskImpl> clockTaskProvider,
-                       Provider<TopologyTaskImpl> topologyTaskProvider,
-                       Thesaurus thesaurus,
-                       Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider,
-                       Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
+    ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider, DataModel dataModel,
+            Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
+            Provider<MessagesTaskImpl> messagesTaskProvider, Provider<BasicCheckTaskImpl> basicCheckTaskProvider,
+            Provider<RegistersTaskImpl> registersTaskProvider, EventService eventService,
+            Provider<ClockTaskImpl> clockTaskProvider, Provider<TopologyTaskImpl> topologyTaskProvider,
+            Thesaurus thesaurus, Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider,
+            Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
         this.logBooksTaskProvider = logBooksTaskProvider;
         this.dataModel = dataModel;
         this.statusInformationTaskProvider = statusInformationTaskProvider;
@@ -191,6 +218,7 @@ abstract class ComTaskImpl implements ComTask {
         return version;
     }
 
+    @Override
     @XmlElements( {
             @XmlElement(type = BasicCheckTaskImpl.class),
             @XmlElement(type = RegistersTaskImpl.class),
@@ -204,7 +232,7 @@ abstract class ComTaskImpl implements ComTask {
             @XmlElement(type = ManualMeterReadingsTaskImpl.class),
     })
     public List<ProtocolTask> getProtocolTasks() {
-        return Collections.unmodifiableList(this.protocolTasks);
+        return Collections.unmodifiableList(protocolTasks);
     }
 
     void addProtocolTask(ProtocolTaskImpl protocolTask) {
@@ -233,11 +261,11 @@ abstract class ComTaskImpl implements ComTask {
 
     @Override
     public void save() {
-        Save.action(getId()).save(this.dataModel, this);
+        Save.action(getId()).save(dataModel, this);
     }
 
     void touch() {
-        this.dataModel.touch(this);
+        dataModel.touch(this);
     }
 
     @Override
@@ -307,9 +335,10 @@ abstract class ComTaskImpl implements ComTask {
     }
 
     private void verifyUniqueProtocolTaskType(Class<? extends ProtocolTask> taskClass) {
-        for (ProtocolTask protocolTask : this.getProtocolTasks()) {
+        for (ProtocolTask protocolTask : getProtocolTasks()) {
             if (protocolTask.getClass().equals(taskClass)) {
-                throw new TranslatableApplicationException(thesaurus, MessageSeeds.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK);
+                throw new TranslatableApplicationException(thesaurus,
+                        MessageSeeds.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK);
             }
         }
     }
@@ -327,11 +356,44 @@ abstract class ComTaskImpl implements ComTask {
 
     @Override
     public void delete() {
-        this.eventService.postEvent(EventType.COMTASK_VALIDATE_DELETE.topic(), this);
-        this.protocolTasks.forEach(ProtocolTaskImpl::deleteDependents);
-        this.protocolTasks.clear(); // delete dependents
-        this.dataModel.remove(this);
-        this.eventService.postEvent(EventType.COMTASK_DELETED.topic(), this);
+        eventService.postEvent(EventType.COMTASK_VALIDATE_DELETE.topic(), this);
+        protocolTasks.forEach(ProtocolTaskImpl::deleteDependents);
+        protocolTasks.clear(); // delete dependents
+        deletePrivileges();
+        dataModel.remove(this);
+        eventService.postEvent(EventType.COMTASK_DELETED.topic(), this);
+    }
+
+    protected void deletePrivileges() {
+        comTaskUserActionRecords.clear();
+        comTaskUserActions.clear();
+    }
+
+    @Override
+    public void postLoad() {
+        comTaskUserActions.addAll(comTaskUserActionRecords.stream().map(userActionRecord -> userActionRecord.userAction)
+                .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Set<ComTaskUserAction> getUserActions() {
+        return comTaskUserActions;
+    }
+
+    @Override
+    public void setUserActions(Set<ComTaskUserAction> userActions) {
+        if (isSystemComTask()) {
+            // attempt to assign privileges for executing system tasks is ignored
+            return;
+        }
+        comTaskUserActions.clear();
+        comTaskUserActionRecords.clear();
+        if (userActions == null) {
+            return;
+        }
+        comTaskUserActions.addAll(userActions);
+        comTaskUserActions.stream()
+                .forEach(userAction -> comTaskUserActionRecords.add(new ComTaskUserActionRecord(this, userAction)));
     }
 
     @Override
@@ -379,7 +441,7 @@ abstract class ComTaskImpl implements ComTask {
 
         @Override
         public BasicCheckTask add() {
-            ComTaskImpl.this.addProtocolTask(basicCheckTask);
+            addProtocolTask(basicCheckTask);
             return basicCheckTask;
         }
     }
@@ -412,7 +474,7 @@ abstract class ComTaskImpl implements ComTask {
 
         @Override
         public ClockTask add() {
-            ComTaskImpl.this.addProtocolTask(clockTask);
+            addProtocolTask(clockTask);
             return clockTask;
         }
     }
@@ -431,7 +493,8 @@ abstract class ComTaskImpl implements ComTask {
         }
 
         @Override
-        public LoadProfilesTask.LoadProfilesTaskBuilder failIfConfigurationMisMatch(boolean failIfConfigurationMisMatch) {
+        public LoadProfilesTask.LoadProfilesTaskBuilder failIfConfigurationMisMatch(
+                boolean failIfConfigurationMisMatch) {
             loadProfilesTask.setFailIfConfigurationMisMatch(failIfConfigurationMisMatch);
             return this;
         }
@@ -443,7 +506,8 @@ abstract class ComTaskImpl implements ComTask {
         }
 
         @Override
-        public LoadProfilesTask.LoadProfilesTaskBuilder minClockDiffBeforeBadTime(TimeDuration minClockDiffBeforeBadTime) {
+        public LoadProfilesTask.LoadProfilesTaskBuilder minClockDiffBeforeBadTime(
+                TimeDuration minClockDiffBeforeBadTime) {
             loadProfilesTask.setMinClockDiffBeforeBadTime(minClockDiffBeforeBadTime);
             return this;
         }
@@ -456,7 +520,7 @@ abstract class ComTaskImpl implements ComTask {
 
         @Override
         public LoadProfilesTask add() {
-            ComTaskImpl.this.addProtocolTask(loadProfilesTask);
+            addProtocolTask(loadProfilesTask);
             return loadProfilesTask;
         }
     }
@@ -476,7 +540,7 @@ abstract class ComTaskImpl implements ComTask {
 
         @Override
         public LogBooksTask add() {
-            ComTaskImpl.this.addProtocolTask(logBooksTask);
+            addProtocolTask(logBooksTask);
             return logBooksTask;
         }
     }
@@ -495,14 +559,15 @@ abstract class ComTaskImpl implements ComTask {
         }
 
         @Override
-        public MessagesTask.MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories) {
+        public MessagesTask.MessagesTaskBuilder deviceMessageCategories(
+                List<DeviceMessageCategory> deviceMessageCategories) {
             messagesTask.setDeviceMessageCategories(deviceMessageCategories);
             return this;
         }
 
         @Override
         public MessagesTask add() {
-            ComTaskImpl.this.addProtocolTask(messagesTask);
+            addProtocolTask(messagesTask);
             return messagesTask;
         }
     }
@@ -522,7 +587,7 @@ abstract class ComTaskImpl implements ComTask {
 
         @Override
         public RegistersTask add() {
-            ComTaskImpl.this.addProtocolTask(registersTask);
+            addProtocolTask(registersTask);
             return registersTask;
         }
     }

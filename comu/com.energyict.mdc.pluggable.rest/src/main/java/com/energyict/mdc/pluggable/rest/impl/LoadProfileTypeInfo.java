@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;

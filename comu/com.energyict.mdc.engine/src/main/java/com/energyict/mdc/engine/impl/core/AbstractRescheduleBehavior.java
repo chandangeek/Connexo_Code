@@ -5,12 +5,14 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 
 import java.sql.Date;
 import java.time.Clock;
@@ -18,6 +20,7 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 abstract class AbstractRescheduleBehavior {
 
@@ -32,7 +35,7 @@ abstract class AbstractRescheduleBehavior {
     }
 
     public void rescheduleOutsideComWindow(List<ComTaskExecution> comTaskExecutions, Instant startingPoint) {
-        comTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduled(comTaskExecution, startingPoint));
+        comTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduledToComWindow(comTaskExecution, startingPoint));
     }
 
     void rescheduleNotExecutedComTasks(List<ComTaskExecution> comTaskExecutions) {
@@ -45,6 +48,10 @@ abstract class AbstractRescheduleBehavior {
 
     void rescheduleSuccessfulConnectionTask() {
         this.connectionTask = this.comServerDAO.executionCompleted(this.connectionTask);
+    }
+
+    void rescheduleInterruptedConnectionTask() {
+        getComServerDAO().executionRescheduled(connectionTask);
     }
 
     ConnectionTask getConnectionTask() {
@@ -60,6 +67,8 @@ abstract class AbstractRescheduleBehavior {
             rescheduleForConnectionError(commandRoot);
         } else if (commandRoot.hasGeneralSetupErrorOccurred()) {
             rescheduleForGeneralSetupError(commandRoot);
+        } else if (commandRoot.hasConnectionBeenInterrupted()) {
+            rescheduleForConnectionInterrupted(commandRoot);
         } else {
             rescheduleForConnectionSuccess(commandRoot);
         }
@@ -70,6 +79,29 @@ abstract class AbstractRescheduleBehavior {
     protected abstract void rescheduleForConnectionSuccess(CommandRoot commandRoot);
 
     protected abstract void rescheduleForConnectionError(CommandRoot commandRoot);
+
+    protected void rescheduleForConnectionInterrupted(CommandRoot commandRoot) {
+        Logger.getAnonymousLogger().warning("[" + Thread.currentThread().getName() + "] rescheduleForConnectionInterrupted");
+        rescheduleInterruptedConnectionTask();
+        Instant nextConnectionRescheduleDate = calculateNextRescheduleExecutionTimestamp();
+        for (GroupedDeviceCommand groupedDeviceCommand : commandRoot) {
+            for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : groupedDeviceCommand) {
+                switch (comTaskExecutionComCommand.getExecutionState()) {
+                    case SUCCESSFULLY_EXECUTED:
+                        getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
+                        break;
+                    case NOT_EXECUTED: // intentional fallthrough
+                    case FAILED: {
+                        Logger.getAnonymousLogger().warning(comTaskExecutionComCommand.getComTaskExecution().getComTask().getName() + " rescheduled to " + nextConnectionRescheduleDate);
+                        getComServerDAO().executionRescheduled(comTaskExecutionComCommand.getComTaskExecution(), nextConnectionRescheduleDate);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    protected abstract Instant calculateNextRescheduleExecutionTimestamp();
 
     protected Instant calculateNextExecutionTimestampFromNow(ComTaskExecution comTaskExecution) {
         return calculateNextExecutionTimestampFromBaseline(clock.instant(), comTaskExecution);
@@ -87,13 +119,12 @@ abstract class AbstractRescheduleBehavior {
     }
 
     protected Instant calculateNextRetryExecutionTimestamp(OutboundConnectionTask connectionTask) {
-        Instant failureDate = clock.instant();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(Date.from(failureDate));
+        Instant nextExecution = clock.instant();
         TimeDuration baseRetryDelay = getRescheduleRetryDelay(connectionTask);
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * connectionTask.getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
-        failureRetryDelay.addTo(calendar);
-        return connectionTask.applyComWindowIfAny(calendar.getTime().toInstant());
+        nextExecution = nextExecution.plusSeconds(failureRetryDelay.getSeconds());
+
+        return connectionTask.applyComWindowIfAny(nextExecution);
     }
 
     /**

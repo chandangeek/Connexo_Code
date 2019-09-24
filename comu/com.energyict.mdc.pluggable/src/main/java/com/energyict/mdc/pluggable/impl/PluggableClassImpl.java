@@ -10,13 +10,13 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
 import com.energyict.mdc.common.rest.FieldValidationException;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.exceptions.DuplicateNameException;
 import com.energyict.mdc.pluggable.exceptions.JavaClassNameIsRequiredException;
 import com.energyict.mdc.pluggable.exceptions.NameIsRequiredException;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

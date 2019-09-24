@@ -4,6 +4,11 @@
 
 package com.energyict.mdc.engine.events;
 
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.io.Externalizable;
@@ -65,7 +70,7 @@ public interface ComServerEvent extends Externalizable {
     boolean isDeviceRelated();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
+     * Tests if this ComServerEvent relates to a {@link ConnectionTask}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ConnectionTaskRelatedEvent} to obtain the ConnectionTask
      * from the event. The ConnectionTask that is obtained from the event is guaranteed
@@ -76,7 +81,7 @@ public interface ComServerEvent extends Externalizable {
     boolean isConnectionTaskRelated();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.config.ComPort}.
+     * Tests if this ComServerEvent relates to a {@link ComPort}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ComPortRelatedEvent} to obtain the ComPort
      * from the event. The ComPort that is obtained from the event is guaranteed
@@ -87,7 +92,7 @@ public interface ComServerEvent extends Externalizable {
     boolean isComPortRelated();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.engine.config.ComPortPool}.
+     * Tests if this ComServerEvent relates to a {@link ComPortPool}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ComPortPoolRelatedEvent} to obtain the ComPortPool
      * from the event. The ComPortPool that is obtained from the event is guaranteed
@@ -98,7 +103,7 @@ public interface ComServerEvent extends Externalizable {
     boolean isComPortPoolRelated();
 
     /**
-     * Tests if this ComServerEvent relates to a {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}.
+     * Tests if this ComServerEvent relates to a {@link ComTaskExecution}.
      * When that is the case, it should be possible to cast
      * this ComServerEvent to {@link ComTaskExecutionRelatedEvent} to obtain the ComTaskExecution
      * from the event. The ComTaskExecution that is obtained from the event is guaranteed

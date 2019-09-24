@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
 
 import java.util.Comparator;
 

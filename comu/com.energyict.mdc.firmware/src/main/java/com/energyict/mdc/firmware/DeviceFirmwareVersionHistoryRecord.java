@@ -5,7 +5,7 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import java.time.Instant;
 

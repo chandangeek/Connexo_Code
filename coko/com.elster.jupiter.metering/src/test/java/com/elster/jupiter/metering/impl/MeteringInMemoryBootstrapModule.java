@@ -76,6 +76,7 @@ public class MeteringInMemoryBootstrapModule {
     private CustomPropertySetService customPropertySetService;
     private DataAggregationService dataAggregationService;
     private HttpService httpService;
+    private static BundleContext bundleContext;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -122,6 +123,7 @@ public class MeteringInMemoryBootstrapModule {
 
     public void activate() {
         this.initializeMocks();
+        this.setupBundleContext();
         List<Module> modules = new ArrayList<>();
         modules.add(new UtilModule(clock));
         modules.add(new MockModule());
@@ -204,6 +206,10 @@ public class MeteringInMemoryBootstrapModule {
         return injector.getInstance(ServerMeteringService.class);
     }
 
+    public AuditService getAuditService() {
+        return injector.getInstance(AuditService.class);
+    }
+
     public SyntheticLoadProfileService getSyntheticLoadProfileService() {
         return injector.getInstance(SyntheticLoadProfileService.class);
     }
@@ -251,7 +257,7 @@ public class MeteringInMemoryBootstrapModule {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mockLicenseService());
             bind(HttpService.class).toInstance(httpService);
@@ -271,5 +277,10 @@ public class MeteringInMemoryBootstrapModule {
         License license = mock(License.class);
         when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.of(license));
         return licenseService;
+    }
+
+    private static void setupBundleContext() {
+        bundleContext = mock(BundleContext.class);
+        when(bundleContext.getProperty("enable.auditing")).thenReturn("true");
     }
 }

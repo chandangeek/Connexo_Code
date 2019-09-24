@@ -10,14 +10,14 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.engine.DeviceCreator;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -484,7 +484,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         when(this.deviceService.findDeviceById(slaveId)).thenReturn(Optional.of(slave));
         when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(slave, ))).thenReturn(Optional.of(slave));
 
-        Map<com.energyict.mdc.device.data.Channel, com.energyict.mdc.device.data.Channel> channelMap = new HashMap<>();
+        Map<com.energyict.mdc.common.device.data.Channel, com.energyict.mdc.common.device.data.Channel> channelMap = new HashMap<>();
         // Linking the slave
         LoadProfile dataLoggerLoadProfile = dataLogger.getLoadProfiles().get(0);
         LoadProfile slaveLoggerLoadProfile = slave.getLoadProfiles().get(0);

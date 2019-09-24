@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -17,28 +21,29 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.data.ConnectionInitiationTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionProperty;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.TaskPriorityConstants;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.impl.cps.SIMCardCustomPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -49,10 +54,7 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Calendar;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -87,6 +89,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private UpdateStrategy updateStrategy = new Noop();
     private boolean calledByComtaskExecution = false;
     private ServerCommunicationTaskService communicationTaskService;
+    private final CustomPropertySetService customPropertySetService;
     private TaskStatus taskStatus;
 
     protected ScheduledConnectionTaskImpl() {
@@ -94,10 +97,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService,  CustomPropertySetService customPropertySetService) {
         super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, protocolPluggableService);
         this.schedulingService = schedulingService;
         this.communicationTaskService = communicationTaskService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -208,7 +212,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private EarliestNextExecutionTimeStampAndPriority getEarliestNextExecutionTimeStampAndPriority() {
         Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull());
 
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition,
                 Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
@@ -263,7 +268,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant doUpdateNextExecutionTimestamp(PostingMode postingMode) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(this.now().toEpochMilli());
         this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar).toInstant());
         return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
@@ -273,12 +278,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
-            if(comTask.getNextExecutionTimestamp() == null) {
+            if (comTask.getNextExecutionTimestamp() == null) {
                 updateNextExecutionTimeStampBasedOnComTask();
             } else {
                 this.schedule(comTask.getNextExecutionTimestamp().minusMillis(1));
             }
-        }else {
+        } else {
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -339,7 +344,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(calculatedNextExecutionTimestamp.toEpochMilli());
         this.applyComWindowIfAny(calendar);
         return calendar.getTime().toInstant();
@@ -381,7 +386,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant calculateNextRetryExecutionTimestamp() {
         Instant failureDate = this.now();
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
@@ -401,12 +406,29 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
+    @Override
+    protected void doExecutionRescheduled() {
+        super.doExecutionRescheduled();
+        schedule(calculateNextRescheduleTimestamp());
+    }
+
+    private Instant calculateNextRescheduleTimestamp() {
+        Instant failureDate = this.now();
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
+        calendar.setTimeInMillis(failureDate.toEpochMilli());
+        TimeDuration retryDelay = getRescheduleRetryDelay();
+        retryDelay.addTo(calendar);
+        applyComWindowIfAny(calendar);
+
+        return calendar.getTime().toInstant();
+    }
+
     private Instant calculateNextExecutionTimestamp(Instant now) {
         return this.calculateNextExecutionTimestampFromBaseline(now, this.getNextExecutionSpecs());
     }
 
     private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, NextExecutionSpecs nextExecutionSpecs) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(baseLine.toEpochMilli());
         if (nextExecutionSpecs != null) {
             return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();
@@ -592,7 +614,42 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         ConnectionType connectionType = this.getConnectionType();
         List<ConnectionProperty> connectionProperties = this.castToConnectionProperties(adaptedProperties);
         connectionProperties.add(new ComPortNameProperty(comPort));
+        connectionProperties.addAll(getDeviceIdentificationProperties());
+        connectionProperties.addAll(getSIMcardProperties());
+        connectionProperties.addAll(getConnectionProviderProperty());
         return connectionType.connect(connectionProperties);
+    }
+
+    private List<ConnectionTaskProperty>  getConnectionProviderProperty() {
+        List<ConnectionTaskProperty> connectionTaskPropertyList= new ArrayList();
+
+        connectionTaskPropertyList.add ( newProperty("connectionTask.id",   this.getId(),   Instant.now()) );
+        connectionTaskPropertyList.add ( newProperty("connectionTask.name", this.getName(), Instant.now()));
+
+        return connectionTaskPropertyList;
+    }
+
+    private List<ConnectionTaskProperty> getDeviceIdentificationProperties() {
+        List<ConnectionTaskProperty> deviceIDs = new ArrayList();
+
+        deviceIDs.add( newProperty("serialNumber",  getDevice().getSerialNumber(),  Instant.now()));
+        deviceIDs.add( newProperty("mrID",          getDevice().getmRID(),          Instant.now()));
+
+        return deviceIDs;
+    }
+
+    private List<ConnectionTaskProperty> getSIMcardProperties() {
+        try {
+            Optional<RegisteredCustomPropertySet> activeSet = getCustomPropertySetService().findActiveCustomPropertySet(SIMCardCustomPropertySet.CPS_ID);
+            if (activeSet.isPresent()) {
+                CustomPropertySet simCustomProperty = activeSet.get().getCustomPropertySet();
+                CustomPropertySetValues simProps = getCustomPropertySetService().getUniqueValuesFor(simCustomProperty, getDevice(), Instant.now());
+                return toConnectionProperties(simProps);
+            }
+        }catch (Exception ex){
+            System.err.println(ex);
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -632,6 +689,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @XmlTransient
     public List<ComTaskExecution> getScheduledComTasks() {
         return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this).find();
+    }
+
+    public CustomPropertySetService getCustomPropertySetService() {
+        return this.customPropertySetService;
     }
 
     private enum PostingMode {

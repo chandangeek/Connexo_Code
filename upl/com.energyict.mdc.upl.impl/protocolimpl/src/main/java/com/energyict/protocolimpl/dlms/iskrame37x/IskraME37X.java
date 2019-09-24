@@ -1076,7 +1076,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:26:45 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2019-09-04$";
     }
 
     @Override
@@ -1134,7 +1134,11 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
         iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
         iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 10);
-        iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+        if (properties.getTypedProperty(SECURITYLEVEL.getName(), "1").contains(":")) {
+            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").split(":")[0]);
+        } else {
+            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1"));
+        }
         iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
         iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
         iClientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(100)).intValue();

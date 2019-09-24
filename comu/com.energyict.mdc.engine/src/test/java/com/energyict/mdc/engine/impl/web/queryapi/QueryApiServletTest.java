@@ -4,35 +4,36 @@
 
 package com.energyict.mdc.engine.impl.web.queryapi;
 
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
-
-import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
-import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
-import org.fest.assertions.api.Assertions;
+
+import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
+import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 /**
  * Tests the {@link QueryApiServlet} component.
  *
@@ -42,6 +43,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class QueryApiServletTest {
 
+    private QueryAPIStatistics statistics;
+    private WebSocketQueryApiCreator servlet;
+
     @Mock
     private WebSocketQueryApiService service;
     @Mock
@@ -49,58 +53,75 @@ public class QueryApiServletTest {
     @Mock
     private RunningOnlineComServer runningComServer;
     @Mock
-    private ManagementBeanFactory managementBeanFactory;
-    @Mock(extraInterfaces = ComServerMonitor.class)
-    private ComServerMonitorImplMBean comServerMonitor;
-    @Mock
     private QueryAPIStatistics queryAPIStatistics;
     @Mock
+    private ServletUpgradeRequest servletUpgradeRequest;
+    @Mock
+    private ServletUpgradeResponse servletUpgradeResponse;
+    @Mock
+    private HttpServletRequest httpServletRequest;
+    @Mock
+    private HttpSession httpSession;
+    @Mock
+    private ComServerDAO comServerDAO;
+    @Mock
     private RunningComServerImpl.ServiceProvider serviceProvider;
+    @Mock
+    private WebSocketQueryApiServiceFactory serviceFactory;
+    @Mock
+    private EngineConfigurationService engineConfigurationService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private TransactionService transactionService;
+
+
 
     @Before
     public void initializeMockAndFactories () {
         when(this.runningComServer.getComServer()).thenReturn(this.comServer);
-        when(this.runningComServer.newWebSocketQueryApiService()).thenReturn(this.service);
+
+        servlet = new WebSocketQueryApiCreator(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        WebSocketQueryApiServiceFactory.setInstance(this.serviceFactory);
+        when(this.serviceFactory.newWebSocketQueryApiService(any(RunningOnlineComServer.class), any(ComServerDAO.class), any(EngineConfigurationService.class), any(ConnectionTaskService.class), any(CommunicationTaskService.class), any(TransactionService.class))).thenReturn(this.service);
+        when(servletUpgradeRequest.getHttpServletRequest()).thenReturn(httpServletRequest);
+        when(httpServletRequest.getSession()).thenReturn(httpSession);
+        when(httpServletRequest.getSession(anyBoolean())).thenReturn(httpSession);
+        //when(this.runningComServer.newWebSocketQueryApiService()).thenReturn(this.service);
+
+
+    }
+
+    @After
+    public void resetFactory () {
+        WebSocketQueryApiServiceFactory.setInstance(null);
     }
 
     @Test
     public void testNewWebSocketQueryApiServiceIsCreatedForNewSession () {
-        HttpSession httpSession = mock(HttpSession.class);
         when(httpSession.getId()).thenReturn("testNewWebSocketQueryApiServiceIsCreatedForNewSession");
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getSession()).thenReturn(httpSession);
-        when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
-        when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
-        ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
-        when(comServerMonitor.getQueryApiStatistics()).thenReturn(this.queryAPIStatistics);
-        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer, queryAPIStatistics);
-
         // Business method
-        servlet.findOrCreateQueryApiService(request);    // Don't care about the protocol
+        servlet.createWebSocket(servletUpgradeRequest, servletUpgradeResponse);
 
         // Asserts
-        verify(this.runningComServer).newWebSocketQueryApiService();
+        verify(this.serviceFactory).newWebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
     }
 
     @Test
     public void testNewWebSocketQueryApiServiceIsNotCreatedForTheSameSession () {
-        HttpSession httpSession = mock(HttpSession.class);
         when(httpSession.getId()).thenReturn("testNewWebSocketQueryApiServiceIsNotCreatedForTheSameSession");
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getSession()).thenReturn(httpSession);
-        when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        QueryApiServlet initialsServlet = new QueryApiServlet(this.runningComServer, queryAPIStatistics);
-        initialsServlet.findOrCreateQueryApiService(request);
-        reset(this.runningComServer);
+
+        WebSocketQueryApiService initialWebSocket = (WebSocketQueryApiService) servlet.createWebSocket(servletUpgradeRequest, servletUpgradeResponse);
+        reset(this.serviceFactory);
 
         // Business method
-        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer, queryAPIStatistics);
-        servlet.findOrCreateQueryApiService(request);
+        WebSocketQueryApiService webSocket = (WebSocketQueryApiService) servlet.createWebSocket(servletUpgradeRequest, servletUpgradeResponse);
 
         // Asserts
-        verify(this.runningComServer, never()).newWebSocketQueryApiService();
-        Assertions.assertThat(servlet).isSameAs(servlet);
+        verify(this.serviceFactory, never()).newWebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        assertThat(webSocket).isSameAs(initialWebSocket);
     }
 
 }

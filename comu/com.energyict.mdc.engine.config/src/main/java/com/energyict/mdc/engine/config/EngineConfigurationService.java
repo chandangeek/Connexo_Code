@@ -4,13 +4,24 @@
 
 package com.energyict.mdc.engine.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Map;
@@ -55,7 +66,7 @@ public interface EngineConfigurationService {
     Optional<ComServer> findComServerBySystemName();
 
     /**
-     * Finds all {@link com.energyict.mdc.engine.config.OnlineComServer}s.
+     * Finds all {@link OnlineComServer}s.
      *
      * @return a List of OnlineComServer
      */
@@ -136,9 +147,17 @@ public interface EngineConfigurationService {
     /**
      * Finds all {@link OutboundComPort}s.
      *
-     * @return Llist of OutboundComPort
+     * @return List of OutboundComPort
      */
     List<OutboundComPort> findAllOutboundComPorts();
+
+    /**
+     * Finds all the {@link OutboundComPort}s that are owned by the specified {@link ComServer}.
+     *
+     * @param comServer The ComServer
+     * @return The OutboundComPort owned by the ComServer
+     */
+    List<OutboundComPort> findAllOutboundComPortsByComServer(ComServer comServer);
 
     /**
      * Finds all {@link InboundComPort}s.
@@ -237,7 +256,15 @@ public interface EngineConfigurationService {
      *
      * @return The newly created OutboundComPortPool
      */
-    OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout);
+    OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout, long pctHighPrioTasks);
+    /**
+     * Finds all the unique identifiers of the active {@link OutboundComPortPool}s
+     * that contain the specified {@link ComPort}.
+     *
+     * @param comPort The ComPort
+     * @return The list of unique identifiers of active OutboundComPortPools that contain the ComPort
+     */
+    List<Long> findContainingActiveComPortPoolsForComPort(ComPort comPort);
 
     List<OutboundComPortPool> findContainingComPortPoolsForComPort(OutboundComPort comPort);
 
@@ -249,6 +276,8 @@ public interface EngineConfigurationService {
 
     List<ComPort> findAllComPortsIncludingObsolete();
 
+    long calculateMaxPriorityConnections(ComPortPool comPortPool, long pctHighPrioTasks);
+
     /**
      * Locks the given ComServer. This is a blocking call until a proper lock is provided
      *
@@ -256,4 +285,6 @@ public interface EngineConfigurationService {
      * @return the 'locked' ComServer object
      */
     ComServer lockComServer(ComServer comServer);
+
+    ComPort lockComPort(ComPort comPort);
 }

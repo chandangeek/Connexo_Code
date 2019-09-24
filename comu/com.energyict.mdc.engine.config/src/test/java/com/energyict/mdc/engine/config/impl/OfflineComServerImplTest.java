@@ -10,14 +10,20 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.ports.ComPortType;
+
 import com.google.inject.Provider;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -33,7 +39,7 @@ import static org.junit.Assert.assertTrue;
 public class OfflineComServerImplTest extends PersistenceTest {
 
     private static int onlineNameNumber = 1;
-    
+
     private static final ComServer.LogLevel SERVER_LOG_LEVEL = ComServer.LogLevel.ERROR;
     private static final ComServer.LogLevel COMMUNICATION_LOG_LEVEL = ComServer.LogLevel.TRACE;
     private static final TimeDuration CHANGES_INTER_POLL_DELAY = new TimeDuration(5, TimeDuration.TimeUnit.HOURS);

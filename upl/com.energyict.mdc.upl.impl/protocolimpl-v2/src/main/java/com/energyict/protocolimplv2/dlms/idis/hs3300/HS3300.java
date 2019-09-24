@@ -1,16 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300;
 
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
-import com.energyict.dlms.cosem.SixLowPanAdaptationLayerSetup;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -56,6 +45,18 @@ import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities
 import com.energyict.mdc.upl.security.RequestSecurityLevel;
 import com.energyict.mdc.upl.security.ResponseSecurityLevel;
 import com.energyict.mdc.upl.security.SecuritySuite;
+
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
+import com.energyict.dlms.cosem.SixLowPanAdaptationLayerSetup;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -489,7 +490,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     protected HS3300Messaging getDeviceMessaging() {
         if (this.deviceMessaging == null) {
             this.deviceMessaging = new HS3300Messaging(this, getCollectedDataFactory(), getIssueFactory(),
-                    getPropertySpecService(), nlsService, converter, calendarExtractor, messageFileExtractor, keyAccessorTypeExtractor);
+                    getPropertySpecService(), nlsService, converter, calendarExtractor, certificateWrapperExtractor, messageFileExtractor, keyAccessorTypeExtractor);
         }
         return this.deviceMessaging;
     }

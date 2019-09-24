@@ -38,6 +38,8 @@ Ext.define('Dxp.view.tasks.Add', {
     },
     initComponent: function () {
         var me = this;
+        var currentDateTime = new Date();
+        currentDateTime.setMinutes(currentDateTime.getMinutes() + 60);
         me.content = [
             {
                 xtype: 'form',
@@ -185,7 +187,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 name: 'start-on',
                                 dateConfig: {
                                     allowBlank: true,
-                                    value: new Date(),
+                                    value: currentDateTime,
                                     editable: false,
                                     format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                 },
@@ -193,11 +195,11 @@ Ext.define('Dxp.view.tasks.Add', {
                                     fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
                                     labelWidth: 10,
                                     margin: '0 0 0 10',
-                                    value: new Date().getHours()
+                                    value: currentDateTime.getHours()
                                 },
                                 minutesConfig: {
                                     width: 55,
-                                    value: new Date().getMinutes()
+                                    value: currentDateTime.getMinutes()
                                 }
                             }
                         ]
@@ -524,13 +526,13 @@ Ext.define('Dxp.view.tasks.Add', {
                                 },
                                 items: [
                                     {
-                                     //   itemId: 'noExportForUpdated',
+                                        //   itemId: 'noExportForUpdated',
                                         boxLabel: Uni.I18n.translate('general.startOfExportWindow', 'DES', 'start of export window'),
                                         inputValue: false,
                                         checked: true
                                     },
                                     {
-                                      //  itemId: 'exportWithinWindow',
+                                        //  itemId: 'exportWithinWindow',
                                         boxLabel: Uni.I18n.translate('general.continuousData', 'DES', 'last exported data (continuous data)'),
                                         inputValue: true
                                     }
@@ -620,7 +622,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                         name: 'exportUpdated',
                                         columns: 1,
                                         vertical: true,
-                                       // width: 400,
+                                        // width: 400,
                                         defaults: {
                                             name: 'updatedDataAndOrAdjacentData'
                                         },

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
 

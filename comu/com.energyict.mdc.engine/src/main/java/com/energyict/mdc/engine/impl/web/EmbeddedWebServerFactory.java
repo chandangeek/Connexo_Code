@@ -4,14 +4,19 @@
 
 package com.energyict.mdc.engine.impl.web;
 
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
-import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 /**
  * Provides factory services for {@link EmbeddedWebServer}s.
@@ -43,7 +48,7 @@ public interface EmbeddedWebServerFactory {
      * @param comServer The ComServer
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer, EventAPIStatistics eventAPIStatistics);
+    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer);
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts

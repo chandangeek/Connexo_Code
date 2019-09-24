@@ -61,6 +61,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.energyict.mdc.common.device.data.KeyAccessorStatus;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -72,7 +73,6 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CrlRequestService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.crlrequest.rest.CrlRequestTaskPropertyInfo;
@@ -91,6 +91,7 @@ import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
@@ -160,6 +161,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile Clock clock;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile PriorityComTaskService priorityComTaskService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile FavoritesService favoritesService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
@@ -598,6 +600,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService= priorityComTaskService;
+    }
+
+    @Reference
     public void setCommunicationTaskReportService(CommunicationTaskReportService communicationTaskReportService) {
         this.communicationTaskReportService = communicationTaskReportService;
     }
@@ -713,6 +720,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(taskService).to(TaskService.class);
             bind(tskService).to(com.elster.jupiter.tasks.TaskService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(priorityComTaskService).to(PriorityComTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(topologyService).to(TopologyService.class);
             bind(multiElementDeviceService).to(MultiElementDeviceService.class);
@@ -787,6 +795,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(auditService).to(AuditService.class);
             bind(AuditInfoFactory.class).to(AuditInfoFactory.class);
             bind(auditInfoFactory).to(AuditInfoFactory.class);
+            bind(ComTaskExecutionPrivilegeCheck.class).to(ComTaskExecutionPrivilegeCheck.class);
 
         }
     }

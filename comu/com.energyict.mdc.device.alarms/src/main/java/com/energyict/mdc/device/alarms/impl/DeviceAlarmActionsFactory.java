@@ -7,6 +7,7 @@ package com.energyict.mdc.device.alarms.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
@@ -22,8 +23,8 @@ import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.WebServiceNotificationAlarmAction;
+import com.energyict.mdc.device.alarms.impl.actions.MailNotificationAlarmAction;
 import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -55,6 +56,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BpmService bpmService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile PropertyFactoriesProvider propertyFactoriesProvider;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -74,7 +76,8 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                                      UserService userService,
                                      BpmService bpmService,
                                      ThreadPrincipalService threadPrincipalService,
-                                     EndPointConfigurationService endPointConfigurationService) {
+                                     EndPointConfigurationService endPointConfigurationService,
+                                     PropertyFactoriesProvider propertyFactoriesProvider) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
@@ -85,6 +88,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         setThreadPrincipalService(threadPrincipalService);
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
+        setPropertyFactoriesProvider(propertyFactoriesProvider);
 
         activate();
     }
@@ -105,6 +109,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(BpmService.class).toInstance(bpmService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
+                bind(PropertyFactoriesProvider.class).toInstance(propertyFactoriesProvider);
             }
         });
 
@@ -127,7 +132,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     @Reference
     public final void setThesaurus(NlsService nlsService) {
         this.nlsService = nlsService;
-        //this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        //this.thesaurus = nlsService.getThesaurus(IssueService.TASK_SERVICE_COMPONENT_NAME, Layer.DOMAIN);
         this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN);  // CONM-294 - close alarm
     }
 
@@ -171,12 +176,18 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         this.endPointConfigurationService = endPointConfigurationService;
     }
 
+    @Reference
+    public void setPropertyFactoriesProvider(final PropertyFactoriesProvider propertyFactoriesProvider) {
+        this.propertyFactoriesProvider = propertyFactoriesProvider;
+    }
+
     private void addDefaultActions() {
         try {
             actionProviders.put(StartProcessAlarmAction.class.getName(), injector.getProvider(StartProcessAlarmAction.class));
             actionProviders.put(AssignDeviceAlarmAction.class.getName(), injector.getProvider(AssignDeviceAlarmAction.class));
             actionProviders.put(CloseDeviceAlarmAction.class.getName(), injector.getProvider(CloseDeviceAlarmAction.class));
             actionProviders.put(WebServiceNotificationAlarmAction.class.getName(), injector.getProvider(WebServiceNotificationAlarmAction.class));
+            actionProviders.put(MailNotificationAlarmAction.class.getName(), injector.getProvider(MailNotificationAlarmAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

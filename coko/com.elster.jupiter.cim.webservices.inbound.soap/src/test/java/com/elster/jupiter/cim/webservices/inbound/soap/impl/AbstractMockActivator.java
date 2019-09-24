@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterCustomPropertySet;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
-import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -17,6 +20,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
@@ -41,7 +46,6 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -91,8 +95,6 @@ public abstract class AbstractMockActivator {
     @Mock
     protected JsonService jsonService;
     @Mock
-    protected SendMeterReadingsProvider sendMeterReadingsProvider;
-    @Mock
     private ServiceCallType serviceCallType;
     @Mock
     private QueueTableSpec queueTableSpec;
@@ -106,6 +108,16 @@ public abstract class AbstractMockActivator {
     private ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
     @Mock
     private ReplyUsagePointConfigWebService replyUsagePointConfigWebService;
+    @Mock
+    private MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
+    @Mock
+    private MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
+    @Mock
+    private UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet;
+    @Mock
+    private UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet;
+    @Mock
+    private OrmService ormService;
 
     @Before
     public void init() {
@@ -125,6 +137,8 @@ public abstract class AbstractMockActivator {
         when(builder.create()).thenReturn(serviceCall);
         when(serviceCallType.newServiceCall()).thenReturn(builder);
         when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
     }
 
     private void initActivator() {
@@ -132,7 +146,9 @@ public abstract class AbstractMockActivator {
                 transactionService, meteringService, nlsService, upgradeService, metrologyConfigurationService,
                 userService, usagePointLifeCycleService, customPropertySetService, endPointConfigurationService,
                 webServicesService, serviceCallService, messageService, jsonService,
-                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService);
+                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService,
+                masterDataLinkageConfigMasterCustomPropertySet, masterDataLinkageConfigCustomPropertySet,
+                usagePointConfigMasterCustomPropertySet, usagePointConfigCustomPropertySet, ormService);
     }
 
     protected <T> T getInstance(Class<T> clazz) {

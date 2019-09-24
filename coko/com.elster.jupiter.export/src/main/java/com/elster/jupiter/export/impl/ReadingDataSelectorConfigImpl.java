@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -31,7 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
+public abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
 
     private MissingDataOption exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
@@ -51,14 +52,14 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
         super(dataModel);
     }
 
-    IReadingTypeDataExportItem addExportItem(ReadingContainer readingContainer, ReadingType readingType) {
+    ReadingTypeDataExportItem addExportItem(ReadingContainer readingContainer, ReadingType readingType) {
         ReadingTypeDataExportItemImpl item = ReadingTypeDataExportItemImpl.from(getDataModel(), ReadingDataSelectorConfigImpl.this, readingContainer, readingType);
         exportItems.add(item);
         return item;
     }
 
     @Override
-    public List<? extends IReadingTypeDataExportItem> getExportItems() {
+    public List<ReadingTypeDataExportItem> getExportItems() {
         return Collections.unmodifiableList(exportItems);
     }
 
@@ -105,7 +106,7 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
         return exportOnlyIfComplete;
     }
 
-    abstract Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
+    public abstract Set<ReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
 
     @Override
     public void delete() {

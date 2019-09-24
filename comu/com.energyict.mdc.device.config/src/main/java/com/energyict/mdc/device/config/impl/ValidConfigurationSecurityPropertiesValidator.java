@@ -6,13 +6,15 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Validates the {@link ValidConfigurationSecurityProperties} constraint against a {@link SecurityPropertySetImpl}.
@@ -33,16 +35,10 @@ public class ValidConfigurationSecurityPropertiesValidator implements Constraint
     public boolean isValid(SecurityPropertySetImpl securityPropertySet, ConstraintValidatorContext context) {
         Set<PropertySpec> propertySpecs = securityPropertySet.getPropertySpecs();
         List<ConfigurationSecurityProperty> configurationSecurityProperties = securityPropertySet.getConfigurationSecurityProperties();
-        Set<PropertySpec> securePropertySpecs = new HashSet<PropertySpec>();
 
-        for (PropertySpec prop:propertySpecs) {
-            if(prop instanceof KeyAccessorPropertySpecWithPossibleValues)
-                securePropertySpecs.add(prop);
-        }
-
-        this.validatePropertiesAreLinkedToPropertySpecs(securePropertySpecs, configurationSecurityProperties, context);
-        this.validateAllRequiredPropertiesHaveValues(securePropertySpecs, configurationSecurityProperties, context);
-        this.validatePropertyValues(securePropertySpecs, configurationSecurityProperties, context);
+        this.validatePropertiesAreLinkedToPropertySpecs(propertySpecs, configurationSecurityProperties, context);
+        this.validateAllRequiredPropertiesHaveValues(propertySpecs, configurationSecurityProperties, context);
+        this.validatePropertyValues(propertySpecs, configurationSecurityProperties, context);
         return this.valid;
     }
 

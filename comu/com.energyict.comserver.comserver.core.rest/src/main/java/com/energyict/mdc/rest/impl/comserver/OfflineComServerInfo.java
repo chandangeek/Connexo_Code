@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

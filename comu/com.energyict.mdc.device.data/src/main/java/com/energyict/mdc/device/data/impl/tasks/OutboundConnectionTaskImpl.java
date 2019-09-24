@@ -8,11 +8,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -43,8 +43,8 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
-    protected void doExecutionStarted(ComServer comServer, List<String> updatedColumns) {
-        super.doExecutionStarted(comServer, updatedColumns);
+    protected void doExecutionStarted(ComPort comPort, List<String> updatedColumns) {
+        super.doExecutionStarted(comPort, updatedColumns);
         this.lastExecutionFailed = false;
         updatedColumns.add(ConnectionTaskFields.LAST_EXECUTION_FAILED.fieldName());
     }
@@ -59,7 +59,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     @Override
     public void executionFailed() {
         this.doNotTouchParentDevice();
-        this.setExecutingComServer(null);
+        this.setExecutingComPort(null);
         this.incrementCurrentRetryCount();
         if (doWeNeedToRetryTheConnectionTask()) {
             this.doExecutionAttemptFailed();
@@ -67,6 +67,16 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
             this.doExecutionFailed();
         }
         this.update();
+    }
+
+    @Override
+    public void executionRescheduled() {
+        doExecutionRescheduled();
+        update();
+    }
+
+    protected void doExecutionRescheduled() {
+        setExecutingComPort(null);
     }
 
     protected boolean doWeNeedToRetryTheConnectionTask() {

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
@@ -13,25 +13,35 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.ExcludedComTaskPropertyFactory;
 import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
+import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -41,13 +51,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.time.Clock;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
@@ -60,29 +71,41 @@ import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEv
         property = {"name=" + BasicDataCollectionRuleTemplate.NAME},
         service = CreationRuleTemplate.class,
         immediate = true)
-public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
+public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate implements AllowsComTaskFiltering {
     private static final Logger LOG = Logger.getLogger(BasicDataCollectionRuleTemplate.class.getName());
     static final String NAME = "BasicDataCollectionRuleTemplate";
 
     public static final String EVENTTYPE = NAME + ".eventType";
+    public static final String EXCLUDEDCOMTASKS = NAME + ".excludedComTasks";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
     public static final String RADIOGROUP = NAME + ".increaseurgency";
+    public static final String THRESHOLD = NAME + ".threshold";
     private static final String DEFAULT_VALUE = "Do nothing";
     private static final Long DEFAULT_KEY = 0L;
+    private static final String SEPARATOR = ":";
+    private static final int DEFAULT_NUMERICAL_VALUE = 0;
+    public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
+    public static final String VALUE_SEPARATOR = ",";
+
+    private volatile TaskService taskService;
 
     //for OSGI
     public BasicDataCollectionRuleTemplate() {
     }
 
     @Inject
-    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, Clock clock, CommunicationTaskService communicationTaskService) {
         this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService( deviceLifeCycleConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setTimeService(timeService);
+        setClock(clock);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setTaskService(taskService);
         activate();
     }
 
@@ -93,6 +116,11 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Reference
     public final void setNlsService(NlsService nlsService) {
         this.setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public final void setClock(Clock clock) {
+        super.setClock(clock);
     }
 
     @Reference
@@ -120,6 +148,16 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
     }
 
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        super.setTimeService(timeService);
+    }
+
     @Override
     public String getName() {
         return BasicDataCollectionRuleTemplate.NAME;
@@ -140,6 +178,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 "rule \"Basic datacollection rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == false )\n" +
+                "\teval( event.checkOccurrenceConditions(\"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") == true )\n" +
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by basic datacollection rule=@{ruleId}\");\n" +
@@ -151,6 +190,13 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve issue by basic datacollection rule=@{ruleId}\");\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
+                "end\n" +
+                "rule \"Setting priority to default value section @{ruleId}\"\n" +
+                "when\n" +
+                "\tevent : DataCollectionEvent( eventType == \"@{" + EVENTTYPE + "}\", resolveEvent == true, @{" + AUTORESOLUTION + "} == 0 )\n" +
+                "then\n" +
+                "\tLOGGER.info(\"Trying to discard issue's priority to default value by basic datacollection rule=@{ruleId}\");\n" +
+                "\tissueCreationService.processIssueDiscardPriorityOnResolutionEvent(@{ruleId}, event);\n" +
                 "end";
     }
 
@@ -213,12 +259,18 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new EventTypeValueFactory(eventTypes))
+                .specForValuesOf(new CustomEventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .addValues(eventTypes.getEventTypes())
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .finish());
+        builder.add(propertySpecService.specForValuesOf(new ExcludedComTaskValueFactory())
+                .named(EXCLUDEDCOMTASKS, TranslationKeys.PARAMETER_EXCLUDED_COM_TASKS)
+                .describedAs(TranslationKeys.PARAMETER_EXCLUDED_COM_TASKS)
+                .fromThesaurus(this.getThesaurus())
+                .markMultiValued(VALUE_SEPARATOR)
                 .finish());
         builder.add(propertySpecService
                 .booleanSpec()
@@ -234,6 +286,14 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .setDefaultValue(new EventTypeInfo(DEFAULT_KEY, DEFAULT_VALUE))
                 .addValues(possibleValues)
                 .finish());
+        builder.add(propertySpecService
+                .specForValuesOf(new RelativePeriodWithCountInfoValueFactory())
+                .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .setDefaultValue(new RelativePeriodWithCountInfo(DEFAULT_NUMERICAL_VALUE, timeService.getAllRelativePeriod()))
+                .finish());
+
         return builder.build();
     }
 
@@ -362,6 +422,170 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
             } else {
                 builder.addNull(Types.VARCHAR);
             }
+        }
+    }
+
+    private class ExcludedComTaskValueFactory implements ValueFactory<ComTask>, ExcludedComTaskPropertyFactory {
+
+        @Override
+        public ComTask fromStringValue(String stringValue) {
+            return taskService.findComTask(Long.parseLong(stringValue)).orElse(null);
+        }
+
+        @Override
+        public String toStringValue(ComTask object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<ComTask> getValueType() {
+            return ComTask.class;
+        }
+
+        @Override
+        public ComTask valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(ComTask object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, ComTask value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, ComTask value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    @Override
+    public List<? extends HasId> getExcludedComTasks(Map<String, Object> properties) {
+        return (List<ComTask>) properties.get(EXCLUDEDCOMTASKS);
+    }
+
+    private class RelativePeriodWithCountInfoValueFactory implements ValueFactory<HasIdAndName>, RelativePeriodWithCountPropertyFactory {
+        @Override
+        public HasIdAndName fromStringValue(String stringValue) {
+            List<String> values = Arrays.asList(stringValue.split(SEPARATOR));
+            if (values.size() != 2) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                        "properties." + THRESHOLD,
+                        String.valueOf(2),
+                        String.valueOf(values.size()));
+            }
+            int count = Integer.parseInt(values.get(0));
+            RelativePeriod relativePeriod = timeService.findRelativePeriod(Long.parseLong(values.get(1))).orElse(null);
+            return new RelativePeriodWithCountInfo(count, relativePeriod);
+        }
+
+        @Override
+        public String toStringValue(HasIdAndName object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<HasIdAndName> getValueType() {
+            return HasIdAndName.class;
+        }
+
+        @Override
+        public HasIdAndName valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(HasIdAndName object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, HasIdAndName value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    public static class RelativePeriodWithCountInfo extends HasIdAndName {
+
+        private RelativePeriod relativePeriod;
+        private int occurrenceCount;
+
+        RelativePeriodWithCountInfo(int occurrenceCount, RelativePeriod relativePeriod) {
+            this.relativePeriod = relativePeriod;
+            this.occurrenceCount = occurrenceCount;
+        }
+
+        @Override
+        public String getId() {
+            return occurrenceCount + SEPARATOR + relativePeriod.getId();
+        }
+
+        @Override
+        public String getName() {
+            try {
+                JSONObject jsonId = new JSONObject();
+                jsonId.put("occurrenceCount", occurrenceCount);
+                jsonId.put("relativePeriod", relativePeriod.getName());
+                return jsonId.toString();
+            } catch (JSONException e) {
+                LOG.log(Level.SEVERE, e.getMessage(), e);
+            }
+            return "";
+        }
+
+        public long getRelativePeriodId() {
+            return relativePeriod.getId();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof RelativePeriodWithCountInfo)) {
+                return false;
+            }
+            if (!super.equals(o)) {
+                return false;
+            }
+
+            RelativePeriodWithCountInfo that = (RelativePeriodWithCountInfo) o;
+
+            return occurrenceCount == that.occurrenceCount && relativePeriod.equals(that.relativePeriod);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + relativePeriod.hashCode();
+            result = 31 * result + occurrenceCount;
+            return result;
         }
     }
 }

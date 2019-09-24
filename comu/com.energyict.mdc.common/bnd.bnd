@@ -3,10 +3,24 @@
 Private-Package: com.energyict.mdc.common.impl
 Export-Package: com.energyict.mdc.common,\
                 com.energyict.mdc.common.coordinates,\
+                com.energyict.mdc.common.comserver,\
                 com.energyict.mdc.common.comserver.logging,\
+                com.energyict.mdc.common.device.config,\
+                com.energyict.mdc.common.device.data,\
+                com.energyict.mdc.common.device.lifecycle.config,\
+                com.energyict.mdc.common.device.data,\
+                com.energyict.mdc.common.device.lifecycle.config,\
+                com.energyict.mdc.common.masterdata,\
+                com.energyict.mdc.common.pluggable,\
+                com.energyict.mdc.common.protocol,\
+                com.energyict.mdc.common.protocol.security,\
                 com.energyict.mdc.common.rest,\
+                com.energyict.mdc.common.scheduling,\
                 com.energyict.mdc.common.search,\
                 com.energyict.mdc.common.services,\
+                com.energyict.mdc.common.tasks,\
+                com.energyict.mdc.common.tasks.history,\
+                com.energyict.mdc.common.tasks.security,\
                 com.energyict.mdc.common.ean,\
                 com.energyict.mdc.common.exceptions,\
                 com.energyict.mdc.common.interval,\

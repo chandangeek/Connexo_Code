@@ -370,6 +370,10 @@ Ext.define('Tou.view.AddForm', {
         ];
 
         me.callParent(arguments);
+
+        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
+           item.setTooltip('Restore to default empty value');
+        })
     },
 
     onActiveCalendarChange: function (field, newValue) {
@@ -442,6 +446,7 @@ Ext.define('Tou.view.AddForm', {
     },
     onDeviceTypeChange: function (radiogroup, newValue) {
         var me = this;
+        var record = me.getRecord();
         if (!radiogroup.findRecordByValue(newValue)) return;
 
         var activateCalendarItem = me.down('#activate-calendar');
@@ -457,7 +462,9 @@ Ext.define('Tou.view.AddForm', {
         var calStore = Ext.create('Tou.store.AllowedDeviceTypeOptions');
         calStore.getProxy().setUrl(newValue);
         sendComtaskField.getStore().getProxy().setUrl(newValue);
-        sendComtaskField.getStore().load();
+        sendComtaskField.getStore().load(function(){
+             sendComtaskField.setValue(record.get('sendCalendarComTask') && record.get('sendCalendarComTask').id);
+        });
 
         calStore.load(function () {
             var calParams = calStore.getAt(0);

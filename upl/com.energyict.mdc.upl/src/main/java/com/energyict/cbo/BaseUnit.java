@@ -245,7 +245,17 @@ public class BaseUnit implements java.io.Serializable {
     /**
      * The dBm unit code
      */
-    public static final int DECIBELPOWERRATIO = 70;
+    public static final int DECIBELMILLIWAT = 70;
+
+    /**
+     * Signal strength, dB microvolt
+     */
+    public static final int DECIBELMICROVOLT = 71;
+
+    /**
+     * Logarithmic unit that expresses the ratio between two values of a physical quantity
+     */
+    public static final int DECIBEL = 72;
 
     /**
      * The not available code
@@ -548,7 +558,9 @@ public class BaseUnit implements java.io.Serializable {
         units.put(KILOGRAMPERSECOND, new BaseUnit(KILOGRAMPERSECOND, "kg/s"));
         units.put(SIEMENS, new BaseUnit(SIEMENS, "Smho"));
         units.put(KELVIN, new BaseUnit(KELVIN, "K"));
-        units.put(DECIBELPOWERRATIO, new BaseUnit(DECIBELPOWERRATIO, "dBm"));
+        units.put(DECIBELMILLIWAT, new BaseUnit(DECIBELMILLIWAT, "dBm"));
+        units.put(DECIBELMICROVOLT, new BaseUnit(DECIBELMICROVOLT, "dBmV"));
+        units.put(DECIBEL, new BaseUnit(DECIBEL, "dB"));
         // end of dlms units
 
         units.put(NOTAVAILABLE, new BaseUnit(NOTAVAILABLE, "NA"));  // not available

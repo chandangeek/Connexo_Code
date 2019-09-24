@@ -8,12 +8,14 @@ import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.events.ComPortOperationsLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
@@ -53,6 +55,7 @@ import java.util.logging.Logger;
  */
 public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable {
 
+    public static final Logger LOGGER = Logger.getLogger(ScheduledComPortImpl.class.getName());
     private static final int SEND_TO_SLEEP_THRESHOLD = 100;
     private final ServiceProvider serviceProvider;
     private final RunningComServer runningComServer;
@@ -114,7 +117,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private String initializeThreadName() {
-        return "ComPort schedule for " + this.getComPort().getName();
+        long threadId = 0;
+        if (this.self != null) {
+            threadId = this.self.getId();
+        }
+        return "ComPort schedule for " + this.getComPort().getName() + "/" + threadId;
     }
 
     protected DeviceCommandExecutor getDeviceCommandExecutor() {
@@ -188,6 +195,12 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
     }
 
+
+    protected void interrupt() {
+        LOGGER.info("[" + Thread.currentThread().getName() + "] - sending interrupt request to [" + self.getName() + "]");
+        self.interrupt();
+    }
+
     private boolean isStarted() {
         return ServerProcessStatus.STARTED.equals(this.status);
     }
@@ -201,36 +214,44 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     public void run() {
         setThreadPrinciple();
 
-        this.comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+        try {
+            comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+        } catch (PersistenceException e) {
+            exceptionLogger.unexpectedError(e);
+            runningComServer.refresh(getComPort());
+            continueRunning.set(false);
+        }
 
-        while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
+        while (continueRunning()) {
             try {
-                this.doRun();
+                doRun();
             } catch (Throwable t) {
-                this.exceptionLogger.unexpectedError(t);
+                exceptionLogger.unexpectedError(t);
                 if (t instanceof PersistenceException) {
-                    this.runningComServer.refresh(getComPort());
-                    this.continueRunning.set(false);
+                    runningComServer.refresh(getComPort());
+                    continueRunning.set(false);
                 } else {
                     // Give the infrastructure some time to recover from e.g. unexpected SQL errors
-                    this.reschedule();
+                    reschedule();
                 }
             }
         }
-        this.status = ServerProcessStatus.SHUTDOWN;
+        status = ServerProcessStatus.SHUTDOWN;
     }
 
-    private void doRun() {
-        goSleepIfWokeUpTooEarly();
-        this.executeTasks();
+    protected boolean continueRunning() {
+        return continueRunning.get() && !Thread.currentThread().isInterrupted();
     }
 
-    private void goSleepIfWokeUpTooEarly() {
+    protected abstract void doRun();
+
+    protected void goSleepIfWokeUpTooEarly() {
         long millisBeforeRoundSecond = getMillisBeforeRoundSecond();
         if (millisBeforeRoundSecond < SEND_TO_SLEEP_THRESHOLD) {
             try {
                 Thread.sleep(millisBeforeRoundSecond);
             } catch (InterruptedException e) {
+                LOGGER.info("[" + Thread.currentThread().getName() + "] - interrupted");
                 Thread.currentThread().interrupt();
             }
         }
@@ -242,7 +263,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected void reschedule() {
         try {
-            Thread.sleep(getSleepDurationInMs());
+            Thread.sleep(Math.abs(getSleepDurationInMs()));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -255,23 +276,26 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     final void executeTasks() {
-        this.getLogger().lookingForWork(this.getThreadName());
-        List<ComJob> jobs = this.getComServerDAO().findExecutableOutboundComTasks(this.getComPort());
-        this.queriedForTasks();
+        getLogger().lookingForWork(getThreadName());
+        LOGGER.info("[" + Thread.currentThread().getName() + "] looking for work");
+        List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
+        queriedForTasks();
         scheduleAll(jobs);
     }
 
     private void queriedForTasks() {
-        this.lastActivityTimestamp = this.serviceProvider.clock().instant();
-        ((ServerScheduledComPortOperationalStatistics) this.getOperationalMonitor().getOperationalStatistics()).setLastCheckForWorkTimestamp(Date.from(this.lastActivityTimestamp));
+        lastActivityTimestamp = serviceProvider.clock().instant();
+        ((ServerScheduledComPortOperationalStatistics) getOperationalMonitor().getOperationalStatistics()).setLastCheckForWorkTimestamp(Date.from(lastActivityTimestamp));
     }
 
     private void scheduleAll(List<ComJob> jobs) {
         if (jobs.isEmpty()) {
             this.getLogger().noWorkFound(this.getThreadName());
+            LOGGER.info("[" + Thread.currentThread().getName() + "] found no work to execute");
             reschedule();
         } else {
             this.getLogger().workFound(this.getThreadName(), jobs.size());
+            LOGGER.info("[" + Thread.currentThread().getName() + "] found " + jobs.size() + " job(s) to execute");
             this.getJobScheduler().scheduleAll(jobs);
         }
     }
@@ -279,7 +303,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     protected abstract JobScheduler getJobScheduler();
 
     protected ScheduledComTaskExecutionGroup newComTaskGroup(ScheduledConnectionTask connectionTask) {
-        return new ScheduledComTaskExecutionGroup(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, connectionTask, this.serviceProvider);
+        return new ScheduledComTaskExecutionGroup(getComPort(), getComServerDAO(), deviceCommandExecutor, connectionTask, serviceProvider);
     }
 
     ScheduledComTaskExecutionGroup newComTaskGroup(ComJob groupComJob) {
@@ -287,6 +311,19 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         ScheduledComTaskExecutionGroup group = newComTaskGroup((ScheduledConnectionTask) groupComJob.getConnectionTask());
         groupComJob.getComTaskExecutions().forEach(group::add);
         return group;
+    }
+
+    protected HighPriorityComTaskExecutionGroup newComTaskGroup(HighPriorityComJob groupComJob) {
+        ScheduledConnectionTask connectionTask = groupComJob.getConnectionTask();
+        HighPriorityComTaskExecutionGroup group = newHighPriorityComTaskGroup(connectionTask);
+        for (PriorityComTaskExecutionLink priorityComTaskExecutionLink : groupComJob.getPriorityComTaskExecutionLinks()) {
+            group.add(priorityComTaskExecutionLink);
+        }
+        return group;
+    }
+
+    private HighPriorityComTaskExecutionGroup newHighPriorityComTaskGroup(ScheduledConnectionTask connectionTask) {
+        return new HighPriorityComTaskExecutionGroup(getComPort(), getComServerDAO(), deviceCommandExecutor, connectionTask, serviceProvider);
     }
 
     ServiceProvider getServiceProvider() {
@@ -442,7 +479,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     }
 
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+    protected class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
         @Override
         public Clock clock() {
             return serviceProvider.clock();

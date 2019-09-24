@@ -9,6 +9,7 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -37,7 +38,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
@@ -154,6 +154,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
         result.add(new SioOpticalConnectionType(this.getPropertySpecService()));
         result.add(new RxTxOpticalConnectionType(this.getPropertySpecService()));
+        result.add(new OutboundTcpIpWithWakeUpConnectionType(this.getPropertySpecService()));
         return result;
     }
 
@@ -265,10 +266,14 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
         collectFirmwareVersionCommunicationModule(result);
 
-        // NTA-related protocols don't support CA version, this is for tesitng purposes only
+        if (supportsAuxiliaryFirmwareVersion()) {
+            collectFirmwareVersionAuxiliary(result);
+        }
+
+        // NTA-related protocols don't support CA version, this is for testing purposes only
         // TODO: 19.03.2018 for testing purposes
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_METER_CORE).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString("1.0.0.2.8.255")).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveCaConfigImageVersion(fwVersion);
         } catch (IOException e) {
@@ -333,5 +338,9 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return null;
     }
 
-
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        // added support for testing purposes with the simulator
+        return true;
+    }
 }

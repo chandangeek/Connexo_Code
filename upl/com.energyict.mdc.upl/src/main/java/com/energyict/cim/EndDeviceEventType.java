@@ -36,6 +36,7 @@ public class EndDeviceEventType {
 
     public EndDeviceEventType(String code) {
         this.code = code;
+        parseCode();
     }
 
     public EndDeviceEventType(EndDeviceType type, EndDeviceDomain domain, EndDeviceSubdomain subdomain, EndDeviceEventOrAction eventOrAction) {
@@ -60,6 +61,12 @@ public class EndDeviceEventType {
             parseCode();
         }
         return type;
+    }
+
+    public void setType(EndDeviceType type) {
+        this.type = type;
+        this.typeId = type.getValue();
+        this.code = this.type.getValue() + "." + domain.getValue() + "." + subdomain.getValue() + "." + eventOrAction.getValue();
     }
 
     public EndDeviceDomain getDomain() {

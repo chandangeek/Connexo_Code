@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -25,7 +26,7 @@ public class OnlyOneProtocolTaskIfFirmwareUpgradeValidator implements Constraint
         if(multipleProtocolTasksWhenFirmwareUpgradeTask(comTask)){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.
-                    buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.ONLY_ONE_PROTOCOLTASK_WHEN_FIRMWARE_UPGRADE + "}").
+                    buildConstraintViolationWithTemplate("{" + TaskServiceKeys.ONLY_ONE_PROTOCOLTASK_WHEN_FIRMWARE_UPGRADE + "}").
                     addPropertyNode("protocolTasks").
                     addConstraintViolation();
             return false;
