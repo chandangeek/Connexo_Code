@@ -17,4 +17,5 @@ public class UsagePointSearchInfo {
     public String geoCoordinates;
     public String location;
     public String state;
+    public String timeOfUse;
 }

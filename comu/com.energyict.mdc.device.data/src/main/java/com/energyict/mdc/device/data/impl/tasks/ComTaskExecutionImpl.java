@@ -587,14 +587,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
      */
     private void doReschedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
-        this.setExecutingComPort(null);
-        this.setExecutionStartedTimestamp(null);
+        setExecutingComPort(null);
+        setExecutionStartedTimestamp(null);
 
         nextExecutionTimestamp = applyCommunicationTriggersTo(Optional.ofNullable(nextExecutionTimestamp));
-        if (nextExecutionTimestamp != null) {// nextExecutionTimestamp is null when putting on hold
+        if (nextExecutionTimestamp != null) { // nextExecutionTimestamp is null when putting on hold
             nextExecutionTimestamp = defineNextExecutionTimeStamp(nextExecutionTimestamp);
         }
-        this.setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
+        setPlannedNextExecutionTimestamp(plannedNextExecutionTimestamp);
         this.nextExecutionTimestamp = nextExecutionTimestamp;
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
@@ -825,6 +825,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         updateForScheduling(true);
     }
 
+    public void executionRescheduledToComWindow(Instant comWindowStartDate) {
+        doReschedule(comWindowStartDate);
+        updateForScheduling(true);
+    }
+
     /**
      * Marks this ComTaskExecution as successfully completed.
      */
@@ -834,7 +839,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private void doReschedule(Instant nextExecutionTimestamp) {
-        this.doReschedule(nextExecutionTimestamp, nextExecutionTimestamp);
+        doReschedule(nextExecutionTimestamp, nextExecutionTimestamp);
     }
 
     @Override

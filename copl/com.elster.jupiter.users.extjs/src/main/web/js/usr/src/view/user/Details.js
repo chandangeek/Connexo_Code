@@ -13,7 +13,7 @@ Ext.define('Usr.view.user.Details', {
         'Ext.button.Button',
         'Usr.view.user.UserActionMenu'
     ],
-    title: Uni.I18n.translate('users.user','USR','User'),
+    title: Uni.I18n.translate('users.user', 'USR', 'User'),
 
 
     tools: [
@@ -71,8 +71,17 @@ Ext.define('Usr.view.user.Details', {
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'statusDisplay',
-                                    fieldLabel: Uni.I18n.translate('user.status', 'USR', 'Status')
+                                    name: 'active',
+                                    fieldLabel: Uni.I18n.translate('user.status', 'USR', 'Status'),
+                                    renderer: function (value) {
+                                        try {
+                                            if (JSON.parse(value)) {
+                                                return Uni.I18n.translate('general.active', 'USR', 'Active');
+                                            }
+                                        }
+                                        catch(e) {}
+                                        return Uni.I18n.translate('general.inactive', 'USR', 'Inactive');
+                                    }
                                 },
                                 {
                                     xtype: 'displayfield',

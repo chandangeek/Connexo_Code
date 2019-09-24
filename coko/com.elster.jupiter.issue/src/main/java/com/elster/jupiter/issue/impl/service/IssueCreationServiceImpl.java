@@ -61,7 +61,6 @@ import org.kie.internal.utils.CompositeClassLoader;
 
 import javax.inject.Inject;
 import javax.naming.OperationNotSupportedException;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -344,6 +343,14 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     @Override
     public void processIssueResolutionEvent(long ruleId, IssueEvent event) {
         findCreationRuleById(ruleId).get().getTemplate().resolveIssue(event);
+    }
+
+    @Override
+    public void processIssueDiscardPriorityOnResolutionEvent(final long ruleId, final IssueEvent event) {
+        final Optional<CreationRule> creationRule = findCreationRuleById(ruleId);
+        creationRule.ifPresent(rule -> {
+            rule.getTemplate().issueSetPriorityValueToDefault(event, rule.getPriority());
+        });
     }
 
     @Override

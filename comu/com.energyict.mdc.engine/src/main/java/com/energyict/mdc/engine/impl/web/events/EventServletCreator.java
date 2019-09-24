@@ -33,8 +33,10 @@ public class EventServletCreator implements WebSocketCreator {
     private void cleanUpClosedPublishers() {
         for (Iterator<WebSocketEventPublisher> it = this.eventPublishers.iterator(); it.hasNext(); ) {
             WebSocketEventPublisher eventPublisher = it.next();
-            if (eventPublisher.isClosed()) {
-                it.remove();
+            if (eventPublisher!=null) {
+                if (eventPublisher.isClosed()) {
+                    it.remove();
+                }
             }
         }
     }

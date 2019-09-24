@@ -42,7 +42,15 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_WEBSERVICE_NOTIFICATION("alarm.action.webServiceNotification", "Web service notification"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM("alarm.action.webServiceNotificationAlarm.closeAlarm", "Close alarm"),
     ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION("alarm.action.webServiceNotification.close.description", "Select to remove the alarm from operational screens in Connexo (e.g. dashboard, overviews, what''s going on). It will receive the status ''Forwarded''."),
-    UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned");
+    UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned"),
+    ACTION_WEBSERVICE_NOTIFICATION_CALLED_FAILED("alarm.action.webServiceNotification.call.failed", "Web service notification call failed"),
+    ACTION_WEBSERVICE_NOTIFICATION_ENDPOINT_DOES_NOT_EXIST("alarm.action.webServiceNotification.endpoint.empty", "Web service does not exist in the system"),
+    ACTION_WEBSERVICE_NOTIFICATION_ENDPOINT_CONFIGURATION_DOES_NOT_EXIST("alarm.action.webServiceNotification.endpoint.configuration", "Web service configuration does not exist in the systme"),
+    PROCESS_ACTION("issue.action.processAction", "Process action"),
+    PROCESS_ACTION_SUCCESS("issue.action.processAction.success", "Process successufuly called"),
+    PROCESS_ACTION_FAIL("issue.action.processAction.fail", "Process call failed"),
+    PROCESS_ACTION_PROCESS_IS_ABSENT("issue.action.processAction.process.absent", "Process that you called does not exist in system"),
+    PROCESS_ACTION_PROCESS_COMOBOX_IS_ABSENT("issue.action.processAction.combobox.absent", "Process combobox is absent");
 
     private final String key;
     private final String defaultFormat;

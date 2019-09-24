@@ -24,7 +24,8 @@ public enum MessageSeeds implements MessageSeed {
     NestedIOException("upl.error.nestedIOException", "Nested I/O Error"),
     NestedModemException("upl.error.nestedModemException", "Nested modem error"),
     PreferredCipherSuiteIsNotSupportedByJavaVersion("upl.error.preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite ''{0}'' is not supported by your current java version."),
-    WavenisStackSetupError("upl.error.wavenisStackSetupError", "Error while starting the Wavenis stack");
+    WavenisStackSetupError("upl.error.wavenisStackSetupError", "Error while starting the Wavenis stack"),
+    WakeupCallFailed("upl.error.wakeupCallFailed", "Wakeup call failed: {0}");
 
     private final String key;
     private final String defaultTranslation;

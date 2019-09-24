@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.orm.DataModel;
 
 import java.security.KeyStore;
 import java.util.List;
@@ -54,6 +55,8 @@ public interface UserService {
     Optional<Group> getGroup(long id);
 
     Optional<Group> findAndLockGroupByIdAndVersion(long id, long version);
+
+    DataModel getDataModel();
     /**
      * @return the group with specified name
      */
