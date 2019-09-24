@@ -221,6 +221,7 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized."),
     WRONG_STATUS(2194, Keys.WRONG_STATUS, "Wrong Status"),
     WRONG_CARD_FORMAT(2195, Keys.WRONG_CARD_FORMAT, "Wrong Card Format"),
+    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\")
     ;
 
     private final int number;
@@ -423,5 +424,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNKNOWN_PROPERTY = "UnknownProperty";
         public static final String WRONG_STATUS = "WrongStatus";
         public static final String WRONG_CARD_FORMAT = "WrongCardFormat";
+        public static final String FORBIDDEN_CHARS = "forbiddenChars";
     }
 }
