@@ -192,11 +192,17 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Dal.model.Action'));
         me.setLoading();
-        actionTypesStoreProxy.setExtraParam('createdActions', _.map(rule.actions().getRange(), function (value) {
+        var listOfCreatedActionIds = _.map(rule.actions().getRange(), function (value) {
             if (value.get('phase').uuid === newValue.phase) {
                 return value.getType().getId();
             }
-        }));
+        });
+
+        if (listOfCreatedActionIds !== undefined && listOfCreatedActionIds.length !== 0 &&
+            (listOfCreatedActionIds[0] !== undefined)) {
+                actionTypesStoreProxy.setExtraParam('createdActions', listOfCreatedActionIds);
+        }
+
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
         try {
             actionTypesStoreProxy.setExtraParam('reason', rule.getReason().getId());
