@@ -21,6 +21,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys.START_PROCESS_ACTION_PROCESS;
 
@@ -103,37 +104,26 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        ProcessInfo[] possibleValues = this.getPossibleProcesses();
+        Builder<PropertySpec> builder = ImmutableList.builder();
+        List<HasIdAndName> processInfos = bpmService.getBpmProcessDefinitions().stream().filter(this::getBpmProcessDefinitionFilter).map(ProcessInfo::new).collect(Collectors.toList());
         builder.add(
-                getPropertySpecService()
-                        .specForValuesOf(new ProcessInfoValueFactory())
+                getPropertySpecService().specForValuesOf(new ProcessInfoValueFactory())
                         .named(START_PROCESS_ACTION_PROCESS)
                         .fromThesaurus(getThesaurus())
+                        .setDefaultValue(processInfos.isEmpty() ? null : processInfos.get(0))
                         .markRequired()
-                        .setDefaultValue(possibleValues.length == 1 ? possibleValues[0] : null)
-                        .addValues(possibleValues)
                         .markExhaustive()
+                        .addValues(processInfos)
                         .finish());
         return builder.build();
     }
 
-    private ProcessInfo[] getPossibleProcesses() {
-        Stream<BpmProcessDefinition> applicableProcesses = bpmService.getActiveBpmProcessDefinitions()
-                .stream()
-                .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(ASSOCIATION));
-        if (reasonKey != null) {
-            applicableProcesses = applicableProcesses.filter(bpmProcessDefinition -> {
-                Object reasons = bpmProcessDefinition.getProperties().get(PROPERTY_NAME);
-                return reasons instanceof List && ((List<?>) reasons)
-                        .stream()
-                        .filter(HasIdAndName.class::isInstance)
-                        .map(HasIdAndName.class::cast)
-                        .anyMatch(reason -> reasonKey.equals(reason.getId()));
-            });
-        }
-        return applicableProcesses.map(ProcessInfo::new)
-                .toArray(ProcessInfo[]::new);
+    private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition) {
+        Object props = processDefinition.getProperties().get(PROPERTY_NAME);
+        return ASSOCIATION.equals(processDefinition.getAssociation())
+                && (reasonKey == null
+                || props instanceof List
+                && ((List<?>) props).stream().filter(HasIdAndName.class::isInstance).anyMatch(v -> reasonKey.equals(((HasIdAndName) v).getId())));
     }
 
     @Override

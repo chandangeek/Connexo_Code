@@ -19,7 +19,7 @@ Ext.define('Fwc.view.firmware.Grid', {
 
     columns: [
         {
-            text: Uni.I18n.translate('firmware.field.rank', 'FWC', 'Ranking'),
+            text: Uni.I18n.translate('firmware.field.rank', 'FWC', 'Rank'),
             flex: 1,
             dataIndex: 'rank',
             renderer: function (value, metaData, record, rowIndex, fullIndex, dataSource) {
@@ -52,7 +52,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             dataIndex: 'status'
         },
         {
-            text: Uni.I18n.translate('firmware.field.meterDepVersion', 'FWC', 'Min level Meter FW'),
+            text: Uni.I18n.translate('firmware.field.meterDepVersion', 'FWC', 'Min meter FW'),
             flex: 1,
             dataIndex: 'meterFirmwareDependency',
             itemId: 'minMeterLevel',
@@ -62,7 +62,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             }
         },
         {
-            text: Uni.I18n.translate('firmware.field.communicationDepVersion', 'FWC', 'Min level Com FW'),
+            text: Uni.I18n.translate('firmware.field.communicationDepVersion', 'FWC', 'Min com FW'),
             flex: 1,
             itemId: 'minCommLevel',
             dataIndex: 'communicationFirmwareDependency',
@@ -72,7 +72,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             }
         },
         {
-            text: Uni.I18n.translate('firmware.field.auxiliaryDepVersion', 'FWC', 'Min level Auxiliary FW'),
+            text: Uni.I18n.translate('firmware.field.auxiliaryDepVersion', 'FWC', 'Min aux FW'),
             flex: 1,
             itemId: 'minAuxiliaryLevel',
             dataIndex: 'auxiliaryFirmwareDependency',

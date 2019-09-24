@@ -34,11 +34,21 @@ Ext.define('Uni.grid.filtertop.NoUi', {
      */
     getParamValue: function () {
         if(this.value){
+            if (this.valueToNumber){
+                return this.convertToNumber(this.value);
+            }
             return this.value;
         }
         return undefined;
     },
 
+    convertToNumber: function(value) {
+        var number = Number(value);
+        if (Number.isInteger(number)){
+            return number;
+        };
+        return value;
+    },
     /**
      * Template method that is supposed to be overwritten when doing complex changes to the params.
      */
