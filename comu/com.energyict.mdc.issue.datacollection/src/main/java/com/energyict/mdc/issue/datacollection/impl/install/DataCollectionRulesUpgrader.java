@@ -42,13 +42,12 @@ public class DataCollectionRulesUpgrader implements Upgrader {
                 .select(Condition.TRUE)
                 .stream()
                 .filter(rule -> rule.getTemplateImpl().equals("BasicDataCollectionRuleTemplate"))
-                .filter(rule -> rule.getCreationRuleProperties().stream().noneMatch(creationRuleProperty -> creationRuleProperty.getName().equals("BasicDataCollectionRuleTemplate.threshold")))
+                .filter(rule -> rule.getCreationRuleProperties().stream().anyMatch(creationRuleProperty -> creationRuleProperty.getName().equals("BasicDataCollectionRuleTemplate.threshold")))
                 .forEach(this::updateCreationRule);
     }
 
     private void updateCreationRule(final CreationRule creationRule) {
         final IssueCreationService.CreationRuleUpdater creationRuleUpdater = creationRule.startUpdate();
-        creationRuleUpdater.addProperty("BasicDataCollectionRuleTemplate.threshold", getRelativePeriodWithCount(DefaultRelativePeriodDefinition.TODAY));
         creationRuleUpdater.complete();
     }
 
