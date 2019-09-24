@@ -182,12 +182,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
                     });
 
-
-                    values.keys().forEach(key->{
-                        createRelatedObjects(key, values.get(key));
-                    });
-
-
+                    createRelatedObjects(values);
 
                     if (endDevices.size() > 1) {
                         syncReplyIssue.addErrorType((replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, END_DEVICE_LIST_ITEM)));
@@ -208,9 +203,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
                 });
 
-                values.keys().forEach(key->{
-                    createRelatedObjects(key, values.get(key));
-                });
+                createRelatedObjects(values);
 
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));

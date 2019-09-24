@@ -202,31 +202,41 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         }
     }
 
-    @Override
-    public void createRelatedObject( String key, String value){
-        String[] fieldName = {"key", "value"};
-        String[] values = {key, value};
-        Optional<WebServiceCallRelatedObject> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObject.class)
-                .getUnique(fieldName, values);
-        if(!relatedObjectType.isPresent()){
-            relatedObjectType = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectImpl.class));
-            relatedObjectType.get().init(key,value);
-            relatedObjectType.get().save();
-        }
+    private void createRelatedObject( String key, String value){
+        if (key != null && value != null) {
+            String[] fieldName = {"key", "value"};
+            String[] values = {key, value};
+            Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
+                    .getUnique(fieldName, values);
+            if (!relatedObject.isPresent()) {
+                relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectImpl.class));
+                relatedObject.get().init(key, value);
+                relatedObject.get().save();
+            }
 
-        WebServiceCallRelatedObjectBindingImpl relatedObject = dataModel.getInstance(WebServiceCallRelatedObjectBindingImpl.class);
-        relatedObject.init(this, relatedObjectType.get());
-        relatedObject.save();
+            WebServiceCallRelatedObjectBindingImpl relatedObjectBinding = dataModel.getInstance(WebServiceCallRelatedObjectBindingImpl.class);
+            relatedObjectBinding.init(this, relatedObject.get());
+            relatedObjectBinding.save();
+        }
+    }
+
+    @Override
+    public void createRelatedObjectIndependantTransaction( String key, String value){
+        transactionService.runInIndependentTransaction(()-> {
+            createRelatedObject(key, value);
+        });
     }
 
     @Override
     public void createRelatedObjects(SetMultimap<String,String> values){
 
-        values.keys().forEach(key->{
-            values.get(key).forEach(value->{
-                createRelatedObject(key, value);
-            });
+        transactionService.runInIndependentTransaction(()-> {
+            values.keys().forEach(key -> {
+                values.get(key).forEach(value -> {
+                    createRelatedObject(key, value);
+                });
 
+            });
         });
     }
 

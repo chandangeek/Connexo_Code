@@ -75,9 +75,7 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
                 values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), req.getUtilitiesDevice().getID().getValue());
             });
 
-            values.keys().forEach(key->{
-                createRelatedObjects(key, values.get(key));
-            });
+            createRelatedObjects(values);
 
             if (!isAnyActiveEndpoint(UtilitiesDeviceBulkCreateConfirmation.NAME)) {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,

@@ -93,25 +93,24 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     public MeterConfigResponseMessageType createMeterConfig(MeterConfigRequestMessageType requestMessage)
             throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
+
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
-                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
-                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
-                            OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
-
                     SetMultimap<String, String> values = HashMultimap.create();
-
                     meterConfig.getMeter().stream().forEach(meter -> {
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
                     });
-                    values.keys().forEach(key->{
-                        createRelatedObjects(key, values.get(key));
-                    });
+
+                    createRelatedObjects(values);
+
+                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
+                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
+                            OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
 
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
@@ -121,13 +120,13 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst().orElseThrow(faultMessageFactory
                             .meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
-                    MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
-                            OperationEnum.CREATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
 
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meterName);
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                    MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
+                            OperationEnum.CREATE);
 
                     Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
 
@@ -171,19 +170,17 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
-                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
-                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
-                            OperationEnum.UPDATE, requestMessage.getHeader().getCorrelationID());
                     SetMultimap<String, String> values = HashMultimap.create();
-
                     meterConfig.getMeter().stream().forEach(meter -> {
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
                     });
-                    values.keys().forEach(key->{
-                        createRelatedObjects(key, values.get(key));
-                    });
+                    createRelatedObjects(values);
+
+                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
+                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
+                            OperationEnum.UPDATE, requestMessage.getHeader().getCorrelationID());
 
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
@@ -193,12 +190,13 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst().orElseThrow(faultMessageFactory
                             .meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
-                    MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
-                            OperationEnum.UPDATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meterName);
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+
+                    MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
+                            OperationEnum.UPDATE);
 
                     Device changedDevice = deviceBuilder.prepareChangeFrom(meterInfo).build();
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
@@ -327,8 +325,6 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
-                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
-                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
                     SetMultimap<String, String> values = HashMultimap.create();
 
                     meterConfig.getMeter().stream().forEach(meter -> {
@@ -336,20 +332,22 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
                     });
-                    values.keys().forEach(key->{
-                        createRelatedObjects(key, values.get(key));
-                    });
+                    createRelatedObjects(values);
+
+                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
+                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
 
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 } else {
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst()
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
-                    MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
-                    Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().stream().findFirst().map(Name::getName).orElse(null));
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                     createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+
+                    MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
+                    Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
 
                     return createResponseMessage(device, HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
