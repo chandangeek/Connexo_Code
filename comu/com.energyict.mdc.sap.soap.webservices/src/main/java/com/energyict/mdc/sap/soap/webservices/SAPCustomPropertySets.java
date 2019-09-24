@@ -67,4 +67,6 @@ public interface SAPCustomPropertySets {
     Set<ReadingType> findReadingTypesForProfileId(String profileId);
 
     Map<String, RangeSet<Instant>> getProfileId(Channel channel, Range<Instant> range);
+
+    List<ChannelSpec> getChannelWithProfileIdForDevice(long deviceId, Instant when);
 }
