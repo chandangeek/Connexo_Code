@@ -410,6 +410,16 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         }
     }
 
+    public List<ChannelSpec> getChannelWithProfileIdForDevice(long deviceId, Instant when) {
+        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .join(ChannelSpec.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isNotNull())
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(when))
+                .filter(e -> e.getDeviceId() == deviceId)
+                .map(ext -> ext.getChannelSpec()).collect(Collectors.toList());
+    }
+
     private boolean isDeviceActive(Device device) {
         return device.getState().getName().equals(DefaultState.ACTIVE.getKey());
     }

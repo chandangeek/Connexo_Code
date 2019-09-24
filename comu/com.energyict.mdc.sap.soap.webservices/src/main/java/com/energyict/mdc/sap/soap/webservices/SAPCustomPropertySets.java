@@ -69,4 +69,6 @@ public interface SAPCustomPropertySets {
     Map<String, RangeSet<Instant>> getProfileId(Channel channel, Range<Instant> range);
 
     void truncateCpsInterval(Device device, String lrn, Instant endDate);
+
+    List<ChannelSpec> getChannelWithProfileIdForDevice(long deviceId, Instant when);
 }
