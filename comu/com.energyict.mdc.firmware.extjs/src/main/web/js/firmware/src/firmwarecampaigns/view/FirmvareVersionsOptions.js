@@ -88,11 +88,11 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'targetFirmwareCheckFinalReset',
                                 hidden: false,
                                 disabled: true,
+                                handler: function(){
+                                    me.down('#targetFirmwareCheckFinal').reset();
+                                    this.disable();
+                                },
                                 listeners: {
-                                    handler: function(){
-                                         me.down('#targetFirmwareCheckFinal').reset();
-                                         this.disable();
-                                    },
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var targetFirmwareCheckFinalValue = me.down('#targetFirmwareCheckFinal') && me.down('#targetFirmwareCheckFinal').originalValue;
@@ -107,11 +107,11 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'targetFirmwareCheckTestReset',
                                 hidden: false,
                                 disabled: true,
+                                handler: function(){
+                                    me.down('#targetFirmwareCheckTest').reset();
+                                    this.disable();
+                                },
                                 listeners: {
-                                    handler: function(){
-                                         me.down('#targetFirmwareCheckFinal').reset();
-                                         this.disable();
-                                    },
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var targetFirmwareCheckTestValue = me.down('#targetFirmwareCheckTest') && me.down('#targetFirmwareCheckTest').originalValue;
@@ -183,11 +183,11 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'curFirmwareCheckReset',
                                 hidden: false,
                                 disabled: true,
+                                handler: function(){
+                                     me.down('#curFirmwareCheck').reset();
+                                     this.disable();
+                                },
                                 listeners: {
-                                    handler: function(){
-                                         me.down('#curFirmwareCheck').reset();
-                                         this.disable();
-                                    },
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var curFirmwareCheckValue = me.down('#curFirmwareCheck') && me.down('#curFirmwareCheck').originalValue;
@@ -280,12 +280,12 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'masterFirmwareCheckFinalReset',
                                 hidden: false,
                                 disabled: true,
+                                handler: function(){
+                                    me.down('#masterFirmwareCheckFinal').reset();
+                                    this.disable();
+                                    if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
+                                },
                                 listeners: {
-                                    handler: function(){
-                                         me.down('#masterFirmwareCheckFinal').reset();
-                                         this.disable();
-                                         if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
-                                    },
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var masterFirmwareCheckFinalValue = me.down('#masterFirmwareCheckFinal') && me.down('#masterFirmwareCheckFinal').originalValue;
@@ -300,21 +300,21 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 itemId: 'masterFirmwareCheckTestReset',
                                 hidden: false,
                                 disabled: true,
+                                handler: function(){
+                                    me.down('#masterFirmwareCheckTest').reset();
+                                    this.disable();
+                                    if (!me.down('#masterFirmwareCheckTest').getValue()){
+                                         if (!me.down('#masterFirmwareCheckFinal').getValue()){
+                                             me.down('#masterFirmwareMainOption').setValue(false);
+                                         }
+                                    }
+                                    else{
+                                         var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal').getValue();
+                                         me.down('#masterFirmwareCheck').setValue(true);
+                                         me.down('#masterFirmwareCheckFinal').setValue(masterFirmwareCheckFinal);
+                                    }
+                                },
                                 listeners: {
-                                    handler: function(){
-                                         me.down('#masterFirmwareCheckTest').reset();
-                                         this.disable();
-                                         if (!me.down('#masterFirmwareCheckTest').getValue()){
-                                             if (!me.down('#masterFirmwareCheckFinal').getValue()){
-                                                me.down('#masterFirmwareMainOption').setValue(false);
-                                             }
-                                         }
-                                         else{
-                                             var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal').getValue();
-                                             me.down('#masterFirmwareCheck').setValue(true);
-                                             me.down('#masterFirmwareCheckFinal').setValue(masterFirmwareCheckFinal);
-                                         }
-                                    },
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var masterFirmwareCheckTestValue = me.down('#masterFirmwareCheckTest') && me.down('#masterFirmwareCheckTest').originalValue;
