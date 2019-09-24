@@ -5,7 +5,6 @@
 Ext.define('Usr.view.user.UserActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.user-action-menu',
-    itemId: 'user-action-menu',
     initComponent: function () {
         this.items = [
             {

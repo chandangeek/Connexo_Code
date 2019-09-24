@@ -96,7 +96,7 @@ Ext.define('Usr.view.user.Browse', {
                                         layout: 'column',
                                         lbar: {
                                             xtype: 'label',
-                                            text: Uni.I18n.translate('searchItems.filter.criteria', 'MDC', 'Criteria'),
+                                            text: Uni.I18n.translate('searchItems.filter.criteria', 'USR', 'Criteria'),
                                             width: 100
                                         },
                                         rbar: [{
@@ -128,13 +128,13 @@ Ext.define('Usr.view.user.Browse', {
                                             xtype: 'button',
                                             itemId: 'search-button',
                                             ui: 'action',
-                                            text: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
+                                            text: Uni.I18n.translate('general.apply', 'USR', 'Apply'),
                                             action: 'search'
                                         },
                                         {
                                             xtype: 'button',
                                             itemId: 'clear-all-button',
-                                            text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
+                                            text: Uni.I18n.translate('general.clearAll', 'USR', 'Clear all'),
                                             action: 'clearFilters',
                                             margin: '0 0 0 0',
                                             disabled: true
