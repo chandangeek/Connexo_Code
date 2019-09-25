@@ -71,7 +71,7 @@ public class DataCollectionRulesInstaller implements TranslationKeyProvider, Mes
     @Activate
     public void activate(BundleContext context) {
         this.bundleContext = context;
-        BundleWaiter.wait(this, bundleContext, "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate");
+        //BundleWaiter.wait(this, bundleContext, "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate");
 
         DataModel dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(new AbstractModule() {
