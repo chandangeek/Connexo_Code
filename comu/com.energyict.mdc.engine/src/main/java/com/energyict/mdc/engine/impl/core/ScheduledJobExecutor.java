@@ -17,6 +17,8 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Executes {@link ScheduledJob}s in a transactional
@@ -76,6 +78,17 @@ abstract class ScheduledJobExecutor {
         }
     }
 
+    private Consumer<ScheduledJob> rescheduleJob = job -> job.reschedule();
+    private Consumer<ScheduledJob> rescheduleJobToNextComWindow = job -> job.rescheduleToNextComWindow();
+    private BiConsumer<ScheduledJob, Consumer> clearAcquiredJobResources = (job, fun) -> {
+        try {
+            fun.accept(job);
+        } catch (Throwable t) {
+            logIfDebuggingIsEnabled(t);
+            job.releaseTokenSilently();
+        }
+    };
+
     public void execute(final ScheduledJob job) {
         /* Essential to design:
          * First run validation transaction that attempts to lock.
@@ -106,12 +119,12 @@ abstract class ScheduledJobExecutor {
                 } catch (Throwable t) {
                     logIfDebuggingIsEnabled(t);
                 } finally {
-                    job.reschedule();
+                    clearAcquiredJobResources.accept(job, rescheduleJob);
                 }
             }
             break;
             case JOB_OUTSIDE_COM_WINDOW: {
-                job.rescheduleToNextComWindow();
+                clearAcquiredJobResources.accept(job, rescheduleJobToNextComWindow);
             }
             break;
             case ATTEMPT_LOCK_FAILED:   // intentional fall through
