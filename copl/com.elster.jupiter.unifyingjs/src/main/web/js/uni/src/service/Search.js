@@ -384,7 +384,7 @@ Ext.define('Uni.service.Search', {
         me.getSearchResultsStore().removeAll();
         me.setDomain(me.searchDomain, function () {
             me.applyFilters();
-            if(me.loadCombo && this.saveSearchButton){
+            if(me.loadCombo && me.saveSearchButton){
                 me.loadCombo.clearValue();
                 me.saveSearchButton.disable();
             }
@@ -835,7 +835,7 @@ Ext.define('Uni.service.Search', {
                 },
                 success: function (response) {
                     flag=true;
-                    contRef.loadCombo.getStore().load();
+                    contRef.getLoadButton().getStore().load();
                     if(JSON.parse(response.responseText).status === 'Save')
                         contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.saveSearch', 'UNI', 'Search criteria saved'));
                     else
@@ -867,7 +867,7 @@ Ext.define('Uni.service.Search', {
             async : false,
             success: function (response) {
                 me.clearFilters();
-                var loadButtonCmp= contRef.loadCombo;
+                var loadButtonCmp= contRef.getLoadButton();
                 loadButtonCmp.clearValue();
                 loadButtonCmp.getStore().load();
                 contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));

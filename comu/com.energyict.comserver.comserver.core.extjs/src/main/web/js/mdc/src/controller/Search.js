@@ -105,8 +105,6 @@ Ext.define('Mdc.controller.Search', {
             },
             'uni-view-search-overview button[action=saveSearchWindow]': {
                 click: function(){
-                    me.loadCombo = me.getLoadButton();
-                    me.saveSearchButton = me.getSaveSearchButton();
                     me.service.openSaveSearch(me);
                     scope: me.service
 
@@ -114,8 +112,6 @@ Ext.define('Mdc.controller.Search', {
             },
             'uni-view-search-overview #load-button': {
                 select: function (combo, value, a){
-                    me.loadCombo = me.getLoadButton();
-                    me.saveSearchButton = me.getSaveSearchButton();
                     me.service.loadSearch(combo, value, a, me);
                     scope: me.service;
                 }
