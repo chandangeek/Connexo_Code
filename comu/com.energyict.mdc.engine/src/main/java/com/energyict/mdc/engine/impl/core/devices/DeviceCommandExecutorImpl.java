@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -179,10 +180,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized List<DeviceCommandExecutionToken> tryAcquireTokens(int numberOfCommands) {
+    public List<DeviceCommandExecutionToken> tryAcquireTokens(int numberOfCommands) {
         if (this.isRunning()) {
-            List<? extends DeviceCommandExecutionToken> acquiredTokens = this.workQueue.tryAcquire(numberOfCommands);
-            this.logTryAcquiredTokensResult(numberOfCommands, acquiredTokens);
+            List<? extends DeviceCommandExecutionToken> acquiredTokens;
+            synchronized (this) {
+                acquiredTokens = this.workQueue.tryAcquire(numberOfCommands);
+                this.logTryAcquiredTokensResult(numberOfCommands, acquiredTokens);
+            }
             return (List<DeviceCommandExecutionToken>) acquiredTokens;
         } else {
             IllegalStateException illegalStateException = this.shouldBeRunning();
@@ -204,11 +208,15 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     @Override
     public List<DeviceCommandExecutionToken> acquireTokens(int numberOfCommands) throws InterruptedException {
         if (this.isRunning()) {
-            this.logCurrentQueueSize();
-            if (this.getCurrentSize() == this.getCapacity()) {
-                this.logger.preparationFailed(this, numberOfCommands);
+            List<? extends DeviceCommandExecutionToken> acquiredTokens;
+            synchronized (this) {
+                this.logCurrentQueueSize();
+                if (this.getCurrentSize() == this.getCapacity()) {
+                    this.logger.preparationFailed(this, numberOfCommands);
+                }
+                acquiredTokens = this.workQueue.acquire(numberOfCommands);
             }
-            return (List<DeviceCommandExecutionToken>) this.workQueue.acquire(numberOfCommands);
+            return (List<DeviceCommandExecutionToken>) acquiredTokens;
         } else {
             IllegalStateException illegalStateException = this.shouldBeRunning();
             this.logger.cannotPrepareWhenNotRunning(illegalStateException, this);
@@ -248,12 +256,19 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     }
 
     @Override
-    public int getCapacity() {
+    public synchronized void freeSilently(DeviceCommandExecutionToken unusedToken) {
+        this.workQueue.executeIfExpectedToken(new FreeUnusedTokenDeviceCommand(), unusedToken)
+                .map(command -> new Worker(command, this.comServerDAO))
+                .ifPresent(this.executorService::submit);
+    }
+
+    @Override
+    public synchronized int getCapacity() {
         return this.workQueue.getCapacity();
     }
 
     @Override
-    public int getCurrentSize() {
+    public synchronized int getCurrentSize() {
         return this.workQueue.getSize();
     }
 
@@ -277,14 +292,9 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.commandCompleted(worker.command);
     }
 
-    private void commandCompleted(DeviceCommand command) {
-        if (command instanceof FreeUnusedTokenDeviceCommand) {
-            this.logger.tokenReleased(this);
-        } else {
-            this.logger.commandCompleted(this, command);
-        }
-        this.workQueue.commandCompleted(command);
-        this.logCurrentQueueSize();
+    @Override
+    public synchronized String getAcquiredTokenThreadNames() {
+        return this.workQueue.getAcquiredTokenThreadNames();
     }
 
     /**
@@ -309,9 +319,14 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         return this.threadFactory.getPriority();
     }
 
-    @Override
-    public String getAcquiredTokenThreadNames() {
-        return this.workQueue.getAcquiredTokenThreadNames();
+    private void commandCompleted(DeviceCommand command) {
+        this.workQueue.commandCompleted(command);
+        if (command instanceof FreeUnusedTokenDeviceCommand) {
+            this.logger.tokenReleased(this);
+        } else {
+            this.logger.commandCompleted(this, command);
+        }
+        this.logCurrentQueueSize();
     }
 
     @Override
@@ -322,7 +337,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         this.threadFactory.setPriority(newPriority);
     }
 
-    private int getQueueCapacity() {
+    private synchronized int getQueueCapacity() {
         return this.workQueue.getCapacity();
     }
 
@@ -688,6 +703,10 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             } else {
                 throw new NoResourcesAcquiredException();
             }
+        }
+
+        private Optional<DeviceCommand> executeIfExpectedToken(DeviceCommand command, DeviceCommandExecutionToken token) {
+            return Optional.ofNullable(command).filter(c -> this.expected.remove(token));
         }
 
         public int getCapacity() {
