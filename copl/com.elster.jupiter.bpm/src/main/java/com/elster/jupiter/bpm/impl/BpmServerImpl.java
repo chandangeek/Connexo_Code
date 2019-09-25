@@ -24,6 +24,7 @@ import java.util.Base64;
 public class BpmServerImpl implements BpmServer {
 
     private static final String BPM_URL = "com.elster.jupiter.bpm.url";
+    private static final String BPM_EXTERNAL_URL = "com.elster.jupiter.bpm.externalurl";
     private static final String BPM_USER = "com.elster.jupiter.bpm.user";
     private static final String BPM_PASSWORD = "com.elster.jupiter.bpm.password";
 
@@ -51,6 +52,9 @@ public class BpmServerImpl implements BpmServer {
 
     private void setUrlFromContext(BundleContext context) {
         if (context != null) {
+            url = context.getProperty(BPM_EXTERNAL_URL);
+        }
+        if (url == null) {
             url = context.getProperty(BPM_URL);
         }
         if (url == null) {
