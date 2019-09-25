@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public class StatusSearchableProperty extends AbstractUserSearchableProperty {
 
-    private static final String PROPERTY_NAME = "active";
+    private static final String PROPERTY_NAME = "status";
 
     public StatusSearchableProperty(final UserService userService, final UserSearchDomain userSearchDomain, final PropertySpecService propertySpecService, final Thesaurus thesaurus) {
         super(userService, userSearchDomain, propertySpecService, thesaurus);
@@ -74,14 +74,8 @@ public class StatusSearchableProperty extends AbstractUserSearchableProperty {
         return Where.where(PROPERTY_NAME).isEqualTo(parseSpecification(specification));
     }
 
-    private String parseSpecification(final Condition specification) {
-        final Boolean value = (Boolean) ((ArrayList) ((Contains) specification).getCollection()).get(0);
-        if (value == Boolean.TRUE) {
-            return "Y";
-        } else if (value == Boolean.FALSE) {
-            return "N";
-        }
-        return null;
+    private Boolean parseSpecification(final Condition specification) {
+        return (Boolean) ((ArrayList) ((Contains) specification).getCollection()).get(0);
     }
 
 }

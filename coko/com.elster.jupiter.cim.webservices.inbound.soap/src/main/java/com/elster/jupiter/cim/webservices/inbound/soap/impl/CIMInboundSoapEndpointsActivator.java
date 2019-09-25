@@ -27,6 +27,7 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -57,7 +58,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
-
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,8 +68,8 @@ import java.util.List;
 import static com.elster.jupiter.orm.Version.version;
 
 @Singleton
-@Component(name = "Kore-CIMInboundEndpointsActivator", service = { MessageSeedProvider.class }, property = {
-        "name=" + CIMInboundSoapEndpointsActivator.COMPONENT_NAME }, immediate = true)
+@Component(name = "Kore-CIMInboundEndpointsActivator", service = {MessageSeedProvider.class}, property = {
+        "name=" + CIMInboundSoapEndpointsActivator.COMPONENT_NAME}, immediate = true)
 public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "WS1";
 
@@ -93,6 +93,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
     private volatile UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet;
     private volatile UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet;
+    private volatile OrmService ormService;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
     private final ObjectHolder<ReplyUsagePointConfigWebService> replyUsagePointConfigWebServiceHolder = new ObjectHolder<>();
 
@@ -104,18 +105,18 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
 
     @Inject
     public CIMInboundSoapEndpointsActivator(BundleContext bundleContext, Clock clock,
-            ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
-            MeteringService meteringService, NlsService nlsService, UpgradeService upgradeService,
-            MetrologyConfigurationService metrologyConfigurationService, UserService userService,
-            UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
-            EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
-            ServiceCallService serviceCallService, MessageService messageService, JsonService jsonService,
-            ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
-            ReplyUsagePointConfigWebService replyUsagePointConfigWebService,
-            MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet,
-            MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet,
-            UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet,
-            UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet) {
+                                            ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
+                                            MeteringService meteringService, NlsService nlsService, UpgradeService upgradeService,
+                                            MetrologyConfigurationService metrologyConfigurationService, UserService userService,
+                                            UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
+                                            EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
+                                            ServiceCallService serviceCallService, MessageService messageService, JsonService jsonService,
+                                            ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
+                                            ReplyUsagePointConfigWebService replyUsagePointConfigWebService,
+                                            MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet,
+                                            MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet,
+                                            UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet,
+                                            UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet, OrmService ormService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -138,6 +139,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setUsagePointConfigCustomPropertySet(usagePointConfigCustomPropertySet);
         addReplyMasterDataLinkageConfigWebServiceClient(replyMasterDataLinkageConfigWebService);
         addReplyUsagePointConfigWebServiceClient(replyUsagePointConfigWebService);
+        setOrmService(ormService);
         activate(bundleContext);
     }
 
@@ -177,7 +179,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        dataModel = upgradeService.newNonOrmDataModel();
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "Kore cim inbound webservices");
         dataModel.register(getModule());
         registerCustomPropertySets();
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
@@ -192,7 +194,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
     }
-    
+
     private List<CustomPropertySet> getServiceCallCustomPropertySets() {
         return Arrays.asList(masterDataLinkageConfigMasterCustomPropertySet, masterDataLinkageConfigCustomPropertySet,
                 usagePointConfigMasterCustomPropertySet, usagePointConfigCustomPropertySet);
@@ -225,7 +227,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
-            T provider, String serviceName) {
+                                                                                     T provider, String serviceName) {
         Dictionary<String, Object> properties = new Hashtable<>(ImmutableMap.of("name", serviceName));
         serviceRegistrations
                 .add(bundleContext.registerService(InboundSoapEndPointProvider.class, provider, properties));
@@ -329,7 +331,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     public void removeReplyUsagePointConfigWebServiceClient(ReplyUsagePointConfigWebService webService) { // NOSONAR we cannot remove this parameter
         replyUsagePointConfigWebServiceHolder.unsetObject();
     }
-    
+
     @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
     public void setMasterDataLinkageConfigMasterCustomPropertySet(
             CustomPropertySet masterDataLinkageConfigMasterCustomPropertySet) {
@@ -350,6 +352,11 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference(target = "(name=" + UsagePointConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
     public void setUsagePointConfigCustomPropertySet(CustomPropertySet usagePointConfigCustomPropertySet) {
         this.usagePointConfigCustomPropertySet = (UsagePointConfigCustomPropertySet) usagePointConfigCustomPropertySet;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
     }
 
     @Override

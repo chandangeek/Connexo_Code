@@ -284,7 +284,8 @@ public enum TableSpecs {
     ISU_CREATIONRULEEXCLGROUP {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<CreationRuleExclGroup> table = dataModel.addTable(name(), CreationRuleExclGroup.class);
+            Table<CreationRuleExclGroup> table = dataModel.addTable(name(), CreationRuleExclGroup.class)
+                    .since(Version.version(10, 7));
             table.map(CreationRuleExclGroupImpl.class);
             Column creationRule = table.column("CREATIONRULE").number().notNull().add();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();

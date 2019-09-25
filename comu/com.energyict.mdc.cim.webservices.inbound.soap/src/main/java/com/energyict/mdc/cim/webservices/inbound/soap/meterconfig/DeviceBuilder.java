@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -46,20 +47,20 @@ public class DeviceBuilder {
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
     private final MeterConfigFaultMessageFactory faultMessageFactory;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
     public DeviceBuilder(BatchService batchService, Clock clock, DeviceLifeCycleService deviceLifeCycleService,
                          DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
                          MeterConfigFaultMessageFactory faultMessageFactory,
-                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+                         MeteringTranslationService meteringTranslationService) {
         this.batchService = batchService;
         this.clock = clock;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
         this.faultMessageFactory = faultMessageFactory;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
@@ -223,7 +224,7 @@ public class DeviceBuilder {
             final List<String> allowedStatuses = securityInfo.getDeviceStatuses();
             final State status = device.getState();
             final String deviceStatus = DefaultState.from(status)
-                    .map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(status::getName);
+                    .map(meteringTranslationService::getDisplayName).orElseGet(status::getName);
             if (!allowedStatuses.contains(deviceStatus)) {
                 throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(),
                         MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS, device.getName(), deviceStatus)

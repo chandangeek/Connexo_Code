@@ -78,7 +78,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
                     this.getStateName(device.getState()),
                     sourceStates
                             .stream()
-                            .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
+                            .map(getContext().getMeteringTranslationService()::getDisplayName)
                             .collect(Collectors.joining(", ")));
         }
 
@@ -114,13 +114,13 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     private String getStateName(T data) {
-        return this.getContext().getDeviceLifeCycleConfigurationService().getDisplayName(getTargetState(data));
+        return this.getContext().getMeteringTranslationService().getDisplayName(getTargetState(data));
     }
 
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
+                .map(getContext().getMeteringTranslationService()::getDisplayName)
                 .orElseGet(state::getName);
     }
 

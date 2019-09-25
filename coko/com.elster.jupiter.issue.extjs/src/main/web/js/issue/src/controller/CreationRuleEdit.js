@@ -132,10 +132,6 @@ Ext.define('Isu.controller.CreationRuleEdit', {
 
         basicForm.clearInvalid();
         formErrorsPanel.hide();
-        if (!form.validateIssueReason()){
-            formErrorsPanel.show();
-            return;
-        }
         page.setLoading();
         form.updateRecord();
         form.getRecord().save({
@@ -145,7 +141,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                     json;
 
                 page.setLoading(false);
-                if (success) {
+                if (success && form.validateIssueReason()) {
                     switch (operation.action) {
                         case 'create':
                             messageText = Uni.I18n.translate('administration.issueCreationRules.createSuccess.msg', 'ISU', 'Issue creation rule added');
