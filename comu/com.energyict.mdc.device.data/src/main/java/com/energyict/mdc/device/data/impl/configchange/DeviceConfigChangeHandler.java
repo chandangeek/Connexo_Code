@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.search.SearchBuilder;
@@ -134,15 +135,15 @@ public class DeviceConfigChangeHandler implements MessageHandler {
                         consumerForAllowedDevices.accept(device);
                     } else {
                         LOGGER.warning(configChangeContext.thesaurus.getFormat(MessageSeeds.CHANGE_CONFIG_WRONG_DEVICE_STATE)
-                                .format(device.getName(), getStateName(configChangeContext.deviceLifeCycleConfigurationService, device.getState())));
+                                .format(device.getName(), getStateName(configChangeContext.meteringTranslationService, device.getState())));
                     }
                 };
             }
 
-            String getStateName(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State state) {
+            String getStateName(MeteringTranslationService meteringTranslationService, State state) {
                 return DefaultState
                         .from(state)
-                        .map(deviceLifeCycleConfigurationService::getDisplayName)
+                        .map(meteringTranslationService::getDisplayName)
                         .orElseGet(state::getName);
             }
         },
@@ -222,8 +223,9 @@ public class DeviceConfigChangeHandler implements MessageHandler {
         final DeviceConfigurationService deviceConfigurationService;
         final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
         final EventService eventService;
+        final MeteringTranslationService meteringTranslationService;
 
-        public ConfigChangeContext(MessageService messageService, JsonService jsonService, SearchService searchService, Thesaurus thesaurus, ServerDeviceService deviceService, DeviceDataModelService deviceDataModelService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, EventService eventService) {
+        public ConfigChangeContext(MessageService messageService, JsonService jsonService, SearchService searchService, Thesaurus thesaurus, ServerDeviceService deviceService, DeviceDataModelService deviceDataModelService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, EventService eventService, MeteringTranslationService meteringTranslationService) {
             this.messageService = messageService;
             this.jsonService = jsonService;
             this.searchService = searchService;
@@ -233,6 +235,7 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             this.deviceConfigurationService = deviceConfigurationService;
             this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
             this.eventService = eventService;
+            this.meteringTranslationService = meteringTranslationService;
         }
     }
 }

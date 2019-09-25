@@ -183,14 +183,6 @@ public interface DeviceLifeCycleConfigurationService {
     Optional<AuthorizedAction> findAndLockAuthorizedActionByIdAndVersion(long id, long version);
 
     /**
-     * Gets the display name for the specified {@link DefaultState}.
-     *
-     * @param state The DefaultState
-     * @return The display name
-     */
-    String getDisplayName(DefaultState state);
-
-    /**
      * Gets the display name for the specified {@link EndDeviceStage}
      *
      * @param stage The EndDeviceStage

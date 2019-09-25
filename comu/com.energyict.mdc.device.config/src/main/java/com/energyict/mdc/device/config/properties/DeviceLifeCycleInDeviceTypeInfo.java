@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.properties;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -20,16 +21,16 @@ public class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
 
     private DeviceType deviceType;
     private List<State> states;
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private MeteringTranslationService meteringTranslationService;
 
     static final String NAME = "BasicDataCollectionRuleTemplate";
     private static final String SEPARATOR = ":";
     private static final Logger LOG = Logger.getLogger(DeviceLifeCycleInDeviceTypeInfo.class.getName());
 
-    public DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, MeteringTranslationService meteringTranslationService) {
         this.deviceType = deviceType;
         this.states = new CopyOnWriteArrayList<>(states);
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
 
@@ -61,7 +62,7 @@ public class DeviceLifeCycleInDeviceTypeInfo extends HasIdAndName {
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

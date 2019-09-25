@@ -6,9 +6,13 @@
  * @class Uni.view.search.Overview
  */
 Ext.define('Usr.view.user.BrowseUsers', {
+
     extend: 'Ext.container.Container',
+
     xtype: 'usr-search-overview',
-    itemId: 'centerContainer', // added for test
+
+    itemId: 'centerContainer',
+
     overflowY: 'auto',
 
     requires: [
@@ -41,12 +45,9 @@ Ext.define('Usr.view.user.BrowseUsers', {
     ],
 
     padding: '16 16 16 16',
-
     config: {
         service: null
     },
-
-    columnAdded: false,
 
     initComponent: function () {
         var me = this,
@@ -56,7 +57,7 @@ Ext.define('Usr.view.user.BrowseUsers', {
         me.items = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('search.overview.title', 'UNI', 'Search'),
+                title: Uni.I18n.translate('search.overview.title', 'USR', 'Search'),
                 cls: 'usr-search-overview',
                 ui: 'large',
                 layout: {
@@ -84,7 +85,7 @@ Ext.define('Usr.view.user.BrowseUsers', {
                                 layout: 'column',
                                 lbar: {
                                     xtype: 'label',
-                                    text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
+                                    text: Uni.I18n.translate('search.overview.criteria.label', 'USR', 'Criteria'),
                                     width: 100
                                 },
                                 rbar: [{
@@ -115,16 +116,67 @@ Ext.define('Usr.view.user.BrowseUsers', {
                                 },
                                 items: [
                                     {
+                                        xtype: 'combobox',
+                                        fieldLabel: Uni.I18n.translate('general.load', 'USR', 'Load'),
+                                        itemId: 'load-button',
+                                        labelAlign: 'left',
+                                        labelWidth: 'auto',
+                                        id: 'loadDropDown',
+                                        emptyText: Uni.I18n.translate('general.selectValue', 'USR', 'Select a value ...'),
+                                        queryMode: 'local',
+                                        style: {
+                                            'margin-right': '25px'
+                                        },
+                                        store: Ext.create('Uni.store.search.SaveLoad'),
+                                        displayField: 'name',
+                                        displayValue: 'criteria',
+                                        action: 'loadSearch',
+                                        listConfig: {
+                                            minWidth: 140,
+                                            maxHeight: 250,
+                                            style: "border-radius : 4px",
+                                            shadow: true,
+                                            bodyPadding: 10,
+                                            margin: 0,
+                                            getInnerTpl: function (displayField) {
+                                                return '<a id="Remove-Icon" class="icon-cancel-circle2" style="float:right;cursor:default; display:inline-block; font-size:16px; margin-top:2px"></a>{' + displayField + '}';
+                                            },
+                                            listeners: {
+                                                el: {
+                                                    delegate: '.icon-cancel-circle2',
+                                                    click: function (list, record, item, index, e) {
+                                                        var cmp = Ext.ComponentQuery.query('#load-button')[0];
+                                                        cmp.nameValue = "delete";
+                                                        cmp.fireEvent('select', cmp);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'tbspacer',
+                                        width: 5
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'save-search-button',
+                                        id: 'saveSearchButton',
+                                        text: Uni.I18n.translate('general.save', 'USR', 'Save'),
+                                        action: 'saveSearchWindow',
+                                        disabled: true
+
+                                    },
+                                    {
                                         xtype: 'button',
                                         itemId: 'search-button',
                                         ui: 'action',
-                                        text: Uni.I18n.translate('general.search', 'UNI', 'Search'),
+                                        text: Uni.I18n.translate('general.search', 'USR', 'Search'),
                                         action: 'search'
                                     },
                                     {
                                         xtype: 'button',
                                         itemId: 'clear-all-button',
-                                        text: Uni.I18n.translate('general.clearFilters', 'UNI', 'Clear all'),
+                                        text: Uni.I18n.translate('general.clearFilters', 'USR', 'Clear all'),
                                         action: 'clearFilters',
                                         margin: '0 0 0 0',
                                         disabled: true
@@ -138,16 +190,19 @@ Ext.define('Usr.view.user.BrowseUsers', {
                         itemId: 'search-preview-container',
                         grid: {
                             xtype: 'uni-view-search-results',
-                            service: me.getService()
+                            service: me.getService(),
+                            viewConfig: {
+                                markDirty: false,
+                            }
                         },
                         emptyComponent: {
                             itemId: 'search-no-items-found-panel',
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('search.overview.noItemsFoundPanel.title', 'UNI', 'No search results found'),
+                            title: Uni.I18n.translate('search.overview.noItemsFoundPanel.title', 'USR', 'No search results found'),
                             reasons: [
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No search criteria have been specified.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'UNI', 'There are no requested items.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'No search results comply with the filter.')
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'USR', 'No search criteria have been specified.'),
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'USR', 'There are no requested items.'),
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'USR', 'No search results comply with the filter.')
                             ],
                             margin: '16 0 0 0'
                         },
@@ -173,16 +228,6 @@ Ext.define('Usr.view.user.BrowseUsers', {
             destroyable: true
         });
 
-        var domainsListeners = domainsStore.on({
-            load: function () {
-                var visible = domainsStore.count() > 1;
-                // me.down('#search-domain').setVisible(visible);
-                // me.down('#search-domain-separator').setVisible(visible);
-            },
-            scope: me,
-            destroyable: true
-        });
-
         var resultsListeners = me.service.getSearchResultsStore().on({
             load: me.setGridMaxHeight,
             scope: me,
@@ -192,7 +237,6 @@ Ext.define('Usr.view.user.BrowseUsers', {
         me.on('destroy', function () {
             listeners.destroy();
             resultsListeners.destroy();
-            domainsListeners.destroy();
         });
     },
 
@@ -209,19 +253,5 @@ Ext.define('Usr.view.user.BrowseUsers', {
             grid.maxHeight = 450;
         }
         grid.updateLayout();
-
-        if (me.columnAdded === false) {
-            var column = Ext.create('Uni.grid.column.Action', {
-                text: 'Action',
-                width: 200,
-                menu: {
-                    xtype: 'user-action-menu',
-                    itemId: 'user-action-menu'
-                }
-            });
-            grid.view.headerCt.insert(grid.view.getGridColumns().length, column);
-            me.columnAdded = true;
-        }
-
     }
 });

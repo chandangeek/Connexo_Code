@@ -73,14 +73,14 @@ Ext.define('Usr.view.user.Details', {
                                     xtype: 'displayfield',
                                     name: 'active',
                                     fieldLabel: Uni.I18n.translate('user.status', 'USR', 'Status'),
-                                    valueToRaw: function (value) {
-                                        return value;
-                                    },
                                     renderer: function (value) {
-                                        if (value) {
-                                            return 'Active';
+                                        try {
+                                            if (JSON.parse(value)) {
+                                                return Uni.I18n.translate('general.active', 'USR', 'Active');
+                                            }
                                         }
-                                        return 'Inactive';
+                                        catch(e) {}
+                                        return Uni.I18n.translate('general.inactive', 'USR', 'Inactive');
                                     }
                                 },
                                 {

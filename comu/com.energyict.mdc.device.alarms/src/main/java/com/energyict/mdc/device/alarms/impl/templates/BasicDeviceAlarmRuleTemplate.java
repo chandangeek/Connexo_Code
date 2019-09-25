@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -91,6 +92,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TimeService timeService;
 
@@ -99,7 +101,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     @Inject
-    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MeteringGroupsService meteringGroupsService) {
+    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MeteringGroupsService meteringGroupsService, MeteringTranslationService meteringTranslationService) {
         this();
         setDeviceAlarmService(deviceAlarmService);
         setNlsService(nlsService);
@@ -109,11 +111,17 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setTimeService(timeService);
         setMeteringGroupService(meteringGroupsService);
+        setMeteringTranslationService(meteringTranslationService);
         activate();
     }
 
     @Activate
     public void activate() {
+    }
+
+    @Reference
+    public final void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -459,7 +467,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                     .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
                     .flatMap(Collection::stream)
                     .filter(stateValue -> stateIds.contains(stateValue.getId())).collect(Collectors.toList());
-            return new DeviceLifeCycleInDeviceTypeInfo(deviceType, states, deviceLifeCycleConfigurationService);
+            return new DeviceLifeCycleInDeviceTypeInfo(deviceType, states, meteringTranslationService);
         }
 
         @Override
@@ -505,12 +513,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
         private DeviceType deviceType;
         private List<State> states;
-        private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+        private MeteringTranslationService meteringTranslationService;
 
-        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, MeteringTranslationService meteringTranslationService ) {
             this.deviceType = deviceType;
             this.states = new CopyOnWriteArrayList<>(states);
-            this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+            this.meteringTranslationService = meteringTranslationService;
         }
 
 
@@ -540,7 +548,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         private String getStateName(State state) {
             return DefaultState
                     .from(state)
-                    .map(deviceLifeCycleConfigurationService::getDisplayName)
+                    .map(meteringTranslationService::getDisplayName)
                     .orElseGet(state::getName);
         }
 

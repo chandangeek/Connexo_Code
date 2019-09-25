@@ -2,11 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.users.impl;
+package com.elster.jupiter.users;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -41,7 +39,7 @@ public class UserInGroup {
         return this;
 	}
 
-    static UserInGroup from(DataModel dataModel, User user, Group group) {
+    public static UserInGroup from(DataModel dataModel, User user, Group group) {
         return dataModel.getInstance(UserInGroup.class).init(user, group);
     }
 
@@ -59,7 +57,7 @@ public class UserInGroup {
 		return user;
 	}
 
-	void persist() {
+	public void persist() {
         dataModel.mapper(UserInGroup.class).persist(this);
 	}
 

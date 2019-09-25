@@ -14,6 +14,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -120,6 +121,7 @@ public class DeviceTypeResource {
     private final RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory;
     private final RegisterTypeInfoFactory registerTypeInfoFactory;
     private final IssueService issueService;
+    private final MeteringTranslationService meteringTranslationService;
 
     private static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
     private static final String DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE = "DeviceLifecycleIssueCreationRuleTemplate";
@@ -140,7 +142,8 @@ public class DeviceTypeResource {
             Thesaurus thesaurus,
             RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory,
             RegisterTypeInfoFactory registerTypeInfoFactory,
-            Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider, IssueService issueService) {
+            Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider, IssueService issueService,
+            MeteringTranslationService meteringTranslationService) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -158,6 +161,7 @@ public class DeviceTypeResource {
         this.registerTypeInfoFactory = registerTypeInfoFactory;
         this.keyFunctionTypeResourceProvider = keyFunctionTypeResourceProvider;
         this.issueService = issueService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @GET
@@ -267,7 +271,7 @@ public class DeviceTypeResource {
                 DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
                 List<DeviceLifeCycleStateInfo> deviceLifeCycleStateInfoList = mappingEx.getMissingStates()
                         .stream()
-                        .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
+                        .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state, meteringTranslationService))
                         .collect(Collectors.toList());
                 ChangeDeviceLifeCycleInfo info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
                         .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
@@ -369,7 +373,7 @@ public class DeviceTypeResource {
         } catch (IncompatibleDeviceLifeCycleChangeException mappingEx) {
             List<DeviceLifeCycleStateInfo> deviceLifeCycleStateInfoList = mappingEx.getMissingStates()
                     .stream()
-                    .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
+                    .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state, meteringTranslationService))
                     .collect(Collectors.toList());
             info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
                     .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);

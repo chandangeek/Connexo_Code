@@ -17,6 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
@@ -179,6 +180,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -209,7 +211,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                           DataVaultService dataVaultService,
                                           UpgradeService upgradeService,
                                           DeviceMessageSpecificationService deviceMessageSpecificationService,
-                                          SecurityManagementService securityManagementService) {
+                                          SecurityManagementService securityManagementService,
+                                          MeteringTranslationService meteringTranslationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -234,6 +237,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setCustomPropertySetService(customPropertySetService);
         this.setDataVaultService(dataVaultService);
         this.setSecurityManagementService(securityManagementService);
+        this.setMeteringTranslationService(meteringTranslationService);
         setUpgradeService(upgradeService);
         this.activate();
     }
@@ -788,6 +792,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
     }
@@ -1116,7 +1125,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .find().stream()
                 .sorted(Comparator.comparing(DeviceType::getId))
                 .forEach(deviceType -> deviceLifeCycleInDeviceTypes.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
-                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)));
+                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()),  meteringTranslationService)));
     }
 
 }

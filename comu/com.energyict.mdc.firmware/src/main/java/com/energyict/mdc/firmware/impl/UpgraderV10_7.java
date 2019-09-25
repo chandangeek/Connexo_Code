@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
 
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -291,7 +292,7 @@ public class UpgraderV10_7 implements Upgrader {
         firmwareCampaignInfo.firmwareUploadComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
                 .map(deviceType -> deviceType.getConfigurations().stream()
                         .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                        .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME))
+                        .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME) && !cte.isSuspended())
                         .findAny()
                         .map(cte -> cte.getComTask().getId())
                         .orElse(null))
@@ -300,7 +301,13 @@ public class UpgraderV10_7 implements Upgrader {
         firmwareCampaignInfo.validationComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
                 .map(deviceType -> deviceType.getConfigurations().stream()
                         .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                        .flatMap(cte -> cte.getComTask().getProtocolTasks().stream())
+                        .flatMap(cte -> {
+                            if(!cte.isSuspended()) {
+                                return cte.getComTask().getProtocolTasks().stream();
+                            }else{
+                                return new ArrayList<ProtocolTask>().stream();
+                            }
+                        })
                         .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
                         .findAny()
                         .map(cte -> cte.getComTask().getId())

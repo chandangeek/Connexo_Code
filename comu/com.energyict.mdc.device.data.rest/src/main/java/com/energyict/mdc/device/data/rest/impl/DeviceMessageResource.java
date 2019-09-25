@@ -88,8 +88,8 @@ public class DeviceMessageResource {
         List<DeviceMessageInfo> infos = resourceHelper.getDeviceMessages(deviceMessageQueryFilter, queryParameters).stream().
                 map(deviceMessage -> deviceMessageInfoFactory.asFullInfo(deviceMessage, uriInfo)).
                 collect(toList());
-        List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
-        return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters)).build();
+
+        return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infos, queryParameters)).build();
     }
 
     @GET

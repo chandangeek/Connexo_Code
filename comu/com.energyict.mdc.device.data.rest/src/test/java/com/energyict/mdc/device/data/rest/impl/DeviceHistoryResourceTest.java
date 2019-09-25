@@ -50,7 +50,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     @Override
     protected void setupTranslations() {
         super.setupTranslations();
-        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+        when(this.meteringTranslationService.getDisplayName(any(DefaultState.class)))
             .thenAnswer(invocationOnMock -> {
                 DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
                 return state.getDefaultFormat();

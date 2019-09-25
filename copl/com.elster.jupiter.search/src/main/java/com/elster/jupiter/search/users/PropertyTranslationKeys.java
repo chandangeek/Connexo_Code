@@ -10,7 +10,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USER_NAME("user.username", "Name"),
     USER_DESCRIPTION("user.description", "Description"),
     USER_DIRECTORY("user.userDirectory", "User directory"),
-    USER_STATUS("user.status", "Status"),
+    USER_STATUS("user.active", "Active"),
     USER_ROLES("user.roles", "Roles"),
     USER_LANGUAGE("user.language", "Language"),
     USER_CREATION_DATE("user.creationDate", "Created on"),
