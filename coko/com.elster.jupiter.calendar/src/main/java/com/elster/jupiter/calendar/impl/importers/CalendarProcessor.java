@@ -124,13 +124,13 @@ public class CalendarProcessor {
             throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_NAME).format(toUpdate.getName()));
         }
         if (calendar.getStartYear().intValue() != toUpdate.getStartYear().getValue()) {
-            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_START_DATE).format(toUpdate.getName()));
+            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_START_YEAR).format(toUpdate.getName()));
         }
         if (!calendar.getEventset().equals(toUpdate.getEventSet().getName())) {
             throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_EVENT_SET).format(toUpdate.getName()));
         }
         Map<BigInteger, DayType> dayTypes = mapDayTypes(calendar, toUpdate);
-        if (!hasEqualsPeriods(calendar, toUpdate, dayTypes)) {
+        if (!hasEqualPeriods(calendar, toUpdate, dayTypes)) {
             throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_PERIODS).format(toUpdate.getName()));
         }
         /* We must determine that no exceptions are added in the past,
@@ -179,7 +179,7 @@ public class CalendarProcessor {
         return calendarUpdateFinisher.get().apply(lazyBuilder);
     }
 
-    private boolean hasEqualsPeriods(XmlCalendar calendar, Calendar toUpdate, Map<BigInteger, DayType> dayTypes) {
+    private boolean hasEqualPeriods(XmlCalendar calendar, Calendar toUpdate, Map<BigInteger, DayType> dayTypes) {
         List<Period> xmlPeriods = calendar.getPeriods().getPeriod();
         List<com.elster.jupiter.calendar.Period> periods = toUpdate.getPeriods();
         if (xmlPeriods.size() == periods.size()) {
@@ -187,21 +187,23 @@ public class CalendarProcessor {
                 Period xmlPeriod = xmlPeriods.get(i);
                 com.elster.jupiter.calendar.Period period = periods.get(i);
                 if (xmlPeriod.getName().equals(period.getName())) {
-                    return dayTypes.get(xmlPeriod.getWeekTemplate().getMonday().getDayType()).getName().equals(period.getDayType(DayOfWeek.MONDAY).getName())
+                    if (!(dayTypes.get(xmlPeriod.getWeekTemplate().getMonday().getDayType()).getName().equals(period.getDayType(DayOfWeek.MONDAY).getName())
                             && dayTypes.get(xmlPeriod.getWeekTemplate().getTuesday().getDayType()).getName().equals(period.getDayType(DayOfWeek.TUESDAY).getName())
                             && dayTypes.get(xmlPeriod.getWeekTemplate().getWednesday().getDayType()).getName().equals(period.getDayType(DayOfWeek.WEDNESDAY).getName())
                             && dayTypes.get(xmlPeriod.getWeekTemplate().getThursday().getDayType()).getName().equals(period.getDayType(DayOfWeek.THURSDAY).getName())
                             && dayTypes.get(xmlPeriod.getWeekTemplate().getFriday().getDayType()).getName().equals(period.getDayType(DayOfWeek.FRIDAY).getName())
                             && dayTypes.get(xmlPeriod.getWeekTemplate().getSaturday().getDayType()).getName().equals(period.getDayType(DayOfWeek.SATURDAY).getName())
-                            && dayTypes.get(xmlPeriod.getWeekTemplate().getSunday().getDayType()).getName().equals(period.getDayType(DayOfWeek.SUNDAY).getName());
+                            && dayTypes.get(xmlPeriod.getWeekTemplate().getSunday().getDayType()).getName().equals(period.getDayType(DayOfWeek.SUNDAY).getName()))) {
+                        return false;
+                    }
                 } else {
                     return false;
                 }
             }
+            return true;
         } else {
             return false;
         }
-        return true;
     }
 
     private boolean haveEqualRanges(XmlDayType xmlDayType, DayType dayType) {
@@ -212,18 +214,18 @@ public class CalendarProcessor {
                 RangeTime rangeTime = rangeTimes.get(i);
                 EventOccurrence eventOccurrence = eventOccurrences.get(i);
                 if (rangeTime.getEvent().equals(eventOccurrence.getEvent().getName())) {
-                    LocalTime formNew = LocalTime.of(rangeTime.getFrom().getHour().intValue(), rangeTime.getFrom().getMinute().intValue(), rangeTime.getFrom().getSecond().intValue());
-                    if (!formNew.equals(eventOccurrence.getFrom())) {
+                    LocalTime rangeTimeToLocalTime = LocalTime.of(rangeTime.getFrom().getHour().intValue(), rangeTime.getFrom().getMinute().intValue(), rangeTime.getFrom().getSecond().intValue());
+                    if (!rangeTimeToLocalTime.equals(eventOccurrence.getFrom())) {
                         return false;
                     }
                 } else {
                     return false;
                 }
             }
+            return true;
         } else {
             return false;
         }
-        return true;
     }
 
     private LocalDate localDate(FixedOccurrence fixedOccurrence) {
