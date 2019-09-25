@@ -26,7 +26,7 @@ import java.time.Clock;
 public class UpdateSapExportTaskHandlerFactory implements MessageHandlerFactory {
     public static final String UPDATE_SAP_EXPORT_TASK_DESTINATION = "UpdateSapExportTaskTopic";
     public static final String UPDATE_SAP_EXPORT_TASK_SUBSCRIBER = "UpdateSapExportTaskSubscriber";
-    public static final String UPDATE_SAP_EXPORT_TASK_DISPLAYNAME = "Update SAP export task";
+    public static final String UPDATE_SAP_EXPORT_TASK_DISPLAYNAME = "Update SAP export group task";
 
     private volatile TaskService taskService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -35,6 +35,7 @@ public class UpdateSapExportTaskHandlerFactory implements MessageHandlerFactory 
     private volatile DataExportService dataExportService;
 
     public UpdateSapExportTaskHandlerFactory() {
+        //for OSGi purpose
     }
 
     @Override

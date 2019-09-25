@@ -55,7 +55,7 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
     }
 
     private boolean deviceCanBeRemoved(EnumeratedGroup.Entry<EndDevice> endDeviceEntry, Instant now) {
-        List<ChannelSpec> channelSpecs = sapCustomPropertySets.getChannelWithProfileIdForDevice(endDeviceEntry.getMember().getId(), now);
+        List<ChannelSpec> channelSpecs = sapCustomPropertySets.getChannelsWithProfileIdForDevice(endDeviceEntry.getMember().getId(), now);
         Optional<? extends ExportTask> exportTask = dataExportService
                 .getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
         if (!channelSpecs.isEmpty() && exportTask.isPresent()) {

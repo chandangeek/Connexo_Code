@@ -410,7 +410,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         }
     }
 
-    public List<ChannelSpec> getChannelWithProfileIdForDevice(long deviceId, Instant when) {
+    public List<ChannelSpec> getChannelsWithProfileIdForDevice(long deviceId, Instant when) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)

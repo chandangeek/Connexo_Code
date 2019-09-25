@@ -172,7 +172,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     // Update SAP export task
     private static final String UPDATE_SAP_EXPORT_TASK_PROPERTY = "com.elster.jupiter.sap.updatesapexporttaskinterval";
-    private static final String UPDATE_SAP_EXPORT_TASK_NAME = "UpdateSapExportTask";
+    private static final String UPDATE_SAP_EXPORT_TASK_NAME = "Update SAP export group task";
     private static final int UPDATE_SAP_EXPORT_TASK_SCHEDULE = 7; // Every 7 days
     private static final int UPDATE_SAP_EXPORT_TASK_RETRY_DELAY = 60;
 
