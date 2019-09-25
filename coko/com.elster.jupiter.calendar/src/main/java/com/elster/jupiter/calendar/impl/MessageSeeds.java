@@ -59,7 +59,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_DAYTYPE_DEFINED_WITH_NAME(2034, "calendar.import.no.daytype.defined.with.name", "There is no day type defined with name \"{0}\"."),
     CANNOT_ADD_PAST_EXCEPTIONS_TO_ACTIVE_CALENDAR(2035, "calendar.update.no.past.exceptions.on.active.calendar", "You can''t add fixed exceptional occurrences in the past to an active calendar"),
     IMPORT_FAILED_CANT_CHANGE_NAME(2036, "ImportFailedCantChangeName", "Can''t change the name of {0} calendar because it is active.", Level.SEVERE),
-    IMPORT_FAILED_CANT_CHANGE_START_YEAR(2037, "ImportFailedCantChangeStartYear", "Can''t change start of calculations year in {0} calendar because it is active.", Level.SEVERE),
+    IMPORT_FAILED_CANT_CHANGE_START_YEAR(2037, "ImportFailedCantChangeStartYear", "Can''t change start year of calculations in {0} calendar because it is active.", Level.SEVERE),
     IMPORT_FAILED_CANT_CHANGE_PERIODS(2038, "ImportFailedCantChangePeriods", "Can''t change periods in {0} calendar because it is active.", Level.SEVERE),
     IMPORT_FAILED_CANT_CHANGE_DAY_TYPES(2039, "ImportFailedCantChangeDayTypes", "Can''t change day types in {0} calendar because it is active.", Level.SEVERE),
     IMPORT_FAILED_CANT_CHANGE_EVENT_SET(2040, "ImportFailedCantChangeEventSet", "Can''t change event set name in {0} calendar because it is active.", Level.SEVERE),
