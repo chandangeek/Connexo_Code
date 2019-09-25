@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.RelativePeriod;
 
@@ -35,6 +36,8 @@ public interface ReadingDataSelectorConfig extends DataSelectorConfig {
     Updater startUpdate();
 
     Set<ReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
+
+    ReadingTypeDataExportItem addExportItem(ReadingContainer readingContainer, ReadingType readingType);
 
     interface Updater extends DataSelectorConfig.Updater {
 
