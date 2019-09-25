@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.domain.util;
 
+import com.elster.jupiter.domain.util.impl.HasNoBlacklistedCharactersValidator;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;
