@@ -72,7 +72,7 @@ public class MeterRegisterBulkChangeConfirmationTest extends AbstractOutboundWeb
         provider.setWebServiceActivator(webServiceActivator);
 
         expectedException.expect(LocalizedException.class);
-        expectedException.expectMessage("No web service endpoints are available to send the request using 'SapMeterRegisterBulkChangeConfirmation'.");
+        expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP MeterRegisterBulkChangeConfirmation'.");
 
         provider.call(outboundMessage);
     }
