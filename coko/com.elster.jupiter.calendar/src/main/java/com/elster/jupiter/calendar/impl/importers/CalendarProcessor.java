@@ -130,7 +130,7 @@ public class CalendarProcessor {
             throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_EVENT_SET).format(toUpdate.getName()));
         }
         Map<BigInteger, DayType> dayTypes = mapDayTypes(calendar, toUpdate);
-        if (!hasEqualPeriods(calendar, toUpdate, dayTypes)) {
+        if (!haveEqualPeriods(calendar, toUpdate, dayTypes)) {
             throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_PERIODS).format(toUpdate.getName()));
         }
         /* We must determine that no exceptions are added in the past,
@@ -147,7 +147,6 @@ public class CalendarProcessor {
         boolean wasChanged = false;
         for (Exception exception : calendar.getExceptions().getException()) {
             exception.getOccurrences().getRecurringOccurrence()
-                    .stream()
                     .forEach(recurringOccurrence -> {
                         if (!existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, recurringOccurrence, exceptionalOccurrence))) {
                             throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_REC_SPECIAL_DAYS).format(toUpdate.getName()));
@@ -162,7 +161,7 @@ public class CalendarProcessor {
                     .stream()
                     .filter(fixedOccurrence -> !existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, fixedOccurrence, exceptionalOccurrence)))
                     .collect(Collectors.toList());
-            if (newFixedOccurrences.size() > 0) {
+            if (!newFixedOccurrences.isEmpty()) {
                 wasChanged = true;
             }
             newFixedOccurrences.forEach(newFixedOccurrence -> {
@@ -179,7 +178,7 @@ public class CalendarProcessor {
         return calendarUpdateFinisher.get().apply(lazyBuilder);
     }
 
-    private boolean hasEqualPeriods(XmlCalendar calendar, Calendar toUpdate, Map<BigInteger, DayType> dayTypes) {
+    private boolean haveEqualPeriods(XmlCalendar calendar, Calendar toUpdate, Map<BigInteger, DayType> dayTypes) {
         List<Period> xmlPeriods = calendar.getPeriods().getPeriod();
         List<com.elster.jupiter.calendar.Period> periods = toUpdate.getPeriods();
         if (xmlPeriods.size() == periods.size()) {
