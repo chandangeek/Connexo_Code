@@ -237,7 +237,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             } else {
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING)
-                        .format(firmwareCampaignService.getComTaskById(campaign.getFirmwareUploadComTaskId()).getName()));
+                        .format(firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName()));
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
