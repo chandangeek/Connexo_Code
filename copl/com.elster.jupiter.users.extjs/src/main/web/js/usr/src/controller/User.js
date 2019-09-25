@@ -6,17 +6,32 @@ Ext.define('Usr.controller.User', {
     extend: 'Ext.app.Controller',
 
     requires: [
+        'Usr.view.user.UserActionMenu',
         'Usr.controller.UserEdit',
         'Usr.service.UserDomainSearchService',
         'Usr.service.Search',
-        'Usr.view.user.UserActionMenu',
-        'Uni.grid.column.Action'
+        'Usr.view.user.Details',
+        'Uni.grid.column.Action',
+        'Uni.view.search.Overview',
+        'Uni.view.search.field.internal.Adapter',
+        'Uni.util.Filters',
+        'Uni.view.search.field.Selection',
+        'Uni.view.search.field.Simple',
+        'Uni.grid.column.search.DeviceType',
+        'Uni.grid.column.search.DeviceConfiguration',
+        'Uni.grid.column.search.Quantity',
+        'Uni.grid.column.search.Boolean',
     ],
 
     stores: [
         'Usr.store.Groups',
         'Usr.store.Users',
-        'Usr.store.SearchResults'
+        'Usr.store.SearchResults',
+        'Uni.store.search.Domains',
+        'Uni.store.search.Fields',
+        'Uni.store.search.Properties',
+        'Uni.store.search.PropertyValues',
+        'Uni.store.search.Results'
     ],
 
     views: [
@@ -66,14 +81,9 @@ Ext.define('Usr.controller.User', {
         }
     ],
 
-    userDomainSearchService: null,
-
-    searchFieldsOnLoadListener: null,
-
     init: function () {
 
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results'),
             router = me.getController('Uni.controller.history.Router');
 
         me.service = Ext.create('Usr.service.Search', {
@@ -81,6 +91,13 @@ Ext.define('Usr.controller.User', {
         });
 
         me.control({
+            'search-object-selector': {
+                change: function (field, value) {
+                    Uni.util.History.setParsePath(false);
+                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
+                    me.service.setDomain(value);
+                }
+            },
             'usr-search-overview uni-view-search-results': {
                 select: this.selectUser
             },
@@ -120,12 +137,6 @@ Ext.define('Usr.controller.User', {
                 }
             }
         });
-
-        searchResults.on('load', function (store, items) {
-//            var grid = me.getResultsGrid();
-//            var btn = grid.down('#search-bulk-actions-button');
-//            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
-        });
     },
 
     showOverview: function () {
@@ -138,8 +149,6 @@ Ext.define('Usr.controller.User', {
                 service: me.service
             });
 
-        me.service.setDomain('com.elster.jupiter.users.User');
-
         me.getResultsGrid().getStore().on('sort', function () {
             me.getResultsGrid().setLoading(false);
         });
@@ -150,16 +159,13 @@ Ext.define('Usr.controller.User', {
         me.getApplication().fireEvent('changecontentevent', widget);
 
         searchDomains.clearFilter(true);
-        searchDomains.addFilter({property: 'application', value: 'COIN'});
+        searchDomains.addFilter({property: 'application', value: 'COKO'});
         searchDomains.load({
             callback: function (records) {
                 me.service.initState();
+                me.service.setDomain('com.elster.jupiter.users.User');
             }
         });
-
-        me.service.setDomain('com.elster.jupiter.users.User');
-
-        var grid = me.getResultsGrid();
 
         var listeners = me.service.on({
             change: me.availableClearAll,
@@ -174,13 +180,6 @@ Ext.define('Usr.controller.User', {
 
     },
 
-    showBulkAction: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        router.getRoute('search/bulkaction').forward();
-    },
-
     availableClearAll: function () {
         var me = this,
             searchOverview = me.getSearchOverview(),
@@ -190,8 +189,6 @@ Ext.define('Usr.controller.User', {
     },
 
     editUserMenu: function (button) {
-        var me = this;
-
         var record = button.up('#userDetails').down('#userDetailsForm').getRecord();
         this.editUser(record);
     },
@@ -224,14 +221,14 @@ Ext.define('Usr.controller.User', {
 
     userActivation: function (record) {
         var me = this,
-            isActive = record.raw.active,
+            isActive = JSON.parse(record.get('active')),
             form = me.getUserBrowse().down('#userDetailsForm'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         viewport.setLoading();
         Ext.Ajax.request({
             url: '/api/usr/users/' + record.get('id') + (isActive ? '/deactivate' : '/activate'),
-            jsonData: record.raw,
+            jsonData: _.pick(record.raw, 'version'),
             isNotEdit: true,
             method: 'PUT',
             success: function (response) {
@@ -240,18 +237,20 @@ Ext.define('Usr.controller.User', {
 
                 if (updatedRecord) {
                     record.beginEdit();
+                    record.raw.active = updatedRecord.active;
+                    record.raw.version = updatedRecord.version;
                     record.set(updatedRecord);
-                    record.set('statusDisplay', isActive
-                        ? Uni.I18n.translate('general.inactive', 'USR', 'Inactive')
-                        : Uni.I18n.translate('general.active', 'USR', 'Active'));
+                    record.set('statusDisplay', updatedRecord.active
+                        ? Uni.I18n.translate('general.active', 'USR', 'Active')
+                        : Uni.I18n.translate('general.inactive', 'USR', 'Inactive'));
                     record.endEdit();
                 }
                 if (form.rendered) {
                     form.loadRecord(record);
                 }
-                me.getApplication().fireEvent('acknowledge', isActive
-                    ? Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated')
-                    : Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+                me.getApplication().fireEvent('acknowledge', updatedRecord.active
+                    ? Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated')
+                    : Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
             },
             callback: function () {
                 viewport.setLoading(false);

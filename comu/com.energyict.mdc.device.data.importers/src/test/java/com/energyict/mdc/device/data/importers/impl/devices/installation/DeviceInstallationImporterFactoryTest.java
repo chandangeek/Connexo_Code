@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -116,6 +117,8 @@ public class DeviceInstallationImporterFactoryTest {
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private MeterRole defaultMeterRole;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     private Meter meter;
 
@@ -130,6 +133,7 @@ public class DeviceInstallationImporterFactoryTest {
         context.setDeviceLifeCycleService(deviceLifeCycleService);
         context.setFiniteStateMachineService(finiteStateMachineService);
         context.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        context.setMeteringTranslationService(meteringTranslationService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
@@ -166,7 +170,7 @@ public class DeviceInstallationImporterFactoryTest {
     }
 
     private void setupTranslations() {
-        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+        when(this.meteringTranslationService.getDisplayName(any(DefaultState.class)))
                 .thenAnswer(invocationOnMock -> {
                     DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
                     return state.getDefaultFormat();

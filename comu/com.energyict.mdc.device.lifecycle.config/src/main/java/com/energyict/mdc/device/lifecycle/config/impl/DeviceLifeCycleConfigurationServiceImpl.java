@@ -139,7 +139,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 DefaultLifeCycleTranslationKey.values(),
-                DefaultState.values(),
                 EndDeviceStageTranslationKey.values(),
                 DeviceAuthorizedActionMicroCheckUsageImpl.UnknownCheckTranslationKey.values()
         )
@@ -441,11 +440,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
             return !restrictedStages.contains(EndDeviceStage.fromKey(stateName));
         }
         return true;
-    }
-
-    @Override
-    public String getDisplayName(DefaultState state) {
-        return this.thesaurus.getFormat(state).format();
     }
 
     @Override

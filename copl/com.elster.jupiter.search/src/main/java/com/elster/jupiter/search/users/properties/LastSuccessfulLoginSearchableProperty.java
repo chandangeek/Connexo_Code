@@ -8,17 +8,13 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.users.PropertyTranslationKeys;
 import com.elster.jupiter.search.users.UserSearchDomain;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Comparison;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Where;
 
 import java.time.Instant;
 import java.util.Optional;
 
-public class LastSuccessfulLoginSearchableProperty extends AbstractUserSearchableProperty{
+public class LastSuccessfulLoginSearchableProperty extends AbstractUserSearchableProperty {
 
-    private static final String PROPERTY_NAME = "lastsuccessfulogin";
+    private static final String PROPERTY_NAME = "lastSuccessfulLogin";
 
     public LastSuccessfulLoginSearchableProperty(final UserService userService, final UserSearchDomain userSearchDomain, final PropertySpecService propertySpecService, final Thesaurus thesaurus) {
         super(userService, userSearchDomain, propertySpecService, thesaurus);
@@ -64,15 +60,5 @@ public class LastSuccessfulLoginSearchableProperty extends AbstractUserSearchabl
             return value.toString();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
-    }
-
-    @Override
-    public Condition toCondition(Condition specification) {
-        if (((Comparison) specification).getOperator().equals(Operator.BETWEEN)) {
-            return Where.where(PROPERTY_NAME)
-                    .between(((Comparison) specification).getValues()[0])
-                    .and(((Comparison) specification).getValues()[1]);
-        }
-        return Where.where(PROPERTY_NAME).isEqualTo((((Comparison) specification).getValues()[0]));
     }
 }

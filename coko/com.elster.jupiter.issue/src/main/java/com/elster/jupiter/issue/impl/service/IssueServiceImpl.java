@@ -171,7 +171,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile Clock clock;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
-    private final Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
+    private volatile Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();

@@ -14,6 +14,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -116,6 +117,9 @@ public class DeviceConfigChangeHandlerTest {
     private SearchableProperty deviceTypeProperty;
     @Mock
     private SearchableProperty deviceConfigProperty;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
+
 
     @Before
     public void setup() {
@@ -341,7 +345,7 @@ public class DeviceConfigChangeHandlerTest {
     }
 
     private DeviceConfigChangeHandler.ConfigChangeContext getConfigChangeContext() {
-        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService);
+        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService, meteringTranslationService);
     }
 
 

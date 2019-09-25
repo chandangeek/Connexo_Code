@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
@@ -25,12 +26,14 @@ public class AuthorizedActionInfoFactory {
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final Thesaurus thesaurus;
     private final MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
-    public AuthorizedActionInfoFactory(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory) {
+    public AuthorizedActionInfoFactory(Thesaurus thesaurus, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MicroActionAndCheckInfoFactory microActionAndCheckInfoFactory, MeteringTranslationService meteringTranslationService) {
         this.thesaurus = thesaurus;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public AuthorizedActionInfo from(AuthorizedAction action) {
@@ -53,8 +56,8 @@ public class AuthorizedActionInfoFactory {
 
     private void fromBasicAction(AuthorizedActionInfo info, AuthorizedTransitionAction action) {
         info.name = action.getName();
-        info.fromState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getFrom());
-        info.toState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getTo());
+        info.fromState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getFrom(),meteringTranslationService);
+        info.toState = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, action.getDeviceLifeCycle(), action.getStateTransition().getTo(), meteringTranslationService);
         info.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());
         Set<MicroAction> microActions = action.getActions();
         if (!microActions.isEmpty()) {

@@ -14,6 +14,7 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -127,10 +128,10 @@ public class ResourceHelper {
     private final MultiElementDeviceService multiElementDeviceService;
     private final Clock clock;
     private final Thesaurus thesaurus;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ValidationService validationService;
     private final MeteringService meteringService;
     private final SearchService searchService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
     public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
@@ -139,8 +140,9 @@ public class ResourceHelper {
                           MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService,
                           ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, RegisteredDevicesKpiService registeredDevicesKpiService, EstimationService estimationService,
                           MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
-                          TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-                          MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, SearchService searchService) {
+                          TopologyService topologyService, NlsService nlsService,
+                          MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, SearchService searchService,
+                          MeteringTranslationService meteringTranslationService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -167,8 +169,8 @@ public class ResourceHelper {
 
         this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST));
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.searchService = searchService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public Long getCurrentDeviceConfigurationVersion(long id) {
@@ -1236,7 +1238,7 @@ public class ResourceHelper {
         }
         return slaves
                 .stream()
-                .map(slave -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), deviceLifeCycleConfigurationService))
+                .map(slave -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), meteringTranslationService))
                 .collect(Collectors.toList());
 
     }

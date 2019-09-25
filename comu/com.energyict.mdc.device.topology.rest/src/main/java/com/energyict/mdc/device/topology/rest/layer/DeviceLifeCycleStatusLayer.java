@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.common.device.data.Device;
 import com.elster.jupiter.metering.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
@@ -27,7 +27,7 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private MeteringTranslationService meteringTranslationService;
 
     public enum PropertyNames implements TranslationKey {
         LIFECYCLE_STATUS("deviceLifecycleStatus", "Device life cycle status");
@@ -68,15 +68,15 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
     @Reference
     @SuppressWarnings("unused")
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Override
     public Map<String, Object> getProperties(NodeInfo<Device> info) {
         Device device = ((DeviceNodeInfo) info).getDevice();
         State state = device.getState();
-        setDeviceLifecycleState(DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName));
+        setDeviceLifecycleState(DefaultState.from(state).map(meteringTranslationService::getDisplayName).orElseGet(state::getName));
         return propertyMap();
     }
 

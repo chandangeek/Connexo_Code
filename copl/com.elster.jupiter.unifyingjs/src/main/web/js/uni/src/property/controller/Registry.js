@@ -78,6 +78,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.CustomEventTypeReference',
         'Uni.property.view.property.comtasks.ComTasks',
         'Uni.property.view.property.webservices.WebServiceIssue',
+        'Uni.property.view.property.CloseIssueForm'
     ],
 
     /**

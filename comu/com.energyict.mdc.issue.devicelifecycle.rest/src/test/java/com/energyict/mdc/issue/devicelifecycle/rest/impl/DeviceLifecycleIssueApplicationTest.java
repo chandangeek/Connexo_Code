@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.User;
@@ -67,6 +68,8 @@ public abstract class DeviceLifecycleIssueApplicationTest extends FelixRestAppli
     @Mock
     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
     JsonService jsonService;
     @Mock
     CommunicationTaskService communicationTaskService;
@@ -87,6 +90,7 @@ public abstract class DeviceLifecycleIssueApplicationTest extends FelixRestAppli
         when(nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setMeteringTranslationService(meteringTranslationService);
         application.setLocationService(locationService);
         return application;
     }

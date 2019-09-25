@@ -12,6 +12,7 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -180,6 +181,7 @@ public class DeviceResource {
     private final DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
     private final BpmService bpmService;
     private final JsonService jsonService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
     public DeviceResource(
@@ -230,7 +232,8 @@ public class DeviceResource {
             Thesaurus thesaurus,
             DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory,
             BpmService bpmService,
-            JsonService jsonService) {
+            JsonService jsonService,
+            MeteringTranslationService meteringTranslationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -280,6 +283,7 @@ public class DeviceResource {
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
         this.bpmService = bpmService;
         this.jsonService = jsonService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @GET
@@ -581,9 +585,9 @@ public class DeviceResource {
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), deviceLifeCycleConfigurationService);
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), meteringTranslationService);
         } else {
-            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimeline(device), deviceLifeCycleConfigurationService);
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimeline(device), meteringTranslationService);
         }
         return slaves;
     }
@@ -1080,7 +1084,7 @@ public class DeviceResource {
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }
-        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService,
+        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), meteringTranslationService,
                 neighbors.stream().filter(g3Neighbor -> g3Neighbor.getNeighbor().getmRID().equals(d.getmRID())).findFirst(), thesaurus))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);

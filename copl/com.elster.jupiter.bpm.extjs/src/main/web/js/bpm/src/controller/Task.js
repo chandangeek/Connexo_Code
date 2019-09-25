@@ -105,7 +105,7 @@ Ext.define('Bpm.controller.Task', {
                             view.down('property-form').loadRecord(performTaskRecord);
                     } else {
                         if (taskRecord.get('status') === 'Completed') {
-                            view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.taskExecutionAttributesNotAvailableBecauseTaskCompleted', 'BPM', 'Task execution attributes are not available because task is completed.'))
+                            view.down('property-form').down('uni-form-empty-message').setText(Uni.I18n.translate('bpm.task.taskExecutionAttributesNotAvailableBecauseTaskCompleted', 'BPM', "Task execution attributes aren't available because task is completed."))
                         }
                         view.down('property-form').down('uni-form-empty-message').show();
                     }
@@ -140,7 +140,10 @@ Ext.define('Bpm.controller.Task', {
                             variable = deviceVariable;
                             urlString = '/api/jsr/search/com.energyict.mdc.common.device.data.Device';
                         }
-                        if (variable) {
+                        if (issueVariable){
+                             taskRecord.set(issueVariable.variableName, issueVariable.value);
+                             me.createTaskView(taskId, taskRecord);
+                        } else if (variable) {
                                 Ext.Ajax.request({
                                     method: 'GET',
                                     url: urlString,
@@ -157,9 +160,6 @@ Ext.define('Bpm.controller.Task', {
                                         }
                                     }
                                 });
-                        } else if (issueVariable){
-                             taskRecord.set(issueVariable.variableName, issueVariable.value);
-                             me.createTaskView(taskId, taskRecord);
                         }
                     }
                 });

@@ -56,6 +56,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -209,6 +210,7 @@ public class DemoServiceImpl {
     private volatile NlsService nlsService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile TopologyService topologyService;
     private volatile Thesaurus thesaurus;
 
@@ -274,7 +276,8 @@ public class DemoServiceImpl {
             NlsService nlsService,
             DeviceAlarmService deviceAlarmService,
             UsagePointConfigurationService usagePointConfigurationService,
-            UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
+            UsagePointIssueDataValidationService usagePointIssueDataValidationService,
+            MeteringTranslationService meteringTranslationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -332,6 +335,7 @@ public class DemoServiceImpl {
         setDeviceAlarmService(deviceAlarmService);
         setUsagePointConfigurationService(usagePointConfigurationService);
         setUsagePointIssueDataValidationService(usagePointIssueDataValidationService);
+        setMeteringTranslationService(meteringTranslationService);
         activate();
         reThrowEx = true;
     }
@@ -400,6 +404,7 @@ public class DemoServiceImpl {
                 bind(UsagePointIssueDataValidationService.class).toInstance(usagePointIssueDataValidationService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
             }
         });
         Builders.initWith(this.injector);
@@ -611,6 +616,13 @@ public class DemoServiceImpl {
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
 
     @Reference
     @SuppressWarnings("unused")
