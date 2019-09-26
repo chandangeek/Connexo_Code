@@ -189,15 +189,17 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
             actionTypesStoreProxy = actionTypesStore.getProxy(),
             rule = Ext.getStore('Isu.store.Clipboard').get('issuesCreationRuleState');
 
+        actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Isu.model.Action'));
         me.setLoading();
         actionTypesStoreProxy.setExtraParam('issueType', rule.getIssueType().getId());
 
-        var listOfCreatedActionIds = _.map(rule.actions().getRange(), function (value) {
+        var listOfCreatedActionIds = [];
+        _.map(rule.actions().getRange(), function (value) {
             if (value.get('phase').uuid === newValue.phase) {
-                return value.getType().getId();
+                listOfCreatedActionIds.push(value.getType().getId());
             }
         });
 
