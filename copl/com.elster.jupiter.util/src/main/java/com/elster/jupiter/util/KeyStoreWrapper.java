@@ -81,7 +81,7 @@ public class KeyStoreWrapper {
             throws NoSuchAlgorithmException, UnrecoverableEntryException,
             KeyStoreException {
         if (mapsInitialized) {
-            return entries.get(new javafx.util.Pair<>(alias, protParam));
+            return entries.get(Pair.of(alias, protParam));
         }
         return keyStore.getEntry(alias, protParam);
     }
