@@ -10,6 +10,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 
 import java.time.Instant;
@@ -42,6 +43,15 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                 .flatMap(Functions.asStream())
                 .anyMatch(each -> each.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE));
         if (containsIncompleteConnectionTask) {
+            return true;
+        }
+        boolean defaultConnectionTaskContainsHP = device
+                .getConnectionTasks()
+                .stream()
+                .filter(ConnectionTask::isDefault)
+                .map(ConnectionTaskPropertyProvider::getTypedProperties)
+                .anyMatch(ct-> ct.getStringProperty("host").equals("null") || ct.getStringProperty("portNumber").equals("null"));
+        if(defaultConnectionTaskContainsHP){
             return true;
         }
         return device

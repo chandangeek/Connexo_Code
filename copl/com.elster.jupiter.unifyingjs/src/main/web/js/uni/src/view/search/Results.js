@@ -78,9 +78,13 @@ Ext.define('Uni.view.search.Results', {
         ];
 
         var storeListeners = searchFields.on('load', function (store, items) {
-            me.down('uni-search-column-picker').setColumns(items.map(function (field) {
+            var columns = items.map(function (field) {
                 return service.createColumnDefinitionFromModel(field)
-            }));
+            });
+            if (typeof service.createFixedColumns === 'function') {
+                Ext.Array.push(columns, service.createFixedColumns());
+            }
+            me.down('uni-search-column-picker').setColumns(columns);
         }, me, {
             destroyable: true
         });

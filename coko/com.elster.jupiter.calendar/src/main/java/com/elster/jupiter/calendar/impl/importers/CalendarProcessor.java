@@ -8,10 +8,12 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
+import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.RecurrentExceptionalOccurrence;
+import com.elster.jupiter.calendar.impl.MessageSeeds;
 import com.elster.jupiter.calendar.impl.xmlbinding.Calendars;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
 import com.elster.jupiter.calendar.impl.xmlbinding.Exception;
@@ -33,6 +35,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBElement;
 import java.math.BigInteger;
 import java.time.Clock;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
@@ -117,8 +120,19 @@ public class CalendarProcessor {
     }
 
     private Calendar doStrictUpdate(XmlCalendar calendar, Calendar toUpdate) {
+        if (!calendar.getName().equals(toUpdate.getName())) {
+            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_NAME).format(toUpdate.getName()));
+        }
+        if (calendar.getStartYear().intValue() != toUpdate.getStartYear().getValue()) {
+            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_START_YEAR).format(toUpdate.getName()));
+        }
+        if (!calendar.getEventset().equals(toUpdate.getEventSet().getName())) {
+            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_EVENT_SET).format(toUpdate.getName()));
+        }
         Map<BigInteger, DayType> dayTypes = mapDayTypes(calendar, toUpdate);
-
+        if (!haveEqualPeriods(calendar, toUpdate, dayTypes)) {
+            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_PERIODS).format(toUpdate.getName()));
+        }
         /* We must determine that no exceptions are added in the past,
          * yet we allow for repeating existing definitions in the past,
          * so for repeated definitions we remove them from this set.
@@ -128,35 +142,89 @@ public class CalendarProcessor {
                 .stream()
                 .collect(Collectors.toCollection(HashSet::new));
 
-        Holder<CalendarService.StrictCalendarBuilder> lazyBuilder =  HolderBuilder.lazyInitialize(toUpdate::update);
+        Holder<CalendarService.StrictCalendarBuilder> lazyBuilder = HolderBuilder.lazyInitialize(toUpdate::update);
         UpdatableHolder<Function<Holder<CalendarService.StrictCalendarBuilder>, Calendar>> calendarUpdateFinisher = new UpdatableHolder<>(holder -> toUpdate);
-
+        boolean wasChanged = false;
         for (Exception exception : calendar.getExceptions().getException()) {
-
             exception.getOccurrences().getRecurringOccurrence()
-                    .stream()
                     .forEach(recurringOccurrence -> {
                         if (!existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, recurringOccurrence, exceptionalOccurrence))) {
-                            throw new IllegalArgumentException("No new recurring occurrences allowed for updating an active calendar");
+                            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_REC_SPECIAL_DAYS).format(toUpdate.getName()));
                         }
                     });
 
             DayType dayType = dayTypes.get(exception.getDayType());
             Holder<CalendarService.StrictExceptionBuilder> lazyExceptionBuilder = HolderBuilder.lazyInitialize(() -> lazyBuilder.get().except(dayType.getName()));
-            UpdatableHolder<Consumer<Holder<CalendarService.StrictExceptionBuilder>>> exceptionFinisher = new UpdatableHolder<>(holder -> {});
-            exception.getOccurrences().getFixedOccurrence()
+            UpdatableHolder<Consumer<Holder<CalendarService.StrictExceptionBuilder>>> exceptionFinisher = new UpdatableHolder<>(holder -> {
+            });
+            List<FixedOccurrence> newFixedOccurrences = exception.getOccurrences().getFixedOccurrence()
                     .stream()
                     .filter(fixedOccurrence -> !existingExceptions.removeIf(exceptionalOccurrence -> matches(dayTypes, exception, fixedOccurrence, exceptionalOccurrence)))
-                    .forEach(newFixedOccurrence -> {
-                        lazyExceptionBuilder.get()
-                                .occursOnceOn(localDate(newFixedOccurrence));
-                        exceptionFinisher.update((Holder<CalendarService.StrictExceptionBuilder> holder) -> holder.get().add());
-                        calendarUpdateFinisher.update((Holder<CalendarService.StrictCalendarBuilder> holder) -> holder.get().add());
-                    });
+                    .collect(Collectors.toList());
+            if (!newFixedOccurrences.isEmpty()) {
+                wasChanged = true;
+            }
+            newFixedOccurrences.forEach(newFixedOccurrence -> {
+                lazyExceptionBuilder.get()
+                        .occursOnceOn(localDate(newFixedOccurrence));
+                exceptionFinisher.update((Holder<CalendarService.StrictExceptionBuilder> holder) -> holder.get().add());
+                calendarUpdateFinisher.update((Holder<CalendarService.StrictCalendarBuilder> holder) -> holder.get().add());
+            });
             exceptionFinisher.get().accept(lazyExceptionBuilder);
         }
-
+        if (!wasChanged) {
+            throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_NO_CHANGES).format(toUpdate.getName()));
+        }
         return calendarUpdateFinisher.get().apply(lazyBuilder);
+    }
+
+    private boolean haveEqualPeriods(XmlCalendar calendar, Calendar toUpdate, Map<BigInteger, DayType> dayTypes) {
+        List<Period> xmlPeriods = calendar.getPeriods().getPeriod();
+        List<com.elster.jupiter.calendar.Period> periods = toUpdate.getPeriods();
+        if (xmlPeriods.size() == periods.size()) {
+            for (int i = 0; i < xmlPeriods.size(); i++) {
+                Period xmlPeriod = xmlPeriods.get(i);
+                com.elster.jupiter.calendar.Period period = periods.get(i);
+                if (xmlPeriod.getName().equals(period.getName())) {
+                    if (!(dayTypes.get(xmlPeriod.getWeekTemplate().getMonday().getDayType()).getName().equals(period.getDayType(DayOfWeek.MONDAY).getName())
+                            && dayTypes.get(xmlPeriod.getWeekTemplate().getTuesday().getDayType()).getName().equals(period.getDayType(DayOfWeek.TUESDAY).getName())
+                            && dayTypes.get(xmlPeriod.getWeekTemplate().getWednesday().getDayType()).getName().equals(period.getDayType(DayOfWeek.WEDNESDAY).getName())
+                            && dayTypes.get(xmlPeriod.getWeekTemplate().getThursday().getDayType()).getName().equals(period.getDayType(DayOfWeek.THURSDAY).getName())
+                            && dayTypes.get(xmlPeriod.getWeekTemplate().getFriday().getDayType()).getName().equals(period.getDayType(DayOfWeek.FRIDAY).getName())
+                            && dayTypes.get(xmlPeriod.getWeekTemplate().getSaturday().getDayType()).getName().equals(period.getDayType(DayOfWeek.SATURDAY).getName())
+                            && dayTypes.get(xmlPeriod.getWeekTemplate().getSunday().getDayType()).getName().equals(period.getDayType(DayOfWeek.SUNDAY).getName()))) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean haveEqualRanges(XmlDayType xmlDayType, DayType dayType) {
+        List<RangeTime> rangeTimes = xmlDayType.getRanges().getRangeTime();
+        List<EventOccurrence> eventOccurrences = dayType.getEventOccurrences();
+        if (rangeTimes.size() == eventOccurrences.size()) {
+            for (int i = 0; i < rangeTimes.size(); i++) {
+                RangeTime rangeTime = rangeTimes.get(i);
+                EventOccurrence eventOccurrence = eventOccurrences.get(i);
+                if (rangeTime.getEvent().equals(eventOccurrence.getEvent().getName())) {
+                    LocalTime rangeTimeToLocalTime = LocalTime.of(rangeTime.getFrom().getHour().intValue(), rangeTime.getFrom().getMinute().intValue(), rangeTime.getFrom().getSecond().intValue());
+                    if (!rangeTimeToLocalTime.equals(eventOccurrence.getFrom())) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private LocalDate localDate(FixedOccurrence fixedOccurrence) {
@@ -167,16 +235,24 @@ public class CalendarProcessor {
 
     private Map<BigInteger, DayType> mapDayTypes(XmlCalendar calendar, Calendar toUpdate) {
         return calendar.getDayTypes()
-                    .getDayType()
-                    .stream()
-                    .collect(Collectors.toMap(
-                            XmlDayType::getId,
-                            xmlDayType -> toUpdate.getDayTypes()
+                .getDayType()
+                .stream()
+                .collect(Collectors.toMap(
+                        XmlDayType::getId,
+                        xmlDayType -> {
+                            DayType dayType = toUpdate.getDayTypes()
                                     .stream()
                                     .filter(existingDayType -> existingDayType.getName().equals(xmlDayType.getName()))
                                     .findAny()
-                                    .orElseThrow(() -> new IllegalArgumentException("dayType not found"))
-                    ));
+                                    .orElseThrow(() -> new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_DAY_TYPE_NOT_FOUND)
+                                            .format(xmlDayType.getName(), toUpdate.getName())));
+                            if (haveEqualRanges(xmlDayType, dayType)) {
+                                return dayType;
+                            } else {
+                                throw new IllegalArgumentException(thesaurus.getSimpleFormat(MessageSeeds.IMPORT_FAILED_CANT_CHANGE_DAY_TYPES).format(toUpdate.getName()));
+                            }
+                        }
+                ));
     }
 
     private boolean matches(Map<BigInteger, DayType> dayTypes, Exception exception, RecurringOccurrence recurringOccurrence, ExceptionalOccurrence exceptionalOccurrence) {
@@ -214,8 +290,8 @@ public class CalendarProcessor {
                 calendarService
                         .findCategoryByName(calendar.getCategory())
                         .orElseGet(() -> calendarService
-                                            .findCategoryByDisplayName(calendar.getCategory())
-                                            .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory())));
+                                .findCategoryByDisplayName(calendar.getCategory())
+                                .orElseThrow(() -> new CategoryNotFound(thesaurus, calendar.getCategory())));
         UpdatableHolder<Consumer<ImportListener>> listenerNotification = new UpdatableHolder<>(null);
         EventSet eventSet = calendarService.findEventSetByName(calendar.getEventset())
                 .orElseThrow(() -> new IllegalArgumentException("illegal eventset name " + calendar

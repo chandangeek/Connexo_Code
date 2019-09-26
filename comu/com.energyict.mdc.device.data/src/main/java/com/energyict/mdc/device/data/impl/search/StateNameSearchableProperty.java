@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
@@ -23,7 +24,6 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
@@ -51,16 +51,16 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
      */
     private static final String VIRTUAL_FIELD_NAME = "device.state.name";
     private final PropertySpecService propertySpecService;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
     private DeviceSearchDomain domain;
     private SearchableProperty parent;
     private DeviceState[] states = new DeviceState[0];
 
     @Inject
-    public StateNameSearchableProperty(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public StateNameSearchableProperty(MeteringTranslationService meteringTranslationService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(thesaurus);
         this.propertySpecService = propertySpecService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     StateNameSearchableProperty init(DeviceSearchDomain domain, DeviceTypeSearchableProperty parent) {
@@ -167,13 +167,13 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
                 .getFiniteStateMachine()
                 .getStates()
                 .stream()
-                .map(s -> new DeviceState(s.getId(), getStateName(s, deviceLifeCycleConfigurationService) + " (" + deviceType.getDeviceLifeCycle().getName() + ")"));
+                .map(s -> new DeviceState(s.getId(), getStateName(s, meteringTranslationService) + " (" + deviceType.getDeviceLifeCycle().getName() + ")"));
     }
 
-    private String getStateName(State state, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    private String getStateName(State state, MeteringTranslationService meteringTranslationService) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

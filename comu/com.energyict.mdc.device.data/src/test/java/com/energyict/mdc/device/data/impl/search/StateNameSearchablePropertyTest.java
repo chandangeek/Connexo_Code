@@ -8,6 +8,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -79,7 +80,7 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private MeteringTranslationService meteringTranslationService;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
     private BeanService beanService = new DefaultBeanService();
@@ -353,7 +354,7 @@ public class StateNameSearchablePropertyTest {
     }
 
     private StateNameSearchableProperty getTestInstance() {
-        return new StateNameSearchableProperty(this.deviceLifeCycleConfigurationService, this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
+        return new StateNameSearchableProperty(this.meteringTranslationService, this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
     }
 
 }

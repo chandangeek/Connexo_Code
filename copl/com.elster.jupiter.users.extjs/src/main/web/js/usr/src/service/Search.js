@@ -10,7 +10,6 @@ Ext.define('Usr.service.Search', {
         var me = this;
 
         me.defaultColumns = {
-            'com.elster.jupiter.metering.EndDevice': ['name', 'serialNumber'],
             'com.elster.jupiter.users.User': ['authenticationName', 'description', 'domain', 'active']
         };
 
@@ -57,5 +56,20 @@ Ext.define('Usr.service.Search', {
 
         column.menuDisabled = true;
         return column;
+    },
+
+    createFixedColumns: function(){
+        var actionColumn = {
+            xtype: 'uni-actioncolumn',
+            header: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
+            maxWidth: 120,
+            privileges: Usr.privileges.Users.adminUsers,
+            menu: {
+                xtype: 'user-action-menu'
+            },
+            isDefault: true
+        };
+
+        return [actionColumn];
     }
 });

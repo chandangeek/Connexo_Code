@@ -20,7 +20,7 @@ Ext.define('Isu.service.Search', {
             column = this.callParent(arguments);
 
         if (column && column.dataIndex === 'name') {
-            if (me.searchDomain.getId() === 'com.energyict.mdc.device.data.Device') {
+            if (me.searchDomain.getId() === 'com.energyict.mdc.common.device.data.Device') {
                 column.renderer = function (value, metaData, record) {
                     var url = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(value)});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';

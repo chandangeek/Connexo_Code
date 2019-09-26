@@ -89,8 +89,17 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 hidden: false,
                                 disabled: true,
                                 handler: function(){
-                                     me.down('#targetFirmwareCheckFinal').reset();
-                                     this.disable();
+                                    me.down('#targetFirmwareCheckFinal').reset();
+                                    this.disable();
+                                },
+                                listeners: {
+                                    afterrender: function(){
+                                        me.on('dependenciesSetted', function(){
+                                           var targetFirmwareCheckFinalValue = me.down('#targetFirmwareCheckFinal') && me.down('#targetFirmwareCheckFinal').originalValue;
+                                           me.down('#targetFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckFinalValue) + '"');
+
+                                        })
+                                    }
                                 }
                             },
                             {
@@ -99,8 +108,17 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 hidden: false,
                                 disabled: true,
                                 handler: function(){
-                                     me.down('#targetFirmwareCheckTest').reset();
-                                     this.disable();
+                                    me.down('#targetFirmwareCheckTest').reset();
+                                    this.disable();
+                                },
+                                listeners: {
+                                    afterrender: function(){
+                                        me.on('dependenciesSetted', function(){
+                                           var targetFirmwareCheckTestValue = me.down('#targetFirmwareCheckTest') && me.down('#targetFirmwareCheckTest').originalValue;
+                                           me.down('#targetFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckTestValue) + '"');
+
+                                        })
+                                    }
                                 }
                             }
                         ]
@@ -168,6 +186,15 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 handler: function(){
                                      me.down('#curFirmwareCheck').reset();
                                      this.disable();
+                                },
+                                listeners: {
+                                    afterrender: function(){
+                                        me.on('dependenciesSetted', function(){
+                                           var curFirmwareCheckValue = me.down('#curFirmwareCheck') && me.down('#curFirmwareCheck').originalValue;
+                                           me.down('#curFirmwareCheckReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(curFirmwareCheckValue) + '"');
+
+                                        })
+                                    }
                                 }
                             }
                         ]
@@ -266,9 +293,18 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 hidden: false,
                                 disabled: true,
                                 handler: function(){
-                                     me.down('#masterFirmwareCheckFinal').reset();
-                                     this.disable();
-                                     if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
+                                    me.down('#masterFirmwareCheckFinal').reset();
+                                    this.disable();
+                                    if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
+                                },
+                                listeners: {
+                                    afterrender: function(){
+                                        me.on('dependenciesSetted', function(){
+                                           var masterFirmwareCheckFinalValue = me.down('#masterFirmwareCheckFinal') && me.down('#masterFirmwareCheckFinal').originalValue;
+                                           me.down('#masterFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckFinalValue) + '"');
+
+                                        })
+                                    }
                                 }
                             },
                             {
@@ -277,18 +313,27 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 hidden: false,
                                 disabled: true,
                                 handler: function(){
-                                     me.down('#masterFirmwareCheckTest').reset();
-                                     this.disable();
-                                     if (!me.down('#masterFirmwareCheckTest').getValue()){
+                                    me.down('#masterFirmwareCheckTest').reset();
+                                    this.disable();
+                                    if (!me.down('#masterFirmwareCheckTest').getValue()){
                                          if (!me.down('#masterFirmwareCheckFinal').getValue()){
-                                            me.down('#masterFirmwareMainOption').setValue(false);
+                                             me.down('#masterFirmwareMainOption').setValue(false);
                                          }
-                                     }
-                                     else{
+                                    }
+                                    else{
                                          var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal').getValue();
                                          me.down('#masterFirmwareCheck').setValue(true);
                                          me.down('#masterFirmwareCheckFinal').setValue(masterFirmwareCheckFinal);
-                                     }
+                                    }
+                                },
+                                listeners: {
+                                    afterrender: function(){
+                                        me.on('dependenciesSetted', function(){
+                                           var masterFirmwareCheckTestValue = me.down('#masterFirmwareCheckTest') && me.down('#masterFirmwareCheckTest').originalValue;
+                                           me.down('#masterFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckTestValue) + '"');
+
+                                        })
+                                    }
                                 }
                             }
                         ]
@@ -333,6 +378,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                     if (!me.isDependenciesSetted){
                         me.setChecksDependencies('masterFirmwareCheck', 'masterFirmwareCheckFinal', 'masterFirmwareCheckTest', record.get('masterFirmwareCheck'));
                     }
+                    me.fireEvent('dependenciesSetted');
                 })
 
         },

@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -146,9 +147,9 @@ public class IssueDataValidationServiceTest {
         states.add(state2);
         when(fsm.getStates()).thenReturn(states);
         when(deviceTypeFinder.stream()).thenAnswer(invocationOnMock -> Stream.of(deviceType));
-        DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService = mock(DeviceLifeCycleConfigurationService.class);
+        MeteringTranslationService meteringTranslationService = mock(MeteringTranslationService.class);
         DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypes = { new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
-                .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)};
+                .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), meteringTranslationService)};
         DeviceLifeCycleInDeviceTypeInfo[] something;
         when(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues()).thenReturn(deviceLifeCycleInDeviceTypes);
         when(deviceConfigurationService.findDeviceType(1l)).thenReturn(Optional.of(deviceType));

@@ -366,10 +366,6 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         Ext.Array.each(Ext.ComponentQuery.query('#fwc-campaign-validation-connection-strategy-reset, #fwc-campaign-send-connection-strategy-reset'), function(item){
            item.setTooltip('Restore to default empty value');
         });
-
-        Ext.Array.each(Ext.ComponentQuery.query('firmware-version-options uni-default-button'), function(item){
-           item.setTooltip('Restore to default value "{true/false}"');
-        })
     },
 
     onDeviceTypeChange: function (combo, newValue) {
