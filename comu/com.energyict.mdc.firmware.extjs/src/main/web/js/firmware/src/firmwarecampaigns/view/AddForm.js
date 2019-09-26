@@ -306,8 +306,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         listeners: {
                             change: function(combobox, newValue, oldValue){
                                 if (newValue && oldValue !== newValue){
-                                     me.down('#fwc-campaign-send-connection-strategy-reset').enable();
-                                } else me.down('#fwc-campaign-send-connection-strategy-reset').disable();
+                                     me.down('#fwc-campaign-validation-connection-strategy-reset').enable();
+                                } else me.down('#fwc-campaign-validation-connection-strategy-reset').disable();
                            }
                         }
                     },
