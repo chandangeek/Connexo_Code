@@ -6,15 +6,22 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Checks that all the {@link ConnectionTask}s of a Device are complete.
@@ -45,10 +52,19 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
         if (containsIncompleteConnectionTask) {
             return true;
         }
-        boolean defaultConnectionTaskContainsHP = device
-                .getConnectionTasks()
+        device.getDeviceConfiguration().getComTaskEnablements()
                 .stream()
-                .filter(ConnectionTask::isDefault)
+                .filter(ctEn->
+                        device.getComTaskExecutions()
+                                .stream()
+                                .anyMatch(ctExec->ctEn.getComTask().getId()!=ctExec.getComTask().getId())
+                ).map(device::newAdHocComTaskExecution);
+        boolean defaultConnectionTaskContainsHP = device
+                .getComTaskExecutions()
+                .stream()
+                .map(ComTaskExecution::getConnectionTask)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .map(ConnectionTaskPropertyProvider::getTypedProperties)
                 .anyMatch(ct-> ct.getStringProperty("host").equals("null") || ct.getStringProperty("portNumber").equals("null"));
         if(defaultConnectionTaskContainsHP){
