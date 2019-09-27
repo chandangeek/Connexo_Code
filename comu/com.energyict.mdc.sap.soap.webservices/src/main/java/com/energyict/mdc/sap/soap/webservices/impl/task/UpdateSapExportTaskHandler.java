@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.task;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -13,11 +14,10 @@ import com.elster.jupiter.metering.groups.EnumeratedGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -51,19 +51,30 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
     }
 
     private boolean deviceCanBeRemoved(EnumeratedGroup.Entry<EndDevice> endDeviceEntry) {
-        List<ChannelSpec> channelSpecs = sapCustomPropertySets.getChannelsWithProfileIdForDevice(endDeviceEntry.getMember().getId());
-        Optional<? extends ExportTask> exportTask = dataExportService
-                .getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
-        if (!channelSpecs.isEmpty() && exportTask.isPresent()) {
-            boolean isNotExported = exportTask.get().getReadingDataSelectorConfig().isPresent()
+        Optional<? extends ExportTask> exportTask = dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
+        if (exportTask.isPresent()) {
+            boolean isAlreadyExported = exportTask.get().getReadingDataSelectorConfig().isPresent()
                     && exportTask.get().getReadingDataSelectorConfig().get().getExportItems().stream()
                     .filter(item -> ((EndDevice) item.getDomainObject()).getId() == endDeviceEntry.getMember().getId())
-                    .filter(item -> channelSpecs.stream().anyMatch(channel -> item.getReadingType().getMRID().equals(channel.getReadingType().getMRID())))
-                    .anyMatch(item -> !item.getLastExportedDate().isPresent());
-            if (isNotExported) {
-                return false;
-            } else {
+                    .allMatch(item -> {
+                        Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdDateForChannelOnDevice(endDeviceEntry.getMember()
+                                .getId(), item.getReadingType().getMRID());
+                        if (lastProfileIdInterval.isPresent()) {
+                            if (item.getLastExportedDate().isPresent() && item.getLastExportedDate().get().isAfter(lastProfileIdInterval.get().getEnd())) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            return true;
+                        }
+                    });
+
+
+            if (isAlreadyExported) {
                 return true;
+            } else {
+                return false;
             }
         } else {
             return true;

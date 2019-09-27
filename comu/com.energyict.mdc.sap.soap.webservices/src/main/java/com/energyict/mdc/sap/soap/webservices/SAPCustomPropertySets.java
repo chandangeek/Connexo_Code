@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
@@ -70,5 +71,5 @@ public interface SAPCustomPropertySets {
 
     void truncateCpsInterval(Device device, String lrn, Instant endDate);
 
-    List<ChannelSpec> getChannelsWithProfileIdForDevice(long deviceId);
+    Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid);
 }

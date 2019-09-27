@@ -30,6 +30,7 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -65,6 +66,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -410,13 +412,16 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         }
     }
 
-    public List<ChannelSpec> getChannelsWithProfileIdForDevice(long deviceId) {
+    @Override
+    public Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isNotNull())
                 .filter(e -> e.getDeviceId() == deviceId)
-                .map(ext -> ext.getChannelSpec()).collect(Collectors.toList());
+                .filter(f -> f.getChannelSpec().getReadingType().getMRID().equals(channelMrid))
+                .map(c -> c.getInterval())
+                .max(Comparator.comparingLong(m -> m.getEnd().toEpochMilli()));
     }
 
     private boolean isDeviceActive(Device device) {
