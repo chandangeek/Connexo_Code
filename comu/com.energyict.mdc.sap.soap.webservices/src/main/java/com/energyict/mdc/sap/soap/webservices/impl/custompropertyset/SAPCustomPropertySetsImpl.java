@@ -425,7 +425,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                     if (m.getEnd() != null) {
                         return m.getEnd().toEpochMilli();
                     } else {
-                        return Instant.MAX.toEpochMilli();
+                        return Long.MAX_VALUE;
                     }
                 }));
     }
