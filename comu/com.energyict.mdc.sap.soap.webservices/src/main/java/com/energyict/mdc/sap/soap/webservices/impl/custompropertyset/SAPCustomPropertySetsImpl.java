@@ -421,7 +421,13 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .filter(e -> e.getDeviceId() == deviceId)
                 .filter(f -> f.getChannelSpec().getReadingType().getMRID().equals(channelMrid))
                 .map(c -> c.getInterval())
-                .max(Comparator.comparingLong(m -> m.getEnd().toEpochMilli()));
+                .max(Comparator.comparingLong(m -> {
+                    if (m.getEnd() != null) {
+                        return m.getEnd().toEpochMilli();
+                    } else {
+                        return Instant.MAX.toEpochMilli();
+                    }
+                }));
     }
 
     private boolean isDeviceActive(Device device) {
