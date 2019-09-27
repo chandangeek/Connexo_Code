@@ -30,7 +30,6 @@ public class UpdateSapExportTaskHandlerFactory implements MessageHandlerFactory 
 
     private volatile TaskService taskService;
     private volatile MeteringGroupsService meteringGroupsService;
-    private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile DataExportService dataExportService;
 
@@ -40,7 +39,7 @@ public class UpdateSapExportTaskHandlerFactory implements MessageHandlerFactory 
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new UpdateSapExportTaskHandler(meteringGroupsService, sapCustomPropertySets, clock, dataExportService));
+        return taskService.createMessageHandler(new UpdateSapExportTaskHandler(meteringGroupsService, sapCustomPropertySets, dataExportService));
     }
 
     @Reference
@@ -51,11 +50,6 @@ public class UpdateSapExportTaskHandlerFactory implements MessageHandlerFactory 
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
-    }
-
-    @Reference
-    public final void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
