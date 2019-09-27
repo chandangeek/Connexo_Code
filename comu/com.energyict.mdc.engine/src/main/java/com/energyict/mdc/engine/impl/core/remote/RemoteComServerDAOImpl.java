@@ -12,16 +12,10 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.comserver.*;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.SecurityPropertySetImpl;
-import com.energyict.mdc.common.comserver.ComPort;
-import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.HighPriorityComJob;
-import com.energyict.mdc.common.comserver.InboundComPort;
-import com.energyict.mdc.common.comserver.OnlineComServer;
-import com.energyict.mdc.common.comserver.OutboundCapableComServer;
-import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
@@ -32,6 +26,8 @@ import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.HostName;
+import com.energyict.mdc.engine.config.LookupEntry;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
@@ -51,13 +47,7 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
-import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -72,9 +62,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
@@ -90,13 +77,7 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -113,13 +94,6 @@ import java.util.concurrent.TimeoutException;
  */
 public class RemoteComServerDAOImpl implements ComServerDAO {
 
-    public interface ServiceProvider {
-
-        Clock clock();
-
-        EngineConfigurationService engineConfigurationService();
-
-    }
     public final static String CLIENT_PROPERTY = "client-name";
 
     private ServerProcess comServer;
@@ -203,6 +177,44 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
+        if (!isComServerDAOShutDown()) {
+            Map<String, Object> queryParameters = new HashMap<>();
+            queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+            queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_HIGH_PRIORITY_LOAD, currentHighPriorityLoadPerComPortPool);
+            JSONObject response = post(QueryMethod.FindExecutableHighPriorityOutboundComTasks, queryParameters);
+            HighPriorityComJob[] comJobs = toArrayObject(response, new ObjectParser<HighPriorityComJob[]>(), HighPriorityComJob[].class);
+            return CollectionConverter.convertGenericArrayToList(comJobs);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date) {
+        if (!isComServerDAOShutDown()) {
+            Map<String, Object> queryParameters = new HashMap<>();
+            queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+            queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_HIGH_PRIORITY_LOAD, currentHighPriorityLoadPerComPortPool);
+            queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, date);
+            JSONObject response = post(QueryMethod.FindExecutableHighPriorityOutboundComTasks, queryParameters);
+            HighPriorityComJob[] comJobs = toArrayObject(response, new ObjectParser<HighPriorityComJob[]>(), HighPriorityComJob[].class);
+            return CollectionConverter.convertGenericArrayToList(comJobs);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
+        JSONObject response = post(QueryMethod.FindContainingComPortPoolsForComPort, queryParameters);
+        Long[] comPortPoolIds = toArrayObject(response, new ObjectParser<Long[]>(), Long[].class);
+        return CollectionConverter.convertGenericArrayToList(comPortPoolIds);
     }
 
     @Override
@@ -956,10 +968,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             this.comServer.shutdownImmediate();
     }
 
-    private Collection<Integer> collectIds (List<? extends HasId> businessObjects) {
-        Collection<Integer> ids = new ArrayList<>(businessObjects.size());
+    private Collection<Long> collectIds (List<? extends HasId> businessObjects) {
+        Collection<Long> ids = new ArrayList<>(businessObjects.size());
         for (HasId businessObject : businessObjects) {
-            ids.add((int) businessObject.getId());
+            ids.add((long) businessObject.getId());
         }
         return ids;
     }
@@ -1215,6 +1227,5 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         EngineConfigurationService engineConfigurationService();
 
         ThreadPrincipalService threadPrincipalService();
-
     }
 }

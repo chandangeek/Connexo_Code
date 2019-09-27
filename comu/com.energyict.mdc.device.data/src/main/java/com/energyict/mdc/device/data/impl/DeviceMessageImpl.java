@@ -26,9 +26,7 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMes
 import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessagePrivilege;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidReleaseDateUpdate;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidTrackingInformation;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;

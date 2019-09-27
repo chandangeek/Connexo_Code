@@ -89,7 +89,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private UpdateStrategy updateStrategy = new Noop();
     private boolean calledByComtaskExecution = false;
     private ServerCommunicationTaskService communicationTaskService;
-    private final CustomPropertySetService customPropertySetService;
+    private CustomPropertySetService customPropertySetService;
     private TaskStatus taskStatus;
 
     protected ScheduledConnectionTaskImpl() {

@@ -32,25 +32,10 @@ import com.energyict.mdc.device.data.impl.ComSessionSuccessIndicatorTranslationK
 import com.energyict.mdc.device.data.impl.CompletionCodeTranslationKeys;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
-import com.energyict.mdc.device.data.impl.tasks.OutboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComStatistics;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.impl.OutboundComPortImpl;
 import com.energyict.mdc.engine.config.impl.OutboundComPortPoolImpl;
-import com.energyict.mdc.tasks.ComTask;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Range;
 

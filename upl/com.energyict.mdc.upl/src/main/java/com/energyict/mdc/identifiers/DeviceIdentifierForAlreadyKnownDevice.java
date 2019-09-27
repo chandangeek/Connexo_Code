@@ -29,15 +29,15 @@ public final class DeviceIdentifierForAlreadyKnownDevice implements DeviceIdenti
     public DeviceIdentifierForAlreadyKnownDevice() {
     }
 
+    public DeviceIdentifierForAlreadyKnownDevice(Device device) {
+        this.deviceId = device.getId();
+        this.devicemrID = device.getmRID();
+    }
+
     public DeviceIdentifierForAlreadyKnownDevice(long deviceId, String deviceMrId) {
         this();
         this.deviceId = deviceId;
         this.devicemrID = deviceMrId;
-    }
-
-    public DeviceIdentifierForAlreadyKnownDevice(Device device) {
-        this.deviceId = device.getId();
-        this.devicemrID = device.getmRID();
     }
 
     @Override

@@ -53,9 +53,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -71,7 +68,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -114,12 +110,8 @@ public abstract class JobExecution implements ScheduledJob {
 
     protected static TypedProperties getProtocolDialectTypedProperties(ComServerDAO comServerDAO, ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
         TypedProperties result = TypedProperties.empty();
-        if (protocolDialectConfigurationProperties == null) {
-            return result;
-        }
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
         TypedProperties protocolDialectProperties = comServerDAO.findProtocolDialectPropertiesFor(comTaskExecution.getId());
-        TypedProperties result;
         if (protocolDialectProperties == null) {
             result = TypedProperties.inheritingFrom(
                     protocolDialectConfigurationProperties != null

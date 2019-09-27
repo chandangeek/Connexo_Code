@@ -86,7 +86,7 @@ public class DeviceProtocolSecurityPropertySetImplTest {
         ConfigurationSecurityProperty configurationSecurityProperty = mock(ConfigurationSecurityProperty.class);
         when(configurationSecurityProperty.getName()).thenReturn(name);
         SecurityAccessorType securityAccessorType = securityAccessor.getKeyAccessorTypeReference();
-        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         return configurationSecurityProperty;
     }
 

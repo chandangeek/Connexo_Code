@@ -87,8 +87,6 @@ public class RunningComServerImplTest {
     private ComServerDAO comServerDAO;
     @Mock
     private Thesaurus thesaurus;
-    @Mock
-    private QueryAPIStatistics queryAPIStatistics;
 
     private Clock clock = Clock.systemDefaultZone();
 

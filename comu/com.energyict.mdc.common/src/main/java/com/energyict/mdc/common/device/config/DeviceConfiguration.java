@@ -16,7 +16,6 @@ import com.energyict.mdc.common.masterdata.ChannelType;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.common.masterdata.RegisterType;
-import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
 
 import aQute.bnd.annotation.ConsumerType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -42,7 +41,6 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     void setDescription(String description);
 
-    @XmlElement(type = DeviceTypeImpl.class, name = "deviceType")
     DeviceType getDeviceType();
 
     List<RegisterSpec> getRegisterSpecs();

@@ -8,8 +8,8 @@ package com.energyict.mdc.engine.offline.persist;
 
 import com.elster.jupiter.orm.Encrypter;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.comserver.OfflineComServer;
 import com.energyict.mdc.engine.config.LookupEntry;
-import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.ObjectParser;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;

@@ -192,7 +192,7 @@ public abstract class ComPortImpl implements ComPort {
         return type;
     }
 
-    void setComServer(ComServer comServer) {
+    public void setComServer(ComServer comServer) {
         this.comServer.set(comServer);
     }
 

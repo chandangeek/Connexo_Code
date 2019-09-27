@@ -29,7 +29,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
     @Override
     public void renew() {
-        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorType());
+        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorTypeReference());
 
         if (!wrappingSecurityAccessorType.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_DEFINED);
@@ -42,7 +42,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
         }
         SecurityAccessor wrapperSecAccessor = securityAccessor.get();
 
-        Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualValue();
+        Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualPassphraseWrapperReference();
         if (!actualValueWrapperAccessor.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
         }

@@ -3,21 +3,22 @@ package com.energyict.mdc.engine.impl.core.offline;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.impl.SecurityPropertySetImpl;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.core.ComJob;
@@ -29,10 +30,8 @@ import com.energyict.mdc.engine.impl.core.remote.*;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ManualMeterReadingsTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -45,7 +44,6 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -103,7 +101,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     /**
      * The map of previous values for every MMR register that has a reference validation configured
      */
-    private Map<OfflineRegister, com.energyict.mdc.device.data.Reading> previousValuesMap;
+    private Map<OfflineRegister, Reading> previousValuesMap;
 
     /**
      * The map of the configured EIServer registers, containing some metadata like "isCumulative" etc
@@ -352,7 +350,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
 
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
-    public Map<OfflineRegister, com.energyict.mdc.device.data.Reading> getPreviousValuesMap() {
+    public Map<OfflineRegister, Reading> getPreviousValuesMap() {
         if (this.previousValuesMap == null) {
             this.previousValuesMap = new HashMap<>();
         }

@@ -451,6 +451,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    @XmlElement(type = ConfigurationSecurityPropertyImpl.class)
     public List<ConfigurationSecurityProperty> getConfigurationSecurityProperties() {
         return Collections.unmodifiableList(configurationSecurityProperties);
     }

@@ -14,13 +14,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
-import com.energyict.mdc.common.comserver.OnlineComServer;
-import com.energyict.mdc.common.comserver.OutboundComPort;
-import com.energyict.mdc.common.comserver.RemoteComServer;
-import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
-import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
-import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.*;
 
 import com.google.inject.Provider;
 

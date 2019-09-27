@@ -11,10 +11,10 @@ import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.KeyAccessorStatus;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.KeyAccessorStatus;
 
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnore;

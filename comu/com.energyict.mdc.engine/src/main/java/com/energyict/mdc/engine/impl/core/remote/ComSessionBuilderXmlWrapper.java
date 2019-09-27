@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionBuilderImpl;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

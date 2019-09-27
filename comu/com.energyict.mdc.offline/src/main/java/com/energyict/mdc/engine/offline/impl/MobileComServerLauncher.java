@@ -17,10 +17,12 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.comserver.*;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.*;
@@ -52,8 +54,8 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Launches the {@link com.energyict.mdc.engine.config.OnlineComServer}
- * or {@link com.energyict.mdc.engine.config.RemoteComServer}
+ * Launches the {@link OnlineComServer}
+ * or {@link RemoteComServer}
  * that is configured to run on the machine where this class is executing.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -310,6 +312,11 @@ public final class MobileComServerLauncher implements ProtocolDeploymentListener
         @Override
         public CommunicationTaskService communicationTaskService() {
             return serviceProvider.communicationTaskService();
+        }
+
+        @Override
+        public PriorityComTaskService priorityComTaskService() {
+            return serviceProvider.priorityComTaskService();
         }
 
         @Override

@@ -10,10 +10,15 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.JSONTypeMapperProvider;
@@ -356,7 +361,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
         getThisComServer();
 
         //Reset the busy comtaskexecutions back to pending so they can be picked up again
-        remoteComServerDAO.releaseInterruptedTasks(offlineComServer);
+        remoteComServerDAO.releaseInterruptedTasks(getComPort());
 
         //Store comserver object as JSON string in file
         getBusinessDataPersister().saveComServer(offlineComServer);
@@ -625,6 +630,11 @@ public class OfflineExecuter implements OfflineActionExecuter {
         @Override
         public ConnectionTaskService connectionTaskService() {
             return serviceProvider.connectionTaskService();
+        }
+
+        @Override
+        public PriorityComTaskService priorityComTaskService() {
+            return serviceProvider.priorityComTaskService();
         }
 
         @Override

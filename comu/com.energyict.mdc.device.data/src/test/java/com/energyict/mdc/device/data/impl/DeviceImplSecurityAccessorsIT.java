@@ -120,7 +120,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         List<SecurityAccessor> securityAccessors = device.getSecurityAccessors();
         assertThat(securityAccessors).hasSize(1);
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessors.get(0);
-        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isFalse();
@@ -141,7 +141,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isFalse();
@@ -162,7 +162,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeManagedCentrally.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isFalse();
@@ -173,7 +173,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         securityAccessorOptional = device.getSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeOnDevice.getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeOnDevice.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.INCOMPLETE);
         assertThat(securityAccessor.isEditable()).isTrue();
@@ -236,7 +236,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         securityAccessorOptional = device.getSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         securityAccessor = securityAccessorOptional.get();
-        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeOnDevice.getId());
+        assertThat(securityAccessor.getKeyAccessorTypeReference().getId()).isEqualTo(certificateTypeOnDevice.getSecurityAccessor().getId());
         assertThat(securityAccessor.getDevice()).isEqualTo(device);
         assertThat(securityAccessor.getStatus()).isSameAs(KeyAccessorStatus.COMPLETE);
         assertThat(securityAccessor.isEditable()).isTrue();

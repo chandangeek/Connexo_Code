@@ -79,6 +79,12 @@ public final class RemoteComServerQueryJSonPropertyNames {
     public static final String COMPORT = "com-port";
 
     /**
+     * The name of the property that specifies the current high priority load
+     * that is passed as an argument to a remote com server query.
+     */
+    public static final String CURRENT_HIGH_PRIORITY_LOAD = "current-high-priority-load";
+
+    /**
      * The name of the property that specifies the unique identifier
      * of a {@link com.energyict.mdc.tasks.ComTask}
      * that is passed as an argument to a remote com server query.
@@ -139,6 +145,15 @@ public final class RemoteComServerQueryJSonPropertyNames {
      * The ID that specifies the unique SecurityPropertySet
      */
     public static final String SECURITY_PROPERTY_SET_IDENTIFIER = "security-property-set-identifier";
+
+    /**
+     * The name of the property that specifies the current date
+     * of an object who's unique identifier is passed as an argument
+     * to a remote com server query.
+     * Note that the value of the property is expected to be
+     * the number of milliseconds since Jan 1st, 1970 (UTC).
+     */
+    public static final String CURRENT_DATE = "current-date";
 
     /**
      * The name of the property that specifies the modification date

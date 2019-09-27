@@ -56,5 +56,7 @@ public interface PartialScheduledConnectionTask extends PartialOutboundConnectio
 
     void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
 
+    void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask);
+
     void setDefault(boolean asDefault);
 }

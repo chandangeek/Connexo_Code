@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.offline.core;
 
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -123,7 +123,7 @@ public class StoringThread extends Thread {
     private void storeStartTime(ComJobExecutionModel model) {
         Date connectionStartTime = model.getConnectionStartTime();
         if (connectionStartTime != null) {
-            getRemoteComServerDAO().executionStarted(model.getConnectionTask(), offlineExecuter.getRunningComServer().getComServer()); //TODO: check with Govanni
+            getRemoteComServerDAO().executionStarted(model.getConnectionTask(), offlineExecuter.getComPort()); //TODO: check with Govanni
         }
 
         for (Object comTaskExecutionId : model.getComTaskExecutionStartTimes().keySet()) {

@@ -1,7 +1,7 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.upl.meterdata.RegisterGroup;
-import com.energyict.mdc.tasks.ProtocolTask;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import java.util.Collection;

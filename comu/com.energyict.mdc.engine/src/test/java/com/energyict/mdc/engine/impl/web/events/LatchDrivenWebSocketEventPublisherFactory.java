@@ -7,6 +7,7 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.util.concurrent.CountDownLatch;
@@ -26,15 +27,15 @@ public class LatchDrivenWebSocketEventPublisherFactory extends WebSocketEventPub
     }
 
     @Override
-    public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener webSocketCloseEventListener) {
-        return new LatchDrivenWebSocketEventPublisher(this.latch, comServer, serviceProvider, eventPublisher, webSocketCloseEventListener);
+    public WebSocketEventPublisher newWebSocketEventPublisher(EventAPIStatistics eventAPIStatistics, WebSocketCloseEventListener webSocketCloseEventListener) {
+        return new LatchDrivenWebSocketEventPublisher(this.latch, comServer, serviceProvider, eventPublisher, eventAPIStatistics, webSocketCloseEventListener);
     }
 
     private class LatchDrivenWebSocketEventPublisher extends WebSocketEventPublisher {
         private CountDownLatch latch;
-        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
+        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, EventAPIStatistics eventAPIStatistics, WebSocketCloseEventListener closeEventListener) {
 
-            super(comServer, serviceProvider, eventPublisher, closeEventListener);
+            super(comServer, serviceProvider, eventPublisher, eventAPIStatistics, closeEventListener);
             this.latch = latch;
         }
 

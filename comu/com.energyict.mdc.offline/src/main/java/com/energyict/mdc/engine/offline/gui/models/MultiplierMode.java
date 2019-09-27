@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.offline.gui.models;
 
 import com.energyict.cbo.Quantity;
-import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.engine.offline.core.LocalizableEnum;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.core.exception.BusinessException;

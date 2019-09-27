@@ -6,8 +6,8 @@
 
 package com.energyict.mdc.engine.offline.persist;
 
+import com.energyict.mdc.common.comserver.OfflineComServer;
 import com.energyict.mdc.engine.config.LookupEntry;
-import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
 

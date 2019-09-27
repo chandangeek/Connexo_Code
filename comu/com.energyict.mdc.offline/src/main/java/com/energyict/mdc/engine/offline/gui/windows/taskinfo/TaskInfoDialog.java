@@ -1,15 +1,15 @@
 package com.energyict.mdc.engine.offline.gui.windows.taskinfo;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.engine.offline.gui.dialogs.EisDialog;
-import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.LoadProfileType;
 import com.energyict.mdc.upl.meterdata.RegisterGroup;
 import com.energyict.mdc.tasks.ManualMeterReadingsTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 

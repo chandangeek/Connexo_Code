@@ -4,7 +4,9 @@
 
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -83,9 +85,9 @@ public class QueryApiServletTest {
     public void initializeMockAndFactories () {
         when(this.runningComServer.getComServer()).thenReturn(this.comServer);
 
-        servlet = new WebSocketQueryApiCreator(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        servlet = new WebSocketQueryApiCreator(runningComServer, queryAPIStatistics);
         WebSocketQueryApiServiceFactory.setInstance(this.serviceFactory);
-        when(this.serviceFactory.newWebSocketQueryApiService(any(RunningOnlineComServer.class), any(ComServerDAO.class), any(EngineConfigurationService.class), any(ConnectionTaskService.class), any(CommunicationTaskService.class), any(TransactionService.class))).thenReturn(this.service);
+        when(this.serviceFactory.newWebSocketQueryApiService(any(RunningOnlineComServer.class), any(QueryAPIStatistics.class))).thenReturn(this.service);
         when(servletUpgradeRequest.getHttpServletRequest()).thenReturn(httpServletRequest);
         when(httpServletRequest.getSession()).thenReturn(httpSession);
         when(httpServletRequest.getSession(anyBoolean())).thenReturn(httpSession);
@@ -106,7 +108,7 @@ public class QueryApiServletTest {
         servlet.createWebSocket(servletUpgradeRequest, servletUpgradeResponse);
 
         // Asserts
-        verify(this.serviceFactory).newWebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        verify(this.serviceFactory).newWebSocketQueryApiService(runningComServer, queryAPIStatistics);
     }
 
     @Test
@@ -120,7 +122,7 @@ public class QueryApiServletTest {
         WebSocketQueryApiService webSocket = (WebSocketQueryApiService) servlet.createWebSocket(servletUpgradeRequest, servletUpgradeResponse);
 
         // Asserts
-        verify(this.serviceFactory, never()).newWebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        verify(this.serviceFactory, never()).newWebSocketQueryApiService(runningComServer, queryAPIStatistics);
         assertThat(webSocket).isSameAs(initialWebSocket);
     }
 

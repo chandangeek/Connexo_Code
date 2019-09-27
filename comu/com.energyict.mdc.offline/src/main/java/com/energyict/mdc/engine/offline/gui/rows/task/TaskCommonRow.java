@@ -6,7 +6,8 @@
 
 package com.energyict.mdc.engine.offline.gui.rows.task;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.impl.core.offline.ComJobResult;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
@@ -15,7 +16,6 @@ import com.energyict.mdc.engine.offline.gui.windows.taskinfo.TaskInfoDialog;
 import com.energyict.mdc.engine.offline.model.MeterReadingType;
 import com.energyict.mdc.engine.offline.model.TaskState;
 import com.energyict.mdc.tasks.ManualMeterReadingsTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 

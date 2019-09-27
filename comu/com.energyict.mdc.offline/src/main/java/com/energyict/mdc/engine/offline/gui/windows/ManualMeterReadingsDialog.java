@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.offline.gui.windows;
 
-import com.energyict.mdc.device.data.Reading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.offline.core.FormatProvider;
 import com.energyict.mdc.engine.offline.gui.LineComponent;
@@ -273,7 +273,7 @@ public class ManualMeterReadingsDialog extends EisDialog {
 
     private JLabel createPreviousRegisterValueLabel(OfflineRegister mmrRegister) {
         Reading previousReading = model.getPreviousValuesMap().get(mmrRegister);
-        return new JLabel(previousReading != null && previousReading.getActualReading().getValue() != null ? previousReading.getActualReading().getValue().toString() : "-");
+        return new JLabel(previousReading != null && previousReading.getValue() != null ? previousReading.getValue().toString() : "-");
     }
 
     private JLabel createPreviousToDateLabel(OfflineRegister mmrRegister) {
@@ -283,7 +283,7 @@ public class ManualMeterReadingsDialog extends EisDialog {
 
     private JLabel createPreviousEventDateLabel(OfflineRegister mmrRegister) {
         Reading previousReading = model.getPreviousValuesMap().get(mmrRegister);
-        return new JLabel(previousReading != null && previousReading.getEventDate() != null ? dateFormatter.format(previousReading.getEventDate() ) : "-");
+        return new JLabel(previousReading != null && previousReading.getReportedDateTime() != null ? dateFormatter.format(previousReading.getReportedDateTime() ) : "-");
     }
 
     private JLabel getPreviousRegisterValueLabel(OfflineRegister mmrRegister) {

@@ -34,6 +34,4 @@ public interface OfflineComServer extends ComServer, InboundCapableComServer, Ou
         public OfflineComServerBuilder onlineComServer(OnlineComServer onlineComServer);
 
     }
-
-    }
 }

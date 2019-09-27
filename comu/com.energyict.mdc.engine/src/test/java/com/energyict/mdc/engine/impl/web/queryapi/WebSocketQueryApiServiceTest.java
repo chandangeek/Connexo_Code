@@ -13,8 +13,10 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -22,6 +24,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -95,6 +98,8 @@ public class WebSocketQueryApiServiceTest {
     private static EngineConfigurationService engineConfigurationService;
     private static DeviceService deviceService;
     private static TransactionService transactionService;
+    private static ThreadPrincipalService threadPrincipalService;
+    private static UserService userService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -134,6 +139,8 @@ public class WebSocketQueryApiServiceTest {
             EngineConfigurationServiceImpl engineConfigurationServiceImpl = (EngineConfigurationServiceImpl) injector.getInstance(EngineConfigurationService.class);
             dataModel = engineConfigurationServiceImpl.getDataModel();
             engineConfigurationService = engineConfigurationServiceImpl;
+            threadPrincipalService = injector.getInstance(ThreadPrincipalService.class);
+            userService = injector.getInstance(UserService.class);
             ctx.commit();
         }
     }
@@ -157,7 +164,7 @@ public class WebSocketQueryApiServiceTest {
         when(comServerDAO.getThisComServer()).thenReturn(comServer);
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService, threadPrincipalService, userService);
         TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetThisComServer";
@@ -185,7 +192,7 @@ public class WebSocketQueryApiServiceTest {
         when(comServerDAO.getComServer(hostName)).thenReturn(comServer);
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService, threadPrincipalService, userService);
         TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetComServer";
@@ -216,7 +223,7 @@ public class WebSocketQueryApiServiceTest {
         String remoteHostName = "remote.testGetRemoteComServer";
         RemoteComServer comServer = this.createRemoteComServer(remoteHostName, onlineComServer);
         when(comServerDAO.getComServer(remoteHostName)).thenReturn(comServer);
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService, threadPrincipalService, userService);
         TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetRemoteComServer";
@@ -241,7 +248,7 @@ public class WebSocketQueryApiServiceTest {
         RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
         when(runningComServer.getComServer()).thenReturn(comServer);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
+        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService, threadPrincipalService, userService);
         TestConnection connection = new TestConnection(true);
         queryApiService.onOpen(connection);
         String queryId = "testGetComServer";

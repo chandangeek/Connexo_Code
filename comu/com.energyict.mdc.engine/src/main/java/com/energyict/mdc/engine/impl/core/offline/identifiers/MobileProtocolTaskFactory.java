@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core.offline.identifiers;
 
+import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
-import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;

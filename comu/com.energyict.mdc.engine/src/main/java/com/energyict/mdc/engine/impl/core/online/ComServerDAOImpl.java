@@ -20,6 +20,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.Fetcher;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.HighPriorityComJob;
@@ -28,6 +29,7 @@ import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OutboundCapableComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Channel;
@@ -51,30 +53,16 @@ import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.RegisterService;
-import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.topology.*;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.LookupEntry;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -84,6 +72,8 @@ import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceMessageImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
+import com.energyict.mdc.engine.impl.commands.store.PreStoreLoadProfile;
+import com.energyict.mdc.engine.impl.commands.store.PreStoreLogBook;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -91,12 +81,12 @@ import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
+import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
+import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.security.Privileges;
+import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -558,14 +548,11 @@ public class ComServerDAOImpl implements ComServerDAO {
      * If the provided property value holds a certificate, make sure to store it in the proper place.
      */
     private void handleCertificatePropertyValue(Object propertyValue) {
-        //TODO insert the new certificate in the CertificateWrapper table or in a trust store (do we want this?)
- /*       if (propertyValue instanceof CertificateWrapper) {
-            // If the property value is of type CertificateAlias, add the given certificate in the DLMS key store, under the given alias.
-            this.doAddCACertificate((CertificateWrapper) propertyValue);
-        } else if (propertyValue instanceof CollectedCertificateWrapper) {
+        if (propertyValue instanceof CollectedCertificateWrapper) {
             // If the property value is a CollectedCertificateWrapper then add the certificate in the trust store.
-            this.doAddEndDeviceCertificate((CollectedCertificateWrapper) propertyValue);
-        }*/
+            this.addTrustedCertificates(Collections.singletonList((CollectedCertificateWrapper) propertyValue));
+            throw new UnsupportedOperationException("Not supported to automatically update the security accessor value models a certificate, but the certificate was saved in following trust store " + ((CollectedCertificateWrapper) propertyValue).getTrustStoreName());
+        }
     }
 
     @Override
@@ -1020,8 +1007,49 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeMeterReadings(final DeviceIdentifier identifier, final MeterReading meterReading) {
-        Device device = this.findDevice(identifier);
-        device.store(meterReading);
+        this.executeTransaction(() -> {
+            Device device = this.findDevice(identifier);
+            device.store(meterReading);
+            return null;
+        });
+    }
+
+    @Override
+    public void storeLogBookData(final LogBookIdentifier logBookIdentifier, final CollectedLogBook collectedLogBook) {
+        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), this);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(collectedLogBook);
+        if (localLogBook.isPresent() && !localLogBook.get().getLast().getEndDeviceEvents().isEmpty()) {
+            this.executeTransaction(() -> {
+                findLogBook(logBookIdentifier).ifPresent(lb -> {
+                    MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                    meterReading.addAllEndDeviceEvents(localLogBook.get().getLast().getEndDeviceEvents());
+                    lb.getDevice().store(meterReading);
+                });
+                return null;
+            });
+        }
+    }
+
+    @Override
+    public void updateLogBookLastReading(final LogBookIdentifier logBookIdentifier, final Date lastExecutionStartTimestamp) {
+        this.executeTransaction(() -> {
+            findLogBook(logBookIdentifier).ifPresent(lb -> {
+                updateLogBook(lb, lastExecutionStartTimestamp.toInstant()).apply(lb.getDevice());
+            });
+            return null;
+        });
+    }
+
+    @Override
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
+        getCommunicationTaskService().findComTaskExecution(comTaskExecutionId).ifPresent(cte -> {
+            this.executeTransaction(() -> {
+                findLogBook(logBookIdentifier).ifPresent(lb -> {
+                    updateLogBook(lb, cte.getLastExecutionStartTimestamp()).apply(lb.getDevice());
+                });
+                return null;
+            });
+        });
     }
 
     @Override
@@ -1418,14 +1446,14 @@ public class ComServerDAOImpl implements ComServerDAO {
     @SuppressWarnings("unchecked")
     public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
         LoadProfile loadProfile = this.findLoadProfileOrThrowException(loadProfileIdentifier);
-        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice((loadProfile).getDevice());
+        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(loadProfile.getDevice().getId(), loadProfile.getDevice().getmRID());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
         LogBook logBook = this.findLogBookOrThrowException(logBookIdentifier);
-        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(logBook.getDevice());
+        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(logBook.getDevice().getId(), logBook.getDevice().getmRID());
     }
 
     @Override
@@ -1821,8 +1849,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     public interface ServiceProvider extends AbstractComServerEventImpl.ServiceProvider {
 
-//        Clock clock();
-
         Thesaurus thesaurus();
 
         ProtocolPluggableService protocolPluggableService();
@@ -1833,6 +1859,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         CommunicationTaskService communicationTaskService();
 
+        OrmService ormService();
+
+        PriorityComTaskService priorityComTaskService();
+
         DeviceService deviceService();
 
         RegisterService registerService();
@@ -1840,8 +1870,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfileService loadProfileService();
 
         LogBookService logBookService();
-
-//        DeviceMessageService deviceMessageService();
 
         TopologyService topologyService();
 
@@ -1905,7 +1933,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         public EventService eventService() {
             return serviceProvider.eventService();
         }
-
     }
 
 }

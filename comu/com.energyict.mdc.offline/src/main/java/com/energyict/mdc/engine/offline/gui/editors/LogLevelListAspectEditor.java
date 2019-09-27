@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.offline.gui.editors;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 
 import java.util.Arrays;
 

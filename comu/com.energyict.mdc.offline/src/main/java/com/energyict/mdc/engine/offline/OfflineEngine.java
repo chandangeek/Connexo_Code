@@ -12,10 +12,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -38,11 +42,10 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.LibraryType;
 import com.energyict.mdc.upl.io.ModemType;
@@ -228,7 +231,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     }
 
     @Override
-    public Optional<DeviceCache> findDeviceCacheByDevice(com.energyict.mdc.device.data.Device device) {
+    public Optional<DeviceCache> findDeviceCacheByDevice(Device device) {
         return dataModel.mapper(DeviceCache.class).getUnique("device", device);
     }
 
@@ -276,6 +279,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     private volatile IssueService issueService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile PriorityComTaskService priorityComTaskService;
     private volatile LogBookService logBookService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
@@ -297,6 +301,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     private volatile SecurityManagementService securityManagementService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
+    private volatile TimeOfUseCampaignService timeOfUseCampaignService;
 
     @Reference
     public void setOrmService(OrmService ormService) {
@@ -394,6 +399,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     }
 
     @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService = priorityComTaskService;
+    }
+
+    @Reference
     public void setLogBookService(LogBookService logBookService) {
         this.logBookService = logBookService;
     }
@@ -467,6 +477,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.UI);
+    }
+
+    @Reference
+    public void setTimeOfUseCampaignService(TimeOfUseCampaignService timeOfUseCampaignService) {
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 
     private class RunningComServerServiceProvider implements RunningComServerImpl.ServiceProvider {
@@ -551,6 +566,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         }
 
         @Override
+        public PriorityComTaskService priorityComTaskService() {
+            return priorityComTaskService;
+        }
+
+        @Override
         public OrmService ormService() {
             return ormService;
         }
@@ -618,6 +638,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         @Override
         public SecurityManagementService securityManagementService() {
             return securityManagementService;
+        }
+
+        @Override
+        public TimeOfUseCampaignService touService() {
+            return timeOfUseCampaignService;
         }
     }
 

@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.offline.gui.windows.taskinfo;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 
 import javax.swing.*;

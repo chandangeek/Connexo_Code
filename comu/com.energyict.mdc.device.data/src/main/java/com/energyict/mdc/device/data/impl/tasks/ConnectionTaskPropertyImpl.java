@@ -9,10 +9,6 @@ import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.impl.PluggableClassUsagePropertyImpl;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.ConnectionType;
 
 import com.google.common.collect.Range;
 

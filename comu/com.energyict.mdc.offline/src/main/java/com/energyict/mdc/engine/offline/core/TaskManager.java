@@ -9,8 +9,8 @@ package com.energyict.mdc.engine.offline.core;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ComServerExecutionException;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;

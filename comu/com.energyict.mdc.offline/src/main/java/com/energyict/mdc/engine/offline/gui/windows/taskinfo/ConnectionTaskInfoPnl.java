@@ -1,13 +1,13 @@
 package com.energyict.mdc.engine.offline.gui.windows.taskinfo;
 
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
-import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;

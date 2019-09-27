@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks;
 
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.upl.offline.Offline;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

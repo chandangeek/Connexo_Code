@@ -132,7 +132,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     private Optional<T> getWrappingKeyActualValue(Optional<SecurityAccessorType> wrappingKey) {
         if (wrappingKey.isPresent()) {
             Optional<SecurityAccessor> securityAccessorByName = device.getSecurityAccessorByName(wrappingKey.get().getName());
-            return securityAccessorByName.isPresent() ? securityAccessorByName.get().getActualValue() : Optional.empty();
+            return securityAccessorByName.isPresent() ? securityAccessorByName.get().getActualPassphraseWrapperReference() : Optional.empty();
         }
         return Optional.empty();
     }

@@ -476,6 +476,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
+    @XmlElement(type = DeviceTypeImpl.class, name = "deviceType")
     public DeviceType getDeviceType() {
         return this.deviceType.get();
     }

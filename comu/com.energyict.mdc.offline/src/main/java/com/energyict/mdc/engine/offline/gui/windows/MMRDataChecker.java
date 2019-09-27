@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.offline.gui.windows;
 
+import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.offline.core.Utils;
 import com.energyict.mdc.engine.offline.gui.UiHelper;

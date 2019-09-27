@@ -13,7 +13,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.TimeOfDay;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.offline.core.LocalizableEnum;
 import com.energyict.mdc.engine.offline.core.SerialCommunicationSettings;
 import com.energyict.mdc.engine.offline.gui.actions.UserAction;

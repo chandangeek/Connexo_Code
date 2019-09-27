@@ -60,7 +60,7 @@ public abstract class EventFilterBaseIT {
 
     public void setup(int regCount, int msgCount) throws Exception {
         registrationLatch = new CountDownLatch(regCount);
-        WebSocketEventPublisherFactory.setInstance(new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, runningComServer, connectionTaskService, communicationTaskService, deviceService,engineConfigurationService, identificationService, eventPublisher, serviceProvider));
+//        WebSocketEventPublisherFactory.setInstance(new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, runningComServer, connectionTaskService, communicationTaskService, deviceService,engineConfigurationService, identificationService, eventPublisher, serviceProvider));
 
         // Start the EventServlet in a jetty context
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(EVENT_REGISTRATION_URL);

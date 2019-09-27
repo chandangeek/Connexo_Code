@@ -55,17 +55,9 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.ManuallyScheduled
 import com.energyict.mdc.device.data.impl.constraintvalidators.SaveScheduled;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SharedScheduleComScheduleRequired;
 import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.impl.ComScheduleImpl;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
-import com.energyict.mdc.tasks.*;
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -77,6 +69,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
+import java.util.logging.Logger;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
@@ -1860,4 +1853,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void setXmlType(String ignore) {
         //Ignore, only used for JSON
     }
+
+
 }

@@ -9,16 +9,15 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
-import com.energyict.mdc.common.comserver.ComPort;
-import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.*;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
@@ -32,11 +31,15 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -89,9 +92,35 @@ public enum QueryMethod {
             Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comPortId);
             if (comPort.isPresent()) {
                 return serviceProvider.comServerDAO().findExecutableOutboundComTasks((OutboundComPort) comPort.get());
-            } else {
-                return null;
             }
+            return null;
+        }
+    },
+    FindExecutableHighPriorityOutboundComTasks {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            Long comServerId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMSERVER);
+            Optional<ComServer> comServer = serviceProvider.engineConfigurationService().findComServer(comServerId);
+            Map<Long, Integer> currentHighPriorityLoadPerComPortPool = extractCurrentHighPriorityLoadPerComPortPool(parameters);
+            if (comServer.isPresent()) {
+                if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE)) {
+                    Date date = new Date(getLong(parameters, RemoteComServerQueryJSonPropertyNames.CURRENT_DATE));
+                    return serviceProvider.comServerDAO().findExecutableHighPriorityOutboundComTasks((OutboundCapableComServer) comServer.get(), currentHighPriorityLoadPerComPortPool, date.toInstant());
+                } else
+                    return serviceProvider.comServerDAO().findExecutableHighPriorityOutboundComTasks((OutboundCapableComServer) comServer.get(), currentHighPriorityLoadPerComPortPool);
+            }
+            return null;
+        }
+    },
+    FindContainingComPortPoolsForComPort {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            Long comPortId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
+            Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comPortId);
+            if (comPort.isPresent()) {
+                return serviceProvider.comServerDAO().findContainingActiveComPortPoolsForComPort((OutboundComPort) comPort.get());
+            }
+            return null;
         }
     },
     FindExecutableInboundComTasks,
@@ -132,8 +161,8 @@ public enum QueryMethod {
                 }
             } else {
                 // Must be a ConnectionTask
-                Long connectionTaskId = getLong(parameters, parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
-                Long comportId = getLong(parameters, parameters.get(RemoteComServerQueryJSonPropertyNames.COMPORT);
+                Long connectionTaskId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
+                Long comportId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
                 OutboundConnectionTask connectionTask = serviceProvider.connectionTaskService().findOutboundConnectionTask(connectionTaskId).get();
                 Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comportId);
                 if (comPort.isPresent()) {
@@ -772,6 +801,18 @@ public enum QueryMethod {
     IsStillPending,
     AreStillPending,
     MessageNotUnderstood;
+
+    private static Map<Long, Integer> extractCurrentHighPriorityLoadPerComPortPool(Map<String, Object> parameters)  {
+        try {
+            JSONObject jsonObject = (JSONObject) parameters.get(RemoteComServerQueryJSonPropertyNames.CURRENT_HIGH_PRIORITY_LOAD);
+            ObjectMapper mapper = ObjectMapperFactory.newMapper();
+            TypeFactory typeFactory = mapper.getTypeFactory();
+            MapType mapType = typeFactory.constructMapType(HashMap.class, Long.class, Integer.class);
+            return mapper.readValue(new StringReader(jsonObject.toString()), mapType);
+        } catch (IOException e) {
+            throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
+        }
+    }
 
     private static Date getDate(Object parameter) {
         if (parameter instanceof Date) {

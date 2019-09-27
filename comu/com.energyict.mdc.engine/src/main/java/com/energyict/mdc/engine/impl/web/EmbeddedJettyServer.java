@@ -6,25 +6,20 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.LongFactory;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
-import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
-import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.upl.TypedProperties;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
@@ -38,8 +33,8 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.joda.time.DateTimeConstants;
 
-import javax.servlet.Servlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
@@ -62,8 +57,6 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     private static final Logger LOGGER = Logger.getLogger( EmbeddedJettyServer.class.getName() );
 
     private final ShutdownFailureLogger shutdownFailureLogger;
-    private final static String INBOUND_COMPORT_SERVICE = "Jetty_InboundComportService";
-    private final static String EVENT_MECHANISM = "Jetty_EventMechanism";
 
     public interface ServiceProvider {
 
@@ -356,48 +349,4 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
             logger.log(Level.FINE, message, e);
         }
     }
-
-    /**
-     * We apparently need the custom ErrorHandler for EIWeb purposes
-     */
-    private static class MyErrorHandler extends ErrorHandler {
-        @Override
-        protected void writeErrorPageBody(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException {
-            String uri= request.getRequestURI();
-            writeErrorPageMessage(request, writer, code, message, uri);
-        }
-
-        @Override
-        protected void writeErrorPageMessage(HttpServletRequest request, Writer writer, int code, String message, String uri) throws IOException {
-            writer.write("<h2>HTTP ERROR ");
-            writer.write(Integer.toString(code));
-            writer.write("</h2>");
-        }
-
-        /**
-         * Overriding the default handle method so we don't reuse the 'stored' <code>AbstractHttpConnection</code>
-         * from the ThreadLocal (which is null if the response is handled in another thread), but take it from the baseRequest
-         * (which should not be null)
-         */
-        @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-            AbstractHttpConnection connection = baseRequest.getConnection();
-            connection.getRequest().setHandled(true);
-            String method = request.getMethod();
-            if (method.equals("GET") || method.equals("POST") || method.equals("HEAD")) {
-                response.setContentType("text/html;charset=ISO-8859-1");
-                if(this.getCacheControl() != null) {
-                    response.setHeader("Cache-Control", this.getCacheControl());
-                }
-
-                ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(4096);
-                this.handleErrorPage(request, writer, connection.getResponse().getStatus(), connection.getResponse().getReason());
-                writer.flush();
-                response.setContentLength(writer.size());
-                writer.writeTo(response.getOutputStream());
-                writer.destroy();
-            }
-        }
-    }
-
 }

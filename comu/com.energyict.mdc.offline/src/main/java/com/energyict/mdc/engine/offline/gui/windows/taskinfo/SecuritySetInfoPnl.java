@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.offline.gui.windows.taskinfo;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.offline.DeviceComTaskWrapper;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;

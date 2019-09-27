@@ -95,7 +95,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile, ObisCode obisCode) {
-        return new LoadProfileIdentifierByObisCodeAndDevice((com.energyict.mdc.device.data.LoadProfile) loadProfile, obisCode);  //Downcast to the Connexo LoadProfile
+        return new LoadProfileIdentifierByObisCodeAndDevice(loadProfile, obisCode);  //Downcast to the Connexo LoadProfile
     }
 
     @Override

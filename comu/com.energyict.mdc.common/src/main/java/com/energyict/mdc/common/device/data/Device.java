@@ -4,16 +4,12 @@
 
 package com.energyict.mdc.common.device.data;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -26,32 +22,13 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
-import com.energyict.mdc.common.device.config.AllowedCalendar;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
-import com.energyict.mdc.common.device.config.ConnectionStrategy;
-import com.energyict.mdc.common.device.config.DeviceConfiguration;
-import com.energyict.mdc.common.device.config.DeviceType;
-import com.energyict.mdc.common.device.config.GatewayType;
-import com.energyict.mdc.common.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.common.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.common.device.config.SecurityPropertySet;
-import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.common.protocol.DeviceMessageId;
-import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.common.protocol.TrackingCategory;
+import com.energyict.mdc.common.device.config.*;
+import com.energyict.mdc.common.protocol.*;
 import com.energyict.mdc.common.scheduling.ComSchedule;
-import com.energyict.mdc.common.tasks.ComTask;
-import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.*;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
-
-import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.Multimap;
@@ -156,7 +133,6 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      *
      * @return the receiver's DeviceType
      */
-    @XmlElement(type = DeviceTypeImpl.class, name = "deviceType")
     DeviceType getDeviceType();
 
     void setDeviceType(DeviceType ignore);
@@ -183,7 +159,6 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      *
      * @return a device configuration
      */
-    @XmlElement(type = DeviceConfigurationImpl.class, name = "deviceConfiguration")
     DeviceConfiguration getDeviceConfiguration();
 
     void setDeviceConfiguration(DeviceConfiguration ignore);

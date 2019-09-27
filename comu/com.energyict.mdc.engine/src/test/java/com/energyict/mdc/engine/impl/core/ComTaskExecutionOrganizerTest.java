@@ -923,7 +923,7 @@ public class ComTaskExecutionOrganizerTest {
                 .stream()
                 .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
                 .collect(Collectors.toList());
-        when(device.getKeyAccessors()).thenReturn(securityAccessors);
+        when(device.getSecurityAccessors()).thenReturn(securityAccessors);
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
@@ -990,7 +990,7 @@ public class ComTaskExecutionOrganizerTest {
                 .stream()
                 .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
                 .collect(Collectors.toList()));
-        when(device.getKeyAccessors()).thenReturn(securityAccessors);
+        when(device.getSecurityAccessors()).thenReturn(securityAccessors);
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution));
@@ -1407,7 +1407,7 @@ public class ComTaskExecutionOrganizerTest {
         SecurityAccessor securityAccessor = getPassPhraseKeyAccessor(name, passPhrase);
         when(configurationSecurityProperty.getKeyAccessor()).thenReturn(securityAccessor);
         SecurityAccessorType securityAccessorType = securityAccessor.getKeyAccessorTypeReference();
-        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         return configurationSecurityProperty;
     }
 

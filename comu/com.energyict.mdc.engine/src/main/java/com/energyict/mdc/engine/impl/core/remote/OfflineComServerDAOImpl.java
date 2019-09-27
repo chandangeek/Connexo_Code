@@ -10,13 +10,16 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.*;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.*;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.LookupEntry;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.core.*;
@@ -28,7 +31,6 @@ import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.*;
@@ -163,6 +165,16 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
+        return null;
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date) {
+        return null;
+    }
+
+    @Override
     public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
         return Collections.emptyList();
     }
@@ -193,12 +205,12 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
+    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
         return connectionTask;
     }
 
     @Override
-    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
         return true;
     }
 
@@ -212,11 +224,16 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public boolean attemptLock(PriorityComTaskExecutionLink comTaskExecution, ComPort comPort) {
+        return true;
+    }
+
+    @Override
     public void unlock (ComTaskExecution comTaskExecution) {
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComPort comPort) {
         return connectionTask;
     }
 
@@ -355,7 +372,19 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask){
+        comJobExecutionModel.setResult(ComJobResult.Failed);
+        comJobExecutionModel.setConnectionTaskSuccess(true);
+        return connectionTask;
+    }
+
+    @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        comJobExecutionModel.setResult(ComJobResult.Failed);
+        comJobExecutionModel.addFailedComTaskExecution(comTaskExecution, false);
+    }
+
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
         comJobExecutionModel.setResult(ComJobResult.Failed);
         comJobExecutionModel.addFailedComTaskExecution(comTaskExecution, false);
     }
@@ -383,11 +412,11 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void releaseInterruptedTasks (ComServer comServer) {
+    public void releaseInterruptedTasks (ComPort comPort) {
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks (ComServer comServer) {
+    public TimeDuration releaseTimedOutTasks (ComPort comPort) {
         return null;
     }
 
@@ -558,6 +587,11 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionLinkIds) {
+        return false;
+    }
+
+    @Override
     public boolean areStillPending (Collection<Long> comTaskExecutionIds) {
         return true;
     }
@@ -590,6 +624,10 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     @Override
     public User getComServerUser() {
         return comServerUser;
+    }
+
+    public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
+        return null;    // Not used in mobile DAO, as only used for scheduling of high priority tasks
     }
 
     public BlockingQueue<ComJob> getJobQueue() {

@@ -10,25 +10,18 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.common.comserver.ComPort;
-import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.OfflineComServer;
-import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.*;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.ports.ComPortType;
-
 import com.google.inject.Provider;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.sql.SQLException;
 import java.util.List;
 
-import org.junit.Test;
-import org.mockito.Mock;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
 * Tests the {@link OfflineComServerImpl} component.

@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.offline.gui.windows.taskinfo;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.engine.offline.core.DeviceInfo;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.upl.offline.OfflineDevice;

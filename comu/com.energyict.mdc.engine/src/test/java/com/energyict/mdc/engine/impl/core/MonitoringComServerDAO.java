@@ -9,14 +9,14 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.HighPriorityComJob;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.OutboundCapableComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
@@ -26,10 +26,7 @@ import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.LookupEntry;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
@@ -40,13 +37,7 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
-import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -63,12 +54,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
@@ -363,8 +349,23 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void addTrustedCertificates(List<CollectedCertificateWrapper> collectedCertificates) {
+        actual.addTrustedCertificates(collectedCertificates);
+    }
+
+    @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
         actual.updateDeviceSecurityProperty(deviceIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue, ComTaskExecution comTaskExecution) {
+        actual.updateDeviceSecurityProperty(deviceIdentifier, propertyName, propertyValue, comTaskExecution);
+    }
+
+    @Override
+    public void activateSecurityAccessorPassiveValue(DeviceIdentifier deviceIdentifier, String propertyName, ComTaskExecution comTaskExecution) {
+        actual.activateSecurityAccessorPassiveValue(deviceIdentifier, propertyName, comTaskExecution);
     }
 
     @Override
@@ -674,52 +675,42 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
-
         }
 
         @Override
         public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
-
         }
 
         @Override
         public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> lastReadings, Map<LogBookIdentifier, Instant> lastLogBooks) {
-
         }
 
         @Override
         public void storePathSegments( List<TopologyPathSegment> topologyPathSegment) {
-
         }
 
         @Override
         public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
-
         }
 
         @Override
         public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation) {
-
         }
 
         @Override
         public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
-
         }
 
         @Override
         public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
-
         }
 
         @Override
         public void updateDeviceCSR(DeviceIdentifier deviceIdentifier, String certificateType, String csr) {
-
         }
 
         @Override
         public void updateCalendars(CollectedCalendar collectedCalendar) {
-
         }
 
         @Override
@@ -749,12 +740,22 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        }
 
+        @Override
+        public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue, ComTaskExecution comTaskExecution) {
         }
 
         @Override
         public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        }
 
+        @Override
+        public void addTrustedCertificates(List<CollectedCertificateWrapper> collectedCertificates) {
+        }
+
+        @Override
+        public void activateSecurityAccessorPassiveValue(DeviceIdentifier deviceIdentifier, String propertyName, ComTaskExecution comTaskExecution) {
         }
 
         @Override

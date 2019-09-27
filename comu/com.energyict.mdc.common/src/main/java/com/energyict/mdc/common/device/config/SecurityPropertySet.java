@@ -8,7 +8,6 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.device.config.impl.ConfigurationSecurityPropertyImpl;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
@@ -76,7 +75,6 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     ResponseSecurityLevel getResponseSecurityLevel();
 
-    @XmlElement(type = ConfigurationSecurityPropertyImpl.class)
     List<ConfigurationSecurityProperty> getConfigurationSecurityProperties();
 
     void addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor);
@@ -119,14 +117,4 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     default void setXmlType(String ignore) {
     }
-
-    /**
-     * Gets the Set of {@link PropertySpec}s that are the result of the selected security levels.
-     *
-     * @return The Set of PropertySpecs
-     */
-
-    void setAdditionalPropertyIfApplicable(PropertyInfo info);
-
-    List<PropertyInfo> processAdditionalPropertyInfos(List<PropertyInfo> properties);
 }

@@ -20,6 +20,7 @@ import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
@@ -85,14 +86,6 @@ public class EmbeddedWebServerFactoryTest {
     Thesaurus thesaurus;
     @Mock
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
-    @Mock
-    private EventAPIStatistics eventAPIStatistics;
-    @Mock
-    private QueryAPIStatistics queryAPIStatistics;
-    @Mock
-    private ComServerDAO comServerDAO;
-    @Mock
-    private RunningComServerImpl.ServiceProvider serviceProvider;
 
     private EmbeddedWebServerFactory factory;
     private EmbeddedWebServer embeddedWebServer;

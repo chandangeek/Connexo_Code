@@ -192,7 +192,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsStart () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:46000/remote/events"), this.embeddedJettyServerServiceProvider, eventApiStatistics);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:46000/remote/events"), this.embeddedJettyServerServiceProvider, eventAPIStatistics);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -211,7 +211,7 @@ public class EmbeddedJettyServerTest {
             e.printStackTrace(System.err);
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:" + PORT_NUMBER + "/remote/events"), this.embeddedJettyServerServiceProvider, eventApiStatistics);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:" + PORT_NUMBER + "/remote/events"), this.embeddedJettyServerServiceProvider, eventAPIStatistics);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -222,7 +222,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsShutdown () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8082/remote/events"), this.embeddedJettyServerServiceProvider, eventApiStatistics);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8082/remote/events"), this.embeddedJettyServerServiceProvider, eventAPIStatistics);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -234,7 +234,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsShutdownImmediate () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8083/remote/events"), this.embeddedJettyServerServiceProvider, eventApiStatistics);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8083/remote/events"), this.embeddedJettyServerServiceProvider, eventAPIStatistics);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -269,7 +269,7 @@ public class EmbeddedJettyServerTest {
             OnlineComServer comServer = mock(OnlineComServer.class);
             RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
             when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-            this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
+            this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer, queryAPIStatistics);
 
             // Business method
             this.embeddedJettyServer.start();

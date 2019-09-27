@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.OfflineComServer;
+import com.energyict.mdc.common.comserver.OfflineComServer;
 import com.energyict.mdc.engine.impl.core.remote.OfflineComServerDAOImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 

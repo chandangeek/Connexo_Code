@@ -17,7 +17,6 @@ import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.eclipse.jetty.websocket.WebSocket;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,6 +54,14 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
 
             }
         };
+    }
+
+    WebSocketEventPublisher(RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, EventAPIStatistics eventAPIStatistics, WebSocketCloseEventListener webSocketCloseEventListener) {
+        super();
+        this.eventPublisher = eventPublisher;
+        this.eventAPIStatistics = eventAPIStatistics;
+        this.closeEventListener = webSocketCloseEventListener;
+        this.parser = new RequestParser(comServer, serviceProvider);
     }
 
     @Override
@@ -159,21 +166,6 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
         this.eventPublisher.unregisterAllInterests(this);
         this.closeEventListener.closedFrom(this);
         setClosed(true);
-    }
-
-    @Override
-    public void onWebSocketBinary(byte[] payload, int offset, int len) {
-        try {
-            if (isConnected()) {
-                session.getRemote().sendBytes(ByteBuffer.wrap(payload));
-            }
-        } catch (IOException e) {
-            e.printStackTrace(System.err);
-        }
-    }
-    @Override
-    public void onWebSocketError(Throwable cause) {
-        cause.printStackTrace(System.err);
     }
 
     @Override
