@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -21,7 +22,7 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.InvalidLastCheckedException;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
@@ -56,9 +57,9 @@ public class DeviceLifeCycleActionResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final DeviceLifeCycleActionInfoFactory deviceLifeCycleActionInfoFactory;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final Clock clock;
     private final Thesaurus thesaurus;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
     public DeviceLifeCycleActionResource(
@@ -66,17 +67,17 @@ public class DeviceLifeCycleActionResource {
             TransactionService transactionService, ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
             DeviceLifeCycleActionInfoFactory deviceLifeCycleActionInfoFactory,
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             Clock clock,
-            Thesaurus thesaurus) {
+            Thesaurus thesaurus,
+            MeteringTranslationService meteringTranslationService) {
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.transactionService = transactionService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceLifeCycleActionInfoFactory = deviceLifeCycleActionInfoFactory;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.clock = clock;
         this.thesaurus = thesaurus;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @GET
@@ -157,7 +158,7 @@ public class DeviceLifeCycleActionResource {
         State targetState = requestedAction.getStateTransition().getTo();
         return DefaultState
                 .from(targetState)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(targetState::getName);
     }
 

@@ -114,7 +114,7 @@ public class ToUCampaignServiceTest {
     public void setUp() {
         when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
         timeOfUseSendHelper = new TimeOfUseSendHelper(thesaurus, deviceConfigurationService, deviceMessageSpecificationService, timeOfUseCampaignService);
-        when(upgradeService.newNonOrmDataModel()).thenReturn(dataModel);
+        when(ormService.newDataModel(anyString(),anyString())).thenReturn(dataModel);
         when(customPropertySetService.findActiveCustomPropertySet(TimeOfUseCampaignCustomPropertySet.CUSTOM_PROPERTY_SET_ID)).thenReturn(Optional.ofNullable(registeredCustomPropertySet));
         timeOfUseCampaignService = new TimeOfUseCampaignServiceImpl(threadPrincipalService, transactionService,
                 nlsService, upgradeService, userService, batchService, propertySpecService,
