@@ -66,7 +66,7 @@ public class BpmServerImpl implements BpmServer {
             externalUrl = context.getProperty(BPM_EXTERNAL_URL);
         }
         if (externalUrl == null) {
-            externalUrl = DEFAULT_BPM_URL;
+            externalUrl = url;
         }
     }
 
