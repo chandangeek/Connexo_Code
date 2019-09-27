@@ -188,13 +188,15 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
             actionTypesStoreProxy = actionTypesStore.getProxy(),
             rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState');
 
+        actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Dal.model.Action'));
         me.setLoading();
-        var listOfCreatedActionIds = _.map(rule.actions().getRange(), function (value) {
+        var listOfCreatedActionIds = [];
+        _.map(rule.actions().getRange(), function (value) {
             if (value.get('phase').uuid === newValue.phase) {
-                return value.getType().getId();
+                listOfCreatedActionIds.push(value.getType().getId());
             }
         });
 
