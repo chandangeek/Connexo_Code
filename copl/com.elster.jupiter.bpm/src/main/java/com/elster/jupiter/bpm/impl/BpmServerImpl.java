@@ -24,6 +24,7 @@ import java.util.Base64;
 public class BpmServerImpl implements BpmServer {
 
     private static final String BPM_URL = "com.elster.jupiter.bpm.url";
+    private static final String BPM_EXTERNAL_URL = "com.elster.jupiter.bpm.externalurl";
     private static final String BPM_USER = "com.elster.jupiter.bpm.user";
     private static final String BPM_PASSWORD = "com.elster.jupiter.bpm.password";
 
@@ -31,6 +32,7 @@ public class BpmServerImpl implements BpmServer {
     private static final String DEFAULT_BPM_USER = "admin";
     private static final String DEFAULT_BPM_PASSWORD = "admin";
 
+    private String externalUrl;
     private String url;
     private String basicAuthString;
     private String staticTokenAuth;
@@ -40,6 +42,7 @@ public class BpmServerImpl implements BpmServer {
     BpmServerImpl(BundleContext context, ThreadPrincipalService threadPrincipalService, String staticTokenAuth) {
         this.threadPrincipalService = threadPrincipalService;
         this.setUrlFromContext(context);
+        this.setExternalUrlFromContext(context);
         this.staticTokenAuth = staticTokenAuth;
 
         String user = this.getUserFromContext(context);
@@ -55,6 +58,15 @@ public class BpmServerImpl implements BpmServer {
         }
         if (url == null) {
             url = DEFAULT_BPM_URL;
+        }
+    }
+
+    private void setExternalUrlFromContext(BundleContext context) {
+        if (context != null) {
+            externalUrl = context.getProperty(BPM_EXTERNAL_URL);
+        }
+        if (externalUrl == null) {
+            externalUrl = DEFAULT_BPM_URL;
         }
     }
 
@@ -77,6 +89,11 @@ public class BpmServerImpl implements BpmServer {
     @Override
     public String getUrl() {
         return url;
+    }
+
+    @Override
+    public String getExternalUrl() {
+        return externalUrl;
     }
 
     @Override
