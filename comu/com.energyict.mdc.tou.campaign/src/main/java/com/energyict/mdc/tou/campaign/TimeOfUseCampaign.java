@@ -62,13 +62,13 @@ public interface TimeOfUseCampaign {
 
     boolean isWithUniqueCalendarName();
 
-    long getCalendarUploadComTaskId();
+    Long getCalendarUploadComTaskId();
 
-    long getValidationComTaskId();
+    Long getValidationComTaskId();
 
-    void setCalendarUploadComTaskId(long calendarUploadComTaskId);
+    void setCalendarUploadComTaskId(Long calendarUploadComTaskId);
 
-    void setValidationComTaskId(long validationComTaskId);
+    void setValidationComTaskId(Long validationComTaskId);
 
     Optional<ConnectionStrategy> getCalendarUploadConnectionStrategy();
 

@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -49,7 +50,7 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
     }
 
     @Inject
-    public MeterRegistrationRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService,  DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public MeterRegistrationRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService,  DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MeteringTranslationService meteringTranslationService) {
         this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
@@ -57,6 +58,7 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setMeteringTranslationService(meteringTranslationService);
         activate();
     }
 
@@ -68,7 +70,7 @@ public class MeterRegistrationRuleTemplate extends AbstractDataCollectionTemplat
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
-                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService))
                 .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()

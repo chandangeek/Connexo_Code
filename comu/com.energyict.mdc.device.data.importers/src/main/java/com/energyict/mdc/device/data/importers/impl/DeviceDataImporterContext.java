@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -49,6 +50,7 @@ public class DeviceDataImporterContext {
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile DataModel dataModel;
 
     public DeviceDataImporterContext() {
@@ -71,7 +73,8 @@ public class DeviceDataImporterContext {
                                      Clock clock,
                                      MetrologyConfigurationService metrologyConfigurationService,
                                      OrmService ormService,
-                                     CustomPropertySetService customPropertySetService) {
+                                     CustomPropertySetService customPropertySetService,
+                                     MeteringTranslationService meteringTranslationService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -89,6 +92,7 @@ public class DeviceDataImporterContext {
         setMetrologyConfigurationService(metrologyConfigurationService);
         setOrmService(ormService);
         setCustomPropertySetService(customPropertySetService);
+        setMeteringTranslationService(meteringTranslationService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -112,6 +116,15 @@ public class DeviceDataImporterContext {
     @Reference
     public final void setOrmService(OrmService ormService) {
         this.dataModel = ormService.getDataModels().get(0);
+    }
+
+    public MeteringTranslationService getMeteringTranslationService() {
+        return meteringTranslationService;
+    }
+
+    @Reference
+    public final void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public DeviceConfigurationService getDeviceConfigurationService() {

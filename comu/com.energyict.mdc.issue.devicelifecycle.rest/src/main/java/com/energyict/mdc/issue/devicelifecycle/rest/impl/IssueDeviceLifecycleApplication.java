@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -48,6 +49,7 @@ public class IssueDeviceLifecycleApplication extends Application {
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -107,6 +109,11 @@ public class IssueDeviceLifecycleApplication extends Application {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -130,6 +137,7 @@ public class IssueDeviceLifecycleApplication extends Application {
             bind(nlsService).to(NlsService.class);
             bind(deviceService).to(DeviceService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(DeviceLifecycleIssueInfoFactory.class).to(DeviceLifecycleIssueInfoFactory.class);

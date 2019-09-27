@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -50,14 +51,15 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     }
 
     @Inject
-    public EventAggregationRuleTemplate(NlsService nlsService, IssueService issueService, IssueDataCollectionService issueDataCollectionService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public EventAggregationRuleTemplate(NlsService nlsService, IssueService issueService, IssueDataCollectionService issueDataCollectionService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MeteringTranslationService meteringTranslationService) {
         this();
         setNlsService(nlsService);
         setIssueService(issueService);
         setIssueDataCollectionService(issueDataCollectionService);
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setMeteringTranslationService(meteringTranslationService);
+
         activate();
     }
 
@@ -93,6 +95,11 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        super.setMeteringTranslationService(meteringTranslationService);
     }
 
     @Override
@@ -137,7 +144,7 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
-                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService))
                 .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()

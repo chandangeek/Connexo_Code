@@ -11,6 +11,11 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
 
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.tasks.TaskService;
+
 import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -33,6 +38,7 @@ public class UpgraderV10_7 implements Upgrader {
     private final DataModel dataModel;
     private final FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller;
     private final EventService eventService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final Logger logger = Logger.getLogger(UpgraderV10_7.class.getName());
     private Map<Long, Pair> campaignIdAndCreationTimeByOldIds = new HashMap<>();
     private Map<Long, Long> campaignStates = new HashMap<>();
@@ -47,10 +53,11 @@ public class UpgraderV10_7 implements Upgrader {
 
     @Inject
     UpgraderV10_7(DataModel dataModel, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller,
-                  EventService eventService) {
+                  EventService eventService,DeviceConfigurationService deviceConfigurationService) {
         this.dataModel = dataModel;
         this.firmwareCampaignServiceCallLifeCycleInstaller = firmwareCampaignServiceCallLifeCycleInstaller;
         this.eventService = eventService;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
@@ -196,8 +203,10 @@ public class UpgraderV10_7 implements Upgrader {
                 .add(info.activationDate)
                 .add(info.validationTimeoutValue)
                 .add(info.validationTimeoutUnit)
+                .add(info.firmwareUploadComTaskId)
+                .add(info.validationComTaskId)
                 .end();
-        execute(dataModel, "INSERT INTO FWC_FC1_CAMPAIGN (SERVICECALL,CPS,VERSIONCOUNT,CREATETIME,MODTIME,USERNAME,NAME,DEVICE_GROUP,MANAGEMENT_OPTION,FIRMWARE_TYPE,ACTIVATION_START,ACTIVATION_END,DEVICE_TYPE,ACTIVATION_DATE,VALIDATION_TIMEOUT_VALUE,VALIDATION_TIMEOUT_UNIT) VALUES " + values);
+        execute(dataModel, "INSERT INTO FWC_FC1_CAMPAIGN (SERVICECALL,CPS,VERSIONCOUNT,CREATETIME,MODTIME,USERNAME,NAME,DEVICE_GROUP,MANAGEMENT_OPTION,FIRMWARE_TYPE,ACTIVATION_START,ACTIVATION_END,DEVICE_TYPE,ACTIVATION_DATE,VALIDATION_TIMEOUT_VALUE,VALIDATION_TIMEOUT_UNIT,FIRMWARE_UPLOAD_COMTASK_ID,VALIDATION_COMTASK_ID) VALUES " + values);
     }
 
     private void writeCampaignItemInBd(FirmwareCampaignItemInfo info) {
@@ -279,6 +288,32 @@ public class UpgraderV10_7 implements Upgrader {
                 .getLong("ID"), this::toLong);
         firmwareCampaignInfo.validationTimeoutValue = resultSet.getLong("VALIDATION_TIMEOUT_VALUE");
         firmwareCampaignInfo.validationTimeoutUnit = resultSet.getLong("VALIDATION_TIMEOUT_UNIT");
+
+        firmwareCampaignInfo.firmwareUploadComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
+                .map(deviceType -> deviceType.getConfigurations().stream()
+                        .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                        .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME) && !cte.isSuspended())
+                        .findAny()
+                        .map(cte -> cte.getComTask().getId())
+                        .orElse(null))
+                .orElse(null);
+
+        firmwareCampaignInfo.validationComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
+                .map(deviceType -> deviceType.getConfigurations().stream()
+                        .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                        .flatMap(cte -> {
+                            if(!cte.isSuspended()) {
+                                return cte.getComTask().getProtocolTasks().stream();
+                            }else{
+                                return new ArrayList<ProtocolTask>().stream();
+                            }
+                        })
+                        .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
+                        .findAny()
+                        .map(cte -> cte.getComTask().getId())
+                        .orElse(null))
+                .orElse(null);
+
         return firmwareCampaignInfo;
     }
 
@@ -347,6 +382,8 @@ public class UpgraderV10_7 implements Upgrader {
         Long activationDate;
         Long validationTimeoutValue;
         Long validationTimeoutUnit;
+        Long firmwareUploadComTaskId;
+        Long validationComTaskId;
     }
 
     private class ServiceCallInfo {

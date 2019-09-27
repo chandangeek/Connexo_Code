@@ -302,7 +302,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                         check.execute(options, utils, campaign.getFirmwareVersion());
                         return false;
                     } catch (FirmwareCheck.FirmwareCheckException e) {
-                        getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to " + check.getName() + " fail: " + e.getLocalizedMessage());
+                        getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to '" + check.getName() + "' fail: " + e.getLocalizedMessage());
                         return true;
                     }
                 })

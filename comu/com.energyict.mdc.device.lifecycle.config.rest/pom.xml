@@ -126,6 +126,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -216,11 +220,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cbo</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

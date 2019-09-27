@@ -92,6 +92,14 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -171,11 +179,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
             <scope>test</scope>
         </dependency>
@@ -202,11 +205,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cbo</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

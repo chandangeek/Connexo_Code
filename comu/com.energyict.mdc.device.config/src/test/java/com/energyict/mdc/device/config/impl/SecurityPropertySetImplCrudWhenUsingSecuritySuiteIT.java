@@ -33,6 +33,7 @@ import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
@@ -293,7 +294,8 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
                     injector.getInstance(DataVaultService.class),
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
-                    injector.getInstance(SecurityManagementService.class));
+                    injector.getInstance(SecurityManagementService.class),
+                    injector.getInstance(MeteringTranslationService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();

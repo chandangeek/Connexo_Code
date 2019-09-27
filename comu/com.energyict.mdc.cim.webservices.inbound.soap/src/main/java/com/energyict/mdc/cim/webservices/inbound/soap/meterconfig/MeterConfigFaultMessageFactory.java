@@ -55,10 +55,18 @@ public class MeterConfigFaultMessageFactory {
     }
 
     FaultMessage meterConfigFaultMessage(List<FaultMessage> faults) {
+        return meterConfigFaultMessage(faults.get(0).getMessage(), faults, ReplyType.Result.FAILED);
+    }
+
+    FaultMessage meterConfigFaultMessage(MessageSeeds message, List<FaultMessage> faults, ReplyType.Result result) {
+        return meterConfigFaultMessage(message.translate(thesaurus), faults, result);
+    }
+
+    private FaultMessage meterConfigFaultMessage(String message, List<FaultMessage> faults, ReplyType.Result result) {
         MeterConfigFaultMessageType faultMessageType = meterConfigMessageObjectFactory.createMeterConfigFaultMessageType();
         ErrorType[] errorTypes = faults.stream().flatMap(fault -> fault.getFaultInfo().getReply().getError().stream()).toArray(ErrorType[]::new);
-        ReplyType replyType = replyTypeFactory.failureReplyType(ReplyType.Result.FAILED, errorTypes);
+        ReplyType replyType = replyTypeFactory.failureReplyType(result, errorTypes);
         faultMessageType.setReply(replyType);
-        return new FaultMessage(faults.get(0).getMessage(), faultMessageType);
+        return new FaultMessage(message, faultMessageType);
     }
 }

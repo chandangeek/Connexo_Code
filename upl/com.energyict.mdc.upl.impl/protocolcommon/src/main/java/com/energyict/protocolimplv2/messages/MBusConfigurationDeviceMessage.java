@@ -54,7 +54,7 @@ public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation));
         }
     },
-    SetMBusConfigBit11(23007, "Change MBus Configuration Object") {
+    SetMBusConfigBit11(23007, "Change LTE/M-Bus cancellation mechanism LTE mode (bit 11)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetMBusConfigBit11AttributeName, DeviceMessageConstants.SetMBusConfigBit11AttributeDefaultTranslation));

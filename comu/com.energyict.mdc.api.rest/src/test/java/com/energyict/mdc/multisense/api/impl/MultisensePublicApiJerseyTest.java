@@ -84,7 +84,7 @@ import com.energyict.mdc.common.device.data.InboundConnectionTask;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.protocol.ConnectionType;
