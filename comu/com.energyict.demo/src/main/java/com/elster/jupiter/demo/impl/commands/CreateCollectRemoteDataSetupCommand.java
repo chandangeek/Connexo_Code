@@ -46,7 +46,7 @@ import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -70,7 +70,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     private final LicenseService licenseService;
     private final DeviceService deviceService;
     private final MeteringService meteringService;
-    private final Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> outboundConnectionMethodsProvider;
     private final Provider<InboundTCPConnectionMethodsDevConfPostBuilder> inboundConnectionMethodsProvider;
     private final Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider;
@@ -90,7 +89,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     public CreateCollectRemoteDataSetupCommand(
             LicenseService licenseService,
             DeviceService deviceService,
-            MeteringService meteringService, Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
+            MeteringService meteringService,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> outboundConnectionMethodsProvider,
             Provider<InboundTCPConnectionMethodsDevConfPostBuilder> inboundConnectionMethodsProvider,
             Provider<AttachDeviceTypeCPSPostBuilder> attachDeviceTypeCPSPostBuilderProvider,
@@ -102,7 +101,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         this.licenseService = licenseService;
         this.deviceService = deviceService;
         this.meteringService = meteringService;
-        this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.outboundConnectionMethodsProvider = outboundConnectionMethodsProvider;
         this.inboundConnectionMethodsProvider = inboundConnectionMethodsProvider;
         this.attachDeviceTypeCPSPostBuilderProvider = attachDeviceTypeCPSPostBuilderProvider;
@@ -154,7 +152,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceStructure();
         executeTransaction(() -> {
             createCreationRules();
-            createAssignmentRules();
         });
         executeTransaction(this::createDeviceGroups);
         executeTransaction(() -> {
@@ -256,11 +253,6 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         for (CreationRuleTpl ruleTpl : CreationRuleTpl.values()) {
             Builders.from(ruleTpl).get();
         }
-    }
-
-    private void createAssignmentRules() {
-        CreateAssignmentRulesCommand command = this.createAssignmentRulesCommandProvider.get();
-        command.run();
     }
 
     private void createCalendars() {
@@ -512,14 +504,14 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     }
 
     private void corruptDeviceSettingsForIssueManagement() {
-        if(devicesPerType == null) {
+        if (devicesPerType == null) {
             List<Device> devices = deviceService.deviceQuery()
                     .select(where("name").like(Constants.Device.STANDARD_PREFIX + "*")
                             .and(where("deviceConfiguration.name").in(Arrays.asList(DeviceConfigurationTpl.PROSUMERS.getName(), DeviceConfigurationTpl.CONSUMERS.getName()))))
                     .stream()
                     .filter(device -> DefaultState.ACTIVE.getKey().equals(device.getState().getName()))
                     .collect(Collectors.toList());
-            int nrOfCorruptedDevices = (int)Math.floor(devices.size() * 0.01);
+            int nrOfCorruptedDevices = (int) Math.floor(devices.size() * 0.01);
             Set<String> devicesWithCorruptedConnectionSettings = new HashSet<>();
             for (int i = 0; i < nrOfCorruptedDevices; i++) {
                 int devicePosition = (int) ((devices.size() - 1) * Math.random());

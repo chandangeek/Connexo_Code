@@ -44,6 +44,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -417,7 +418,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(LockService.class),
                                 injector.getInstance(DataVaultService.class),
                                 injector.getInstance(SecurityManagementService.class),
-                                injector.getInstance(MeteringZoneService.class), calendarService
+                                injector.getInstance(MeteringZoneService.class), calendarService,
+                                injector.getInstance(MeteringTranslationService.class)
                         );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();

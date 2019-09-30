@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -27,6 +28,7 @@ public abstract class AbstractDataCollectionTemplate implements CreationRuleTemp
     protected volatile PropertySpecService propertySpecService;
     protected volatile DeviceConfigurationService deviceConfigurationService;
     protected volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    protected volatile MeteringTranslationService meteringTranslationService;
     protected volatile Thesaurus thesaurus;
     protected volatile TimeService timeService;
     protected volatile Clock clock;
@@ -35,12 +37,13 @@ public abstract class AbstractDataCollectionTemplate implements CreationRuleTemp
     }
 
     @Inject
-    protected AbstractDataCollectionTemplate(IssueService issueService, IssueDataCollectionService issueDataCollectionService, Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, Clock clock) {
+    protected AbstractDataCollectionTemplate(IssueService issueService, IssueDataCollectionService issueDataCollectionService, Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,MeteringTranslationService meteringTranslationService, TimeService timeService, Clock clock) {
         this.issueService = issueService;
         this.issueDataCollectionService = issueDataCollectionService;
         this.propertySpecService = propertySpecService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.clock = clock;
@@ -82,6 +85,10 @@ public abstract class AbstractDataCollectionTemplate implements CreationRuleTemp
 
     protected void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    protected void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService =  meteringTranslationService;
     }
 
     protected void setTimeService(final TimeService timeService) {

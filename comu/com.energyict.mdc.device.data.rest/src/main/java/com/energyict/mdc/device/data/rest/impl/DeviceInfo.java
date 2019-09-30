@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.estimation.rest.EstimationStatusInfo;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -110,7 +111,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, List<EndDeviceZoneInfo> zones, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, List<EndDeviceZoneInfo> zones, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock, MeteringTranslationService meteringTranslationService) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
@@ -147,7 +148,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         });
         deviceInfo.estimationStatus = new EstimationStatusInfo(device.forEstimation().isEstimationActive());
         State deviceState = device.getState();
-        deviceInfo.state = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, deviceState);
+        deviceInfo.state = new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, deviceState, meteringTranslationService);
         deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
 
         return deviceInfo;

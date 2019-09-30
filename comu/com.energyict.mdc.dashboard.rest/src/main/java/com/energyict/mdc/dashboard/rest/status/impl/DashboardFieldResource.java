@@ -88,9 +88,22 @@ public class DashboardFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", this.taskStatusClientSideValues());
     }
 
+    @GET @Transactional
+    @Path("/connectionstatuses")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Object getConnectionTaskStatusValues() {
+        return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", this.taskStatusesWithoutPrio());
+    }
+
     private List<String> taskStatusClientSideValues() {
         return Stream.of(TaskStatus.values()).map(TaskStatus::name).collect(Collectors.toList());
     }
+
+    private List<String> taskStatusesWithoutPrio() {
+        return TaskStatus.withoutPrio().stream().map(TaskStatus::name).collect(Collectors.toList());
+    }
+
     @GET @Transactional
     @Path("/comsessionsuccessindicators")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

@@ -276,7 +276,8 @@ Ext.define('Tou.view.AddForm', {
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },
@@ -341,7 +342,8 @@ Ext.define('Tou.view.AddForm', {
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },

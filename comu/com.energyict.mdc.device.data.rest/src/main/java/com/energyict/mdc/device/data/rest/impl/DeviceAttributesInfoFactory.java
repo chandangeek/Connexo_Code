@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,7 +23,7 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -44,16 +45,16 @@ public class DeviceAttributesInfoFactory {
     private final Thesaurus thesaurus;
     private final ThreadPrincipalService threadPrincipalService;
     private final LocationService locationService;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
-    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, LocationService locationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, LocationService locationService, MeteringTranslationService meteringTranslationService) {
         this.batchService = batchService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
         this.threadPrincipalService = threadPrincipalService;
         this.locationService = locationService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public DeviceAttributesInfo from(Device device) {
@@ -176,7 +177,7 @@ public class DeviceAttributesInfoFactory {
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

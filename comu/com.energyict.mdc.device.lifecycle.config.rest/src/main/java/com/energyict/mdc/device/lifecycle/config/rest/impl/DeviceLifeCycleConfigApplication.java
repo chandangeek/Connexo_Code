@@ -7,6 +7,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -78,6 +79,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private volatile BpmService bpmService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile EventService eventService;
     private volatile DeviceConfigurationService deviceConfigurationService;
@@ -137,6 +139,11 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -227,6 +234,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(TransitionBusinessProcessInfoFactory.class).to(TransitionBusinessProcessInfoFactory.class);
             bind(TransitionEndPointConfigurationInfoFactory.class).to(TransitionEndPointConfigurationInfoFactory.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(eventService).to(EventService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);

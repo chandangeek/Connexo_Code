@@ -8,13 +8,14 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.history.ComCommandJournalEntry;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataCollection> {
 
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
     private Device device;
@@ -66,6 +68,11 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -293,7 +300,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

@@ -63,7 +63,7 @@ public class MeterConfigParser {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    public MeterInfo asMeterInfo(Meter meter) throws FaultMessage {
+    public MeterInfo asMeterInfo(Meter meter) {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
@@ -78,7 +78,6 @@ public class MeterConfigParser {
         switch (operationEnum) {
             case CREATE:
                 meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
-                meterInfo.setShipmentDate(extractShipmentDate(meter));
                 meterInfo.setDeviceType(extractDeviceTypeName(meter));
                 meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
                 break;
@@ -102,6 +101,7 @@ public class MeterConfigParser {
                 break;
 
         }
+        meterInfo.setShipmentDate(extractShipmentDate(meter));
         meterInfo.setBatch(extractBatch(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));

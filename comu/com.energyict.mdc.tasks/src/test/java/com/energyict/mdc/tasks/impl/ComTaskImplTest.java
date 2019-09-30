@@ -16,6 +16,7 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.common.tasks.TaskServiceKeys;
 import com.energyict.mdc.tasks.PersistenceTest;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.List;
@@ -214,7 +215,7 @@ public class ComTaskImplTest extends PersistenceTest {
     @Transactional
     public void firmwareComTaskIsCreatedByDefaultTest() {
         assertThat(getTaskService().findFirmwareComTask().isPresent()).isTrue();
-        assertThat(getTaskService().findFirmwareComTask().get().getName()).isEqualTo(ServerTaskService.FIRMWARE_COMTASK_NAME);
+        assertThat(getTaskService().findFirmwareComTask().get().getName()).isEqualTo(TaskService.FIRMWARE_COMTASK_NAME);
     }
 
     @Test
@@ -236,13 +237,13 @@ public class ComTaskImplTest extends PersistenceTest {
         comTask.delete();
 
         SystemComTask newFirmwareTask = getDataModel().getInstance(SystemComTask.class);
-        newFirmwareTask.setName(ServerTaskService.FIRMWARE_COMTASK_NAME);
+        newFirmwareTask.setName(TaskService.FIRMWARE_COMTASK_NAME);
         newFirmwareTask.createFirmwareUpgradeTask();
         newFirmwareTask.save();
 
         Optional<ComTask> myNewFirmwareTask = getTaskService().findFirmwareComTask();
         assertThat(myNewFirmwareTask.isPresent()).isTrue();
-        assertThat(myNewFirmwareTask.get().getName()).isEqualTo(ServerTaskService.FIRMWARE_COMTASK_NAME);
+        assertThat(myNewFirmwareTask.get().getName()).isEqualTo(TaskService.FIRMWARE_COMTASK_NAME);
         assertThat(myNewFirmwareTask.get().getId()).isEqualTo(newFirmwareTask.getId());
     }
 
@@ -254,7 +255,7 @@ public class ComTaskImplTest extends PersistenceTest {
         comTask.delete();
 
         SystemComTask newFirmwareTask = getDataModel().getInstance(SystemComTask.class);
-        newFirmwareTask.setName(ServerTaskService.FIRMWARE_COMTASK_NAME);
+        newFirmwareTask.setName(TaskService.FIRMWARE_COMTASK_NAME);
         newFirmwareTask.createFirmwareUpgradeTask();
         newFirmwareTask.createTopologyTask(TopologyAction.UPDATE);
         newFirmwareTask.save();
