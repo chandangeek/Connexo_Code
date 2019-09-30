@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -23,6 +24,7 @@ import org.junit.rules.TestRule;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class WhereLikeClauseTest extends PersistenceIntegrationTest {
 
@@ -59,15 +61,26 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         createSimpleDeviceWithName("ZAFD0020004");
         createSimpleDeviceWithName("ZAFD0020005");
         createSimpleDeviceWithName("ZAFB_010001");
-        createSimpleDeviceWithName("ZAFB?0100_1");
-        createSimpleDeviceWithName("ZAFB00100?1");
-        createSimpleDeviceWithName("ZAFB_010011");
-        createSimpleDeviceWithName("ZAFB%010001");
         createSimpleDeviceWithName("ZAFB*010001");
         createSimpleDeviceWithName("ZAFB00100*1");
         createSimpleDeviceWithName("ZAFB[1]0001");
         createSimpleDeviceWithName("ZAFB!110001");
+        createSimpleDeviceWithName("ZAFB_010011");
         createSimpleDeviceWithName("!EXCEPTION");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithForbiddenChars() {
+        try {
+            char[] blacklisted = {'%', '+', '/', ';', '?', '\\'};
+            for (char bad : blacklisted) {
+                createSimpleDeviceWithName("ZAFB"+bad+"0100_1");
+            }
+            fail("Exception expected");
+        } catch (VerboseConstraintViolationException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -78,10 +91,10 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
     @Transactional
     public void testSearchAll() {
         List<String> matches = findByRegex("*");
-        assertThat(matches).hasSize(30);
+        assertThat(matches).hasSize(27);
 
         matches = findByRegex("*_*");
-        assertThat(matches).hasSize(3).contains("ZAFB_010001", "ZAFB_010011", "ZAFB?0100_1");
+        assertThat(matches).hasSize(2).contains("ZAFB_010001", "ZAFB_010011");
 
         matches = findByRegex("ZAF?0010001");
         assertThat(matches).hasSize(2).contains("ZAFC0010001", "ZAFB0010001");
@@ -90,13 +103,13 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
         assertThat(matches).hasSize(4).containsExactly("ZAFB0010001", "ZAFB0020001", "ZAFC0010001", "ZAFD0020001");
 
         matches = findByRegex("ZAF?001*1");
-        assertThat(matches).hasSize(4).containsExactly("ZAFB0010001", "ZAFC0010001", "ZAFB00100?1", "ZAFB00100*1");
+        assertThat(matches).hasSize(3).containsExactly("ZAFB0010001", "ZAFC0010001", "ZAFB00100*1");
 
         matches = findByRegex("Z*D00*");
         assertThat(matches).hasSize(5);
 
         matches = findByRegex("ZAF*");
-        assertThat(matches).hasSize(29);
+        assertThat(matches).hasSize(26);
 
         matches = findByRegex("*!*");
         assertThat(matches).hasSize(2).contains("ZAFB!110001", "!EXCEPTION");
