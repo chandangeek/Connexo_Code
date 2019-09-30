@@ -41,7 +41,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         var healthTypeStore = Ext.create('Uni.store.HealthCategories', {
             filters : function(item){
                 if(item.data.type == 'issue'){
-                    return me.type == 'device'&& Isu.privileges.Issue.canViewAdminDevice();
+                    return me.type == 'device'&& Isu.privileges.Issue.canViewIssue();
                 }
                 if(item.data.type == 'alarm'){
                     return me.type == 'device'&& Dal.privileges.Alarm.canViewAdmimAlarm();

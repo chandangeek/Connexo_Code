@@ -141,7 +141,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             lastUpdateField = dashboard.down('#last-updated-field');
 
         if (Mdc.privileges.Device.canOperateDevice() ||
-                Isu.privileges.Issue.canViewAdminDevice()) {
+                Isu.privileges.Issue.canViewIssue()) {
             var connectionModel = me.getModel('Dsh.model.connection.OverviewDashboard'),
                 communicationModel = me.getModel('Dsh.model.communication.OverviewDashboard'),
                 myWorkList = me.getMyWorkList(),
@@ -184,7 +184,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 });
             }
 
-            if (Isu.privileges.Issue.canViewAdminDevice() ||
+            if (Isu.privileges.Issue.canViewIssue() ||
                 Dal.privileges.Alarm.canViewAdmimAlarm() ||
                 Bpm.privileges.BpmManagement.canView()) {
                 myWorkList.reload();

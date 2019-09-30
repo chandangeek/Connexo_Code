@@ -70,7 +70,7 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                 maxHeight: 254,
                 items: []
             };
-            if (Bpm.privileges.BpmManagement.canView() || Isu.privileges.Issue.canViewAdminDevice()) {
+            if (Bpm.privileges.BpmManagement.canView() || Isu.privileges.Issue.canViewIssue()) {
 
                 var items = [];
 
@@ -116,7 +116,7 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                     items.push(workType);
                 }
 
-                if (Isu.privileges.Issue.canViewAdminDevice()) {
+                if (Isu.privileges.Issue.canViewIssue()) {
 
                     var workType = {
                         type: 'issues',

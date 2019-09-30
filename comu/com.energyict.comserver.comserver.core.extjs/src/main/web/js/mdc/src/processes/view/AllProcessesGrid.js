@@ -71,7 +71,7 @@ Ext.define('Mdc.processes.view.AllProcessesGrid', {
                     }
 
                     if(record.data.type == 'Issue'){
-                        if (value && Isu.privileges.Issue.canViewAdminDevice()) {
+                        if (value && Isu.privileges.Issue.canViewIssue()) {
                             var url = me.router.getRoute('workspace/issues/view').buildUrl({issueId: record.get('value')}, {issueType: record.get('issueType')});
                             result = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                         } else if (value){
