@@ -166,9 +166,11 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private void stopLaunched() {
+        LOGGER.info("#executors: " + executors.size() + " #futures: " + futures.size());
         executors.values().forEach(this::shutDownServiceWithCancelling);
         executors.clear();
         futures.clear();
+        LOGGER.info("executors & futures cleared");
     }
 
     private void destroyThreadGroup(ThreadGroup toClean) {
@@ -350,12 +352,14 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         try {
             executorService.awaitTermination(1, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
+            LOGGER.info("interrupted while " + executorService + ".awaitTermination !");
             Thread.currentThread().interrupt();
         }
     }
 
     private void cancelFutureTask(CancellableTaskExecutorService executorService) {
         if (futures.isEmpty()) {
+            LOGGER.info("futures is empty for executorService " + executorService);
             return;
         }
         for (Future<?> future : futures.get(executorService)) {

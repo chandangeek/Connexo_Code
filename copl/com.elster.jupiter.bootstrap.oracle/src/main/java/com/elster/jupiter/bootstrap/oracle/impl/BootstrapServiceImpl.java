@@ -14,8 +14,6 @@ import com.elster.jupiter.util.HolderBuilder;
 import oracle.ucp.UniversalConnectionPoolException;
 import oracle.ucp.admin.UniversalConnectionPoolManager;
 import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
-import oracle.ucp.jdbc.PoolDataSourceFactory;
-import oracle.ucp.jdbc.PoolDataSourceImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -66,7 +64,6 @@ import java.util.stream.Collectors;
         property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
 public final class BootstrapServiceImpl implements BootstrapService {
 
-    static final String ORACLE_CONNECTION_POOL_NAME = "OracleConnectionPool";
     public static final String ORACLE_ONS_NODES = "com.elster.jupiter.datasource.pool.oracle.ons.nodes";
 
     private String jdbcUrl;
@@ -75,7 +72,13 @@ public final class BootstrapServiceImpl implements BootstrapService {
     private String keyFile;
     private int maxLimit;
     private int maxStatementsLimit;
+    private int inactivityTimeout;
+    private int abandonedConnectionsTimeout;
+    private int timeToLive;
+    private int maxConnectionReuseTime;
     private String onsNodes;
+
+    private ConnectionProperties connectionProperties = new ConnectionProperties();
 
     private Holder<DataSource> cache = HolderBuilder.lazyInitialize(this::doCreateDataSource);
     private boolean initialized = false;
@@ -90,13 +93,19 @@ public final class BootstrapServiceImpl implements BootstrapService {
 
     @Activate
     public void activate(BundleContext context) {
-        jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
-        jdbcUser = getRequiredProperty(context, JDBC_USER);
-        jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
-        keyFile = getRequiredProperty(context, KEY_FILE);
-        maxLimit = getOptionalIntProperty(context, JDBC_POOLMAXLIMIT, Integer.parseInt(JDBC_POOLMAXLIMIT_DEFAULT));
-        maxStatementsLimit = getOptionalIntProperty(context, JDBC_POOLMAXSTATEMENTS, Integer.parseInt(JDBC_POOLMAXSTATEMENTS_DEFAULT));
-        onsNodes = getOptionalProperty(context, ORACLE_ONS_NODES, null);
+        connectionProperties.poolProvider = getOptionalProperty(context, CONNECTION_POOL_PROVIDER, ORACLE_CP);
+        connectionProperties.jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
+        connectionProperties.jdbcUser = getRequiredProperty(context, JDBC_USER);
+        connectionProperties.jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
+        connectionProperties.keyFile = getRequiredProperty(context, KEY_FILE);
+        connectionProperties.maxLimit = getOptionalIntProperty(context, JDBC_POOLMAXLIMIT, Integer.parseInt(JDBC_POOLMAXLIMIT_DEFAULT));
+        connectionProperties.maxStatementsLimit = getOptionalIntProperty(context, JDBC_POOLMAXSTATEMENTS, Integer.parseInt(JDBC_POOLMAXSTATEMENTS_DEFAULT));
+        connectionProperties.onsNodes = getOptionalProperty(context, ORACLE_ONS_NODES, null);
+        connectionProperties.connectionWaitTimeout = getOptionalIntProperty(context, JDBC_CONNECTION_WAIT_TIMEOUT, 30);
+        connectionProperties.inactivityTimeout = getOptionalIntProperty(context, JDBC_INACTIVITY_TIMEOUT, 0);
+        connectionProperties.abandonedConnectionsTimeout = getOptionalIntProperty(context, JDBC_ABANDONED_CONNECTION_TIMEOUT, 0);
+        connectionProperties.timeToLive = getOptionalIntProperty(context, JDBC_TTL_TIMEOUT, 0);
+        connectionProperties.maxConnectionReuseTime = getOptionalIntProperty(context, JDBC_MAX_CONNECTION_REUSE_TIME, 0);
     }
 
     @Deactivate
@@ -104,7 +113,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
         if (initialized) {
             try {
                 UniversalConnectionPoolManager manager = UniversalConnectionPoolManagerImpl.getUniversalConnectionPoolManager();
-                manager.destroyConnectionPool(ORACLE_CONNECTION_POOL_NAME);
+                manager.destroyConnectionPool(CONNECTION_POOL_NAME);
             } catch (UniversalConnectionPoolException e) {
                 throw new RuntimeException(e);
             }
@@ -130,31 +139,10 @@ public final class BootstrapServiceImpl implements BootstrapService {
     }
 
     private DataSource createDataSourceFromProperties() throws SQLException {
-        PoolDataSourceImpl source = (PoolDataSourceImpl) PoolDataSourceFactory.getPoolDataSource();
-        source.setConnectionFactoryClassName("oracle.jdbc.replay.OracleDataSourceImpl");
-        source.setURL(jdbcUrl);
-        source.setUser(jdbcUser);
-        source.setPassword(getDecryptedPassword(jdbcPassword, keyFile));
-        source.setConnectionPoolName(ORACLE_CONNECTION_POOL_NAME);
-        source.setMinPoolSize(3);
-        source.setMaxPoolSize(maxLimit);
-        source.setInitialPoolSize(3);
-        source.setMaxStatements(maxStatementsLimit);
-        //source.setInactiveConnectionTimeout(PropertiesHelper.getInt(INACTIVITY_TIMEOUT, properties, 0));
-        //source.setTimeToLiveConnectionTimeout(PropertiesHelper.getInt(TTL_TIMEOUT, properties, 0));
-        //source.setAbandonedConnectionTimeout(PropertiesHelper.getInt(ABANDONED_CONNECTION_TIMEOUT, properties, 0));
-        //source.setPropertyCycle(PropertiesHelper.getInt(PROPERTY_CHECK_INTERVAL, properties, 900));
-        source.setConnectionWaitTimeout(10);
-        source.setValidateConnectionOnBorrow(true);
-        source.setFastConnectionFailoverEnabled(true);
-        if (onsNodes != null) {
-            source.setONSConfiguration("nodes=" + onsNodes);
+        if (HIKARI_CP.equals(connectionProperties.poolProvider.trim().toLowerCase())) {
+            return new HikariDataSourceProvider().createDataSource(connectionProperties);
         }
-        // for now , no need to set connection properties , but possible interesting keys are
-        // defaultRowPrefetch
-        // oracle.jdbc.FreeMemoryOnEnterImplicitCache
-
-        return new UcpWrappedDataSource(source);
+        return new OracleDataSourceProvider().createDataSource(connectionProperties);
     }
 
     private String getRequiredProperty(BundleContext context, String property) {
