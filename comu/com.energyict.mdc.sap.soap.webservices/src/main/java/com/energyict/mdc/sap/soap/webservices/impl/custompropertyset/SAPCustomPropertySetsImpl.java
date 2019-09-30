@@ -357,41 +357,71 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
             CustomPropertySetValues versionToUpdate = customPropertySetService.getUniqueValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                     .getFirst(), endDate, device.getId());
             Range<Instant> oldRange = versionToUpdate.getEffectiveRange();
-            Range<Instant> range = getRangeToUpdate(endDate, oldRange);
-            OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
-                    .getFirst(), device.getId());
-            Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range).stream().filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)).findFirst();
-            if (conflict.isPresent()) {
+            if (oldRange.hasLowerBound() && endDate.equals(oldRange.lowerEndpoint())) {
+                // end date equals lower bound of existing version
                 List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                         .getFirst(), device.getId());
-                Optional<Range<Instant>> conflictRange = Optional.ofNullable(conflict.get().getConflictingRange());
                 List<CustomPropertySetValues> toRecreateBeforeConflict = new ArrayList<>();
                 List<CustomPropertySetValues> toRecreateAfterConflict = new ArrayList<>();
                 for (CustomPropertySetValues version : allVersions) {
-                    if (!version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().hasUpperBound()
-                            && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange().upperEndpoint().equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
+                    if (!version.getEffectiveRange().hasLowerBound() || version.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().lowerEndpoint().isBefore(endDate)) {
                         toRecreateBeforeConflict.add(version);
                     }
-                    if (conflictRange.isPresent() && !version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasUpperBound() && version.getEffectiveRange().hasLowerBound()
-                            && (version.getEffectiveRange().lowerEndpoint().isAfter(versionToUpdate.getEffectiveRange().upperEndpoint()) || version.getEffectiveRange().lowerEndpoint().equals(versionToUpdate.getEffectiveRange().upperEndpoint()))) {
+                    if (version.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().lowerEndpoint().isAfter(endDate)) {
                         toRecreateAfterConflict.add(version);
                     }
                 }
                 customPropertySetService.removeValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), device.getId());
                 for (CustomPropertySetValues version : toRecreateBeforeConflict) {
-                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                            .getFirst(), version, version.getEffectiveRange(), device.getId());
                 }
-                // set changed version
-                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
-                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(),
-                        CustomPropertySetValues.emptyDuring(conflictRange.get()), conflictRange.get(), device.getId());
-                for (CustomPropertySetValues version : toRecreateAfterConflict) {
-                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                if (!toRecreateAfterConflict.isEmpty()) {
+                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(),
+                            CustomPropertySetValues.emptyDuring(versionToUpdate.getEffectiveRange()), versionToUpdate.getEffectiveRange(), device.getId());
+                    for (CustomPropertySetValues version : toRecreateAfterConflict) {
+                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                                .getFirst(), version, version.getEffectiveRange(), device.getId());
+                    }
                 }
             } else {
-                // set changed version
-                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
+                Range<Instant> range = getRangeToUpdate(endDate, oldRange);
+                OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                        .getFirst(), device.getId());
+                Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range).stream().filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)).findFirst();
+                if (conflict.isPresent()) {
+                    List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                            .getFirst(), device.getId());
+                    Optional<Range<Instant>> conflictRange = Optional.ofNullable(conflict.get().getConflictingRange());
+                    List<CustomPropertySetValues> toRecreateBeforeConflict = new ArrayList<>();
+                    List<CustomPropertySetValues> toRecreateAfterConflict = new ArrayList<>();
+                    for (CustomPropertySetValues version : allVersions) {
+                        if (!version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().hasUpperBound()
+                                && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange().upperEndpoint().equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
+                            toRecreateBeforeConflict.add(version);
+                        }
+                        if (conflictRange.isPresent() && !version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasUpperBound() && version.getEffectiveRange().hasLowerBound()
+                                && (version.getEffectiveRange().lowerEndpoint().isAfter(versionToUpdate.getEffectiveRange().upperEndpoint()) || version.getEffectiveRange().lowerEndpoint().equals(versionToUpdate.getEffectiveRange().upperEndpoint()))) {
+                            toRecreateAfterConflict.add(version);
+                        }
+                    }
+                    customPropertySetService.removeValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), device.getId());
+                    for (CustomPropertySetValues version : toRecreateBeforeConflict) {
+                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                    }
+                    // set changed version
+                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
+                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(),
+                            CustomPropertySetValues.emptyDuring(conflictRange.get()), conflictRange.get(), device.getId());
+                    for (CustomPropertySetValues version : toRecreateAfterConflict) {
+                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                    }
+                } else {
+                    // set changed version
+                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
+                }
             }
+
 
         } else {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, endDate);
