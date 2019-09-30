@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>offline</artifactId>
@@ -48,6 +48,12 @@
                 <groupId>com.energyict</groupId>
                 <artifactId>serialio-xmodemapi-osgi</artifactId>
                 <version>1.0.0</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.4.197</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -89,6 +95,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>serialio-xmodemapi-osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
         <!-- multisense bundles -->
         <dependency>

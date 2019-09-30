@@ -68,6 +68,7 @@
                 <!-- External bundles. -->
                 <include>com.energyict.dataconcentrator.external:*</include>
                 <include>se.joel.osgi:*</include>
+                <include>com.h2database:*</include>
                 <include>com.energyict:serialio-xmodemapi-osgi</include>
             </includes>
 
