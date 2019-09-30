@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -137,9 +138,18 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private User fetchUser() {
-        return userService.findAndLockUserByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.authenticationName)
-                        .withActualVersion(() -> userService.getUser(info.id).map(User::getVersion).orElse(null))
-                        .supplier());
+        return userService.findAndLockUserByIdAndVersion(info.id, info.version).orElseThrow(conflictFactory
+                .contextDependentConflictOn(
+                        info.authenticationName != null ? info.authenticationName : getUserNameFromId(info.id))
+                .withActualVersion(() -> userService.getUser(info.id).map(User::getVersion).orElse(null)).supplier());
+    }
+
+    private String getUserNameFromId(long id) {
+        Optional<User> user = userService.getUser(id);
+        if (user.isPresent()) {
+            return user.get().getName();
+        } else {
+            return "-";
+        }
     }
 }
