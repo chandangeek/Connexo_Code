@@ -38,6 +38,7 @@ Ext.define('Dsh.controller.Main', {
     ],
 
     stores: [
+        'Dsh.store.filter.ConnectionStatuses',
         'Dsh.store.ConnectionTasks',
         'Dsh.store.CommunicationTasks',
         'Dsh.store.filter.CurrentState',
