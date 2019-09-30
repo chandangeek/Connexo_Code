@@ -101,6 +101,11 @@ public class SecurityAccessorTypeBuilder implements SecurityAccessorType.Builder
         return this;
     }
 
+    @Override
+    public SecurityAccessorType.Builder isWrapper(boolean isWrapper) {
+        underConstruction.setIsWrapper(isWrapper);
+        return this;
+    }
 
 
     @Override

@@ -16,8 +16,10 @@ import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ComTaskEnablementBuilder;
@@ -124,6 +126,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected ComTaskEnablement comTaskEnablement3;
     private OnlineComServer onlineComServer;
     private OnlineComServer otherOnlineComServer;
+    private InboundComPort inboundComPort;
+    private InboundComPort otherInboundComPort;
+    private OutboundComPort outboundComPort;
+    private OutboundComPort otherOutboundComPort;
     private String COM_TASK_NAME = "TheNameOfMyComTask";
     private int maxNrOfTries = 5;
 
@@ -314,9 +320,13 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @Before
-    public void setupComServers() {
-        this.onlineComServer = createComServer("First");
-        this.otherOnlineComServer = createComServer("Second");
+    public void setupComServersAndPorts() {
+        onlineComServer = createComServer("First");
+        otherOnlineComServer = createComServer("Second");
+        inboundComPort = onlineComServer.newTCPBasedInboundComPort("inboundComPort", 5, 4059).add();
+        otherInboundComPort = onlineComServer.newTCPBasedInboundComPort("otherInboundComPort", 5, 4060).add();
+        outboundComPort = onlineComServer.newOutboundComPort("outboundComPort", 5).comPortType(ComPortType.TCP).add();
+        otherOutboundComPort = onlineComServer.newOutboundComPort("otherOutboundComPort", 5).comPortType(ComPortType.TCP).add();
     }
 
     protected OnlineComServer createComServer(String name) {
@@ -332,6 +342,22 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         onlineComServer.serverName(name);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
+    }
+
+    public InboundComPort getInboundComPort() {
+        return inboundComPort;
+    }
+
+    public InboundComPort getOtherInboundComPort() {
+        return otherInboundComPort;
+    }
+
+    public OutboundComPort getOutboundComPort() {
+        return outboundComPort;
+    }
+
+    public OutboundComPort getOtherOutboundComPort() {
+        return otherOutboundComPort;
     }
 
     @Before

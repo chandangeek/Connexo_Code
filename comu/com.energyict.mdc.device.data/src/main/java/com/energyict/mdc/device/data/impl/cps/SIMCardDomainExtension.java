@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
 
+@HasValidStatusAndFormat(groups = {Save.Create.class, Save.Update.class})
 public class SIMCardDomainExtension extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<Device> {
 
     public enum FieldNames {

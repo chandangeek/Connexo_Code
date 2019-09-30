@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -38,6 +39,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile EventService eventService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     /*OSGI*/
     @SuppressWarnings("unused")
@@ -46,7 +48,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService);
+        DeviceConfigChangeHandler.ConfigChangeContext configChangeContext = new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, ((ServerDeviceService) deviceService), deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService, meteringTranslationService);
         return new DeviceConfigChangeHandler(jsonService, configChangeContext);
     }
 
@@ -84,6 +86,11 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference

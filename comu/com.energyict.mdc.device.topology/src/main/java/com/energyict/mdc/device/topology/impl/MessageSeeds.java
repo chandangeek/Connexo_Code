@@ -28,7 +28,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(101, Keys.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY, "You can not remove device {0} because it is still used as a communication gateway for {1}"),
     DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF(102, Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF, "A device cannot be its own gateway"),
     @SuppressWarnings("unused")
-    COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(103, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comserver {2}"),
+    COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(103, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comport {2}"),
     INVALID_IPV6_ADDRESS(104, Keys.INVALID_IPV6_ADDRESS, "Invalid IPv6 address"),
 
     DATA_LOGGER_LINK_EXCEPTION_NO_FREE_DATALOGGER_CHANNEL(1001, DataLoggerLinkException.NO_FREE_DATA_LOGGER_CHANNEL, "All channels of the data Logger {0} are used"),

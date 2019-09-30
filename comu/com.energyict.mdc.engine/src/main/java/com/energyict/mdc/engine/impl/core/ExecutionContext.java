@@ -189,20 +189,20 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @return true if the connect succeeded, false otherwise
      */
     public boolean connect() {
-        this.connectionFailed = false;
-        this.connecting = new StopWatch();
-        this.executing = new StopWatch();
-        this.executing.stop();  // Do not auto start but start it manually as soon as execution starts.
-        this.connectionTask = this.getComServerDAO().executionStarted(this.connectionTask, this.comPort.getComServer());
+        connectionFailed = false;
+        connecting = new StopWatch();
+        executing = new StopWatch();
+        executing.stop();  // Do not auto start but start it manually as soon as execution starts.
+        connectionTask = getComServerDAO().executionStarted(connectionTask, comPort);
         try {
-            this.setComPortRelatedComChannel(this.jobExecution.findOrCreateComChannel(this.connectionTaskPropertyCache));
-            return this.jobExecution.isConnected();
+            setComPortRelatedComChannel(jobExecution.findOrCreateComChannel(connectionTaskPropertyCache));
+            return jobExecution.isConnected();
         } catch (ConnectionException e) {
-            this.comPortRelatedComChannel = null;
-            this.connectionFailed(e, this.connectionTask);
+            comPortRelatedComChannel = null;
+            connectionFailed(e, connectionTask);
         } finally {
-            if (this.isConnected()) {
-                this.connecting.stop();
+            if (isConnected()) {
+                connecting.stop();
             }
         }
         return false;

@@ -57,7 +57,8 @@ public class KoreChecklist implements UpgradeCheckList {
                     identifier(application(), "LFC"),
                     identifier(application(), "APS"),
                     identifier(application(), "DES"),
-                    identifier(application(), "SSA")
+                    identifier(application(), "SSA"),
+                        identifier(application(), "DYN")
                 ).build();
     }
 

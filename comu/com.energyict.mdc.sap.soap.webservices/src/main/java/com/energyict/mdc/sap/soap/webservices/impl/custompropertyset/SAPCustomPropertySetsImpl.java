@@ -38,7 +38,7 @@ import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -116,7 +116,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Activate
     public void activate() {
-        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus));
+        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, this));
         customPropertySetService.addCustomPropertySet(channelInfo = new DeviceChannelSAPInfoCustomPropertySet(propertySpecService, thesaurus));
         customPropertySetService.addCustomPropertySet(registerInfo = new DeviceRegisterSAPInfoCustomPropertySet(propertySpecService, thesaurus));
     }
@@ -161,6 +161,11 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override

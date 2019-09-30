@@ -13,7 +13,13 @@ public class CreationRuleUpdaterImpl extends CreationRuleBuilderImpl implements 
     public CreationRuleUpdaterImpl(DataModel dataModel, CreationRuleImpl creationRule) {
         super(dataModel, creationRule);
     }
-    
+
+    @Override
+    public CreationRuleUpdater addProperty(final String name, final Object value) {
+        this.underConstruction.addProperty(name, value);
+        return this;
+    }
+
     @Override
     public CreationRuleUpdater removeActions() {
         this.underConstruction.removeActions();

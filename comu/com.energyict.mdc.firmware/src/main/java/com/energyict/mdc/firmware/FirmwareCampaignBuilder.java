@@ -28,9 +28,9 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaignBuilder withManagementOption(ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions);
 
-    FirmwareCampaignBuilder withFirmwareUploadComTaskId(long id);
+    FirmwareCampaignBuilder withFirmwareUploadComTaskId(Long id);
 
-    FirmwareCampaignBuilder withValidationComTaskId(long id);
+    FirmwareCampaignBuilder withValidationComTaskId(Long id);
 
     FirmwareCampaignBuilder withFirmwareUploadConnectionStrategy(String name);
 

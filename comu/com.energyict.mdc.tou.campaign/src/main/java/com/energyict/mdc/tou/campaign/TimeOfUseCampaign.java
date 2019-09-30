@@ -7,6 +7,7 @@ package com.energyict.mdc.tou.campaign;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
 
@@ -61,13 +62,13 @@ public interface TimeOfUseCampaign {
 
     boolean isWithUniqueCalendarName();
 
-    long getCalendarUploadComTaskId();
+    Long getCalendarUploadComTaskId();
 
-    long getValidationComTaskId();
+    Long getValidationComTaskId();
 
-    void setCalendarUploadComTaskId(long calendarUploadComTaskId);
+    void setCalendarUploadComTaskId(Long calendarUploadComTaskId);
 
-    void setValidationComTaskId(long validationComTaskId);
+    void setValidationComTaskId(Long validationComTaskId);
 
     Optional<ConnectionStrategy> getCalendarUploadConnectionStrategy();
 
@@ -76,4 +77,6 @@ public interface TimeOfUseCampaign {
     void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy);
 
     void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy);
+
+    ComWindow getComWindow();
 }

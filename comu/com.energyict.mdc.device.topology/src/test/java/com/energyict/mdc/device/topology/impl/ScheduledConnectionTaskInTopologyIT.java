@@ -15,6 +15,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
@@ -425,7 +426,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         });
         OutboundComPort outboundComPort = createOutboundComPort();
         ((ServerComTaskExecution) comTaskExecution).setLockedComPort(outboundComPort); // busy task
-        setCurrentlyExecutionComServerOnConnectionTask(connectionTask, outboundComPort.getComServer()); // set busy task
+        setCurrentlyExecutionComPortOnConnectionTask(connectionTask, outboundComPort); // set busy connection
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Busy);
         connectionTask.trigger(triggerDate);
         reloadedDevice = getReloadedDevice(device);
@@ -436,7 +437,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
                 return futureDate.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
-        setCurrentlyExecutionComServerOnConnectionTask(connectionTask, null);
+        setCurrentlyExecutionComPortOnConnectionTask(connectionTask, null);
         comTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ((ServerComTaskExecution) comTaskExecution).setLockedComPort(null);
         comTaskExecution.putOnHold(); // on hold task
@@ -508,10 +509,10 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         });
     }
 
-    private void setCurrentlyExecutionComServerOnConnectionTask(ScheduledConnectionTaskImpl connectionTask, ComServer comServer) {
+    private void setCurrentlyExecutionComPortOnConnectionTask(ScheduledConnectionTaskImpl connectionTask, ComPort comPort) {
 //        connectionTask.setExecutingComServer(comServer);
 //        connectionTask.save();
-        connectionTask.executionStarted(comServer);
+        connectionTask.executionStarted(comPort);
     }
 
     private OutboundComPort createOutboundComPort() {

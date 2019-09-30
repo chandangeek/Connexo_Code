@@ -17,6 +17,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import javax.validation.constraints.Size;
 import java.util.Optional;
 
+@UniqueDeviceIdentifier(groups = {Save.Create.class, Save.Update.class})
 public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<Device> {
 
     public enum FieldNames {

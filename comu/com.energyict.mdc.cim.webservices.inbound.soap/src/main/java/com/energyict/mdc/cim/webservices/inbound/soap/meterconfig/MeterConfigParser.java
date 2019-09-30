@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import java.util.List;
@@ -62,7 +63,7 @@ public class MeterConfigParser {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    public MeterInfo asMeterInfo(Meter meter) throws FaultMessage {
+    public MeterInfo asMeterInfo(Meter meter) {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
@@ -77,7 +78,6 @@ public class MeterConfigParser {
         switch (operationEnum) {
             case CREATE:
                 meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
-                meterInfo.setShipmentDate(extractShipmentDate(meter));
                 meterInfo.setDeviceType(extractDeviceTypeName(meter));
                 meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
                 break;
@@ -101,6 +101,7 @@ public class MeterConfigParser {
                 break;
 
         }
+        meterInfo.setShipmentDate(extractShipmentDate(meter));
         meterInfo.setBatch(extractBatch(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
@@ -323,38 +324,39 @@ public class MeterConfigParser {
 
     public List<Zone> extractDeviceZones(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions) throws FaultMessage {
         Optional<String> comFuncReference = extractEndDeviceFunctionRef(meter);
-        if(!comFuncReference.isPresent()){
-            return new ArrayList<>();
-        }
-        SimpleEndDeviceFunction endDeviceFunction = endDeviceFunctions
-                .stream()
-                .filter(endDeviceFunc -> comFuncReference.isPresent() && comFuncReference.get().equals(endDeviceFunc.getMRID()))
-                .findAny()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
-                        "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
-
-        if(endDeviceFunction.getZones() !=  null) {
-            endDeviceFunction.getZones().getZone()
+        if (comFuncReference.isPresent()) {
+            SimpleEndDeviceFunction endDeviceFunction = endDeviceFunctions
                     .stream()
+                    .filter(endDeviceFunc -> comFuncReference.get().equals(endDeviceFunc.getMRID()))
                     .findAny()
-                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.EMPTY_LIST,
-                            "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].Zones"));
+                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
+                            "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
 
-            if(endDeviceFunction.getZones().getZone().size() != endDeviceFunction.getZones().getZone().stream().map(Zone::getZoneType).distinct().count())
-                throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES).get();
+            if (endDeviceFunction.getZones() != null) {
+                endDeviceFunction.getZones().getZone()
+                        .stream()
+                        .findAny()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.EMPTY_LIST,
+                                "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].Zones"));
 
-            if(endDeviceFunction.getZones().getZone().stream().filter(zone->zone.getZoneName() == null || zone.getZoneName().isEmpty()).findAny().isPresent())
-                throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
-                        "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneName").get();
+                if (endDeviceFunction.getZones().getZone().size() != endDeviceFunction.getZones().getZone().stream().map(Zone::getZoneType).distinct().count()) {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES).get();
+                }
 
-            if(endDeviceFunction.getZones().getZone().stream().filter(zone->zone.getZoneType() == null || zone.getZoneType().isEmpty()).findAny().isPresent())
-                throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
-                        "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneType").get();
+                if (endDeviceFunction.getZones().getZone().stream().anyMatch(zone -> zone.getZoneName() == null || zone.getZoneName().isEmpty())) {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
+                            "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneName").get();
+                }
 
-            return endDeviceFunction.getZones().getZone();
+                if (endDeviceFunction.getZones().getZone().stream().anyMatch(zone -> zone.getZoneType() == null || zone.getZoneType().isEmpty())) {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
+                            "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneType").get();
+                }
+
+                return endDeviceFunction.getZones().getZone();
+            }
         }
-
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     private Optional<EndDeviceInfo> extractEndDeviceInfo(Meter meter) {

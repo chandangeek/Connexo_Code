@@ -140,6 +140,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         when(meterReadingsBuilder.withReadingTypesMRIDsTimeRangeMap(any())).thenReturn(meterReadingsBuilder);
         when(meterReadingsBuilder.ofReadingTypesWithMRIDs(any())).thenReturn(meterReadingsBuilder);
         when(meterReadingsBuilder.inTimeIntervals(any())).thenReturn(meterReadingsBuilder);
+        when(meterReadingsBuilder.withRegisterUpperBoundShift(anyInt())).thenReturn(meterReadingsBuilder);
         when(meterReadingsBuilder.build()).thenReturn(meterReadings);
     }
 

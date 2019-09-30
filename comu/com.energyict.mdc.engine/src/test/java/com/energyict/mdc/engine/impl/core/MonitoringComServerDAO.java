@@ -188,57 +188,57 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
-        return this.actual.findProperties(connectionTask);
+        return actual.findProperties(connectionTask);
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        return this.actual.attemptLock(connectionTask, comServer);
+    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
+        return actual.attemptLock(connectionTask, comPort);
     }
 
     @Override
-    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
-        return this.actual.attemptLock(connectionTask, comServer);
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
+        return actual.attemptLock(connectionTask, comPort);
     }
 
     @Override
     public void unlock(OutboundConnectionTask connectionTask) {
-        this.actual.unlock(connectionTask);
+        actual.unlock(connectionTask);
     }
 
     @Override
     public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
-        return this.actual.attemptLock(comTaskExecution, comPort);
+        return actual.attemptLock(comTaskExecution, comPort);
     }
 
     @Override
     public boolean attemptLock(PriorityComTaskExecutionLink priorityComTaskExecutionLink, ComPort comPort) {
-        return this.actual.attemptLock(priorityComTaskExecutionLink, comPort);
+        return actual.attemptLock(priorityComTaskExecutionLink, comPort);
     }
 
     @Override
     public void unlock(ComTaskExecution comTaskExecution) {
-        this.actual.unlock(comTaskExecution);
+        actual.unlock(comTaskExecution);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
-        this.connectionTaskExecutionStarted.increment();
-        this.actual.executionStarted(connectionTask, comServer);
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
+        connectionTaskExecutionStarted.increment();
+        actual.executionStarted(connectionTask, comPort);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
-        this.connectionTaskExecutionCompleted.increment();
-        this.actual.executionCompleted(connectionTask);
+        connectionTaskExecutionCompleted.increment();
+        actual.executionCompleted(connectionTask);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
-        this.connectionTaskExecutionFailed.increment();
-        this.actual.executionFailed(connectionTask);
+        connectionTaskExecutionFailed.increment();
+        actual.executionFailed(connectionTask);
         return connectionTask;
     }
 
@@ -263,6 +263,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        this.comTaskExecutionCompleted.increment();
+        this.actual.executionCompleted(comTaskExecution);
+    }
+
+    @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
         this.comTaskExecutionCompleted.increment();
         this.actual.executionCompleted(comTaskExecution);
     }
@@ -407,12 +413,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void releaseInterruptedTasks(ComServer comServer) {
+    public void releaseInterruptedTasks(ComPort comPort) {
         // No need to release when in monitoring mode
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks(ComServer comServer) {
+    public TimeDuration releaseTimedOutTasks(ComPort comPort) {
         // No need to release when in monitoring mode
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
@@ -735,12 +741,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
+        public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
             return connectionTask;
         }
 
         @Override
-        public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+        public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
             return true;
         }
 
@@ -765,8 +771,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
-            this.verifier.verify(connectionTaskExecutionStarted);
+        public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
+            verifier.verify(connectionTaskExecutionStarted);
             return connectionTask;
         }
 
@@ -804,6 +810,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+
+        }
+
+        @Override
         public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
             comTaskExecutions.forEach(this::executionCompleted);
         }
@@ -819,12 +830,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void releaseInterruptedTasks(ComServer comServer) {
+        public void releaseInterruptedTasks(ComPort comPort) {
             // No implementation required
         }
 
         @Override
-        public TimeDuration releaseTimedOutTasks(ComServer comServer) {
+        public TimeDuration releaseTimedOutTasks(ComPort comPort) {
             // No implementation required
             return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
         }

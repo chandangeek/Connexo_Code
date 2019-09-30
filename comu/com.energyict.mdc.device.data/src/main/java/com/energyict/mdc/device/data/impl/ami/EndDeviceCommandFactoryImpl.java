@@ -16,6 +16,7 @@ import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -23,6 +24,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.energyict.cbo.Unit;
@@ -192,8 +194,18 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
 
     @Override
     public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, SecurityAccessorType securityAccessorType) {
-        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
-        command.setPropertyValue(getKeyAccessorTypePropertySpec(command), securityAccessorType);
+        Device deviceForEndDevice = findDeviceForEndDevice(endDevice);
+        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = deviceForEndDevice.getDeviceConfiguration()
+                .getDeviceType()
+                .getSecurityAccessors()
+                .stream()
+                .filter(sec -> sec.getSecurityAccessorType().getName().equals(securityAccessorType.getName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME)
+                        .format(securityAccessorType.getName())));
+        KeyRenewalCommand command = (KeyRenewalCommand) this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
+        command.setSecurityAccessorOnDeviceType(securityAccessorTypeOnDeviceType);
+
         return command;
     }
 

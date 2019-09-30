@@ -34,9 +34,9 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     FirmwareType firmwareType;
     Map<PropertySpec, Object> properties;
-    long firmwareUploadComTaskId;
+    Long firmwareUploadComTaskId;
     ConnectionStrategy firmwareUploadConnectionStrategy;
-    long validationComTaskId;
+    Long validationComTaskId;
     ConnectionStrategy validationConnectionStrategy;
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
@@ -91,12 +91,12 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withFirmwareUploadComTaskId(long firmwareUploadComTaskId){
+    public FirmwareCampaignBuilderImpl withFirmwareUploadComTaskId(Long firmwareUploadComTaskId){
         this.firmwareUploadComTaskId = firmwareUploadComTaskId;
         return this;
     }
     @Override
-    public FirmwareCampaignBuilderImpl withValidationComTaskId(long validationComTaskId){
+    public FirmwareCampaignBuilderImpl withValidationComTaskId(Long validationComTaskId){
         this.validationComTaskId = validationComTaskId;
         return this;
     }

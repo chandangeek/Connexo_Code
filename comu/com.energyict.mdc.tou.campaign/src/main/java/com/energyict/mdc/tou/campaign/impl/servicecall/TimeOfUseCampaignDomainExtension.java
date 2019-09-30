@@ -18,6 +18,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
@@ -101,9 +102,9 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private long validationTimeout;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean withUniqueCalendarName;
-    private long calendarUploadComTaskId;
+    private Long calendarUploadComTaskId;
     private ConnectionStrategy calendarUploadConnectionStrategy;
-    private long validationComTaskId;
+    private Long validationComTaskId;
     private ConnectionStrategy validationConnectionStrategy;
 
     @Inject
@@ -223,22 +224,22 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public long getCalendarUploadComTaskId() {
+    public Long getCalendarUploadComTaskId() {
         return calendarUploadComTaskId;
     }
 
     @Override
-    public long getValidationComTaskId() {
+    public Long getValidationComTaskId() {
         return validationComTaskId;
     }
 
     @Override
-    public void setCalendarUploadComTaskId(long calendarUploadComTaskId) {
+    public void setCalendarUploadComTaskId(Long calendarUploadComTaskId) {
         this.calendarUploadComTaskId = calendarUploadComTaskId;
     }
 
     @Override
-    public void setValidationComTaskId(long validationComTaskId) {
+    public void setValidationComTaskId(Long validationComTaskId) {
         this.validationComTaskId = validationComTaskId;
     }
 
@@ -305,8 +306,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
         this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
-        this.setValidationComTaskId((long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
-        this.setCalendarUploadComTaskId((long) propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName()));
+        this.setValidationComTaskId((Long)propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
+        this.setCalendarUploadComTaskId((Long) propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName()));
         this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
         this.setCalendarUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
     }
@@ -333,5 +334,13 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     @Override
     public void validateDelete() {
         // nothing to validate
+    }
+
+    @Override
+    public ComWindow getComWindow() {
+        int SECONDS_IN_DAY = 86400;
+        return new ComWindow((((Number) (this.getUploadPeriodStart().getEpochSecond() % SECONDS_IN_DAY)).intValue()),
+                (((Number) (this.getUploadPeriodEnd().getEpochSecond() % SECONDS_IN_DAY)).intValue()));
+
     }
 }

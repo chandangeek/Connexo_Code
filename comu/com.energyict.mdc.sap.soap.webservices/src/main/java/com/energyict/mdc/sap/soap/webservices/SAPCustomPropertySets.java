@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
@@ -21,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SAPCustomPropertySets {
+
+    Thesaurus getThesaurus();
 
     Optional<String> getSapDeviceId(Device device);
 

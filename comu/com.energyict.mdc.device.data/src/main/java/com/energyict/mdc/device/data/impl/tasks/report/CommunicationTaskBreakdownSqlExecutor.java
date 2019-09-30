@@ -9,11 +9,12 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -78,7 +79,7 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.append("    JOIN " + TableSpecs.DDC_DEVICE.name() + " dev ON cte.device = dev.id");
         sqlBuilder.append("    JOIN enddevices kd ON dev.meterid = kd.id");
         sqlBuilder.append("    LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct ON cte.connectiontask = ct.id");
-        sqlBuilder.append("                                                                   AND ct.comserver is not null");
+        sqlBuilder.append("                                                                   AND ct." + ConnectionTaskFields.COM_PORT.fieldName()+ " is not null");
         sqlBuilder.append("                                                                   AND ct.lastCommunicationStart > cte.nextExecutionTimestamp");
         sqlBuilder.append("    LEFT JOIN DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id");
         sqlBuilder.append("   WHERE cte.obsolete_date is null");

@@ -18,6 +18,7 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -123,6 +124,8 @@ public class ComServerDAOImplTest {
     private User comServerUser;
     @Mock
     private DeviceMessageService deviceMessageService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     private ComServerDAO comServerDAO;
 
@@ -137,6 +140,7 @@ public class ComServerDAOImplTest {
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
         when(this.serviceProvider.topologyService()).thenReturn(this.topologyService);
         when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.serviceProvider.deviceMessageService()).thenReturn(this.deviceMessageService);
         when(this.serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
@@ -245,21 +249,21 @@ public class ComServerDAOImplTest {
 
     public void testReleaseInterruptedComTasks() throws SQLException {
         // Business method
-        this.comServerDAO.releaseInterruptedTasks(this.comServer);
+        comServerDAO.releaseInterruptedTasks(comPort);
 
         // Asserts
-        verify(this.connectionTaskService).releaseInterruptedConnectionTasks(this.comServer);
-        verify(this.communicationTaskService).releaseInterruptedComTasks(this.comServer);
+        verify(connectionTaskService).releaseInterruptedConnectionTasks(comPort);
+        verify(communicationTaskService).releaseInterruptedComTasks(comPort);
     }
 
     @Test
     public void testReleaseTimedOutComTasks() throws SQLException {
         // Business method
-        this.comServerDAO.releaseTimedOutTasks(this.comServer);
+        comServerDAO.releaseTimedOutTasks(comPort);
 
         // Asserts
-        verify(this.connectionTaskService).releaseTimedOutConnectionTasks(this.comServer);
-        verify(this.communicationTaskService).releaseTimedOutComTasks(this.comServer);
+        verify(connectionTaskService).releaseTimedOutConnectionTasks(comPort);
+        verify(communicationTaskService).releaseTimedOutComTasks(comPort);
     }
 
     @Test

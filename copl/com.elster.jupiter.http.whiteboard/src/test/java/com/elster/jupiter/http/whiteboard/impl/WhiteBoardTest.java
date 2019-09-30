@@ -9,13 +9,14 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.transaction.TransactionService;
 
+import org.osgi.framework.BundleContext;
+
 import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -38,7 +39,7 @@ public class WhiteBoardTest {
         TranslationKeyProvider translationKeyProvider = new WhiteBoardImpl(bundleContext, transactionService,
                 queryService, httpAuthenticationService);
         List<TranslationKey> translationKeysList = translationKeyProvider.getKeys();
-        assertThat(translationKeysList.size()).isEqualTo(2);
+        assertThat(translationKeysList.size()).isEqualTo(3);
         verify(bundleContext, times(1)).getProperty(WhiteBoardProperties.SYSTEM_IDENTIFIER.getKey());
     }
 }

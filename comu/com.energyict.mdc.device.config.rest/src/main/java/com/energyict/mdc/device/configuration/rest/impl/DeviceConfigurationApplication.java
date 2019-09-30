@@ -8,11 +8,12 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.hsm.HsmPublicConfiguration;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -41,6 +42,7 @@ import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -110,6 +112,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile AliasSearchFilterFactory aliasSearchFilterFactory;
     private volatile HsmPublicConfiguration hsmPublicConfiguration;
     private volatile IssueService issueService;
+    private volatile DeviceMessageService deviceMessageService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -296,6 +300,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
+
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
@@ -309,6 +318,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService( MeteringTranslationService meteringTranslationService ) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -380,6 +394,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(RegisterConfigInfoFactory.class).to(RegisterConfigInfoFactory.class);
@@ -397,6 +412,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(aliasSearchFilterFactory).to(AliasSearchFilterFactory.class);
             bind(issueService).to(IssueService.class);
             bind(hsmPublicConfiguration).to(HsmPublicConfiguration.class);
+            bind(deviceMessageService).to(DeviceMessageService.class);
         }
     }
 }

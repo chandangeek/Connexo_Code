@@ -1,7 +1,7 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.elster.jupiter.hsm.HsmPublicConfiguration;
-import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -16,7 +16,7 @@ public class HsmPublicConfigurationImpl implements HsmPublicConfiguration {
     private volatile HsmConfigurationService hsmConfigurationService;
 
     @Override
-    public Collection<String> labels() throws HsmBaseException {
+    public Collection<String> labels() throws HsmNotConfiguredException {
         return hsmConfigurationService.getLabels();
     }
 

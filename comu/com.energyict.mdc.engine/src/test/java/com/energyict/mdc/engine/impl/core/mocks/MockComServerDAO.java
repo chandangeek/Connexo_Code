@@ -83,7 +83,7 @@ public class MockComServerDAO implements ComServerDAO {
     private List<MockOnlineComServer> comServers = new ArrayList<>();
     private List<MockOnlineComServer> comServerClones = new ArrayList<>();
     private int comServerRefreshCount = 0;
-    private Map<ConnectionTask, ComServer> connectionTaskLocking = new HashMap<>();
+    private Map<ConnectionTask, ComPort> connectionTaskLocking = new HashMap<>();
     private Map<ComTaskExecution, ComPort> comTaskExecutionLocking = new HashMap<>();
 
     public MockOnlineComServer addEmptyComServer() {
@@ -305,10 +305,10 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public synchronized ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        ComServer alreadyLockingComServer = this.connectionTaskLocking.get(connectionTask);
-        if (alreadyLockingComServer == null || !comServer.equals(alreadyLockingComServer)) {
-            this.connectionTaskLocking.put(connectionTask, comServer);
+    public synchronized ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
+        ComPort alreadyLockingComPort = connectionTaskLocking.get(connectionTask);
+        if (alreadyLockingComPort == null || !comPort.equals(alreadyLockingComPort)) {
+            connectionTaskLocking.put(connectionTask, comPort);
             return connectionTask;
         } else {
             return null;
@@ -316,10 +316,10 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public synchronized boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
-        ComServer alreadyLockingComServer = this.connectionTaskLocking.get(connectionTask);
-        if (alreadyLockingComServer == null || !comServer.equals(alreadyLockingComServer)) {
-            this.connectionTaskLocking.put(connectionTask, comServer);
+    public synchronized boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
+        ComPort alreadyLockingComPort = connectionTaskLocking.get(connectionTask);
+        if (alreadyLockingComPort == null || !comPort.equals(alreadyLockingComPort)) {
+            connectionTaskLocking.put(connectionTask, comPort);
             return true;
         } else {
             return false;
@@ -328,14 +328,14 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void unlock(OutboundConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
+        connectionTaskLocking.remove(connectionTask);
     }
 
     @Override
     public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
         ComPort alreadyLockingComPort = this.comTaskExecutionLocking.get(comTaskExecution);
         if (alreadyLockingComPort == null || !comPort.equals(alreadyLockingComPort)) {
-            this.comTaskExecutionLocking.put(comTaskExecution, comPort);
+            comTaskExecutionLocking.put(comTaskExecution, comPort);
             return true;
         } else {
             return false;
@@ -349,52 +349,57 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void unlock(ComTaskExecution comTaskExecution) {
-        this.comTaskExecutionLocking.remove(comTaskExecution);
+        comTaskExecutionLocking.remove(comTaskExecution);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
-        this.connectionTaskLocking.put(connectionTask, comServer);
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
+        connectionTaskLocking.put(connectionTask, comPort);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
+        connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
+        connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
+        connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
 
     @Override
     public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
-        this.comTaskExecutionLocking.put(comTaskExecution, comPort);
+        comTaskExecutionLocking.put(comTaskExecution, comPort);
     }
 
     @Override
     public void executionCompleted(ComTaskExecution comTaskExecution) {
-        this.comTaskExecutionLocking.remove(comTaskExecution);
+        comTaskExecutionLocking.remove(comTaskExecution);
     }
 
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
-        this.comTaskExecutionLocking.remove(comTaskExecution);
+        comTaskExecutionLocking.remove(comTaskExecution);
+    }
+
+    @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        comTaskExecutionLocking.remove(comTaskExecution);
     }
 
     @Override
     public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            this.executionCompleted(comTaskExecution);
+            executionCompleted(comTaskExecution);
         }
     }
 
@@ -406,24 +411,24 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            this.executionFailed(comTaskExecution);
+            executionFailed(comTaskExecution);
         }
     }
 
     @Override
-    public void releaseInterruptedTasks(ComServer comServer) {
-        this.comTaskExecutionLocking.clear();
+    public void releaseInterruptedTasks(ComPort comPort) {
+        comTaskExecutionLocking.clear();
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks(ComServer comServer) {
-        this.comTaskExecutionLocking.clear();
+    public TimeDuration releaseTimedOutTasks(ComPort comPort) {
+        comTaskExecutionLocking.clear();
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
 
     @Override
     public void releaseTasksFor(ComPort comPort) {
-        this.comTaskExecutionLocking.clear();
+        comTaskExecutionLocking.clear();
     }
 
 //    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {

@@ -45,6 +45,8 @@ import static com.elster.jupiter.servicecall.DefaultState.FAILED;
 import static com.elster.jupiter.servicecall.DefaultState.PARTIAL_SUCCESS;
 import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator.actualRecurrentTaskFrequency;
+import static com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay;
 
 public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "ParentGetMeterReadingsServiceCallHandler";
@@ -149,6 +151,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     .withRegisterGroups(registerGroupsNames)
                     .inTimeIntervals(timeRangeSet)
                     .withReadingTypesMRIDsTimeRangeMap(createReadingTypesMRIDsTimeRangeMap(endDevices, readingTypesMRIDs, loadProfilesNames, timePeriodStart, timePeriodEnd))
+                    .withRegisterUpperBoundShift(calculateRegisterUpperBoundShift())
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(FAILED);
@@ -175,6 +178,11 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
+    }
+
+    private int calculateRegisterUpperBoundShift() {
+        /// FIXME +5
+        return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 2;
     }
 
     private boolean sendResponse(ServiceCall serviceCall, MeterReadings meterReadings) {

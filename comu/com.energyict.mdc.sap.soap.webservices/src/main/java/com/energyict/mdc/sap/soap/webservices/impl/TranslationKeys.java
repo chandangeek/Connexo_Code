@@ -31,7 +31,6 @@ public enum TranslationKeys implements TranslationKey {
     LRN("lrn", "LRN"),
     READING_REASON_CODE("readingReasonCode", "Reading reason code"),
     SCHEDULED_READING_DATE("scheduledReadingDate", "Scheduled reading date"),
-    CHANNEL_ID("channelId", "Channel ID"),
     DATA_SOURCE("dataSource", "Data source"),
     FUTURE_CASE("futureCase", "Future case"),
     PROCESSING_DATE("processingDate", "Processing date"),
@@ -68,6 +67,7 @@ public enum TranslationKeys implements TranslationKey {
     SHIPMENT_DATE("shipmentDate", "Shipment date"),
     MANUFACTURER("manufacturer", "Manufacturer"),
     MODEL_NUMBER("modelNumber", "Model number"),
+    CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
     TIME_ZONE("timeZone", "Time zone"),
 
     // Tasks

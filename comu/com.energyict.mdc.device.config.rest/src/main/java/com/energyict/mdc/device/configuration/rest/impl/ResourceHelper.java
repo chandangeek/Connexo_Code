@@ -708,6 +708,10 @@ public class ResourceHelper {
                 .collect(Collectors.toList());
     }
 
+    public List<DeviceType> findDeviceTypes() {
+        return deviceConfigurationService.findAllDeviceTypes().find();
+    }
+
     public List<RegisteredCustomPropertySet> getRegisteredCPSForLinking(DeviceType deviceType, boolean isLinked) {
 
         if (isLinked) {

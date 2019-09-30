@@ -8,7 +8,6 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
-import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.pluggable.PluggableClassUsage;
 import com.energyict.mdc.common.protocol.ConnectionProvider;
@@ -106,16 +105,16 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     enum ConnectionTaskLifecycleStatus {
 
         /**
-         * Active means the ConnectionTask is completely validated and ready to be used by the ComServer.
+         * Active means the ConnectionTask is completely validated and ready to be used by the ComPort.
          * KeyAccessors or their actual value might still be missing on the device.
          */
         ACTIVE,
         /**
-         * InActive means the ConnectionTask is completely validated but not ready to be used by the ComServer (onhold/paused).
+         * InActive means the ConnectionTask is completely validated but not ready to be used by the ComPort (onhold/paused).
          */
         INACTIVE,
         /**
-         * The ConnectionTask is created but not valid and can not be used by the ComServer to execute tasks yet.
+         * The ConnectionTask is created but not valid and can not be used by the ComPort to execute tasks yet.
          * This means that some properties may not be present yet. Even if a KeyAccessorType property is present, the
          * presence of a KeyAccessor or it's actual value is not covered by this state.
          */
@@ -193,7 +192,7 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     /**
      * Tests if this ConnectionTask is paused.
      * A ConnectionTask that is paused, will not be executed
-     * by the ComServer. In addition, all {@link ComTaskExecution}s
+     * by the ComPort. In addition, all {@link ComTaskExecution}s
      * that are linked to it will not be executed.
      * Remember that a ScheduledComTask can be linked directly to a ConnectionTask
      * or it can be linked to the default ConnectionTask of the device hieararchy.
@@ -313,20 +312,20 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
 
     /**
      * Tests if this ConnectionTask is currently executing.
-     * Convenience (and possibly faster) for <code>getExecutingComServer() != null</code>.
+     * Convenience (and possibly faster) for <code>getExecutingComPort() != null</code>.
      *
-     * @return <code>true</code> iff this ConnectionTask is executing, i.e. if the executing ComServer is not null
+     * @return <code>true</code> iff this ConnectionTask is executing, i.e. if the executing ComPort is not null
      */
     boolean isExecuting();
 
     /**
-     * Gets the {@link ComServer} that is currently
+     * Gets the {@link ComPort} that is currently
      * executing this ConnectionTask or <code>null</code>
      * if this ConnectionTask is not executing at this moment.
      *
-     * @return The ComServer or <code>null</code>
+     * @return The ComPort or <code>null</code>
      */
-    ComServer getExecutingComServer();
+    ComPort getExecutingComPort();
 
     /**
      * Pauses this connectionTask, i.e. temporarily disables its execution.

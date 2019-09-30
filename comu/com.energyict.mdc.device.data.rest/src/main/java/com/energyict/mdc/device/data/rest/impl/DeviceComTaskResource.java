@@ -10,6 +10,8 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.User;
+
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -40,8 +42,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -68,13 +73,15 @@ public class DeviceComTaskResource {
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
     private final ComSessionInfoFactory comSessionInfoFactory;
     private final JournalEntryInfoFactory journalEntryInfoFactory;
+    private final ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck;
 
 
     @Inject
     public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory,
                                  TaskService taskService, CommunicationTaskService communicationTaskService, EngineConfigurationService engineConfigurationService,
                                  TopologyService topologyService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory,
-                                 ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory) {
+                                 ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory,
+                                 ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
@@ -85,6 +92,7 @@ public class DeviceComTaskResource {
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
         this.comSessionInfoFactory = comSessionInfoFactory;
         this.journalEntryInfoFactory = journalEntryInfoFactory;
+        this.comTaskExecutionPrivilegeCheck = comTaskExecutionPrivilegeCheck;
     }
 
     @GET
@@ -186,42 +194,54 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response run(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info == null || info.device == null) {
+    public Response run(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
+            @Context SecurityContext securityContext) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.name = name;
         checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
+            if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
+            }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablement(device));
+            if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+                comTaskEnablements.forEach(runComTaskFromEnablement(device));
+            }
         }
         return Response.ok().build();
     }
-
+    
     @PUT
     @Transactional
     @Path("/{comTaskId}/runnow")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response runnow(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
-        if (info == null || info.device == null) {
+    public Response runnow(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
+            @Context SecurityContext securityContext) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.name = name;
         checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(runComTaskFromExecutionNow());
+            if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                comTaskExecutions.forEach(runComTaskFromExecutionNow());
+            }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+            if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+                comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+            }
         }
         return Response.ok().build();
     }
@@ -232,7 +252,8 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response runWithPriority(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
+    public Response runWithPriority(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
+            @Context SecurityContext securityContext) {
         if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
@@ -240,14 +261,19 @@ public class DeviceComTaskResource {
         checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsWithPriorityForDeviceAndComTask(comTaskId, device);
+        User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(cte -> {
-                resourceHelper.getLockedPriorityComTaskExecution(cte);
-                cte.runNow();
-            });
+            if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                comTaskExecutions.forEach(cte -> {
+                    resourceHelper.getLockedPriorityComTaskExecution(cte);
+                    cte.runNow();
+                });
+            }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablementWithPriority(device));
+            if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)){
+                comTaskEnablements.forEach(runComTaskFromEnablementWithPriority(device));
+            }
         }
         return Response.ok().build();
     }
@@ -258,21 +284,25 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response runnowForMultipleTasks(@PathParam("name") String name, RetriggerComTasksInfo info) {
-        if (info == null || info.device == null) {
+    public Response runnowForMultipleTasks(@PathParam("name") String name, RetriggerComTasksInfo info,
+            @Context SecurityContext securityContext) {
+        if (info==null || info.device==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.name = name;
+        User user = (User) securityContext.getUserPrincipal();
         if (!info.comTaskIds.isEmpty()) {
             Device device = resourceHelper.lockDeviceOrThrowException(info.device);
             for (Long comTaskId : info.comTaskIds) {
                 checkForNoActionsAllowedOnSystemComTask(comTaskId);
                 List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
-                if (!comTaskExecutions.isEmpty()) {
+                if (!comTaskExecutions.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                     comTaskExecutions.forEach(runComTaskFromExecutionNow());
                 } else {
                     List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-                    comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+                    if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
+                        comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+                    }
                 }
             }
         }

@@ -9,6 +9,7 @@ import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailReference;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -34,7 +35,7 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
     private volatile OrmService ormService;
     private volatile ServerDeviceService serverDeviceService;
     private volatile MeteringService meteringService;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // for OSGI
@@ -57,8 +58,8 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
     }
 
     @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -78,6 +79,6 @@ public class AuditTrailDeviceAttributesHandle implements AuditTrailDecoderHandle
 
     @Override
     public AuditDecoder getAuditDecoder(AuditTrailReference reference) {
-        return new AuditTrailDeviceAtributesDecoder(ormService, thesaurus, meteringService, serverDeviceService, deviceLifeCycleConfigurationService).init(reference);
+        return new AuditTrailDeviceAtributesDecoder(ormService, thesaurus, meteringService, serverDeviceService, meteringTranslationService).init(reference);
     }
 }

@@ -771,6 +771,10 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
             }
         }
 
+        for (TopologyPathSegment tps : deviceTopology.getTopologyPathSegments()) {
+            journal("[TOPO] Topology segment " + tps.toString());
+        }
+
         return deviceTopology;
     }
 
@@ -785,6 +789,9 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
             try {
                 // date:meterMac:mac1;mac2;mac3:mac1;mac2;mac3
                 final String requestPath = getG3NetworkManagement().requestPath(g3Node.getMacAddressString());
+
+                journal("[TOPO] Request Path for node " + g3Node.getMacAddressString() + " = " + requestPath);
+
                 List<String> pathTokens = Arrays.asList(requestPath.split(":"));
                 List<String> forwardPaths = Arrays.asList(pathTokens.get(2).split(";"));
                 List<String> reversePaths = Arrays.asList(pathTokens.get(3).split(";"));

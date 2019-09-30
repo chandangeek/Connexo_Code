@@ -1,11 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messages;
 
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
-import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -14,6 +8,27 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -21,11 +36,18 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130MessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540Cache;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.LoadProfileOptInOut;
 import com.energyict.protocolimplv2.messages.enums.SetDisplayMode;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.DSMR50ActivitiyCalendarController;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -34,7 +56,23 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenOverThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.actionWhenUnderThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileGroupIdListAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitorInstanceAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.underThresholdDurationAttributeName;
 
 /**
  * @author sva
@@ -103,9 +141,7 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
             } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
                 collectedMessage = this.readDlmsAttribute(collectedMessage, pendingMessage);
             } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PSK_WITH_NEW_KEYS)) {
-                byte[] newPSKKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newPSKAttributeName), "");
-                byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-                byte[] wrappedKey = ProtocolTools.aesWrap(newPSKKey, masterKey);
+                byte[] wrappedKey = getWrappedKey(pendingMessage, newPSKAttributeName);
                 changePSK(wrappedKey);
             } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PSK_USING_SERVICE_KEY)) {
                 collectedMessage = this.changePSKUsingServiceKey(pendingMessage, collectedMessage);
@@ -551,28 +587,12 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
     }
 
-    protected CollectedMessage changeAuthenticationKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newSymmetricKey, masterKey);
-
-        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
-        int clientToChangeKeyFor = getClientId(pendingMessage);
-
-        if (clientInUse == clientToChangeKeyFor) {
-            //Update the key in the security provider, it is used instantly
-            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
-        }
-
-        return collectedMessage;
-    }
-
     @Override
     protected CollectedMessage changeEncryptionKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newSymmetricKey, wrappedKey);
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        renewKeyForClient(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), getClientSecuritySetup(pendingMessage));
 
         int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
         int clientToChangeKeyFor = getClientId(pendingMessage);

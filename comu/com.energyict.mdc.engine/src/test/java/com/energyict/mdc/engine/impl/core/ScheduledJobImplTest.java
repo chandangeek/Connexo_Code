@@ -62,12 +62,17 @@ import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailur
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -173,6 +178,16 @@ public class ScheduledJobImplTest {
     private ThreadPrincipalService threadprincipalService;
     @Mock
     private JobExecution.ServiceProvider serviceProvider;
+    @Mock
+    private FirmwareService firmwareService;
+    @Mock
+    private FirmwareCampaignService firmwareCampaignService;
+    @Mock
+    private TimeOfUseCampaignService timeOfUseCampaignService;
+    @Mock
+    private TimeOfUseCampaign timeOfUseCampaign;
+    @Mock
+    private FirmwareCampaign firmwareCampaign;
 
     private Clock clock = Clock.systemDefaultZone();
     private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
@@ -193,6 +208,11 @@ public class ScheduledJobImplTest {
                 thenReturn(comSessionBuilder);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
+        when(timeOfUseCampaignService.getCampaignOn(any())).thenReturn(Optional.of(timeOfUseCampaign));
+        when(firmwareCampaignService.getCampaignOn(any())).thenReturn(Optional.of(firmwareCampaign));
+        when(this.firmwareService.getFirmwareCampaignService()).thenReturn(this.firmwareCampaignService);
+        when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.serviceProvider.touService()).thenReturn(this.timeOfUseCampaignService);
     }
 
     @Before
@@ -230,7 +250,7 @@ public class ScheduledJobImplTest {
         ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask(mockProtocolDialectConfigurationProperties);
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(mockProtocolDialectConfigurationProperties);
-        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comPort);
         ComTask comTask = createMockComTask();
 
         ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask);
@@ -271,7 +291,7 @@ public class ScheduledJobImplTest {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask(protocolDialectConfigurationProperties);
         when(connectionTask.getDevice()).thenReturn(device);
-        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comPort);
 
         ComTask comTask = createMockComTask();
         ServerComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask);
@@ -386,7 +406,7 @@ public class ScheduledJobImplTest {
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenReturn(mock(ComSession.class));
-        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(connectionTask, comPort)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -449,7 +469,7 @@ public class ScheduledJobImplTest {
 
     private ComServerDAOImpl getMockedComServerDAO() {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
-        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComServer.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComPort.class));
         return comServerDAO;
     }
 
@@ -475,7 +495,7 @@ public class ScheduledJobImplTest {
         ComServerDAOImpl comServerDAO = getMockedComServerDAO();
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
-        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(connectionTask, comPort)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
@@ -542,7 +562,7 @@ public class ScheduledJobImplTest {
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
-        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(connectionTask, comPort)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final AlwaysFailComTaskExecutionJob job = new AlwaysFailComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, connectionTask, this.serviceProvider);
