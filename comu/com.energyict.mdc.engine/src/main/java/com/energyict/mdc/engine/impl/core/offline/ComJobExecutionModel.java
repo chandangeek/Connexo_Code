@@ -117,9 +117,11 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     private Map<DeviceIdentifier, DeviceIdentifier> deviceGatewayMap;
     private Map<DeviceIdentifier, MeterReading> meterReadingMap;
     private Map<DeviceIdentifier, MeterReading> manualMeterReadingsMap;
-    private Map<LogBookIdentifier, CollectedLogBook> collectedLogBookMap;
-    private Map<LogBookIdentifier, Long> logBookLastReadingsMap;
     private Map<LoadProfileIdentifier, CollectedLoadProfile> collectedLoadProfileMap;
+    private Map<LoadProfileIdentifier, Long> loadProfileReadDateMap;
+    private Map<LogBookIdentifier, CollectedLogBook> collectedLogBookMap;
+    private Map<LogBookIdentifier, Long> logBookReadDateMap;
+    private Map<LogBookIdentifier, Long> logBookLastReadingsMap;
     private List<DeviceMessageInformationWrapper> collectedDeviceMessageInformationList;
     private Map<Long, Long> comTaskExecutionStartTimes;
     private Date connectionStartTime = null;
@@ -236,6 +238,19 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         }
     }
 
+    public void resetCollectedData() {
+        this.manualMeterReadingsMap = null;
+        this.successFullComTaskExecutions = null;
+        this.failedComTaskExecutions = null;
+        this.collectedLoadProfileMap = null;
+        this.collectedDeviceMessageInformationList = null;
+        this.meterReadingMap = null;
+        this.collectedLogBookMap = null;
+        this.deviceCache = null;
+        this.comSessionBuilder = null;
+        setMmrHaveChanged(true);        //Rebuild the mmr journal entries in the comsession shadow
+    }
+
     @XmlElement(type = ComTaskExecutionGroup.class, name = "comJob")
     public ComJob getComJob() {
         return comJob;
@@ -350,20 +365,20 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
 
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
-    public Map<OfflineRegister, Reading> getPreviousValuesMap() {
-        if (this.previousValuesMap == null) {
-            this.previousValuesMap = new HashMap<>();
-        }
-        return this.previousValuesMap;
-    }
-
-    @XmlAttribute
-    @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
     public Map<OfflineRegister, Register> getRegisterMap() {
         if (this.registerMap == null) {
             this.registerMap = new HashMap<>();
         }
         return this.registerMap;
+    }
+
+    @XmlAttribute
+    @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
+    public Map<OfflineRegister, Reading> getPreviousValuesMap() {
+        if (this.previousValuesMap == null) {
+            this.previousValuesMap = new HashMap<>();
+        }
+        return this.previousValuesMap;
     }
 
     /**
@@ -637,6 +652,9 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return communicationLogLevel;
     }
 
+    public void updateGatewayOfDevice(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
+        getDeviceGatewayMap().put(deviceIdentifier, gatewayDeviceIdentifier);
+    }
 
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
@@ -647,24 +665,34 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return this.deviceGatewayMap;
     }
 
-    public void updateGatewayOfDevice(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
-        getDeviceGatewayMap().put(deviceIdentifier, gatewayDeviceIdentifier);
+    public void addCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
+        getCollectedLoadProfileMap().put(loadProfileIdentifier, collectedLoadProfile);
     }
 
-    @XmlElement
-    @XmlJavaTypeAdapter(MapDeviceIdentifierMeterReadingAdapter.class)
-    public Map<DeviceIdentifier, MeterReading> getMeterReadingMap() {
-        if (this.meterReadingMap == null) {
-            this.meterReadingMap = new HashMap<>();
+    @XmlAttribute
+    @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
+    public Map<LoadProfileIdentifier, CollectedLoadProfile> getCollectedLoadProfileMap() {
+        if (this.collectedLoadProfileMap == null) {
+            this.collectedLoadProfileMap = new HashMap<>();
         }
-        return this.meterReadingMap;
+        return this.collectedLoadProfileMap;
     }
 
-    /**
-     * After executing a comjob, the comserver calls this method to store the register values.
-     */
-    public void addMeterReading(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
-        getMeterReadingMap().put(deviceIdentifier, meterReading);
+    public void updateLoadProfileReadDate(LoadProfileIdentifier loadProfileIdentifier, Date startTimestamp) {
+        getLoadProfileReadDateMap().put(loadProfileIdentifier, startTimestamp.getTime());
+    }
+
+    @XmlAttribute
+    @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
+    public Map<LoadProfileIdentifier, Long> getLoadProfileReadDateMap() {
+        if (this.loadProfileReadDateMap == null) {
+            this.loadProfileReadDateMap = new HashMap<>();
+        }
+        return this.loadProfileReadDateMap;
+    }
+
+    public void addCollectedLogBook(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook) {
+        getCollectedLogBookMap().put(logBookIdentifier, collectedLogBook);
     }
 
     @XmlAttribute
@@ -676,30 +704,17 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return this.collectedLogBookMap;
     }
 
-    public void resetCollectedData() {
-        this.manualMeterReadingsMap = null;
-        this.successFullComTaskExecutions = null;
-        this.failedComTaskExecutions = null;
-        this.collectedLoadProfileMap = null;
-        this.collectedDeviceMessageInformationList = null;
-        this.meterReadingMap = null;
-        this.collectedLogBookMap = null;
-        this.deviceCache = null;
-        this.comSessionBuilder = null;
-        setMmrHaveChanged(true);        //Rebuild the mmr journal entries in the comsession shadow
-    }
-
-    public void addCollectedLogBook(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook) {
-        getCollectedLogBookMap().put(logBookIdentifier, collectedLogBook);
+    public void updateLogBookReadDate(LogBookIdentifier logBookIdentifier, Date startTimestamp) {
+        getLogBookReadDateMap().put(logBookIdentifier, startTimestamp.getTime());
     }
 
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
-    public Map<LoadProfileIdentifier, CollectedLoadProfile> getCollectedLoadProfileMap() {
-        if (this.collectedLoadProfileMap == null) {
-            this.collectedLoadProfileMap = new HashMap<>();
+    public Map<LogBookIdentifier, Long> getLogBookReadDateMap() {
+        if (this.logBookReadDateMap == null) {
+            this.logBookReadDateMap = new HashMap<>();
         }
-        return this.collectedLoadProfileMap;
+        return this.logBookReadDateMap;
     }
 
     public void updateLogBookLastReading(LogBookIdentifier logBookIdentifier, Date startTimestamp) {
@@ -715,8 +730,8 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return this.logBookLastReadingsMap;
     }
 
-    public void addCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
-        getCollectedLoadProfileMap().put(loadProfileIdentifier, collectedLoadProfile);
+    public void addCollectedDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+        getCollectedDeviceMessageInformationList().add(new DeviceMessageInformationWrapper(messageIdentifier, newDeviceMessageStatus, sentDate, protocolInformation));
     }
 
     @XmlAttribute
@@ -725,10 +740,6 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
             this.collectedDeviceMessageInformationList = new ArrayList<>(0);
         }
         return this.collectedDeviceMessageInformationList;
-    }
-
-    public void addCollectedDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
-        getCollectedDeviceMessageInformationList().add(new DeviceMessageInformationWrapper(messageIdentifier, newDeviceMessageStatus, sentDate, protocolInformation));
     }
 
     private void checkIsMasterDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
@@ -751,6 +762,24 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         if (!(deviceIdentifier instanceof DeviceIdentifierById)) {
             throw new UnsupportedOperationException("Unsupported identifier '" + deviceIdentifier.toString() + "' of type '" + deviceIdentifier.getXmlType() + "', expecting type '" + DeviceIdentifierById.class.getCanonicalName() + "'.");
         }
+    }
+
+    public void setConnectionTaskSuccess(boolean connectionTaskSuccess) {
+        this.connectionTaskSuccess = connectionTaskSuccess;
+    }
+
+    @XmlAttribute
+    public boolean isConnectionTaskSuccess() {
+        return connectionTaskSuccess;
+    }
+
+    @XmlAttribute
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @XmlAttribute
@@ -780,24 +809,6 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
 
     public void forceResult(ComJobResult result) {
         this.result = result;
-    }
-
-    public void setConnectionTaskSuccess(boolean connectionTaskSuccess) {
-        this.connectionTaskSuccess = connectionTaskSuccess;
-    }
-
-    @XmlAttribute
-    public boolean isConnectionTaskSuccess() {
-        return connectionTaskSuccess;
-    }
-
-    @XmlAttribute
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     @XmlElement(name = "type")
@@ -836,6 +847,14 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         }
     }
 
+    @XmlElement(type = ComTaskExecutionImpl.class)
+    public List<ComTaskExecution> getSuccessFullComTaskExecutions() {
+        if (successFullComTaskExecutions == null) {
+            successFullComTaskExecutions = new ArrayList<>();
+        }
+        return successFullComTaskExecutions;
+    }
+
     public void addFailedComTaskExecution(ComTaskExecution comTaskExecution, boolean mmr) {
         if (!hasMMRTask(comTaskExecution) || mmr) {
             if (!getFailedComTaskExecutions().contains(comTaskExecution)) {
@@ -845,14 +864,6 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
                 getSuccessFullComTaskExecutions().remove(comTaskExecution);      //Remove comtask from successful tasks, it was reset and it's new execution failed
             }
         }
-    }
-
-    @XmlElement(type = ComTaskExecutionImpl.class)
-    public List<ComTaskExecution> getSuccessFullComTaskExecutions() {
-        if (successFullComTaskExecutions == null) {
-            successFullComTaskExecutions = new ArrayList<>();
-        }
-        return successFullComTaskExecutions;
     }
 
     @XmlElement(type = ComTaskExecutionImpl.class)
@@ -884,10 +895,8 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     }
 
     // New execution model data
-
     private DeviceProtocolCacheXmlWrapper deviceCache;
     private ComSessionBuilderXmlWrapper comSessionBuilder;
-
     private List<Map<LogBookIdentifier, Instant>> logBookUpdates;
     private List<Map<LoadProfileIdentifier, Instant>> loadProfileUpdates;
 
@@ -915,6 +924,9 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         this.deviceCache = deviceCache;
     }
 
+    public void addLogBookUpdate(Map<LogBookIdentifier, Instant> logBookUpdate) {
+        getLogBookUpdates().add(logBookUpdate);
+    }
 
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
@@ -924,8 +936,8 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return logBookUpdates;
     }
 
-    public void addLogBookUpdate(Map<LogBookIdentifier, Instant> logBookUpdate) {
-        getLogBookUpdates().add(logBookUpdate);
+    public void addLoadProfileUpdate(Map<LoadProfileIdentifier, Instant> loadProfileUpdate) {
+        getLoadProfileUpdates().add(loadProfileUpdate);
     }
 
     @XmlAttribute
@@ -936,7 +948,19 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return loadProfileUpdates;
     }
 
-    public void addLoadProfileUpdate(Map<LoadProfileIdentifier, Instant> loadProfileUpdate) {
-        getLoadProfileUpdates().add(loadProfileUpdate);
+    /**
+     * After executing a comjob, the comserver calls this method to store the register values.
+     */
+    public void addMeterReading(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+        getMeterReadingMap().put(deviceIdentifier, meterReading);
+    }
+
+    @XmlElement
+    @XmlJavaTypeAdapter(MapDeviceIdentifierMeterReadingAdapter.class)
+    public Map<DeviceIdentifier, MeterReading> getMeterReadingMap() {
+        if (this.meterReadingMap == null) {
+            this.meterReadingMap = new HashMap<>();
+        }
+        return this.meterReadingMap;
     }
 }

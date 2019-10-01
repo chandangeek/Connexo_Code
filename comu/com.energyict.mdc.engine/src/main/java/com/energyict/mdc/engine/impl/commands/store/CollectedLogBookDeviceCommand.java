@@ -41,7 +41,7 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         if (comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier()) != null) {
-            comServerDAO.storeLogBookData(deviceLogBook.getLogBookIdentifier(), deviceLogBook);
+            comServerDAO.storeLogBookData(deviceLogBook.getLogBookIdentifier(), deviceLogBook, this.getClock().instant());
             if (!isAwareOfPushedEvents()) {
                 comServerDAO.updateLogBookLastReadingFromTask(deviceLogBook.getLogBookIdentifier(), getComTaskExecution().getId());
             } else if(isOutboundConnection()){ //do not update for inbound, EISERVERSG-4265

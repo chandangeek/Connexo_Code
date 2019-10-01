@@ -68,7 +68,7 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LogBookIdentifierByObisCodeAndDevice otherIdentifier = (LogBookIdentifierByObisCodeAndDevice) o;
+        LogBookIdentifierForAlreadyKnowLogBook otherIdentifier = (LogBookIdentifierForAlreadyKnowLogBook) o;
         return this.deviceIdentifier.equals(otherIdentifier.getDeviceIdentifier())
                 && logBookObisCode.equals(otherIdentifier.getLogBookObisCode());
     }

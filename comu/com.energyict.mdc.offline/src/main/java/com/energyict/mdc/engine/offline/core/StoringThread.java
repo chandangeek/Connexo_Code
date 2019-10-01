@@ -210,16 +210,16 @@ public class StoringThread extends Thread {
             getRemoteComServerDAO().storeMeterReadings(entry.getKey(), entry.getValue());
         }
 
+        for (Map.Entry<LoadProfileIdentifier, CollectedLoadProfile> entry : model.getCollectedLoadProfileMap().entrySet()) {
+            getRemoteComServerDAO().storeLoadProfile(entry.getKey(), entry.getValue(),  new Date(model.getLoadProfileReadDateMap().get(entry.getKey())).toInstant());
+        }
+
         for (Map.Entry<LogBookIdentifier, CollectedLogBook> entry : model.getCollectedLogBookMap().entrySet()) {
-            getRemoteComServerDAO().storeLogBookData(entry.getKey(), entry.getValue());
+            getRemoteComServerDAO().storeLogBookData(entry.getKey(), entry.getValue(), new Date(model.getLogBookReadDateMap().get(entry.getKey())).toInstant());
         }
 
         for (Map.Entry<LogBookIdentifier, Long> entry : model.getLogBookLastReadingsMap().entrySet()) {
             getRemoteComServerDAO().updateLogBookLastReading(entry.getKey(), new Date(entry.getValue()));
-        }
-
-        for (Map.Entry<LoadProfileIdentifier, CollectedLoadProfile> entry : model.getCollectedLoadProfileMap().entrySet()) {
-            getRemoteComServerDAO().storeLoadProfile(entry.getKey(), entry.getValue());
         }
 
         for (DeviceMessageInformationWrapper messageInformation : model.getCollectedDeviceMessageInformationList()) {

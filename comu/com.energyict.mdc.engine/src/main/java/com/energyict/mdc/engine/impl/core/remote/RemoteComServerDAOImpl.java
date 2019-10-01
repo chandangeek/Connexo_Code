@@ -653,19 +653,21 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
 
     @Override
-    public void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
+    public void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.LOADPROFILE_IDENTIFIER, loadProfileIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COLLECTED_LOADPROFILE, collectedLoadProfile);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, currentDate);
         post(QueryMethod.StoreLoadProfile, queryParameters);
 
     }
 
     @Override
-    public void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook) {
+    public void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook, Instant currentDate) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER, logBookIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COLLECTED_LOGBOOK, collectedLogBook);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, currentDate);
         post(QueryMethod.StoreLogBookData, queryParameters);
     }
 

@@ -55,12 +55,10 @@ import static com.elster.jupiter.util.streams.Predicates.not;
  */
 public class PreStoreLoadProfile {
 
-    private final Clock clock;
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private final ComServerDAO comServerDAO;
 
-    public PreStoreLoadProfile(Clock clock, MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO) {
-        this.clock = clock;
+    public PreStoreLoadProfile(MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         this.comServerDAO = comServerDAO;
     }
@@ -80,9 +78,9 @@ public class PreStoreLoadProfile {
      * at least one channel is linked to a slave channel can return an extra element, if not all channels are linked: 1 for non linked channels (device = datalogger)
      * and 1 for each slave device ;
      */
-    public PreStoredLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
+    public PreStoredLoadProfile preStore(CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
         if (!collectedLoadProfile.getCollectedIntervalData().isEmpty()) {
-            return new CompositePreStoredLoadProfile(mdcReadingTypeUtilService, this.comServerDAO, collectedLoadProfile.getLoadProfileIdentifier()).preprocess(collectedLoadProfile, clock.instant());
+            return new CompositePreStoredLoadProfile(mdcReadingTypeUtilService, this.comServerDAO, collectedLoadProfile.getLoadProfileIdentifier()).preprocess(collectedLoadProfile, currentDate);
         } else {
             return PreStoredLoadProfile.forLoadProfileDataNotCollected();
         }

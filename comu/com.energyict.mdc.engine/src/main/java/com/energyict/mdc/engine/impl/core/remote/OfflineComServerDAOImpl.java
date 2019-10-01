@@ -456,13 +456,15 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
+    public void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
         getComJobExecutionModel().addCollectedLoadProfile(loadProfileIdentifier, collectedLoadProfile);
+        getComJobExecutionModel().updateLoadProfileReadDate(loadProfileIdentifier, Date.from(currentDate));
     }
 
     @Override
-    public void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook) {
+    public void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook, Instant currentDate) {
         getComJobExecutionModel().addCollectedLogBook(logBookIdentifier, collectedLogBook);
+        getComJobExecutionModel().updateLogBookReadDate(logBookIdentifier, Date.from(currentDate));
     }
 
     @Override

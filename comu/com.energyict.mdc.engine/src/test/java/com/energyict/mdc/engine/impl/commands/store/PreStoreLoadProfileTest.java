@@ -180,8 +180,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(2);
@@ -206,8 +206,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         freezeClock(currentTimeStamp);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
@@ -236,8 +236,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         freezeClock(currentTimeStamp);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
@@ -268,8 +268,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         freezeClock(currentTimeStamp);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
@@ -312,8 +312,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(currentTimeStamp);
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(3);
@@ -339,8 +339,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(intervalEndTime4);
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(3);
@@ -365,8 +365,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         final ComServerDAO comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(intervalEndTime3);
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(2);
@@ -402,8 +402,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(2);
@@ -469,8 +469,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(2);
@@ -536,8 +536,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(4);
@@ -616,8 +616,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(4);
@@ -725,8 +725,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(2);
@@ -829,8 +829,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(3);
@@ -941,8 +941,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile);
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getMdcReadingTypeUtilService(), comServerDAO);
+        PreStoreLoadProfile.CompositePreStoredLoadProfile preStoredLoadProfile = (PreStoreLoadProfile.CompositePreStoredLoadProfile) loadProfilePreStorer.preStore(collectedLoadProfile, getClock().instant());
 
         assertThat(preStoredLoadProfile.getPreStoreResult()).isEqualTo(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK);
         assertThat(preStoredLoadProfile.getIntervalBlocks()).hasSize(3);

@@ -510,7 +510,7 @@ public enum QueryMethod {
                 JSONObject jsonObject = new JSONObject(parameters);
                 DeviceIdentifier deviceIdentifier = deviceIdentifierObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER);
                 MeterReading meterReading = meterReadingDataObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.METER_READING);
-                serviceProvider.comServerDAO().storeMeterReadings(deviceIdentifier, meterReading);
+                this.storeMeterReadings(serviceProvider, deviceIdentifier, meterReading);
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -641,7 +641,7 @@ public enum QueryMethod {
                     protocolInformation = (String) parameters.get(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION);
                 }
 
-                serviceProvider.comServerDAO().updateDeviceMessageInformation(messageIdentifier, newMessageStatus, instantDate, protocolInformation);
+                this.updateDeviceMessageInformation(serviceProvider, messageIdentifier, newMessageStatus, instantDate, protocolInformation);
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -690,7 +690,7 @@ public enum QueryMethod {
                 ComSessionBuilder builder = builderParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.COMSESSION_BUILDER);
                 Instant stopDate = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.COMSESSION_STOP_DATE);
                 ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.valueOf(jsonObject.getString(RemoteComServerQueryJSonPropertyNames.COMSESSION_SUCCESS_INDICATOR));
-                serviceProvider.comServerDAO().createComSession(builder, stopDate, successIndicator);
+                this.createComSession(serviceProvider, builder, stopDate, successIndicator);
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -722,7 +722,8 @@ public enum QueryMethod {
                 ObjectParser<CollectedLoadProfile> collectedLoadProfileObjectParser = new ObjectParser<>();
                 LoadProfileIdentifier loadProfileIdentifier = loadProfileIdentifierObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.LOADPROFILE_IDENTIFIER);
                 CollectedLoadProfile collectedLoadProfile = collectedLoadProfileObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.COLLECTED_LOADPROFILE);
-                serviceProvider.comServerDAO().storeLoadProfile(loadProfileIdentifier, collectedLoadProfile);
+                Date date = new Date(getLong(parameters, RemoteComServerQueryJSonPropertyNames.CURRENT_DATE));
+                this.storeLoadProfile(serviceProvider, loadProfileIdentifier, collectedLoadProfile, date.toInstant());
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -738,7 +739,8 @@ public enum QueryMethod {
                 ObjectParser<CollectedLogBook> collectedLogBookObjectParser = new ObjectParser<>();
                 LogBookIdentifier logBookIdentifier = logBookIdentifierObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER);
                 CollectedLogBook collectedLogBook = collectedLogBookObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.COLLECTED_LOGBOOK);
-                serviceProvider.comServerDAO().storeLogBookData(logBookIdentifier, collectedLogBook);
+                Date date = new Date(getLong(parameters, RemoteComServerQueryJSonPropertyNames.CURRENT_DATE));
+                this.storeLogBookData(serviceProvider, logBookIdentifier, collectedLogBook, date.toInstant());
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -768,7 +770,7 @@ public enum QueryMethod {
                 JSONObject jsonObject = new JSONObject(parameters);
                 LogBookIdentifier logBookIdentifier = logBookIdentifierObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER);
                 Long comTaskExecutionId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
-                serviceProvider.comServerDAO().updateLogBookLastReadingFromTask(logBookIdentifier, comTaskExecutionId);
+                this.updateLogBookLastReadingFromTask(serviceProvider, logBookIdentifier, comTaskExecutionId);
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -967,6 +969,60 @@ public enum QueryMethod {
             @Override
             public void doPerform() {
                 serviceProvider.comServerDAO().executionFailed(comTaskExecution);
+            }
+        });
+    }
+
+    protected void createComSession(ServiceProvider serviceProvider, ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().createComSession(builder, stopDate, successIndicator);
+            }
+        });
+    }
+
+    protected void storeMeterReadings(ServiceProvider serviceProvider, DeviceIdentifier identifier, MeterReading meterReading) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().storeMeterReadings(identifier, meterReading);
+            }
+        });
+    }
+
+    public void storeLoadProfile(ServiceProvider serviceProvider, LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().storeLoadProfile(loadProfileIdentifier, collectedLoadProfile, currentDate);
+            }
+        });
+    }
+
+    public void storeLogBookData(ServiceProvider serviceProvider, LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook, Instant currentDate) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().storeLogBookData(logBookIdentifier, collectedLogBook, currentDate);
+            }
+        });
+    }
+
+    public void updateLogBookLastReadingFromTask(ServiceProvider serviceProvider, LogBookIdentifier logBookIdentifier, long comTaskExecutionId){
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().updateLogBookLastReadingFromTask(logBookIdentifier, comTaskExecutionId);
+            }
+        });
+    }
+
+    public void updateDeviceMessageInformation(ServiceProvider serviceProvider, MessageIdentifier messageIdentifier, DeviceMessageStatus newMessageStatus, Instant sentDate, String protocolInformation) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().updateDeviceMessageInformation(messageIdentifier, newMessageStatus, sentDate, protocolInformation);
             }
         });
     }

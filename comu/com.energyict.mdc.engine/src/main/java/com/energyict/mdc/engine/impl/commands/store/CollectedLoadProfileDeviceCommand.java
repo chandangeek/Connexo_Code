@@ -14,7 +14,6 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 
 import com.energyict.protocol.ChannelInfo;
 
@@ -44,7 +43,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         if (comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier()) != null) {
-            comServerDAO.storeLoadProfile(collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile);
+            comServerDAO.storeLoadProfile(collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, this.getClock().instant());
         } else {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,

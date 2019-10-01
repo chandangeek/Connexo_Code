@@ -8,6 +8,7 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
@@ -86,7 +87,7 @@ public final class RemoteComServerQueryJSonPropertyNames {
 
     /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.tasks.ComTask}
+     * of a {@link ComTask}
      * that is passed as an argument to a remote com server query.
      */
     public static final String COMTASK = "com-task";

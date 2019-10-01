@@ -99,8 +99,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
 
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
-        PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        PreStoreLogBook preStoreLogBook = new PreStoreLogBook(comServerDAO);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook, getClock().instant());
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
@@ -120,8 +120,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
 
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
-        PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        PreStoreLogBook preStoreLogBook = new PreStoreLogBook(comServerDAO);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook, getClock().instant());
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(1);
@@ -141,8 +141,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
 
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 4).hasSize(4);
 
-        PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        PreStoreLogBook preStoreLogBook = new PreStoreLogBook(comServerDAO);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook, getClock().instant());
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(3); // One exact duplicate should be filtered out, 2th wrappers with same private key combination should have its event time increased with 1 millisecond

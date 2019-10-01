@@ -943,7 +943,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void unlockConnectionTasks(ComPort comPort, Set<ConnectionTask> lockedConnectionTasks) {
         int unlockedCount = 0;
-
         for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
             try {
                 unlock(lockedConnectionTask);
@@ -964,11 +963,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, Instant stopDate, final ComSession.SuccessIndicator successIndicator) {
-        this.executeTransaction(() -> {
-            builder.injectServices(serviceProvider.ormService().getDataModel(DeviceDataServices.COMPONENT_NAME).get(), serviceProvider.connectionTaskService(), serviceProvider.thesaurus());
-            return builder.endSession(stopDate, successIndicator).create();
-        });
-        return null;
+        builder.injectServices(serviceProvider.ormService().getDataModel(DeviceDataServices.COMPONENT_NAME).get(), serviceProvider.connectionTaskService(), serviceProvider.thesaurus());
+        return builder.endSession(stopDate, successIndicator).create();
     }
 
     @Override
@@ -986,46 +982,38 @@ public class ComServerDAOImpl implements ComServerDAO {
         });
     }
 
+
     @Override
-    public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile) {
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.serviceProvider.mdcReadingTypeUtilService(), this);
+    public void storeMeterReadings(final DeviceIdentifier identifier, final MeterReading meterReading) {
+        Device device = this.findDevice(identifier);
+        device.store(meterReading);
+    }
+
+    @Override
+    public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.serviceProvider.mdcReadingTypeUtilService(), this);
         if (collectedLoadProfile.getChannelInfo().stream().noneMatch(channelInfo -> channelInfo.getReadingTypeMRID() == null || channelInfo.getReadingTypeMRID().isEmpty())) {
-            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, currentDate);
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
-                this.executeTransaction(() -> {
-                    findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
-                        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                        meterReading.addAllIntervalBlocks(preStoredLoadProfile.getIntervalBlocks());
-                        lp.getDevice().store(meterReading);
-                        updateLoadProfile(lp, preStoredLoadProfile.getLastReading()).apply(lp.getDevice());
-                    });
-                    return null;
+                findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
+                    MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                    meterReading.addAllIntervalBlocks(preStoredLoadProfile.getIntervalBlocks());
+                    lp.getDevice().store(meterReading);
+                    updateLoadProfile(lp, preStoredLoadProfile.getLastReading()).apply(lp.getDevice());
                 });
             }
         }
     }
 
     @Override
-    public void storeMeterReadings(final DeviceIdentifier identifier, final MeterReading meterReading) {
-        this.executeTransaction(() -> {
-            Device device = this.findDevice(identifier);
-            device.store(meterReading);
-            return null;
-        });
-    }
-
-    @Override
-    public void storeLogBookData(final LogBookIdentifier logBookIdentifier, final CollectedLogBook collectedLogBook) {
-        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), this);
-        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(collectedLogBook);
+    public void storeLogBookData(final LogBookIdentifier logBookIdentifier, final CollectedLogBook collectedLogBook, final Instant currentDate) {
+        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(collectedLogBook, currentDate);
         if (localLogBook.isPresent() && !localLogBook.get().getLast().getEndDeviceEvents().isEmpty()) {
-            this.executeTransaction(() -> {
-                findLogBook(logBookIdentifier).ifPresent(lb -> {
-                    MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                    meterReading.addAllEndDeviceEvents(localLogBook.get().getLast().getEndDeviceEvents());
-                    lb.getDevice().store(meterReading);
-                });
-                return null;
+            findLogBook(logBookIdentifier).ifPresent(lb -> {
+                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                meterReading.addAllEndDeviceEvents(localLogBook.get().getLast().getEndDeviceEvents());
+                lb.getDevice().store(meterReading);
             });
         }
     }
@@ -1043,11 +1031,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
         getCommunicationTaskService().findComTaskExecution(comTaskExecutionId).ifPresent(cte -> {
-            this.executeTransaction(() -> {
-                findLogBook(logBookIdentifier).ifPresent(lb -> {
-                    updateLogBook(lb, cte.getLastExecutionStartTimestamp()).apply(lb.getDevice());
-                });
-                return null;
+            findLogBook(logBookIdentifier).ifPresent(lb -> {
+                updateLogBook(lb, cte.getLastExecutionStartTimestamp()).apply(lb.getDevice());
             });
         });
     }

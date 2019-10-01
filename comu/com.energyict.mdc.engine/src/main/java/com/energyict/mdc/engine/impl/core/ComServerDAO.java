@@ -451,23 +451,31 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      */
     void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache);
 
+    /**
+     * Stores the given list of Reading readings on the Meter.
+     *
+     * @param deviceIdentifier the identifier of the Device
+     * @param meterReading     the readings to store
+     */
+    void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading);
+
  /**
   * Stores the collected {@link ProfileData} in the {@link LoadProfile}
   * which is specified by the given {@link LoadProfileIdentifier}
-  *
-  * @param loadProfileIdentifier The LoadProfileIdentifier which uniquely identifies the LoadProfile
+  *  @param loadProfileIdentifier The LoadProfileIdentifier which uniquely identifies the LoadProfile
   * @param collectedLoadProfile The collectedLoadProfile, containing the collected ProfileData
+  * @param currentDate
   */
- void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile);
+ void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate);
 
  /**
   * Stores the {@link CollectedLogBook} in the specified {@link  LogBook}
   * which is uniquely identified by the given {@link LogBookIdentifier}
-  *
-  * @param logBookIdentifier The LogBookIdentifier which uniquely identifies the LogBook
+  *  @param logBookIdentifier The LogBookIdentifier which uniquely identifies the LogBook
   * @param collectedLogBook The CollectedLogBook, containing the list of collected MeterProtocolEvents
+  * @param currentDate
   */
- void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook);
+ void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook, Instant currentDate);
 
  /**
   * Updates the last reading date of a {@link LogBook} which is uniquely identified by
@@ -484,15 +492,6 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param comTaskExecutionId
      */
     public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, long comTaskExecutionId);
-
-
-    /**
-     * Stores the given list of Reading readings on the Meter.
-     *
-     * @param deviceIdentifier the identifier of the Device
-     * @param meterReading     the readings to store
-     */
-    void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading);
 
     /**
      * Finds the OfflineDevice that is uniquely identified

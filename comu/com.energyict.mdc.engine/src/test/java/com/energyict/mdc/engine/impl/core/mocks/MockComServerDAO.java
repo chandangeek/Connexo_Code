@@ -470,11 +470,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
+    public void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
     }
 
     @Override
-    public void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook) {
+    public void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook, Instant currentDate) {
     }
 
     @Override
