@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeterActivationChannelsContainer;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -32,7 +33,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl {
+class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl implements MeterActivationChannelsContainer {
     private final DataAggregationService aggregationService;
     private Reference<MeterActivation> meterActivation = ValueReference.absent();
 
