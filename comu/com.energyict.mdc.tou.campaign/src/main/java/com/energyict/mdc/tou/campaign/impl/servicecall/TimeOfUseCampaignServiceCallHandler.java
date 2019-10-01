@@ -72,7 +72,7 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
     private void complete(ServiceCall parent) {
         if (isLastChild(findChildren(parent))) {
             if (parent.getState().equals(DefaultState.ONGOING)) {
-                if (isCancelling(findChildren(parent))) {
+                if (isCancelling(parent)) {
                     parent.requestTransition(DefaultState.CANCELLED);
                 } else {
                     parent.requestTransition(DefaultState.SUCCESSFUL);
@@ -92,10 +92,11 @@ public class TimeOfUseCampaignServiceCallHandler implements ServiceCallHandler {
                         || sc.getState().equals(DefaultState.PENDING));
     }
 
-    private boolean isCancelling(List<ServiceCall> serviceCalls) {
-        return serviceCalls
-                .stream()
-                .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
+    private boolean isCancelling(ServiceCall parent) {
+        return parent.getExtension(TimeOfUseCampaignDomainExtension.class).get().isManuallyCancelled() ||
+                findChildren(parent)
+                        .stream()
+                        .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
     }
 
 
