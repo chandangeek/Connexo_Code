@@ -83,7 +83,7 @@ Ext.define('Mdc.processes.view.ProcessPreviewForm', {
                                 hidden: true,
                                 renderer: function (value) {
                                     var result = '';
-                                    if (value && Isu.privileges.Issue.canViewAdminDevice()) {
+                                    if (value && Isu.privileges.Issue.canViewIssue()) {
                                         var url = me.router.getRoute('workspace/issues/view').buildUrl({issueId: value.get('value')}, {issueType: value.get('issueType')});
                                         result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.get('objectName')) + '</a>';
                                     } else if (value){
