@@ -13,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class HsmReloadableConfigResourceTest {
+public class HsmReloadableJssConfigResourceTest {
 
     @Mock
     File f1;
@@ -25,28 +25,28 @@ public class HsmReloadableConfigResourceTest {
 
     @Test(expected = HsmBaseException.class)
     public void testNullFile() throws HsmBaseException {
-        HsmReloadableConfigResource.getInstance(null);
+        HsmReloadableJssConfigResource.getInstance(null);
     }
 
     @Test(expected = HsmBaseException.class)
     public void testNotExstingFile() throws HsmBaseException {
         Mockito.when(f1.exists()).thenReturn(false);
-        HsmReloadableConfigResource.getInstance(f1);
+        HsmReloadableJssConfigResource.getInstance(f1);
     }
 
     @Test
     public void testSingleton() throws HsmBaseException {
         Mockito.when(f1.exists()).thenReturn(true);
         Mockito.when(f2.exists()).thenReturn(true);
-        HsmReloadableConfigResource instance = HsmReloadableConfigResource.getInstance(f1);
+        HsmReloadableJssConfigResource instance = HsmReloadableJssConfigResource.getInstance(f1);
         Assert.assertEquals(false,instance.changed());
-        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f1));
+        Assert.assertEquals(instance, HsmReloadableJssConfigResource.getInstance(f1));
         Assert.assertEquals(false,instance.changed());
-        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f2));
+        Assert.assertEquals(instance, HsmReloadableJssConfigResource.getInstance(f2));
         Assert.assertEquals(true, instance.changed());
-        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f2));
+        Assert.assertEquals(instance, HsmReloadableJssConfigResource.getInstance(f2));
         Assert.assertEquals(false, instance.changed());
-        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f1));
+        Assert.assertEquals(instance, HsmReloadableJssConfigResource.getInstance(f1));
         Assert.assertEquals(true, instance.changed());
     }
 
