@@ -109,7 +109,7 @@ public class StartProcessWebServiceIssueAction extends AbstractIssueAction {
 
     @Override
     public IssueAction setReasonKey(String reasonKey) {
-        this.reasonKey = reasonKey;
+        this.reasonKey = reasonKey == null ? "" : reasonKey;
         return this;
     }
 
