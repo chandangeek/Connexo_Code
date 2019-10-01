@@ -11,17 +11,12 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
-import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Checks that all the {@link ConnectionTask}s of a Device are complete.
@@ -52,33 +47,50 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
         if (containsIncompleteConnectionTask) {
             return true;
         }
-        device.getDeviceConfiguration().getComTaskEnablements()
-                .stream()
-                .filter(ctEn->
-                        device.getComTaskExecutions()
-                                .stream()
-                                .anyMatch(ctExec->ctEn.getComTask().getId()!=ctExec.getComTask().getId())
-                ).map(device::newAdHocComTaskExecution);
-        boolean defaultConnectionTaskContainsHP = device
-                .getComTaskExecutions()
-                .stream()
-                .map(ComTaskExecution::getConnectionTask)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(ConnectionTaskPropertyProvider::getTypedProperties)
-                .anyMatch(ct-> ct.getStringProperty("host").equals("null") || ct.getStringProperty("portNumber").equals("null"));
-        if(defaultConnectionTaskContainsHP){
-            return true;
+
+        boolean isHasExecution = false;
+        for(ComTaskEnablement comTaskEnablement:device.getDeviceConfiguration().getComTaskEnablements()){
+            for(ComTaskExecution comTaskExecution:device.getComTaskExecutions()){
+                if(comTaskEnablement.getComTask().getId() == comTaskExecution.getComTask().getId()) {
+                    Optional<ConnectionTask<?,?>> connectionTask = comTaskExecution.getConnectionTask();
+                    if (connectionTask.isPresent()) {
+                        isHasExecution = true;
+                        if(isHasHostOrPort(connectionTask.get().getTypedProperties())){
+                            return true;
+                        }
+                        if(connectionTask.get().getProperties().stream()
+                                .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
+                                .map(ctp -> (SecurityAccessorType) ctp.getValue())
+                                .map(device::getSecurityAccessor)
+                                .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualValue().isPresent())){
+                            return true;
+                        }
+                        break;
+                    }
+                }else{
+                    isHasExecution = false;
+                }
+            }
+            if(!isHasExecution){
+                Optional<PartialConnectionTask> connectionTask = comTaskEnablement.getPartialConnectionTask();
+                if (connectionTask.isPresent()) {
+                    if(isHasHostOrPort(connectionTask.get().getTypedProperties())){
+                        return true;
+                    }
+                    if(connectionTask.get().getProperties().stream()
+                            .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
+                            .map(ctp -> (SecurityAccessorType) ctp.getValue())
+                            .map(device::getSecurityAccessor)
+                            .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualValue().isPresent())){
+                        return true;
+                    }
+                }
+            }
         }
-        return device
-                .getComTaskExecutions()
-                .stream()
-                .map(ComTaskExecution::getConnectionTask)
-                .flatMap(Functions.asStream())
-                .flatMap(ct -> ct.getProperties().stream())
-                .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
-                .map(ctp -> (SecurityAccessorType) ctp.getValue())
-                .map(device::getSecurityAccessor)
-                .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualValue().isPresent());
+        return false;
+    }
+
+    private boolean isHasHostOrPort(TypedProperties typedProperties){
+        return typedProperties.getTypedProperty("host") == null || typedProperties.getTypedProperty("portNumber") == null;
     }
 }
