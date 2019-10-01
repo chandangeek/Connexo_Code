@@ -5,7 +5,6 @@
 Ext.define('Iws.view.LogGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.webservice-issue-log-grid',
-    store: null,
     ui: 'medium',
     requires: [ 'Uni.DateTime', 'Ext.ux.exporter.ExporterButton' ],
     maxHeight: 364,
@@ -59,5 +58,6 @@ Ext.define('Iws.view.LogGrid', {
         ];
 
         me.callParent(arguments);
+        me.bindStore(Ext.getStore('Iws.store.Logs'));
     }
 });
