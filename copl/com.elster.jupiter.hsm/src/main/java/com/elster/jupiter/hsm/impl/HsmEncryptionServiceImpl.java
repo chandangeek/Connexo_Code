@@ -3,6 +3,7 @@ package com.elster.jupiter.hsm.impl;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
@@ -93,7 +94,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
     @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfiguration) throws HsmBaseException {
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfiguration) throws HsmNotConfiguredException {
         this.hsmConfiguration = hsmConfiguration.getHsmConfiguration();
     }
 }

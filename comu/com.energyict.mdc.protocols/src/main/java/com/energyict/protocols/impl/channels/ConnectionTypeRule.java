@@ -4,6 +4,7 @@
 
 package com.energyict.protocols.impl.channels;
 
+import com.energyict.mdc.channels.ip.socket.dsmr.*;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.upl.io.ConnectionType;
 
@@ -22,6 +23,7 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     TLSHSMConnectionType(com.energyict.common.tls.TLSHSMConnectionType.class),
     TcpIpPostDialConnectionType(com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType.class),
     OutboundTcpIpConnectionType(com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType.class),
+    OutboundTcpIpWithWakeUpConnectionType(OutboundTcpIpWithWakeUpConnectionType.class),
     InboundIpConnectionType(com.energyict.mdc.channels.ip.InboundIpConnectionType.class),
     CTRInboundDialHomeIdConnectionType(com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType.class),
     WavenisSerialConnectionType(com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType.class),

@@ -9,7 +9,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import javax.ws.rs.client.Entity;

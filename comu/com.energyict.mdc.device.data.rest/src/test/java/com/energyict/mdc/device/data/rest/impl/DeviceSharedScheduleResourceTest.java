@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.users.User;
+
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
@@ -12,8 +14,11 @@ import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -27,6 +32,14 @@ import static org.mockito.Mockito.when;
 
 public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJerseyTest {
 
+    private User user;
+    
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        user = mock(User.class);
+        when(securityContext.getUserPrincipal()).thenReturn(user);
+    }
 
     @Test
     public void testAddSharedSchedulesToDevice() throws Exception {
@@ -37,6 +50,9 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
         ComSchedule schedule33 = mock(ComSchedule.class);
+        ComTask comTask = mock(ComTask.class);
+        when(schedule33.getComTasks()).thenReturn(ImmutableList.of(comTask));
+        preparePrivileges(comTask, user);
         ComSchedule schedule44 = mock(ComSchedule.class);
         when(schedulingService.findSchedule(33L)).thenReturn(Optional.of(schedule33));
         when(schedulingService.findSchedule(44L)).thenReturn(Optional.of(schedule44));

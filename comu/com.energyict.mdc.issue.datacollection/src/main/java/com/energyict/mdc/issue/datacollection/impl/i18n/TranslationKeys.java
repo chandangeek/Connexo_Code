@@ -22,6 +22,7 @@ public enum TranslationKeys implements TranslationKey {
     TEMPLATE_UNREGISTERED_FROM_GATEWAY_DESCRIPTION("TemplateUnregisteredFromGatewayDescription", "Create an issue when a slave is unregistered from a gateway for some time"),
 
     PARAMETER_NAME_EVENT_TYPE(BasicDataCollectionRuleTemplate.EVENTTYPE, "Event"),
+    PARAMETER_EXCLUDED_COM_TASKS(BasicDataCollectionRuleTemplate.EXCLUDEDCOMTASKS, "Excluded communication tasks"),
     PARAMETER_AUTO_RESOLUTION(BasicDataCollectionRuleTemplate.AUTORESOLUTION, "Auto resolution"),
     PARAMETER_RADIO_GROUP(BasicDataCollectionRuleTemplate.RADIOGROUP, "When recurring"),
     PARAMETER_DO_NOTHING("WhenRecurringDoNothing", "Do nothing"),
@@ -59,6 +60,7 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
     CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
+    CLOSE_ACTION_DEVICE_EXCLUDED_FROM_CLOSING("action.issue.close.device.excluded", "Device ''{0}'' is excluded from autoclosure"),
 
     EVENT_TITLE_UNKNOWN_INBOUND_DEVICE("EventTitleUnknownInboundDevice", "Unknown inbound device"),
     EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE("EventTitleUnknownOutboundDevice", "Unknown outbound device"),
@@ -68,8 +70,8 @@ public enum TranslationKeys implements TranslationKey {
     EVENT_TITLE_UNABLE_TO_CONNECT("EventTitleUnableToConnect", "Unable to connect"),
     EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost"),
 
-    DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type ")
-    ;
+    DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type "),
+    EVENT_TEMPORAL_THRESHOLD(ModuleConstants.EVENT_TEMPORAL_THRESHOLD, "Event time threshold");
 
     private final String key;
     private final String defaultFormat;

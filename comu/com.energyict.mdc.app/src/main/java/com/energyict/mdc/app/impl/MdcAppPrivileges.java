@@ -221,6 +221,7 @@ class MdcAppPrivileges {
                 //tasks
                 com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
                 com.elster.jupiter.tasks.security.Privileges.Constants.SUSPEND_TASK_OVERVIEW,
+                com.elster.jupiter.tasks.security.Privileges.Constants.ADMINISTER_TASK_OVERVIEW,
 
                 // security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
@@ -235,6 +236,12 @@ class MdcAppPrivileges {
                 // time of use campaigns management
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS,
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS,
+
+                // communication task execution
+                com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1,
+                com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2,
+                com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3,
+                com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4,
 
                 //web services
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,

@@ -134,7 +134,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
                             version(10, 2), V10_2SimpleUpgrader.class,
                             version(10, 2, 1), UpgraderV10_2_1.class,
                             UpgraderV10_3.VERSION, UpgraderV10_3.class,
-                            version(10, 4, 3), V10_4_3SimpleUpgrader.class
+                            version(10, 4, 3), V10_4_3SimpleUpgrader.class,
+                            version(10, 7), UpgraderV10_7.class
                     ));
 
         } catch (Exception e) {

@@ -6,12 +6,14 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.data.Device.CalendarSupport;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.time.Instant;
@@ -43,11 +45,14 @@ public class DeviceSearchInfo {
     public String manufacturer;
     public String modelNbr;
     public String modelVersion;
+    public String activeCalendar;
+    public String passiveCalendar;
+    public String plannedPassiveCalendar;
     public Boolean hasServiceKeys;
 
     public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
                                         IssueRetriever issueService, Thesaurus thesaurus,
-                                        DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                        MeteringTranslationService meteringTranslationService,
                                         DeviceValidationRetriever deviceValidationRetriever) {
         DeviceSearchInfo searchInfo = new DeviceSearchInfo();
         searchInfo.id = device.getId();
@@ -57,7 +62,7 @@ public class DeviceSearchInfo {
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         searchInfo.deviceTypeId = device.getDeviceType().getId();
         searchInfo.deviceTypeName = device.getDeviceType().getName();
-        searchInfo.state = getStateName(device.getState(), deviceLifeCycleConfigurationService);
+        searchInfo.state = getStateName(device.getState(), meteringTranslationService);
         searchInfo.batch = device.getBatch().map(Batch::getName).orElse(null);
 
         searchInfo.hasOpenDataCollectionIssues = issueService.hasOpenDataCollectionIssues(device);
@@ -83,16 +88,29 @@ public class DeviceSearchInfo {
         searchInfo.manufacturer = device.getManufacturer();
         searchInfo.modelNbr = device.getModelNumber();
         searchInfo.modelVersion = device.getModelVersion();
+        getCalendars(searchInfo, device);
         searchInfo.hasServiceKeys = device.getSecurityAccessors().stream()
                 .anyMatch(accessor -> accessor.isServiceKey());
-
         return searchInfo;
     }
 
-    private static String getStateName(State state, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    private static void getCalendars(DeviceSearchInfo searchInfo, Device device) {
+        CalendarSupport calendars = device.calendars();
+        calendars.getActive().ifPresent(cal -> {
+            searchInfo.activeCalendar = cal.getAllowedCalendar().getName();
+        });
+        calendars.getPassive().ifPresent(cal -> {
+            searchInfo.passiveCalendar = cal.getAllowedCalendar().getName();
+        });
+        calendars.getPlannedPassive().ifPresent(cal -> {
+            searchInfo.plannedPassiveCalendar = cal.getAllowedCalendar().getName();
+        });
+    }
+
+    private static String getStateName(State state, MeteringTranslationService meteringTranslationService) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

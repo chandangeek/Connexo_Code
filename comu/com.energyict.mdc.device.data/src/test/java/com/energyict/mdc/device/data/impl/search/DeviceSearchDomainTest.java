@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -117,6 +119,10 @@ public class DeviceSearchDomainTest {
     private SecurityManagementService securityManagementService;
     @Mock
     private MeteringZoneService meteringZoneService;
+    @Mock
+    private CalendarService calendarService;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     private Injector injector;
 
@@ -320,6 +326,8 @@ public class DeviceSearchDomainTest {
                 bind(PropertySpecService.class).to(PropertySpecServiceImpl.class);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(MeteringZoneService.class).toInstance(meteringZoneService);
+                bind(CalendarService.class).toInstance(calendarService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
             }
         };
     }

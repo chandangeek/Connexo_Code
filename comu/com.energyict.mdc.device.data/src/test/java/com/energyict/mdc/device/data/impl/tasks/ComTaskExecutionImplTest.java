@@ -651,7 +651,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void makeObsoleteWhenConnectionTaskHasComServerFilledInTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
-        ComServer comServer = outboundComPort.getComServer();
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest", Instant.now());
 
@@ -661,7 +660,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         comTaskExecutionBuilder.connectionTask(connectionTask);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comport = " + outboundComPort.getId() + " where id = " + connectionTask.getId());
 
         // Business method
         device.removeComTaskExecution(comTaskExecution);
@@ -718,7 +717,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void isExecutingByComServerOnConnectionTaskTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
-        ComServer comServer = outboundComPort.getComServer();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
@@ -730,7 +728,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         long now = Instant.now().getEpochSecond();
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_SERVER.fieldName() + " = " + comServer.getId()
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + outboundComPort.getId()
                 + ", " + ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName() + " = " + now + " where id = " + connectionTask.getId());
         inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName() + " = " + (now + 1)
                 + ", " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + (now - 1) + " where id = " + comTaskExecution.getId());
@@ -747,7 +745,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void isExecutingBecauseInboundComTasksMarkedAsAlwaysExecuteForInboundTest() {
         InboundComPort inboundComPort = createInboundComPort();
-        ComServer comServer = inboundComPort.getComServer();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
@@ -761,7 +758,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
         long now = Instant.now().getEpochSecond();
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_SERVER.fieldName() + " = " + comServer.getId()
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + inboundComPort.getId()
                 + ", lastcommunicationstart = " + now + " where id = " + connectionTask.getId());
         inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName() + " = " + (now + 1));
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
@@ -777,7 +774,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void isNotExecutingBecauseOutboundComTaskMarkedAsAlwaysExecuteForInboundTest() {
         OutboundComPort outboundComPort = createOutboundComPort();
-        ComServer comServer = outboundComPort.getComServer();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
@@ -791,7 +787,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
         long now = Instant.now().getEpochSecond();
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_SERVER.fieldName() + " = " + comServer.getId()
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + outboundComPort.getId()
                 + ", lastcommunicationstart = " + now + " where id = " + connectionTask.getId());
         inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName() + " = " + (now + 1));
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
@@ -807,7 +803,6 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
     @Transactional
     public void isNotExecutingBecauseInboundComTasksNotMarkedAsAlwaysExecuteForInboundTest() {
         InboundComPort inboundComPort = createInboundComPort();
-        ComServer comServer = inboundComPort.getComServer();
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations", Instant.now());
@@ -820,7 +815,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + inboundComPort.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
 
         // Business method
@@ -848,7 +843,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         long future = inMemoryPersistence.getClock().instant().toEpochMilli() + 1_000_000_000_000L;  // let's just hope it won't take that long until this test is finished
         inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + future + " where id = " + comTaskExecution
                 .getId());
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_PORT.fieldName() + " = " + outboundComPort.getId() + " where id = " + connectionTask.getId());
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
 
         // Business method

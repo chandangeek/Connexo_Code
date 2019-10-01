@@ -243,81 +243,81 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testAttemptLock() {
-        InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
+        InboundConnectionTask connectionTask = createSimpleInboundConnectionTask();
 
         // Business method
-        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, getInboundComPort());
 
         // Asserts
         assertThat(locked).isNotNull();
-        assertThat(locked.getExecutingComServer().getId()).isEqualTo(this.getOnlineComServer().getId());
+        assertThat(locked.getExecutingComPort().getId()).isEqualTo(getInboundComPort().getId());
     }
 
     @Test
     @Transactional
     public void testUnlock() {
-        InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask connectionTask = createSimpleInboundConnectionTask();
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, getInboundComPort());
 
         // Business method
         inMemoryPersistence.getConnectionTaskService().unlockConnectionTask(locked);
 
         // Asserts
-        assertThat(locked.getExecutingComServer()).isNull();
+        assertThat(locked.getExecutingComPort()).isNull();
     }
 
     @Test
     @Transactional
-    public void testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer() {
-        InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+    public void testAttemptLockWillFailWhenAlreadyLockedByTheSameComPort() {
+        InboundConnectionTask connectionTask = createSimpleInboundConnectionTask();
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, getInboundComPort());
 
         // Business method
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, getInboundComPort());
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
-        assertThat(locked.getExecutingComServer()).isNotNull();
+        assertThat(locked.getExecutingComPort()).isNotNull();
     }
 
     @Test
     @Transactional
     public void testAttemptLockTwiceWillFail() {
-        InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        InboundConnectionTask connectionTask = createSimpleInboundConnectionTask();
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, getInboundComPort());
 
-        /* Business method: here the test is a little different from testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer
+        /* Business method: here the test is a little different from testAttemptLockWillFailWhenAlreadyLockedByTheSameComPort
          *                  because we are locking on the already locked ConnectionTask instead of the original connectionTask that is not locked in memory. */
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(locked, this.getOnlineComServer());
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(locked, getInboundComPort());
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
-        assertThat(locked.getExecutingComServer()).isNotNull();
+        assertThat(locked.getExecutingComPort()).isNotNull();
     }
 
     @Test
     @Transactional
-    public void testAttemptLockWillFailWhenAlreadyLockedByAnotherComServer() {
-        OnlineComServer otherComServer = this.createComServer("Other");
-        InboundConnectionTask connectionTask = this.createSimpleInboundConnectionTask();
-        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+    public void testAttemptLockWillFailWhenAlreadyLockedByAnotherComPort() {
+        OnlineComServer otherComServer = createComServer("Other");
+        InboundConnectionTask connectionTask = createSimpleInboundConnectionTask();
+        InboundConnectionTask locked = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, getInboundComPort());
 
         // Business method
-        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, otherComServer);
+        InboundConnectionTask lockedForSecondTime = inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, getOtherInboundComPort());
 
         // Asserts
         assertThat(lockedForSecondTime).isNull();
-        assertThat(locked.getExecutingComServer()).isNotNull();
-        assertThat(locked.getExecutingComServer().getId()).isEqualTo(this.getOnlineComServer().getId());
+        assertThat(locked.getExecutingComPort()).isNotNull();
+        assertThat(locked.getExecutingComPort().getId()).isEqualTo(getInboundComPort().getId());
     }
 
     @Test
     @Transactional
     public void testCreateWithAllIpProperties() {
-        this.grantAllViewAndEditPrivilegesToPrincipal();
+        grantAllViewAndEditPrivilegesToPrincipal();
         partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
-        InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
+        InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
                 .setComPortPool(inboundTcpipComPortPool)
                 .setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), IP_ADDRESS_PROPERTY_VALUE)
                 .setProperty(IpConnectionProperties.PORT.propertyName(), PORT_PROPERTY_VALUE)
@@ -340,7 +340,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass() {
-        this.grantAllViewAndEditPrivilegesToPrincipal();
+        grantAllViewAndEditPrivilegesToPrincipal();
         // First update the properties of the ipConnectionType pluggable class
         inboundIpConnectionTypePluggableClass.removeProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get());
         inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), PORT_PROPERTY_VALUE);
@@ -348,7 +348,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
-        InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
+        InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
                 .setComPortPool(inboundTcpipComPortPool)
                 .setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), IP_ADDRESS_PROPERTY_VALUE)
                 .setProperty(IpConnectionProperties.PORT.propertyName(), PORT_PROPERTY_VALUE)
@@ -379,7 +379,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
-        InboundConnectionTaskImpl connectionTask = this.createSimpleInboundConnectionTask(this.partialInboundConnectionTask);
+        InboundConnectionTaskImpl connectionTask = createSimpleInboundConnectionTask(partialInboundConnectionTask);
         connectionTask.setComPortPool(inboundTcpipComPortPool);
         // Do not add any properties to the ConnectionTask
 

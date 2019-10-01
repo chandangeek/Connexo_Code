@@ -11,6 +11,7 @@ Ext.define('Mdc.model.CommunicationTask',{
         {name:'inUse', type: 'boolean', useNull: true},
         {name:'commands', type: 'auto', useNull: true, defaultValue: null},
         {name:'messages', type: 'auto', useNull: true, defaultValue: null},
+        {name:'privileges', type: 'auto', useNull: true, defaultValue: null},
         {name: 'systemTask', type: 'boolean'}
     ],
     proxy: {

@@ -19,7 +19,6 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
-import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OutboundComPort;
@@ -98,17 +97,37 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
-    public void releaseInterruptedComTasks(ComServer comServer) {
-        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_COMTASKEXEC.name() + " SET comport = NULL, executionStart = null WHERE comport in (select id from mdc_comport where COMSERVERID = ");
-        sqlBuilder.addLong(comServer.getId());
+    public void releaseInterruptedComTasks(ComPort comPort) {
+        deviceDataModelService.executeUpdate(releaseInterruptedComTasksSqlBuilder(comPort));
+        deviceDataModelService.executeUpdate(releaseInterruptedHighPriorityComTasksSqlBuilder(comPort));
+        deviceDataModelService.executeUpdate(releaseInterruptedComTasksRelatedToHighPrioritySqlBuilder(comPort));
+    }
+
+    private SqlBuilder releaseInterruptedComTasksSqlBuilder(ComPort comPort) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_COMTASKEXEC.name() + " SET comport = null, executionStart = null WHERE comport = ");
+        sqlBuilder.addLong(comPort.getId());
+        return sqlBuilder;
+    }
+
+    private SqlBuilder releaseInterruptedHighPriorityComTasksSqlBuilder(ComPort comPort) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_HIPRIOCOMTASKEXEC.name() + " SET comport = null where comport = ");
+        sqlBuilder.addLong(comPort.getId());
+        return sqlBuilder;
+    }
+
+    private SqlBuilder releaseInterruptedComTasksRelatedToHighPrioritySqlBuilder(ComPort comPort) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_COMTASKEXEC.name() + " SET comport = null, executionStart = null ");
+        sqlBuilder.append(" WHERE id in (");
+        sqlBuilder.append("SELECT comtaskexecution from " + TableSpecs.DDC_HIPRIOCOMTASKEXEC.name() + " WHERE comport = ");
+        sqlBuilder.addLong(comPort.getId());
         sqlBuilder.append(")");
-        this.deviceDataModelService.executeUpdate(sqlBuilder);
+        return sqlBuilder;
     }
 
     @Override
-    public TimeDuration releaseTimedOutComTasks(ComServer comServer) {
+    public TimeDuration releaseTimedOutComTasks(ComPort comPort) {
         int waitTime = -1;
-        List<ComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComServer(comServer);
+        List<OutboundComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort((OutboundComPort)comPort);
         for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
             this.releaseTimedOutComTasks((OutboundComPortPool) comPortPool);
             waitTime = this.minimumWaitTime(waitTime, ((OutboundComPortPool) comPortPool).getTaskExecutionTimeout().getSeconds());
@@ -715,7 +734,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
         sqlBuilder.append(" where ct.status = 0");
-        sqlBuilder.append("   and ct.comserver is null");
+        sqlBuilder.append("   and ct.comport is null");
         sqlBuilder.append("   and ct.obsolete_date is null");
         return sqlBuilder;
     }
@@ -794,17 +813,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             if (!inboundComPortPool.isActive()) {
                 return Collections.emptyList();
             }
-            Instant now = this.deviceDataModelService.clock().instant();
+            Instant now = deviceDataModelService.clock().instant();
             Condition condition =
-                    where("connectionTask.comServer").isNull()
-                            .and(where("connectionTask.obsoleteDate").isNull())
+                    where("connectionTask." + ConnectionTaskFields.COM_PORT.fieldName()).isNull()
+                            .and(where("connectionTask." + ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull())
                             .and(where("connectionTask." + ConnectionTaskFields.DEVICE.name()).isEqualTo(device.getId()))
                             .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
                             .and(where(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).isEqualTo(true)
                                     .or(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)))
                             .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
-                            .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
-            return this.deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition,
+                            .and(where("connectionTask." + ConnectionTaskFields.COM_PORT_POOL.fieldName()).isEqualTo(inboundComPortPool));
+            return deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition,
                     Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
                     Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()),
                     Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()));
@@ -815,20 +834,20 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public boolean isComTaskStillPending(long comTaskExecutionId) {
-        Instant now = this.deviceDataModelService.clock().instant();
+        Instant now = deviceDataModelService.clock().instant();
         Condition condition = where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
                 .and(where("id").isEqualTo(comTaskExecutionId))
-                .and(where("comPort").isNull());
-        return !this.deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition).isEmpty();
+                .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull());
+        return !deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition).isEmpty();
     }
 
     @Override
     public boolean areComTasksStillPending(Collection<Long> comTaskExecutionIds) {
-        Instant now = this.deviceDataModelService.clock().instant();
+        Instant now = deviceDataModelService.clock().instant();
         Condition condition = where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
                 .and(ListOperator.IN.contains("id", new ArrayList<>(comTaskExecutionIds)))
-                .and(where("connectionTask.comServer").isNull());
-        return !this.deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition).isEmpty();
+                .and(where("connectionTask." + ConnectionTaskFields.COM_PORT.fieldName()).isNull());
+        return !deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition).isEmpty();
     }
 
     @Override
@@ -861,6 +880,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
         refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+    }
+
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        refreshComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
     }
 
     @Override

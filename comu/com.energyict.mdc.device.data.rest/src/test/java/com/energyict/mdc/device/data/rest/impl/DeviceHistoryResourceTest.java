@@ -13,7 +13,7 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent.Type;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
 import com.jayway.jsonpath.JsonModel;
@@ -50,7 +50,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
     @Override
     protected void setupTranslations() {
         super.setupTranslations();
-        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+        when(this.meteringTranslationService.getDisplayName(any(DefaultState.class)))
             .thenAnswer(invocationOnMock -> {
                 DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
                 return state.getDefaultFormat();

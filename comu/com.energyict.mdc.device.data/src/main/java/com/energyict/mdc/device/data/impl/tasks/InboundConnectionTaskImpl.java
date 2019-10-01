@@ -36,14 +36,14 @@ public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInbound
 
     @Override
     public void executionFailed() {
-        this.setExecutingComServer(null);
-        this.update(ConnectionTaskFields.COM_SERVER.fieldName());
+        this.setExecutingComPort(null);
+        this.update(ConnectionTaskFields.COM_PORT.fieldName());
     }
 
     @Override
     public void executionRescheduled() {
-        this.setExecutingComServer(null);
-        this.update(ConnectionTaskFields.COM_SERVER.fieldName());
+        this.setExecutingComPort(null);
+        this.update(ConnectionTaskFields.COM_PORT.fieldName());
     }
 
     @Override

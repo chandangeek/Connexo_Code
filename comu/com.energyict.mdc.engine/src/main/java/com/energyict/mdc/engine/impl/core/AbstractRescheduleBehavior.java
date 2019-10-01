@@ -35,7 +35,7 @@ abstract class AbstractRescheduleBehavior {
     }
 
     public void rescheduleOutsideComWindow(List<ComTaskExecution> comTaskExecutions, Instant startingPoint) {
-        comTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduled(comTaskExecution, startingPoint));
+        comTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduledToComWindow(comTaskExecution, startingPoint));
     }
 
     void rescheduleNotExecutedComTasks(List<ComTaskExecution> comTaskExecutions) {

@@ -20,7 +20,8 @@ Ext.define('Mdc.controller.Main', {
         'Apr.controller.TaskManagementGeneralTask',
         'Mdc.zones.controller.Zones',
         'Mdc.property.SecuritySet',
-        'Mdc.property.SecurityAccessors'
+        'Mdc.property.SecurityAccessors',
+        'Mdc.property.CertificateSecurityAccessors'
     ],
 
     controllers: [
@@ -148,6 +149,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.processes.controller.ProcessesController',
         'Mdc.processes.controller.ProcBulkActions',
         'Cfg.audit.controller.Audit',
+        'Mdc.controller.setup.AutoclosureExclusions'
     ],
 
     stores: [
@@ -178,6 +180,7 @@ Ext.define('Mdc.controller.Main', {
         Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         Uni.property.controller.Registry.addProperty('SECURITYACCESSORSOUTPUT', 'Mdc.property.SecuritySet');
         Uni.property.controller.Registry.addProperty('SERVICEKEYSSIGNATURESOUTPUT', 'Mdc.property.SecurityAccessors');
+        Uni.property.controller.Registry.addProperty('CERTSECURITYACCESSORSOUTPUT', 'Mdc.property.CertificateSecurityAccessors');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),

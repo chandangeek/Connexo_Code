@@ -7,6 +7,8 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.User;
+
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
@@ -22,14 +24,18 @@ import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -40,7 +46,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyTest {
+    
+    private User user;
 
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        user = mock(User.class);
+        when(securityContext.getUserPrincipal()).thenReturn(user);
+    }
+    
     @Test
     public void testGetComTaskExecutionsForEnablement() throws Exception {
         Device device = mock(Device.class);
@@ -174,6 +189,15 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
     @Test
     public void testCreateScheduledComTaskExecutionFromEnablement() throws Exception {
+         doTestCreateScheduledComTaskExecutionFromEnablement(Response.Status.CREATED, 1, true);
+    }
+
+    @Test
+    public void testCreateScheduledComTaskExecutionFromEnablementWithoutPrivilegeToExecuteComTask() throws Exception {
+         doTestCreateScheduledComTaskExecutionFromEnablement(Response.Status.UNAUTHORIZED, 0, false);
+    }
+
+    private void doTestCreateScheduledComTaskExecutionFromEnablement(Status status, int wantedNumberOfInvocations, boolean withPrivileges) {
         DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         long comTaskId = 111L;
         schedulingInfo.id = comTaskId;
@@ -188,24 +212,31 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
 
-        mockComTask(comTaskEnablement, comTaskId);
-
-        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
-        when(comTaskExecution.getComTask()).thenReturn(null);
-        when(communicationTaskService.findComTaskExecution(112L)).thenReturn(Optional.of(comTaskExecution));
-//        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-//        when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        ComTask comTask = mockComTask(comTaskEnablement, comTaskId);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression())).thenReturn(comTaskExecutionBuilder);
 
+        if (withPrivileges) {
+            preparePrivileges(comTask, user);
+        }
+        
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        verify(comTaskExecutionBuilder, times(1)).add();
-        verify(device, times(1)).newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
+         assertThat(response.getStatus()).isEqualTo(status.getStatusCode());
+         verify(comTaskExecutionBuilder, times(wantedNumberOfInvocations)).add();
+        verify(device, times(wantedNumberOfInvocations)).newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
     }
 
     @Test
     public void testChangeScheduleOnManuallyScheduledComTaskExecution() throws Exception {
+        doTestChangeScheduleOnManuallyScheduledComTaskExecution(Response.Status.OK, 1, true);
+    }
+
+    @Test
+    public void testChangeScheduleOnManuallyScheduledComTaskExecutionWithoutPrivilegeToExecuteComTask() throws Exception {
+        doTestChangeScheduleOnManuallyScheduledComTaskExecution(Response.Status.UNAUTHORIZED, 0, false);
+    }
+
+    private void doTestChangeScheduleOnManuallyScheduledComTaskExecution(Status status, int wantedNumberOfInvocations, boolean withPrivileges) {
         long comTaskId = 111;
         DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         schedulingInfo.id = comTaskId;
@@ -240,14 +271,28 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(communicationTaskService.findComTaskExecution(comTaskExecution.getId())).thenReturn(Optional.of(comTaskExecution));
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(comTaskExecution.getId(), 1L)).thenReturn(Optional.of(comTaskExecution));
 
+        if (withPrivileges) {
+            preparePrivileges(comTask, user);
+        }
+        
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(scheduledComTaskExecutionUpdater, times(1)).createNextExecutionSpecs(schedulingInfo.schedule.asTemporalExpression());
-        verify(scheduledComTaskExecutionUpdater, times(1)).update();
+        assertThat(response.getStatus()).isEqualTo(status.getStatusCode());
+        verify(scheduledComTaskExecutionUpdater, times(wantedNumberOfInvocations)).createNextExecutionSpecs(schedulingInfo.schedule.asTemporalExpression());
+        verify(scheduledComTaskExecutionUpdater, times(wantedNumberOfInvocations)).update();
+    }
+
+    @Test
+    public void testRemoveScheduleOnManuallyScheduledComTaskExecutionWithoutPrivilegeToExecuteComTask() throws Exception {
+        doTestRemoveScheduleOnManuallyScheduledComTaskExecution(Response.Status.UNAUTHORIZED, 0, false);
+       
     }
 
     @Test
     public void testRemoveScheduleOnManuallyScheduledComTaskExecution() throws Exception {
+        doTestRemoveScheduleOnManuallyScheduledComTaskExecution(Response.Status.OK, 1, true);
+     }
+
+    private void doTestRemoveScheduleOnManuallyScheduledComTaskExecution(Response.Status status, int wantedNumberOfInvocations, boolean withPrivileges) {
         long comTaskId = 11L;
         long comTaskExecutionId = 12L;
         DeviceSchedulesInfo info = new DeviceSchedulesInfo();
@@ -280,10 +325,14 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ComTaskExecutionUpdater.class);
         when(comTaskExecution.getUpdater()).thenReturn(scheduledComTaskExecutionUpdater);
         when(scheduledComTaskExecutionUpdater.removeSchedule()).thenReturn(scheduledComTaskExecutionUpdater);
+        
+        if (withPrivileges) {
+            preparePrivileges(comTask, user);
+        }
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(info));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(scheduledComTaskExecutionUpdater, times(1)).removeSchedule();
+        assertThat(response.getStatus()).isEqualTo(status.getStatusCode());
+        verify(scheduledComTaskExecutionUpdater, times(wantedNumberOfInvocations)).removeSchedule();
     }
 
     private DeviceSchedulesInfo mockDataForFirmwareComTaskTests() {

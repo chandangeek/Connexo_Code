@@ -66,6 +66,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 privileges: Mdc.privileges.Device.viewDevice,
                 itemId: 'device-servicecalls-link',
                 href: '#/devices/' + encodeURIComponent(deviceId) + '/servicecalls'
+            },
+            {
+                text: Uni.I18n.translate('devicemenu.exclusionsFromAutoclosure', 'MDC', 'Exclusions from autoclosure'),
+                privileges: Mdc.privileges.CreationRule.viewCreationRule,
+                itemId: 'device-autoclosure-exclusions-link',
+                href: '#/devices/' + encodeURIComponent(deviceId) + '/autoclosureexclusions'
             }
         );
 

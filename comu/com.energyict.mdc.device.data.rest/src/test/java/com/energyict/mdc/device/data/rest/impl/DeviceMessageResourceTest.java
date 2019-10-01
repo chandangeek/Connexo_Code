@@ -256,7 +256,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
-        when(finder.stream()).thenReturn(Stream.of(command1, command2, command3, command4));
+        when(finder.stream()).thenReturn(Stream.of(command3, command4));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);

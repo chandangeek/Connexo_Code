@@ -276,7 +276,8 @@ Ext.define('Tou.view.AddForm', {
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },
@@ -341,7 +342,8 @@ Ext.define('Tou.view.AddForm', {
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },
@@ -370,6 +372,10 @@ Ext.define('Tou.view.AddForm', {
         ];
 
         me.callParent(arguments);
+
+        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
+           item.setTooltip('Restore to default empty value');
+        })
     },
 
     onActiveCalendarChange: function (field, newValue) {

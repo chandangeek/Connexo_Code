@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.share.entity.values.EndPointValue;
 import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueAction;
@@ -15,16 +16,15 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -52,7 +52,7 @@ public class WebServiceNotificationActionTest extends BaseTest {
         when(endPointConfiguration.getWebServiceName()).thenReturn("WSNAME");
 
         Map<String, Object> properties = new HashMap<>();
-        WebServiceNotificationAction.EndPoint endPoint = new WebServiceNotificationAction.EndPoint(endPointConfiguration);
+        EndPointValue endPoint = new EndPointValue(endPointConfiguration);
         properties.put(WebServiceNotificationAction.WEBSERVICE, endPoint);
         properties.put(WebServiceNotificationAction.CLOSE, true);
 

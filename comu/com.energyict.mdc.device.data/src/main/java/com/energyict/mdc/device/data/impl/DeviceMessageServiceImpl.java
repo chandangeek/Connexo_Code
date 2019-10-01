@@ -26,6 +26,7 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
+import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -324,6 +325,11 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
                 .dataModel()
                 .query(DeviceMessage.class)
                 .select(condition);
+    }
+
+    @Override
+    public List<DeviceMessageId> findKeyRenewalMessages() {
+        return EndDeviceControlTypeMapping.KEY_RENEWAL.getPossibleDeviceMessageIds();
     }
 
     private List<DeviceMessage> find(Introspector introspector) throws UnsupportedDeviceMessageIdentifierTypeName {

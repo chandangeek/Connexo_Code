@@ -11,7 +11,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
@@ -181,14 +181,6 @@ public interface DeviceLifeCycleConfigurationService {
     Optional<AuthorizedAction> findAuthorizedActionById(long id);
 
     Optional<AuthorizedAction> findAndLockAuthorizedActionByIdAndVersion(long id, long version);
-
-    /**
-     * Gets the display name for the specified {@link DefaultState}.
-     *
-     * @param state The DefaultState
-     * @return The display name
-     */
-    String getDisplayName(DefaultState state);
 
     /**
      * Gets the display name for the specified {@link EndDeviceStage}

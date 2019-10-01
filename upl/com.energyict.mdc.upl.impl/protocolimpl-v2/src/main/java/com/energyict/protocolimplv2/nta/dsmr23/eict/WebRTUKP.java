@@ -9,6 +9,7 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -37,7 +38,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
@@ -154,6 +154,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
         result.add(new SioOpticalConnectionType(this.getPropertySpecService()));
         result.add(new RxTxOpticalConnectionType(this.getPropertySpecService()));
+        result.add(new OutboundTcpIpWithWakeUpConnectionType(this.getPropertySpecService()));
         return result;
     }
 

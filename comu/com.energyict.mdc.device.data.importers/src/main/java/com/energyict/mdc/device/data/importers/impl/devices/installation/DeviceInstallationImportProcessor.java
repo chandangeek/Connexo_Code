@@ -17,7 +17,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;

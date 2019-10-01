@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.custom.meterreadingdocument;
 
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.Checks;
@@ -138,6 +139,8 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private boolean checkTaskStatus(ServiceCall serviceCall, ComTaskExecution comTaskExecution) {
         if (comTaskExecution.isOnHold()) {
+            serviceCall.log(LogLevel.SEVERE, "The communication task '" + comTaskExecution.getComTask().getName() +
+                    "' is inactive on device '" + comTaskExecution.getDevice().getName() + "'");
             serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
             return false;
         } else if (comTaskExecution.getStatus().equals(TaskStatus.Busy)) {
@@ -149,6 +152,8 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private boolean runTask(ServiceCall serviceCall, ComTaskExecution comTaskExecution) {
         if (comTaskExecution.isOnHold()) {
+            serviceCall.log(LogLevel.SEVERE, "The communication task '" + comTaskExecution.getComTask().getName() +
+                    "' is inactive on device '" + comTaskExecution.getDevice().getName() + "'");
             serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
         } else {
             comTaskExecution.runNow();

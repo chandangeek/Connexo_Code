@@ -10,6 +10,7 @@ import com.energyict.mdc.common.interval.PartialTime;
 import org.joda.time.DateTimeConstants;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -173,7 +174,7 @@ public class ComWindowTest {
     }
 
     private Calendar getCalendar () {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.set(Calendar.YEAR, 2013);
         calendar.set(Calendar.MONTH, Calendar.JANUARY);
         calendar.set(Calendar.DAY_OF_MONTH, 1);

@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -51,6 +52,7 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceService deviceService;
     private volatile DeviceLifeCycleService deviceLifecycleService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
 
     private Injector injector;
@@ -70,6 +72,7 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
                                          ThreadPrincipalService threadPrincipalService,
                                          DeviceService deviceService,
                                          DeviceLifeCycleService deviceLifecycleService,
+                                         MeteringGroupsService meteringGroupsService,
                                          Clock clock) {
         this();
         setOrmService(ormService);
@@ -79,6 +82,7 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
         setThreadPrincipalService(threadPrincipalService);
         setDeviceService(deviceService);
         setDeviceLifeCycleService(deviceLifecycleService);
+        setMeteringGroupsService(meteringGroupsService);
         setClock(clock);
         activate();
     }
@@ -97,6 +101,7 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(DeviceLifeCycleService.class).toInstance(deviceLifecycleService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(Clock.class).toInstance(clock);
             }
         });
@@ -151,6 +156,11 @@ public class DeviceLifecycleActionsFactory implements IssueActionFactory {
     @Reference
     public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifecycleService) {
         this.deviceLifecycleService = deviceLifecycleService;
+    }
+    
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference

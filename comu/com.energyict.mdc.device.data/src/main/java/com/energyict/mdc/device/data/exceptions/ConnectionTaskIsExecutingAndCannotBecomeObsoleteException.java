@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 
 /**
@@ -20,11 +20,11 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
  */
 public class ConnectionTaskIsExecutingAndCannotBecomeObsoleteException extends LocalizedException {
 
-    public ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(ConnectionTask<?, ?> connectionTask, ComServer comServer, Thesaurus thesaurus, MessageSeed messageSeed) {
-        super(thesaurus, messageSeed, connectionTask.getName(), connectionTask.getDevice().getId(), comServer.getName());
+    public ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(ConnectionTask<?, ?> connectionTask, ComPort comPort, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, connectionTask.getName(), connectionTask.getDevice().getId(), comPort.getName());
         this.set("connectionTaskName", connectionTask.getName());
         this.set("deviceId", connectionTask.getDevice().getId());
-        this.set("comServerName", comServer.getName());
+        this.set("comPort", comPort.getName());
     }
 
 }

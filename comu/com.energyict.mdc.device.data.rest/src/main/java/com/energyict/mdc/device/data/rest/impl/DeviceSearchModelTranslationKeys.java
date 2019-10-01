@@ -32,6 +32,9 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     MANUFACTURER("manufacturer", "Manufacturer"),
     MODEL_NUMBER("modelNbr", "Model number"),
     MODEL_VERSION("modelVersion", "Model version"),
+    ACTIVE_CALENDAR("activeCalendar", "Active time of use"),
+    PASSIVE_CALENDAR("passiveCalendar", "Passive time of use"),
+    PLANNED_PASSIVE_CALENDAR("plannedPassiveCalendar", "Planned passive time of use"),
     HAS_SERVICE_KEYS("hasServiceKeys", "Service keys")
     ;
 
