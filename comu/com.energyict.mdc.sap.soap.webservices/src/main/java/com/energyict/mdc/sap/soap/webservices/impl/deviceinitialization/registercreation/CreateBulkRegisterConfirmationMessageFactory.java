@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
 import static com.elster.jupiter.servicecall.DefaultState.FAILED;
 import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 
 public class CreateBulkRegisterConfirmationMessageFactory {
 
@@ -168,7 +169,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
 
     private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue("PRE");
+        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
         logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
@@ -199,7 +200,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
 
     private LogItem createLogItem(String code, String message) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue("PRE");
+        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
         logItem.setTypeID(code);

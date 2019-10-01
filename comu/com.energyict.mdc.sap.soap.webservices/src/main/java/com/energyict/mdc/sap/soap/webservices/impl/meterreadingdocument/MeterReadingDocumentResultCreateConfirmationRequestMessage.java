@@ -5,12 +5,11 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MtrRdngDocERPRsltBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMsg;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
@@ -20,7 +19,7 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
     private String uuid;
 
     //<meter reading document id, result code>
-    List<Pair<String, String>> processingResultCodes = new ArrayList<>();
+    Map<String, String> processingResultCodes = new HashMap<>();
 
     private MeterReadingDocumentResultCreateConfirmationRequestMessage() {
     }
@@ -33,7 +32,7 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
         return uuid;
     }
 
-    public List<Pair<String, String>> getProcessingResultCodes() {
+    public Map<String, String> getProcessingResultCodes() {
         return processingResultCodes;
     }
 
@@ -92,7 +91,7 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
 
 
         public MeterReadingDocumentResultCreateConfirmationRequestMessage.Builder addProcessingResultCode(String meterReadingDocumentId, String processingResultCode) {
-            MeterReadingDocumentResultCreateConfirmationRequestMessage.this.processingResultCodes.add(Pair.of(meterReadingDocumentId, processingResultCode));
+            MeterReadingDocumentResultCreateConfirmationRequestMessage.this.processingResultCodes.put(meterReadingDocumentId, processingResultCode);
             return this;
         }
 

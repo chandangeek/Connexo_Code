@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+
 public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn, ApplicationSpecific {
 
     private final DeviceService deviceService;
@@ -202,7 +204,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
 
     private LogItem createLogItem(MessageSeed messageSeed, Object... args) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue("PRE");
+        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
         logItem.setTypeID(String.valueOf(messageSeed.getNumber()));

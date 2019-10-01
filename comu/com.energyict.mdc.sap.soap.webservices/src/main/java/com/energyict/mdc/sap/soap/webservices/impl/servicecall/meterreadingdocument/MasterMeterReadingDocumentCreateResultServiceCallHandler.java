@@ -8,6 +8,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateResultMessage;
@@ -31,10 +32,16 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
     public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
+    private volatile ServiceCallService serviceCallService;
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -42,12 +49,19 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case ONGOING:
-            case CANCELLED:
                 if (!oldState.equals(DefaultState.WAITING)) {
                     sendResultMessage(serviceCall);
-                    if (!newState.equals(DefaultState.CANCELLED)) {
-                        setConfirmationTime(serviceCall);
-                        serviceCall.requestTransition(DefaultState.WAITING);
+                    setConfirmationTime(serviceCall);
+                    serviceCall.requestTransition(DefaultState.WAITING);
+                }
+                break;
+            case CANCELLED:
+                if (!oldState.equals(DefaultState.WAITING)) {
+                    List<ServiceCall> children = findChildren(serviceCall);
+                    if (!areAllCancelledBySap(children)) {
+                        sendResultMessage(serviceCall);
+                    }else{
+                        serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
                     }
                 }
                 break;
@@ -66,8 +80,8 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
             case WAITING:
                 List<ServiceCall> children = findChildren(parentServiceCall);
                 if (isLastClosedChild(children)) {
-                    if (allChildCancelledBySap(children) && parentServiceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                        parentServiceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
+                    parentServiceCall = lock(parentServiceCall);
+                    if (areAllCancelledBySap(children) && parentServiceCall.canTransitionTo(DefaultState.CANCELLED)) {
                         parentServiceCall.requestTransition(DefaultState.CANCELLED);
                     } else if (parentServiceCall.getState().equals(DefaultState.WAITING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
@@ -78,7 +92,8 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                         parentServiceCall.requestTransition(DefaultState.PENDING);
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
                     }
-                } else if (isLastWaitingOrCancelledChild(children)) {
+                } else if (areAllWaitingOrCancelled(children)) {
+                    parentServiceCall = lock(parentServiceCall);
                     if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
                     } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
@@ -95,7 +110,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
 
     private void resultTransition(ServiceCall parent, List<ServiceCall> children) {
         long confirmedOrders = children.stream().filter(sc -> sc.getState().equals(DefaultState.SUCCESSFUL)).count();
-        parent.log(LogLevel.INFO, "Successfully orders confirmed by SAP: " + confirmedOrders + ".");
+        parent.log(LogLevel.INFO, "Orders successfully confirmed by SAP: " + confirmedOrders + ".");
 
         if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
             parent.requestTransition(DefaultState.SUCCESSFUL);
@@ -124,7 +139,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
     }
 
-    private boolean isLastWaitingOrCancelledChild(List<ServiceCall> serviceCalls) {
+    private boolean areAllWaitingOrCancelled(List<ServiceCall> serviceCalls) {
         return serviceCalls
                 .stream()
                 .allMatch(sc -> sc.getState().equals(DefaultState.WAITING) || sc.getState().equals(DefaultState.CANCELLED));
@@ -137,12 +152,12 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 .build();
 
         int childrenTotal = resultMessage.getDocumentsTotal();
-        int childrenCanceledBySap = resultMessage.getDocumentsCanceledBySap();
+        int childrenCanceledBySap = resultMessage.getDocumentsCancelledBySap();
         int childrenSuccessfullyProcessed = resultMessage.getDocumentsSuccessfullyProcessed();
         serviceCall.log(LogLevel.INFO, "Total orders: " + childrenTotal +
-                ": successfully processed orders: " + childrenSuccessfullyProcessed +
-                ", failed processed orders: " + (childrenTotal - childrenSuccessfullyProcessed - childrenCanceledBySap) +
-                ", cancelled by Sap orders: " + childrenCanceledBySap + ".");
+                ", successfully processed orders: " + childrenSuccessfullyProcessed +
+                ", failed orders: " + (childrenTotal - childrenSuccessfullyProcessed - childrenCanceledBySap) +
+                ", orders cancelled by SAP: " + childrenCanceledBySap + ".");
 
         serviceCall.log(LogLevel.INFO, "Sent the results to Sap.");
 
@@ -160,7 +175,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         serviceCall.update(masterExtension);
     }
 
-    private boolean allChildCancelledBySap(List<ServiceCall> children) {
+    private boolean areAllCancelledBySap(List<ServiceCall> children) {
         return children.stream().allMatch(sc -> isServiceCallCancelledBySap(sc));
     }
 
@@ -171,6 +186,11 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         } else {
             return false;
         }
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 }
 

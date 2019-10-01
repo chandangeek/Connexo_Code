@@ -49,11 +49,11 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
 
     @Override
     public long getShiftDate() {
-        return WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC)*INTERVAL_ONE_DAY;
+        return WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC)* SECONDS_IN_DAY;
     }
 
     @Override
-    public boolean isUseCurrentDateTime() {
+    public boolean shouldUseCurrentDateTime() {
         return false;
     }
 

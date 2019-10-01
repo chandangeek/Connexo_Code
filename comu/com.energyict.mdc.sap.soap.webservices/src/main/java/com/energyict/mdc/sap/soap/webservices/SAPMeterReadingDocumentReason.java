@@ -9,7 +9,7 @@ import java.util.List;
 
 @ProviderType
 public interface SAPMeterReadingDocumentReason {
-    long INTERVAL_ONE_DAY = 86400; //24 hours
+    long SECONDS_IN_DAY = 86400; //24 hours
 
     /**
      * Reading reason code
@@ -29,7 +29,7 @@ public interface SAPMeterReadingDocumentReason {
     /**
      * Using current dateTime support
      */
-    boolean isUseCurrentDateTime();
+    boolean shouldUseCurrentDateTime();
 
     /**
      * Bulk request support

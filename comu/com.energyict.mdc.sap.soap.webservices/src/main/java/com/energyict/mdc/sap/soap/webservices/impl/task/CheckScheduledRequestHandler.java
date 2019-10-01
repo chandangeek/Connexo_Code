@@ -43,11 +43,9 @@ public class CheckScheduledRequestHandler implements TaskExecutor {
                             //if next reading attempt date is null, so reading has not started yet
                             Instant nextReadingAttemptDate = domainExtension.getNextReadingAttemptDate();
                             if (nextReadingAttemptDate == null) {
-                                serviceCall.requestTransition(DefaultState.ONGOING);
-                            } else {
-                                if (clock.instant().isAfter(nextReadingAttemptDate)) {
-                                    serviceCall.requestTransition(DefaultState.ONGOING);
-                                }
+                                serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
+                            } else if(clock.instant().isAfter(nextReadingAttemptDate)) {
+                                serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
                             }
                         }
                 );

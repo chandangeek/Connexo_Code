@@ -88,8 +88,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
     private boolean futureCase;
     private Instant processingDate;
     private Instant nextReadingAttemptDate;
-    //@NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal readingAttempt;
+    private long readingAttempt;
     private Instant actualReadingDate;
     private BigDecimal reading;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -215,14 +214,11 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         }
     }
 
-    public BigDecimal getReadingAttempt() {
-        if(readingAttempt == null){
-            readingAttempt = BigDecimal.ZERO;
-        }
+    public long getReadingAttempt() {
         return readingAttempt;
     }
 
-    public void setReadingAttempt(BigDecimal readingAttempt) {
+    public void setReadingAttempt(long readingAttempt) {
         this.readingAttempt = readingAttempt;
     }
 
@@ -256,7 +252,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.setScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.SCHEDULED_READING_DATE.javaName()));
         this.setProcessingDate((Instant) propertyValues.getProperty(FieldNames.PROCESSING_DATE.javaName()));
         this.setNextReadingAttemptDate((Instant) propertyValues.getProperty(FieldNames.NEXT_READING_ATTEMPT_DATE.javaName()));
-        this.setReadingAttempt((BigDecimal) propertyValues.getProperty(FieldNames.READING_ATTEMPT.javaName()));
+        this.setReadingAttempt((long) propertyValues.getProperty(FieldNames.READING_ATTEMPT.javaName()));
         this.setChannelId((BigDecimal) propertyValues.getProperty(FieldNames.CHANNEL_ID.javaName()));
         this.setDataSource((String) propertyValues.getProperty(FieldNames.DATA_SOURCE.javaName()));
         this.setFutureCase((Boolean) propertyValues.getProperty(FieldNames.FUTURE_CASE.javaName()));

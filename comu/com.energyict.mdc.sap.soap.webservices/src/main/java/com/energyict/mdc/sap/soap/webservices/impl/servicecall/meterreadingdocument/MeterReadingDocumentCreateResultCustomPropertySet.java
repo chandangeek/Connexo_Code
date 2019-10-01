@@ -197,7 +197,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .longSpec()
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_ATTEMPT.javaName(), TranslationKeys.READING_ATTEMPT)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -307,6 +307,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_ATTEMPT.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_ATTEMPT.javaName())
                     .since(Version.version(10, 7, 1))
                     .add();

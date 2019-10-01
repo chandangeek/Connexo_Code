@@ -3,7 +3,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancell
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentCancellationConfirmation;
@@ -22,11 +21,6 @@ public class MeterReadingDocumentCancellationRequestEndpoint extends AbstractCan
     MeterReadingDocumentCancellationRequestEndpoint(EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus,
                                                     ServiceCallService serviceCallService, Clock clock, OrmService ormService) {
         super(endPointConfigurationService, serviceCallService, thesaurus, clock, ormService);
-    }
-
-    @Override
-    public String getApplication() {
-        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 
     @Override

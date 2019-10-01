@@ -40,7 +40,7 @@ public class MeterReadingDocumentCreateResultMessage {
 
     //statistic
     private int documentsTotal;
-    private int documentsCanceledBySap;
+    private int documentsCancelledBySap;
     private int documentsSuccessfullyProcessed;
 
     public MtrRdngDocERPRsltBulkCrteReqMsg getBulkResultMessage() {
@@ -59,8 +59,8 @@ public class MeterReadingDocumentCreateResultMessage {
         return documentsTotal;
     }
 
-    public int getDocumentsCanceledBySap() {
-        return documentsCanceledBySap;
+    public int getDocumentsCancelledBySap() {
+        return documentsCancelledBySap;
     }
 
     public int getDocumentsSuccessfullyProcessed() {
@@ -93,7 +93,7 @@ public class MeterReadingDocumentCreateResultMessage {
                         crteReqMsg.setMeterReadingDocument(createBulkBody(child));
                         bulkResultMessage.getMeterReadingDocumentERPResultCreateRequestMessage().add(crteReqMsg);
                     }else{
-                        documentsCanceledBySap++;
+                        documentsCancelledBySap++;
                     }
                 });
             } else {
@@ -164,6 +164,7 @@ public class MeterReadingDocumentCreateResultMessage {
                 result.setActualMeterReadingDate(childExtension.getActualReadingDate());
                 result.setActualMeterReadingTime(LocalDateTime.ofInstant(childExtension.getActualReadingDate(), ZoneId.systemDefault()).toLocalTime());
                 meterReadingDocument.setResult(result);
+                documentsSuccessfullyProcessed++;
             }
 
             return meterReadingDocument;

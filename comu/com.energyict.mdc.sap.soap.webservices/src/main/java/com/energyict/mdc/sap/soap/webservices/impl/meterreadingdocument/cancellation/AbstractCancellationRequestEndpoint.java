@@ -1,7 +1,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -23,8 +22,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,8 +60,7 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()
-                .filter(EndPointConfiguration::isActive)
-                .findAny().isPresent();
+                .anyMatch(EndPointConfiguration::isActive);
     }
 
     void handleMessage(MeterReadingDocumentCancellationRequestMessage message) {
@@ -85,71 +81,65 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
         List<String> meterReadingDocumentIds = message.getMeterReadingDocumentIds();
         List<CancelledMeterReadingDocument> cancelledDocuments = new ArrayList<>();
 
+        //both arguments are mutable: we remove from 1st and put to 2nd
         cancelRequestServiceCalls(meterReadingDocumentIds, cancelledDocuments);
         cancelResultServiceCalls(meterReadingDocumentIds, cancelledDocuments);
 
         //consider the remaining meter reading documents as not found
-        for (Iterator<String> mrdIterator = meterReadingDocumentIds.iterator(); mrdIterator.hasNext(); ) {
-            String item = mrdIterator.next();
-            mrdIterator.remove();
-            cancelledDocuments.add(new CancelledMeterReadingDocument(item, false, MessageSeeds.NO_METER_READING_DOCUMENT, item));
-        }
+        meterReadingDocumentIds.forEach(item -> cancelledDocuments.add(new CancelledMeterReadingDocument(item, false, MessageSeeds.NO_METER_READING_DOCUMENT, item)));
 
         return cancelledDocuments;
     }
 
     private void cancelRequestServiceCalls(List<String> meterReadingDocumentIds, List<CancelledMeterReadingDocument> cancelledDocuments) {
-        List<ServiceCall> serviceCallFinder = getRequestServiceCall(meterReadingDocumentIds);
+        List<MeterReadingDocumentCreateRequestDomainExtension> serviceCallFinder = getRequestExtensions(meterReadingDocumentIds);
 
-        serviceCallFinder.stream().forEach(serviceCall -> {
-            Optional<MeterReadingDocumentCreateRequestDomainExtension> requestExtension = serviceCall.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class);
-            if (requestExtension.isPresent()) {
-                String documentId = requestExtension.get().getMeterReadingDocumentId();
-                try {
+        serviceCallFinder.stream().forEach(extension -> {
+            String documentId = extension.getMeterReadingDocumentId();
+            try {
+                ServiceCall serviceCall = extension.getServiceCall();
+                if (serviceCall.getState().isOpen()) {
+                    serviceCall = lock(serviceCall);
                     if (serviceCall.getState().isOpen()) {
-                        serviceCall = lock(serviceCall);
-                        if (serviceCall.getState().isOpen()) {
-                            serviceCall.log(com.elster.jupiter.servicecall.LogLevel.INFO, "Cancel the service call by request from SAP.");
-                            requestExtension.get().setCancelledBySap(true);
-                            serviceCall.update(requestExtension.get());
-                            if (serviceCall.getState().equals(DefaultState.CREATED)) {
-                                serviceCall.requestTransition(DefaultState.PENDING);
-                            }
-                            serviceCall.requestTransition(DefaultState.CANCELLED);
-                            meterReadingDocumentIds.remove(documentId);
-                            cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, true));
-                        } else {
-                            // For closed state if we don't have result service call for this meter reading document,
-                            // we don't need to created result service call in the future
-                            cancelIfOnlyRequestServiceCall(serviceCall, documentId, meterReadingDocumentIds, cancelledDocuments);
+                        serviceCall.log(com.elster.jupiter.servicecall.LogLevel.INFO, "Cancel the service call by request from SAP.");
+                        extension.setCancelledBySap(true);
+                        serviceCall.update(extension);
+                        if (serviceCall.getState().equals(DefaultState.CREATED)) {
+                            serviceCall.requestTransition(DefaultState.PENDING);
                         }
+                        serviceCall.requestTransition(DefaultState.CANCELLED);
+                        meterReadingDocumentIds.remove(documentId);
+                        cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, true));
                     } else {
                         // For closed state if we don't have result service call for this meter reading document,
                         // we don't need to created result service call in the future
                         cancelIfOnlyRequestServiceCall(serviceCall, documentId, meterReadingDocumentIds, cancelledDocuments);
                     }
-                } catch (Exception ex) {
-                    meterReadingDocumentIds.remove(documentId);
-                    cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.ERROR_CANCELLING_METER_READING_DOCUMENT, ex.getLocalizedMessage()));
+                } else {
+                    // For closed state if we don't have result service call for this meter reading document,
+                    // we don't need to created result service call in the future
+                    cancelIfOnlyRequestServiceCall(serviceCall, documentId, meterReadingDocumentIds, cancelledDocuments);
                 }
+            } catch (Exception ex) {
+                meterReadingDocumentIds.remove(documentId);
+                cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.ERROR_CANCELLING_METER_READING_DOCUMENT, ex.getLocalizedMessage()));
             }
         });
     }
 
     private void cancelResultServiceCalls(List<String> meterReadingDocumentIds, List<CancelledMeterReadingDocument> cancelledDocuments) {
-        List<ServiceCall> serviceCallFinder = getResultServiceCall(meterReadingDocumentIds);
+        List<MeterReadingDocumentCreateResultDomainExtension> serviceCallFinder = getResultExtensions(meterReadingDocumentIds);
 
-        serviceCallFinder.stream().forEach(serviceCall -> {
-            Optional<MeterReadingDocumentCreateResultDomainExtension> requestExtension = serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class);
-            if (requestExtension.isPresent()) {
-                String documentId = requestExtension.get().getMeterReadingDocumentId();
+        serviceCallFinder.stream().forEach(extension -> {
+                String documentId = extension.getMeterReadingDocumentId();
                 try {
+                    ServiceCall serviceCall = extension.getServiceCall();
                     if (serviceCall.getState().isOpen()) {
                         serviceCall = lock(serviceCall);
                         if (serviceCall.getState().isOpen()) {
                             serviceCall.log(com.elster.jupiter.servicecall.LogLevel.INFO, "Cancel the service call by request from SAP.");
-                            requestExtension.get().setCancelledBySap(true);
-                            serviceCall.update(requestExtension.get());
+                            extension.setCancelledBySap(true);
+                            serviceCall.update(extension);
                             if (serviceCall.getState().equals(DefaultState.CREATED)) {
                                 serviceCall.requestTransition(DefaultState.PENDING);
                             }
@@ -168,41 +158,33 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
                     meterReadingDocumentIds.remove(documentId);
                     cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.ERROR_CANCELLING_METER_READING_DOCUMENT, ex.getLocalizedMessage()));
                 }
-            }
         });
     }
 
-    private List<ServiceCall> getRequestServiceCall(List<String> meterReadingDocumentIds) {
-        Optional<DataModel> dataModel = ormService.getDataModel(MeterReadingDocumentCreateRequestCustomPropertySet.MODEL_NAME);
-        if (dataModel.isPresent()) {
-            return dataModel.get().stream(MeterReadingDocumentCreateRequestDomainExtension.class)
-                    .join(ServiceCall.class)
-                    .filter(where(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName()).in(meterReadingDocumentIds))
-                    .map(MeterReadingDocumentCreateRequestDomainExtension::getServiceCall)
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
-        }
+    private List<MeterReadingDocumentCreateRequestDomainExtension> getRequestExtensions(List<String> meterReadingDocumentIds) {
+        return ormService.getDataModel(MeterReadingDocumentCreateRequestCustomPropertySet.MODEL_NAME)
+                .orElseThrow(() -> new IllegalStateException("Data model " + MeterReadingDocumentCreateRequestCustomPropertySet.MODEL_NAME + " isn't found."))
+                .stream(MeterReadingDocumentCreateRequestDomainExtension.class)
+                .join(ServiceCall.class)
+                .filter(where(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName()).in(meterReadingDocumentIds))
+                .collect(Collectors.toList());
+
     }
 
-    private List<ServiceCall> getResultServiceCall(List<String> meterReadingDocumentIds) {
-        Optional<DataModel> dataModel = ormService.getDataModel(MeterReadingDocumentCreateResultCustomPropertySet.MODEL_NAME);
-        if (dataModel.isPresent()) {
-            return dataModel.get().stream(MeterReadingDocumentCreateResultDomainExtension.class)
-                    .join(ServiceCall.class)
-                    .filter(where(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName()).in(meterReadingDocumentIds))
-                    .map(MeterReadingDocumentCreateResultDomainExtension::getServiceCall)
-                    .collect(Collectors.toList());
-        } else {
-            return Collections.emptyList();
-        }
+    private List<MeterReadingDocumentCreateResultDomainExtension> getResultExtensions(List<String> meterReadingDocumentIds) {
+        return ormService.getDataModel(MeterReadingDocumentCreateResultCustomPropertySet.MODEL_NAME)
+                .orElseThrow(() -> new IllegalStateException("Data model " + MeterReadingDocumentCreateResultCustomPropertySet.MODEL_NAME + " isn't found."))
+                .stream(MeterReadingDocumentCreateResultDomainExtension.class)
+                .join(ServiceCall.class)
+                .filter(where(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName()).in(meterReadingDocumentIds))
+                .collect(Collectors.toList());
     }
 
     private void cancelIfOnlyRequestServiceCall(ServiceCall serviceCall, String documentId,
                                                 List<String> meterReadingDocumentIds, List<CancelledMeterReadingDocument> cancelledDocuments) {
-        if (getResultServiceCall(Arrays.asList(documentId)).isEmpty()) {
+        if (getResultExtensions(Arrays.asList(documentId)).isEmpty()) {
             serviceCall = lock(serviceCall);
-            if (getResultServiceCall(Arrays.asList(documentId)).isEmpty()) {
+            if (getResultExtensions(Arrays.asList(documentId)).isEmpty()) {
                 Optional<MeterReadingDocumentCreateRequestDomainExtension> requestExtension = serviceCall.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class);
                 requestExtension.get().setCancelledBySap(true);
                 serviceCall.update(requestExtension.get());

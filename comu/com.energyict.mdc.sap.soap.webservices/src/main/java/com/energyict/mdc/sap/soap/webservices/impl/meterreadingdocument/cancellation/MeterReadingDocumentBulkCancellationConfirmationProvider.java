@@ -56,7 +56,7 @@ public class MeterReadingDocumentBulkCancellationConfirmationProvider extends Ab
     @Override
     public void call(MeterReadingDocumentCancellationConfirmationMessage confMsg) {
         using("smartMeterMeterReadingDocumentERPBulkCancellationConfirmationCOut")
-                .send(confMsg.getBulkConfirmationMessage().get());
+                .send(confMsg.getBulkConfirmationMessage().orElseThrow(() -> new IllegalStateException("Bulk confirmation message is empty.")));
     }
 
     @Override

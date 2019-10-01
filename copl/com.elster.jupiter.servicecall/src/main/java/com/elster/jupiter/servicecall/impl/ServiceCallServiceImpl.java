@@ -402,14 +402,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public Finder<ServiceCall> findAvailableServiceCalls(String serviceCallTypeName, Set<DefaultState> inState) {
-        ServiceCallFilter filter = new ServiceCallFilter();
-        filter.types.add(serviceCallTypeName);
-        filter.states = inState.stream().map(Enum::name).collect(Collectors.toList());
-        return getServiceCallFinder(filter);
-    }
-
-    @Override
     public void cancelServiceCallsFor(Object target) {
         EnumSet<DefaultState> states = EnumSet.allOf(DefaultState.class);
         states.remove(DefaultState.CREATED);
@@ -500,26 +492,5 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 .filter(DestinationSpec::isExtraQueueCreationEnabled)
                 .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void transitionWithLockIfPossible(ServiceCall serviceCall, DefaultState state) {
-        if (serviceCall.canTransitionTo(state)) {
-            serviceCall = lockServiceCall(serviceCall.getId()).get();
-            if (serviceCall.canTransitionTo(state)) {
-                serviceCall.requestTransition(state);
-            }
-        }
-    }
-
-    @Override
-    public void transitionWithLockIfPossible(ServiceCall serviceCall, DefaultState firstState, DefaultState secondState) {
-        if (serviceCall.canTransitionTo(firstState)) {
-            serviceCall = lockServiceCall(serviceCall.getId()).get();
-            if (serviceCall.canTransitionTo(firstState)) {
-                serviceCall.requestTransition(firstState);
-                serviceCall.requestTransition(secondState);
-            }
-        }
     }
 }

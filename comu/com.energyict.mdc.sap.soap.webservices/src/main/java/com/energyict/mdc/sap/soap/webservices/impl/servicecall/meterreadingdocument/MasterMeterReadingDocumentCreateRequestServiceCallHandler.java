@@ -55,14 +55,14 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             case PENDING:
                 immediately.remove(serviceCall.getId());
                 scheduled.remove(serviceCall.getId());
-                serviceCall.findChildren().stream().forEach(child -> serviceCallService.transitionWithLockIfPossible(child, DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
                     serviceCall.findChildren()
                             .stream()
                             .filter(child -> child.getState().isOpen())
-                            .forEach(child -> serviceCallService.transitionWithLockIfPossible(child, DefaultState.ONGOING));
+                            .forEach(child -> child.transitionWithLockIfPossible(DefaultState.ONGOING));
                 } else {
                     resultTransition(serviceCall);
                 }
@@ -71,7 +71,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             case FAILED:
             case PARTIAL_SUCCESS:
             case SUCCESSFUL:
-                if (allChildCancelledBySap(serviceCall)) {
+                if (allChildrenCancelledBySap(serviceCall)) {
                     serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
                 } else {
                     //if not continue to create result service call
@@ -129,9 +129,11 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 resultTransition(parentServiceCall);
                 break;
             case SCHEDULED:
+                parentServiceCall = lock(parentServiceCall);
                 parentServiceCall.requestTransition(DefaultState.SCHEDULED);
                 break;
             case PAUSED:
+                parentServiceCall = lock(parentServiceCall);
                 if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
                     if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
@@ -172,6 +174,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     }
 
     private void resultTransition(ServiceCall parent) {
+        parent = lock(parent);
         List<ServiceCall> children = findChildren(parent);
         if (isLastChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
@@ -192,16 +195,26 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.PENDING);
         immediately.get(serviceCall.getId()).forEach(call -> {
-            createMeterReadingDocumentResultServiceCall(parentServiceCall, call).ifPresent(child -> child.requestTransition(DefaultState.PENDING));
+            createMeterReadingDocumentResultServiceCall(parentServiceCall, call).ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
         });
+
+        if (parentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
+            parentServiceCall.requestTransition(DefaultState.CANCELLED);
+            parentServiceCall.log(LogLevel.SEVERE, "Parent service call doesn't have children");
+        }
     }
 
     private void createMasterMeterReadingDocumentResultServiceCallForScheduling(ServiceCall serviceCall) {
         ServiceCall parentServiceCall = createMasterMeterReadingDocumentResultServiceCall(serviceCall);
         parentServiceCall.requestTransition(DefaultState.SCHEDULED);
         scheduled.get(serviceCall.getId()).forEach(call -> {
-            createMeterReadingDocumentResultServiceCall(parentServiceCall, call).ifPresent(child -> child.requestTransition(DefaultState.SCHEDULED));
+            createMeterReadingDocumentResultServiceCall(parentServiceCall, call).ifPresent(child -> child.transitionWithLockIfPossible(DefaultState.SCHEDULED));
         });
+
+        if (parentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
+            parentServiceCall.requestTransition(DefaultState.CANCELLED);
+            parentServiceCall.log(LogLevel.SEVERE, "Parent service call doesn't have children");
+        }
     }
 
     private ServiceCall createMasterMeterReadingDocumentResultServiceCall(ServiceCall serviceCall) {
@@ -221,6 +234,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     }
 
     private Optional<ServiceCall> createMeterReadingDocumentResultServiceCall(ServiceCall parent, ServiceCall child) {
+        child = lock(child);
         MeterReadingDocumentCreateRequestDomainExtension requestDomainExtension = child.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
@@ -252,7 +266,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
     }
 
-    private boolean allChildCancelledBySap(ServiceCall serviceCall) {
+    private boolean allChildrenCancelledBySap(ServiceCall serviceCall) {
         List<ServiceCall> children = findChildren(serviceCall);
         return children.stream().allMatch(sc -> isServiceCallCancelledBySap(sc));
     }
@@ -264,5 +278,10 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         } else {
             return false;
         }
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 }

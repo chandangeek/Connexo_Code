@@ -15,6 +15,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancell
 import java.time.Instant;
 import java.util.UUID;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+
 public class CancellationConfirmationMessageFactory {
     private static final ObjectFactory objectFactory = new ObjectFactory();
 
@@ -66,7 +68,7 @@ public class CancellationConfirmationMessageFactory {
 
     private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue("PRE");
+        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
         logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));

@@ -43,7 +43,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.ONGOING);
+                serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
                 break;
             case ONGOING:
                 serviceCallService.lockServiceCall(serviceCall.getId()).ifPresent(lockedServiceCall ->{
@@ -73,7 +73,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                         .findFirst()
                         .ifPresent(readingType -> extension.setDataSource(readingType.getMRID()));
             } else {
-                serviceCall.log(LogLevel.WARNING,"The channel/register is not found.");
+                serviceCall.log(LogLevel.WARNING,"The channel/register isn't found.");
                 serviceCall.update(extension);
                 serviceCall.requestTransition(DefaultState.PAUSED);
                 return;
@@ -95,7 +95,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
-            serviceCall.log(LogLevel.WARNING,"The device is not found or the device is not in operational stage.");
+            serviceCall.log(LogLevel.WARNING,"The device isn't found or the device is not in operational stage.");
             serviceCall.requestTransition(DefaultState.PAUSED);
         }
     }

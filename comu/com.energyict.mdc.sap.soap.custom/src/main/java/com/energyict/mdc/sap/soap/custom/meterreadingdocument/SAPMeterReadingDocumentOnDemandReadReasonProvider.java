@@ -80,11 +80,11 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     @Override
     public long getShiftDate() {
-        return dateShift*INTERVAL_ONE_DAY;
+        return dateShift* SECONDS_IN_DAY;
     }
 
     @Override
-    public boolean isUseCurrentDateTime() {
+    public boolean shouldUseCurrentDateTime() {
         return true;
     }
 
@@ -138,10 +138,10 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private boolean checkTaskStatus(ServiceCall serviceCall, ComTaskExecution comTaskExecution) {
         if (comTaskExecution.isOnHold()) {
-            serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.FAILED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
             return false;
         } else if (comTaskExecution.getStatus().equals(TaskStatus.Busy)) {
-            serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.PAUSED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
             return false;
         }
         return true;
@@ -149,10 +149,10 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private boolean runTask(ServiceCall serviceCall, ComTaskExecution comTaskExecution) {
         if (comTaskExecution.isOnHold()) {
-            serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.FAILED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
         } else {
             comTaskExecution.runNow();
-            serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.PAUSED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
         }
         return false;
     }

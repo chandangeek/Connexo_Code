@@ -8,7 +8,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -28,7 +27,6 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
 
     private volatile Clock clock;
     private volatile MeteringService meteringService;
-    private volatile ServiceCallService serviceCallService;
 
     @Reference
     public void setClock(Clock clock) {
@@ -40,17 +38,12 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
         this.meteringService = meteringService;
     }
 
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
-    }
-
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.ONGOING);
+                serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
                 break;
             case ONGOING:
                 if (!oldState.equals(DefaultState.WAITING)) {
@@ -68,16 +61,16 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
         if (domainExtension.isFutureCase() && domainExtension.getProcessingDate().isAfter(clock.instant())) {
-            serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.PAUSED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
         } else if (domainExtension.getChannelId() == null) {
-            serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.WAITING);
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
             Optional.of(domainExtension)
                     .map(MeterReadingDocumentCreateResultDomainExtension::getReadingReasonCode)
                     .map(WebServiceActivator::findReadingReasonProvider)
                     .map(Optional::get)
                     .orElseThrow(() -> new IllegalStateException("Unable to get reading reason provider for service call"))
-                    .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock, serviceCallService)
+                    .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock)
                             .from(serviceCall, WebServiceActivator.SAP_PROPERTIES)
                             .build());
         }

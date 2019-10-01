@@ -26,7 +26,7 @@ public class MeterReadingDocumentCancellationRequestMessage {
     }
 
     public List<String> getMeterReadingDocumentIds() {
-        return meterReadingDocumentIds;
+        return new ArrayList(meterReadingDocumentIds);
     }
 
     static MeterReadingDocumentCancellationRequestMessage.Builder builder() {

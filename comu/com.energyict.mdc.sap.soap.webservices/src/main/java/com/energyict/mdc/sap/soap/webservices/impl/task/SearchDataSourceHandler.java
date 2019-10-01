@@ -22,7 +22,7 @@ public class SearchDataSourceHandler implements TaskExecutor {
 
     private final ServiceCallService serviceCallService;
 
-    public SearchDataSourceHandler(ServiceCallService serviceCallService, WebServiceActivator webServiceActivator) {
+    public SearchDataSourceHandler(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
     }
 
@@ -32,6 +32,7 @@ public class SearchDataSourceHandler implements TaskExecutor {
         findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
                 .stream()
                 .forEach(serviceCall -> {
+                    serviceCall = lock(serviceCall);
                     MasterMeterReadingDocumentCreateRequestDomainExtension domainExtension = serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class).get();
                     BigDecimal retried = domainExtension.getAttemptNumber();
                     if (retried.compareTo(retries) == -1) {
@@ -57,5 +58,10 @@ public class SearchDataSourceHandler implements TaskExecutor {
         filter.states.add(DefaultState.SCHEDULED.name());
         filter.states.add(DefaultState.PAUSED.name());
         return serviceCallService.getServiceCallFinder(filter);
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 }
