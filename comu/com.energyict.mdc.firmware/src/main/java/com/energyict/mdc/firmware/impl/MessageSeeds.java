@@ -76,7 +76,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_PART_OF_CAMPAIGN(4017, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign", Level.SEVERE),
     SC_TYPE_NOT_FOUND(4018, "ServiceCallTypeNotFound", "Service call type not found.", Level.SEVERE),
     CAMPAIGN_ALREADY_CANCELLED(4019, "CampaignAlreadyCancelled", "The campaign has already been cancelled.", Level.WARNING),
-    DEVICE_IS_NOT_PENDING_STATE(4020, "DeviceIsNotPendingState", "The device service call is not in pending state", Level.WARNING),
+    DEVICE_IS_NOT_PENDING_STATE(4020, "DeviceIsNotPendingState", "The device service call isn''t in pending state.", Level.WARNING),
     CAMPAIGN_WITH_DEVICE_CANCELLED(4021, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),
     ;
 
