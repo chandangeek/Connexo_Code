@@ -151,7 +151,7 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public IssueAction setReasonKey(String reasonKey) {
-        this.reasonKey = reasonKey == null ? "" : reasonKey;
+        this.reasonKey = reasonKey;
         return this;
     }
 
