@@ -120,8 +120,9 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         record = form.getRecord();
         record.getProxy().url = '/api/isu/creationrules/validateaction';
         var clipboard = Ext.getStore('Isu.store.Clipboard');
-        var reason_name = clipboard && clipboard.get('issuesCreationRuleState') && clipboard.get('issuesCreationRuleState').get("reason_name");
-        record.getProxy().setExtraParam('reason_name', reason_name);
+        var issuesCreationRuleState = clipboard && clipboard.get('issuesCreationRuleState');
+        var reason_id = issuesCreationRuleState && issuesCreationRuleState.get('reason_id');
+        record.getProxy().extraParams = reason_id ? {"reason_id": reason_id} : {};
         record.save({
             callback: function (validatedRecord, operation, success) {
                 var json;
