@@ -170,8 +170,10 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                 LOGGER.warning("SQLTimeoutException for subscriber [" + getName() + "] : " + e.getMessage());
             }
         } finally {
-            if (cancellableConnection != null) {
-                cancellableConnections.remove(cancellableConnection);
+            synchronized (cancellableConnections) {
+                if (cancellableConnection != null) {
+                    cancellableConnections.remove(cancellableConnection);
+                }
             }
         }
         return null;
@@ -187,13 +189,14 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     @Override
     public void cancel() {
-        continueRunning.set(false);
         synchronized (cancellableConnections) {
+            continueRunning.set(false);
             if (cancellableConnections.isEmpty()) {
                 LOGGER.info("no DB connection found for subscriber [" + getName() + "] !");
             }
             for (OracleConnection cancellableConnection : new ArrayList<>(cancellableConnections)) {
                 try {
+                    LOGGER.info("cancel called for subscriber [" + getName() + "]");
                     cancellableConnection.cancel();
                     cancellableConnections.remove(cancellableConnection);
                 } catch (SQLException e) {
