@@ -50,14 +50,14 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
         if (validationContext.getMetrologyContract().isPresent() && validationContext.getUsagePoint().isPresent()) {
             return getRuleSets(validationContext.getUsagePoint().get(), Collections.singletonList(validationContext.getMetrologyContract().get()));
         }
-        if (validationContext.getChannelsContainer().getUsagePoint().isPresent()) {
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = validationContext.getChannelsContainer()
+        if (validationContext.getUsagePoint().isPresent()) {
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = validationContext
                     .getUsagePoint()
                     .get()
                     .getCurrentEffectiveMetrologyConfiguration()
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
             if (metrologyConfiguration.isPresent()) {
-                return getRuleSets(validationContext.getChannelsContainer().getUsagePoint().get(), metrologyConfiguration.get().getContracts());
+                return getRuleSets(validationContext.getUsagePoint().get(), metrologyConfiguration.get().getContracts());
             }
         }
         return Collections.emptyMap();

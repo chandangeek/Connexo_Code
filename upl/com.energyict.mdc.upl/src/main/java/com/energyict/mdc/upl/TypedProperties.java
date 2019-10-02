@@ -268,7 +268,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
     }
 
     public String getStringProperty(String propertyName) {
-        return String.valueOf((Object)this.getTypedProperty(propertyName));
+        return this.getTypedProperty(propertyName);
     }
 
     public BigDecimal getIntegerProperty(String propertyName) {
