@@ -32,6 +32,7 @@ public class BpmServerImpl implements BpmServer {
     private static final String DEFAULT_BPM_USER = "admin";
     private static final String DEFAULT_BPM_PASSWORD = "admin";
 
+    private String externalUrl;
     private String url;
     private String basicAuthString;
     private String staticTokenAuth;
@@ -41,6 +42,7 @@ public class BpmServerImpl implements BpmServer {
     BpmServerImpl(BundleContext context, ThreadPrincipalService threadPrincipalService, String staticTokenAuth) {
         this.threadPrincipalService = threadPrincipalService;
         this.setUrlFromContext(context);
+        this.setExternalUrlFromContext(context);
         this.staticTokenAuth = staticTokenAuth;
 
         String user = this.getUserFromContext(context);
@@ -52,13 +54,19 @@ public class BpmServerImpl implements BpmServer {
 
     private void setUrlFromContext(BundleContext context) {
         if (context != null) {
-            url = context.getProperty(BPM_EXTERNAL_URL);
-        }
-        if (url == null) {
             url = context.getProperty(BPM_URL);
         }
         if (url == null) {
             url = DEFAULT_BPM_URL;
+        }
+    }
+
+    private void setExternalUrlFromContext(BundleContext context) {
+        if (context != null) {
+            externalUrl = context.getProperty(BPM_EXTERNAL_URL);
+        }
+        if (externalUrl == null) {
+            externalUrl = url;
         }
     }
 
@@ -81,6 +89,11 @@ public class BpmServerImpl implements BpmServer {
     @Override
     public String getUrl() {
         return url;
+    }
+
+    @Override
+    public String getExternalUrl() {
+        return externalUrl;
     }
 
     @Override

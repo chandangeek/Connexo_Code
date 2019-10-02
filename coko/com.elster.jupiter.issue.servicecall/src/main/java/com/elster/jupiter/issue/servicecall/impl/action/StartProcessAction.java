@@ -132,7 +132,7 @@ public class StartProcessAction extends AbstractIssueAction {
     }
 
     @Override
-    public boolean isApplicable(String reasonName){
+    public boolean isApplicable(String reasonName) {
         return bpmService.getActiveBpmProcessDefinitions()
                 .stream()
                 .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(ASSOCIATION))

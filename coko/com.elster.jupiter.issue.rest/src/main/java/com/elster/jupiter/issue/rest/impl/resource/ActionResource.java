@@ -69,7 +69,7 @@ public class ActionResource extends BaseResource {
 
         List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
-                .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds))
+                .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds, issueReason))
                 .map(at -> actionInfoFactory.asInfo(at, reasonParam))
                 .filter(item -> (!((item.name).equals("Email") && (phaseParam.equals("OVERDUE") || issueTypeParam.equals("usagepointdatavalidation")))))
                 .sorted(Comparator.comparing(a -> a.name))
@@ -97,7 +97,7 @@ public class ActionResource extends BaseResource {
         return resultMap;
     }
 
-    private boolean additionalRestrictionOnActions(final IssueActionType issueActionType, final List<Long> createdActionTypeIds) {
+    private boolean additionalRestrictionOnActions(final IssueActionType issueActionType, final List<Long> createdActionTypeIds, Optional<IssueReason> issueReason) {
 
         final Map<Long, String> createdActionTypeClassNames = getCreatedActionTypeClassNames(createdActionTypeIds);
 
@@ -108,9 +108,14 @@ public class ActionResource extends BaseResource {
             return !anyMatch;
         }
 
-        if ((actionTypeClassName != null) &&  actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.ProcessAction")) {
+        if ((actionTypeClassName != null) && actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.ProcessAction")) {
             final boolean anyMatch = createdActionTypeClassNames.containsValue("com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction");
             return !anyMatch;
+        }
+
+        if ((actionTypeClassName != null) && (actionTypeClassName.equals("com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction")
+                || actionTypeClassName.equals("com.elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction"))) {
+            return issueReason.isPresent();
         }
 
         return true;

@@ -46,6 +46,9 @@ public class DeviceLifeCycleStateInfo {
         this.version = state.getVersion();
         state.getStage().map(Stage::getName).ifPresent(stageName ->
                 this.stage = new IdWithNameInfo(stageName, deviceLifeCycleConfigurationService.getStageDisplayName(EndDeviceStage.fromKey(stageName))));
+        if (deviceLifeCycle != null) {
+            this.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());
+        }
         this.name = DefaultState.from(state).map(meteringTranslationService::getDisplayName).orElseGet(state::getName);
         addAllBusinessProcessInfos(onEntry, state.getOnEntryProcesses());
         addAllBusinessProcessInfos(onExit, state.getOnExitProcesses());
