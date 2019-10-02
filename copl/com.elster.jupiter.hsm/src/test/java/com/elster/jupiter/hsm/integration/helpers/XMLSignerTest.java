@@ -45,6 +45,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+/**
+ * This test should be run only manually while it is a helper and not a real test
+ */
+@Ignore
 public class XMLSignerTest {
 
     private static final String XML = "shipment.xml";
