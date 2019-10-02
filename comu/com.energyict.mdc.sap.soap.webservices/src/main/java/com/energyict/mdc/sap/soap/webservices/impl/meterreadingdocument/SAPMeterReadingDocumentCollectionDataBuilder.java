@@ -86,6 +86,9 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     public void calculate() {
         Optional<BaseReadingRecord> closestReadingRecord = getBaseReadingRecord(getReadings());
         MeterReadingDocumentCreateResultDomainExtension domainExtension = serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
+        long currentAttempt = domainExtension.getReadingAttempt() + 1;
+        domainExtension.setReadingAttempt(currentAttempt);
+
         closestReadingRecord.ifPresent(record -> {
             domainExtension.setReading(record.getValue());
             domainExtension.setActualReadingDate(record.getTimeStamp());
@@ -95,16 +98,15 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
 
         if (!closestReadingRecord.isPresent()) {
             serviceCall.log(LogLevel.WARNING, "The reading isn't found.");
-            long retries = WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.CHECK_SCHEDULED_READING_ATTEMPTS);
+            long attempts = WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.CHECK_SCHEDULED_READING_ATTEMPTS);
 
-            long retried = domainExtension.getReadingAttempt() + 1;
-            domainExtension.setReadingAttempt(retried);
-            if (retried != retries) {
+            if (currentAttempt != attempts) {
                 domainExtension.setNextReadingAttemptDate(clock.instant().plusSeconds(WebServiceActivator.SAP_PROPERTIES
                         .get(AdditionalProperties.CHECK_SCHEDULED_READING_INTERVAL) * 60));
                 serviceCall.update(domainExtension);
                 serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
             } else {
+                serviceCall.update(domainExtension);
                 serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
             }
         }

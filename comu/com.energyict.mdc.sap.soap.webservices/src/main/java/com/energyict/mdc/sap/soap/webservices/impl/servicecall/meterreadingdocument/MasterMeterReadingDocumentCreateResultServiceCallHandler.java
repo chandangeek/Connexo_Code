@@ -60,8 +60,6 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                     List<ServiceCall> children = findChildren(serviceCall);
                     if (!areAllCancelledBySap(children)) {
                         sendResultMessage(serviceCall);
-                    }else{
-                        serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
                     }
                 }
                 break;
@@ -82,6 +80,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 if (isLastClosedChild(children)) {
                     parentServiceCall = lock(parentServiceCall);
                     if (areAllCancelledBySap(children) && parentServiceCall.canTransitionTo(DefaultState.CANCELLED)) {
+                        parentServiceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
                         parentServiceCall.requestTransition(DefaultState.CANCELLED);
                     } else if (parentServiceCall.getState().equals(DefaultState.WAITING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);

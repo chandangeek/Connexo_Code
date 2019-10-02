@@ -6,7 +6,6 @@ package com.energyict.mdc.sap.soap.custom.meterreadingdocument;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
@@ -57,16 +56,10 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     }
 
     private volatile DeviceService deviceService;
-    private volatile ServiceCallService serviceCallService;
 
     @Reference
     public final void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
-    }
-
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
     }
 
     @Override
