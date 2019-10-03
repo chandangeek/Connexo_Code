@@ -9,8 +9,6 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -28,7 +26,6 @@ public class SearchDataSourceHandlerFactory implements MessageHandlerFactory {
 
     private volatile TaskService taskService;
     private volatile ServiceCallService serviceCallService;
-    private volatile WebServiceActivator webServiceActivator;
 
     public SearchDataSourceHandlerFactory() {
     }
@@ -42,7 +39,7 @@ public class SearchDataSourceHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new SearchDataSourceHandler(serviceCallService, webServiceActivator));
+        return taskService.createMessageHandler(new SearchDataSourceHandler(serviceCallService));
     }
 
     @Reference
@@ -53,10 +50,5 @@ public class SearchDataSourceHandlerFactory implements MessageHandlerFactory {
     @Reference
     public final void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
-    }
-
-    @Reference
-    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        this.webServiceActivator = webServiceActivator;
     }
 }

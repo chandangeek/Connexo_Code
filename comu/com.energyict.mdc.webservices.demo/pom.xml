@@ -21,22 +21,13 @@
     </description>
 
     <dependencies>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.tasks</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.sap.soap.webservices</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.upl</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -49,10 +40,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.sap.soap.wsdl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
