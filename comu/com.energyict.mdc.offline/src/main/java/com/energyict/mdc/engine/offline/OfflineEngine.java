@@ -54,6 +54,7 @@ import com.energyict.mdc.upl.io.SocketService;
 import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.obis.ObisCode;
+import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
@@ -69,8 +70,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.offline.OfflineEngine",
         service = {OfflineEngineService.class, TranslationKeyProvider.class},
@@ -162,6 +161,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
                 ClassLoader tccl = Thread.currentThread().getContextClassLoader();
                 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
                 try {
+                    UIManager.setLookAndFeel(WindowsLookAndFeel.class.getName());
                     mainFrame = new OfflineFrame(new RunningComServerServiceProvider());
                     mainFrame.setVisible(false);
                     UserEnvironment.getDefault().put(mainFrame.getClass().getName(), mainFrame);

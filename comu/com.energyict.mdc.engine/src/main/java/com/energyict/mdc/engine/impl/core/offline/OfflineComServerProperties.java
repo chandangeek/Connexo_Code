@@ -18,24 +18,24 @@ import java.util.Properties;
 /**
  * @author Koen
  */
-public class OfflineProperties {
+public class OfflineComServerProperties {
 
-    private static final Log logger = LogFactory.getLog(OfflineProperties.class);
+    private static final Log logger = LogFactory.getLog(OfflineComServerProperties.class);
     private static final String PROPERTIES_FILE = "comservermobile.properties";
 
-    private static OfflineProperties instance = null;
+    private static OfflineComServerProperties instance = null;
     Properties properties = null;
 
     /**
      * Creates a new instance of PropertiesLoader
      */
-    private OfflineProperties() {
+    private OfflineComServerProperties() {
         properties = loadProperties();
     }
 
-    public static OfflineProperties getInstance() {
+    public static OfflineComServerProperties getInstance() {
         if (instance == null) {
-            instance = new OfflineProperties();
+            instance = new OfflineComServerProperties();
         }
         return instance;
     }

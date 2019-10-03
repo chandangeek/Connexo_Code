@@ -9,8 +9,9 @@ import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.offline.MdwIcons;
 import com.energyict.mdc.engine.offline.OfflineExecuter;
+import com.energyict.mdc.engine.offline.core.OfflinePropertiesProvider;
 import com.energyict.mdc.engine.offline.core.OfflineWorker;
-import com.energyict.mdc.engine.impl.core.offline.OfflineProperties;
+import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.core.Utils;
 import com.energyict.mdc.engine.offline.gui.actions.ExitAction;
@@ -155,9 +156,8 @@ public class OfflineFrame extends JFrame {
     private void initComponents() {
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        String version = this.getClass().getPackage().getSpecificationVersion();
-        setTitle(TranslatorProvider.instance.get().getTranslator().getTranslation("commserveroffline")
-                + " " + TranslatorProvider.instance.get().getTranslator().getTranslation("version") + " " + version);
+        String version = OfflinePropertiesProvider.getInstance().getConnexoVersion();
+        setTitle(TranslatorProvider.instance.get().getTranslator().getTranslation("commserveroffline") + " " + version);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
                 doClose();
@@ -774,7 +774,7 @@ public class OfflineFrame extends JFrame {
     public void initializeCompletionCodes() {
         boolean online = false;
         ComServerDAO remoteComServerDAO = null;
-        if (new RemoteProperties(OfflineProperties.getInstance().getProperties()).getRemoteQueryApiUrl() != null) {
+        if (new RemoteProperties(OfflineComServerProperties.getInstance().getProperties()).getRemoteQueryApiUrl() != null) {
             try {
                 remoteComServerDAO = getOfflineExecuter().getRemoteComServerDAO();
                 online = true;

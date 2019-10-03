@@ -4,7 +4,8 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.offline.UserEnvironment;
-import com.energyict.mdc.engine.impl.core.offline.OfflineProperties;
+import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
+import com.energyict.mdc.engine.offline.core.OfflinePropertiesProvider;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.core.Utils;
 import com.energyict.mdc.engine.offline.gui.OfflineFrame;
@@ -61,11 +62,10 @@ public class LogonDlg extends EisDialog {
     public LogonDlg(OfflineFrame offlineFrame, boolean modal) {
         super(offlineFrame, "", modal);
         this.offlineFrame = offlineFrame;
-
-//        String version = MeteringWarehouse.getCurrent().getShortVersion();
         Object arg[] = new Object[2];
         arg[0] = getApplicationName();
-//        arg[1] = (version == null ? "" : version + " ");
+        String version = OfflinePropertiesProvider.getInstance().getConnexoVersion();
+        arg[1] = (version == null ? "" : version + " ");
         setTitle(Utils.format(getLogonTitle(), arg));
         initComponents();
         getContentPane().setPreferredSize(new Dimension(BACKGROUND_IMAGE_WIDTH, BACKGROUND_IMAGE_HEIGHT));
@@ -257,7 +257,7 @@ public class LogonDlg extends EisDialog {
             try {
                 boolean online;
                 ComServerDAO remoteComServerDAO = null;
-                if (new RemoteProperties(OfflineProperties.getInstance().getProperties()).getRemoteQueryApiUrl() != null) {
+                if (new RemoteProperties(OfflineComServerProperties.getInstance().getProperties()).getRemoteQueryApiUrl() != null) {
                     try {
                         remoteComServerDAO = offlineFrame.getOfflineExecuter().getRemoteComServerDAO();
                         online = true;
