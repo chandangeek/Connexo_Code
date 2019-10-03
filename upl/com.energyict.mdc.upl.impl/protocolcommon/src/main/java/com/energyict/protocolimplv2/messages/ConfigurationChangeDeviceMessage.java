@@ -251,8 +251,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                             service, DeviceMessageConstants.AdministrativeStatusAttributeName, DeviceMessageConstants.AdministrativeStatusAttributeDefaultTranslation,
                             BigDecimal.ZERO,
                             BigDecimal.ONE,
-                            new BigDecimal(2),
-                            new BigDecimal(3)));
+                            new BigDecimal(2)));
         }
     },
     BootSyncEnable(31043, "Enable sync at boot") {

@@ -188,15 +188,23 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
             actionTypesStoreProxy = actionTypesStore.getProxy(),
             rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState');
 
+        actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Dal.model.Action'));
         me.setLoading();
-        actionTypesStoreProxy.setExtraParam('createdActions', _.map(rule.actions().getRange(), function (value) {
+        var listOfCreatedActionIds = [];
+        _.map(rule.actions().getRange(), function (value) {
             if (value.get('phase').uuid === newValue.phase) {
-                return value.getType().getId();
+                listOfCreatedActionIds.push(value.getType().getId());
             }
-        }));
+        });
+
+        if (listOfCreatedActionIds !== undefined && listOfCreatedActionIds.length !== 0 &&
+            (listOfCreatedActionIds[0] !== undefined)) {
+                actionTypesStoreProxy.setExtraParam('createdActions', listOfCreatedActionIds);
+        }
+
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
         try {
             actionTypesStoreProxy.setExtraParam('reason', rule.getReason().getId());

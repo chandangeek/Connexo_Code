@@ -8,6 +8,8 @@ import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.DefaultState;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,7 +22,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
@@ -50,6 +51,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
     private volatile PropertySpecService propertySpecService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     //For OSGI purposes
     public DeviceProcessAssociationProvider() {
@@ -57,11 +59,12 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
 
     //For testing purposes
     @Inject
-    public DeviceProcessAssociationProvider(Thesaurus thesaurus, PropertySpecService propertySpecService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceProcessAssociationProvider(Thesaurus thesaurus, PropertySpecService propertySpecService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MeteringTranslationService meteringTranslationService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -82,6 +85,11 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
@@ -122,7 +130,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
                 this.deviceLifeCycleConfigurationService
                         .findAllDeviceLifeCycles().stream()
                         .flatMap(lifeCycle -> lifeCycle.getFiniteStateMachine().getStates().stream())
-                        .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
+                        .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state, meteringTranslationService))
                         .sorted((info1, info2) -> (info1.getLifeCycleId() != info2.getLifeCycleId()) ?
                                 info1.getLifeCycleName().compareToIgnoreCase(info2.getLifeCycleName()) :
                                 info1.getName().compareToIgnoreCase(info2.getName()))
@@ -159,10 +167,12 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         private transient DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
         private transient DeviceLifeCycle deviceLifeCycle;
         private transient State deviceState;
+        private transient MeteringTranslationService meteringTranslationService;
 
-        DeviceStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState) {
+        DeviceStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, State deviceState, MeteringTranslationService meteringTranslationService) {
             this.deviceState = deviceState;
             this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+            this.meteringTranslationService = meteringTranslationService;
             this.deviceLifeCycle = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles()
                     .stream()
                     .filter(lifeCycle -> lifeCycle.getFiniteStateMachine().equals(deviceState.getFiniteStateMachine()))
@@ -179,7 +189,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         public String getName() {
             return DefaultState
                     .from(deviceState)
-                    .map(deviceLifeCycleConfigurationService::getDisplayName)
+                    .map(meteringTranslationService::getDisplayName)
                     .orElseGet(deviceState::getName);
         }
 
@@ -222,7 +232,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         public HasIdAndName fromStringValue(String stringValue) {
             return finiteStateMachineService
                     .findFiniteStateById(Long.parseLong(stringValue))
-                    .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state))
+                    .map(state -> new DeviceStateInfo(deviceLifeCycleConfigurationService, state,meteringTranslationService))
                     .orElse(null);
         }
 

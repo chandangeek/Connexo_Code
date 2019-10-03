@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -94,7 +95,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     }
 
     @Inject
-    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, Clock clock, CommunicationTaskService communicationTaskService) {
+    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, Clock clock, CommunicationTaskService communicationTaskService, MeteringTranslationService meteringTranslationService) {
         this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
@@ -106,6 +107,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         setClock(clock);
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setTaskService(taskService);
+        setMeteringTranslationService(meteringTranslationService);
         activate();
     }
 
@@ -146,6 +148,11 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        super.setMeteringTranslationService(meteringTranslationService);
     }
 
     @Reference
@@ -250,7 +257,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .map(entry -> new EventTypeInfo(entry.getKey(), entry.getValue()))
                 .toArray(EventTypeInfo[]::new);
         builder.add(propertySpecService
-                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService))
                 .named(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()

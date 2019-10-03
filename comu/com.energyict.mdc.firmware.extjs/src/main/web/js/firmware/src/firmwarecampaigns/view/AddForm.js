@@ -49,23 +49,42 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 width: 600
             },
             {
-                xtype: 'combobox',
-                itemId: 'firmware-campaign-device-type',
-                name: 'deviceType',
+                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.deviceType', 'FWC', 'Device type'),
+                itemId: 'firmware-campaign-device-type-field-container',
                 required: true,
                 allowBlank: false,
-                store: 'Fwc.store.DeviceTypes',
-                forceSelection: true,
-                queryMode: 'local',
-                displayField: 'localizedValue',
-                valueField: 'id',
-                width: 600,
-                listeners: {
-                    change: {
-                        fn: Ext.bind(me.onDeviceTypeChange, me)
+                layout: 'hbox',
+                width: 650,
+                items:
+                [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'firmware-campaign-device-type',
+                        name: 'deviceType',
+                        required: true,
+                        allowBlank: false,
+                        store: 'Fwc.store.DeviceTypes',
+                        forceSelection: true,
+                        queryMode: 'local',
+                        displayField: 'localizedValue',
+                        valueField: 'id',
+                        width: 325,
+                        listeners: {
+                            change: {
+                                fn: Ext.bind(me.onDeviceTypeChange, me)
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'no-device-type',
+                        hidden: true,
+                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceType', 'FWC', 'No device type defined yet.') + '</div>',
+                        htmlEncode: false,
+                        width: 235
                     }
-                }
+                ]
             },
             {
                 xtype: 'fieldcontainer',
@@ -90,6 +109,15 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     },
                     {
                         xtype: 'displayfield',
+                        itemId: 'no-device-group',
+                        hidden: true,
+                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'EST', 'No device group defined yet.') + '</div>',
+                        htmlEncode: false,
+                        width: 235
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'device-group-info',
                         margin: '0 0 0 10',
                         htmlEncode: false,
                         value: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qwidth="400" data-qtitle="' +
@@ -345,12 +373,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
         me.callParent(arguments);
 
-        Ext.Array.each(Ext.ComponentQuery.query('#fwc-campaign-validation-connection-strategy-reset, #fwc-campaign-send-connection-strategy-reset'), function(item){
+        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
            item.setTooltip('Restore to default empty value');
-        });
-
-        Ext.Array.each(Ext.ComponentQuery.query('firmware-version-options uni-default-button'), function(item){
-           item.setTooltip('Restore to default value "{true/false}"');
         })
     },
 

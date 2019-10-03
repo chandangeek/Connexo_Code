@@ -39,20 +39,21 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     private RawConfiguration rawConfiguration;
     private HsmConfigurationObserver hsmConfigurationObserver;
 
-    private String bundleConfigFile;
-
     @Activate
     public void activate(BundleContext context) {
-        bundleConfigFile = context.getProperty(HSM_CONFIGURATION);
         Boolean automaticConfigReload = getAutomaticConfig(context);
         // this is ok while this is a service and therefore a singleton
-        hsmConfigurationObserver = new HsmConfigurationObserver(this, bundleConfigFile, automaticConfigReload, DEFAULT_RELOAD_TIME);
+        hsmConfigurationObserver = new HsmConfigurationObserver(this, context.getProperty(HSM_CONFIGURATION), automaticConfigReload, DEFAULT_RELOAD_TIME);
         new Thread(hsmConfigurationObserver, "HSM-reloader").start();
     }
 
     @Deactivate
     public void deactivate() {
-        hsmConfigurationObserver.stop();
+        try {
+            hsmConfigurationObserver.stop();
+        } catch (HsmBaseException e) {
+            logger.error("Failed to stop JSS observer", e);
+        }
     }
 
     @Override
@@ -63,7 +64,6 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
         return hsmConfiguration;
     }
 
-
     @Override
     public Collection<String> getLabels() throws HsmNotConfiguredException {
         if (rawConfiguration == null) {
@@ -73,15 +73,9 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     }
 
     @Override
-    public void reload() {
-        try {
-            HsmResourceLoader<HsmConfiguration> hsmConfigLoader = HsmResourceLoaderFactory.getInstance(new HsmReloadableConfigResource(new File(bundleConfigFile)));
-            HsmResourceLoader<RawConfiguration> jssLoader = HsmResourceLoaderFactory.getInstance(new HsmReloadableJssConfigResource(new File(hsmConfigLoader.load().getJssInitFile())));
-            this.hsmConfiguration = hsmConfigLoader.load();
-            this.rawConfiguration = jssLoader.load();
-        } catch (HsmBaseException e) {
-            logger.error("Unable to configure/load JSS", e);
-        }
+    public void set(HsmConfiguration hsmConfiguration, RawConfiguration jssConfig) {
+        this.hsmConfiguration = hsmConfiguration;
+        this.rawConfiguration = jssConfig;
     }
 
     private Boolean getAutomaticConfig(BundleContext context) {

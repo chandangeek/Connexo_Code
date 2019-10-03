@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
@@ -158,6 +159,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile ServiceCallService serviceCallService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile LockService lockService;
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
@@ -202,7 +204,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
             LockService lockService, DataVaultService dataVaultService,
             SecurityManagementService securityManagementService, MeteringZoneService meteringZoneService,
-            CalendarService calendarService) {
+            CalendarService calendarService,MeteringTranslationService meteringTranslationService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -242,6 +244,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setSecurityManagementService(securityManagementService);
         setMeteringZoneService(meteringZoneService);
         setCalendarService(calendarService);
+        setMeteringTranslationService(meteringTranslationService);
         activate(bundleContext);
     }
 
@@ -331,6 +334,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -630,6 +638,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(CrlRequestTaskPropertiesService.class).toInstance(crlRequestTaskPropertiesService);
                 bind(MeteringZoneService.class).toInstance(meteringZoneService);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
             }
         };
     }

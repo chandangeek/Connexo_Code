@@ -5,22 +5,26 @@ import com.elster.jupiter.hsm.impl.config.HsmConfigurationPropFileImpl;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import java.io.File;
-import java.util.Objects;
 
-public class HsmReloadableConfigResource implements HsmReloadableResource<HsmConfiguration> {
+public class HsmReloadableConfigResource extends AbstractFileResource<HsmConfiguration> {
 
-    private final File file;
+    private static HsmReloadableConfigResource INSTANCE;
 
-    public HsmReloadableConfigResource(File file) throws HsmBaseException {
-        if (Objects.isNull(file) || !file.exists()) {
-            throw new HsmBaseException("Cowardly refusing to create config resource loader based on null or non-existing file (" + file + ")");
+    private HsmReloadableConfigResource(File file) throws HsmBaseException {
+        super(file);
+    }
+
+    public static HsmReloadableConfigResource getInstance(File file) throws HsmBaseException {
+        if (INSTANCE == null) {
+            INSTANCE = new HsmReloadableConfigResource(file);
         }
-        this.file = file;
+         INSTANCE.setFile(file);
+        return INSTANCE;
     }
 
     @Override
     public HsmConfiguration load() throws HsmBaseException {
-        return new HsmConfigurationPropFileImpl(file);
+        return new HsmConfigurationPropFileImpl(super.getFile());
     }
 
     @Override
@@ -28,27 +32,5 @@ public class HsmReloadableConfigResource implements HsmReloadableResource<HsmCon
         return load();
     }
 
-    @Override
-    public Long timeStamp() {
-        return file.lastModified();
-    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof HsmReloadableConfigResource)) {
-            return false;
-        }
-
-        HsmReloadableConfigResource that = (HsmReloadableConfigResource) o;
-
-        return file.equals(that.file);
-    }
-
-    @Override
-    public int hashCode() {
-        return file.hashCode();
-    }
 }

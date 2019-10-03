@@ -30,8 +30,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public String updateType;
     public Long validationTimeout;
     public boolean withUniqueCalendarName;
-    public long calendarUploadComTaskId;
-    public long validationComTaskId;
+    public Long calendarUploadComTaskId;
+    public Long validationComTaskId;
     public ConnectionStrategy calendarUploadConnectionStrategy;
     public ConnectionStrategy validationConnectionStrategy;
 
@@ -63,13 +63,13 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withCalendarUploadComTaskId(long calendarUploadComTaskId) {
+    public TimeOfUseCampaignBuilder withCalendarUploadComTaskId(Long calendarUploadComTaskId) {
         this.calendarUploadComTaskId = calendarUploadComTaskId;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withValidationComTaskId(long validationComTaskId) {
+    public TimeOfUseCampaignBuilder withValidationComTaskId(Long validationComTaskId) {
         this.validationComTaskId = validationComTaskId;
         return this;
     }

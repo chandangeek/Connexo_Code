@@ -83,19 +83,19 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     List<DeviceInFirmwareCampaign> getDevices();
 
-    void setFirmwareUploadComTaskId(long firmwareUploadComTaskId);
+    void setFirmwareUploadComTaskId(Long firmwareUploadComTaskId);
 
     void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy);
 
-    void setValidationComTaskId(long validationComTaskId);
+    void setValidationComTaskId(Long validationComTaskId);
 
     void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy);
 
-    long getFirmwareUploadComTaskId();
+    Long getFirmwareUploadComTaskId();
 
     Optional<ConnectionStrategy> getFirmwareUploadConnectionStrategy();
 
-    long getValidationComTaskId();
+    Long getValidationComTaskId();
 
     Optional<ConnectionStrategy> getValidationConnectionStrategy();
 }
