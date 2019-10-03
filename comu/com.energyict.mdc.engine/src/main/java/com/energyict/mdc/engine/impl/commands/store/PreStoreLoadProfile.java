@@ -333,7 +333,7 @@ public class PreStoreLoadProfile {
             preStoredLoadProfiles.stream().forEach(each -> each.updateCommand(meterDataStoreCommand));
         }
 
-        List<PreStoredLoadProfile> getPreStoredLoadProfiles() {
+        public List<PreStoredLoadProfile> getPreStoredLoadProfiles() {
             return Collections.unmodifiableList(preStoredLoadProfiles);
         }
 

@@ -706,7 +706,7 @@ public enum QueryMethod {
                 DeviceIdentifier deviceIdentifier = deviceIdentifierParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER);
                 DeviceProtocolCacheParser deviceProtocolCacheParser = new DeviceProtocolCacheParser();
                 DeviceProtocolCache deviceProtocolCache = deviceProtocolCacheParser.parse(jsonObject, RemoteComServerQueryJSonPropertyNames.DEVICE_CACHE);
-                serviceProvider.comServerDAO().createOrUpdateDeviceCache(deviceIdentifier, new DeviceProtocolCacheXmlWrapper(deviceProtocolCache));
+                this.createOrUpdateDeviceCache(serviceProvider, deviceIdentifier, new DeviceProtocolCacheXmlWrapper(deviceProtocolCache));
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -1023,6 +1023,15 @@ public enum QueryMethod {
             @Override
             public void doPerform() {
                 serviceProvider.comServerDAO().updateDeviceMessageInformation(messageIdentifier, newMessageStatus, sentDate, protocolInformation);
+            }
+        });
+    }
+
+    public void createOrUpdateDeviceCache(ServiceProvider serviceProvider, DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().createOrUpdateDeviceCache(deviceIdentifier, cache);
             }
         });
     }
