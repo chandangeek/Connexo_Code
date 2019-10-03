@@ -588,8 +588,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 
     @SuppressWarnings("unused")
     public void launchComServer() {
-        if (this.launcher == null || !this.launcher.isStarted()) {
-            if(bundleContext != null) {
+        launchComServer(true);
+    }
+
+    public void activateComServer() {
+        launchComServer(false);
+    }
+
+    private void launchComServer(boolean needsTransaction) {
+        if (launcher == null || !launcher.isStarted()) {
+            if (bundleContext != null) {
                 ClassLoader original = Thread.currentThread().getContextClassLoader();
                 Bundle bundleJetty = getJettyBundle(bundleContext);
                 if(bundleJetty != null) {
@@ -597,14 +605,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                     Thread.currentThread().setContextClassLoader(jettyClassLoader);
                 }
             }
-            this.tryStartComServer(true);
+            tryStartComServer(needsTransaction);
         } else {
             System.out.println("ComServer " + HostName.getCurrent() + " is already running");
         }
-    }
-
-    public void activateComServer() {
-        tryStartComServer(false);
     }
 
     public Bundle getJettyBundle(BundleContext bundleContext){
@@ -632,6 +636,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     public void stopComServer() {
         if (this.launcher != null) {
             System.out.println("Stopping ComServer " + HostName.getCurrent());
+            Thread.dumpStack();
             this.protocolDeploymentListenerRegistration.unregister();
             this.launcher.stopComServer();
             this.launcher = null;
