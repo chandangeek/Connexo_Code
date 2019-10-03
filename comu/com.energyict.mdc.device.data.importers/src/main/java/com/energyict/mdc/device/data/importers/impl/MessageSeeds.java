@@ -113,7 +113,7 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_EXTRACT_SECURITY_ACCESSOR_TYPE(540, "CouldNotExtractSecurityAccessorType", "The security accessor type couldn''t be extracted from the certificate {0}", Level.SEVERE),
     COULD_NOT_EXTRACT_SERIAL_NUMBER(541, "CouldNotExtractSerialNumber", "The device serial number couldn''t be extracted from the filename {0}", Level.SEVERE),
     COULD_NOT_EXTRACT_CERTIFICATE_NAME(542, "CouldNotExtractCertificateName", "The certificate name couldn''t be extracted from the filename {0}", Level.SEVERE),
-    CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE(543, "CertificateNoSuchKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available", Level.WARNING),
+    CERTIFICATE_NO_SUCH_KEY_ACCESSOR_TYPE(543, "CertificateNotAvailableKeyAccessorType", "Can''t process certificate {0}. The security key that starts with X is not available", Level.WARNING),
     NO_SERIAL_NUMBER(544, "ImportZipProcessorNoMatchingDevice", "Can''t process serialNumber {0}: No device found: {1}.", Level.WARNING),
     NO_READINGTYPE_ON_DEVICE(545, "NoReadingtypeOnDeviceX", "Can''t process line {0}: reading type {1} is not found on device {2}", Level.WARNING),
     NO_CUSTOMATTRIBUTE_ON_DEVICE(546, "NoCustomAttributeOnDeviceX", "Can''t process line {0}: can''t find custom attribute set {1} on device {2}", Level.WARNING),
