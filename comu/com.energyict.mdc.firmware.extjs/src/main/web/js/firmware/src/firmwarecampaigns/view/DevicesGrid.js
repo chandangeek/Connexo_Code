@@ -15,6 +15,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
     overflowY: 'auto',
     maxHeight: 430,
     campaignIsOngoing: null,
+    manuallyCancelled: null,
     viewConfig: {
         markDirty:false
     },
@@ -82,7 +83,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    if (!me.campaignIsOngoing) {
+                    if (me.campaignIsOngoing) {
+                        return true;
+                    }
+                    if (me.manuallyCancelled) {
                         return true;
                     }
                     switch (record.get('status').id) { // current device status
@@ -99,7 +103,8 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 },
                 menu: {
                     xtype: 'firmware-campaigns-device-action-menu',
-                    itemId: 'firmware-campaigns-device-action-menu'
+                    itemId: 'firmware-campaigns-device-action-menu',
+                    manuallyCancelled: me.manuallyCancelled
                 }
             }
         ];
