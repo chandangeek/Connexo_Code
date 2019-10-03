@@ -305,14 +305,14 @@ public class ValidationEvaluatorIT {
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT, VALID));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED));
         validationStates = evaluator.getValidationStatus(Collections.emptySet(),
                 channel, channel.getReadings(Range.greaterThan(ACTIVATION_DATE)));
         assertThat(validationStates).hasSize(4);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, VALID, SUSPECT));
         assertThat(evaluator.getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM),
                 channel, channel.getReadings(Range.greaterThan(ACTIVATION_DATE))).stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -335,7 +335,7 @@ public class ValidationEvaluatorIT {
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, VALID));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED));
         validationStates = evaluator.getValidationStatus(Collections.emptySet(),
                 channel, channel.getReadings(Range.greaterThan(ACTIVATION_DATE)));
         assertThat(validationStates).hasSize(4);
