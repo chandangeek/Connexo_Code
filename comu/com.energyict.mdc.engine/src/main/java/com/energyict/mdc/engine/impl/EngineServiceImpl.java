@@ -526,11 +526,15 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         Optional.ofNullable(getEngineProperty(SERVER_NAME_PROPERTY_NAME)).ifPresent(HostName::setCurrent);
     }
 
-    private void updatePortNumber() {
-        transactionService.execute(() -> {
+    private void updatePortNumber(boolean needsTransaction) {
+        if (needsTransaction) {
+            transactionService.execute(() -> {
+                updatePortNumberForComServer(getEngineProperty(PORT_PROPERTY_NUMBER));
+                return null;
+            });
+        } else {
             updatePortNumberForComServer(getEngineProperty(PORT_PROPERTY_NUMBER));
-            return null;
-        });
+        }
     }
 
     private void updatePortNumberForComServer(String portNumber) {
@@ -545,13 +549,13 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 });
     }
 
-    private void tryStartComServer() {
-        this.launcher = new ComServerLauncher(new RunningComServerServiceProvider());
-        this.setHostNameIfOverruled();
-        this.updatePortNumber();
-        this.protocolDeploymentListenerRegistration = this.protocolPluggableService.register(this.launcher);
-        this.launcher.startComServer();
-        if (this.launcher.isStarted()) {
+    private void tryStartComServer(boolean needsTransaction) {
+        updatePortNumber(needsTransaction);
+        launcher = new ComServerLauncher(new RunningComServerServiceProvider());
+        setHostNameIfOverruled();
+        protocolDeploymentListenerRegistration = protocolPluggableService.register(launcher);
+        launcher.startComServer();
+        if (launcher.isStarted()) {
             System.out.println("ComServer " + HostName.getCurrent() + " started!");
         } else {
             System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured, not active or start is delayed because not all required services are active yet (see OSGi log service)");
@@ -593,10 +597,14 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                     Thread.currentThread().setContextClassLoader(jettyClassLoader);
                 }
             }
-            this.tryStartComServer();
+            this.tryStartComServer(true);
         } else {
             System.out.println("ComServer " + HostName.getCurrent() + " is already running");
         }
+    }
+
+    public void activateComServer() {
+        tryStartComServer(false);
     }
 
     public Bundle getJettyBundle(BundleContext bundleContext){

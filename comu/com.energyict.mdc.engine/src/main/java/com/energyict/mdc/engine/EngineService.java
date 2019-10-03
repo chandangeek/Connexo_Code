@@ -55,6 +55,7 @@ public interface EngineService {
      */
     void unregister(DeactivationNotificationListener deactivationNotificationListener);
 
+    void activateComServer();
 //    OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
 //
 //    ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder();
