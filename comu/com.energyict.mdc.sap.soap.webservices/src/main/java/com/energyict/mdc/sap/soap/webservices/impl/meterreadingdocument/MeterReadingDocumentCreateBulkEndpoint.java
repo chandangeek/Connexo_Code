@@ -33,8 +33,12 @@ public class MeterReadingDocumentCreateBulkEndpoint extends AbstractInboundEndPo
                 SetMultimap<String, String> values = HashMultimap.create();
 
                 requestMessage.getSmartMeterMeterReadingDocumentERPCreateRequestMessage().forEach(req->{
-                    values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),req.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
+                    values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                            req.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
+                    values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                            req.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
                         }
+
                 );
                 createRelatedObjects(values);
 

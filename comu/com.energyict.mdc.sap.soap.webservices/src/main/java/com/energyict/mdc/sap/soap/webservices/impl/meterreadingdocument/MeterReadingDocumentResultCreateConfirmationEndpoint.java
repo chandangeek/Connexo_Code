@@ -10,6 +10,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallComman
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentERPResultCreateConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMsg;
 
+import com.energyict.cbo.ObservationTimestampProperties;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -30,9 +31,14 @@ public class MeterReadingDocumentResultCreateConfirmationEndpoint extends Abstra
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                        createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                                request.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
-
+                        Optional.ofNullable(request.getMeterReadingDocument()).ifPresent(doc->{
+                            Optional.ofNullable(doc.getUtiltiesMeasurementTask()).ifPresent(task->{
+                                Optional.ofNullable(task.getUtiltiesDevice()).ifPresent(utilDevice->{
+                                    createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                                            utilDevice.getUtilitiesDeviceID().getValue());
+                                });
+                            });
+                        });
                         serviceCallCommands
                                 .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
                                         .builder()

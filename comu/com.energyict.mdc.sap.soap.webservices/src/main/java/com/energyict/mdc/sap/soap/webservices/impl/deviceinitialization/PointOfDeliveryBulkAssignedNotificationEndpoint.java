@@ -59,8 +59,8 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
         if (bulkMsg.isValid()) {
             bulkMsg.podMessages.forEach(message -> {
                 if (message.isValid()) {
-                    Optional<Device> device = sapCustomPropertySets.getDevice(message.deviceId);
                     createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId);
+                    Optional<Device> device = sapCustomPropertySets.getDevice(message.deviceId);
                     if (device.isPresent()) {
                         try {
                             sapCustomPropertySets.setPod(device.get(), message.podId);

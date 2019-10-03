@@ -89,8 +89,14 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
                 message.getPayload()
                         .getMasterDataLinkageConfig().getMeter().stream().forEach(meter ->{
                             values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getNames().get(0).getName());
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
                 });
+                message.getPayload()
+                        .getMasterDataLinkageConfig().getUsagePoint().stream().forEach(usagePoint ->{
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
+                });
+
 
                 createRelatedObjects(values);
 

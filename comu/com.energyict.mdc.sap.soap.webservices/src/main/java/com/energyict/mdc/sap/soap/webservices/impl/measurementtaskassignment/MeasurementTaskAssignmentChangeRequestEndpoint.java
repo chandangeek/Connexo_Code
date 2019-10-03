@@ -63,7 +63,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     public void utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             SetMultimap<String, String> values = HashMultimap.create();
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
                     request.getUtilitiesTimeSeries().getID().getValue());
             request.getUtilitiesTimeSeries().getMeasurementTaskAssignmentRole().forEach(role->
             {
@@ -71,6 +71,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                         role.getUtilitiesMeasurementTaskID().getValue());
             });
 
+            createRelatedObjects(values);
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> handleMessage(requestMessage));

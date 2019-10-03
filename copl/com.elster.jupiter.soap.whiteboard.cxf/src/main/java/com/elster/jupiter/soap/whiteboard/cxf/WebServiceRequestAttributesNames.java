@@ -10,9 +10,9 @@ public enum WebServiceRequestAttributesNames {
     CIM_USAGE_POINT_MR_ID("CimUsagePointMrID"),
 
     SAP_UTILITIES_DEVICE_ID("SapUtilitiesDeviceID"),
-    SAP_UTILITIES_MEASUREMENT_TASK_ID("SapUtilitiesDeviceID"),
+    SAP_UTILITIES_MEASUREMENT_TASK_ID("SapUtilitiesMeasurementTaskID"),
     SAP_SERIAL_ID("SapSerialID"),
-    SAP_UTILITIES_TIME_SERIES_ID("UtilitiesTimeSeriesID");
+    SAP_UTILITIES_TIME_SERIES_ID("SapUtilitiesTimeSeriesID");
 
     private final String attributeName;
 

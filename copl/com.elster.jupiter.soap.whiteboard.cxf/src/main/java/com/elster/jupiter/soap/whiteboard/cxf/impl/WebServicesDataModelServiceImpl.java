@@ -208,7 +208,6 @@ WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageS
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addAttributesTypes(WebServiceCallRelatedObjectTypeProvider provider){
-
         webServiceCallOccurrenceService.addRelatedObjectTypes(provider.getComponentName(),
                                                                 provider.getLayer(),
                                                                 provider.getTypes());

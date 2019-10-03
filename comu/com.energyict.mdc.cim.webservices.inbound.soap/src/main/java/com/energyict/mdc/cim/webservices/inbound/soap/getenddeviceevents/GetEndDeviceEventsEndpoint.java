@@ -77,6 +77,18 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
     public EndDeviceEventsResponseMessageType getEndDeviceEvents(GetEndDeviceEventsRequestMessageType requestMessage) throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
+                SetMultimap<String, String> values = HashMultimap.create();
+                requestMessage.getRequest().getGetEndDeviceEvents().getMeter().forEach(meter->{
+                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                });
+                requestMessage.getRequest().getGetEndDeviceEvents().getUsagePoint().forEach(usp->{
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                });
+
+                createRelatedObjects(values);
+
                 GetEndDeviceEvents getEndDeviceEvents = Optional.ofNullable(requestMessage.getRequest().getGetEndDeviceEvents())
                         .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_END_DEVICE_EVENTS));
                 List<Meter> meters = getEndDeviceEvents.getMeter();
@@ -84,19 +96,11 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
                 if (meters.isEmpty()) {
                     throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
                 }
+
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
                     createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, correlationId);
-
-                    SetMultimap<String, String> values = HashMultimap.create();
-
-                    meters.stream().forEach(met->{
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), met.getNames().get(0).getName());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), met.getNames().get(0).getName());
-                    });
-
-                    createRelatedObjects(values);
 
                     return createQuickResponseMessage(correlationId);
                 } else if (meters.size() > 1) {

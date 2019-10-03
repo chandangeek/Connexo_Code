@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
@@ -27,11 +28,14 @@ import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.sendenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.sendenddeviceevents.SendEndDeviceEvents;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.sql.rowset.spi.SyncFactoryException;
 import javax.xml.ws.Service;
 import java.util.HashSet;
 import java.util.Map;
@@ -139,10 +143,16 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
     @Override
     public void call(EndDeviceEventRecord record) {
         EndDeviceEventsEventMessageType message = createResponseMessage(record);
-        Set values = new HashSet();
-        values.add(record.getEndDevice().getMRID());
-        values.add(record.getEndDevice().getName());
+
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),
+                record.getEndDevice().getName());
+        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                record.getEndDevice().getMRID());
+
         using("createdEndDeviceEvents")
+                .withRelatedObject(values)
                 .send(message);
     }
 

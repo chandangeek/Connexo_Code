@@ -229,7 +229,6 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
     @Override
     public void createRelatedObjects(SetMultimap<String,String> values){
-
         transactionService.runInIndependentTransaction(()-> {
             values.keys().forEach(key -> {
                 values.get(key).forEach(value -> {
@@ -239,9 +238,6 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             });
         });
     }
-
-
-
 
     @Override
     public Finder<EndPointLog> getLogs() {

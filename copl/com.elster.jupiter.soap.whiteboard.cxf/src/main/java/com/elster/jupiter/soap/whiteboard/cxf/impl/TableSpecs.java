@@ -182,7 +182,7 @@ public enum TableSpecs {
                     .map(WebServiceCallRelatedObjectBindingImpl.Fields.OCCURRENCE.fieldName())
                     .add();
 
-
+            /* TO-DO: rename column */
             Column type = table.column("TYPEID").number().add();
             table.foreignKey("FK_WS_RO_TYPE")
                     .references(WS_OCC_RELATED_OBJECTS.name())

@@ -37,9 +37,10 @@ public class SapAttributesProvider implements WebServiceCallRelatedObjectTypePro
         public Map<String, TranslationKey> getTypes(){
             Map<String, TranslationKey> types = new HashMap<>();
 
-            types.put("SapUtilitiesDeviceID", DeviceAttributesTranslations.DEVICE_NAME);
-            types.put("SapUtilitiesMeasurementTaskID", DeviceAttributesTranslations.DEVICE_MRID);
-            types.put("SapSerialID", DeviceAttributesTranslations.DEVICE_SERIAL_NUMBER);
+            types.put("SapUtilitiesDeviceID", SapAttributesTranslations.DEVICE_NAME);
+            types.put("SapUtilitiesMeasurementTaskID", SapAttributesTranslations.DEVICE_MRID);
+            types.put("SapSerialID", SapAttributesTranslations.DEVICE_SERIAL_NUMBER);
+            types.put("SapUtilitiesTimeSeriesID", SapAttributesTranslations.TIME_SERIES_ID);
 
             return types;
         }

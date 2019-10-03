@@ -11,6 +11,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterCreate
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -64,7 +65,11 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
 
         SetMultimap<String, String> values = HashMultimap.create();
-        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
+        UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce utilsDevice = msg.getConfirmationMessage().get().getUtilitiesDevice();
+        if (utilsDevice != null){
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), utilsDevice.getID().getValue());
+        }
+
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")
                 .withRelatedObject(values)
                 .send(msg.getConfirmationMessage().get());

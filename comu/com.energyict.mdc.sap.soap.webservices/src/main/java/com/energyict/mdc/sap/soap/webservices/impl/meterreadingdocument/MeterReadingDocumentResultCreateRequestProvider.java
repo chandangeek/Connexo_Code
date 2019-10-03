@@ -65,12 +65,10 @@ public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOut
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
         SetMultimap<String, String> values = HashMultimap.create();
-
         values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
                 resultMessage.getResultMessage().getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
         values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                 resultMessage.getResultMessage().getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
-
         using("meterReadingDocumentERPResultCreateRequestCOut")
                 .withRelatedObject(values)
                 .send(resultMessage.getResultMessage());

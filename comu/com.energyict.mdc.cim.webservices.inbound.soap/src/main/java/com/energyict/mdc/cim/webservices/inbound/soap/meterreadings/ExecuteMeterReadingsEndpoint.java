@@ -157,6 +157,21 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     syncReplyIssue.setAsyncFlag(async);
                 }
                 checkGetMeterReading(getMeterReadings, async);
+                SetMultimap<String, String> values = HashMultimap.create();
+
+                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice().forEach(device->{
+                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
+                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
+                });
+
+                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(
+                        usp->{
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                });
+
+                createRelatedObjects(values);
+
                 // run async
                 if (async) {
                     return runAsyncMode(getMeterReadingsRequestMessage, syncReplyIssue);
@@ -175,15 +190,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
                     fillNotFoundReadingTypesOnDevices(syncReplyIssue);
 
-                    SetMultimap<String, String> values = HashMultimap.create();
-
-                    endDevices.forEach(device->{
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
-                    });
-
-                    createRelatedObjects(values);
-
                     if (endDevices.size() > 1) {
                         syncReplyIssue.addErrorType((replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, END_DEVICE_LIST_ITEM)));
                     }
@@ -195,15 +201,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
                 // -UsagePoint
                 List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
-
-                SetMultimap<String, String> values = HashMultimap.create();
-
-                usagePoints.forEach(usp->{
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
-                });
-
-                createRelatedObjects(values);
 
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));

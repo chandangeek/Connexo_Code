@@ -88,8 +88,8 @@ public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointP
         GetEndDeviceEventsRequestMessageType message = createResponseMessage(createEndDeviceEvents(endDeviceEvents), correlationId);
         SetMultimap<String, String> values = HashMultimap.create();
         endDeviceEvents.forEach(event->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getEndDevice().getName());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getMRID());
+            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getEndDevice().getName());
+            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getEndDevice().getMRID());
         });
 
         using("getEndDeviceEvents")

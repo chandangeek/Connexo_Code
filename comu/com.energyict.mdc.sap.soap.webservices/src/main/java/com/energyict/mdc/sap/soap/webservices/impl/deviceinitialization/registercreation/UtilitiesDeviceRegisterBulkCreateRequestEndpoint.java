@@ -47,7 +47,6 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
 
             createRelatedObjects(values);
 
-
             if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
                 throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);

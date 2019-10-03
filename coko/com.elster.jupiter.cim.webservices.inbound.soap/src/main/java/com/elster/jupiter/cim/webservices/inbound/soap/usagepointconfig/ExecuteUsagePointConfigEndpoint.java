@@ -26,6 +26,8 @@ import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigResponseMessageType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -102,13 +104,19 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
                             .get();
                 }
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
+                    SetMultimap<String, String> values = HashMultimap.create();
+                    message.getPayload().getUsagePointConfig().getUsagePoint().forEach(usagePoint->{
+                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
+                    });
+                    createRelatedObjects(values);
+
                     return processAsynchronously(message, action);
                 }
                 List<UsagePoint> usagePoints = retrieveUsagePoints(message.getPayload(), messageSeed);
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(messageSeed,
                                 MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-
 
                 createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
                 createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
@@ -241,6 +249,9 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
             UsagePoint usagePoint = usagePoints.stream().findFirst()
                     .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_GET_USAGE_POINT,
                             MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
+            createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+            createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
+
             com.elster.jupiter.metering.UsagePoint retrieved = usagePointBuilderProvider.get().from(usagePoint, 0) // bulk operation is not supported, only first element is processed
                     .get();
         String correlationId  = getUsagePointConfigRequestMessage.getHeader() == null ? null : getUsagePointConfigRequestMessage.getHeader().getCorrelationID();

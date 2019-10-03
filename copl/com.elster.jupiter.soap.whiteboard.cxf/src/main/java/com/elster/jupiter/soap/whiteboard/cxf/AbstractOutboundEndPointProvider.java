@@ -245,7 +245,9 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
                             WebServiceCallOccurrence wsCo= webServicesService.getOngoingOccurrence(id);
-                            wsCo.createRelatedObjects( values);
+                            if (values != null) {
+                                wsCo.createRelatedObjects(values);
+                            }
                             Object response = method.invoke(port, request);
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);

@@ -39,7 +39,7 @@ public class UtilitiesDeviceRegisterCreateRequestEndpoint extends AbstractRegist
             values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDevice().getID().getValue());
             request.getUtilitiesDevice().getRegister().forEach(register->{
                 values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                        request.getUtilitiesDevice().getID().getValue());
+                        register.getUtilitiesMeasurementTaskID().getValue());
             });
 
             createRelatedObjects(values);

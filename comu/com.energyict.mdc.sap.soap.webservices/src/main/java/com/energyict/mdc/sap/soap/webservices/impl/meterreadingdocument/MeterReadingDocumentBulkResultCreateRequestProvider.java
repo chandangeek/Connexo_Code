@@ -68,6 +68,8 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
         resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().forEach(reading->{
             values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
                     reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
         });
 
         using("meterReadingDocumentERPResultBulkCreateRequestCOut")

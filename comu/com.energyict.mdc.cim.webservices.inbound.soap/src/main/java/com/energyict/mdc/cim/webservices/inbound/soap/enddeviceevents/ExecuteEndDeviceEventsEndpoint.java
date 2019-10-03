@@ -26,7 +26,9 @@ import ch.iec.tc57._2011.receiveenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.receiveenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -66,15 +68,33 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
         return runInTransactionWithOccurrence(() -> {
             try {
                 String correlationId = createdEndDeviceEventsEventMessage.getHeader() == null ? null : createdEndDeviceEventsEventMessage.getHeader().getCorrelationID();
+
+                SetMultimap<String, String> values = HashMultimap.create();
+                createdEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
+                    if (!event.getNames().isEmpty()){
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
+                    }
+                    if (event.getMRID() != null) {
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
+                    }
+                    if(event.getUsagePoint() != null) {
+                        if (!event.getUsagePoint().getNames().isEmpty() ) {
+                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
+                        }
+                        if (event.getUsagePoint().getMRID() != null) {
+                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
+                        }
+                    }
+                });
+                createRelatedObjects(values);
+
                 List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
+
                 EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                         .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
                                 MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
                 EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
-                createdEndDeviceEvents.getEndDeviceEvent().stream().forEach(event -> {
-                        createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
-                        createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
-                });
+
                 return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1, correlationId);
             } catch (VerboseConstraintViolationException e) {
                 throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
@@ -88,16 +108,30 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
     public EndDeviceEventsResponseMessageType closedEndDeviceEvents(EndDeviceEventsEventMessageType closedEndDeviceEventsEventMessage) throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
-            String correlationId = closedEndDeviceEventsEventMessage.getHeader() == null ? null : closedEndDeviceEventsEventMessage.getHeader().getCorrelationID();
+                String correlationId = closedEndDeviceEventsEventMessage.getHeader() == null ? null : closedEndDeviceEventsEventMessage.getHeader().getCorrelationID();
+                SetMultimap<String, String> values = HashMultimap.create();
+                closedEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
+                    if (!event.getNames().isEmpty()) {
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
+                    }
+                    if (event.getMRID() != null) {
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
+                    }
+                    if(event.getUsagePoint() != null) {
+                        if (!event.getUsagePoint().getNames().isEmpty() ) {
+                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
+                        }
+                        if (event.getUsagePoint().getMRID() != null) {
+                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
+                        }
+                    }
+                });
+                createRelatedObjects(values);
                 List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
                 EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                         .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,
                                 MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
                 EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
-                closedEndDeviceEvents.getEndDeviceEvent().stream().forEach(event -> {
-                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
-                    createRelatedObject( WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
-                });
                 return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1, correlationId);
             } catch (VerboseConstraintViolationException e) {
                 throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());

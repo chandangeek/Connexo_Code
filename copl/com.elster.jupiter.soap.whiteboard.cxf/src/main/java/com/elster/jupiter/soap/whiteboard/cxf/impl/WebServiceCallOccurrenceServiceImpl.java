@@ -69,6 +69,10 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
         public String getComponent(){
             return this.component;
         }
+        @Override
+        public String toString() {
+            return "Layer="+layer+" ,component = "+component;
+        }
     }
 
     @Inject

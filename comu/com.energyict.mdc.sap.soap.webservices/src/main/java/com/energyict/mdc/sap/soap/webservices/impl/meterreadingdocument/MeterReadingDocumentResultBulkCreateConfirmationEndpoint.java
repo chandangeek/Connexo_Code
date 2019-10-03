@@ -32,9 +32,13 @@ public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint extends Ab
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                             SetMultimap<String, String> values = HashMultimap.create();
+
                             request.getMeterReadingDocumentERPResultCreateConfirmationMessage().forEach(message->{
-                                values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                                        message.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
+                                Optional.ofNullable(message.getMeterReadingDocument()).ifPresent(meterDocument->{
+                                    values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                                            meterDocument.getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
+                                });
+
                             });
                             createRelatedObjects(values);
 

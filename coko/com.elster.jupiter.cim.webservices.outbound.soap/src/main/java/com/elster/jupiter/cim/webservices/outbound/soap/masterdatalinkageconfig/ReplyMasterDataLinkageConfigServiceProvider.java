@@ -99,11 +99,18 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		successfulLinkages.forEach(link->{
 			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
 			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+
 		});
 		failedLinkages.forEach(link->{
 			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
 			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
 		});
+
+
 		using(method)
 				.toEndpoints(endPointConfiguration)
 				.withRelatedObject(values)

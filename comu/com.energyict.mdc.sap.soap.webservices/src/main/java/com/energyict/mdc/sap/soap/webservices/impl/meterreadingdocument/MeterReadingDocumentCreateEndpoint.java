@@ -36,7 +36,6 @@ public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint 
                         request.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
                 values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                         request.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
-
                 createRelatedObjects(values);
                 serviceCallCommands.createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage.builder()
                         .from(requestMessage)
