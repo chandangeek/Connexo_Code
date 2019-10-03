@@ -197,7 +197,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
      * This is the exact same component that is used in the remote ComServer.
      */
     private void startRemoteComServerDAO() {
-        Properties properties = OfflineProperties.getInstance().getProperties();
+        Properties properties = OfflineComServerProperties.getInstance().getProperties();
         RemoteProperties remoteProperties = new RemoteProperties(properties);
         String remoteQueryApiUrl = remoteProperties.getRemoteQueryApiUrl();
         if (remoteQueryApiUrl == null) {

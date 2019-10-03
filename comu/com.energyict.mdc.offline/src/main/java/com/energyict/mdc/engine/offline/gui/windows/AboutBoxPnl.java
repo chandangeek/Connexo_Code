@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.offline.gui.windows;
 
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
-import com.energyict.mdc.engine.impl.core.offline.OfflineProperties;
+import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.engine.offline.gui.beans.TableBuilder;
@@ -97,7 +97,7 @@ public class AboutBoxPnl extends JPanel {
             htmlText.append("&#8226;&nbsp;<B>" + tmp + "</B><BR>");
             switch(i) {
                 case 0:
-                    tmp = new RemoteProperties(OfflineProperties.getInstance().getProperties()).getRemoteQueryApiUrl();
+                    tmp = new RemoteProperties(OfflineComServerProperties.getInstance().getProperties()).getRemoteQueryApiUrl();
                     break;
                 case 6:
                     tmp = java.util.TimeZone.getDefault().getID();

@@ -257,6 +257,11 @@
             <version>3.5.2</version>
         </dependency>
         <dependency>
+            <groupId>com.jgoodies</groupId>
+            <artifactId>jgoodies-looks</artifactId>
+            <version>2.7.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.enterprisedt</groupId>
             <artifactId>edtftpj-pro</artifactId>
         </dependency>
@@ -407,5 +412,45 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>set-cxo-version-html</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <tasks>
+                                <replace token= "connexo-version" value="${commercial.version}" dir="src/main/resources">
+                                    <include name="offline.properties"/>
+                                </replace>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>reset-version-variable</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <tasks>
+                                <replace token= "${commercial.version}" value="connexo-version" dir="src/main/resources">
+                                    <include name="offline.properties"/>
+                                </replace>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -37,7 +37,7 @@ import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.engine.impl.core.offline.OfflineProperties;
+import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
@@ -247,7 +247,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void startRemoteComServer() {
-        Properties properties = OfflineProperties.getInstance().getProperties();
+        Properties properties = OfflineComServerProperties.getInstance().getProperties();
         RemoteProperties remoteProperties = new RemoteProperties(properties);
         RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(remoteProperties, new RemoteComServerDaoServiceProvider());
         comServerDAO.start();

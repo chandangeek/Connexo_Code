@@ -969,19 +969,15 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache) {
-        this.executeTransaction(() -> {
-            Optional<DeviceCache> deviceCache = serviceProvider.engineService().findDeviceCacheByDeviceIdentifier(deviceIdentifier);
-            if (deviceCache.isPresent()) {
-                DeviceCache actualDeviceCache = deviceCache.get();
-                actualDeviceCache.setCacheObject(cache.getDeviceProtocolCache());
-                actualDeviceCache.update();
-            } else {
-                serviceProvider.engineService().newDeviceCache(deviceIdentifier, cache.getDeviceProtocolCache());
-            }
-            return null;
-        });
+        Optional<DeviceCache> deviceCache = serviceProvider.engineService().findDeviceCacheByDeviceIdentifier(deviceIdentifier);
+        if (deviceCache.isPresent()) {
+            DeviceCache actualDeviceCache = deviceCache.get();
+            actualDeviceCache.setCacheObject(cache.getDeviceProtocolCache());
+            actualDeviceCache.update();
+        } else {
+            serviceProvider.engineService().newDeviceCache(deviceIdentifier, cache.getDeviceProtocolCache());
+        }
     }
-
 
     @Override
     public void storeMeterReadings(final DeviceIdentifier identifier, final MeterReading meterReading) {
@@ -995,11 +991,45 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (collectedLoadProfile.getChannelInfo().stream().noneMatch(channelInfo -> channelInfo.getReadingTypeMRID() == null || channelInfo.getReadingTypeMRID().isEmpty())) {
             PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile, currentDate);
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
-                findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
-                    MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                    meterReading.addAllIntervalBlocks(preStoredLoadProfile.getIntervalBlocks());
-                    lp.getDevice().store(meterReading);
-                    updateLoadProfile(lp, preStoredLoadProfile.getLastReading()).apply(lp.getDevice());
+                Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
+                Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
+                ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().stream().forEach(each -> {
+                    if (!each.getIntervalBlocks().isEmpty()) {
+                        // Add interval readings
+                        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(loadProfileIdentifier.getDeviceIdentifier());
+                        if (meterReadingsEntry != null) {
+                            meterReadingsEntry.getLast().addAllIntervalBlocks(each.getIntervalBlocks());
+                        } else {
+                            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                            meterReading.addAllIntervalBlocks(each.getIntervalBlocks());
+                            meterReadings.put(loadProfileIdentifier.getDeviceIdentifier(), Pair.of(loadProfileIdentifier.getDeviceIdentifier(), meterReading));
+                        }
+                        // Add last reading updater
+                        Instant existingLastReading = lastReadings.get(loadProfileIdentifier);
+                        if ((existingLastReading == null) || (each.getLastReading() != null && each.getLastReading().isAfter(existingLastReading))) {
+                            lastReadings.put(loadProfileIdentifier, each.getLastReading());
+                        }
+                    }
+                });
+                for (Map.Entry<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
+                    storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
+                }
+                Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
+                // do update the loadprofile
+                lastReadings.entrySet().stream().forEach(entrySet -> {
+                    DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+                    List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+                    if (functionList == null) {
+                        functionList = new ArrayList<>();
+                        updateMap.put(deviceIdentifier, functionList);
+                    }
+                    functionList.add(updateLoadProfile(findLoadProfileOrThrowException(entrySet.getKey()), entrySet.getValue()));
+                });
+                // then do your thing
+                updateMap.entrySet().stream().forEach(entrySet -> {
+                    Device oldDevice = findDevice(entrySet.getKey());
+                    Device device = serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
+                    entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
                 });
             }
         }
@@ -1011,9 +1041,44 @@ public class ComServerDAOImpl implements ComServerDAO {
         Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(collectedLogBook, currentDate);
         if (localLogBook.isPresent() && !localLogBook.get().getLast().getEndDeviceEvents().isEmpty()) {
             findLogBook(logBookIdentifier).ifPresent(lb -> {
-                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addAllEndDeviceEvents(localLogBook.get().getLast().getEndDeviceEvents());
-                lb.getDevice().store(meterReading);
+                if (!localLogBook.get().getLast().getEndDeviceEvents().isEmpty()) {
+                    Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
+                    Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();
+                    // Add events readings
+                    Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(localLogBook.get().getFirst());
+                    if (meterReadingsEntry != null) {
+                        meterReadingsEntry.getLast().addAllEndDeviceEvents(localLogBook.get().getLast().getEndDeviceEvents());
+                    } else {
+                        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                        meterReading.addAllEndDeviceEvents(localLogBook.get().getLast().getEndDeviceEvents());
+                        meterReadings.put(localLogBook.get().getFirst(), Pair.of(localLogBook.get().getFirst(), meterReading));
+                    }
+                    // Add last logbook updater
+                    Instant existingLastLogBook = lastLogBooks.get(logBookIdentifier);
+                    if ((existingLastLogBook == null) || (localLogBook.get().getLast().getLastLogbook() != null && localLogBook.get().getLast().getLastLogbook().isAfter(existingLastLogBook))) {
+                        lastLogBooks.put(logBookIdentifier, localLogBook.get().getLast().getLastLogbook());
+                    }
+                    for (Map.Entry<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
+                        storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
+                    }
+                    Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
+                    // then do the logbooks
+                    lastLogBooks.entrySet().stream().forEach(entrySet -> {
+                        DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
+                        List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
+                        if (functionList == null) {
+                            functionList = new ArrayList<>();
+                            updateMap.put(deviceIdentifier, functionList);
+                        }
+                        functionList.add(updateLogBook(findLogBookOrThrowException(entrySet.getKey()), entrySet.getValue()));
+                    });
+                    // then do your thing
+                    updateMap.entrySet().stream().forEach(entrySet -> {
+                        Device oldDevice = findDevice(entrySet.getKey());
+                        Device device = serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
+                        entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
+                    });
+                }
             });
         }
     }
