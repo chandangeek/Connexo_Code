@@ -122,11 +122,9 @@ public class ServiceCallCommands {
                                             child.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
                                     if (childExtension.getMeterReadingDocumentId().equals(item.getKey())) {
                                         if (item.getValue().equals(ProcessingResultCode.FAILED.getCode())) {
-                                            child.transitionWithLockIfPossible(DefaultState.ONGOING);
-                                            child.transitionWithLockIfPossible(DefaultState.FAILED);
+                                            finishServiceCall(child, DefaultState.FAILED);
                                         } else {
-                                            child.transitionWithLockIfPossible(DefaultState.ONGOING);
-                                            child.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
+                                            finishServiceCall(child, DefaultState.SUCCESSFUL);
                                         }
                                         mrdIterator.remove();
                                     }
@@ -136,6 +134,16 @@ public class ServiceCallCommands {
                         }
                     }
                 });
+    }
+
+    private void finishServiceCall(ServiceCall serviceCall, DefaultState finishState) {
+        if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
+            serviceCall = serviceCallService.lockServiceCall(serviceCall.getId()).get();
+            if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                serviceCall.requestTransition(finishState);
+            }
+        }
     }
 
     private void createAndSendCommand(String id, EndDevice endDevice, ServiceCall serviceCall,

@@ -37,8 +37,13 @@ public class CheckConfirmationTimeoutHandler implements TaskExecutor {
                     if (extension.getConfirmationTime() != null && extension.getConfirmationTime().isBefore(clock.instant())) {
                         serviceCall.findChildren().stream().forEach(child -> {
                             child.log(LogLevel.SEVERE, "No confirmation request received within the configured timeout");
-                            child.transitionWithLockIfPossible(DefaultState.ONGOING);
-                            child.transitionWithLockIfPossible(DefaultState.FAILED);
+                            if (child.canTransitionTo(DefaultState.ONGOING)) {
+                                child = serviceCallService.lockServiceCall(child.getId()).get();
+                                if (child.canTransitionTo(DefaultState.ONGOING)) {
+                                    child.requestTransition(DefaultState.ONGOING);
+                                    child.requestTransition(DefaultState.FAILED);
+                                }
+                            }
                         });
                     }
                 });
