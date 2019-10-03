@@ -795,6 +795,44 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         });
     },
 
+    getProcessValues: function(processRecord, startProcessRecord) {
+        var processValues = {
+            'name': processRecord.name,
+            'processId': processRecord.processId,
+            'version': processRecord.version,
+            'deploymentId': processRecord.deploymentId,
+            'properties': startProcessRecord.getWriteData(true, true).properties
+        };
+        return processValues;
+    },
+
+    startProcessConfMessage: function(nextCmp, wizard, formErrorsPanel, propertyForm) {
+        var me = this;
+        wizard.setLoading(true);
+        me.validateStartProcessAction(me.processValues, function (success, response) {
+            var resp = Ext.JSON.decode(response.responseText, true);
+            if (success && resp) {
+                me.validatedForProcessDevices = resp;
+                me.validation = true;
+                nextCmp.removeAll();
+                wizard.down('#confirmButton').enable();
+                var message = me.buildConfirmMessage();
+                additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
+                nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
+                wizard.setLoading(false);
+            } else {
+                if (response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        formErrorsPanel.show();
+                        propertyForm.markInvalid(json.errors);
+                    }
+                }
+                me.validation = false;
+            }
+        });
+    },
+
     validateStartProcessAction: function (processValues, callback) {
         var me = this,
             store = me.getDevicesGrid().getStore(),
@@ -1084,47 +1122,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             }
 
                             propertyForm.updateRecord();
-
-                            startProcessRecord.beginEdit();
-
                             Ext.Array.each(extraParams, function (param) {
                                 businessObject[param.name] = param.value;
                             });
-
-                            var processValues = {
-                                'name': me.processRecord.name,
-                                'processId': me.processRecord.processId,
-                                'version': me.processRecord.version,
-                                'deploymentId': me.processRecord.deploymentId,
-                                'properties': startProcessRecord.getWriteData(true, true).properties
-                            };
-                            me.processValues = processValues;
-
-                            wizard.setLoading(true);
-                            me.validateStartProcessAction(processValues, function (success, response) {
-                                var resp = Ext.JSON.decode(response.responseText, true);
-                                if (success && resp) {
-                                    me.validatedForProcessDevices = resp;
-                                    me.validation = true;
-                                    if (nextCmp.name == 'confirmPage') {
-                                        nextCmp.removeAll();
-                                        wizard.down('#confirmButton').enable();
-                                        var message = me.buildConfirmMessage();
-                                        additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
-                                        nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
-                                    }
-                                    wizard.setLoading(false);
-                                } else {
-                                    if (response.status == 400) {
-                                        var json = Ext.decode(operation.response.responseText, true);
-                                        if (json && json.errors) {
-                                            formErrorsPanel.show();
-                                            propertyForm.markInvalid(json.errors);
-                                        }
-                                    }
-                                    me.validation = false;
-                                }
-                            });
+                            me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);;
                         } else {
                             formErrorsPanel.show();
                             me.validation = false;
@@ -1268,11 +1269,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 }
                             });
                             break;
+                        case 'startprocess':
+                            wizard.setLoading(true);
+                            me.startProcessConfMessage(nextCmp, wizard, formErrorsPanel, propertyForm);
+                            break;
                         default:
                             nextCmp.showMessage(me.buildConfirmMessage());
                             wizard.down('#confirmButton').enable();
                             break;
-
                     }
                     break;
                 case 'statusPage':
