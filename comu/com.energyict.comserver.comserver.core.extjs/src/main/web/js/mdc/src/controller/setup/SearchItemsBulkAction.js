@@ -819,7 +819,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 var message = me.buildConfirmMessage();
                 additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
                 nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
-                wizard.setLoading(false);
             } else {
                 if (response.status == 400) {
                     var json = Ext.decode(operation.response.responseText, true);
@@ -830,6 +829,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
                 me.validation = false;
             }
+            wizard.setLoading(false);
         });
     },
 
