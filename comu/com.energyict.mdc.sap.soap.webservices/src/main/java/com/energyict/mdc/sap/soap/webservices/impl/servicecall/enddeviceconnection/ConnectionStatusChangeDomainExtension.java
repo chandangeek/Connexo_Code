@@ -112,4 +112,8 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     public void validateDelete() {
         // nothing to validate
     }
+
+    public ServiceCall getServiceCall(){
+        return serviceCall.get();
+    }
 }

@@ -53,6 +53,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecr
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateBulkEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateEndpoint;
@@ -131,9 +132,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String URL_PROPERTY = "url";
     public static final String APPLICATION_NAME = "MultiSense";
     public static final String METERING_SYSTEM_ID = "CXO";
+    public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
     public static final Map<AdditionalProperties, Integer> SAP_PROPERTIES = new HashMap<>();
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<StatusChangeRequestCancellationConfirmation> STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentRequestConfirmation> METER_READING_DOCUMENT_REQUEST_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentBulkRequestConfirmation> METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentResult> METER_READING_DOCUMENT_RESULTS = new CopyOnWriteArrayList<>();
@@ -398,6 +401,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 () -> dataModel.getInstance(StatusChangeRequestCreateEndpoint.class),
                 InboundServices.SAP_STATUS_CHANGE_REQUEST_CREATE.getName());
         registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(StatusChangeRequestCancellationEndpoint.class),
+                InboundServices.SAP_STATUS_CHANGE_REQUEST_CANCELLATION.getName());
+        registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeterReadingDocumentCreateEndpoint.class),
                 InboundServices.SAP_METER_READING_CREATE_REQUEST.getName());
         registerInboundSoapEndpoint(bundleContext,
@@ -461,6 +467,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeStatusChangeRequestCreateConfirmation(StatusChangeRequestCreateConfirmation statusChangeRequestCreateConfirmation) {
         STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.remove(statusChangeRequestCreateConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addStatusChangeRequestCancellationConfirmation(StatusChangeRequestCancellationConfirmation statusChangeRequestCancellationConfirmation) {
+        STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS.add(statusChangeRequestCancellationConfirmation);
+    }
+
+    public void removeStatusChangeRequestCancellationConfirmation(StatusChangeRequestCancellationConfirmation statusChangeRequestCancellationConfirmation) {
+        STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS.remove(statusChangeRequestCancellationConfirmation);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

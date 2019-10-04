@@ -312,6 +312,40 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>SmartMeterConnectionStatusCancellationRequest</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>SmartMeterConnectionStatusChangeRequestCancellationConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>SmartMeterConnectionStatusChangeRequestCreateConfirmation</id>
                         <goals>
                             <goal>wsimport</goal>
