@@ -63,8 +63,22 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         }
     ],
     showMessage: function (message) {
-        this.down('#messageField').setValue(Ext.String.htmlEncode(message.body));
-        this.down('#displayTitle').setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
+        var me = this;
+        var messageField = me.down('#messageField');
+        var displayTitle = me.down('#displayTitle');
+        if (messageField && displayTitle) {
+            messageField.setValue(Ext.String.htmlEncode(message.body));
+            displayTitle.setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
+        } else if (message){
+            var widget = {
+                html: '<h3>' + Ext.String.htmlEncode(message.title) + '</h3><br>' + Ext.String.htmlEncode(message.body)
+            };
+            Ext.suspendLayouts();
+            me.removeAll();
+            me.add(widget);
+            Ext.resumeLayouts();
+        }
+
     },
 
     isRemove: function () {
