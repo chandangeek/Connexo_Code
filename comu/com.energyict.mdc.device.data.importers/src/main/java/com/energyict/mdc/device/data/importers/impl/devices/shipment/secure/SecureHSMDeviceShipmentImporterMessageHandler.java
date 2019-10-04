@@ -11,10 +11,15 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -26,17 +31,20 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 
+import java.util.Collections;
+import java.util.List;
+
 import static com.elster.jupiter.orm.Version.version;
 
 
 @Component(name = "com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterMessageHandler",
-        service = MessageHandlerFactory.class,
+        service = {MessageHandlerFactory.class, TranslationKeyProvider.class},
         property = {
                 "name=" + SecureHSMDeviceShipmentImporterMessageHandler.COMPONENT_NAME,
                 "subscriber=" + SecureHSMDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME,
                 "destination=" + SecureHSMDeviceShipmentImporterMessageHandler.DESTINATION_NAME },
         immediate = true)
-public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHandlerFactory {
+public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider {
 
     static final String DESTINATION_NAME = "SecHSMShipmntImport";
     public static final String SUBSCRIBER_NAME = "SecHSMShipmntImport";
@@ -115,6 +123,21 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
 
     public void unsetHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = null;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Collections.singletonList(TranslationKeys.SECURE_HSM_SHIPMENT_IMPORT_SUBSCRIBER);
     }
 
 }
