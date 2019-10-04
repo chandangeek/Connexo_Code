@@ -81,11 +81,11 @@ public class StatusChangeRequestCancellationConfirmationTest extends AbstractOut
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOutService.class);
+        Assert.assertEquals(provider.getService(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOut.class);
+        Assert.assertEquals(provider.get().getClass(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOutService.class);
     }
 }
