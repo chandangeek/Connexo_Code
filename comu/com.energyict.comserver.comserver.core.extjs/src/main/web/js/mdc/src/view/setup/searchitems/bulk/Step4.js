@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         if (messageField && displayTitle) {
             messageField.setValue(Ext.String.htmlEncode(message.body));
             displayTitle.setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
-        } else {
+        } else if (message){
             var widget = {
                 html: '<h3>' + Ext.String.htmlEncode(message.title) + '</h3><br>' + Ext.String.htmlEncode(message.body)
             };
