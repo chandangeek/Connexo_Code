@@ -22,6 +22,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             text: Uni.I18n.translate('firmware.field.rank', 'FWC', 'Rank'),
             flex: 1,
             dataIndex: 'rank',
+            maxWidth: 70,
             renderer: function (value, metaData, record, rowIndex, fullIndex, dataSource) {
                 var rIndex = value ? value : '';
                 var maxRankValue = this.maxRankValue;
@@ -34,6 +35,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         {
             text: Uni.I18n.translate('general.version', 'FWC', 'Version'),
             dataIndex: 'firmwareVersion',
+            maxWidth: 140,
             flex:2
         },
         {
@@ -44,6 +46,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         {
             text: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
             flex: 2,
+            maxWidth: 140,
             dataIndex: 'imageIdentifier'
         },
         {
@@ -56,6 +59,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             flex: 1,
             dataIndex: 'meterFirmwareDependency',
             itemId: 'minMeterLevel',
+            minWidth: 140,
             hidden: true,
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
@@ -66,6 +70,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             flex: 1,
             itemId: 'minCommLevel',
             dataIndex: 'communicationFirmwareDependency',
+            minWidth: 140,
             hidden: true,
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
@@ -76,6 +81,7 @@ Ext.define('Fwc.view.firmware.Grid', {
             flex: 1,
             itemId: 'minAuxiliaryLevel',
             dataIndex: 'auxiliaryFirmwareDependency',
+            minWidth: 140,
             hidden: true,
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';

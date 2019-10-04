@@ -81,7 +81,7 @@ Ext.define('Isu.controller.Main', {
             });
         }
 
-        if (Isu.privileges.Issue.canViewAdminDevice()) {
+        if (Isu.privileges.Issue.canViewIssue()) {
             issuesPortalItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
                 portal: 'workspace',
