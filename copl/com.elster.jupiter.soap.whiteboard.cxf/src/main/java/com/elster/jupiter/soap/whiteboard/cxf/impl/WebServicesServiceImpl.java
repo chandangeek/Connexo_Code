@@ -88,22 +88,22 @@ public class WebServicesServiceImpl implements WebServicesService {
                 @Override
                 public String getApplicationName() {
                     EndPointProvider provider = endPointFactory.getEndPointProvider();
-                    if (provider instanceof InboundSoapEndPointProvider ) {
-                        if (((InboundSoapEndPointProvider)provider).get() instanceof ApplicationSpecific){
-                            ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundSoapEndPointProvider)provider).get();
+                    if (provider instanceof InboundSoapEndPointProvider) {
+                        if (((InboundSoapEndPointProvider) provider).get() instanceof ApplicationSpecific) {
+                            ApplicationSpecific tmpProvider = (ApplicationSpecific) ((InboundSoapEndPointProvider) provider).get();
                             return tmpProvider.getApplication();
                         }
                     }
 
-                    if (provider instanceof InboundRestEndPointProvider ) {
-                        if (((InboundRestEndPointProvider)provider).get() instanceof ApplicationSpecific){
-                            ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundRestEndPointProvider)provider).get();
+                    if (provider instanceof InboundRestEndPointProvider) {
+                        if (((InboundRestEndPointProvider) provider).get() instanceof ApplicationSpecific) {
+                            ApplicationSpecific tmpProvider = (ApplicationSpecific) ((InboundRestEndPointProvider) provider).get();
                             return tmpProvider.getApplication();
                         }
                     }
 
                     if (provider instanceof OutboundSoapEndPointProvider || provider instanceof OutboundRestEndPointProvider) {
-                        if (provider instanceof ApplicationSpecific){
+                        if (provider instanceof ApplicationSpecific) {
                             return ((ApplicationSpecific) provider).getApplication();
                         }
                     }
@@ -154,15 +154,15 @@ public class WebServicesServiceImpl implements WebServicesService {
             public String getApplicationName() {
                 EndPointProvider provider = e.getValue().getEndPointProvider();
                 if (provider instanceof InboundSoapEndPointProvider) {
-                    if (((InboundSoapEndPointProvider)provider).get() instanceof ApplicationSpecific){
-                        ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundSoapEndPointProvider)provider).get();
+                    if (((InboundSoapEndPointProvider) provider).get() instanceof ApplicationSpecific) {
+                        ApplicationSpecific tmpProvider = (ApplicationSpecific) ((InboundSoapEndPointProvider) provider).get();
                         return tmpProvider.getApplication();
                     }
                 }
 
-                if (provider instanceof InboundRestEndPointProvider ) {
-                    if (((InboundRestEndPointProvider)provider).get() instanceof ApplicationSpecific){
-                        ApplicationSpecific tmpProvider = (ApplicationSpecific)((InboundRestEndPointProvider)provider).get();
+                if (provider instanceof InboundRestEndPointProvider) {
+                    if (((InboundRestEndPointProvider) provider).get() instanceof ApplicationSpecific) {
+                        ApplicationSpecific tmpProvider = (ApplicationSpecific) ((InboundRestEndPointProvider) provider).get();
                         return tmpProvider.getApplication();
                     }
                 }
@@ -186,14 +186,14 @@ public class WebServicesServiceImpl implements WebServicesService {
                 ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
                 managedEndpoint.publish();
                 endpoints.put(endPointConfiguration, managedEndpoint);
-                if(managedEndpoint.isPublished()) {
+                if (managedEndpoint.isPublished()) {
                     String msg = "Endpoint was published";
                     logger.info(msg);
                     endPointConfiguration.log(LogLevel.FINE, msg);
                 }
             } catch (Exception e) {
                 String msg = "Failed to publish endpoint " + endPointConfiguration.getName();
-                logger.log(Level.SEVERE ,msg, e);
+                logger.log(Level.SEVERE, msg, e);
                 endPointConfiguration.log(msg, e);
             }
         } else {
@@ -357,6 +357,9 @@ public class WebServicesServiceImpl implements WebServicesService {
                 tmp.log(LogLevel.SEVERE, message);
             } else {
                 tmp.log(message, exception);
+                if ((exception.getCause() != null) && (exception.getCause().getLocalizedMessage() != null)) {
+                    tmp.log(LogLevel.SEVERE, exception.getCause().getLocalizedMessage());
+                }
             }
             tmp.setEndTime(clock.instant());
             validateOngoingStatus(tmp);
@@ -383,7 +386,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public Optional<EndPointProvider> getProvider(String webServiceName){
+    public Optional<EndPointProvider> getProvider(String webServiceName) {
         return Optional.ofNullable(webServices.get(webServiceName)).map(EndPointFactory::getEndPointProvider);
     }
 }
