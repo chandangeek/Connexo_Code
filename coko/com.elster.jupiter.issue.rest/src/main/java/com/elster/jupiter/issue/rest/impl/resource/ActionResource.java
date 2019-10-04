@@ -114,8 +114,10 @@ public class ActionResource extends BaseResource {
         }
 
         if ((actionTypeClassName != null) && (actionTypeClassName.equals("com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction")
-                || actionTypeClassName.equals("com.elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction"))) {
-            return issueReason.isPresent();
+                || actionTypeClassName.equals("com." +
+                "elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction"))) {
+            return issueReason.map(reason -> issueActionType.createIssueAction()
+                    .map(issueAction -> issueAction.isApplicable(reason.getKey())).orElse(false)).orElse(false);
         }
 
         return true;
