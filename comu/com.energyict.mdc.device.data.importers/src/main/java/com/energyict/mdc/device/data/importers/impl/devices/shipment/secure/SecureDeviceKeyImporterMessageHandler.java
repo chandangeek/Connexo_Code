@@ -8,10 +8,15 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -21,16 +26,19 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
+import java.util.Collections;
+import java.util.List;
+
 import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterMessageHandler",
-        service = MessageHandlerFactory.class,
+        service = {MessageHandlerFactory.class, TranslationKeyProvider.class},
         property = {
                 "name=" + SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME,
                 "subscriber=" + SecureDeviceKeyImporterMessageHandler.SUBSCRIBER_NAME,
                 "destination=" + SecureDeviceKeyImporterMessageHandler.DESTINATION_NAME },
         immediate = true)
-public class SecureDeviceKeyImporterMessageHandler implements MessageHandlerFactory {
+public class SecureDeviceKeyImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider  {
 
     static final String DESTINATION_NAME = "SecureDeviceKeyImport";
     public static final String SUBSCRIBER_NAME = "SecureDeviceKeyImport";
@@ -99,6 +107,21 @@ public class SecureDeviceKeyImporterMessageHandler implements MessageHandlerFact
     @Override
     public MessageHandler newMessageHandler() {
         return fileImportService.createMessageHandler();
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Collections.singletonList(TranslationKeys.SECURE_SHIPMENT_KEY_SUBSCRIBER);
     }
 
 }

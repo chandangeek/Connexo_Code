@@ -77,6 +77,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         FIRMWARE_UPLOAD_COMTASK_ID("firmwareUploadComTaskId", "FIRMWARE_UPLOAD_COMTASK_ID"),
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
         FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "FIRMWARE_UPLOAD_CONSTRATEGY"),
+        MANUALLY_CANCELLED("manuallyCancelled", "manually_cancelled"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -130,6 +131,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private ConnectionStrategy firmwareUploadConnectionStrategy;
     private Long validationComTaskId;
     private ConnectionStrategy validationConnectionStrategy;
+    private boolean manuallyCancelled;
 
     @Inject
     public FirmwareCampaignDomainExtension(Thesaurus thesaurus, FirmwareServiceImpl firmwareService) {
@@ -163,7 +165,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         return firmwareType;
     }
 
-    @Override
     public void setFirmwareType(FirmwareType firmwareType) {
         this.firmwareType = firmwareType;
     }
@@ -173,48 +174,43 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         return managementOption;
     }
 
-    @Override
     public void setManagementOption(ProtocolSupportedFirmwareOptions managementOption) {
         this.managementOption = managementOption;
     }
 
-    @Override
-    public void setFirmwareUploadComTaskId(Long firmwareUploadComTaskId){
+    public void setFirmwareUploadComTaskId(Long firmwareUploadComTaskId) {
         this.firmwareUploadComTaskId = firmwareUploadComTaskId;
     }
 
-    @Override
-    public void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy){
+    public void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy) {
         this.firmwareUploadConnectionStrategy = firmwareUploadConnectionStrategy;
     }
 
-    @Override
-    public void setValidationComTaskId(Long validationComTaskId){
+    public void setValidationComTaskId(Long validationComTaskId) {
         this.validationComTaskId = validationComTaskId;
     }
 
-    @Override
-    public void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy){
+    public void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy) {
         this.validationConnectionStrategy = validationConnectionStrategy;
     }
 
     @Override
-    public Optional<ConnectionStrategy> getFirmwareUploadConnectionStrategy(){
+    public Optional<ConnectionStrategy> getFirmwareUploadConnectionStrategy() {
         return Optional.ofNullable(firmwareUploadConnectionStrategy);
     }
 
     @Override
-    public Long getValidationComTaskId(){
+    public Long getValidationComTaskId() {
         return validationComTaskId;
     }
 
     @Override
-    public Long getFirmwareUploadComTaskId(){
+    public Long getFirmwareUploadComTaskId() {
         return firmwareUploadComTaskId;
     }
 
     @Override
-    public Optional<ConnectionStrategy> getValidationConnectionStrategy(){
+    public Optional<ConnectionStrategy> getValidationConnectionStrategy() {
         return Optional.ofNullable(validationConnectionStrategy);
     }
 
@@ -303,6 +299,15 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
+    public boolean isManuallyCancelled() {
+        return manuallyCancelled;
+    }
+
+    public void setManuallyCancelled(boolean manuallyCancelled) {
+        this.manuallyCancelled = manuallyCancelled;
+    }
+
+    @Override
     public long getId() {
         return serviceCall.get().getId();
     }
@@ -326,12 +331,17 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public void cancel() {
-        ServiceCall serviceCall = getServiceCall();
-        if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-            serviceCall.requestTransition(DefaultState.CANCELLED);
-            serviceCall.update(this);
-            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
+        if (isManuallyCancelled()) {
+            throw new FirmwareCampaignException(thesaurus, MessageSeeds.CAMPAIGN_ALREADY_CANCELLED);
         }
+        ServiceCall serviceCall = getServiceCall();
+        setManuallyCancelled(true);
+        serviceCall.update(this);
+        serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
+        firmwareService.getFirmwareCampaignService()
+                .streamDevicesInCampaigns()
+                .filter(Where.where("parent").isEqualTo(serviceCall))
+                .forEach(deviceInFirmwareCampaign -> deviceInFirmwareCampaign.cancel(true));
     }
 
     @Override
@@ -389,10 +399,11 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setValidationTimeout((TimeDuration) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setFirmwareType((FirmwareType) propertyValues.getProperty(FieldNames.FIRMWARE_TYPE.javaName()));
         this.setManagementOption((ProtocolSupportedFirmwareOptions) propertyValues.getProperty(FieldNames.MANAGEMENT_OPTION.javaName()));
-        this.setFirmwareUploadComTaskId((Long)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName()));
-        this.setFirmwareUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName()));
-        this.setValidationComTaskId((Long)propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
-        this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
+        this.setFirmwareUploadComTaskId((Long) propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName()));
+        this.setFirmwareUploadConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName()));
+        this.setValidationComTaskId((Long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
+        this.setValidationConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
+        this.setManuallyCancelled((boolean) propertyValues.getProperty(FieldNames.MANUALLY_CANCELLED.javaName()));
     }
 
     @Override
@@ -406,11 +417,12 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.FIRMWARE_TYPE.javaName(), this.getFirmwareType());
         propertySetValues.setProperty(FieldNames.MANAGEMENT_OPTION.javaName(), this.getFirmwareManagementOption());
-        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(),this.getFirmwareUploadComTaskId());
-        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(),this.getFirmwareUploadConnectionStrategy().isPresent()?this.getFirmwareUploadConnectionStrategy().get():null);
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(), this.getFirmwareUploadComTaskId());
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getFirmwareUploadConnectionStrategy().isPresent() ? this.getFirmwareUploadConnectionStrategy()
+                .get() : null);
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
-        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent()?this.getValidationConnectionStrategy().get():null);
-
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent() ? this.getValidationConnectionStrategy().get() : null);
+        propertySetValues.setProperty(FieldNames.MANUALLY_CANCELLED.javaName(), this.isManuallyCancelled());
     }
 
     @Override

@@ -188,7 +188,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                     serviceCall.requestTransition(DefaultState.ONGOING);
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_STARTED).format());
                 } else {
-                    firmwareItem.cancel();
+                    firmwareItem.cancel(false);
                 }
             }
         }

@@ -46,6 +46,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -93,7 +94,7 @@ public class FirmwareCampaignHandlerTest {
         when(firmwareCampaignService.findActiveFirmwareItemByDevice(any())).thenReturn(Optional.of(firmwareItem));
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(event.getType()).thenReturn(eventType);
-        when(firmwareItem.cancel()).thenReturn(serviceCall);
+        when(firmwareItem.cancel(anyBoolean())).thenReturn(serviceCall);
         when(firmwareItem.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochMilli(0));
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(firmwareItem), QueryStream.class);

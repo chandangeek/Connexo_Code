@@ -248,11 +248,11 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                 .map(DeviceMessage::getStatus)
                                 .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CANCELED))
                                 .isPresent()) {
-                            timeOfUseItem.cancel();
+                            timeOfUseItem.cancel(false);
                             planning = false;
                         }
                     } else {
-                        timeOfUseItem.cancel();
+                        timeOfUseItem.cancel(false);
                         planning = false;
                     }
                     if (planning) {
