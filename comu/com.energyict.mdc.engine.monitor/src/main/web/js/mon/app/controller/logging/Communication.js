@@ -69,7 +69,7 @@ Ext.define('CSMonitor.controller.logging.Communication', {
             if (appendAnd) {
                 url += '&';
             }
-            url += ('portid=' +  Ext.String.htmlEncode(this.getComportName()));
+            url += ('portid=' +  Ext.String.htmlEncode(this.getComportName().trim()));
         }
         return url;
     },
