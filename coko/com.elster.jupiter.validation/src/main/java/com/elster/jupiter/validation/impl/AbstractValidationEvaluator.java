@@ -205,12 +205,12 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
                                     .findAny()
                                     .orElse(lastChecked)))
                             .orElse(null), timeStamp);
-//            if (validated) {
-//                int i = 0;
-//                for (CimChannel channel : channels) {
-//                    addValidatedAndOkReadingQuality(entry.getKey(), timeStamp, channel, qualities.get(i++));
-//                }
-//            }
+            if (validated) {
+                int i = 0;
+                for (CimChannel channel : channels) {
+                    addValidatedAndOkReadingQuality(entry.getKey(), timeStamp, channel, qualities.get(i++));
+                }
+            }
             return validated;
         }).reduce(Boolean::logicalAnd).orElse(false);
         return createDataValidationStatusListFor(timeStamp, fullyValidated, qualities.iterator(), validationRuleMaps.iterator());
