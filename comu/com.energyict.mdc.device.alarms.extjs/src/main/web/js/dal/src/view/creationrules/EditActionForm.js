@@ -186,7 +186,8 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         var me = this,
             actionTypesStore = Ext.getStore('Dal.store.CreationRuleActions'),
             actionTypesStoreProxy = actionTypesStore.getProxy(),
-            rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState');
+            rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState'),
+            issueReasonId;
 
         actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
@@ -206,9 +207,11 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         }
 
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
-        try {
-            actionTypesStoreProxy.setExtraParam('reason', rule.getReason().getId());
-        } catch (e) {}
+        if ( rule && (issueReasonId = rule.get('reason_id')) ){
+            actionTypesStoreProxy.extraParams['reason'] = issueReasonId;
+        }else{
+            delete actionTypesStoreProxy.extraParams['reason'];
+        }
         actionTypesStore.load(function () {
             me.down('#no-actions-displayfield').setVisible(!actionTypesStore.count());
             me.down('#actionType').setVisible(actionTypesStore.count());

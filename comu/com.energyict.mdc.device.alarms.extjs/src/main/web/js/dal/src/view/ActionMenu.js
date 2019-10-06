@@ -224,17 +224,6 @@ Ext.define('Dal.view.ActionMenu', {
             });
             me.add(predefinedItems);
         }
-        if (Dal.privileges.Alarm.viewAdminProcesses) {
-            me.add({
-
-                text: Uni.I18n.translate('alarms.actionMenu.startProcess', 'DAL', 'Start process'),
-                action: 'startProcess',
-                section: this.SECTION_ACTION,
-                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({alarmId: itemId}, {details: (detail) ? true : false}),
-                details: false,
-                section: me.SECTION_ACTION
-            });
-        }
     },
 
     addSpecificActions: function () {

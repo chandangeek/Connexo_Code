@@ -161,6 +161,12 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .map(FirmwareCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())
                 .add();
         table.unique("UK_" + TABLE_NAME + "_NAME").on(name).add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.databaseName())
+                .installValue("'N'")
+                .bool()
+                .map(FirmwareCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName())
+                .since(Version.version(10, 7))
+                .add();
     }
 
     @Override

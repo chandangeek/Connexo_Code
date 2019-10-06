@@ -160,6 +160,12 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())
                 .add();
         table.unique("UK_" + TABLE_NAME + "_NAME").on(name).add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.databaseName())
+                .installValue("'N'")
+                .bool()
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName())
+                .since(Version.version(10, 7))
+                .add();
     }
 
     @Override
