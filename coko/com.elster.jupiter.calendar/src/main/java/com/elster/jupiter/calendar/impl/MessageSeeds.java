@@ -136,7 +136,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_DAYTYPE_DEFINED_WITH_ID = "calendar.import.no.daytype.defined.with.id";
         public static final String NO_PERIOD_DEFINED_WITH_ID = "calendar.import.no.period.defined.with.id";
         public static final String INVALID_EVENT_ID = "calendar.import.invalid.event.id";
-        public static final String NO_EVENT_DEFINED_WITH_ID = "calendar.import.invalid.event.id";
+        public static final String NO_EVENT_DEFINED_WITH_ID = "calendar.import.no.event.id";
         public static final String NO_TIMEZONE_FOUND_WITH_ID = "calendar.import.no.timezone.found.with.id";
         public static final String YEAR_NOT_ALLOWED_FOR_RECURRING_TRANSITIONS = "calendar.import.year.not.allowed.for.recuring.trainsitions";
         public static final String YEAR_REQUIRED_FOR_NOT_RECURRING_TRANSITIONS = "calendar.import.year.required.for.non.recuring.trainsitions";

@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.issue.impl.actions.webelements.factories.AlarmProcessComboboxFactory;
 import com.elster.jupiter.issue.impl.actions.webelements.factories.AssigneeElementGroupFactory;
 import com.elster.jupiter.issue.impl.actions.webelements.factories.CloseIssueFormFactory;
 import com.elster.jupiter.issue.impl.actions.webelements.factories.EndPointDropdownFactory;
@@ -160,6 +161,7 @@ public class PropertyFactoriesProviderImpl implements PropertyFactoriesProvider 
         try {
             propertyFactoriesProvider.put(PropertyType.ENDPOINT_COMBOBOX, injector.getProvider(EndPointDropdownFactory.class));
             propertyFactoriesProvider.put(PropertyType.PROCESS_COMBOBOX, injector.getProvider(ProcessComboxFactory.class));
+            propertyFactoriesProvider.put(PropertyType.ALARM_PROCESS_COMBOBOX, injector.getProvider(AlarmProcessComboboxFactory.class));
             propertyFactoriesProvider.put(PropertyType.ASSIGN_ISSUE_FORM, injector.getProvider(AssigneeElementGroupFactory.class));
             propertyFactoriesProvider.put(PropertyType.CLOSE_ISSUE_FORM, injector.getProvider(CloseIssueFormFactory.class));
         } catch (ConfigurationException | ProvisionException e) {

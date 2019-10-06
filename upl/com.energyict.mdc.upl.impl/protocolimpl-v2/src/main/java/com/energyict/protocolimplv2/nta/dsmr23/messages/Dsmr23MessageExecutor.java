@@ -199,8 +199,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
                     fullActivityCalendarWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
-                    String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
-                    writeSpecialDays(specialDayArrayBEREncodedBytes);
+                    String calendarWithSpecialDays = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
+                    String[] calendarParts = calendarWithSpecialDays.split(AbstractDlmsMessaging.SEPARATOR);
+                    if (calendarParts.length > 0) {
+                        writeSpecialDays(calendarParts[0]);
+                    } else {
+                        getProtocol().journal("No content to write special days.");
+                    }
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
@@ -824,7 +829,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
         if (calendarParts.length>1) {
             getProtocol().journal("Sending special days");
-            writeSpecialDays(calendarParts[1]);
+            writeSpecialDays(calendarParts[0]);
         } else {
             getProtocol().journal("Skipping special days part because it's empty");
         }
@@ -847,19 +852,16 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
         if (calendarParts.length>1) {
             getProtocol().journal("Sending special days");
-            writeSpecialDays(calendarParts[1]);
+            writeSpecialDays(calendarParts[0]);
         } else {
             getProtocol().journal("Skipping special days part because it's empty");
         }
     }
 
-    private void writeSpecialDays(String specialDayArrayBEREncodedBytes) throws IOException {
-        Array sdArray = AXDRDecoder.decode(ProtocolTools.getBytesFromHexString(specialDayArrayBEREncodedBytes, ""), Array.class);
-        SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-        if (sdArray.nrOfDataTypes() != 0) {
-            sdt.writeSpecialDays(sdArray);
-        }
+    private void writeSpecialDays(String calendarXml) throws IOException {
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+        activityCalendarController.parseContent(calendarXml);
+        activityCalendarController.writeSpecialDaysTable();
     }
 
     protected void activityCalendarWithActivationDate(String calendarName, String epoch, String activityCalendarContents) throws IOException {

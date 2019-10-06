@@ -6,6 +6,7 @@
 package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
@@ -13,6 +14,7 @@ import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.entity.PropertyType;
@@ -29,6 +31,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 import com.google.common.collect.ImmutableList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -100,12 +104,9 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
         assignIssueForm.ifPresent(aif -> {
             final Boolean checkboxValue = aif.getCheckbox().orElse(Boolean.FALSE);
             if (checkboxValue) {
-                final Optional<User> user = assignIssueForm.get().getUser();
-                final Optional<WorkGroup> workGroup = assignIssueForm.get().getWorkgroup();
                 final Optional<String> assignIssueComment = assignIssueForm.get().getComment();
-                if (user.isPresent() && workGroup.isPresent()) {
-                    issue.assignTo(user.get().getId(), workGroup.get().getId());
-                }
+                IssueAssignee assignee = getAssigneeFromParameters(properties);
+                issue.assignTo(assignee);
                 assignIssueComment.map(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
             }
         });
@@ -143,6 +144,21 @@ public class WebServiceNotificationAction extends AbstractIssueAction {
         }
 
         return Optional.of((AssignIssueFormValue) assignIssueForm);
+    }
+
+    @SuppressWarnings("unchecked")
+    private IssueAssignee getAssigneeFromParameters(Map<String, Object> properties) {
+        Object value = properties.get(ASSIGN_ISSUE_FORM);
+        if (value != null) {
+            String assignee = getPropertySpec(ASSIGN_ISSUE_FORM).get().getValueFactory().toStringValue(value);
+            try {
+                JSONObject jsonData = new JSONObject(assignee);
+                return issueService.findIssueAssignee(Long.valueOf(jsonData.get("userId").toString()), Long.valueOf(jsonData.get("workgroupId").toString()));
+            } catch (JSONException e) {
+                return new IssueAssigneeImpl();
+            }
+        }
+        return new IssueAssigneeImpl();
     }
 
     private Optional<CloseIssueFormValue> getCloseIssueForm() {

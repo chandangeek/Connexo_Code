@@ -10,6 +10,7 @@ import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 
 import aQute.bnd.annotation.ProviderType;
+import com.atos.worldline.jss.configuration.RawConfiguration;
 
 import java.util.Collection;
 
@@ -20,5 +21,5 @@ public interface HsmConfigurationService {
 
     Collection<String> getLabels() throws HsmNotConfiguredException;
 
-    void reload();
+    void set(HsmConfiguration hsmConfiguration, RawConfiguration jssConfig);
 }

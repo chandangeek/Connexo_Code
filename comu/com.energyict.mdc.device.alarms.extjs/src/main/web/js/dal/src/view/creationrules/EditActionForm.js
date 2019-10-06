@@ -186,7 +186,8 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         var me = this,
             actionTypesStore = Ext.getStore('Dal.store.CreationRuleActions'),
             actionTypesStoreProxy = actionTypesStore.getProxy(),
-            rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState');
+            rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState'),
+            issueReasonId;
 
         actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
