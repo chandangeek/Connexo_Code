@@ -26,6 +26,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+
 public class UtilitiesDeviceCreateConfirmationMessage {
 
     private final ObjectFactory objectFactory = new ObjectFactory();
@@ -161,7 +163,7 @@ public class UtilitiesDeviceCreateConfirmationMessage {
 
         private LogItem createLogItem(String code, String message) {
             LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-            logItemCategoryCode.setValue("PRE");
+            logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
             LogItem logItem = objectFactory.createLogItem();
             logItem.setTypeID(code);
