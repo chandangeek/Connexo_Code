@@ -16,6 +16,7 @@ public enum AdditionalProperties {
     CHECK_SCHEDULED_READING_INTERVAL("com.elster.jupiter.sap.checkscheduledreadinginterval", 1440),
     CHECK_CONFIRMATION_TIMEOUT_FREQUENCY("com.elster.jupiter.sap.checkconfirmationtimeoutfrequency", 1),
     SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC("com.elster.jupiter.sap.sheduledmeterreadingdateshift.periodic", 1),
+    METER_REPLACEMENT_ADD_INTERVAL("com.elster.jupiter.sap.meterreplacementaddinterval", 1440),
     ;
 
     private String key;

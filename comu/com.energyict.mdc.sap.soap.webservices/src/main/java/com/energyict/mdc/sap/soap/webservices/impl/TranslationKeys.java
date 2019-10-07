@@ -15,6 +15,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeout
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -71,11 +72,13 @@ public enum TranslationKeys implements TranslationKey {
     READING_ATTEMPT("readingAttempt", "Reading attempt"),
     CANCELLED_BY_SAP("cancelledBySap", "Cancelled by SAP"),
     CANCELLED_BY_SAP_DESCRIPTION("cancelledBySapDescription", "The property is used to distinguish service call cancelled manually in Connexo / by SAP"),
+    TIME_ZONE("timeZone", "Time zone"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
     CHECK_CONFIRMATION_TIMEOUT_SUBSCRIBER_NAME(CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_SUBSCRIBER, CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_DISPLAYNAME),
     CHECK_SCHEDULED_REQUEST_SUBSCRIBER_NAME(CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_SUBSCRIBER, CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_DISPLAYNAME),
+    UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER, UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DISPLAYNAME),
 
     // CPS
     CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.connection.status.change",
