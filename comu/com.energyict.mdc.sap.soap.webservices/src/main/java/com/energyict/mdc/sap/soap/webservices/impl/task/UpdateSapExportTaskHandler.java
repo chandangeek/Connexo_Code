@@ -43,10 +43,8 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
     public void execute(TaskOccurrence taskOccurrence) {
         Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
         if (endDeviceGroup.isPresent()) {
-            List<EnumeratedGroup.Entry<EndDevice>> devicesToRemove = ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).getEntries().stream().filter(endDevice -> deviceCanBeRemoved(endDevice)).collect(Collectors.toList());
-            if (!devicesToRemove.isEmpty()) {
-                devicesToRemove.forEach(device -> ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).remove(device));
-            }
+            ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).getEntries().stream().filter(endDevice -> deviceCanBeRemoved(endDevice))
+                    .forEach(device -> ((EnumeratedEndDeviceGroup) endDeviceGroup.get()).remove(device));
         }
     }
 
@@ -60,24 +58,13 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
                         Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdDateForChannelOnDevice(endDeviceEntry.getMember()
                                 .getId(), item.getReadingType().getMRID());
                         if (lastProfileIdInterval.isPresent()) {
-                            if (item.getLastExportedDate().isPresent() && item.getLastExportedDate().get().isAfter(lastProfileIdInterval.get().getEnd())) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        } else {
-                            return true;
+                            return item.getLastExportedDate().isPresent() && item.getLastExportedDate().get().isAfter(lastProfileIdInterval.get().getEnd());
                         }
+                        return true;
                     });
 
-
-            if (isAlreadyExported) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
+            return isAlreadyExported;
         }
+        return true;
     }
 }
