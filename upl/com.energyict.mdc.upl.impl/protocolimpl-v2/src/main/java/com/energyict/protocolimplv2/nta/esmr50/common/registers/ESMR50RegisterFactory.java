@@ -8,8 +8,8 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.DateTime;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
@@ -965,7 +965,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     @Override
     protected RegisterValue readComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
         if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
-            ScalerUnit su = new ScalerUnit(Unit.get(70)); // dbm = 70;
+            ScalerUnit su = new ScalerUnit(Unit.get(BaseUnit.DECIBELMILLIWAT)); // dbm = 70;
             try {
                 protocol.journal("Handling MBUS Diagnostic: "+register.getObisCode().toString());
                 DLMSAttribute registerCaptureTime = this.getComposedRegisterMap().get(register).getRegisterCaptureTime();
@@ -973,22 +973,18 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
                 if (attribute.isStructure()) {
                     Structure structure = attribute.getStructure();
-                    AbstractDataType attr1 = structure.getNextDataType();
+                    structure.getNextDataType();
                     AbstractDataType captureStructure = structure.getNextDataType();
-                    if(captureStructure instanceof DateTime){
-                        DateTime dateTime = (DateTime) captureStructure;
-                        Date capturedTime = dateTime.getValue().getTime();
-                        String format = "yyyy/MM/dd HH:mm:ss";
-                        SimpleDateFormat sdf = new SimpleDateFormat(format);
-                        sdf.setTimeZone(protocol.getDlmsSession().getTimeZone());
-                        Date deviceTime = new Date(sdf.format(capturedTime));
-                        protocol.journal("  > decoded captured time = " + capturedTime.toString());
+                    if(captureStructure instanceof com.energyict.dlms.axrdencoding.DateTime && ((com.energyict.dlms.axrdencoding.DateTime) captureStructure).isValidDate()){
+                        Date captureTime = ((DateTime) captureStructure).getCalendar(protocol.getDlmsSession().getTimeZone()).getTime();
+                        protocol.getLogger().finest("  > decoded captured time = " + captureTime.toString());
                         return new RegisterValue(
                                 register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()), deviceTime);
-                    } else {
-                        protocol.journal("Structure attribute is not date_time: " + ProtocolTools.getHexStringFromBytes(captureStructure.getBEREncodedByteArray()));
+                                        su.getEisUnit()), captureTime);
+                    }
+                    else {
+                        protocol.journal("decoded capture time is not a valid date");
                         protocol.journal("Creating register without timestamp.");
                         return new RegisterValue(
                                 register,
