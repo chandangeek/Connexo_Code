@@ -36,7 +36,7 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
     @Override
     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
-        List<IntervalData> intervalList = new ArrayList<IntervalData>();
+        List<IntervalData> intervalList = new ArrayList<>();
         Calendar cal = null;
         IntervalData currentInterval = null;
         int profileStatus = 0;
@@ -45,15 +45,18 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
             for (int i = 0; i < nrOfDataTypes(); i++) {
                 Structure element = (Structure) getDataType(i);
 
-
+                int index = 0;
                 // 0 = calendar
-                cal = constructIntervalCalendar(cal, element.getDataType(0), timeZone);
+                cal = constructIntervalCalendar(cal, element.getDataType(index++), timeZone);
                 currentInterval = new IntervalData(cal.getTime(), profileStatus);
 
-                Structure   gsmDiagOperator   = element.getDataType(1).getStructure();
-                Structure   gsmDiagCellInfo   = element.getDataType(2).getStructure();
-                Array       adjantCells       = element.getDataType(3).getArray();
-                Structure   rejection         = element.getDataType(4).getStructure();
+                Structure   gsmDiagOperator   = element.getDataType(index++).getStructure();
+                if (element.getDataType(index).isTypeEnum()) {
+                    index++;
+                }
+                Structure   gsmDiagCellInfo   = element.getDataType(index++).getStructure();
+                Array       adjantCells       = element.getDataType(index++).getArray();
+                Structure   rejection         = element.getDataType(index++).getStructure();
 
                 currentInterval.addValues(decodeGSMDiagnosticOperator(gsmDiagOperator));
                 currentInterval.addValues(decodeGSMDiagnosticCellInfo(gsmDiagCellInfo));
