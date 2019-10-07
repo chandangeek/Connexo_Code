@@ -127,7 +127,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     public void testDeviceDataDeviceIdentifierForAlreadyKnownDevice() throws Exception {
         Device myDevice = createDevice();
         DeviceService spiedService = spy(deviceService);
-        List<Device> devices = spiedService.findAllDevicesByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(myDevice));
+        List<Device> devices = spiedService.findAllDevicesByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(myDevice.getId(), myDevice.getmRID()));
         verify(spiedService).findDeviceById(myDevice.getId());
     }
 

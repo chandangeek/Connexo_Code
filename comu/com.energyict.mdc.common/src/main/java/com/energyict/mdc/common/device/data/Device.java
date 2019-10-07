@@ -18,6 +18,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.HasmRID;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
@@ -52,7 +53,7 @@ import java.util.function.Consumer;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @XmlAccessorType(XmlAccessType.NONE)
-public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasName {
+public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasmRID, HasName {
 
     Meter getMeter();
 
