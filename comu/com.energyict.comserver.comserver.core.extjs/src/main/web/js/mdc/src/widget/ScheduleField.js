@@ -543,7 +543,6 @@ Ext.define('Mdc.widget.ScheduleField', {
         });
 
         if (schedule) {
-            me.valueField.setValue(schedule.every.count);
             me.unitField.setValue(schedule.every.timeUnit);
             me.clearOffsetValues();
             me.adjustOffsetGui(schedule.every.timeUnit);
@@ -582,6 +581,7 @@ Ext.define('Mdc.widget.ScheduleField', {
             }
             me.adjustOffsetGui(schedule.every.timeUnit);
             me.adjustValueFieldGui(schedule.every.timeUnit);
+            me.valueField.setValue(schedule.every.count);
         }
 
         me.fireEvent('change', me, schedule);
