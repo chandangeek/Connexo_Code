@@ -121,7 +121,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
             lrns.keySet().stream().forEach(lrn -> {
                 sapCustomPropertySets.getChannelInfos(lrn, profileId).stream()
                         .forEach(csi -> {
-                            unsetProfileId(csi.getFirst(), csi.getLast(), lrn, profileId);
+                            closeProfileId(csi.getFirst(), csi.getLast(), lrn, profileId);
                         });
             });
 
@@ -199,7 +199,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         return channelInfos;
     }
 
-    private void unsetProfileId(Long deviceId, ChannelSpec channelSpec, String lrn, String profileId) {
+    private void closeProfileId(Long deviceId, ChannelSpec channelSpec, String lrn, String profileId) {
         Optional<Device> device = deviceService.findDeviceById(deviceId);
         if (device.isPresent()) {
             Optional<CustomPropertySet> customPropertySet = device.get().getDeviceType()
@@ -234,7 +234,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                             oldValues.setProperty(profileIdPropertyName, null);
                             Range range = oldValues.getEffectiveRange();
                             if (previousLrnValue.isPresent() && previousLrnValue.get().equals(lrn) && !previousProfileIdValue.isPresent()) {
-                                range = getRange(leftRange, oldValues.getEffectiveRange());
+                                range = Ranges.closedOpen(leftRange.lowerEndpoint(), oldValues.getEffectiveRange().upperEndpoint());
                             }
                             customPropertySetService.setValuesVersionFor(customPropertySet.get(),
                                     channelSpec, oldValues, range, deviceId);
@@ -245,18 +245,6 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                     }
                 }
             }
-        }
-    }
-
-    private Range<Instant> getRange(Range<Instant> startRange, Range<Instant> endRange) {
-        if (!startRange.hasLowerBound() && !endRange.hasUpperBound()) {
-            return Range.all();
-        } else if (!startRange.hasLowerBound() && endRange.hasUpperBound()) {
-            return Range.lessThan(endRange.upperEndpoint());
-        } else if (!endRange.hasUpperBound()) {
-            return Range.atLeast(startRange.lowerEndpoint());
-        } else {
-            return Range.closedOpen(startRange.lowerEndpoint(), endRange.upperEndpoint());
         }
     }
 
