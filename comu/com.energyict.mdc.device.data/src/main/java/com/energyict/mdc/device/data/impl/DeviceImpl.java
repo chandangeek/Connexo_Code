@@ -2192,7 +2192,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .filter(s -> s.getReadingTimestamp().isAfter(meterActivationInterval.lowerEndpoint()))
                         .forEach(s -> {
                             LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(s.getReadingTimestamp());
-                            if (loadProfileReading != null && loadProfileReading.getChannelValidationStates().isEmpty()) {
+                            if (loadProfileReading != null) {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
                                 //code below is the processing of removed readings
                                 s.getReadingQualities()
