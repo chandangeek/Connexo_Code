@@ -2,14 +2,14 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.webservices.demo.eventhandlers;
+package com.energyict.mdc.sap.soap.custom.eventhandlers;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
     SAP_EVENT_MAPPING_STATUS_CPS(SAPDeviceEventMappingStatusCustomPropertySet.CUSTOM_PROPERTY_SET_ID, "SAP device event mapping status"),
-    SAP_EVENT_MAPPING_LOADING_SC_TYPE("SAPEventMappingLoadingServiceCallType", "Loading of SAP device event mapping csv")
+    SAP_EVENT_MAPPING_LOADING_SC_TYPE("SAPEventMappingLoadingServiceCallType", "Loading of SAP device event mapping csv");
 
     private final String key;
     private final String defaultFormat;

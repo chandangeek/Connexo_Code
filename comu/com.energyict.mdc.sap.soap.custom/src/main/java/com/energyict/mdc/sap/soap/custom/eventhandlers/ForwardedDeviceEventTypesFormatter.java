@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.webservices.demo.eventhandlers;
+package com.energyict.mdc.sap.soap.custom.eventhandlers;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
