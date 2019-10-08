@@ -19,15 +19,19 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     },
     menuItems: [],
 
-    setChecked: function(property, value, suppressEvents) {
+    setChecked: function (property, value, suppressEvents) {
         var item,
             me = this,
             base = property.get('groupId')
-                ? me.menu.items.findBy(function(i){return i.value === property.get('groupId');})
+                ? me.menu.items.findBy(function (i) {
+                    return i.value === property.get('groupId');
+                })
                 : me;
 
         if (base) {
-            item = base.menu.items.findBy(function(i){return i.criteria.getId() === property.getId();});
+            item = base.menu.items.findBy(function (i) {
+                return i.criteria.getId() === property.getId();
+            });
             if (item) {
                 item.setChecked(value, suppressEvents);
             }
@@ -50,7 +54,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         };
 
         listeners.push(service.on({
-            add:  me.onCriteriaAdd,
+            add: me.onCriteriaAdd,
             remove: me.onCriteriaRemove,
             change: me.onCriteriaChange,
             reset: me.onReset,
@@ -61,7 +65,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.callParent(arguments);
         me.bindStore(me.store, true);
 
-        listeners.push(me.store.on('beforeload', function() {
+        listeners.push(me.store.on('beforeload', function () {
             me.setDisabled(true);
             me.menu.setLoading(true);
         }, me, {
@@ -79,17 +83,17 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         });
     },
 
-    onReset: function() {
+    onReset: function () {
         this.onStoreLoad(this.store);
     },
 
-    onCriteriaAdd: function(filters, property) {
+    onCriteriaAdd: function (filters, property) {
         if (!property.get('sticky')) {
             this.setChecked(property, true, true);
         }
     },
 
-    onCriteriaRemove: function(filters, property) {
+    onCriteriaRemove: function (filters, property) {
         if (!property.get('sticky')) {
             this.setChecked(property, false, true);
         }
@@ -105,17 +109,19 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         var me = this,
             deps = _.filter(me.menuItems, function (item) {
                 return !!(item.criteria.get('constraints')
-                && item.criteria.get('constraints').length
-                && item.criteria.get('constraints').indexOf(filter.id) >= 0);
+                    && item.criteria.get('constraints').length
+                    && item.criteria.get('constraints').indexOf(filter.id) >= 0);
             });
 
         deps.map(me.checkConstraints());
     },
 
-    checkConstraints: function() {
+    checkConstraints: function () {
         var me = this;
 
-        return function(item) {item.setDisabled(me.service.checkConstraints(item.criteria))}
+        return function (item) {
+            item.setDisabled(me.service.checkConstraints(item.criteria))
+        }
     },
 
     createMenuItem: function (criteria) {
@@ -128,11 +134,11 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 checked: this.service.filters.get(criteria.get('name'))
             };
 
-        if (    criteria.get('constraints')
-            &&  criteria.get('constraints').length
-            &&  me.service.checkConstraints(criteria)
+        if (criteria.get('constraints')
+            && criteria.get('constraints').length
+            && me.service.checkConstraints(criteria)
         ) {
-            var  constraints = criteria.get('constraints').map(function(c) {
+            var constraints = criteria.get('constraints').map(function (c) {
                 return me.getStore().getById(c).get('displayValue')
             });
 
@@ -156,12 +162,12 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             groups;
 
         Ext.suspendLayouts();
-        me.setDisabled(!store.count());
+        me.setDisabled(!me.countRemovableCriterias(store));
         me.menu.removeAll();
         me.menuItems = [];
         store.group('groupId');
 
-        if (store.count()) {
+        if (me.countRemovableCriterias(store)) {
             store.each(function (item) {
                 if (!item.get('groupId') && item.get('sticky') == false) {
                     me.menuItems.push(me.menu.add(me.createMenuItem(item)));
@@ -173,12 +179,12 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
                 return (group.displayValue || group).toLowerCase();
             });
-            groups.map(function(group) {
+            groups.map(function (group) {
                 var items = [];
 
                 _.sortBy(group.children, function (item) {
                     return item.get('displayValue').toLowerCase();
-                }).map(function(item) {
+                }).map(function (item) {
                     items.push(me.createMenuItem(item));
                 });
 
@@ -204,12 +210,14 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         Ext.resumeLayouts(true);
     },
 
-    setValue: function(value, suspendEvent) {
+    setValue: function (value, suspendEvent) {
         if (!Ext.isDefined(suspendEvent)) {
             suspendEvent = false;
         }
 
-        var item = this.menu.items.findBy(function(item){return item.value == value});
+        var item = this.menu.items.findBy(function (item) {
+            return item.value == value
+        });
         if (item) {
             item.setActive();
             this.setText(item.text);
@@ -218,6 +226,16 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 this.fireEvent('change', this);
             }
         }
+    },
+
+    countRemovableCriterias: function (store) {
+        var count = 0;
+        store.each(function (item) {
+            if (item.get('sticky') === false) {
+                count++;
+            }
+        });
+        return count;
     }
 });
 
