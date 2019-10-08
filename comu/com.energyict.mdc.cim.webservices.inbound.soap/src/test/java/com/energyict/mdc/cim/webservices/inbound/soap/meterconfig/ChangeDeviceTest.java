@@ -50,6 +50,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ChangeDeviceTest extends AbstractMockMeterConfig {
+    private static final String METER = "SPE0000001";
+    private static final String OK_MSG = "I'm okay. And you?";
+    private static final String SECURITY_ACCESSOR_NAME = "my security accessor name";
 
     private ExecuteMeterConfigEndpoint executeMeterConfigEndpoint;
 
@@ -157,7 +160,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         allowedDeviceStatuses.getAllowedDeviceStatus().add("Some wierd status");
         SecurityKeys securityKeys = new SecurityKeys();
         SecurityKey securityKey = new SecurityKey();
-        securityKey.setSecurityAccessorName("my security accessor name");
+        securityKey.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
         EncryptedDataType securityAccessorKey = new EncryptedDataType();
         CipherDataType cipherData = new CipherDataType();
         cipherData.setCipherValue("1234".getBytes());
@@ -177,7 +180,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.translate(thesaurus, METER, OK_MSG));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -205,7 +208,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         allowedDeviceStatuses.getAllowedDeviceStatus().add(STATE_NAME);
         SecurityKeys securityKeys = new SecurityKeys();
         SecurityKey securityKey = new SecurityKey();
-        String securityAccessorName = "my security accessor name";
+        String securityAccessorName = SECURITY_ACCESSOR_NAME;
         securityKey.setSecurityAccessorName(securityAccessorName);
         EncryptedDataType securityAccessorKey = new EncryptedDataType();
         CipherDataType cipherData = new CipherDataType();
@@ -225,7 +228,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT.translate(thesaurus, METER, SECURITY_ACCESSOR_NAME));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
