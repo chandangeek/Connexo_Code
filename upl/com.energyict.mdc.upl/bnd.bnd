@@ -1,6 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
-DynamicImport-Package: com.energyict.dlms
+DynamicImport-Package: com.energyict.dlms,\
+    com.energyict.protocolimplv2.dlms.idis.am540
 Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.upl.cache,\
                 com.energyict.mdc.upl.crypto,\
