@@ -77,7 +77,7 @@ public class UserInfoFactory implements InfoFactory<User> {
         infos.add(createDescription(TranslationSeeds.DESCRIPTION, String.class));
         infos.add(createDescription(TranslationSeeds.STATUS, String.class));
         infos.add(createDescription(TranslationSeeds.DOMAIN, Group.class));
-        infos.add(createDescription(TranslationSeeds.LANGUAGE, String.class));
+        infos.add(createDescription(TranslationSeeds.LANGUAGE, LocaleInfo.class));
         infos.add(createDescription(TranslationSeeds.CREATETIME, String.class));
         infos.add(createDescription(TranslationSeeds.MODTIME, String.class));
         infos.add(createDescription(TranslationSeeds.LASTSUCCESSFULLOGIN, String.class));

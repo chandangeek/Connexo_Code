@@ -51,7 +51,6 @@ Ext.define('Usr.view.user.BrowseUsers', {
 
     initComponent: function () {
         var me = this,
-            domainsStore = this.getService().getSearchDomainsStore(),
             store = Ext.getStore('Uni.store.search.Properties');
 
         me.items = [
