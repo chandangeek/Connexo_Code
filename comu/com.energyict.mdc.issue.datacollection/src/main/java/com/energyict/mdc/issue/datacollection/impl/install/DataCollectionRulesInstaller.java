@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import static com.elster.jupiter.orm.Version.version;
 
 @Component(
-        name = "com.energyict.mdc.issue.datacollection.impl.install.IdenpendentInstaller",
+        name = "com.energyict.mdc.issue.datacollection.impl.install.IndependentInstaller",
         service = {TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + DataCollectionRulesInstaller.COMPONENT_NAME},
         immediate = true

@@ -42,34 +42,12 @@ public class DataCollectionRulesUpgrader implements Upgrader {
                 .select(Condition.TRUE)
                 .stream()
                 .filter(rule -> rule.getTemplateImpl().equals("BasicDataCollectionRuleTemplate"))
-                .filter(rule -> rule.getCreationRuleProperties().stream().noneMatch(creationRuleProperty -> creationRuleProperty.getName().equals("BasicDataCollectionRuleTemplate.threshold")))
+                .filter(rule -> rule.getCreationRuleProperties().stream().anyMatch(creationRuleProperty -> creationRuleProperty.getName().equals("BasicDataCollectionRuleTemplate.threshold")))
                 .forEach(this::updateCreationRule);
     }
 
     private void updateCreationRule(final CreationRule creationRule) {
         final IssueCreationService.CreationRuleUpdater creationRuleUpdater = creationRule.startUpdate();
-        creationRuleUpdater.addProperty("BasicDataCollectionRuleTemplate.threshold", getRelativePeriodWithCount(DefaultRelativePeriodDefinition.TODAY));
         creationRuleUpdater.complete();
-    }
-
-    private HasIdAndName getRelativePeriodWithCount(DefaultRelativePeriodDefinition relativePeriodDefinition) {
-        RelativePeriod relativePeriod = timeService.findRelativePeriodByName(relativePeriodDefinition.getPeriodName()).isPresent() ? timeService.findRelativePeriodByName(relativePeriodDefinition.getPeriodName())
-                .get() : timeService.getAllRelativePeriod();
-        String occurrenceCount = "1";
-
-        return new HasIdAndName() {
-            @Override
-            public String getId() {
-                return occurrenceCount + ":" + relativePeriod.getId();
-            }
-
-            @Override
-            public String getName() {
-                JSONObject jsonId = new JSONObject();
-                jsonId.put("occurrenceCount", occurrenceCount);
-                jsonId.put("relativePeriod", relativePeriod.getName());
-                return jsonId.toString();
-            }
-        };
     }
 }
