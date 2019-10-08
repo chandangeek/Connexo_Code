@@ -52,6 +52,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -108,8 +109,12 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        TypedProperties result = TypedProperties.empty();
+        if (protocolDialectConfigurationProperties == null) {
+            return result;
+        }
+
         Optional<ProtocolDialectProperties> protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
-        TypedProperties result;
         if (protocolDialectPropertiesWithName.isPresent()) {
             result = protocolDialectPropertiesWithName.get().getTypedProperties();
         } else {
@@ -470,6 +475,8 @@ public abstract class JobExecution implements ScheduledJob {
         MeteringService meteringService();
 
         FirmwareService firmwareService();
+
+        TimeOfUseCampaignService touService();
 
     }
 

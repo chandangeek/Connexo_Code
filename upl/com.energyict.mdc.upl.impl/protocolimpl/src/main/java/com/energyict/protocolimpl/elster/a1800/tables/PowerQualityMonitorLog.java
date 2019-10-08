@@ -105,7 +105,7 @@ public class PowerQualityMonitorLog extends AbstractTable {
         unreadEntries = ProtocolTools.getUnsignedIntFromBytes(unreadEntriesBytes);
         offset += 2;
 
-        for (int counter = 0; counter < getSequenceNumber(); counter++) {
+        for (int counter = 0; counter < getValidEntries(); counter++) {
 
             meterEventTypeByte = data[offset++];
             eiServerEventCode = mapMeterStatusToEiServerCode(meterEventTypeByte);
@@ -136,7 +136,7 @@ public class PowerQualityMonitorLog extends AbstractTable {
 
             MeterEvent meterEvent = new MeterEvent(cal.getTime(),
                     eiServerEventCode,
-                    ((meterEventTypeByte & 0xFF) == 0xFF) ? 255 : (meterEventTypeByte & 0x7F),
+                    ((meterEventTypeByte & 0xFF) == 0xFF) ? 255 : (meterEventTypeByte & 0x7F) + 1,
                     getDescription(meterEventTypeByte) + ((!isLongFormat()) ? "" : (", optional value" + ((value == 0xFFFFFFFF) ? " not supported" : (": " + value)))));
 
             meterEvents.add(meterEvent);
@@ -204,6 +204,7 @@ public class PowerQualityMonitorLog extends AbstractTable {
 
         int meterEventStatus = ((meterEventTypeByte & 0xFF)  & 0x80) >> 7;
         int meterEventType = (meterEventTypeByte & 0xFF)  & 0x7F;
+        meterEventType++;
 
         switch (meterEventType) {
             case 1:

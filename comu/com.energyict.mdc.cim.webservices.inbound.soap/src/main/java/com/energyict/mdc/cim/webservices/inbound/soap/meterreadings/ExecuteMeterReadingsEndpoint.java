@@ -254,20 +254,24 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
             }
 
-            if (!checkDataSources(reading.getTimePeriod(), reading.getSource(), i, syncReplyIssue)) {
+            if (!checkDataSources(reading.getTimePeriod(), i, syncReplyIssue)) {
                 syncReplyIssue.addNotUsedReadingsDueToDataSources(i);
                 continue;
             }
 
-            fillDevicesComTaskExecutions(devices, reading, i, syncReplyIssue);
-            if (!checkComTaskExecutions(devices, readingItem, syncReplyIssue)) {
-                syncReplyIssue.addNotUsedReadingsDueToComTaskExecutions(i);
-                continue;
-            }
+            if (!reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
+                fillDevicesComTaskExecutions(devices, reading, i, syncReplyIssue);
+                if (!checkComTaskExecutions(devices, readingItem, syncReplyIssue)) {
+                    syncReplyIssue.addNotUsedReadingsDueToComTaskExecutions(i);
+                    continue;
+                }
 
-            if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices, syncReplyIssue)) {
-                syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
-                continue;
+                if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices, syncReplyIssue)) {
+                    syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
+                    continue;
+                }
+            } else {
+                syncReplyIssue.setSystemSource(true);
             }
 
             serviceCallCommands.createParentGetMeterReadingsServiceCallWithChildren(getMeterReadingsRequestMessage.getHeader(),
@@ -488,7 +492,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .collect(Collectors.toList()))).stream().collect(Collectors.toSet()));
     }
 
-    private boolean checkDataSources(DateTimeInterval timePeriod, String source, int index, SyncReplyIssue syncReplyIssue) {
+    private boolean checkDataSources(DateTimeInterval timePeriod, int index, SyncReplyIssue syncReplyIssue) {
         Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
         Set<String> existedRegisterGroups = syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index);
 

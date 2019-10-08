@@ -230,7 +230,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     /**
      * Attempts to lock the ScheduledConnectionTask for
-     * its execution on the specified ComServer
+     * its execution on the specified ComPort
      * and returns the locked ScheduledConnectionTask when the lock succeeds
      * and <code>null</code> when the lock fails.
      * Make sure to release the lock in a finally block
@@ -239,12 +239,12 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * never execute again.
      *
      * @param connectionTask The OutboundConnectionTask
-     * @param comServer      The ComServer
+     * @param comPort      The ComPort
      * @return <code>true</code> iff the lock succeeds
      */
-    ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer);
+    ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort);
 
-    boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer);
+    boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort);
 
     /**
      * Unlocks the OutboundConnectionTask, basically undoing the effect
@@ -292,12 +292,12 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask
-     * was started by the specified ComServer.
+     * was started by the specified ComPort.
      *
      * @param connectionTask The OutboundConnectionTask
-     * @param comServer      The ComServer that started the execution
+     * @param comPort      The ComPort that started the execution
      */
-    ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer);
+    ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort);
 
     /**
      * Notifies that execution of the specified OutboundConnectionTask completed.
@@ -348,6 +348,16 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 
     /**
+     * Notifies that the execution of the specified ComTaskExecution was postponed and needs to be rescheduled based on the
+     * communication window start date.
+     * The number of tries is not incremented.
+     *
+     * @param comTaskExecution the ComTaskExecution
+     * @param comWindowStartDate the communication window start date on which the task should be rescheduled (additional restrictions can be applicable)
+     */
+    void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate);
+
+    /**
      * Notifies that execution of the specified ComTaskExecutions completed.
      *
      * @param comTaskExecutions The List of completed ComTaskExecution
@@ -370,31 +380,31 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     /**
      * Cleans up any marker flags on ComTaskExecutions
-     * that were not properly cleaned because the ComServer they were running
+     * that were not properly cleaned because the ComPort they were running
      * on was actually forcefully shutdown, i.e. not allowing it to
      * shut down running processing and cleanup when done.
-     * Leaving the marker flags, prohibits the ComServer from
+     * Leaving the marker flags, prohibits the ComPort from
      * picking up the tasks again.
      * This is intended to be called at startup time.
      *
-     * @param comServer The ComServer that is currently starting up.
+     * @param comPort The ComPort that is currently starting up.
      */
-    void releaseInterruptedTasks(ComServer comServer);
+    void releaseInterruptedTasks(ComPort comPort);
 
     /**
      * Cleans up any marker flags on ComTaskExecutions
      * that are running longer than the task execution timeout
      * that is specified on the OutboundComPortPool
      * of the OutboundComPort it is running on.
-     * Leaving the marker flags, prohibits the ComServer from
+     * Leaving the marker flags, prohibits the ComPort from
      * picking up the tasks again.
-     * This is intended to be called frequently by the ComServer
+     * This is intended to be called frequently by the ComPort
      * and returns the best time between calls.
      *
-     * @param comServer The ComServer
+     * @param comPort The ComPort
      * @return The best time to wait before making another call
      */
-    TimeDuration releaseTimedOutTasks(ComServer comServer);
+    TimeDuration releaseTimedOutTasks(ComPort comPort);
 
     /**
      * Release the ComTasks and the ConnectionTasks which are locked by the given ComPort

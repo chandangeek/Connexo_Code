@@ -4,14 +4,25 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -26,7 +37,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -40,13 +53,24 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     private final SecurityManagementService securityManagementService;
     private final SecurityAccessorTypeInfoFactory keyFunctionTypeInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final DeviceMessageService deviceMessageService;
+    private final MdcPropertyUtils mdcPropertyUtils;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public SecurityAccessorTypeOnDeviceTypeResource(ResourceHelper resourceHelper, SecurityManagementService securityManagementService, SecurityAccessorTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory) {
+    public SecurityAccessorTypeOnDeviceTypeResource(ResourceHelper resourceHelper, SecurityManagementService securityManagementService,
+                                                    SecurityAccessorTypeInfoFactory keyFunctionTypeInfoFactory, ExceptionFactory exceptionFactory,
+                                                    DeviceMessageSpecificationService deviceMessageSpecificationService, MdcPropertyUtils mdcPropertyUtils,
+                                                    DeviceMessageService deviceMessageService, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.securityManagementService = securityManagementService;
         this.keyFunctionTypeInfoFactory = keyFunctionTypeInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.mdcPropertyUtils = mdcPropertyUtils;
+        this.deviceMessageService = deviceMessageService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -55,7 +79,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeSecurityAccessors(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<SecurityAccessorTypeInfo> infos = deviceType.getSecurityAccessorTypes().stream()
+        List<SecurityAccessorTypeInfo> infos = deviceType.getSecurityAccessors().stream()
                 .map(keyFunctionTypeInfoFactory::from)
                 .sorted(Comparator.comparing(k -> k.name, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
@@ -84,6 +108,29 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         return PagedInfoList.fromCompleteList("securityaccessors", infos, queryParameters);
     }
 
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
+    @Path("/{securityAccessorId}/wrappers")
+    public PagedInfoList getDeviceSecurityAccessorsWrappers(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        List<DeviceSecurityAccessorType> deviceSecurityAccessor = deviceType.getDeviceSecurityAccessorType();
+
+        List<SecurityAccessorTypeInfo> infos = new ArrayList<>();
+        infos.add(keyFunctionTypeInfoFactory.getNotSetSecurityAccessorWrapper());
+
+        List<SecurityAccessorTypeInfo> availableWrappers = deviceSecurityAccessor.stream()
+                .map(f -> f.getSecurityAccessor())
+                .filter(f -> f.isWrapper())
+                .map(keyFunctionTypeInfoFactory::from)
+                .collect(Collectors.toList());
+        availableWrappers.sort(Comparator.comparing(f -> f.name, String.CASE_INSENSITIVE_ORDER));
+        infos.addAll(availableWrappers);
+
+        return PagedInfoList.fromCompleteList("securityaccessors", infos, queryParameters);
+    }
+
     private static <T> Stream<T> subtract(Collection<T> minuend, Collection<T> subtrahend) {
         Set<T> toRemove = new HashSet<>(subtrahend);
         return minuend.stream()
@@ -97,13 +144,13 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Path("/{securityAccessorId}")
     public SecurityAccessorTypeInfo getDeviceTypeSecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<SecurityAccessorType> securityAccessorTypes = deviceType.getSecurityAccessorTypes();
-        SecurityAccessorType securityAccessorType = securityAccessorTypes.stream()
-                .filter(kat -> kat.getId() == securityAccessorId)
+        List<SecurityAccessorTypeOnDeviceType> securityAccessors = deviceType.getSecurityAccessors();
+        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = securityAccessors.stream()
+                .filter(sa -> sa.getSecurityAccessorType().getId() == securityAccessorId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
-        SecurityAccessorTypeInfo accessorTypeInfo =  keyFunctionTypeInfoFactory.withSecurityLevels(securityAccessorType);
-        deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorType).ifPresent(v -> accessorTypeInfo.defaultServiceKey = v);
+        SecurityAccessorTypeInfo accessorTypeInfo =  keyFunctionTypeInfoFactory.withSecurityLevels(securityAccessorTypeOnDeviceType);
+        deviceType.getDefaultKeyOfSecurityAccessorType(securityAccessorTypeOnDeviceType.getSecurityAccessorType()).ifPresent(v -> accessorTypeInfo.defaultServiceKey = v);
         return accessorTypeInfo;
     }
 
@@ -112,15 +159,61 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
-    public Response addSecurityAccessorTypesToDeviceType(@PathParam("deviceTypeId") long id, SecurityAccessorsForDeviceTypeInfo info) {
-        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
+    public Response addSecurityAccessorTypesToDeviceType(@PathParam("deviceTypeId") long deviceId, SecurityAccessorsForDeviceTypeInfo info) {
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceId, info.version, info.name);
         SecurityAccessorType[] securityAccessorTypes = info.securityAccessors.stream()
                 .map(securityAccessorInfo -> resourceHelper.lockSecurityAccessorTypeOrThrowException(securityAccessorInfo.id, securityAccessorInfo.version, securityAccessorInfo.name))
                 .toArray(SecurityAccessorType[]::new);
-        if (deviceType.addSecurityAccessorTypes(securityAccessorTypes)) {
-            deviceType.update();
+
+        for (SecurityAccessorType securityAccessorType: securityAccessorTypes) {
+            deviceType.addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
+        }
+        deviceType.update();
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{securityAccessorId}")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
+    public Response editKeyRenewalOnSecurityAccDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId, KeyRenewalInfo keyRenewalInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        SecurityAccessorTypeOnDeviceType securityAccessorOnDeviceType = findSecAccessorOnDeviceTypeOrThrowException(deviceType, securityAccessorId);
+
+        deviceType.setWrappingSecurityAccessor(securityAccessorOnDeviceType.getDeviceSecurityAccessorType(), getWrappingAccessor(keyRenewalInfo.wrapperAccessorId, deviceType));
+
+        if (keyRenewalInfo.keyRenewalCommandSpecification.id != null){
+            DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(keyRenewalInfo.keyRenewalCommandSpecification.id.toString());
+            SecurityAccessorTypeOnDeviceType.KeyRenewalBuilder keyRenewAlBuilder = securityAccessorOnDeviceType.newKeyRenewalBuilder(deviceMessageId);
+            DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
+
+            if (keyRenewalInfo.properties!=null) {
+                try {
+                    for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
+                        Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, keyRenewalInfo.properties);
+                        if (propertyValue != null) {
+                            keyRenewAlBuilder.addProperty(propertySpec.getName(), propertyValue);
+                        }
+                    }
+                } catch (LocalizedFieldValidationException e) {
+                    throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
+                }
+            }
+            keyRenewAlBuilder.add();
+        }
+        else {
+            securityAccessorOnDeviceType.resetKeyRenewal();
         }
         return Response.ok().build();
+    }
+
+    private Optional<SecurityAccessorType> getWrappingAccessor(Long wrapperAccessorId, DeviceType deviceType) {
+        if (wrapperAccessorId == null || wrapperAccessorId == keyFunctionTypeInfoFactory.getNotSetSecurityAccessorWrapper().id) {
+            return Optional.empty();
+        }
+        return Optional.of(findSecAccessorOnDeviceTypeOrThrowException(deviceType, wrapperAccessorId).getSecurityAccessorType());
     }
 
     @DELETE
@@ -130,17 +223,62 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response removeSecurityAccessorTypeFromDeviceType(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, SecurityAccessorsForDeviceTypeInfo info) {
+
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
-        SecurityAccessorType keyFunctionType = deviceType.getSecurityAccessorTypes().stream()
-                .filter(kFType -> kFType.getId() == securityAccessorId)
+        Optional<SecurityAccessorType> any = deviceType.getDeviceSecurityAccessorType()
+                .stream()
+                .filter(f -> f.getWrappingSecurityAccessor().isPresent() && f.getWrappingSecurityAccessor().get().getId() == securityAccessorId)
+                .map(f -> f.getSecurityAccessor()).findAny();
+
+        if (any.isPresent()) {
+            throw exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.SECACC_WRAPPER_IN_USE, any.get().getName()).get();
+        }
+
+        DeviceSecurityAccessorType securityAccessorType = deviceType.getDeviceSecurityAccessorType().stream()
+                .filter(kFType -> kFType.getSecurityAccessor().getId() == securityAccessorId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
-        if (deviceType.removeSecurityAccessorType(keyFunctionType)) {
+        if (deviceType.removeDeviceSecurityAccessorType(securityAccessorType)) {
             deviceType.update();
         }
         return Response.noContent().build();
     }
 
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
+    @Path("/securitycategorycommands")
+    public List<DeviceMessageSpecInfo> getCommandsForSecurityCategory(@PathParam("deviceTypeId") long id) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        DeviceMessageCategory securityCategory = deviceMessageSpecificationService.getSecurityCategory();
+        List<DeviceMessageSpec> deviceMessageSpecs = getEnabledAndAuthorizedDeviceMessageSpecsIn(securityCategory, deviceType);
+        List<DeviceMessageId> deviceMessageIds = deviceMessageService.findKeyRenewalMessages();
+        return deviceMessageSpecs.stream()
+                .filter(deviceMessageSpec -> deviceMessageIds.contains(deviceMessageSpec.getId()))
+                .map(deviceMessageSpec ->  DeviceMessageSpecInfo.from(deviceMessageSpec, mdcPropertyUtils))
+                .collect(Collectors.toList());
+    }
+
+
+    public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category, DeviceType deviceType) {
+        List<Long> ids = deviceType.getDeviceProtocolPluggableClass()
+                .map(pluggableClass -> pluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+        return category.getMessageSpecifications()
+                .stream()
+                .filter(deviceMessageSpec -> ids.contains(deviceMessageSpec.getId().dbValue())) // limit to device message specs supported by the protocol
+                .collect(Collectors.toList());
+    }
+
+    private SecurityAccessorTypeOnDeviceType findSecAccessorOnDeviceTypeOrThrowException(DeviceType deviceType, long securityAccessorId){
+        return deviceType.getSecurityAccessors().stream()
+                .filter(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType().getId() == securityAccessorId)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+    }
     /**
      * Sets the default key value for the device type for the given security accessor type.
      *
@@ -162,7 +300,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
 
-	    deviceType.updateDefaultKeyOfSecurityAccessorType(keyFunctionType, info.value);
+        deviceType.updateDefaultKeyOfSecurityAccessorType(keyFunctionType, info.value);
         return Response.ok().build();
     }
 

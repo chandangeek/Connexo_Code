@@ -6,15 +6,16 @@ package com.energyict.mdc.common.tasks;
 
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
+import java.util.Set;
 
 /**
- * Models a set of {@link com.energyict.mdc.common.tasks.ProtocolTask}s which can be scheduled for a Device.
- * Multiple Devices can use the same ComTask.
+ * Models a set of {@link com.energyict.mdc.common.tasks.ProtocolTask}s which can be scheduled for a Device. Multiple Devices can use the same ComTask.
  *
  * @author gna
  * @since 19/04/12 - 13:52
@@ -79,7 +80,7 @@ public interface ComTask extends HasId, HasName {
      *
      * @return the newly created {@link StatusInformationTask}
      */
-    StatusInformationTask createStatusInformationTask() ;
+    StatusInformationTask createStatusInformationTask();
 
     /**
      * Create a {@link FirmwareManagementTask} for this {@link ComTask}
@@ -118,12 +119,14 @@ public interface ComTask extends HasId, HasName {
 
     /**
      * User ComTask should be maintained by the users
+     * 
      * @return true if this is a User defined ComTask, false otherwise
      */
     boolean isUserComTask();
 
     /**
      * System ComTasks should be maintained by the system
+     * 
      * @return true if this is a System defined ComTask, false otherwise
      */
     boolean isSystemComTask();
@@ -133,4 +136,18 @@ public interface ComTask extends HasId, HasName {
     boolean isManualSystemTask();
 
     long getVersion();
+
+    /**
+     * Gets privileges that user must have to be able to execute this communication task.
+     *
+     * @return
+     */
+    Set<ComTaskUserAction> getUserActions();
+
+    /**
+     * Sets privileges that user must have to be able to execute this communication task
+     *
+     * @param userActions
+     */
+    void setUserActions(Set<ComTaskUserAction> userActions);
 }

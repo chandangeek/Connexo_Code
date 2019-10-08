@@ -95,11 +95,11 @@ public class FirmwareCampaignHandlerTest {
         when(event.getType()).thenReturn(eventType);
         when(firmwareItem.cancel()).thenReturn(serviceCall);
         when(firmwareItem.getServiceCall()).thenReturn(serviceCall);
+        when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochMilli(0));
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(firmwareItem), QueryStream.class);
         when(firmwareCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
         firmwareCampaignHandler = new FirmwareCampaignHandler(firmwareService, clock, serviceCallService, thesaurus, threadPrincipalService, transactionService);
     }
-
 
     @Test
     public void testFirmwareTaskStarted() {

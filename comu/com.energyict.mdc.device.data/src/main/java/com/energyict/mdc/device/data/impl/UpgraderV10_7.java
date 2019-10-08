@@ -10,19 +10,24 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
-import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class UpgraderV10_7 implements Upgrader {
 
@@ -50,6 +55,7 @@ public class UpgraderV10_7 implements Upgrader {
         installer.createPrioritizedMessageHandlers();
         createMessageHandlerLP();
         updateServiceCallTypes();
+        updateConnectionTaskJournalTable();
     }
 
     private void deleteOldDestinations() {
@@ -113,5 +119,19 @@ public class UpgraderV10_7 implements Upgrader {
     private void subscribeLP(DestinationSpec queue) {
         queue.activate();
         queue.subscribe(SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    private void updateConnectionTaskJournalTable() {
+        String sqlStatement = "ALTER TABLE DDC_CONNECTIONTASKJRNL RENAME COLUMN COMSERVER TO COMPORT";
+        try (Connection connection = dataModel.getConnection(true)) {
+            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
+                Logger.getAnonymousLogger().info("Executing: " + sqlStatement);
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 }

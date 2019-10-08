@@ -8,7 +8,7 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.tasks.ComTask;
-import com.energyict.mdc.tasks.impl.ServerTaskService;
+import com.energyict.mdc.tasks.TaskService;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -63,7 +63,7 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest{
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(1L);
         when(comTask.isManualSystemTask()).thenReturn(true);
-        when(comTask.getName()).thenReturn(ServerTaskService.FIRMWARE_COMTASK_NAME);
+        when(comTask.getName()).thenReturn(TaskService.FIRMWARE_COMTASK_NAME);
 
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("devType");

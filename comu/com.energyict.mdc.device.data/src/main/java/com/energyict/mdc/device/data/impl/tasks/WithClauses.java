@@ -22,11 +22,11 @@ public enum WithClauses {
             "  from " + TableSpecs.DDC_COMTASKEXEC.name() + " cte " +
             "  join " + TableSpecs.DDC_DEVICE.name() + " dev on cte.device = dev.id " +
             "  join enddevices kd on dev.meterid = kd.id " +
-            "  LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct on ct.id = cte.connectiontask AND ct.comserver IS NOT NULL and ct.lastCommunicationStart > cte.nextExecutionTimestamp" +
+            "  LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct on ct.id = cte.connectiontask AND ct.comport IS NOT NULL and ct.lastCommunicationStart > cte.nextExecutionTimestamp" +
             "  LEFT JOIN DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id" +
             "  where cte.obsolete_date is null"),
     BUSY_COMTASK_EXECUTION("select connectiontask, comport from " + TableSpecs.DDC_COMTASKEXEC.name() + " where comport is not null and obsolete_date is null"),
-    BUSY_CONNECTION_TASK("select id as connectiontask, lastcommunicationstart, comserver from " + TableSpecs.DDC_CONNECTIONTASK.name() + " where comserver is not null");
+    BUSY_CONNECTION_TASK("select id as connectiontask, lastcommunicationstart, comport from " + TableSpecs.DDC_CONNECTIONTASK.name() + " where comport is not null");
 
     private String withClause;
 

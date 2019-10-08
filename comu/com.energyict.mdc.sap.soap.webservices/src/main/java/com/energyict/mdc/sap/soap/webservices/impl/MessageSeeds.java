@@ -24,6 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_PROPERTY(1003, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
     FIELD_HAS_UNEXPECTED_SIZE(1004, Keys.FIELD_HAS_UNEXPECTED_SIZE, "Field should have from {min} to {max} characters"),
     CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER(1005, Keys.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, "The custom attribute set ''{0}'' is not editable by current user."),
+    DEVICE_IDENTIFIER_MUST_BE_UNIQUE(1006, Keys.DEVICE_IDENTIFIER_MUST_BE_UNIQUE, "Device identifier must be unique."),
 
     // Service call
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
@@ -32,6 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_READING_REASON_CODE(2004, "InvalidReadingReasonCode", "Invalid reading reason code {0}."),
     SERVICE_CALL_WAS_CANCELLED(2005, "ServiceCallWasCancelled", "Service call was cancelled."),
     REGISTER_SERVICE_CALL_WAS_CANCELLED(2006, "RegisterServiceCallWasCancelled", "Service call for register ''{0}'' was cancelled."),
+    REGISTER_LRN_SERVICE_CALL_WAS_CANCELLED(2007, "RegisterLrnServiceCallWasCancelled", "Service call for register with LRN ''{0}'' was cancelled."),
 
     // Web services
     NO_REPLY_ADDRESS(3001, "NoReplyAddress", "Reply address is required"),
@@ -41,11 +43,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_REQUIRED_OUTBOUND_END_POINT(3005, "NoRequiredOutboundEndPoint", "No required outbound end point configuration is found by name ''{0}''."),
 
     // Device
-    NO_DEVICE_FOUND_BY_SAP_ID(4001, "NoDeviceFoundBySapId", "No device found with SAP id ''{0}''."),
+    NO_DEVICE_FOUND_BY_SAP_ID(4001, "NoDeviceFoundBySapId", "No device found with SAP device identifier ''{0}''."),
     NO_HEAD_END_INTERFACE_FOUND(4002, "NoHeadEndInterfaceFound", "No head end interface found for device with id ''{0}''."),
     LRN_NOT_FOUND_FOR_CHANNEL(4003, "LRNNotFoundForChannel", "Logical Register Number isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
     SEVERAL_DEVICES(4005, "SeveralDevices", "There are several devices with serial id ''{0}''."),
-    DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with serial id ''{0}'' already has SAP identifier."),
+    DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with serial id ''{0}'' already has SAP device identifier."),
     REGISTER_NOT_FOUND(4007, "RegisterNotFound", "Register ''{0}'' not found"),
     REGISTER_ALREADY_HAS_LRN(4008, "RegisterAlreadyHasLrn", "Register ''{0}'' already has LRN (range is ''{1}'')"),
     FAILED_DATA_SOURCE(4009, "FailedDataSources", "The following data sources are failed: {0}."),
@@ -61,6 +63,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with obis code ''{0}''"),
     NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with obis code ''{0}''"),
     NO_DEFAULT_DEVICE_CONFIGURATION(4021, "NoDefaultDeviceConfiguration", "No default device configuration for device type ''{0}''."),
+    SAP_DEVICE_IDENTIFIER_MUST_BE_UNIQUE(4022, "sapDeviceIdentifierMustBeUnique", "SAP device identifier must be unique."),
+    DATASOURCE_NOT_FOUND(4024, "DataSourceNotFound", "Couldn''t find data source on device ''{0}'' by LRN ''{1}'' for specified end date ''{2}''."),
+    INVALID_END_DATE(4025, "InvalidEndDate", "Received end date ''{0}'' isn''t in existing custom property set range ''{1}''."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -68,6 +73,9 @@ public enum MessageSeeds implements MessageSeed {
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid meter reading document"),
     UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request"),
+    NO_METER_READING_DOCUMENT(6003, "NoMeterReadingDocument", "No meter reading document found with id ''{0}''."),
+    METER_READING_DOCUMENT_IS_PROCESSED(6004, "MeterReadingDocumentIsProcessed", "Meter reading document is processed."),
+    ERROR_CANCELLING_METER_READING_DOCUMENT(6005, "ErrorCancellingMeterReadingDocument", "Error while cancelling meter reading document: ''{0}''."),
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
     PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile id ''{0}'' is already set for channel ''{1}''."),
@@ -77,8 +85,9 @@ public enum MessageSeeds implements MessageSeed {
     PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
     ENDPOINTS_NOT_FOUND(7006, "EndpointsNotFound", "Couldn''t find active endpoints for webservices: ''{0}''."),
     ENDPOINT_BY_NAME_NOT_FOUND(7007, "EndpointByNameNotFound", "Couldn''t find active endpoint with name ''{0}''."),
-    DEVICE_IS_NOT_ACTIVE(7008, "deviceIsNotActive", "Device ''{0}'' isn''t in active state."),
+    DEVICE_IS_NOT_ACTIVE(7008, "DeviceIsNotActive", "Device ''{0}'' isn''t in active state."),
     ERROR_PROCESSING_MTA_REQUEST(7009, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
+    ERROR_PROCESSING_METER_REPLACEMENT_REQUEST(7010, "ErrorProcessingMeterReplacementRequest", "Error while processing meter replacement request: ''{0}''."),
 
     // Smart meter events
     EVENT_CONFIRMED(8000, "EventConfirmed", "Confirmed smart meter event creation request with UUID {0}.", Level.INFO),
@@ -148,5 +157,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_HAS_UNEXPECTED_SIZE = "FieldHasUnexpectedSize";
         public static final String UNKNOWN_PROPERTY = "UnknownProperty";
         public static final String CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER = "CustomPropertySetIsNotEditableByUser";
+        public static final String DEVICE_IDENTIFIER_MUST_BE_UNIQUE = "DeviceIdentifierMustBeUnique";
     }
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -43,6 +44,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
@@ -305,6 +307,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private LicenseService licenseService;
         private IssueService issueService;
         private com.energyict.mdc.issues.IssueService mdcIssueService;
+        private CalendarService calendarService;
 
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
@@ -381,6 +384,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.issueService = injector.getInstance(IssueService.class);
                 this.mdcIssueService = injector.getInstance(com.energyict.mdc.issues.IssueService.class);
+                this.calendarService = injector.getInstance(CalendarService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -414,7 +418,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(LockService.class),
                                 injector.getInstance(DataVaultService.class),
                                 injector.getInstance(SecurityManagementService.class),
-                                injector.getInstance(MeteringZoneService.class)
+                                injector.getInstance(MeteringZoneService.class), calendarService,
+                                injector.getInstance(MeteringTranslationService.class)
                         );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();

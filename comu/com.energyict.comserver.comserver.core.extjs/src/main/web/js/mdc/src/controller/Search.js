@@ -95,6 +95,20 @@ Ext.define('Mdc.controller.Search', {
                     scope: me.service
                 }
             },
+            'uni-view-search-overview button[action=saveSearchWindow]': {
+                click: function(){
+                    me.service.openSaveSearch(me);
+                    scope: me.service
+
+                }
+            },
+            'uni-view-search-overview #load-button': {
+                select: function (combo, value, a){
+                    me.service.loadSearch(combo, value, a, me);
+                    scope: me.service;
+                }
+
+            },
             'uni-view-search-overview button[action=count]': {
                 click: {
                     fn: me.service.count,
@@ -218,5 +232,6 @@ Ext.define('Mdc.controller.Search', {
             filters = me.service.getFilters();
 
         searchOverview.down('[action=clearFilters]').setDisabled(!(filters && filters.length));
+        searchOverview.down('[action=saveSearchWindow]').setDisabled(!(filters && filters.length))
     }
 });

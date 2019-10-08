@@ -1301,4 +1301,24 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getSignalQualityLow() {
         return new EndDeviceEventType("0.19.0.150");
     }
+
+    public static EndDeviceEventType getMeterAlarmEnd() {
+        return new EndDeviceEventType("0.11.46.279");
+    }
+
+    public static EndDeviceEventType getReversePower() {
+        return new EndDeviceEventType("0.12.48.219");
+    }
+
+    public static EndDeviceEventType getInputEvent() {
+        return new EndDeviceEventType("0.0.55.242");
+    }
+
+    public static EndDeviceEventType getChangeImpulse() {
+        return new EndDeviceEventType("0.7.31.13");
+    }
+
+    public static EndDeviceEventType getPulsAStored() {
+        return new EndDeviceEventType("0.20.31.58");
+    }
 }

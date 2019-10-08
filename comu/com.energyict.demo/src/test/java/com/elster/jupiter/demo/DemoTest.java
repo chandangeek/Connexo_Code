@@ -212,6 +212,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.SerialComponentService;
@@ -262,8 +263,8 @@ import static org.mockito.Mockito.when;
 
 public class DemoTest {
 
-    private static BundleContext bundleContext = mock(BundleContext.class) ;
-    private static ComponentContext componentContext = mock(ComponentContext.class) ;
+    private static BundleContext bundleContext = mock(BundleContext.class);
+    private static ComponentContext componentContext = mock(ComponentContext.class);
     protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private PassphraseFactory passphraseFactory;
@@ -456,7 +457,8 @@ public class DemoTest {
                 new MeteringImportsModule(),
                 new MeteringZoneModule(),
                 new IssueDeviceLifecycleModule(),
-                new TaskIssueModule()
+                new TaskIssueModule(),
+                new TimeOfUseCampaignModule()
         );
 
         doPreparations();
@@ -838,7 +840,7 @@ public class DemoTest {
             createDefaultStuff();
             prepareSearchDomain();
             preparePKIService();
-            ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((MeteringDataModelServiceImpl)injector.getInstance(MeteringDataModelService.class));
+            ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((MeteringDataModelServiceImpl) injector.getInstance(MeteringDataModelService.class));
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();

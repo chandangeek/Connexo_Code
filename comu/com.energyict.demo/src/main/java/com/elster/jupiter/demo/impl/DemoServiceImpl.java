@@ -12,7 +12,6 @@ import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateAlarmCreationRuleCommand;
 import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
-import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDataLoggerSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
@@ -57,6 +56,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -210,12 +210,14 @@ public class DemoServiceImpl {
     private volatile NlsService nlsService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile TopologyService topologyService;
     private volatile Thesaurus thesaurus;
 
     private Injector injector;
 
     private boolean reThrowEx = false;
+
     public DemoServiceImpl() {
     }
 
@@ -274,7 +276,8 @@ public class DemoServiceImpl {
             NlsService nlsService,
             DeviceAlarmService deviceAlarmService,
             UsagePointConfigurationService usagePointConfigurationService,
-            UsagePointIssueDataValidationService usagePointIssueDataValidationService) {
+            UsagePointIssueDataValidationService usagePointIssueDataValidationService,
+            MeteringTranslationService meteringTranslationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -332,6 +335,7 @@ public class DemoServiceImpl {
         setDeviceAlarmService(deviceAlarmService);
         setUsagePointConfigurationService(usagePointConfigurationService);
         setUsagePointIssueDataValidationService(usagePointIssueDataValidationService);
+        setMeteringTranslationService(meteringTranslationService);
         activate();
         reThrowEx = true;
     }
@@ -400,6 +404,7 @@ public class DemoServiceImpl {
                 bind(UsagePointIssueDataValidationService.class).toInstance(usagePointIssueDataValidationService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
             }
         });
         Builders.initWith(this.injector);
@@ -490,10 +495,10 @@ public class DemoServiceImpl {
     }
 
     @Reference
-     @SuppressWarnings("unused")
-     public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+    @SuppressWarnings("unused")
+    public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
-     }
+    }
 
     @Reference
     @SuppressWarnings("unused")
@@ -611,6 +616,13 @@ public class DemoServiceImpl {
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
 
     @Reference
     @SuppressWarnings("unused")
@@ -964,7 +976,7 @@ public class DemoServiceImpl {
     public void createMetrologyConfigurations() {
         executeTransaction(() -> {
             CreateMetrologyConfigurationsCommand command = injector.getInstance(CreateMetrologyConfigurationsCommand.class);
-            if(licenseService.getLicenseForApplication("INS").isPresent()) {
+            if (licenseService.getLicenseForApplication("INS").isPresent()) {
                 command.createMetrologyConfigurations();
             } else {
                 command.createMultisenseMetrologyConfigurations();
@@ -1011,14 +1023,6 @@ public class DemoServiceImpl {
     public void createNtaConfig() {
         executeTransaction(() -> {
             CreateNtaConfigCommand command = injector.getInstance(CreateNtaConfigCommand.class);
-            command.run();
-        });
-    }
-
-    @SuppressWarnings("unused")
-    public void createAssignmentRules() {
-        executeTransaction(() -> {
-            CreateAssignmentRulesCommand command = injector.getInstance(CreateAssignmentRulesCommand.class);
             command.run();
         });
     }

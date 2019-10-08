@@ -269,4 +269,6 @@ public interface EngineConfigurationService {
      * @return the 'locked' ComServer object
      */
     ComServer lockComServer(ComServer comServer);
+
+    ComPort lockComPort(ComPort comPort);
 }

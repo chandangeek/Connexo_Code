@@ -29,6 +29,7 @@ import com.elster.jupiter.hsm.HsmPublicConfiguration;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -61,6 +62,7 @@ import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -150,6 +152,11 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     IssueService issueService;
     @Mock
     HsmPublicConfiguration hsmPublicConfiguration;
+    @Mock
+    DeviceMessageService deviceMessageService;
+    @Mock
+    MeteringTranslationService meteringTranslationService;
+
     PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
@@ -258,6 +265,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setIssueService(issueService);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         application.setHsmPublicConfiguration(hsmPublicConfiguration);
+        application.setDeviceMessageService(deviceMessageService);
+        application.setMeteringTranslationService(meteringTranslationService);
         return application;
     }
 

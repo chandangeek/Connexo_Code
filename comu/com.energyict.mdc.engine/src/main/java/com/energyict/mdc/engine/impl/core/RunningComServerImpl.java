@@ -61,6 +61,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.io.SocketService;
@@ -618,8 +619,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         } else {
             refreshComPortListener((InboundComPort) refreshedComPort);
         }
-        // releasing the connectionTasks which are busy by this comserver (as suggested by Govanni)
-        this.getComServerDAO().releaseTasksFor(comPort);
+        // releasing the connectionTasks which are busy by this comport
+        getComServerDAO().releaseTasksFor(comPort);
         getLogger().successfullyRestartedComport(comPort);
     }
 
@@ -1208,6 +1209,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
         FirmwareService firmwareService();
 
+        TimeOfUseCampaignService touService();
+
     }
 
     private class EventMechanism {
@@ -1430,6 +1433,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         public FirmwareService firmwareService() {
             return serviceProvider.firmwareService();
         }
+
+        @Override
+        public TimeOfUseCampaignService touService() {
+            return serviceProvider.touService();
+        }
     }
 
     private class ScheduledComPortFactoryServiceProvider implements ScheduledComPortImpl.ServiceProvider {
@@ -1535,6 +1543,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
         public FirmwareService firmwareService() {
             return serviceProvider.firmwareService();
+        }
+
+        @Override
+        public TimeOfUseCampaignService touService() {
+            return serviceProvider.touService();
         }
 
     }

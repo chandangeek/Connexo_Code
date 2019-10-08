@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.sap.CheckScheduledRequestHandlerFactory",
         service = MessageHandlerFactory.class,
@@ -26,20 +27,22 @@ public class CheckScheduledRequestHandlerFactory implements MessageHandlerFactor
 
     private volatile TaskService taskService;
     private volatile ServiceCallService serviceCallService;
+    private volatile Clock clock;
 
     public CheckScheduledRequestHandlerFactory() {
     }
 
     @Inject
     public CheckScheduledRequestHandlerFactory(TaskService taskService,
-                                               ServiceCallService serviceCallService) {
+                                               ServiceCallService serviceCallService, Clock clock) {
         setTaskService(taskService);
         setServiceCallService(serviceCallService);
+        setClock(clock);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CheckScheduledRequestHandler(serviceCallService));
+        return taskService.createMessageHandler(new CheckScheduledRequestHandler(serviceCallService, clock));
     }
 
     @Reference
@@ -50,5 +53,10 @@ public class CheckScheduledRequestHandlerFactory implements MessageHandlerFactor
     @Reference
     public final void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public final void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

@@ -571,4 +571,9 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     public ComServer lockComServer(ComServer comServer) {
         return getComServerDataMapper().lock(comServer.getId());
     }
+
+    @Override
+    public ComPort lockComPort(ComPort comPort) {
+        return getComPortDataMapper().lock(comPort.getId());
+    }
 }

@@ -52,7 +52,7 @@ public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPoin
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesSmartMeterEventERPBulkCreateRequestCOut> getService() {
         return UtilitiesSmartMeterEventERPBulkCreateRequestCOut.class;
     }
 

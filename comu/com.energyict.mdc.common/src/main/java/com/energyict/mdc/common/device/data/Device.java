@@ -234,6 +234,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      */
     TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet);
 
+    Optional<SecurityAccessor> getSecurityAccessorByName(String securityAccessorName);
+
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
     Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName);

@@ -42,7 +42,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
         property = "name=ServiceCallProcessAssociationProvider", immediate = true)
 public class ServiceCallIssueProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
-    public static final String APP_KEY = "MultiSense";
+    public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "BPM";
     public static final String ASSOCIATION_TYPE = "servicecallissue";
     public static final String ISSUE_TYPE = "servicecall";

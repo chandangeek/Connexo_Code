@@ -3,6 +3,7 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDeviceAttributesProvider;
 import com.elster.jupiter.metering.LifecycleDates;
 
@@ -16,43 +17,9 @@ import ch.iec.tc57._2011.enddeviceconfig.Status;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 class EndDeviceConfigDataFactory {
     private static final String END_DEVICE_NAME_TYPE = "EndDevice";
-
-    private enum DefaultState {
-
-        IN_STOCK("dlc.default.inStock", "In stock"),
-        COMMISSIONING("dlc.default.commissioning", "Commissioning"),
-        ACTIVE("dlc.default.active", "Active"),
-        INACTIVE("dlc.default.inactive", "Inactive"),
-        DECOMMISSIONED("dlc.default.decommissioned", "Decommissioned"),
-        REMOVED("dlc.default.removed", "Removed");
-
-        private final String key;
-        private final String defaultFormat;
-
-        DefaultState(String key, String defaultFormat) {
-            this.key = key;
-            this.defaultFormat = defaultFormat;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getDefaultFormat() {
-            return defaultFormat;
-        }
-
-        public static Optional<DefaultState> fromKey(String key) {
-            return Stream
-                    .of(DefaultState.values())
-                    .filter(s -> s.getKey().equals(key))
-                    .findFirst();
-        }
-    }
 
     EndDeviceConfig asEndDevice(com.elster.jupiter.metering.EndDevice endDevice, String state, Instant effectiveDate, List<EndDeviceAttributesProvider> endDeviceAttributesProviders) {
         EndDeviceConfig endDeviceConfig = new EndDeviceConfig();

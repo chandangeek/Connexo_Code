@@ -234,17 +234,26 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id'
+                        valueField: 'id',
+                        listeners: {
+                              change: function(checkBox, value){
+                                   if (this.originalValue != value){
+                                        me.down('#fwc-campaign-send-connection-strategy-reset').enable();
+                                   }
+                              }
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-send-connection-strategy-reset',
                         handler: function() {
                             this.down('[name=calendarUploadConnectionStrategy]').reset();
+                            this.down('#fwc-campaign-send-connection-strategy-reset').disable();
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },
@@ -264,7 +273,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 allowBlank: false,
                 forceSelection: true,
                 emptyText: Uni.I18n.translate(
-                    'general.validationComTask.empty',
+                    'general.comTask.empty',
                     'FWC',
                     'Select communication task ...'
                 ),
@@ -293,17 +302,26 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id'
+                        valueField: 'id',
+                        listeners: {
+                              change: function(checkBox, value){
+                                   if (this.originalValue != value){
+                                        me.down('#fwc-campaign-validation-connection-strategy-reset').enable();
+                                   }
+                              }
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-validation-connection-strategy-reset',
                         handler: function() {
                             this.down('[name=validationConnectionStrategy]').reset();
+                            this.down('#fwc-campaign-validation-connection-strategy-reset').disable();
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },
@@ -344,6 +362,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         ];
 
         me.callParent(arguments);
+
+        Ext.Array.each(Ext.ComponentQuery.query('#fwc-campaign-validation-connection-strategy-reset, #fwc-campaign-send-connection-strategy-reset'), function(item){
+           item.setTooltip('Restore to default empty value');
+        });
     },
 
     onDeviceTypeChange: function (combo, newValue) {

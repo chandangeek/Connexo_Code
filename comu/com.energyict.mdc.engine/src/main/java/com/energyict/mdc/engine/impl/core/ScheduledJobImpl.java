@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -22,6 +23,7 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
@@ -29,6 +31,7 @@ import com.energyict.protocol.exceptions.ConnectionSetupException;
 import java.time.Clock;
 import java.util.Calendar;
 import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Provides code reuse opportunities for component that
@@ -83,13 +86,23 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     private ComWindow getComWindow() {
         ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
-        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findFirst();
-        if (firmwareComTaskExecution.isPresent()) {
-            ComTaskExecution comTaskExecution = firmwareComTaskExecution.get();
-            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution);
-            if (firmwareCampaign.isPresent()) {
-                comWindowToUse = firmwareCampaign.get().getComWindow();
-            }
+        Optional<ComWindow> touComWindow = getComTaskExecutions().stream()
+                .map(comTaskExecution -> getServiceProvider().touService().getCampaignOn(comTaskExecution)
+                        .filter(c -> c.getCalendarUploadComTaskId() == comTaskExecution.getComTask().getId())
+                        .map(TimeOfUseCampaign::getComWindow))
+                .flatMap(Functions.asStream())
+                .findFirst();
+        if (touComWindow.isPresent()) {
+            comWindowToUse = touComWindow.get();
+        }
+        Optional<ComWindow> firmwareComWindow = getComTaskExecutions().stream()
+                .map(comTaskExecution -> getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution)
+                        .filter(c -> c.getFirmwareUploadComTaskId() == comTaskExecution.getComTask().getId())
+                        .map(FirmwareCampaign::getComWindow))
+                .flatMap(Functions.asStream())
+                .findFirst();
+        if (firmwareComWindow.isPresent()) {
+            comWindowToUse = firmwareComWindow.get();
         }
         return comWindowToUse;
     }
@@ -98,7 +111,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         if (comWindow == null) {
             return true;
         } else {
-            Calendar now = Calendar.getInstance();
+            Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             now.setTimeInMillis(getServiceProvider().clock().millis());
             return comWindow.includes(now);
         }
@@ -111,7 +124,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         if (getExecutionContext() != null) {
             this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
             this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
-            this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
+            this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService(), getServiceProvider().touService()));
             this.completeOutsideComWindow();
         } else {
             this.releaseToken();
@@ -162,7 +175,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
      * @return A flag that indicates a successful locking of the ConnectionTask
      */
     protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
-        return this.getComServerDAO().attemptLock(connectionTask, this.getComPort().getComServer()) != null;
+        return this.getComServerDAO().attemptLock(connectionTask, this.getComPort()) != null;
     }
 
     protected void unlock(ScheduledConnectionTask connectionTask) {

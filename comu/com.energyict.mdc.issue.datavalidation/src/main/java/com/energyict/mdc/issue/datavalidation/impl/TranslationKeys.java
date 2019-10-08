@@ -28,7 +28,8 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
     CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
-    DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES("deviceLifecycleInDeviceStates", "Device lifecycle state in device type ")
+    DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES("deviceLifecycleInDeviceStates", "Device lifecycle state in device type "),
+    CLOSE_ACTION_DEVICE_EXCLUDED_FROM_CLOSING("action.issue.close.device.excluded", "Device ''{0}'' is excluded from autoclosure"),
     ;
 
     private final String key;

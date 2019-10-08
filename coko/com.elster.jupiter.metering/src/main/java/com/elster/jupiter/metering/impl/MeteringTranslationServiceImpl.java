@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,6 +24,11 @@ class MeteringTranslationServiceImpl implements MeteringTranslationService {
 
     MeteringTranslationServiceImpl(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+    }
+
+    @Override
+    public String getDisplayName(DefaultState state) {
+        return this.thesaurus.getFormat(state).format();
     }
 
     @Override

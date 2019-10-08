@@ -238,7 +238,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         if (waitingOnly) {
             sqlBuilder.append(" and nextexecutiontimestamp >");
             sqlBuilder.addLong(this.toSeconds(this.deviceDataModelService.clock().instant()));
-            sqlBuilder.append(" and ct.comserver is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
+            sqlBuilder.append(" and ct.comport is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
         } else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
             sqlBuilder.append(" and ct.lastsession is not null ");

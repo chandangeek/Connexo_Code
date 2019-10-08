@@ -14,7 +14,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 

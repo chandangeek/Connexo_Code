@@ -85,6 +85,7 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -211,7 +212,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new CalendarModule(),
                 new TopologyModule(),
                 new PkiModule(),
-                new MeteringZoneModule());
+                new MeteringZoneModule(),
+                new TimeOfUseCampaignModule());
         initializeTopModuleInATransaction();
     }
 

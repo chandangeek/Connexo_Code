@@ -373,13 +373,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
+    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComPort comPort) {
         try {
-            return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer);
+            return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comPort);
         } catch (OptimisticLockException e) {
             Optional reloaded = refreshConnectionTask(connectionTask);
             if (reloaded.isPresent()) {
-                return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
+                return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comPort);
             }
             return null;
         }
@@ -578,8 +578,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
-        return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer) != null;
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
+        return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comPort) != null;
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
@@ -613,12 +613,12 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted(final ConnectionTask connectionTask, final ComPort comPort) {
         return executeTransaction(() -> {
             Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
             if (lockedConnectionTask.isPresent()) {
                 ConnectionTask connectionTask1 = lockedConnectionTask.get();
-                connectionTask1.executionStarted(comServer);
+                connectionTask1.executionStarted(comPort);
                 return connectionTask1;
             }
             return null;
@@ -699,6 +699,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         getCommunicationTaskService().executionRescheduled(comTaskExecution, rescheduleDate);
     }
 
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        getCommunicationTaskService().executionRescheduledToComWindow(comTaskExecution, comWindowStartDate);
+    }
+
     @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
         boolean connectionTaskWasNotLocked = true;
@@ -723,56 +727,35 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void releaseInterruptedTasks(final ComServer comServer) {
+    public void releaseInterruptedTasks(final ComPort comPort) {
         executeTransaction(() -> {
-            getConnectionTaskService().releaseInterruptedConnectionTasks(comServer);
-            getCommunicationTaskService().releaseInterruptedComTasks(comServer);
+            getConnectionTaskService().releaseInterruptedConnectionTasks(comPort);
+            getCommunicationTaskService().releaseInterruptedComTasks(comPort);
             return null;
         });
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks(final ComServer comServer) {
+    public TimeDuration releaseTimedOutTasks(final ComPort comPort) {
         return executeTransaction(() -> {
-            getConnectionTaskService().releaseTimedOutConnectionTasks(comServer);
-            return getCommunicationTaskService().releaseTimedOutComTasks(comServer);
+            getConnectionTaskService().releaseTimedOutConnectionTasks(comPort);
+            return getCommunicationTaskService().releaseTimedOutComTasks(comPort);
         });
     }
 
     @Override
     public void releaseTasksFor(final ComPort comPort) {
         executeTransaction(() -> {
-            //first of all, lock the comserver object so you don't run into a deadlock
-            ComServer lockedComServer = getEngineModelService().lockComServer(comPort.getComServer());
+            //first of all, lock the comport object so you don't run into a deadlock
+            ComPort lockedComPort = getEngineModelService().lockComPort(comPort);
 
             List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
             Set<ConnectionTask> lockedConnectionTasks = new HashSet<>();
+            lockedConnectionTasks.addAll(getLockedByComPort(comPort));
 
-            if (comTaskExecutionsWhichAreExecuting.isEmpty()) {
-                // There are no ComTaskExec locked for this com port,
-                // so we might be in the case where only the connection task is locked
-                lockedConnectionTasks.addAll(getLockedByComServer(comPort.getComServer()));
-            } else {
-                for (ComTaskExecution comTaskExecution : comTaskExecutionsWhichAreExecuting) {
-                    if (comTaskExecution.getConnectionTask().isPresent()) {
-                        lockedConnectionTasks.add(comTaskExecution.getConnectionTask().get());
-                        try {
-                            getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
-                        } catch (Throwable t) {
-                            LOGGER.severe("Could not unlock comTask due to: " + t.getMessage());
-                        }
-                    }
-                }
-            }
+            unlockComTasks(comPort, lockedConnectionTasks);
+            unlockConnectionTasks(comPort, lockedConnectionTasks);
 
-            // unlock the connection tasks (after all affected ComTaskExecs are unlocked)
-            for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
-                try {
-                    unlock(lockedConnectionTask);
-                } catch (Throwable t) {
-                    LOGGER.severe("Could not unlock connectionTask due to: " + t.getMessage());
-                }
-            }
             return null;
         });
     }
@@ -782,19 +765,44 @@ public class ComServerDAOImpl implements ComServerDAO {
      * <p>
      * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
      * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
-     * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
+     * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session
      */
-    private void unlockAllTasksByComPort(ComPort otherComPort) {
-        for (ComTaskExecution otherComTaskExec : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(otherComPort)) {
-            getCommunicationTaskService().unlockComTaskExecution(otherComTaskExec);
+    private void unlockComTasks(ComPort comPort, Set<ConnectionTask> lockedConnectionTasks) {
+        int unlockedCount = 0;
+
+        for (ComTaskExecution comTaskExecution : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort)) {
+            if (comTaskExecution.getConnectionTask().isPresent()) {
+                lockedConnectionTasks.add(comTaskExecution.getConnectionTask().get());
+                try {
+                    getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
+                    ++unlockedCount;
+                } catch (Throwable t) {
+                    LOGGER.severe("Could not unlock comTask due to: " + t.getMessage());
+                }
+            }
         }
+        LOGGER.info("Unlocked " + unlockedCount + " comTasks on comPort " + comPort);
+    }
+
+    private void unlockConnectionTasks(ComPort comPort, Set<ConnectionTask> lockedConnectionTasks) {
+        int unlockedCount = 0;
+
+        for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
+            try {
+                unlock(lockedConnectionTask);
+                ++unlockedCount;
+            } catch (Throwable t) {
+                LOGGER.severe("Could not unlock connectionTask due to: " + t.getMessage());
+            }
+        }
+        LOGGER.info("Unlocked " + unlockedCount + " connectionTasks on comPort " + comPort);
     }
 
     /**
-     * Find connections locked by a comServer
+     * Find connections locked by a comPort
      */
-    private List<ConnectionTask> getLockedByComServer(ComServer comServer) {
-        return getConnectionTaskService().findLockedByComServer(comServer);
+    private List<ConnectionTask> getLockedByComPort(ComPort comPort) {
+        return getConnectionTaskService().findLockedByComPort(comPort);
     }
 
     @Override
@@ -1284,7 +1292,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedFirmwareVersions.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
-            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider.firmwareService(), serviceProvider.clock());
+            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider.firmwareService(), serviceProvider.clock(), serviceProvider.deviceConfigurationService());
             firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
             firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
             firmwareStorage.updateAuxiliaryFirmwareVersion(collectedFirmwareVersions.getActiveAuxiliaryFirmwareVersion(), device);

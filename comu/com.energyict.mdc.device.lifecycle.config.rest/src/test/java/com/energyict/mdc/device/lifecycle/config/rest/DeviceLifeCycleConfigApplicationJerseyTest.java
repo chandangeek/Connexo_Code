@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
@@ -24,7 +25,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
@@ -85,6 +86,8 @@ public abstract class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRe
     protected BpmService bpmService;
     @Mock
     protected EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    protected MeteringTranslationService meteringTranslationService;
 
     @Override
     protected Application getApplication() {
@@ -94,6 +97,7 @@ public abstract class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRe
         application.setUserService(userService);
         application.setNlsService(nlsService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setMeteringTranslationService(meteringTranslationService);
         application.setFiniteStateMachineService(finiteStateMachineService);
         application.setEventService(eventService);
         application.setBpmService(bpmService);
@@ -129,7 +133,7 @@ public abstract class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRe
     }
 
     private void mockTranslationFor(DefaultState state) {
-        when(this.deviceLifeCycleConfigurationService.getDisplayName(state)).thenReturn(state.getDefaultFormat());
+        when(this.meteringTranslationService.getDisplayName(state)).thenReturn(state.getDefaultFormat());
     }
 
     // Common mocks for device lifecycle configuration

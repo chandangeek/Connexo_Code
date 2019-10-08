@@ -524,17 +524,17 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign){
+    public Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign) {
         return dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName(), firmwareCampaign);
     }
 
     @Override
-    public void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware){
+    public void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware) {
         dataModel.getInstance(FirmwareCampaignVersionSnapshotImpl.class).init(firmwareCampaign, foundFirmware).save();
     }
 
     @Override
-    public List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign){
+    public List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign) {
         return dataModel.query(FirmwareCampaignVersionStateShapshot.class).select(where("firmwareCampaign").isEqualTo(firmwareCampaign));
     }
 
@@ -605,7 +605,12 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device) {
-        return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
+        return getFirmwareManagementDeviceUtilsFor(device, false);
+    }
+
+    @Override
+    public FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device, boolean onlyLastMessagePerFirmwareType) {
+        return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device, onlyLastMessagePerFirmwareType);
     }
 
     @Override
@@ -885,7 +890,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public Optional<com.energyict.mdc.common.protocol.DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
-                                                                                                             FirmwareVersion firmwareVersion) {
+                                                                                                FirmwareVersion firmwareVersion) {
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
         if (firmwareMessageId.isPresent()) {
             return deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.get().dbValue());
