@@ -54,7 +54,6 @@ import com.energyict.mdc.upl.io.SocketService;
 import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.obis.ObisCode;
-import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
@@ -119,9 +118,6 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         com.jidesoft.utils.Lm.verifyLicense("Energy ICT", "EIServer", "df3o1B.Aze:sq7r6fOi:n9xHSRMHfcJ");
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
 
-        // Actually we don't need a MeteringWarehouse cause we are offline, but this does proper initialization of the UserEnvironment
-//        MeteringWarehouse.createContext(true);
-
         // To handle the registry configuration
         RegistryConfiguration.createDefault(OfflineFrame.class, ComServerMobileGuiJConfigEntries.getMap());
 
@@ -161,7 +157,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
                 ClassLoader tccl = Thread.currentThread().getContextClassLoader();
                 Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
                 try {
-                    UIManager.setLookAndFeel(WindowsLookAndFeel.class.getName());
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     mainFrame = new OfflineFrame(new RunningComServerServiceProvider());
                     mainFrame.setVisible(false);
                     UserEnvironment.getDefault().put(mainFrame.getClass().getName(), mainFrame);

@@ -22,13 +22,12 @@ public class ComServerMobileGuiJConfigEntries {
     private static final String DATA_FILES_DIRECTORY = "datafilesdirectory";
     private static final String TEMP_SYSTEM_FILES_DIRECTORY = "tempsystemfilesdirectory";
     private static final String TEMP_DATA_FILES_DIRECTORY = "tempdatafilesdirectory";
-    private static final String CONFIG_DIRECTORY = "config";
     private static final String DATA_DIRECTORY = "data";
 
     static {
-        map.put(SYSTEM_FILES_DIRECTORY, new ConfigEntry(SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + CONFIG_DIRECTORY));
+        map.put(SYSTEM_FILES_DIRECTORY, new ConfigEntry(SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
         map.put(DATA_FILES_DIRECTORY, new ConfigEntry(DATA_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForDataFiles"),ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
-        map.put(TEMP_SYSTEM_FILES_DIRECTORY, new ConfigEntry(TEMP_SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + CONFIG_DIRECTORY));
+        map.put(TEMP_SYSTEM_FILES_DIRECTORY, new ConfigEntry(TEMP_SYSTEM_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForSystemFiles"), ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
         map.put(TEMP_DATA_FILES_DIRECTORY, new ConfigEntry(TEMP_DATA_FILES_DIRECTORY, UiHelper.translate("mmr.workingDirectoryForDataFiles"),ConfigEntry.TYPE_FILESTRING, getWorkingDir() + DATA_DIRECTORY));
     }
 
