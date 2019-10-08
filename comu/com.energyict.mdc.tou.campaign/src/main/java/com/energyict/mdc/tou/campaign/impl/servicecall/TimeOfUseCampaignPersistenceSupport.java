@@ -164,6 +164,7 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .installValue("'N'")
                 .bool()
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName())
+                .notNull()
                 .since(Version.version(10, 7))
                 .add();
     }
