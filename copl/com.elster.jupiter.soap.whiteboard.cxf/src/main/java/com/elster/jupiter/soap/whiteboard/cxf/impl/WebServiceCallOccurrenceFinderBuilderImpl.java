@@ -94,7 +94,8 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     @Override
     public WebServiceCallOccurrenceFinderBuilder withRelatedObject(WebServiceCallRelatedObject relatedObject){
         this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObjectBinding.class)
-                .asSubquery(this.subCondition.and(where("type").isEqualTo(relatedObject)), "occurrence"), "id"));
+                .asSubquery(this.subCondition.and(where(WebServiceCallRelatedObjectBindingImpl.Fields.TYPE.fieldName()).isEqualTo(relatedObject)),
+                        WebServiceCallRelatedObjectBindingImpl.Fields.OCCURRENCE.fieldName()), WebServiceCallRelatedObjectBindingImpl.Fields.ID.fieldName()));
         return this;
     }
 

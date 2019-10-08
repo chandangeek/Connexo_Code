@@ -214,7 +214,7 @@ WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageS
     };
 
     public void removeAttributesTypes(WebServiceCallRelatedObjectTypeProvider provider){
-        //TO-DO implement removing
+        //Emtpy. Needed just for OSGI framework.
     }
 
     private Module getModule(String logDirectory) {

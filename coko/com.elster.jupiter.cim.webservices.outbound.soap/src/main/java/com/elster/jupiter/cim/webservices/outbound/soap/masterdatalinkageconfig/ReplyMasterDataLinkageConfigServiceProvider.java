@@ -73,8 +73,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	}
 
 	@Override
-	public void
-	call(EndPointConfiguration endPointConfiguration, String operation,
+	public void	call(EndPointConfiguration endPointConfiguration, String operation,
 			List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
 			BigDecimal expectedNumberOfCalls, String correlationId) {
 		String method;
