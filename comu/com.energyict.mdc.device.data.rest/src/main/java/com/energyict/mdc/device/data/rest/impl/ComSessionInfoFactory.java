@@ -81,7 +81,7 @@ public class ComSessionInfoFactory {
                 && comSession.getComTaskExecutionSessions().stream().allMatch(comTaskExecutionSession -> comTaskExecutionSession.getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Success))) {
             return thesaurus.getFormat(ComSessionSuccessIndicatorTranslationKeys.SUCCESS).format();
         }
-        if (successIndicator.equals(ComSession.SuccessIndicator.NotExecuted)) {
+        if (successIndicator.equals(ComSession.SuccessIndicator.Not_Executed)) {
             return thesaurus.getFormat(CompletionCodeTranslationKeys.NOT_EXECUTED).format();
         }
         return thesaurus.getFormat(DefaultTranslationKey.FAILURE).format();

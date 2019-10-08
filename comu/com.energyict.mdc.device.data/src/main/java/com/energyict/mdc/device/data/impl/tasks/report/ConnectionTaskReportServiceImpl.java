@@ -398,7 +398,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         long failureSetupError = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.SetupError));
         long failureBroken = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.Broken));
         long failureInterrupted = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.Interrupted));
-        long failureNotExecuted = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.NotExecuted));
+        long failureNotExecuted = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.Not_Executed));
         return Arrays.asList(atLeastOneFailure, completeSuccess, failureSetupError, failureBroken, failureInterrupted, failureNotExecuted);
     }
 
@@ -417,7 +417,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.SetupError);
         addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Broken);
         addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Interrupted);
-        addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.NotExecuted);
+        addSuccessIndicatorCounter(counters, successIndicatorCounters, ComSession.SuccessIndicator.Not_Executed);
         return counters;
     }
 
@@ -612,7 +612,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         return Arrays.asList(ComSession.SuccessIndicator.SetupError,
                 ComSession.SuccessIndicator.Broken,
                 ComSession.SuccessIndicator.Interrupted,
-                ComSession.SuccessIndicator.NotExecuted
+                ComSession.SuccessIndicator.Not_Executed
         );
     }
 

@@ -33,7 +33,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
         SetupError,
         Broken,
         Interrupted,
-        NotExecuted;
+        Not_Executed;
 
         public static Set<SuccessIndicator> unSuccessful () {
             return EnumSet.of(SetupError, Broken);

@@ -376,7 +376,7 @@ public abstract class JobExecution implements ScheduledJob {
     public void reschedule() {
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
         if (commandRoot.hasConnectionNotExecuted()) {
-            successIndicator = ComSession.SuccessIndicator.NotExecuted;
+            successIndicator = ComSession.SuccessIndicator.Not_Executed;
         } else if (commandRoot.hasConnectionSetupError()) {
             successIndicator = ComSession.SuccessIndicator.SetupError;
         } else if (commandRoot.hasConnectionErrorOccurred()) {
@@ -387,7 +387,7 @@ public abstract class JobExecution implements ScheduledJob {
             successIndicator = ComSession.SuccessIndicator.Interrupted;
         }
 
-        if (successIndicator.equals(ComSession.SuccessIndicator.Success) || successIndicator.equals(ComSession.SuccessIndicator.NotExecuted)) {
+        if (successIndicator.equals(ComSession.SuccessIndicator.Success) || successIndicator.equals(ComSession.SuccessIndicator.Not_Executed)) {
             rescheduleSuccess(successIndicator);
         } else {
             rescheduleFailure(successIndicator);

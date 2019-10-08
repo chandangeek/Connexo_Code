@@ -380,7 +380,7 @@ public class DashboardServiceImpl implements DashboardService {
                 ComSession.SuccessIndicator.SetupError,
                 ComSession.SuccessIndicator.Broken,
                 ComSession.SuccessIndicator.Interrupted,
-                ComSession.SuccessIndicator.NotExecuted);
+                ComSession.SuccessIndicator.Not_Executed);
     }
 
     private List<ComTask> availableComTasks() {

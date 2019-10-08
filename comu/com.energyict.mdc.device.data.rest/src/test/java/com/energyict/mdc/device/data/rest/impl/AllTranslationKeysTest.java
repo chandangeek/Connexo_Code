@@ -26,11 +26,11 @@ public class AllTranslationKeysTest {
     public void testTranslationKeysAreUnique() throws Exception {
         Map<String, TranslationKey> uniqueKeys = new HashMap<>();
         for (TranslationKey translationKey : new DeviceApplication().getKeys()) {
+            System.out.println("Checking " + translationKey.getKey() + " -> " + toString(translationKey));
             if (uniqueKeys.containsKey(translationKey.getKey())) {
                 TranslationKey duplicate = uniqueKeys.get(translationKey.getKey());
                 fail("Translation key:" + this.toString(translationKey) + " is a duplicate for " + this.toString(duplicate));
-            }
-            else {
+            } else {
                 uniqueKeys.put(translationKey.getKey(), translationKey);
             }
         }

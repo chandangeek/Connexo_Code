@@ -22,7 +22,7 @@ public class SuccessIndicatorTaskCounterInfoComparator implements java.util.Comp
         successIndicatorSortingMap.put(ComSession.SuccessIndicator.Broken.name(), 3);
         successIndicatorSortingMap.put(ComSession.SuccessIndicator.SetupError.name(), 4);
         successIndicatorSortingMap.put(ComSession.SuccessIndicator.Interrupted.name(), 5);
-        successIndicatorSortingMap.put(ComSession.SuccessIndicator.NotExecuted.name(), 6);
+        successIndicatorSortingMap.put(ComSession.SuccessIndicator.Not_Executed.name(), 6);
     }
 
     @Override
