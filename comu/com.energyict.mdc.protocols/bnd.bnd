@@ -1,6 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
 Export-Package: com.energyict.dlms,\
+               com.energyict.protocolimplv2.dlms.idis.am540,\
                com.energyict.protocols.naming,\
                com.energyict.mdc.protocols.tasks,\
                com.energyict.mdc.channels.ip.*,\
