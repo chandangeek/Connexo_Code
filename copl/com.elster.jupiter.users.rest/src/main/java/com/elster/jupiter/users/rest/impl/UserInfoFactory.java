@@ -22,7 +22,6 @@ import java.util.List;
 
 /**
  * Factory class to create Info objects. This class will register on the InfoFactoryWhiteboard and is used by DynamicSearch.
- * Created by bvn on 6/9/15.
  */
 @Component(name = "user.info.factory", service = {InfoFactory.class}, immediate = true)
 public class UserInfoFactory implements InfoFactory<User> {
@@ -79,10 +78,10 @@ public class UserInfoFactory implements InfoFactory<User> {
         infos.add(createDescription(TranslationSeeds.STATUS, String.class));
         infos.add(createDescription(TranslationSeeds.DOMAIN, Group.class));
         infos.add(createDescription(TranslationSeeds.LANGUAGE, String.class));
-        infos.add(createDescription(TranslationSeeds.CREATETIME, Instant.class));
-        infos.add(createDescription(TranslationSeeds.MODTIME, Instant.class));
-        infos.add(createDescription(TranslationSeeds.LASTSUCCESSFULLOGIN, Instant.class));
-        infos.add(createDescription(TranslationSeeds.LASTUNSUCCESSFULLOGIN, Instant.class));
+        infos.add(createDescription(TranslationSeeds.CREATETIME, String.class));
+        infos.add(createDescription(TranslationSeeds.MODTIME, String.class));
+        infos.add(createDescription(TranslationSeeds.LASTSUCCESSFULLOGIN, String.class));
+        infos.add(createDescription(TranslationSeeds.LASTUNSUCCESSFULLOGIN, String.class));
         return infos;
     }
 
