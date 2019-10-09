@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InstallerV1;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
 
 import javax.inject.Inject;
 import java.sql.Statement;
@@ -59,7 +60,21 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void migrateSql() {
-        String sql = "DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension'";
+        String FK = "FK_CPS_" + Math.abs("com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension".hashCode());
+        String sql =
+        "BEGIN " +
+        "  BEGIN " +
+        "   EXECUTE IMMEDIATE 'ALTER TABLE GMR_METER_READINGS_SC_CPS DROP CONSTRAINT " + FK + "'; " +
+        "   EXECUTE IMMEDIATE 'ALTER TABLE GMR_METER_READINGS_SC_CPS ADD CONSTRAINT " + FK + " FOREIGN KEY (CPS) REFERENCES CPS_REGISTERED_CUSTOMPROPSET(ID) ON DELETE CASCADE'; " +
+        "  EXCEPTION " +
+        "   WHEN OTHERS THEN " +
+        "       IF SQLCODE != -942 THEN " +
+        "               RAISE; " +
+        "       END IF; " +
+        "  END; "+
+        "  DELETE FROM CPS_REGISTERED_CUSTOMPROPSET where LOGICALID = 'com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension'; "+
+        "END; ";
+
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 execute(statement, sql);

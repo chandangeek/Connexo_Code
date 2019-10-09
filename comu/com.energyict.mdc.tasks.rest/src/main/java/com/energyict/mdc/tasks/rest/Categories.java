@@ -474,8 +474,9 @@ public enum Categories {
                 ParameterInfo maxClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(basicCheckTask.getMaximumClockDifference().get().getTimeUnitCode()));
                 maxClockDifferenceValue.value = basicCheckTask.getMaximumClockDifference().get().getCount();
                 maxClockDifference.value = maxClockDifferenceValue;
+                protocolTaskParameters.add(maxClockDifference);
             }
-            protocolTaskParameters.add(maxClockDifference);
+
 
             return protocolTaskParameters;
         }

@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300.messages;
 
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -20,6 +23,7 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -100,6 +104,8 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
             changePSKKEK(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WRITE_ADP_LQI_RANGE)) {
             writeADPLQIRange(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
+            collectedMessage = this.readDlmsAttribute(collectedMessage, pendingMessage);
         } else {    // Unsupported message
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -108,7 +114,7 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
         return collectedMessage;
     }
 
-    private void writeG3PLCBandplan(OfflineDeviceMessage pendingMessage) throws IOException {
+        private void writeG3PLCBandplan(OfflineDeviceMessage pendingMessage) throws IOException {
         final PLCConfigurationDeviceMessage.PLCBandplanType bandplan = PLCConfigurationDeviceMessage.PLCBandplanType.entryForDescription(
                 MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.G3_PLC_BANDPLAN).getValue()
         );
@@ -164,4 +170,25 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
         adpLQIRange.setValueAttr(adpLQIRangeValue);
     }
 
+    private CollectedMessage readDlmsAttribute(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        String obisCodeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.obisCode).getValue();
+        int attributeId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.attributeId).getValue());
+        int classId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.classId).getValue());
+
+        obisCodeString = obisCodeString.replace(":", ".").replace("-", ".").replace(" ", "");
+        ObisCode obisCode = ObisCode.fromString(obisCodeString);
+
+        DLMSAttribute dlmsAttribute = new DLMSAttribute(obisCode, attributeId, classId);
+
+        try {
+            ComposedCosemObject composeObject = getCosemObjectFactory().getComposedCosemObject(dlmsAttribute);
+            AbstractDataType abstractDataType = composeObject.getAttribute(dlmsAttribute);
+            collectedMessage.setDeviceProtocolInformation(abstractDataType.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            collectedMessage.setDeviceProtocolInformation(e.toString());
+        }
+
+        return collectedMessage;
+    }
 }
