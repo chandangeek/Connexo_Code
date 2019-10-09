@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 
 public class ChangeDeviceTest extends AbstractMockMeterConfig {
     private static final String METER = "SPE0000001";
-    private static final String OK_MSG = "I'm okay. And you?";
+    private static final String IN_STOCK_MSG = "dlc.default.inStock";
     private static final String SECURITY_ACCESSOR_NAME = "my security accessor name";
 
     private ExecuteMeterConfigEndpoint executeMeterConfigEndpoint;
@@ -180,7 +180,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.translate(thesaurus, METER, OK_MSG));
+                    .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.translate(thesaurus, METER, IN_STOCK_MSG));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
