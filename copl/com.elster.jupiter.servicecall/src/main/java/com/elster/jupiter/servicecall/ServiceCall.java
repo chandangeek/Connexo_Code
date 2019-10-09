@@ -83,4 +83,6 @@ public interface ServiceCall extends HasId {
     void delete();
 
     boolean canTransitionTo(DefaultState targetState);
+
+    void transitionWithLockIfPossible(DefaultState state);
 }

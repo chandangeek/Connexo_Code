@@ -13,12 +13,10 @@ import javax.inject.Inject;
 import static com.elster.jupiter.orm.Version.version;
 
 public class UpgraderV10_7_1 implements Upgrader {
-
     private final DataModel dataModel;
 
-
     @Inject
-    UpgraderV10_7_1(DataModel dataModel) {
+    public UpgraderV10_7_1(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -26,5 +24,4 @@ public class UpgraderV10_7_1 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 7, 1));
     }
-
 }

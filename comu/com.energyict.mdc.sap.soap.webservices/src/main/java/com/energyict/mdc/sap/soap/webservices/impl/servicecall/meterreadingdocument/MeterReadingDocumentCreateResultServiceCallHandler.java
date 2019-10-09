@@ -9,7 +9,6 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
@@ -44,10 +43,12 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
+                serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
                 break;
             case ONGOING:
-                executeReasonCodeProvider(serviceCall);
+                if (!oldState.equals(DefaultState.WAITING)) {
+                    executeReasonCodeProvider(serviceCall);
+                }
                 break;
             default:
                 break;
@@ -60,26 +61,19 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
         if (domainExtension.isFutureCase() && domainExtension.getProcessingDate().isAfter(clock.instant())) {
-            serviceCall.requestTransition(DefaultState.PAUSED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
         } else if (domainExtension.getChannelId() == null) {
             serviceCall.log(LogLevel.SEVERE, "Channel/register id is null");
-            serviceCall.requestTransition(DefaultState.FAILED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
             Optional.of(domainExtension)
                     .map(MeterReadingDocumentCreateResultDomainExtension::getReadingReasonCode)
-                    .map(this::findReadingReasonProvider)
+                    .map(WebServiceActivator::findReadingReasonProvider)
                     .map(Optional::get)
                     .orElseThrow(() -> new IllegalStateException("Unable to get reading reason provider for service call"))
-                    .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService)
+                    .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock)
                             .from(serviceCall, WebServiceActivator.SAP_PROPERTIES)
                             .build());
         }
-    }
-
-    private Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
-        return WebServiceActivator.METER_READING_REASONS
-                .stream()
-                .filter(readingReason -> readingReason.getCode().equals(readingReasonCode))
-                .findFirst();
     }
 }

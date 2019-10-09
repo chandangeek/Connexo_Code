@@ -351,4 +351,14 @@ public class ServiceCallImpl implements ServiceCall {
     public boolean canTransitionTo(DefaultState targetState) {
         return getType().getServiceCallLifeCycle().canTransition(getState(), targetState);
     }
+
+    @Override
+    public void transitionWithLockIfPossible(DefaultState state) {
+        if (canTransitionTo(state)) {
+            ServiceCall serviceCall = serviceCallService.lockServiceCall(this.getId()).get();
+            if (serviceCall.canTransitionTo(state)) {
+                serviceCall.requestTransition(state);
+            }
+        }
+    }
 }
