@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 public enum InboundServices {
 
     SAP_STATUS_CHANGE_REQUEST_CREATE("SapStatusChangeRequestCreate"),
+    SAP_STATUS_CHANGE_REQUEST_BULK_CREATE("SAP StatusChangeRequestBulkCreate"),
 
     SAP_METER_READING_CREATE_REQUEST("SapMeterReadingRequest"),
     SAP_METER_READING_CREATE_BULK_REQUEST("SapMeterReadingBulkRequest"),

@@ -21,6 +21,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestServiceCallHandler;
@@ -44,6 +47,12 @@ public enum ServiceCallTypes {
             ConnectionStatusChangeServiceCallHandler.APPLICATION,
             ConnectionStatusChangeCustomPropertySet.class.getSimpleName(),
             ConnectionStatusChangeDomainExtension.class.getName()),
+    MASTER_CONNECTION_STATUS_CHANGE(
+            MasterConnectionStatusChangeServiceCallHandler.NAME,
+            MasterConnectionStatusChangeServiceCallHandler.VERSION,
+            MasterConnectionStatusChangeServiceCallHandler.APPLICATION,
+            MasterConnectionStatusChangeCustomPropertySet.class.getSimpleName(),
+            MasterConnectionStatusChangeDomainExtension.class.getName()),
     MASTER_METER_READING_DOCUMENT_CREATE_REQUEST(
             MasterMeterReadingDocumentCreateRequestServiceCallHandler.NAME,
             MasterMeterReadingDocumentCreateRequestServiceCallHandler.VERSION,

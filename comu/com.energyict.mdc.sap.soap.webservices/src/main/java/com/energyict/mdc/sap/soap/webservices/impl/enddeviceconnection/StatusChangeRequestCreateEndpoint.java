@@ -26,7 +26,7 @@ public class StatusChangeRequestCreateEndpoint extends AbstractInboundEndPoint i
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> serviceCallCommands.createServiceCallAndTransition(
-                            StatusChangeRequestCreateMessage.builder().from(requestMessage).build()));
+                            StatusChangeRequestCreateMessage.builder().from(requestMessage).setBulk(false).build()));
             return null;
         });
     }

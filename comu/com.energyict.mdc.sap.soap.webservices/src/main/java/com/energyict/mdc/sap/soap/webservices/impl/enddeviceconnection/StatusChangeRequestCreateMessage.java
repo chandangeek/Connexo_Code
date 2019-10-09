@@ -26,8 +26,18 @@ public class StatusChangeRequestCreateMessage {
     private String id;
     private String categoryCode;
     private String utilitiesServiceDisconnectionReasonCode;
+    private boolean bulk;
 
     private StatusChangeRequestCreateMessage() {
+    }
+
+    public StatusChangeRequestCreateMessage(String id, String categoryCode, String utilitiesServiceDisconnectionReasonCode, Instant plannedProcessingDateTime, Map<String, String> deviceConnectionStatus, boolean bulk) {
+        this.id = id;
+        this.categoryCode = categoryCode;
+        this.utilitiesServiceDisconnectionReasonCode = utilitiesServiceDisconnectionReasonCode;
+        this.plannedProcessingDateTime = plannedProcessingDateTime;
+        this.deviceConnectionStatus = deviceConnectionStatus;
+        this.bulk = bulk;
     }
 
     public String getId() {
@@ -48,6 +58,10 @@ public class StatusChangeRequestCreateMessage {
 
     public String getUtilitiesServiceDisconnectionReasonCode() {
         return utilitiesServiceDisconnectionReasonCode;
+    }
+
+    public boolean isBulk() {
+        return bulk;
     }
 
     public boolean isValid() {
@@ -73,6 +87,11 @@ public class StatusChangeRequestCreateMessage {
                         setPlannedProcessingDateTime(statusChangeRequest.getPlannedProcessingDateTime());
                         setDeviceConnectionStatus(getDeviceConnectionStatus(statusChangeRequest));
                     });
+            return this;
+        }
+
+        public Builder setBulk(boolean bulk) {
+            StatusChangeRequestCreateMessage.this.bulk = bulk;
             return this;
         }
 

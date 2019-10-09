@@ -52,6 +52,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecr
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestEndpoint;
@@ -136,6 +137,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final Map<AdditionalProperties, Integer> SAP_PROPERTIES = new HashMap<>();
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<StatusChangeRequestBulkCreateConfirmation> STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCancellationConfirmation> STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentRequestConfirmation> METER_READING_DOCUMENT_REQUEST_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentBulkRequestConfirmation> METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -330,7 +332,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::addCustomPropertySet);
 
         upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
-                ImmutableMap.of(version(10, 7), UpgraderV10_7.class));
+                ImmutableMap.of(version(10, 7), UpgraderV10_7.class,
+                        version(10, 7, 1), UpgraderV10_7_1.class));
 
         registerServices(bundleContext);
 
@@ -442,6 +445,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeasurementTaskAssignmentChangeRequestEndpoint.class),
                 InboundServices.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(StatusChangeRequestBulkCreateEndpoint.class),
+                InboundServices.SAP_STATUS_CHANGE_REQUEST_BULK_CREATE.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -467,6 +473,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeStatusChangeRequestCreateConfirmation(StatusChangeRequestCreateConfirmation statusChangeRequestCreateConfirmation) {
         STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.remove(statusChangeRequestCreateConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addStatusChangeRequestBulkCreateConfirmation(StatusChangeRequestBulkCreateConfirmation statusChangeRequestBulkCreateConfirmation) {
+        STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.add(statusChangeRequestBulkCreateConfirmation);
+    }
+
+    public void removeStatusChangeRequestBulkCreateConfirmation(StatusChangeRequestBulkCreateConfirmation statusChangeRequestBulkCreateConfirmation) {
+        STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.remove(statusChangeRequestBulkCreateConfirmation);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

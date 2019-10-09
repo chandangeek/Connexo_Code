@@ -312,6 +312,57 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>SmartMeterConnectionStatusChangeRequestCreateConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>SmartMeterConnectionStatusChangeRequestBulkCreate</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>SmartMeterConnectionStatusChangeRequestBulkCreateConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>SmartMeterConnectionStatusCancellationRequest</id>
                         <goals>
                             <goal>wsimport</goal>
@@ -342,23 +393,6 @@
                             <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation
-                            </packageName>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>SmartMeterConnectionStatusChangeRequestCreateConfirmation</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <wsdlFiles>
-                                <wsdlFile>
-                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_Out.wsdl
-                                </wsdlFile>
-                            </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_Out.wsdl</wsdlLocation>
-                            <packageName>
-                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation
                             </packageName>
                         </configuration>
                     </execution>

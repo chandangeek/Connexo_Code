@@ -136,6 +136,12 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
                         .named(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName(), TranslationKeys.PROCESS_DATE)
                         .describedAs(TranslationKeys.PROCESS_DATE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
