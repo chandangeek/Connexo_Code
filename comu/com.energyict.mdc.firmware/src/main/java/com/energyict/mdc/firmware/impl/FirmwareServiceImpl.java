@@ -919,9 +919,9 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public List<ServiceCallType> getTypes() {
         return Arrays.asList(serviceCallService.findServiceCallType(FirmwareCampaignServiceCallHandler.NAME, FirmwareCampaignServiceCallHandler.VERSION)
-                        .orElseThrow(() -> new IllegalStateException(thesaurus.getSimpleFormat(MessageSeeds.SC_TYPE_NOT_FOUND).format())),
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")),
                 serviceCallService.findServiceCallType(FirmwareCampaignItemServiceCallHandler.NAME, FirmwareCampaignItemServiceCallHandler.VERSION)
-                        .orElseThrow(() -> new IllegalStateException(thesaurus.getSimpleFormat(MessageSeeds.SC_TYPE_NOT_FOUND).format())));
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")));
     }
 
     @Override
