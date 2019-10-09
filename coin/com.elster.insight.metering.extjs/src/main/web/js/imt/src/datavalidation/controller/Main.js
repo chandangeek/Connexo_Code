@@ -51,32 +51,32 @@ Ext.define('Imt.datavalidation.controller.Main', {
             dataCollection = null,
             items = [];
 
-        if (Isu.privileges.Issue.canViewIssue()) {
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
 
-            items.push({
-                text: Uni.I18n.translate('general.issues', 'IMT', 'Issues'),
-                href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['usagepointdatavalidation']})
-            });
-
-            items.push({
-                text: Uni.I18n.translate('datavalidation.myOpenIssues', 'IMT', 'My open issues'),
-                itemId: 'datavalidation-my-open-issues',
-                href: router.getRoute('workspace/issues').buildUrl({}, {
-                    issueType: ['usagepointdatavalidation'],
-                    myopenissues: true,
-                    status: ['status.open', 'status.in.progress']
-                })
-            });
-
-            items.push({
-                text: Uni.I18n.translate('datavalidation.myWorkgroupsIssues', 'IMT', 'My workgroups issues'),
-                itemId: 'datavalidation-my-workgroup-issues',
-                href: router.getRoute('workspace/issues').buildUrl({}, {
-                    issueType: ['usagepointdatavalidation'],
-                    myworkgroupissues: true,
-                    status: ['status.open', 'status.in.progress']
-                })
-            });
+            if (Isu.privileges.Issue.canViewAdminDevice()) {
+                items.push({
+                    text: Uni.I18n.translate('general.issues', 'IMT', 'Issues'),
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['usagepointdatavalidation']})
+                });
+                items.push({
+                    text: Uni.I18n.translate('datavalidation.myOpenIssues', 'IMT', 'My open issues'),
+                    itemId: 'datavalidation-my-open-issues',
+                    href: router.getRoute('workspace/issues').buildUrl({}, {
+                        issueType: ['usagepointdatavalidation'],
+                        myopenissues: true,
+                        status: ['status.open', 'status.in.progress']
+                    })
+                });
+                items.push({
+                    text: Uni.I18n.translate('datavalidation.myWorkgroupsIssues', 'IMT', 'My workgroups issues'),
+                    itemId: 'datavalidation-my-workgroup-issues',
+                    href: router.getRoute('workspace/issues').buildUrl({}, {
+                        issueType: ['usagepointdatavalidation'],
+                        myworkgroupissues: true,
+                        status: ['status.open', 'status.in.progress']
+                    })
+                });
+            }
 
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.dataValidation', 'IMT', 'Data validation'),
