@@ -19,6 +19,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesConnectionStatusChangeRequestCategoryCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesConnectionStatusChangeRequestID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesConnectionStatusChangeResultCode;
@@ -130,9 +131,11 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     OBJECT_FACTORY.createUtilitiesConnectionStatusChangeRequestCategoryCode();
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody =
                     OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfMsg();
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq request = OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq();
 
-            messageBody.getUtilitiesConnectionStatusChangeRequest().setID(messageID);
-            messageBody.getUtilitiesConnectionStatusChangeRequest().setCategoryCode(messageCategoryCode);
+            request.setID(messageID);
+            request.setCategoryCode(messageCategoryCode);
+            messageBody.setUtilitiesConnectionStatusChangeRequest(request);
 
             return messageBody;
         }

@@ -13,11 +13,11 @@ import org.osgi.service.component.annotations.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component(name = MasterConnectionStatusChangeServiceCallHandler.NAME, service = ServiceCallHandler.class,
-        property = "name=" + MasterConnectionStatusChangeServiceCallHandler.NAME, immediate = true)
-public class MasterConnectionStatusChangeServiceCallHandler implements ServiceCallHandler {
+@Component(name = MasterConnectionStatusChange.NAME, service = ServiceCallHandler.class,
+        property = "name=" + MasterConnectionStatusChange.NAME, immediate = true)
+public class MasterConnectionStatusChange implements ServiceCallHandler {
 
-    public static final String NAME = " MasterConnectionStatusChangeServiceCallHandler";
+    public static final String NAME = "MasterConnectionStatusChange";
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 

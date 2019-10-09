@@ -10,7 +10,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestBulkCreateConfirmation;
-import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOutService;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 
 @Singleton
 @Component(name = "com.energyict.mdc.sap.statuschangerequestbulk.outbound.provider",
-        service = {StatusChangeRequestCreateConfirmation.class, OutboundSoapEndPointProvider.class}, immediate = true,
+        service = {StatusChangeRequestBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class}, immediate = true,
         property = {"name=" + StatusChangeRequestBulkCreateConfirmation.NAME})
 public class StatusChangeRequestBulkCreateConfirmationProvider extends AbstractOutboundEndPointProvider<SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOut> implements StatusChangeRequestBulkCreateConfirmation,
         OutboundSoapEndPointProvider, ApplicationSpecific {

@@ -80,6 +80,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultCustomPropertySet;
@@ -477,6 +479,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MasterMeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MeterRegisterChangeRequestDomainExtension.class.getName(),
                 new MeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterConnectionStatusChangeDomainExtension.class.getName(),
+                new MasterConnectionStatusChangeCustomPropertySet(thesaurus, propertySpecService));
+
         return customPropertySetsMap;
     }
 
