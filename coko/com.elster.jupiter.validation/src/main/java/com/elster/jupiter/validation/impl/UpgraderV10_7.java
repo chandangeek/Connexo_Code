@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.inject.Inject;
@@ -61,6 +60,5 @@ public class UpgraderV10_7 implements Upgrader {
                     channelValidationList.addAll(channelsContainerValidation.getChannelValidations());
                 });
         dataModel.mapper(ChannelsContainerValidation.class).remove(new ArrayList<>(channelsContainerValidations));
-        dataModel.mapper(ChannelValidation.class).remove(new ArrayList<>(channelValidationList));
     }
 }
