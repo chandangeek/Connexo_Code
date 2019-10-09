@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class ConnectionStatusChangePersistenceSupport implements PersistenceSupport<ServiceCall, ConnectionStatusChangeDomainExtension> {
@@ -91,6 +89,7 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
                 .bool()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName())
                 .notNull()
+                .installValue("'N'")
                 .since(Version.version(10, 7, 1))
                 .add();
     }
