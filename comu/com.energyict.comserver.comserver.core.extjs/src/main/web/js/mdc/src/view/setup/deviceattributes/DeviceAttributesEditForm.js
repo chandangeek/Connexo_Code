@@ -40,7 +40,9 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'name',
                 itemId: 'nameEdit',
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name')
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
+                required: true,
+                allowBlank: false
             },
             {
                 name: 'mrid',
@@ -238,7 +240,11 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'deviceDateFieldEdited',
                 itemId: 'installationDateEdit',
                 name: 'installationDateEdit',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.installationDate', 'MDC', 'Installation date')
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.installationDate', 'MDC', 'Installation date'),
+                renderer: function (value) {
+                    var me = this;
+                    return value;
+                }
             },
             {
                 name: 'deactivationDate',

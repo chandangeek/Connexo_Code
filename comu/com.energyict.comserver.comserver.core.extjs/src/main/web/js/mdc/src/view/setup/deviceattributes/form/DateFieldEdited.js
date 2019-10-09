@@ -3,27 +3,48 @@
  */
 
 Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
-    extend: 'Uni.form.field.DateTime',
+    extend: 'Ext.form.FieldContainer',
     xtype: 'deviceDateFieldEdited',
-    width: 450,
-    editable: false,
-    required: true,
-    layout: 'hbox',
-    dateConfig: {
-        width: 140
-    },
-    hoursConfig: {
-        width: 60
-    },
-    minutesConfig: {
-        width: 60
-    },
+    items: [{
+        xtype: 'date-time',
+        layout: 'hbox',
+        editable: false,
+        required: false,
+        width: 450,
+        dateConfig: {
+            width: 140
+        },
+        hoursConfig: {
+            width: 60
+        },
+        minutesConfig: {
+            width: 60
+        },
+    }],
 
     getTimeStampValue: function() {
-        if (this.getValue()) {
-            return this.getValue().getTime();
+        var dateTimeWidget = this.down('date-time');
+        if (dateTimeWidget && dateTimeWidget.getValue) {
+            return dateTimeWidget.getValue().getTime();
         } else {
             return null;
+        }
+    },
+
+    getValue: function(){
+        var dateTimeWidget = this.down('date-time');
+        if (dateTimeWidget && dateTimeWidget.getValue) {
+            return dateTimeWidget.getValue();
+        } else {
+            return null;
+        }
+    },
+
+    setValue: function(value){
+        debugger;
+        var dateTimeWidget = this.down('date-time');
+        if (dateTimeWidget && dateTimeWidget.setValue) {
+            dateTimeWidget.setValue(value);
         }
     }
 });
