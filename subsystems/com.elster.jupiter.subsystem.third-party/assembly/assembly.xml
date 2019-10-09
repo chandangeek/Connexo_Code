@@ -36,6 +36,7 @@
                 <include>org.apache.santuario:xmlsec</include>
                 <include>io.dropwizard.metrics:metrics-core</include>
                 <include>com.elster.jupiter.bundles:com.elster.jupiter.bundles.opensaml</include>
+                <include>com.zaxxer:HikariCP</include>
             </includes>
 
             <unpack>false</unpack>
