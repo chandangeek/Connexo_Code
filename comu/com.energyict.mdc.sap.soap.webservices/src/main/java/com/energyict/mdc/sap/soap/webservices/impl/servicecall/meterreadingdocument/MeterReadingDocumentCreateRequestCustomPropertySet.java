@@ -253,6 +253,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .varChar(80)
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
+                    .installValue("''")
                     .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_NAME.databaseName())
@@ -280,6 +281,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .varChar(80)
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.javaName())
                     .notNull()
+                    .installValue("''")
                     .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.READING_REASON_CODE.databaseName())

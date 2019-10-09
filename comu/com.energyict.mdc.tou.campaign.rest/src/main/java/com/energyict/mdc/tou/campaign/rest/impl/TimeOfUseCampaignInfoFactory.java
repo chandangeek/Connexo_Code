@@ -116,6 +116,7 @@ public class TimeOfUseCampaignInfoFactory {
                 info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getDeviceStatus(deviceStatus, thesaurus)))
                         .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
         info.serviceCall = new IdWithNameInfo(campaignsServiceCall.getId(), campaignsServiceCall.getNumber());
+        info.manuallyCancelled = campaign.isManuallyCancelled();
         return info;
     }
 

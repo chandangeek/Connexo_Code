@@ -82,6 +82,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                     change: function (field, newValue) {
                         var timeoutFld = Ext.getCmp('tou-period-values');
                         var uploadFileDateContainer = me.down('#uploadFileDateContainer');
+                        me.up('form').down('#activateCalendarErrorMain').hide();
                         if (newValue[me.groupName] == 'withoutActivation' || newValue[me.groupName] == 'immediately') {
                             uploadFileDateContainer.disable();
                             uploadFileDateContainer.setValue(null);

@@ -20,9 +20,8 @@ Ext.define('Fwc.view.firmware.Grid', {
     columns: [
         {
             text: Uni.I18n.translate('firmware.field.rank', 'FWC', 'Rank'),
-            flex: 1,
+            width: 63,
             dataIndex: 'rank',
-            maxWidth: 70,
             renderer: function (value, metaData, record, rowIndex, fullIndex, dataSource) {
                 var rIndex = value ? value : '';
                 var maxRankValue = this.maxRankValue;
@@ -35,31 +34,28 @@ Ext.define('Fwc.view.firmware.Grid', {
         {
             text: Uni.I18n.translate('general.version', 'FWC', 'Version'),
             dataIndex: 'firmwareVersion',
-            maxWidth: 140,
-            flex:2
+            width: 210
         },
         {
             text: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
-            flex: 1,
+            width: 180,
             dataIndex: 'type'
         },
         {
             text: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
-            flex: 2,
-            maxWidth: 140,
+            width: 210,
             dataIndex: 'imageIdentifier'
         },
         {
             text: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
-            flex: 1,
+            width: 128,
             dataIndex: 'status'
         },
         {
             text: Uni.I18n.translate('firmware.field.meterDepVersion', 'FWC', 'Min meter FW'),
-            flex: 1,
+            width: 180,
             dataIndex: 'meterFirmwareDependency',
             itemId: 'minMeterLevel',
-            minWidth: 140,
             hidden: true,
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
@@ -67,10 +63,9 @@ Ext.define('Fwc.view.firmware.Grid', {
         },
         {
             text: Uni.I18n.translate('firmware.field.communicationDepVersion', 'FWC', 'Min com FW'),
-            flex: 1,
+            width: 180,
             itemId: 'minCommLevel',
             dataIndex: 'communicationFirmwareDependency',
-            minWidth: 140,
             hidden: true,
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
@@ -78,10 +73,9 @@ Ext.define('Fwc.view.firmware.Grid', {
         },
         {
             text: Uni.I18n.translate('firmware.field.auxiliaryDepVersion', 'FWC', 'Min aux FW'),
-            flex: 1,
+            width: 180,
             itemId: 'minAuxiliaryLevel',
             dataIndex: 'auxiliaryFirmwareDependency',
-            minWidth: 140,
             hidden: true,
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';

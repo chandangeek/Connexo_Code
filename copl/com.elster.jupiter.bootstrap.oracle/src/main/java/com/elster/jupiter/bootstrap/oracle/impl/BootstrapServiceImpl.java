@@ -193,11 +193,14 @@ public final class BootstrapServiceImpl implements BootstrapService {
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new PropertyNotFoundException(JDBC_PASSWORD);
+            //Logger.getAnonymousLogger().log(Level.SEVERE, exception, () -> "Bootstrap service initialization: encryption failed");
+            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
+            throw new PropertyNotFoundException(KEY_FILE);
         }
 
         if (list.size() != 2) {
-            throw new PropertyNotFoundException(JDBC_PASSWORD);
+            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
+            throw new PropertyNotFoundException(KEY_FILE);
         } else {
             try {
                 byte[] aesEncryptionKey = list.get(0).getBytes("UTF-8");
@@ -218,7 +221,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
                     InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
                     | BadPaddingException e) {
                 InvalidPasswordException exception = new InvalidPasswordException();
-                Logger.getAnonymousLogger().log(Level.SEVERE, exception, () -> "Bootstrap service init");
+                Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
                 throw exception;
             }
         }
