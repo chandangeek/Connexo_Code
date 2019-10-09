@@ -145,11 +145,6 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private String getUserNameFromId(long id) {
-        Optional<User> user = userService.getUser(id);
-        if (user.isPresent()) {
-            return user.get().getName();
-        } else {
-            return "-";
-        }
+        return userService.getUser(id).map(User::getName).orElse("-");
     }
 }
