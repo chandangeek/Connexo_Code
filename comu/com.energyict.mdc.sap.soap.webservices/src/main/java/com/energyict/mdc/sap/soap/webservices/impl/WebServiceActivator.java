@@ -376,6 +376,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                     .collect(Collectors.toMap(e -> e[0], e -> e[1]));
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, MessageSeeds.ERROR_LOADING_PROPERTY.getDefaultFormat(DEVICE_TYPES_MAPPING, ex.getLocalizedMessage()));
+            deviceTypesMap = Collections.emptyMap();
         }
     }
 
