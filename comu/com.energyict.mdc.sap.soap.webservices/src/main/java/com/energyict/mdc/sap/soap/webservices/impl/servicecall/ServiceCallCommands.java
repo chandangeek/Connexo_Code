@@ -216,7 +216,7 @@ public class ServiceCallCommands {
     private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message) {
         serviceCall.log(LogLevel.INFO, "Handling breaker operations for device with SAP id " + deviceId);
         Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
-        if (device.isPresent() && !device.get().getState().getName().equals(com.elster.jupiter.metering.DefaultState.ACTIVE)) {
+        if (device.isPresent() && !device.get().getState().getName().equals(com.elster.jupiter.metering.DefaultState.ACTIVE.getKey())) {
             sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_ACTIVE, message, deviceId);
             return;
         }

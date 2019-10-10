@@ -57,6 +57,8 @@ public class MasterConnectionStatusChange implements ServiceCallHandler {
                 parent.requestTransition(DefaultState.ONGOING);
             } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
+            } else if (hasAllChildrenInState(children, DefaultState.CANCELLED)) {
+                parent.requestTransition(DefaultState.CANCELLED);
             } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
