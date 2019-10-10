@@ -274,7 +274,7 @@ public class    CreationRuleResource extends BaseResource {
     @Path("/validateaction")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response validateAction(@QueryParam("reason_name") String reasonKey, CreationRuleActionInfo info) {
+    public Response validateAction(@QueryParam("reason_id") String reasonKey, CreationRuleActionInfo info) {
         CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
         setAction(info, actionBuilder, reasonKey);
         CreationRuleAction ruleAction = actionBuilder.complete();

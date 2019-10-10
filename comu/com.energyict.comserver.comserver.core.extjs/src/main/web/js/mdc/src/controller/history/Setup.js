@@ -1366,7 +1366,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('tsk.general.addTask', 'MDC', 'Add task'),
                             route: 'add',
                             privileges: function () {
-                                return Apr.TaskManagementApp.canAdministrate();
+                                return Apr.TaskManagementApp.canAdministrate() && Uni.Auth.hasPrivilege('privilege.edit.AdministerTaskOverview');
                             },
                             haveDependenciesLoaded: function () {
                                 return Apr.TaskManagementApp.dependenciesLoaded();

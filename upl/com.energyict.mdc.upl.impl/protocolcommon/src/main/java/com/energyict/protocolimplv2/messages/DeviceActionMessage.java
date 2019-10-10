@@ -437,9 +437,9 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpecWithDefaultValue(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation, "0.0.96.1.0.255"),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.attributeId, DeviceMessageConstants.attributeIdDefaultTranslation, BigDecimal.valueOf(2)),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.classId, DeviceMessageConstants.classIdDefaultTranslation, BigDecimal.valueOf(1)));
+                    this.stringSpec(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.attributeId, DeviceMessageConstants.attributeIdDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.classId, DeviceMessageConstants.classIdDefaultTranslation));
         }
     },
 

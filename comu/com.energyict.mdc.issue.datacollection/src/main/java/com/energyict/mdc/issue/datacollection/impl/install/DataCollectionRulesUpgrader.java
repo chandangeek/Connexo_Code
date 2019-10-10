@@ -10,9 +10,13 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.conditions.Condition;
+import net.minidev.json.JSONObject;
 
 import javax.inject.Inject;
 
@@ -38,7 +42,7 @@ public class DataCollectionRulesUpgrader implements Upgrader {
                 .select(Condition.TRUE)
                 .stream()
                 .filter(rule -> rule.getTemplateImpl().equals("BasicDataCollectionRuleTemplate"))
-                .filter(rule -> rule.getCreationRuleProperties().stream().noneMatch(creationRuleProperty -> creationRuleProperty.getName().equals("BasicDataCollectionRuleTemplate.threshold")))
+                .filter(rule -> rule.getCreationRuleProperties().stream().anyMatch(creationRuleProperty -> creationRuleProperty.getName().equals("BasicDataCollectionRuleTemplate.threshold")))
                 .forEach(this::updateCreationRule);
     }
 

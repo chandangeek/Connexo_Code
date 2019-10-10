@@ -335,7 +335,8 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 }
             } else {
                 serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING)
+                        .format(timeOfUseCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName()));
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
