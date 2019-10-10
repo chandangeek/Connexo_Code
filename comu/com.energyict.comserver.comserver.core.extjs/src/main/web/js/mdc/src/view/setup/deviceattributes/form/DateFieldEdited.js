@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
             {
                  xtype: 'uni-default-button',
                  disabled: true,
-                 tooltip: Uni.I18n.translate('estimationtasks.addValidationTask.clear', 'EST', 'Clear'),
+                 tooltip: Uni.I18n.translate('general.restoreDefaultEmptyValue', 'MDC', 'Restore to default empty value'),
                  hidden: false,
                  handler: function() {
                       var initialValue = this.up('deviceDateFieldEdited').initialValue;
