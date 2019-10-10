@@ -101,9 +101,15 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call asynchronously
                     SetMultimap<String, String> values = HashMultimap.create();
                     meterConfig.getMeter().stream().forEach(meter -> {
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                        if (!meter.getNames().isEmpty()){
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                        }
+                        if (meter.getMRID() != null){
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                        }
+                        if (meter.getSerialNumber() != null) {
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                        }
                     });
 
                     createRelatedObjects(values);
@@ -172,9 +178,15 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call asynchronously
                     SetMultimap<String, String> values = HashMultimap.create();
                     meterConfig.getMeter().stream().forEach(meter -> {
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                        if (!meter.getNames().isEmpty()){
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                        }
+                        if (meter.getMRID() != null){
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                        }
+                        if (meter.getSerialNumber() != null) {
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                        }
                     });
                     createRelatedObjects(values);
 
@@ -328,9 +340,15 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     SetMultimap<String, String> values = HashMultimap.create();
 
                     meterConfig.getMeter().stream().forEach(meter -> {
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                        if (!meter.getNames().isEmpty()){
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                        }
+                        if (meter.getMRID() != null){
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                        }
+                        if (meter.getSerialNumber() != null) {
+                            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                        }
                     });
                     createRelatedObjects(values);
 

@@ -17,6 +17,7 @@ import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigResponseMessageType;
+import com.google.common.collect.SetMultimap;
 
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -109,7 +110,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
         // Act
         MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.createMasterDataLinkageConfig(message);
-
+        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
         // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
@@ -123,6 +124,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Act and verify
         try {
             endpoint.createMasterDataLinkageConfig(message);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             failNoException();
         } catch (FaultMessage e) {
             verify(linkageHandler).forMessage(message);
@@ -138,6 +140,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Act and verify
         try {
             endpoint.createMasterDataLinkageConfig(message);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             failNoException();
         } catch (FaultMessage e) {
             verify(linkageHandler).forMessage(message);
@@ -153,6 +156,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
         // Act
         MasterDataLinkageConfigResponseMessageType actualResponse = endpoint.closeMasterDataLinkageConfig(message);
+        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
 
         // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
@@ -167,6 +171,8 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Act and verify
         try {
             endpoint.closeMasterDataLinkageConfig(message);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+
             failNoException();
         } catch (FaultMessage e) {
             verify(linkageHandler).forMessage(message);
@@ -182,6 +188,8 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Act and verify
         try {
             endpoint.closeMasterDataLinkageConfig(message);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+
             failNoException();
         } catch (FaultMessage e) {
             verify(linkageHandler).forMessage(message);

@@ -34,6 +34,7 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.Range;
+import com.google.common.collect.SetMultimap;
 
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -55,6 +56,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GetEndDeviceEventsTest extends AbstractMockActivator {
@@ -144,6 +146,8 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -169,6 +173,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -203,6 +208,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -238,6 +244,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -266,7 +273,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         // Business method
         EndDeviceEventsResponseMessageType response = getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-
+        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
         assertThat(response.getHeader().getNoun()).isEqualTo("GetEndDeviceEvents");
@@ -299,6 +306,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -326,6 +334,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -358,6 +367,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts

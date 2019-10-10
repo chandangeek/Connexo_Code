@@ -106,19 +106,25 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     SetMultimap<String, String> values = HashMultimap.create();
                     message.getPayload().getUsagePointConfig().getUsagePoint().forEach(usagePoint->{
-                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
-                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
+                        if (!usagePoint.getNames().isEmpty()){
+                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                        }
+                        if (usagePoint.getMRID() != null){
+                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
+                        }
                     });
                     createRelatedObjects(values);
 
                     return processAsynchronously(message, action);
                 }
+
                 List<UsagePoint> usagePoints = retrieveUsagePoints(message.getPayload(), messageSeed);
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(messageSeed,
                                 MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-
-                createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                if (!usagePoint.getNames().isEmpty()){
+                    createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                }
                 createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
 
                 com.elster.jupiter.metering.UsagePoint connexoUsagePoint = synchronousProcessor.apply(usagePoint);
@@ -249,7 +255,9 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
             UsagePoint usagePoint = usagePoints.stream().findFirst()
                     .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_GET_USAGE_POINT,
                             MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-            createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+            if (!usagePoint.getNames().isEmpty()) {
+                createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+            }
             createRelatedObject(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
 
             com.elster.jupiter.metering.UsagePoint retrieved = usagePointBuilderProvider.get().from(usagePoint, 0) // bulk operation is not supported, only first element is processed

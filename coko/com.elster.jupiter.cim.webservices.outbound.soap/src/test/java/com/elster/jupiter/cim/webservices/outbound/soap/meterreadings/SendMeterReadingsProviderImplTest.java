@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -22,13 +23,16 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+import com.google.common.collect.SetMultimap;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -92,6 +96,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         when(requestSender.toEndpoints(endPointConfiguration)).thenReturn(requestSender);
         Map responseMap = new HashMap();
         responseMap.put(endPointConfiguration, response);
+        when(requestSender.withRelatedObject(any())).thenReturn(requestSender);
         when(requestSender.send(any())).thenReturn(responseMap);
     }
 
@@ -109,7 +114,24 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);
 
+        SetMultimap<String, String> values = HashMultimap.create();
+        listReadingInfo.forEach(reading->{
+            reading.getMeter().ifPresent(meter->{
+                values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),
+                        meter.getName());
+                values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                        meter.getMRID());
+            });
+            reading.getUsagePoint().ifPresent(usp->{
+                values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                        usp.getName());
+                values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                        usp.getMRID());
+            });
+        });
+
         verify(provider).using("createdMeterReadings");
+        verify(requestSender).withRelatedObject(values);
         verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 
@@ -137,8 +159,25 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         when(response.getReply()).thenReturn(reply);
         when(reply.getResult()).thenReturn(ReplyType.Result.OK);
         assertTrue(provider.call(meterReadings, getHeader(HeaderType.Verb.CREATED), endPointConfiguration));
+        SetMultimap<String, String> values = HashMultimap.create();
+        meterReadings.getMeterReading().forEach(reading->{
+            Optional.ofNullable(reading.getMeter()).ifPresent(meter->{
+                values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),
+                        meter.getNames().get(0).getName());
+                values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                        meter.getMRID());
+            });
+
+            Optional.ofNullable(reading.getUsagePoint()).ifPresent(usp->{
+                values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                        usp.getNames().get(0).getName());
+                values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                        usp.getMRID());
+            });
+        });
         verify(provider).using("createdMeterReadings");
         verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).withRelatedObject(values);
         verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 

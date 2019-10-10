@@ -63,7 +63,6 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationProvider extends Abstr
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
         SetMultimap<String, String> values = HashMultimap.create();
-
         if (msg.getBulkConfirmationMessage().isPresent()){
             msg.getBulkConfirmationMessage().get().getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage().forEach(cnfMsg->{
                 values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),

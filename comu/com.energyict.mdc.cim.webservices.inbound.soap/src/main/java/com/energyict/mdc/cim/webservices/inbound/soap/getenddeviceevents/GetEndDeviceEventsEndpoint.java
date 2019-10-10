@@ -79,12 +79,21 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
             try {
                 SetMultimap<String, String> values = HashMultimap.create();
                 requestMessage.getRequest().getGetEndDeviceEvents().getMeter().forEach(meter->{
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    if (!meter.getNames().isEmpty()) {
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    }
+                    if (meter.getMRID() != null){
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    }
+
                 });
                 requestMessage.getRequest().getGetEndDeviceEvents().getUsagePoint().forEach(usp->{
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                    if (!usp.getNames().isEmpty()){
+                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    }
+                    if (usp.getMRID() != null){
+                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                    }
                 });
 
                 createRelatedObjects(values);

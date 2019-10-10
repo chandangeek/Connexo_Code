@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -103,6 +104,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         verify(device).setManufacturer(MANUFACTURER);
         verify(device).setModelNumber(MODEL_NUMBER);
         verify(device).setModelVersion(MODEL_VERSION);
+        verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -187,6 +189,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
                     .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS
                     .translate(thesaurus, DEVICE_NAME, STATE_NAME));
+            verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
         }
     }
 
@@ -234,6 +237,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT
                     .translate(thesaurus, DEVICE_NAME, securityAccessorName));
+            verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
         }
     }
 

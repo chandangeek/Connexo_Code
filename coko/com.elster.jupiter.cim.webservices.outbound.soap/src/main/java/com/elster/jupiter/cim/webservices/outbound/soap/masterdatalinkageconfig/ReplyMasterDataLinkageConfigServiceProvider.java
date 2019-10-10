@@ -109,7 +109,6 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
 		});
 
-
 		using(method)
 				.toEndpoints(endPointConfiguration)
 				.withRelatedObject(values)

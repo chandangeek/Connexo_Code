@@ -6,11 +6,16 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilsDvceERPSmrtMtrRegedBulkNotifMsg;
+
+import aQute.lib.collections.MultiMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -48,6 +53,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
         deviceIds = Arrays.asList("100000000524205", "100000000524206", "100000000524207");
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
@@ -62,8 +68,16 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
         provider.addRequestConfirmationPort(port, properties);
         provider.call(deviceIds);
 
+        SetMultimap<String,String> values = HashMultimap.create();
+
+        deviceIds.forEach(deviceId->{
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    deviceId);
+        });
+
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut");
         verify(requestSender).send(any(UtilsDvceERPSmrtMtrRegedBulkNotifMsg.class));
+        verify(requestSender).withRelatedObject(values);
     }
 
     @Test

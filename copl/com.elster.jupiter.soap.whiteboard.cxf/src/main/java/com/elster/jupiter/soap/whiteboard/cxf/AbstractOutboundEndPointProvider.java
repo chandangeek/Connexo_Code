@@ -16,6 +16,7 @@ import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.SetMultimap;
 import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.NotAuthorizedException;

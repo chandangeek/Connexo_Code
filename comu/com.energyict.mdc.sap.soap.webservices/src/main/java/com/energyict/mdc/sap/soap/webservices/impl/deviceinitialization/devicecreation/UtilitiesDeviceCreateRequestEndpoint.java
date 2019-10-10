@@ -74,6 +74,13 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
     @Override
     public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
+
+            Optional.ofNullable(request).ifPresent(requestMsg->{
+                createRelatedObject(WebServiceRequestAttributesNames.SAP_SERIAL_ID.getAttributeName(), getSerialId(requestMsg));
+                createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), getDeviceId(requestMsg));
+            });
+
+
             if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceCreateConfirmation.NAME);
@@ -91,9 +98,6 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
             String serialId = getSerialId(msg);
             String sapDeviceId = getDeviceId(msg);
             List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
-
-            createRelatedObject(WebServiceRequestAttributesNames.SAP_SERIAL_ID.getAttributeName(), serialId);
-            createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
 
             try {
                 if (!devices.isEmpty()) {

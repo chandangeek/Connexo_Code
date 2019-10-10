@@ -43,14 +43,18 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import aQute.lib.collections.MultiMap;
 import ch.iec.tc57._2011.replyusagepointconfig.FaultMessage;
 import ch.iec.tc57._2011.replyusagepointconfig.UsagePointConfigPort;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReplyUsagePointConfigServiceProviderTest {
@@ -140,6 +144,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         when(usagePoint.forCustomProperties()).thenReturn(usagepointCustomPropertySetExtension);
         when(usagepointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
         when(testable.using(anyString())).thenReturn(requestSender);
+        when(requestSender.withRelatedObject(any(SetMultimap.class ))).thenReturn(requestSender);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
     }
 
@@ -150,7 +155,17 @@ public class ReplyUsagePointConfigServiceProviderTest {
         testable.call(endPointConfiguration, OPERATION_CREATE, Arrays.asList(usagePoint), Arrays.asList(FAILED_OP),
                 EXPECTED_NUMBER_OF_CALLS, CORRELATION_ID);
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
+        SetMultimap<String, String> values = HashMultimap.create();
+        Arrays.asList(usagePoint).forEach(up->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+        });
+        Arrays.asList(FAILED_OP).forEach(upF->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
+        });
         verify(testable).using("createdUsagePointConfig");
+        verify(requestSender).withRelatedObject(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.PARTIAL, value.getReply().getResult());
@@ -172,8 +187,14 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Arrays.asList(usagePoint), Collections.emptyList(),
                 BigDecimal.ONE, CORRELATION_ID);
+        SetMultimap<String, String> values = HashMultimap.create();
+        Arrays.asList(usagePoint).forEach(up->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+        });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("createdUsagePointConfig");
+        verify(requestSender).withRelatedObject(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.OK, value.getReply().getResult());
@@ -191,8 +212,14 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Collections.emptyList(), Arrays.asList(FAILED_OP),
                 BigDecimal.ONE, CORRELATION_ID);
+        SetMultimap<String, String> values = HashMultimap.create();
+        Arrays.asList(FAILED_OP).forEach(upF->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
+        });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("createdUsagePointConfig");
+        verify(requestSender).withRelatedObject(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.FAILED, value.getReply().getResult());
@@ -211,8 +238,18 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_UPDATE, Arrays.asList(usagePoint), Arrays.asList(FAILED_OP),
                 EXPECTED_NUMBER_OF_CALLS, CORRELATION_ID);
+        SetMultimap<String, String> values = HashMultimap.create();
+        Arrays.asList(usagePoint).forEach(up->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+        });
+        Arrays.asList(FAILED_OP).forEach(upF->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
+        });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("changedUsagePointConfig");
+        verify(requestSender).withRelatedObject(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.PARTIAL, value.getReply().getResult());

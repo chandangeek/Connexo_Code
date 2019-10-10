@@ -130,9 +130,9 @@ public class ReplyUsagePointConfigServiceProvider
             values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
             values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
         });
-        failureList.forEach(upO->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upO.getUsagePointMrid());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upO.getUsagePointName());
+        failureList.forEach(upFail->{
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upFail.getUsagePointMrid());
+            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upFail.getUsagePointName());
         });
         using(method)
                 .toEndpoints(endPointConfiguration)

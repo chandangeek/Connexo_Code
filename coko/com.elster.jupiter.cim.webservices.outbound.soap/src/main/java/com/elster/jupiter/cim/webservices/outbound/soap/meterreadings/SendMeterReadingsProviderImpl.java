@@ -89,7 +89,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
 
     public void call(List<ReadingInfo> readingInfos, HeaderType.Verb requestVerb) {
         MeterReadings meterReadings = readingBuilderProvider.build(readingInfos);
-        System.out.println("CALL1");
         if (checkMeterReadings(meterReadings)) {
             String method;
             MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, getHeader(requestVerb));
@@ -101,7 +100,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
                 throw new UnsupportedOperationException(requestVerb + " isn't supported.");
             }
             SetMultimap<String, String> values = HashMultimap.create();
-
             readingInfos.forEach(reading->{
                 reading.getMeter().ifPresent(meter->{
                     values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),
@@ -126,7 +124,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
 
     public boolean call(MeterReadings meterReadings, HeaderType header, EndPointConfiguration endPointConfiguration) {
         String method;
-        System.out.println("CALL2");
         MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, header);
         switch(header.getVerb()) {
             case CREATED:
@@ -141,7 +138,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
         }
 
         SetMultimap<String, String> values = HashMultimap.create();
-
         meterReadings.getMeterReading().forEach(reading->{
             Optional.ofNullable(reading.getMeter()).ifPresent(meter->{
                 values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),

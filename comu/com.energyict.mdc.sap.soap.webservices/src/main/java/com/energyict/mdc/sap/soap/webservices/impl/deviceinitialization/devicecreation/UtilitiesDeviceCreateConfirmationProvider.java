@@ -71,8 +71,10 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
     public void call(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
 
         SetMultimap<String, String> values = HashMultimap.create();
-        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                msg.getUtilitiesDevice().getID().getValue());
+        if (msg.getUtilitiesDevice() != null && msg.getUtilitiesDevice().getID() != null) {
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    msg.getUtilitiesDevice().getID().getValue());
+        }
         using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut")
                 .withRelatedObject(values)
                 .send(msg);

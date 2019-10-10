@@ -65,9 +65,9 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
 
         SetMultimap<String, String> values = HashMultimap.create();
-        UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce utilsDevice = msg.getConfirmationMessage().get().getUtilitiesDevice();
-        if (utilsDevice != null){
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), utilsDevice.getID().getValue());
+        if (msg.getConfirmationMessage().get().getUtilitiesDevice() != null){
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
         }
 
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")

@@ -95,6 +95,12 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
         List<EndPointConfiguration> endpoints = getEndPointConfigurationsForWebService();
         SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg message = confirmationMessage.getConfirmationMessage();
 
+        SetMultimap<String, String> values = HashMultimap.create();
+        confirmationMessage.getConfirmationMessage().getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status->
+        {
+            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), status.getUtilitiesDeviceID().getValue());
+        });
+
         Set<EndPointConfiguration> successEndpoints = using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")
                 .toEndpoints(endpoints)
                 .send(message).keySet();

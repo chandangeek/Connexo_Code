@@ -49,6 +49,7 @@ import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigResponseMessageType;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.SetMultimap;
 
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -85,6 +86,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -595,6 +597,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_USAGE_POINT_STATE_WITH_NAME.getErrorCode(),
                 "No usage point state 'Drunk' is found in current life cycle.");
+        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
     }
 
     @Test
@@ -624,6 +627,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                         MessageSeeds.TRANSITION_ACTION_FAILED.getErrorCode(),
                         "Transition can't be performed due to failed transition action 'Ordinary action': This action acts ordinarily."
                 ));
+        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
     }
 
     @Test
@@ -649,6 +653,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                 ImmutableMap.of(connectionStatePropertySpec.getName(), logicallyDisconnectedValue));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
+        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -693,6 +698,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
 
         verify(usagePointLifeCycleService).performTransition(usagePoint, customTransition, "INS", Collections.emptyMap());
         verify(usagePoint).setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED);
+        verify(webServiceCallOccurrence, times(1)).createRelatedObjectIndependantTransaction(anyString(), anyString());
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -741,6 +747,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePointLifeCycleService).performTransition(usagePoint, deactivate, "INS", Collections.emptyMap());
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
+        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -783,6 +790,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePoint, never()).setName(anyString());
         verify(usagePoint, never()).update();
         verify(usagePoint).setConnectionState(ConnectionState.PHYSICALLY_DISCONNECTED);
+        verify(webServiceCallOccurrence, times(1)).createRelatedObjectIndependantTransaction(anyString(), anyString());
 
         assertKeptDetails();
 
@@ -828,6 +836,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePoint, never()).update();
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
+        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
 
         assertKeptDetails();
 
@@ -877,6 +886,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 "ERRORCODE",
                 "ErrorMessage");
+        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
     }
 
     @Test
@@ -899,6 +909,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 null,
                 "ErrorMessage");
+        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
     }
 
     @Test
@@ -916,6 +927,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
 
         // Assert service call
         verify(serviceCall).requestTransition(com.elster.jupiter.servicecall.DefaultState.PENDING);
+        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
     }
 
     private ch.iec.tc57._2011.usagepointconfig.UsagePoint createUsagePoint(String mRID, String name, PhaseCode phaseCode,

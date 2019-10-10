@@ -146,6 +146,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
+
                 SyncReplyIssue syncReplyIssue = syncReplyIssueProvider.get();
                 GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest()
                         .getGetMeterReadings())
@@ -156,21 +157,29 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                             .orElse(false);
                     syncReplyIssue.setAsyncFlag(async);
                 }
-                checkGetMeterReading(getMeterReadings, async);
+
                 SetMultimap<String, String> values = HashMultimap.create();
-
                 getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice().forEach(device->{
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
-                });
+                    if (!device.getNames().isEmpty()){
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
+                    }
+                    if (device.getMRID() != null){
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
+                    }
 
-                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(
-                        usp->{
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                });
+                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(usp->{
+                    if (!usp.getNames().isEmpty()){
+                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    }
+                    if (usp.getMRID() != null){
+                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                    }
                 });
 
                 createRelatedObjects(values);
+
+                checkGetMeterReading(getMeterReadings, async);
 
                 // run async
                 if (async) {

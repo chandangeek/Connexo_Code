@@ -12,6 +12,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirma
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +46,7 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
 
@@ -57,6 +61,8 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
         provider.call(confirmationMessage);
 
         verify(provider).using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut");
+        SetMultimap<String,String> values = HashMultimap.create();
+        verify(requestSender).withRelatedObject(values);
         verify(requestSender).send(confirmationMessage);
     }
 
