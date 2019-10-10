@@ -59,7 +59,7 @@ public interface SAPCustomPropertySets {
 
     void setPod(Device device, String podId);
 
-    Set<Pair<Long, ChannelSpec>> getChannelInfos(String lrn, String profileId);
+    Set<Pair<Long, ChannelSpec>> getChannelInfosAfterDate(String lrn, String profileId, Instant date);
 
     /**
      * This method returns map containing as key <Device id, Channel spec> info and as value list of ranges where LRN is defined and overlaps interval.
