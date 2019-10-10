@@ -54,7 +54,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "CALENDAR_UPLOAD_COMTASK_ID"),
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
         CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "CALENDAR_UPLOAD_CONSTRATEGY"),
-        MANUALLY_CANCELLED("manuallyCancelled", "manually_cancelled"),
+        MANUALLY_CANCELLED("manuallyCancelled", "MANUALLY_CANCELLED"),
         ;
 
         FieldNames(String javaName, String databaseName) {

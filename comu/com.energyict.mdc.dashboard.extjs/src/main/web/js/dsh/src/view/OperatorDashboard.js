@@ -118,12 +118,12 @@ Ext.define('Dsh.view.OperatorDashboard', {
             }
         ];
 
-        if (Isu.privileges.Issue.canViewIssue() ||
+        if (Isu.privileges.Issue.canViewAdminDevice() ||
             Dal.privileges.Alarm.canViewAdmimAlarm() ||
             Bpm.privileges.BpmManagement.canView()) {
 
             var items = [];
-            if (Isu.privileges.Issue.canViewIssue()) {
+            if (Isu.privileges.Issue.canViewAdminDevice()) {
 
                 var item = {
                     type: 'issues',

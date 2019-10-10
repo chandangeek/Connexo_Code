@@ -101,7 +101,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
     private volatile Clock clock;
-    private volatile Map<Long, ServiceCallCancellationHandler> serviceCallCancellationHandlers = new HashMap<>();
+    private volatile Map<Long, ServiceCallCancellationHandler> serviceCallCancellationHandlers = new ConcurrentHashMap<>();
 
     // OSGi
     public ServiceCallServiceImpl() {

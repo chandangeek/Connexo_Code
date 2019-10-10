@@ -49,14 +49,16 @@ Ext.define('Idc.controller.Main', {
             dataCollection = null,
             historian = me.getController('Idc.controller.history.Workspace'); // Forces route registration.
 
-        if (Isu.privileges.Issue.canViewIssue()) {
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace','IDC','Workspace'),
                 glyph: 'workspace',
                 portal: 'workspace',
                 index: 30
             }));
+        }
 
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.dataCollection','IDC','Data collection'),
                 portal: 'workspace',

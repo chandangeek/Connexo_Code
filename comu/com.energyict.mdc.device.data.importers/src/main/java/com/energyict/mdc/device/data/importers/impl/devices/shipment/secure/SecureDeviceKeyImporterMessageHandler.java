@@ -9,14 +9,13 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -25,7 +24,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -36,13 +34,16 @@ import static com.elster.jupiter.orm.Version.version;
         property = {
                 "name=" + SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME,
                 "subscriber=" + SecureDeviceKeyImporterMessageHandler.SUBSCRIBER_NAME,
-                "destination=" + SecureDeviceKeyImporterMessageHandler.DESTINATION_NAME },
+                "destination=" + SecureDeviceKeyImporterMessageHandler.DESTINATION_NAME},
         immediate = true)
-public class SecureDeviceKeyImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider  {
+public class SecureDeviceKeyImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider {
 
     static final String DESTINATION_NAME = "SecureDeviceKeyImport";
-    public static final String SUBSCRIBER_NAME = "SecureDeviceKeyImport";
+    static final String SUBSCRIBER_NAME = "SecureDeviceKeyImport";
     static final String COMPONENT_NAME = "SSK";
+    static final SimpleTranslationKey SECURE_SHIPMENT_KEY_SUBSCRIBER =
+            new SimpleTranslationKey(SUBSCRIBER_NAME, "Handle secure key import");
+
 
     private volatile FileImportService fileImportService;
     private volatile UpgradeService upgradeService;
@@ -121,7 +122,7 @@ public class SecureDeviceKeyImporterMessageHandler implements MessageHandlerFact
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Collections.singletonList(TranslationKeys.SECURE_SHIPMENT_KEY_SUBSCRIBER);
+        return Collections.singletonList(SECURE_SHIPMENT_KEY_SUBSCRIBER);
     }
 
 }

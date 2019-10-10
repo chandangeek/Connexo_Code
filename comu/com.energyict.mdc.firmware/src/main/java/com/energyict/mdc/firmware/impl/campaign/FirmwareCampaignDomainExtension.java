@@ -77,7 +77,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         FIRMWARE_UPLOAD_COMTASK_ID("firmwareUploadComTaskId", "FIRMWARE_UPLOAD_COMTASK_ID"),
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
         FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "FIRMWARE_UPLOAD_CONSTRATEGY"),
-        MANUALLY_CANCELLED("manuallyCancelled", "manually_cancelled"),
+        MANUALLY_CANCELLED("manuallyCancelled", "MANUALLY_CANCELLED"),
         ;
 
         FieldNames(String javaName, String databaseName) {
