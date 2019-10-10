@@ -223,6 +223,8 @@ public interface Calendar extends HasId, HasName {
      */
     ZonedView forZone(ZoneId zoneId, Year startYear, Year endYear);
 
+    EventSet getEventSet();
+
     interface ZonedView {
         /**
          * Returns the Event for the specified Instant

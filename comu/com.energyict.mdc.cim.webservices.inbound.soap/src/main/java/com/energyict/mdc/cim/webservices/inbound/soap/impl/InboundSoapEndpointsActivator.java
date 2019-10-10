@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
@@ -151,7 +152,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile InboundCIMWebServiceExtensionFactory webServiceExtensionFactory = new InboundCIMWebServiceExtensionFactory();
     private volatile HsmEnergyService hsmEnergyService;
     private volatile SecurityManagementService securityManagementService;
-	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
     private volatile MessageService messageService;
     private volatile OrmService ormService;
@@ -161,6 +162,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile MasterDataService masterDataService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -186,7 +188,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          OrmService ormService, TaskService taskService,
                                          DeviceMessageSpecificationService deviceMessageSpecificationService,
                                          MasterDataService masterDataService,
-                                         CommunicationTaskService communicationTaskService) {
+                                         CommunicationTaskService communicationTaskService,
+                                         MeteringTranslationService meteringTranslationService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -214,12 +217,13 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         activate(bundleContext);
         setHsmEnergyService(hsmEnergyService);
         setSecurityManagementService(securityManagementService);
-		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-		setOrmService(ormService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setOrmService(ormService);
         setTaskService(taskService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setMasterDataService(masterDataService);
         setCommunicationTaskService(communicationTaskService);
+        setMeteringTranslationService(meteringTranslationService);
     }
 
     private Module getModule() {
@@ -251,12 +255,13 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(InboundCIMWebServiceExtensionFactory.class).toInstance(webServiceExtensionFactory);
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
-				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(SendMeterReadingsProvider.class).toInstance(sendMeterReadingsProvider);
                 bind(MessageService.class).toInstance(messageService);
-				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
-				bind(OrmService.class).toInstance(ormService);
+                bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
+                bind(OrmService.class).toInstance(ormService);
                 bind(TaskService.class).toInstance(taskService);
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
@@ -526,11 +531,15 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         this.securityManagementService = securityManagementService;
     }
 
-	@Reference
-	public void setDeviceLifeCycleConfigurationService(
-			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-	}
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
 
     @Reference
     public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {

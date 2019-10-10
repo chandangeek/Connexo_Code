@@ -168,12 +168,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static RelativePeriod exportTaskUpdateWindow;
     private static String exportTaskNewDataEndpointName;
     private static String exportTaskUpdatedDataEndpointName;
-    private static Map<String, String> deviceTypesMap;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
@@ -202,6 +202,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private Map<String, String> deviceTypesMap;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -235,7 +236,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return Optional.ofNullable(exportTaskUpdatedDataEndpointName);
     }
 
-    public static Map<String, String> getDeviceTypesMap() {
+    public Map<String, String> getDeviceTypesMap() {
         return deviceTypesMap;
     }
 
@@ -256,7 +257,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                TaskService taskService, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService,
                                MeteringGroupsService meteringGroupsService, DataExportService dataExportService,
                                TimeService timeService,
-                               MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor) {
+                               MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
+                               DeviceAlarmService deviceAlarmService,
+                               IssueService issueService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -285,6 +288,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         setDataExportService(dataExportService);
         setTimeService(timeService);
         setMeasurementTaskAssignmentChangeProcessor(measurementTaskAssignmentChangeProcessor);
+        setDeviceAlarmService(deviceAlarmService);
+        setIssueService(issueService);
         activate(bundleContext);
     }
 
@@ -322,6 +327,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 bind(DataExportService.class).toInstance(dataExportService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(MeasurementTaskAssignmentChangeProcessor.class).toInstance(measurementTaskAssignmentChangeProcessor);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(NlsService.class).toInstance(nlsService);
+                bind(WebServiceActivator.class).toInstance(WebServiceActivator.this);
             }
         };
     }
@@ -361,11 +369,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     private void loadDeviceTypesMap() {
-        String strMap = Optional.ofNullable(getPropertyValue(bundleContext, DEVICE_TYPES_MAPPING)).orElse(DEFAULT_DEVICE_TYPES_MAPPING);
-        deviceTypesMap = Arrays.asList(strMap.split(";"))
-                        .stream()
-                        .map(s -> s.split(":"))
-                        .collect(Collectors.toMap(e -> e[0], e -> e[1]));
+        try {
+            String strMap = Optional.ofNullable(getPropertyValue(bundleContext, DEVICE_TYPES_MAPPING)).orElse(DEFAULT_DEVICE_TYPES_MAPPING);
+            deviceTypesMap = Arrays.stream(strMap.split(";"))
+                    .map(s -> s.split(":"))
+                    .collect(Collectors.toMap(e -> e[0], e -> e[1]));
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, MessageSeeds.ERROR_LOADING_PROPERTY.getDefaultFormat(DEVICE_TYPES_MAPPING, ex.getLocalizedMessage()));
+            deviceTypesMap = Collections.emptyMap();
+        }
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {
@@ -593,6 +605,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
     }

@@ -248,11 +248,11 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                 .map(DeviceMessage::getStatus)
                                 .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CANCELED))
                                 .isPresent()) {
-                            timeOfUseItem.cancel();
+                            timeOfUseItem.cancel(false);
                             planning = false;
                         }
                     } else {
-                        timeOfUseItem.cancel();
+                        timeOfUseItem.cancel(false);
                         planning = false;
                     }
                     if (planning) {
@@ -328,14 +328,15 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                         comTaskExecution.schedule(when);
                     } else {
                         serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                        serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                                 .format(campaign.getValidationConnectionStrategy().get().name(), comTaskExecution.getComTask().getName()));
                         serviceCall.requestTransition(DefaultState.FAILED);
                     }
                 }
             } else {
                 serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING)
+                        .format(timeOfUseCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName()));
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }

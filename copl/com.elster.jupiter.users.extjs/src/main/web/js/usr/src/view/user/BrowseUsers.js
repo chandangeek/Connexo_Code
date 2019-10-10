@@ -45,39 +45,18 @@ Ext.define('Usr.view.user.BrowseUsers', {
     ],
 
     padding: '16 16 16 16',
-
     config: {
         service: null
     },
 
-    /*
-
-        Will be used in future to dynamically add action column
-
-        Currently adding an action column causes following problem:
-        When a new column data column is added, action column get's deleted.
-        On new insert of action column we get an error: removeCls is called on null.
-
-    */
-    actionColumn: Ext.create('Uni.grid.column.Action', {
-        text: 'Action',
-        width: 200,
-        menu: {
-            xtype: 'user-action-menu',
-            itemId: 'user-action-menu'
-        },
-        isDefault: true
-    }),
-
     initComponent: function () {
         var me = this,
-            domainsStore = this.getService().getSearchDomainsStore(),
             store = Ext.getStore('Uni.store.search.Properties');
 
         me.items = [
             {
                 xtype: 'panel',
-                title: Uni.I18n.translate('search.overview.title', 'UNI', 'Search'),
+                title: Uni.I18n.translate('search.overview.title', 'USR', 'Search'),
                 cls: 'usr-search-overview',
                 ui: 'large',
                 layout: {
@@ -105,7 +84,7 @@ Ext.define('Usr.view.user.BrowseUsers', {
                                 layout: 'column',
                                 lbar: {
                                     xtype: 'label',
-                                    text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
+                                    text: Uni.I18n.translate('search.overview.criteria.label', 'USR', 'Criteria'),
                                     width: 100
                                 },
                                 rbar: [{
@@ -137,12 +116,12 @@ Ext.define('Usr.view.user.BrowseUsers', {
                                 items: [
                                     {
                                         xtype: 'combobox',
-                                        fieldLabel: Uni.I18n.translate('general.load', 'UNI', 'Load'),
+                                        fieldLabel: Uni.I18n.translate('general.load', 'USR', 'Load'),
                                         itemId: 'load-button',
                                         labelAlign: 'left',
                                         labelWidth: 'auto',
                                         id: 'loadDropDown',
-                                        emptyText: Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
+                                        emptyText: Uni.I18n.translate('general.selectValue', 'USR', 'Select a value ...'),
                                         queryMode: 'local',
                                         style: {
                                             'margin-right': '25px'
@@ -181,7 +160,7 @@ Ext.define('Usr.view.user.BrowseUsers', {
                                         xtype: 'button',
                                         itemId: 'save-search-button',
                                         id: 'saveSearchButton',
-                                        text: Uni.I18n.translate('general.save', 'UNI', 'Save'),
+                                        text: Uni.I18n.translate('general.save', 'USR', 'Save'),
                                         action: 'saveSearchWindow',
                                         disabled: true
 
@@ -190,13 +169,13 @@ Ext.define('Usr.view.user.BrowseUsers', {
                                         xtype: 'button',
                                         itemId: 'search-button',
                                         ui: 'action',
-                                        text: Uni.I18n.translate('general.search', 'UNI', 'Search'),
+                                        text: Uni.I18n.translate('general.search', 'USR', 'Search'),
                                         action: 'search'
                                     },
                                     {
                                         xtype: 'button',
                                         itemId: 'clear-all-button',
-                                        text: Uni.I18n.translate('general.clearFilters', 'UNI', 'Clear all'),
+                                        text: Uni.I18n.translate('general.clearFilters', 'USR', 'Clear all'),
                                         action: 'clearFilters',
                                         margin: '0 0 0 0',
                                         disabled: true
@@ -210,16 +189,19 @@ Ext.define('Usr.view.user.BrowseUsers', {
                         itemId: 'search-preview-container',
                         grid: {
                             xtype: 'uni-view-search-results',
-                            service: me.getService()
+                            service: me.getService(),
+                            viewConfig: {
+                                markDirty: false,
+                            }
                         },
                         emptyComponent: {
                             itemId: 'search-no-items-found-panel',
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('search.overview.noItemsFoundPanel.title', 'UNI', 'No search results found'),
+                            title: Uni.I18n.translate('search.overview.noItemsFoundPanel.title', 'USR', 'No search results found'),
                             reasons: [
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No search criteria have been specified.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'UNI', 'There are no requested items.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'No search results comply with the filter.')
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'USR', 'No search criteria have been specified.'),
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'USR', 'There are no requested items.'),
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'USR', 'No search results comply with the filter.')
                             ],
                             margin: '16 0 0 0'
                         },
@@ -245,41 +227,28 @@ Ext.define('Usr.view.user.BrowseUsers', {
             destroyable: true
         });
 
+        var domainListeners = me.service.getSearchDomainsStore().on({
+            load: function () {
+                // Added in order to get rid of 'save/load criteria filter' functionallity
+                // As soon as this will be redone on another layer of abstraction, this can be deleted.
+                me.down('#load-button').setVisible(false);
+                me.down('#save-search-button').setVisible(false);
+            },
+            scope: me,
+            destroyable: true
+        });
+
         var resultsListeners = me.service.getSearchResultsStore().on({
             load: me.setGridMaxHeight,
             scope: me,
             destroyable: true
         });
 
-        // Will be used for dynamically created action column
-        // var grid = me.down('uni-view-search-results');
-        // grid.getStore().on('datachanged', me.reconfigureColumns, this);
-
         me.on('destroy', function () {
             listeners.destroy();
+            domainListeners.destroy();
             resultsListeners.destroy();
         });
-    },
-
-    reconfigureColumns: function () {
-        var grid = me.down('uni-view-search-results');
-
-        if (me.shouldInsertActionColumn(grid)) {
-            grid.headerCt.insert(grid.columns.length, me.actionColumn);
-            grid.getView().refreshView();
-        }
-    },
-
-    shouldInsertActionColumn: function (grid) {
-        var doesActionColumnExist = true;
-
-        grid.getColumnManager().columns.forEach(function (column) {
-            if (column.getMenu().xtype === "user-action-menu") {
-                doesActionColumnExist = false;
-            }
-        });
-
-        return doesActionColumnExist;
     },
 
     setGridMaxHeight: function () {
@@ -296,5 +265,4 @@ Ext.define('Usr.view.user.BrowseUsers', {
         }
         grid.updateLayout();
     }
-})
-;
+});

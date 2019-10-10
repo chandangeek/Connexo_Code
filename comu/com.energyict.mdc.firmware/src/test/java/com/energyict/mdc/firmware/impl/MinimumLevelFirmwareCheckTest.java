@@ -42,21 +42,21 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
     public void testOldMeterFirmware() {
         when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
 
-        expectError("Meter firmware is below its minimal level.");
+        expectError("Meter firmware is below the minimum level.");
     }
 
     @Test
     public void testOldCommFirmware() {
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
 
-        expectError("Communication firmware is below its minimal level.");
+        expectError("Communication firmware is below the minimum level.");
     }
 
     @Test
     public void testOldAuxFirmware() {
         when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
 
-        expectError("Auxiliary firmware is below its minimal level.");
+        expectError("Auxiliary firmware is below the minimum level.");
     }
 
     @Test
@@ -64,7 +64,7 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
         when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
         when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.METER)).thenReturn(Optional.empty());
 
-        expectError("Meter firmware is below its minimal level.");
+        expectError("Meter firmware is below the minimum level.");
     }
 
     @Test
@@ -72,7 +72,7 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
         when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
 
-        expectError("Communication firmware is below its minimal level.");
+        expectError("Communication firmware is below the minimum level.");
     }
 
     @Test
@@ -80,7 +80,7 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
         when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
         when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.AUXILIARY)).thenReturn(Optional.empty());
 
-        expectError("Auxiliary firmware is below its minimal level.");
+        expectError("Auxiliary firmware is below the minimum level.");
     }
 
     @Test

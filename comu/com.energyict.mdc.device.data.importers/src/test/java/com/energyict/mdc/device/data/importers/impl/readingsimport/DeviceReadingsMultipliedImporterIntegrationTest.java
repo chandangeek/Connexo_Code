@@ -18,7 +18,7 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.LoadProfileSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfileReading;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.common.protocol.DeviceProtocol;

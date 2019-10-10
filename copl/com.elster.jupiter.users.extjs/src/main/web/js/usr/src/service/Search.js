@@ -10,7 +10,6 @@ Ext.define('Usr.service.Search', {
         var me = this;
 
         me.defaultColumns = {
-            'com.elster.jupiter.metering.EndDevice': ['name', 'serialNumber'],
             'com.elster.jupiter.users.User': ['authenticationName', 'description', 'domain', 'active']
         };
 
@@ -30,7 +29,6 @@ Ext.define('Usr.service.Search', {
                 };
             } else if (me.searchDomain.getId() === 'com.elster.jupiter.users.User') {
                 column.renderer = function (value, metaData) {
-                    // var url = me.router.getRoute('usagepoints/device').buildUrl({deviceId: value});
                     var url = value;
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
@@ -42,6 +40,8 @@ Ext.define('Usr.service.Search', {
             && column.xtype != 'uni-grid-column-search-deviceconfiguration'
             && column.xtype != 'uni-grid-column-search-quantity') {
             column.renderer = function (value, metaData, record) {
+
+                // Special case for status column
                 if (column.header === 'Status') {
                     if (value === 'true') {
                         value = 'Active';
@@ -49,6 +49,14 @@ Ext.define('Usr.service.Search', {
                         value = 'Inactive';
                     }
                 }
+
+                // Special case for language column
+                if (column.header === 'Language') {
+                    if (value) {
+                        value = value.languageTag;
+                    }
+                }
+
                 // stupid solution to resolve encoding in tooltip
                 metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
                 return Ext.String.htmlEncode(value) || '-';
@@ -57,5 +65,20 @@ Ext.define('Usr.service.Search', {
 
         column.menuDisabled = true;
         return column;
+    },
+
+    createFixedColumns: function () {
+        var actionColumn = {
+            xtype: 'uni-actioncolumn',
+            header: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
+            maxWidth: 120,
+            privileges: Usr.privileges.Users.adminUsers,
+            menu: {
+                xtype: 'user-action-menu'
+            },
+            isDefault: true
+        };
+
+        return [actionColumn];
     }
 });

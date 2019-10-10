@@ -41,7 +41,7 @@ import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.common.device.lifecycle.config.Constants;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
@@ -139,7 +139,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 DefaultLifeCycleTranslationKey.values(),
-                DefaultState.values(),
                 EndDeviceStageTranslationKey.values(),
                 DeviceAuthorizedActionMicroCheckUsageImpl.UnknownCheckTranslationKey.values()
         )
@@ -441,11 +440,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
             return !restrictedStages.contains(EndDeviceStage.fromKey(stateName));
         }
         return true;
-    }
-
-    @Override
-    public String getDisplayName(DefaultState state) {
-        return this.thesaurus.getFormat(state).format();
     }
 
     @Override

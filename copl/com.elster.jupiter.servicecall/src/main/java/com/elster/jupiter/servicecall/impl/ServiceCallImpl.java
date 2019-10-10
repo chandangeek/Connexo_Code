@@ -23,6 +23,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -51,6 +52,7 @@ public class ServiceCallImpl implements ServiceCall {
         fill(zeroFillChars, '0');
         return new DecimalFormat("SC_" + new String(zeroFillChars));
     }
+
     private final IServiceCallService serviceCallService;
 
     private long id;
@@ -199,7 +201,12 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void cancel() {
-        requestTransition(DefaultState.CANCELLED);
+        Optional<ServiceCallCancellationHandler> optionalServiceCallCancellationHandler = serviceCallService.getServiceCallCancellationHandler(getType());
+        if (optionalServiceCallCancellationHandler.isPresent()) {
+            optionalServiceCallCancellationHandler.get().cancel(this);
+        } else {
+            requestTransition(DefaultState.CANCELLED);
+        }
     }
 
     @Override

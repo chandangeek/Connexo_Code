@@ -10,7 +10,6 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.logging.Logger;
@@ -38,7 +37,8 @@ class SskInstaller implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(SecureDeviceKeyImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(TranslationKeys.SECURE_SHIPMENT_KEY_SUBSCRIBER, SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
+        destinationSpec.subscribe(SecureDeviceKeyImporterMessageHandler.SECURE_SHIPMENT_KEY_SUBSCRIBER,
+                SecureDeviceKeyImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 
 }

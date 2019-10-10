@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
@@ -420,6 +421,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(GasDayOptions.RelativePeriodTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
         Arrays.stream(AuditTranslationKeys.values()).forEach(translationKeys::add);
+        Arrays.stream(DefaultState.values()).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));

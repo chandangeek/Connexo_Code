@@ -3,13 +3,13 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilitiesDeviceERPSmartMeterCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
@@ -21,9 +21,9 @@ import java.util.Optional;
 public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestEndpoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn {
 
     @Inject
-    UtilitiesDeviceCreateRequestEndpoint(Thesaurus thesaurus, ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                         Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService) {
-        super(thesaurus, serviceCallCommands, endPointConfigurationService, clock, sapCustomPropertySets, ormService);
+    UtilitiesDeviceCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
+                                         Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService, WebServiceActivator webServiceActivator) {
+        super(serviceCallCommands, endPointConfigurationService, clock, sapCustomPropertySets, ormService, webServiceActivator);
     }
 
     @Override

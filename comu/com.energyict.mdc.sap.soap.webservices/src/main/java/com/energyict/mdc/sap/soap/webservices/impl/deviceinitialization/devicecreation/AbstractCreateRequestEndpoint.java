@@ -38,16 +38,18 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
     private final EndPointConfigurationService endPointConfigurationService;
     private final Clock clock;
     private final OrmService ormService;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
-    public AbstractCreateRequestEndpoint(Thesaurus thesaurus, ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                         Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService) {
-        this.thesaurus = thesaurus;
+    public AbstractCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
+                                         Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService, WebServiceActivator webServiceActivator) {
+        this.thesaurus = webServiceActivator.getThesaurus();
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.clock = clock;
         this.ormService = ormService;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -77,8 +79,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()
-                .filter(EndPointConfiguration::isActive)
-                .findAny().isPresent();
+                .anyMatch(EndPointConfiguration::isActive);
     }
 
     private void createServiceCall(ServiceCallType serviceCallType, UtilitiesDeviceCreateRequestMessage requestMessage) {
@@ -141,7 +142,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setMaterialId(message.getMaterialId());
-        Optional.ofNullable(WebServiceActivator.getDeviceTypesMap().get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
+        Optional.ofNullable(webServiceActivator.getDeviceTypesMap().get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
         childDomainExtension.setShipmentDate(message.getShipmentDate());
         childDomainExtension.setManufacturer(message.getManufacturer());
         childDomainExtension.setModelNumber(message.getModelNumber());

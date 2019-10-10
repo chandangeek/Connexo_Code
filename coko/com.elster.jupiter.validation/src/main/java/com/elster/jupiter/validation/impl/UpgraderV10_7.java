@@ -4,16 +4,22 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeterActivationChannelsContainer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.conditions.Where;
 
 import com.google.inject.Inject;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 public class UpgraderV10_7 implements Upgrader {
     private final DataModel dataModel;
@@ -32,6 +38,7 @@ public class UpgraderV10_7 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
         deleteOldDestinations();
         installer.createMessageHandlers();
+        deleteInapplicableRuleSets();
     }
 
     private void deleteOldDestinations() {
@@ -40,5 +47,14 @@ public class UpgraderV10_7 implements Upgrader {
             destination.unSubscribe(ValidationServiceImpl.DESTINATION_NAME);
             destination.delete();
         });
+    }
+
+    private void deleteInapplicableRuleSets() {
+        Set<ChannelsContainerValidation> channelsContainerValidations = new HashSet<>();
+        dataModel.stream(ChannelsContainerValidation.class).filter(Where.where("ruleSet").isNotNull())
+                .filter(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer() instanceof MeterActivationChannelsContainer
+                        && channelsContainerValidation.getRuleSet().getQualityCodeSystem() != QualityCodeSystem.MDC)
+                .forEach(channelsContainerValidations::add);
+        dataModel.mapper(ChannelsContainerValidation.class).remove(new ArrayList<>(channelsContainerValidations));
     }
 }

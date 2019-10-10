@@ -26,7 +26,10 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -71,7 +74,11 @@ import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignCustomPropertySet;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemCustomPropertySet;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemDomainExtension;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemServiceCallHandler;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceCallHandler;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
@@ -123,8 +130,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 /**
  * Provides an implementation for the {@link FirmwareService} interface.
  */
-@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
-public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, MessageSeedProvider.class, TranslationKeyProvider.class, ServiceCallCancellationHandler.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
+public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider, ServiceCallCancellationHandler {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceMessageService deviceMessageService;
@@ -907,5 +914,22 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
         return registeredCustomPropertySet;
+    }
+
+    @Override
+    public List<ServiceCallType> getTypes() {
+        return Arrays.asList(serviceCallService.findServiceCallType(FirmwareCampaignServiceCallHandler.NAME, FirmwareCampaignServiceCallHandler.VERSION)
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")),
+                serviceCallService.findServiceCallType(FirmwareCampaignItemServiceCallHandler.NAME, FirmwareCampaignItemServiceCallHandler.VERSION)
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")));
+    }
+
+    @Override
+    public void cancel(ServiceCall serviceCall) {
+        if (serviceCall.getParent().isPresent()) {
+            serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().cancel(false);
+        } else {
+            serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get().cancel();
+        }
     }
 }

@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -32,15 +33,15 @@ public class DeviceTopologyInfo {
     public String state;
     public G3NodePLCInfo g3NodePLCInfo;
 
-    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, MeteringTranslationService meteringTranslationService) {
         return timeline.getAllDevices().stream()
                 .filter(device -> hasNotEnded(timeline, device))
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
-                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService))
+                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), meteringTranslationService))
                 .collect(Collectors.toList());
     }
 
-    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, MeteringTranslationService meteringTranslationService) {
         DeviceTopologyInfo info = new DeviceTopologyInfo();
         info.id = device.getId();
         info.name = device.getName();
@@ -51,13 +52,13 @@ public class DeviceTopologyInfo {
         if (linkingTimeStamp.isPresent() && linkingTimeStamp.get() != Instant.MAX) {
             info.linkingTimeStamp = linkingTimeStamp.get().toEpochMilli();
         }
-        info.state = DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName);
+        info.state = DefaultState.from(device.getState()).map(meteringTranslationService::getDisplayName).orElseGet(device.getState()::getName);
         return info;
     }
 
-    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, MeteringTranslationService meteringTranslationService,
                                           Optional<G3Neighbor> g3Neighbor, Thesaurus thesaurus) {
-        DeviceTopologyInfo deviceTopologyInfo = DeviceTopologyInfo.from(device, linkingTimeStamp, deviceLifeCycleConfigurationService);
+        DeviceTopologyInfo deviceTopologyInfo = DeviceTopologyInfo.from(device, linkingTimeStamp, meteringTranslationService);
         g3Neighbor.ifPresent(g3Neighbor1 -> deviceTopologyInfo.g3NodePLCInfo = G3NodePLCInfo.from(g3Neighbor1, thesaurus));
         return deviceTopologyInfo;
     }

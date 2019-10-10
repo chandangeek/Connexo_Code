@@ -118,9 +118,13 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
-    public ServiceCall cancel() {
+    public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
-        if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
+            if (!initFromCampaign) {
+                throw new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
+            }
+        } else if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }
         return serviceCallService.getServiceCall(serviceCall.getId()).get();
@@ -129,6 +133,9 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     @Override
     public ServiceCall retry() {
         ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get().isManuallyCancelled()) {
+            throw new FirmwareCampaignException(thesaurus, MessageSeeds.CAMPAIGN_WITH_DEVICE_CANCELLED);
+        }
         if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
             serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
             serviceCall.requestTransition(DefaultState.PENDING);
@@ -302,7 +309,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                         check.execute(options, utils, campaign.getFirmwareVersion());
                         return false;
                     } catch (FirmwareCheck.FirmwareCheckException e) {
-                        getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to " + check.getName() + " fail: " + e.getLocalizedMessage());
+                        getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to '" + check.getName() + "' fail: " + e.getLocalizedMessage());
                         return true;
                     }
                 })
