@@ -100,34 +100,38 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
             ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
             parent.log(LogLevel.INFO, "Sending confirmation for disconnection order number: " + extension.getId());
 
-            if (extension.isBulk()) {
-                StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
-                        .builder(sapCustomPropertySets)
-                        .from(parent, findAllChilds(parent), clock.instant())
-                        .build();
-
-                WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> {
-                            if (sender.call(responseMessage, parent)) {
-                                parent.requestTransition(finalState);
-                            } else {
-                                parent.requestTransition(DefaultState.FAILED);
-                            }
-                        }
-                );
+            if (extension.isCancelledBySap() && finalState.equals(DefaultState.CANCELLED)) {
+                parent.requestTransition(finalState);
             } else {
-                StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
-                        .builder(sapCustomPropertySets)
-                        .from(parent, findAllChilds(parent), clock.instant())
-                        .build();
+                if (extension.isBulk()) {
+                    StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
+                            .builder(sapCustomPropertySets)
+                            .from(parent, findAllChilds(parent), clock.instant())
+                            .build();
 
-                WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
-                            if (sender.call(responseMessage, parent)) {
-                                parent.requestTransition(finalState);
-                            } else {
-                                parent.requestTransition(DefaultState.FAILED);
+                    WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> {
+                                if (sender.call(responseMessage, parent)) {
+                                    parent.requestTransition(finalState);
+                                } else {
+                                    parent.requestTransition(DefaultState.FAILED);
+                                }
                             }
-                        }
-                );
+                    );
+                } else {
+                    StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
+                            .builder(sapCustomPropertySets)
+                            .from(parent, findAllChilds(parent), clock.instant())
+                            .build();
+
+                    WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
+                                if (sender.call(responseMessage, parent)) {
+                                    parent.requestTransition(finalState);
+                                } else {
+                                    parent.requestTransition(DefaultState.FAILED);
+                                }
+                            }
+                    );
+                }
             }
             context.commit();
         }

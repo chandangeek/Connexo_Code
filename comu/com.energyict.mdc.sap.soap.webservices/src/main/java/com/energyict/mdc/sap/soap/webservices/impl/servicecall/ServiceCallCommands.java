@@ -291,6 +291,7 @@ public class ServiceCallCommands {
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
         connectionStatusChangeDomainExtension.setBulk(message.isBulk());
+        connectionStatusChangeDomainExtension.setCancelledBySap(false);
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin(APPLICATION_NAME)
@@ -320,6 +321,7 @@ public class ServiceCallCommands {
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
         connectionStatusChangeDomainExtension.setBulk(message.isBulk());
+        connectionStatusChangeDomainExtension.setCancelledBySap(false);
 
         ServiceCall serviceCall = parent.newChildCall(serviceCallType)
                 .origin(APPLICATION_NAME)

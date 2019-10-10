@@ -117,6 +117,8 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                             serviceCall.requestTransition(DefaultState.PENDING);
                         }
                         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+                            extension.setCancelledBySap(true);
+                            parent.update(extension);
                             serviceCall.requestTransition(DefaultState.CANCELLED);
                             cancelledRequests++;
                         } else {

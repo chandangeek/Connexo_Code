@@ -142,6 +142,12 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
                         .named(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
