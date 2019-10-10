@@ -47,9 +47,7 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String requestID;
-
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Boolean bulk;
+    private boolean bulk;
 
     public String getRequestID() {
         return requestID;
@@ -59,11 +57,11 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
         this.requestID = requestID;
     }
 
-    public Boolean isBulk() {
+    public boolean isBulk() {
         return bulk;
     }
 
-    public void setBulk(Boolean bulk) {
+    public void setBulk(boolean bulk) {
         this.bulk = bulk;
     }
 
@@ -71,7 +69,7 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setRequestID((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
-        this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
+        this.setBulk((boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
     }
 
     @Override

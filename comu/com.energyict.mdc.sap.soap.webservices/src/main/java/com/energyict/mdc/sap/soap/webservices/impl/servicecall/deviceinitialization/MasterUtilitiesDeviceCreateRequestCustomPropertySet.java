@@ -148,7 +148,6 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
             table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
                     .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName())
-                    .notNull()
                     .add();
         }
 
