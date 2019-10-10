@@ -54,8 +54,8 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
-                        <id>set-cxo-version-i18n</id>
-                        <phase>prepare-package</phase>
+                        <id>set-cxo-version</id>
+                        <phase>process-sources</phase>
                         <configuration>
                             <tasks>
                                 <replace token= "{connexo.version}" value="${commercial.version}"
@@ -69,8 +69,8 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>reset-cxo-version-i18n</id>
-                        <phase>install</phase>
+                        <id>reset-cxo-version</id>
+                        <phase>compile</phase>
                         <configuration>
                             <tasks>
                                 <replace token="${commercial.version}" value= "{connexo.version}"
