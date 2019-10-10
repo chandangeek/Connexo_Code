@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         if (me.isDateField(key)) {
             if (!Ext.isEmpty(value.displayValue)) {
                 var dt = new Date(value.displayValue);
-                field.setValue(dt);
+                field.setInitialValue(dt);
             }
         } else if (key === 'usagePoint') {
             store = field.getStore();

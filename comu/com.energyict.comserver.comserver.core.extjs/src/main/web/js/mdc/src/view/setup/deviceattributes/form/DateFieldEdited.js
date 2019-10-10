@@ -5,21 +5,58 @@
 Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
     extend: 'Ext.form.FieldContainer',
     xtype: 'deviceDateFieldEdited',
-    items: [{
-        xtype: 'date-time',
-        layout: 'hbox',
-        editable: false,
-        required: false,
-        width: 450,
-        dateConfig: {
-            width: 140
-        },
-        hoursConfig: {
-            width: 60
-        },
-        minutesConfig: {
-            width: 60
-        },
+    layout: 'hbox',
+    initialValue: undefined,
+    items: [
+         {
+            xtype: 'container',
+            width: '100%',
+            layout: {
+                 type: 'hbox',
+                 align: 'left'
+            },
+            items: [
+            {
+                xtype: 'date-time',
+                layout: 'hbox',
+                editable: false,
+                required: false,
+                width: 285,
+                dateConfig: {
+                    width: 140
+                },
+                hoursConfig: {
+                    width: 60
+                },
+                minutesConfig: {
+                    width: 60
+                },
+                listeners: {
+                     change: {
+                          fn : function (field) {
+                               if (!this.resetButton) this.resetButton = this.nextSibling('uni-default-button');
+                               var initialValue = this.up('deviceDateFieldEdited').initialValue;
+                               if (initialValue !== undefined && initialValue.getTime() !== field.getValue().getTime() ) {
+                                    this.resetButton.setDisabled(false);
+                               }else{
+                                   this.resetButton.setDisabled(true);
+                               }
+                          }
+                     }
+                }
+            },
+            {
+                 xtype: 'uni-default-button',
+                 disabled: true,
+                 tooltip: Uni.I18n.translate('general.restoreDefaultEmptyValue', 'MDC', 'Restore to default empty value'),
+                 hidden: false,
+                 handler: function() {
+                      var initialValue = this.up('deviceDateFieldEdited').initialValue;
+                      this.previousSibling('date-time').setValue(initialValue);
+                      this.setDisabled(true);
+                 }
+            }
+         ],
     }],
 
     getTimeStampValue: function() {
@@ -40,8 +77,12 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
         }
     },
 
+    setInitialValue: function(value){
+        this.initialValue = value;
+        this.setValue(value);
+    },
+
     setValue: function(value){
-        debugger;
         var dateTimeWidget = this.down('date-time');
         if (dateTimeWidget && dateTimeWidget.setValue) {
             dateTimeWidget.setValue(value);
