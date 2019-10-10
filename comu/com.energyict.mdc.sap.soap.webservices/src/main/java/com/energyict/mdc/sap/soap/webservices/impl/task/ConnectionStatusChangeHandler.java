@@ -85,6 +85,8 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
                 sendResponseMessage(parent, DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 sendResponseMessage(parent, DefaultState.FAILED);
+            } else if (parent.canTransitionTo(DefaultState.ONGOING)) {
+                sendResponseMessage(parent, DefaultState.FAILED);
             }
         }
     }
