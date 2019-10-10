@@ -52,7 +52,8 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                     if (queueMessage.properties.containsKey(propertySpec.getName())) {
                         Object value = queueMessage.properties.get(propertySpec.getName());
                         try {
-                            deviceMessageBuilder.addProperty(propertySpec.getName(), value);
+                            Object marshalPropertyValue = propertySpec.getValueFactory().fromStringValue(String.valueOf(value));
+                            deviceMessageBuilder.addProperty(propertySpec.getName(), marshalPropertyValue);
                             LOGGER.info(String.format("Set property '%s' on device command '%s' to value '%s'", propertySpec.getName(), queueMessage.deviceMessageId, value));
                         } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s", propertySpec.getName(), queueMessage.deviceMessageId, value, e.getMessage()));

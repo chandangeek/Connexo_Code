@@ -357,8 +357,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         items: [
                             {
                                 itemId: 'curFirmwareCheck',
-                                boxLabel: ('<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type. ') +
-                                           Uni.I18n.translate('general.upload.fw.currentFirmwareCheckSecSent', 'FWC', 'All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version') + '</b>'),
+                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type.') + '</b>',
                                 inputValue: 'curFirmwareCheck'
                             }
                         ]

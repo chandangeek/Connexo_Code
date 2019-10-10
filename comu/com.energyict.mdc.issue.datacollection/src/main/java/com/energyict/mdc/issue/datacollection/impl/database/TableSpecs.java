@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -177,8 +178,8 @@ public enum TableSpecs {
             table.primaryKey(pkKey).on(idColumn).add();
 
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
-            table.foreignKey(fkKeysIter.next()).on(eventTypeRefColumn).references(EventType.class).map(DataCollectionEventMetadataImpl.Fields.EVENTYPE.fieldName()).add();
-            table.foreignKey(fkKeysIter.next()).on(deviceRefColumn).references(Device.class).map(DataCollectionEventMetadataImpl.Fields.DEVICE.fieldName()).add();
+            table.foreignKey(fkKeysIter.next()).on(eventTypeRefColumn).references(EventType.class).map(DataCollectionEventMetadataImpl.Fields.EVENTYPE.fieldName()).onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey(fkKeysIter.next()).on(deviceRefColumn).references(Device.class).map(DataCollectionEventMetadataImpl.Fields.DEVICE.fieldName()).onDelete(DeleteRule.CASCADE).add();
         }
     }
 }

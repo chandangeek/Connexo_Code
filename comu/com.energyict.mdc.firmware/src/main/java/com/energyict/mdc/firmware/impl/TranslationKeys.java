@@ -35,7 +35,7 @@ public enum TranslationKeys implements TranslationKey {
     FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "Firmware upload connection strategy"),
     MINIMIZE_CONNECTIONS(ConnectionStrategy.MINIMIZE_CONNECTIONS.name(), "Minimize connections"),
     AS_SOON_AS_POSSIBLE(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name(), "As soon as possible"),
-//   MANAGEMENT_OPTION("","" )
+    MANUALLY_CANCELLED("manuallyCancelled", "Manually cancelled"),
     ;
 
     private final String key;

@@ -19,6 +19,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -32,7 +33,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.device.config.DeviceType;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -75,6 +76,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final TimeService timeService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final Thesaurus thesaurus;
+    private final MeteringTranslationService meteringTranslationService;
 
     private String type;
     private String reason;
@@ -85,7 +87,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private boolean active;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TaskService taskService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TaskService taskService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus, MeteringTranslationService meteringTranslationService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
@@ -95,6 +97,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         this.timeService = timeService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public IssueRuleBuilder withType(String type) {
@@ -413,7 +416,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

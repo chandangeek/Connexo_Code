@@ -218,7 +218,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME(2190, "NoSecurityAccessorOnDeviceTypeForName", "No security accessor on device type with name {0}"),
     NO_KEY_RENEWAL_COMMAND_CONFIGURED(2191, "NoKeyRenewalCommandConfigured", "No key renewal command configured at device type level on security accessor with name {0}"),
     ONLY_ONE_KEY_TYPE_ATTRIBUTE_EXPECTED(2192, "OnlyOneKeyTypeAttributeExpetced", "Key renewal process does not support commands having more that one key type attribute"),
-    SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized.");
+    SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized."),
+    WRONG_STATUS(2194, Keys.WRONG_STATUS, "Wrong status value. Possible values: {0}"),
+    WRONG_CARD_FORMAT(2195, Keys.WRONG_CARD_FORMAT, "Wrong card format value. Possible values: {0}"),
+    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\")
+    ;
 
     private final int number;
     private final String key;
@@ -418,5 +422,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE = "command.should.have.a.key.type.attribute";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String UNKNOWN_PROPERTY = "UnknownProperty";
+        public static final String WRONG_STATUS = "WrongStatus";
+        public static final String WRONG_CARD_FORMAT = "WrongCardFormat";
+        public static final String FORBIDDEN_CHARS = "forbiddenChars";
     }
 }

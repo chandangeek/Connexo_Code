@@ -5,11 +5,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent.Type;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -23,11 +24,11 @@ import java.util.Optional;
 
 public class DeviceLifeCycleHistoryInfoFactory {
 
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
-    public DeviceLifeCycleHistoryInfoFactory(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    public DeviceLifeCycleHistoryInfoFactory(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public DeviceLifeCycleChangeInfos createDeviceLifeCycleChangeInfos(Device device) {
@@ -83,7 +84,7 @@ public class DeviceLifeCycleHistoryInfoFactory {
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -23,7 +24,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
@@ -54,13 +55,13 @@ import static java.util.Comparator.comparingLong;
 public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder {
 
     private static final String LOCATION_PROPERTY_TYPE = "LOCATION";
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private MeteringTranslationService meteringTranslationService;
 
-    AuditTrailDeviceAtributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    AuditTrailDeviceAtributesDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService, ServerDeviceService serverDeviceService, MeteringTranslationService meteringTranslationService) {
         this.ormService = ormService;
         this.meteringService = meteringService;
         this.serverDeviceService = serverDeviceService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
         this.setThesaurus(thesaurus);
     }
 
@@ -388,7 +389,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 
@@ -413,8 +414,8 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         return device.get();
     }
 
-    public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService(){
-        return deviceLifeCycleConfigurationService;
+    public MeteringTranslationService getMeteringTranslationService(){
+        return meteringTranslationService;
     }
 
     private <T> List<T> getMeterActivationObjects(DataMapper dataMapper, long id)

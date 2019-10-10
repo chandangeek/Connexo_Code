@@ -14,6 +14,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -162,6 +163,8 @@ public abstract class AbstractMockActivator {
     protected MasterDataService masterDataService;
     @Mock
     protected CommunicationTaskService communicationTaskService;
+    @Mock
+    protected MeteringTranslationService meteringTranslationService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -234,6 +237,7 @@ public abstract class AbstractMockActivator {
         activator.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         activator.setMasterDataService(masterDataService);
         activator.setCommunicationTaskService(communicationTaskService);
+        activator.setMeteringTranslationService(meteringTranslationService);
         activator.activate(mock(BundleContext.class));
     }
 

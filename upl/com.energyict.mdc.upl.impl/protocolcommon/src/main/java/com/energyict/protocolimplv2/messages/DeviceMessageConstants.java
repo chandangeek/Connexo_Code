@@ -544,7 +544,7 @@ public final class DeviceMessageConstants {
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.configuserfile";
     public static final String UserFileConfigAttributeDefaultTranslation = "Configuration file";
     public static final String loadProfileAttributeName = "load profile";
-    public static final String loadProfileAttributeDefaultTranslation = "LoadProfile";
+    public static final String loadProfileAttributeDefaultTranslation = "Load Profile";
     public static final String fromDateAttributeName = "from";
     public static final String fromDateAttributeDefaultTranslation = "From";
     public static final String fromDateAttributeNameDefaultTranslation = "From";
