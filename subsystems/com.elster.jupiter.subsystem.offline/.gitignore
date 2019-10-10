@@ -9,5 +9,4 @@ log/
 target/
 build/
 .gradle/
-bin/
 generated/
