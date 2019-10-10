@@ -117,12 +117,27 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         }
 
         if (!lrns.isEmpty()) {
-            // unset profile id
-            lrns.keySet().stream().forEach(lrn -> {
-                sapCustomPropertySets.getChannelInfos(lrn, profileId).stream()
-                        .forEach(csi -> {
-                            closeProfileId(csi.getFirst(), csi.getLast(), lrn, profileId);
-                        });
+            // unset profile id after the end date of the range
+            lrns.entrySet().stream().forEach(entry -> {
+                Instant endDate = Instant.EPOCH;
+                boolean unset = true;
+                for (Range<Instant> range : entry.getValue().asRanges()) {
+                    if (range.hasUpperBound()) {
+                        if (range.upperEndpoint().isAfter(endDate)) {
+                            endDate = range.upperEndpoint();
+                        }
+                    } else {
+                        unset = false;
+                        break;
+                    }
+                }
+                if (unset) {
+                    sapCustomPropertySets.getChannelInfosAfterDate(entry.getKey(), profileId, endDate).stream()
+                            .forEach(csi -> {
+                                unsetProfileId(csi.getFirst(), csi.getLast(), entry.getKey(), profileId);
+                            });
+                }
+
             });
 
             // set profile id
@@ -199,7 +214,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         return channelInfos;
     }
 
-    private void closeProfileId(Long deviceId, ChannelSpec channelSpec, String lrn, String profileId) {
+    private void unsetProfileId(Long deviceId, ChannelSpec channelSpec, String lrn, String profileId) {
         Optional<Device> device = deviceService.findDeviceById(deviceId);
         if (device.isPresent()) {
             Optional<CustomPropertySet> customPropertySet = device.get().getDeviceType()
@@ -209,8 +224,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
             if (customPropertySet.isPresent()) {
                 String lrnPropertyName = DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName();
                 String profileIdPropertyName = DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName();
-                List<CustomPropertySetValues> valuesList = new ArrayList<>();
-                valuesList.addAll(customPropertySetService.getAllVersionedValuesFor(customPropertySet.get(), channelSpec, deviceId));
+                List<CustomPropertySetValues> valuesList = customPropertySetService.getAllVersionedValuesFor(customPropertySet.get(), channelSpec, deviceId);
                 if (!valuesList.isEmpty()) {
                     Range<Instant> leftRange = valuesList.get(0).getEffectiveRange();
                     CustomPropertySetValues oldValues = valuesList.get(0);
@@ -261,16 +275,20 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 if (!channelSpecForProfileId.isPresent()) {
                     CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
                             channelSpec, lrnInterval.hasLowerBound() ? lrnInterval.lowerEndpoint() : Instant.EPOCH, deviceId);
-                    if (!profileId.equals(oldValues.getProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()))) {
-                        Range tailRange = lrnInterval.hasUpperBound() ? Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint()) : Range.atLeast(profileInterval.upperEndpoint());
-                        if (tailRange != null && !tailRange.isEmpty()) {
-                            customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                    channelSpec, oldValues, tailRange, deviceId);
+                    Range tailRange = lrnInterval.hasUpperBound() ? Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint()) :
+                            Range.atLeast(profileInterval.upperEndpoint());
+                    if (tailRange != null && !tailRange.isEmpty()) {
+                        String profileIdPropertyName = DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName();
+                        Optional<String> profileIdOld = Optional.ofNullable((String) oldValues.getProperty(profileIdPropertyName));
+                        if (profileIdOld.isPresent() && profileIdOld.get().equals(profileId)) {
+                            oldValues.setProperty(profileIdPropertyName, null);
                         }
-                        oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
                         customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                channelSpec, oldValues, profileInterval, deviceId);
+                                channelSpec, oldValues, tailRange, deviceId);
                     }
+                    oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
+                    customPropertySetService.setValuesVersionFor(customPropertySet.get(),
+                            channelSpec, oldValues, profileInterval, deviceId);
                 } else {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.PROFILE_ID_IS_ALREADY_SET, profileId, channelSpecForProfileId.get().getReadingType().getFullAliasName());
                 }

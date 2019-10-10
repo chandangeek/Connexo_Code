@@ -8,7 +8,11 @@ import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.MessageSeeds;
+import com.elster.jupiter.export.impl.TranslationKeys;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -17,6 +21,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class WebServiceDataExportDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
@@ -43,8 +49,8 @@ public class WebServiceDataExportDomainExtension extends AbstractPersistentDomai
         }
     }
 
-    private final Thesaurus thesaurus;
-    private final String SPACE = " ";
+    private volatile Thesaurus thesaurus;
+    private final char SPACE = ' ';
     private final int MILLISECONDS_IN_SECOND = 1000;
     private final int MILLISECONDS_IN_MINUTE = 60000;
 
@@ -62,6 +68,11 @@ public class WebServiceDataExportDomainExtension extends AbstractPersistentDomai
         this.thesaurus = thesaurus;
     }
 
+    @org.osgi.service.component.annotations.Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
     public String getUuid() {
         return uuid;
     }
@@ -75,11 +86,13 @@ public class WebServiceDataExportDomainExtension extends AbstractPersistentDomai
     }
 
     public String getDisplayTimeout() {
-        DecimalFormat format = new DecimalFormat("###.###");
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
+        symbols.setDecimalSeparator('.');
+        DecimalFormat format = new DecimalFormat("###.###", symbols);
         double timeout = getTimeout();
         return timeout < MILLISECONDS_IN_MINUTE ?
-                format.format(timeout / MILLISECONDS_IN_SECOND).replace(',', '.') + SPACE + thesaurus.getFormat(TranslationKeys.SECONDS).format() :
-                format.format(timeout / MILLISECONDS_IN_MINUTE).replace(',', '.') + SPACE + thesaurus.getFormat(TranslationKeys.MINUTES).format();
+                format.format(timeout / MILLISECONDS_IN_SECOND) + SPACE + thesaurus.getFormat(TranslationKeys.SECONDS).format() :
+                format.format(timeout / MILLISECONDS_IN_MINUTE) + SPACE + thesaurus.getFormat(TranslationKeys.MINUTES).format();
     }
 
     public void setTimeout(long timeout) {

@@ -17,7 +17,10 @@ public enum TranslationKeys implements TranslationKey {
     NUMBER_OF_DATASOURCES_SELECTED("dataexport.dataSourcesSelected", "{0} data source(s) selected"),
     NUMBER_OF_DATASOURCES_SKIPPED("dataexport.dataSourcesSkipped", "{0} data source(s) skipped"),
     NUMBER_OF_DEVICES_WITH_EVENTS_SELECTED("dataexport.devicesWithEventsSelected", "{0} device(s) with events selected"),
-    NUMBER_OF_EVENTS_SELECTED("dataexport.eventsSelected", "{0} event(s) selected")
+    NUMBER_OF_EVENTS_SELECTED("dataexport.eventsSelected", "{0} event(s) selected"),
+
+    SECONDS("seconds", "second(s)"),
+    MINUTES("minutes", "minute(s)")
    ;
 
     private String key;

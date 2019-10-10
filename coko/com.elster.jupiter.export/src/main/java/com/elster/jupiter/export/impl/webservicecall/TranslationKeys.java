@@ -14,10 +14,7 @@ public enum TranslationKeys implements TranslationKey {
 
     UUID("uuid", "UUID"),
     TIMEOUT("timeout", "Timeout"),
-    ERROR_MESSAGE("errorMessage", "Error message"),
-
-    SECONDS("seconds", "second(s)"),
-    MINUTES("minutes", "minute(s)");
+    ERROR_MESSAGE("errorMessage", "Error message");
 
     private String key;
     private String defaultFormat;
