@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -24,11 +25,13 @@ public class WebServiceDataExportCustomPropertySet implements CustomPropertySet<
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
+    private final DataExportServiceImpl dataExportService;
 
     @Inject
-    public WebServiceDataExportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public WebServiceDataExportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService, DataExportServiceImpl dataExportService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
+        this.dataExportService = dataExportService;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class WebServiceDataExportCustomPropertySet implements CustomPropertySet<
 
     @Override
     public PersistenceSupport<ServiceCall, WebServiceDataExportDomainExtension> getPersistenceSupport() {
-        return new WebServiceDataExportPersistenceSupport();
+        return new WebServiceDataExportPersistenceSupport(dataExportService);
     }
 
     @Override

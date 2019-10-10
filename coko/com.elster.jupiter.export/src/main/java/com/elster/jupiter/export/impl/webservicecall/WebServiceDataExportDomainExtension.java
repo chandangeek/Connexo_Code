@@ -8,11 +8,8 @@ import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.MessageSeeds;
-import com.elster.jupiter.export.impl.TranslationKeys;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -62,15 +59,15 @@ public class WebServiceDataExportDomainExtension extends AbstractPersistentDomai
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String errorMessage;
 
-    @Inject
     public WebServiceDataExportDomainExtension(Thesaurus thesaurus) {
         super();
         this.thesaurus = thesaurus;
     }
 
-    @org.osgi.service.component.annotations.Reference
-    public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
+    @Inject
+    public WebServiceDataExportDomainExtension(Thesaurus thesaurus, DataExportServiceImpl dataExportService) {
+        this(thesaurus);
+        this.thesaurus = dataExportService.getThesaurus();
     }
 
     public String getUuid() {
@@ -87,7 +84,6 @@ public class WebServiceDataExportDomainExtension extends AbstractPersistentDomai
 
     public String getDisplayTimeout() {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
-        symbols.setDecimalSeparator('.');
         DecimalFormat format = new DecimalFormat("###.###", symbols);
         double timeout = getTimeout();
         return timeout < MILLISECONDS_IN_MINUTE ?
