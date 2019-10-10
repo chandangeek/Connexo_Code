@@ -66,6 +66,7 @@ public enum MessageSeeds implements MessageSeed {
     SAP_DEVICE_IDENTIFIER_MUST_BE_UNIQUE(4022, "sapDeviceIdentifierMustBeUnique", "SAP device identifier must be unique."),
     DATASOURCE_NOT_FOUND(4024, "DataSourceNotFound", "Couldn''t find data source on device ''{0}'' by LRN ''{1}'' for specified end date ''{2}''."),
     INVALID_END_DATE(4025, "InvalidEndDate", "Received end date ''{0}'' isn''t in existing custom property set range ''{1}''."),
+    DEVICE_NOT_ACTIVE(4026, "DeviceNotActive", "Device with SAP id {0} isn''t in active state."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
