@@ -8,9 +8,18 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
+
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.text.MessageFormat;
+import java.time.Clock;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.sap.servicecall.connectionstatuschange", service = ServiceCallHandler.class,
         property = "name=" + ConnectionStatusChangeServiceCallHandler.NAME, immediate = true)
@@ -20,12 +29,17 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
+    private volatile Clock clock;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
+
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
-            case FAILED:
             case CANCELLED:
+                sendConfirmation(serviceCall);
+                break;
+            case FAILED:
             case PARTIAL_SUCCESS:
             case SUCCESSFUL:
                 serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
@@ -44,5 +58,41 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
             default:
                 break;
         }
+    }
+
+    private void sendConfirmation(ServiceCall parent) {
+        ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
+
+        if (!extension.isCancelledBySap()) {
+            if (extension.isBulk()) {
+                StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
+                        .builder(sapCustomPropertySets)
+                        .from(parent, findChildren(parent), clock.instant())
+                        .build();
+
+                WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
+            } else {
+                StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
+                        .builder(sapCustomPropertySets)
+                        .from(parent, findChildren(parent), clock.instant())
+                        .build();
+
+                WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
+            }
+        }
+    }
+
+    private List<ServiceCall> findChildren(ServiceCall serviceCall) {
+        return serviceCall.findChildren().stream().collect(Collectors.toList());
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Reference
+    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 }
