@@ -208,15 +208,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     @Override
     public List<DeviceCommandExecutionToken> acquireTokens(int numberOfCommands) throws InterruptedException {
         if (this.isRunning()) {
-            List<? extends DeviceCommandExecutionToken> acquiredTokens;
-            synchronized (this) {
-                this.logCurrentQueueSize();
-                if (this.getCurrentSize() == this.getCapacity()) {
-                    this.logger.preparationFailed(this, numberOfCommands);
-                }
-                acquiredTokens = this.workQueue.acquire(numberOfCommands);
+            this.logCurrentQueueSize();
+            if (this.getCurrentSize() == this.getCapacity()) {
+                this.logger.preparationFailed(this, numberOfCommands);
             }
-            return (List<DeviceCommandExecutionToken>) acquiredTokens;
+            return (List<DeviceCommandExecutionToken>) this.workQueue.acquire(numberOfCommands);
         } else {
             IllegalStateException illegalStateException = this.shouldBeRunning();
             this.logger.cannotPrepareWhenNotRunning(illegalStateException, this);
