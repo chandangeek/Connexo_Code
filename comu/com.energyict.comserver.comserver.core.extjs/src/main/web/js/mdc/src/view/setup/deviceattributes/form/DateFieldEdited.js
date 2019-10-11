@@ -35,11 +35,12 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
                      change: {
                           fn : function (field) {
                                if (!this.resetButton) this.resetButton = this.nextSibling('uni-default-button');
-                               var initialValue = this.up('deviceDateFieldEdited').initialValue;
-                               if (initialValue !== undefined && initialValue.getTime() !== field.getValue().getTime() ) {
-                                    this.resetButton.setDisabled(false);
-                               }else{
-                                   this.resetButton.setDisabled(true);
+                               if (field){
+                                   if (field.getValue() && field.getValue().getTime() ){
+                                        this.resetButton.setDisabled(false);
+                                   }else{
+                                        this.resetButton.setDisabled(true);
+                                   }
                                }
                           }
                      }
@@ -51,8 +52,7 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
                  tooltip: Uni.I18n.translate('general.restoreDefaultEmptyValue', 'MDC', 'Restore to default empty value'),
                  hidden: false,
                  handler: function() {
-                      var initialValue = this.up('deviceDateFieldEdited').initialValue;
-                      this.previousSibling('date-time').setValue(initialValue);
+                      this.previousSibling('date-time').setValue();
                       this.setDisabled(true);
                  }
             }
