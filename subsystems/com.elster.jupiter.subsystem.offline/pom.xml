@@ -49,6 +49,11 @@
                 <artifactId>serialio-xmodemapi-osgi</artifactId>
                 <version>1.0.0</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.main</artifactId>
+                <version>6.0.3</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
             <dependency>
                 <groupId>com.h2database</groupId>
@@ -95,6 +100,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>serialio-xmodemapi-osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.main</artifactId>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -462,6 +471,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>launcher</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

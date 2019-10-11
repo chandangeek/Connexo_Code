@@ -39,10 +39,6 @@
             <outputDirectory>licenses</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>assembly/partners</directory>
-            <outputDirectory>partners</outputDirectory>
-        </fileSet>
-        <fileSet>
             <directory>target/generated-sources/license</directory>
             <outputDirectory>licenses</outputDirectory>
             <includes>
@@ -70,6 +66,7 @@
                 <include>se.joel.osgi:*</include>
                 <include>com.h2database:*</include>
                 <include>com.energyict:serialio-xmodemapi-osgi</include>
+                <include>org.apache.felix:org.apache.felix.main</include>
             </includes>
 
             <unpack>false</unpack>
@@ -88,7 +85,6 @@
             </includes>
             <excludes>
                 <exclude>com.elster.jupiter:drools-integration:pom</exclude>
-                <exclude>com.elster.jupiter:launcher</exclude>
                 <exclude>com.elster.jupiter:yellowfin.installer</exclude>
                 <exclude>com.elster.jupiter:drools-integration:pom</exclude>
             </excludes>
