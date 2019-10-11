@@ -106,7 +106,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             form = this.getPreview().down('form'),
             store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
 
-        record.set('status', {"id" : "CANCELLED", "name" :"Cancelled"});
+        record.set('manuallyCancelled', true);
         var data = record.getProxy().getWriter().getRecordData(record);
 
         Ext.Ajax.request({
