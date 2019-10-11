@@ -32,7 +32,7 @@ Ext.define('Tou.view.DetailForm', {
 
         me.down('[name="validationComTask"]').setVisible(showValidation);
         me.down('[name="validationConnectionStrategy"]').setVisible(showValidation);
-        me.down('#firmware-campaigns-detail-action-menu-button').setVisible(manuallyCancelled);
+        me.down('#tou-campaigns-detail-action-menu-button') && me.down('#tou-campaigns-detail-action-menu-button').setVisible(manuallyCancelled);
     },
 
     initComponent: function () {
