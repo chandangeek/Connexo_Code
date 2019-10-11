@@ -115,7 +115,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             jsonData: data,
             success: function () {
                 form.loadRecord(record);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Cancelling of the campaign has started and will continue in the background'));
                 me.showPreview('', record);
             },
             callback: function () {
