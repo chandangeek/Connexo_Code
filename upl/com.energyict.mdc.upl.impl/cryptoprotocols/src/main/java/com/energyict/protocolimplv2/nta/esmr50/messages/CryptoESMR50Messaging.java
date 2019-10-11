@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50Messaging;
@@ -17,8 +16,13 @@ import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50Messaging;
 import java.util.List;
 
 public class CryptoESMR50Messaging extends ESMR50Messaging {
-    public CryptoESMR50Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        super(messageExecutor, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+
+    public CryptoESMR50Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService,
+                                 NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
+                                 TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor,
+                                 LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(messageExecutor, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor,
+              numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override

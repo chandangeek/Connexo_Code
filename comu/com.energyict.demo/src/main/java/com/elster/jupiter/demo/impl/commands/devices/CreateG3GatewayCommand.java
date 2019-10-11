@@ -120,6 +120,9 @@ public class CreateG3GatewayCommand {
         if (!config.isActive()) {
             config.activate();
         }
+        config.getPartialConnectionTasks().get(0).setProperty("host", "localhost");
+        config.getPartialConnectionTasks().get(0).setProperty("portNumber", new BigDecimal(4059));
+        config.save();
         return config;
     }
 

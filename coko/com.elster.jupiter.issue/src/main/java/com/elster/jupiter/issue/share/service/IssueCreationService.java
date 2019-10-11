@@ -98,6 +98,8 @@ public interface IssueCreationService {
     @ProviderType
     interface CreationRuleUpdater extends CreationRuleBuilder {
 
+        CreationRuleUpdater addProperty(String name, Object value);
+
         CreationRuleUpdater removeActions();
 
     }

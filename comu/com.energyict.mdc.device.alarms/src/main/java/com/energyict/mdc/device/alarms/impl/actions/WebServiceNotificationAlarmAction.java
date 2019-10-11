@@ -105,6 +105,7 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
                 final Optional<String> assignIssueComment = assignIssueForm.get().getComment();
                 if (user.isPresent() && workGroup.isPresent()) {
                     issue.assignTo(user.get().getId(), workGroup.get().getId());
+                    issue.update();
                 }
                 assignIssueComment.map(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
             }
@@ -161,7 +162,7 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
         final PropertySpec webServiceNotificationDropdown = propertyFactoriesProvider
-                .getFactory(PropertyType.PROCESS_COMBOBOX)
+                .getFactory(PropertyType.ENDPOINT_COMBOBOX)
                 .getElement(WEBSERVICE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION);
 
         final PropertySpec assigneeElementsGroup = propertyFactoriesProvider

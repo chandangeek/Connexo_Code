@@ -489,6 +489,7 @@ Ext.define('Wss.controller.Webservices', {
                     view.down('webservices-action-menu').record = record;
                 }
                 me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('endpointload', record.get('name'));
             }
         });
     },

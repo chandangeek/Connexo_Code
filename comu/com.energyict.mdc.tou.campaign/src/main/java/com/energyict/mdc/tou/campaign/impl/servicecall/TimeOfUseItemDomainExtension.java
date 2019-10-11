@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 
@@ -29,8 +30,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
         DEVICE("device", "device"),
         DEVICE_MESSAGE("deviceMessage", "device_message_id"),
-        STEP_OF_UPDATE("stepOfUpdate","step_of_update")
-        ;
+        STEP_OF_UPDATE("stepOfUpdate", "step_of_update");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -85,8 +85,13 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public ServiceCall cancel() {
+    public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
+            if (!initFromCampaign) {
+                throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
+            }
+        }
         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }
@@ -96,6 +101,9 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public ServiceCall retry() {
         ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get().isManuallyCancelled()) {
+            throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.CAMPAIGN_WITH_DEVICE_CANCELLED);
+        }
         if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
             serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
             serviceCall.requestTransition(DefaultState.PENDING);
@@ -146,7 +154,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         propertySetValues.setProperty(FieldNames.STEP_OF_UPDATE.javaName(), this.getStepOfUpdate());
     }
 
-    public void update(){
+    public void update() {
         getServiceCall().update(this);
     }
 

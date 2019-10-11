@@ -47,36 +47,41 @@ Ext.define('Isc.controller.Main', {
             servicecall = null,
             items = [];
 
-            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.workspace','ISC','Workspace'),
-                glyph: 'workspace',
-                portal: 'workspace',
-                index: 30
-            }));
+            if ( Isu.privileges.Issue.canViewIssue() ){
+                Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                    text: Uni.I18n.translate('general.workspace','ISC','Workspace'),
+                    glyph: 'workspace',
+                    portal: 'workspace',
+                    index: 30
+                }));
 
-                items.push({
-                    text: Uni.I18n.translate('general.issues','ISC','Issues'),
-                    itemId: 'servicecall-issues',
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall']})
+                    items.push({
+                        text: Uni.I18n.translate('general.issues','ISC','Issues'),
+                        itemId: 'servicecall-issues',
+                        privileges: Isu.privileges.Issue.viewIssue,
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall']})
+                    });
+                    items.push({
+                        text: Uni.I18n.translate('general.myOpenIssues','ISC','My open issues'),
+                        itemId: 'servicecall-my-open-issues',
+                        privileges: Isu.privileges.Issue.viewIssue,
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall'], myopenissues: true, status: ['status.open', 'status.in.progress']})
+                    });
+                    items.push({
+                        text: Uni.I18n.translate('general.myWorkgroupsIssues', 'ISC', 'My workgroups issues'),
+                        itemId: 'servicecall-my-workgroup-issues',
+                        privileges: Isu.privileges.Issue.viewIssue,
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
+                    });
+                servicecallIssue = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.serviceCalls','ISC','Service calls'),
+                    portal: 'workspace',
+                    items:  items
                 });
-                items.push({
-                    text: Uni.I18n.translate('general.myOpenIssues','ISC','My open issues'),
-                    itemId: 'servicecall-my-open-issues',
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall'], myopenissues: true, status: ['status.open', 'status.in.progress']})
-                });
-                items.push({
-                    text: Uni.I18n.translate('general.myWorkgroupsIssues', 'ISC', 'My workgroups issues'),
-                    itemId: 'servicecall-my-workgroup-issues',
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
-                });
-            servicecallIssue = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.serviceCalls','ISC','Service calls'),
-                portal: 'workspace',
-                items:  items
-            });
 
-        if (servicecallIssue !== null) {
-            Uni.store.PortalItems.add(servicecallIssue);
+            if (servicecallIssue !== null) {
+                Uni.store.PortalItems.add(servicecallIssue);
+            }
         }
     }
 });

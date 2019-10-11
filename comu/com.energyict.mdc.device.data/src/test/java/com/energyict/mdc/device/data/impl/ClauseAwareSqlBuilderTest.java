@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 
 import java.time.Instant;
 import java.util.EnumSet;

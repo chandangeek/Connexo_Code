@@ -17,7 +17,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -60,6 +59,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CreateDeviceTest extends AbstractMockMeterConfig {
+    private static final String NOUN = "MeterConfig";
+    private static final String METER_ITEM = NOUN + ".Meter";
+    private static final String METER_LIFECYCLE = METER_ITEM + ".lifecycle";
+    private static final String METER_LIFECYCLE_DATE = METER_LIFECYCLE + ".receivedDate";
+    private static final String METER_SIMPLE_FUNCTION = METER_ITEM + ".SimpleEndDeviceFunction";
+    private static final String METER_CONFIG_FUNCTION = NOUN + ".SimpleEndDeviceFunction";
+    private static final String NON_VERSIONED_CPS_ID = "my cps id";
+    private static final String NAME2 = "name 2";
+    private static final String VALUE2 = "value 2";
+    private static final String NO_SUCH_DEVICE_TYPE_TEXT = "no such device type";
+    private static final String NO_SUCH_DEVICE_CONFIG_TEXT = "no such device config";
 
     private com.energyict.mdc.device.data.DeviceBuilder deviceBuilder;
     @Mock
@@ -111,14 +121,14 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus,METER_ITEM));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo(MessageSeeds.EMPTY_LIST.getErrorCode());
-            assertThat(error.getDetails()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus, "MeterConfig.Meter"));
+            assertThat(error.getDetails()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus, METER_ITEM));
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -195,7 +205,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET.translate(thesaurus, NON_VERSIONED_CPS_ID));
         }
     }
 
@@ -207,7 +217,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE.translate(thesaurus, NAME2, NON_VERSIONED_CPS_ID));
         }
     }
 
@@ -220,7 +230,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.CANT_CONVERT_VALUE_OF_CUSTOM_ATTRIBUTE.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.CANT_CONVERT_VALUE_OF_CUSTOM_ATTRIBUTE.translate(thesaurus, VALUE2, NAME2, NON_VERSIONED_CPS_ID));
         }
     }
 
@@ -235,7 +245,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET.translate(thesaurus, NON_VERSIONED_CPS_ID));
         }
     }
 
@@ -463,7 +473,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.translate(thesaurus, NO_SUCH_DEVICE_TYPE_TEXT));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -471,7 +481,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.getErrorCode());
             assertThat(error.getDetails())
-                    .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.translate(thesaurus, "no such device type"));
+                    .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.translate(thesaurus, NO_SUCH_DEVICE_TYPE_TEXT));
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -481,7 +491,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
     public void testDeviceConfigurationNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(DEVICE_CONFIG_ID,
-                "no such device config");
+                NO_SUCH_DEVICE_CONFIG_TEXT);
         meterConfig.getSimpleEndDeviceFunction().add(simpleEndDeviceFunction);
         Meter meter = createDefaultMeter();
         meterConfig.getMeter().add(meter);
@@ -494,7 +504,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.translate(thesaurus, NO_SUCH_DEVICE_CONFIG_TEXT));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -502,7 +512,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.getErrorCode());
             assertThat(error.getDetails())
-                    .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.translate(thesaurus, "no such device config"));
+                    .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.translate(thesaurus, NO_SUCH_DEVICE_CONFIG_TEXT));
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -525,7 +535,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.MISSING_ELEMENT.translate(thesaurus, METER_LIFECYCLE_DATE));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -553,7 +563,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.translate(thesaurus, METER_SIMPLE_FUNCTION, METER_CONFIG_FUNCTION));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -628,7 +638,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.translate(thesaurus));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.translate(thesaurus, REPLY_ADDRESS));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);

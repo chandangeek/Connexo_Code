@@ -7,6 +7,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
@@ -62,7 +63,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected static final String DEVICE_CONFIG_ID = "123";
     protected static final String DEVICE_CONFIGURATION_NAME = "Default";
     protected static final float MULTIPLIER = 1.23456789f;
-    protected static final String STATE_NAME = "I'm okay. And you?";
+    protected static final String STATE_NAME = DefaultState.IN_STOCK.getKey();
     protected static final String REPLY_ADDRESS = "replyAddress";
     protected static final String NON_VERSIONED_CPS_ID = "my cps id";
     protected static final String VERSIONED_CPS_ID = "my versioned cps id";
@@ -159,6 +160,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(batch.getName()).thenReturn(BATCH);
         when(device.getMultiplier()).thenReturn(BigDecimal.valueOf(MULTIPLIER));
         when(device.getState()).thenReturn(state);
+        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         mockDeviceConfiguration();
         mockLifeCycleDates();
         mockMeterConfigFactoryWithDefaultMeter();
