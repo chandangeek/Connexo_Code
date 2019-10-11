@@ -60,7 +60,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                     this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
-                                    .domainContext(AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES.ordinal())
+                                    .domainContext(AuditDomainContextType.DEVICE_CUSTOM_ATTRIBUTES.domainContextId())
                                     .domainReferences(cps.getPersistenceSupport().domainForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
@@ -68,7 +68,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                     this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
-                                    .domainContext(AuditDomainContextType.DEVICE_CHANNEL_CUSTOM_ATTRIBUTES.ordinal())
+                                    .domainContext(AuditDomainContextType.DEVICE_CHANNEL_CUSTOM_ATTRIBUTES.domainContextId())
                                     .domainReferences(cps.getPersistenceSupport().contextForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(cps.getPersistenceSupport().domainFieldName(), HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
@@ -76,7 +76,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                     this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
-                                    .domainContext(AuditDomainContextType.DEVICE_REGISTER_CUSTOM_ATTRIBUTES.ordinal())
+                                    .domainContext(AuditDomainContextType.DEVICE_REGISTER_CUSTOM_ATTRIBUTES.domainContextId())
                                     .domainReferences(cps.getPersistenceSupport().contextForeignKeyName(), "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(cps.getPersistenceSupport().domainFieldName(), HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
@@ -84,7 +84,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                     this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
-                                    .domainContext(AuditDomainContextType.DEVICE_PROTOCOL_DIALECTS_PROPS.ordinal())
+                                    .domainContext(AuditDomainContextType.DEVICE_PROTOCOL_DIALECTS_PROPS.domainContextId())
                                     .domainReferences(cps.getPersistenceSupport().domainForeignKeyName(), "FK_DDC_PROTDIALECTPROPS_DEV", "FK_DDC_DEVICE_ENDDEVICE")
                                     .contextReferenceColumn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName() , HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());
@@ -104,7 +104,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                                                     if (fkc.getName().equals("DDC_PROTOCOLDIALECTPROPS")){
                                                         dataModel.getTable(cps.getPersistenceSupport().tableName())
                                                                 .audit("")
-                                                                .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.ordinal())
+                                                                .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.domainContextId())
                                                                 .domainReferences(cps.getPersistenceSupport().domainForeignKeyName(), "FK_DDC_PROTDIALECTPROPS_DEV", "FK_DDC_DEVICE_ENDDEVICE")
                                                                 .contextReferenceColumn(cps.getPersistenceSupport().domainColumnName(), HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                                                 .build();
@@ -112,7 +112,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                                                     else if (fkc.getName().equals("DDC_CONNECTIONTASK")){
                                                         dataModel.getTable(cps.getPersistenceSupport().tableName())
                                                                 .audit("")
-                                                                .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.ordinal())
+                                                                .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.domainContextId())
                                                                 .domainReferences(cps.getPersistenceSupport().domainForeignKeyName(), "FK_DDC_CONNECTIONTASK_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                                                                 .contextReferenceColumn(cps.getPersistenceSupport().domainColumnName(), HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                                                 .build();
