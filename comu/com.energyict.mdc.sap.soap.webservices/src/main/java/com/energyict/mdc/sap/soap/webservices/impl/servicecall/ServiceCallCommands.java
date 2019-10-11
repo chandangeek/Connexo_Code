@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.servicecall;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
@@ -216,8 +217,8 @@ public class ServiceCallCommands {
     private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message) {
         serviceCall.log(LogLevel.INFO, "Handling breaker operations for device with SAP id " + deviceId);
         Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
-        if (device.isPresent() && !device.get().getState().getName().equals(com.elster.jupiter.metering.DefaultState.ACTIVE.getKey())) {
-            sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_ACTIVE, message, deviceId);
+        if (device.isPresent() && !device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
+            sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, message, deviceId);
             return;
         }
         Optional<EndDevice> endDevice = device.isPresent()
