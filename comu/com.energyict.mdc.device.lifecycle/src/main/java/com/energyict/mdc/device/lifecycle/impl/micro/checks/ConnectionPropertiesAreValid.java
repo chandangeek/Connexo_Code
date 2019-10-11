@@ -62,7 +62,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                                 .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
                                 .map(ctp -> (SecurityAccessorType) ctp.getValue())
                                 .map(device::getSecurityAccessor)
-                                .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualValue().isPresent())){
+                                .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualPassphraseWrapperReference().isPresent())){
                             return true;
                         }
                         break;
