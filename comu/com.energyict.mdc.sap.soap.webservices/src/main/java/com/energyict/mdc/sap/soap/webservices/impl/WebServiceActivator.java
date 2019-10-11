@@ -94,6 +94,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 import com.google.common.collect.ImmutableMap;
@@ -382,6 +383,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
         createOrUpdateUpdateSapExportTask();
+        createOrUpdateCheckStatusChangeCancellationTask();
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {
@@ -431,6 +433,46 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .setPayLoad("payload")
                 .scheduleImmediately(true)
                 .build();
+    }
+
+    private void createMinutesActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, int minutes) {
+        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                .get()
+                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+        destination.activate();
+        destination.subscribe(subscriberSpecName, WebServiceActivator.COMPONENT_NAME, Layer.DOMAIN);
+
+        taskService.newBuilder()
+                .setApplication(WebServiceActivator.APPLICATION_NAME)
+                .setName(taskName)
+                .setScheduleExpression(PeriodicalScheduleExpression.every(minutes).minutes().at(0).build())
+                .setDestination(destination)
+                .setPayLoad("payload")
+                .scheduleImmediately(true)
+                .build();
+    }
+
+    private void createOrUpdateCheckStatusChangeCancellationTask() {
+        threadPrincipalService.set(() -> "Activator");
+        try (TransactionContext context = transactionService.getContext()) {
+            Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.CHECK_STATUS_CHANGE_FREQUENCY);
+
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME);
+            if (taskOptional.isPresent()) {
+                RecurrentTask task = taskOptional.get();
+                task.setScheduleExpression(PeriodicalScheduleExpression.every(frequency).minutes().at(0).build());
+                task.save();
+            } else {
+                createMinutesActionTask(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DESTINATION,
+                        CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_RETRY_DELAY,
+                        TranslationKeys.CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER_NAME,
+                        CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME,
+                        frequency);
+            }
+            context.commit();
+        } catch (Exception e) {
+            LOGGER.severe(e.getMessage());
+        }
     }
 
     @Deactivate
