@@ -65,15 +65,9 @@ abstract class AbstractDataSelector implements DataSelector {
                 activeItem.clearCachedReadingContainer();
             }
 
-            long numberOfItemsCreatedOrUpdated = 0;
-            for (ReadingTypeDataExportItem item : activeItems) {
-                if (selectedData.get(item.getId()).isPresent()) {
-                    numberOfItemsCreatedOrUpdated++;
-                } else if (updateData.get(item.getId()).isPresent()) {
-                    numberOfItemsCreatedOrUpdated++;
-                }
-            }
-
+            long numberOfItemsCreatedOrUpdated = activeItems.stream()
+                    .filter(i -> (selectedData.get(i.getId()).isPresent() || updateData.get(i.getId()).isPresent()))
+                    .collect(Collectors.counting());
             long numberOfItemsSkipped = activeItems.size() - numberOfItemsCreatedOrUpdated;
 
             occurrence.summarize(
