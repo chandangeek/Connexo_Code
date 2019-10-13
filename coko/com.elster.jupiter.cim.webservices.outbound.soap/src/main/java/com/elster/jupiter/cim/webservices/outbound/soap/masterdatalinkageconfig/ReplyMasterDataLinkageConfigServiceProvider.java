@@ -35,10 +35,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replymasterdatalinkageconfig.provider", service = {
@@ -111,7 +109,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 		using(method)
 				.toEndpoints(endPointConfiguration)
-				.withRelatedObject(values)
+				.withRelatedAttributes(values)
 				.send(message);
 	}
 

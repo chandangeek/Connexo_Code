@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -55,7 +54,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -150,7 +148,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         verify(deviceBuilder).withModelVersion(MODEL_VERSION);
         verify(deviceBuilder).withMultiplier(BigDecimal.valueOf(MULTIPLIER));
         verify(deviceBuilder).create();
-        verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
@@ -271,7 +269,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
                 any(CustomPropertySetValues.class));
         verify(customPropertySetService).setValuesVersionFor(eq(customVersionedPropertySet), eq(device),
                 any(CustomPropertySetValues.class), any(Range.class));
-        verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
 
         // Assert response
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
@@ -318,7 +316,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         verify(deviceBuilder).withModelNumber(null);
         verify(deviceBuilder).withModelVersion(null);
         verify(deviceBuilder).create();
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        verify(webServiceCallOccurrence, times(2)).saveRelatedAttribute(anyString(), anyString());
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
@@ -384,7 +382,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo(MessageSeeds.SYNC_MODE_NOT_SUPPORTED.getErrorCode());
-            verify(webServiceCallOccurrence, never()).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, never()).saveRelatedAttribute(anyString(), anyString());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -419,7 +417,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo("ERRORCODE");
             assertThat(error.getDetails()).isEqualTo("ErrorMessage");
-            verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -451,7 +449,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getDetails()).isEqualTo("ErrorMessage");
-            verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -482,7 +480,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.getErrorCode());
             assertThat(error.getDetails())
                     .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_TYPE.translate(thesaurus, "no such device type"));
-            verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -514,7 +512,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.getErrorCode());
             assertThat(error.getDetails())
                     .isEqualTo(MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION.translate(thesaurus, "no such device config"));
-            verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -546,7 +544,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.MISSING_ELEMENT.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(
                     MessageSeeds.MISSING_ELEMENT.translate(thesaurus, "MeterConfig.Meter.lifecycle.receivedDate"));
-            verify(webServiceCallOccurrence, times(1)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, times(1)).saveRelatedAttribute(anyString(), anyString());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -575,7 +573,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND.translate(thesaurus,
                     "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
-            verify(webServiceCallOccurrence, times(3)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }
@@ -605,7 +603,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getLevel()).isEqualTo(MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION.getErrorTypeLevel());
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION.translate(thesaurus));
-            verify(webServiceCallOccurrence, times(1)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+            verify(webServiceCallOccurrence, times(1)).saveRelatedAttribute(anyString(), anyString());
         }
     }
 
@@ -621,7 +619,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             executeMeterConfigEndpoint.createMeterConfig(meterConfigRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
         }
     }
 
@@ -651,7 +649,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             ErrorType error = faultInfo.getReply().getError().get(0);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
             assertThat(error.getCode()).isEqualTo(MessageSeeds.NO_END_POINT_WITH_URL.getErrorCode());
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
         } catch (Exception e) {
             fail("FaultMessage must be thrown");
         }

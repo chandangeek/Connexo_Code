@@ -34,7 +34,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,7 +62,7 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationTest extends AbstractO
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         when(outboundMessage.getBulkConfirmationMessage()).thenReturn(Optional.of(confirmationMessage));
         when(confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage()).thenReturn(msgList);
         when(msgMock.getUtilitiesDevice().getID().getValue()).thenReturn("UtilDeviceID");
@@ -85,7 +84,7 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationTest extends AbstractO
         values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                 "UtilDeviceID");
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(confirmationMessage);
     }
 

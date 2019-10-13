@@ -20,9 +20,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Component(name = UtilitiesDeviceBulkCreateConfirmation.NAME,
         service = {UtilitiesDeviceBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -69,7 +67,7 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutbo
                     message.getUtilitiesDevice().getID().getValue());
         });
         using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(msg.getConfirmationMessage());
     }
 

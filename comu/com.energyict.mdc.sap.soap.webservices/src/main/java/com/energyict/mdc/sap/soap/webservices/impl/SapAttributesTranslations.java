@@ -7,7 +7,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum SapAttributesTranslations  implements TranslationKey {
 
-        DEVICE_NAME("UtilitiesDeviceID", "Utilities Device ID"),
+        DEVICE_UTIL_DEVICE_ID("UtilitiesDeviceID", "Utilities Device ID"),
         DEVICE_MRID("UtilitiesMeasurementTaskID", "Local reference number"),
         DEVICE_SERIAL_NUMBER("SapSerialID", "Serial ID"),
         TIME_SERIES_ID("SapUtilitiesTimeSeriesID", "Time series ID");

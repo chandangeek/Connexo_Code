@@ -11,7 +11,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterCreate
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOutService;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -21,9 +20,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 @Component(name = UtilitiesDeviceRegisterCreateConfirmation.NAME,
         service = {UtilitiesDeviceRegisterCreateConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -63,15 +60,12 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
 
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
-
         SetMultimap<String, String> values = HashMultimap.create();
-        if (msg.getConfirmationMessage().get().getUtilitiesDevice() != null){
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                    msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
-        }
+        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
 
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(msg.getConfirmationMessage().get());
     }
 

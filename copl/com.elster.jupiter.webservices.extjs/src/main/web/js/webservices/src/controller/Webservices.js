@@ -26,14 +26,14 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
         'Wss.store.Roles',
-        'Wss.store.RelatedObjectStore'
+        'Wss.store.RelatedAttributeStore'
     ],
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
         'Wss.model.endpoint.Occurrence',
         'Wss.model.Log',
-        'Wss.model.RelatedObjectModel'
+        'Wss.model.RelatedAttributeModel'
     ],
 
     refs: [

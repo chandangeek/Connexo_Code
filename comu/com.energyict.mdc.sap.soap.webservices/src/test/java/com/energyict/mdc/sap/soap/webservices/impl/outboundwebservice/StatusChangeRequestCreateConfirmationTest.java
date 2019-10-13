@@ -65,7 +65,7 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
         when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
 
         when(confirmationMessage.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()).thenReturn(deviceConnectionStatuses);
         when(connectionStatus.getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceID");
@@ -89,7 +89,7 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
 
         verify(provider).using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut");
         verify(requestSender).send(confirmationMessage);
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
     }
 
     @Test

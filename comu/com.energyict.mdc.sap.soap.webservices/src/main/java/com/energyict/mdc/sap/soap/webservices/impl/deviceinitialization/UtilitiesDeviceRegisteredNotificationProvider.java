@@ -167,7 +167,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
         using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(notificationMessage);
     }
 

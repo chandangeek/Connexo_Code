@@ -5,12 +5,12 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
 
-public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObject, HasId {
+public class WebServiceCallRelatedAttributeImpl implements WebServiceCallRelatedAttribute, HasId {
 
     private final DataModel dataModel;
 
@@ -35,14 +35,12 @@ public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObj
     }
 
     @Inject
-    public WebServiceCallRelatedObjectImpl(DataModel dataModel) {
+    public WebServiceCallRelatedAttributeImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-
-
-    public WebServiceCallRelatedObjectImpl init(String key,
-                                                String value) {
+    public WebServiceCallRelatedAttributeImpl init(String key,
+                                                   String value) {
         this.key = key;
         this.value = value;
         return this;
@@ -54,10 +52,14 @@ public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObj
     }
 
     @Override
-    public String getKey(){return key;}
+    public String getKey() {
+        return key;
+    }
 
     @Override
-    public String getValue(){return value;}
+    public String getValue() {
+        return value;
+    }
 
     public void save() {
         if (id > 0) {
@@ -65,5 +67,9 @@ public class WebServiceCallRelatedObjectImpl implements WebServiceCallRelatedObj
         } else {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
+    }
+    @Override
+    public String toString () {
+        return "KEY = "+key +"value = "+value;
     }
 }

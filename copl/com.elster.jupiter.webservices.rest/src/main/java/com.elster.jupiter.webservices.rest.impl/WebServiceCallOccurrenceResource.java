@@ -14,7 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -135,17 +135,17 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     }
 
     @GET
-    @Path("/relatedobjects")
+    @Path("/relatedattributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public Response getRelatedObjects(@BeanParam JsonQueryParameters params) {
         String searchText = params.getLike();
-        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
-        List<WebServiceCallRelatedObject> listRelatedObjects = webServiceCallOccurrenceService.getRelatedObjectByValue(dbSearchText);
+        List<WebServiceCallRelatedAttribute> listRelatedObjects = webServiceCallOccurrenceService.getRelatedAttributesByValueLike(searchText)
+                .paged(params.getStart().get(),params.getLimit().get()).find();
 
-        List<RelatedObjectInfo> listInfo = listRelatedObjects.stream().map(obj-> {
-            return new RelatedObjectInfo(obj.getId(),
-                                        obj.getValue()+" ("+webServiceCallOccurrenceService.getTranslationForType(obj.getKey())+")");
+        List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream().map(obj-> {
+            return new RelatedAttributeInfo(obj.getId(),
+                                        obj.getValue()+" ("+webServiceCallOccurrenceService.translateAttributeType(obj.getKey())+")");
         }).collect(toList());
 
         return Response.ok().entity(listInfo).build();

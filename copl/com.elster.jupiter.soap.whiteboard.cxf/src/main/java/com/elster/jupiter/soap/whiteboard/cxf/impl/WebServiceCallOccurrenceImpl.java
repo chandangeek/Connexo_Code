@@ -12,7 +12,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
@@ -21,6 +20,8 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -206,36 +207,55 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         if (key != null && value != null) {
             String[] fieldName = {"key", "value"};
             String[] values = {key, value};
-            Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
+            Optional<WebServiceCallRelatedAttributeImpl> relatedObject = dataModel.mapper(WebServiceCallRelatedAttributeImpl.class)
                     .getUnique(fieldName, values);
             if (!relatedObject.isPresent()) {
-                relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectImpl.class));
+                relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class));
                 relatedObject.get().init(key, value);
                 relatedObject.get().save();
             }
 
-            WebServiceCallRelatedObjectBindingImpl relatedObjectBinding = dataModel.getInstance(WebServiceCallRelatedObjectBindingImpl.class);
+            WebServiceCallRelatedAttributeBindingImpl relatedObjectBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
             relatedObjectBinding.init(this, relatedObject.get());
             relatedObjectBinding.save();
         }
     }
 
     @Override
-    public void createRelatedObjectIndependantTransaction( String key, String value){
+    public void saveRelatedAttribute(String key, String value){
         transactionService.runInIndependentTransaction(()-> {
             createRelatedObject(key, value);
         });
     }
 
     @Override
-    public void createRelatedObjects(SetMultimap<String,String> values){
+    public void saveRelatedAttributes(SetMultimap<String,String> values){
         transactionService.runInIndependentTransaction(()-> {
-            values.keys().forEach(key -> {
+            List<WebServiceCallRelatedAttributeImpl> relatedObjectListToCreate = new ArrayList<>();
+            List<WebServiceCallRelatedAttributeBindingImpl> relatedObjectBindingList = new ArrayList<>();
+            String[] fieldName = {"key", "value"};
+            values.keySet().forEach(key -> {
                 values.get(key).forEach(value -> {
-                    createRelatedObject(key, value);
-                });
+                    if (value != null) {
+                        String[] tmpValues = {key, value};
+                        Optional<WebServiceCallRelatedAttributeImpl> relatedObject = dataModel.mapper(WebServiceCallRelatedAttributeImpl.class)
+                                .getUnique(fieldName, tmpValues);
 
+                        if (!relatedObject.isPresent()) {
+                            relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class));
+                            relatedObject.get().init(key, value);
+                            relatedObjectListToCreate.add(relatedObject.get());
+                        }
+
+                        WebServiceCallRelatedAttributeBindingImpl relatedObjectBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
+                        relatedObjectBinding.init(this, relatedObject.get());
+                        relatedObjectBindingList.add(relatedObjectBinding);
+                    }
+                });
             });
+
+            dataModel.mapper(WebServiceCallRelatedAttributeImpl.class).persist(relatedObjectListToCreate);
+            dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedObjectBindingList);
         });
     }
 

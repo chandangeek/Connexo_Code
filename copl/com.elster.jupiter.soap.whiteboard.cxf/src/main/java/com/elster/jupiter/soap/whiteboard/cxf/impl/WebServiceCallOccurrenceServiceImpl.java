@@ -1,6 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -11,13 +12,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectBinding;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,9 +38,6 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
         public LayerAndComponent(Layer layer, String component){
             this.layer = layer;
             this.component = component;
-        }
-
-        public LayerAndComponent(String component, Layer layer) {
         }
 
         @Override
@@ -98,34 +94,23 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     }
 
     @Override
-    public Optional<WebServiceCallRelatedObject> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value){
-        String[] fieldName = {"typeDomain", "key", "value"};
-        String[] values = {domain, key, value};
-        Optional<WebServiceCallRelatedObject> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObject.class)
-                .getUnique(fieldName, values);
-        return relatedObjectType;
-    }
-
-    @Override
-    public List<WebServiceCallRelatedObject> getRelatedObjectByValue(String value){
+    public Finder<WebServiceCallRelatedAttribute> getRelatedAttributesByValueLike(String value){
         Condition typeCondition = Condition.TRUE;
-
-        typeCondition = typeCondition.and(where("value").likeIgnoreCase(value));
-
-        return DefaultFinder.of(WebServiceCallRelatedObject.class, typeCondition, this.dataModel).sorted("value", true ).find();
+        String dbSearchText = (value != null && !value.isEmpty()) ? "*" + value + "*" : "*";
+        typeCondition = typeCondition.and(where("value").likeIgnoreCase(dbSearchText));
+        return DefaultFinder.of(WebServiceCallRelatedAttribute.class, typeCondition, this.dataModel).sorted("value", true );
     };
 
 
     @Override
-    public Optional<WebServiceCallRelatedObject> getRelatedObjectById(long id){
+    public Optional<WebServiceCallRelatedAttribute> getRelatedObjectById(long id){
 
-        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
-                .getUnique("id",id);
+        Optional<WebServiceCallRelatedAttribute> relatedObject = dataModel.mapper(WebServiceCallRelatedAttribute.class)
+                .getOptional(id);
 
         return relatedObject;
     };
 
-    @Override
     public void addRelatedObjectTypes(String component, Layer layer, Map<String, TranslationKey> typesMap){
         LayerAndComponent layerAndComponent = new LayerAndComponent(layer ,component);
         types.putAll(typesMap);
@@ -134,8 +119,15 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
         });
     }
 
+    public void removeRelatedObjectTypes(Map<String, TranslationKey> typesMap){
+        typesMap.keySet().forEach(key->{
+            types.remove(key);
+            layerAndComponentsMap.remove(key);
+        });
+    }
+
     @Override
-    public String getTranslationForType(String key){
+    public String translateAttributeType(String key){
         LayerAndComponent layerAndComponent = layerAndComponentsMap.get(key);
         TranslationKey translationKey = types.get(key);
         Thesaurus thesaurus = nlsService.getThesaurus(layerAndComponent.getComponent(), layerAndComponent.getLayer());

@@ -35,10 +35,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replyusagepointconfig.provider", service = {
         ReplyUsagePointConfigWebService.class, OutboundSoapEndPointProvider.class }, immediate = true, property = {
@@ -136,7 +134,7 @@ public class ReplyUsagePointConfigServiceProvider
         });
         using(method)
                 .toEndpoints(endPointConfiguration)
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 

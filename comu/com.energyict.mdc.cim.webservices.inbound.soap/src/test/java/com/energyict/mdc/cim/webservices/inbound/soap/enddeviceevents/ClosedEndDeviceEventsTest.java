@@ -43,7 +43,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
@@ -114,7 +113,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         endDeviceEventsRequest.getHeader().setCorrelationID(CORRELATION_ID);
         // Business method
         EndDeviceEventsResponseMessageType response = executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
-        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+        verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CLOSED);
@@ -143,7 +142,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
         // Business method
         EndDeviceEventsResponseMessageType response = executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
-        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+        verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
 
         // Asserts
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CLOSED);
@@ -174,7 +173,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         try {
             // Business method
             executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
 
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
@@ -203,7 +202,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         try {
             // Business method
             executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
 
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {

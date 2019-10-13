@@ -16,7 +16,6 @@ import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.SetMultimap;
 import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.NotAuthorizedException;
@@ -43,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -140,7 +138,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
 
-        public RequestSenderImpl withRelatedObject(SetMultimap<String,String> values){
+        public RequestSenderImpl withRelatedAttributes(SetMultimap<String,String> values){
             this.values = values;
             return this;
         }
@@ -245,9 +243,9 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         long id = webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
-                            WebServiceCallOccurrence wsCo= webServicesService.getOngoingOccurrence(id);
                             if (values != null) {
-                                wsCo.createRelatedObjects(values);
+                                WebServiceCallOccurrence wsCo= webServicesService.getOngoingOccurrence(id);
+                                wsCo.saveRelatedAttributes(values);
                             }
                             Object response = method.invoke(port, request);
                             webServicesService.passOccurrence(id);

@@ -73,7 +73,7 @@ public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPoin
         });
 
         using("utilitiesSmartMeterEventERPBulkCreateRequestCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(reqMsg);
     }
 

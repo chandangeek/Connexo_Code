@@ -79,13 +79,12 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
 
         SetMultimap<String, String> values = HashMultimap.create();
 
-        confirmationMessage.getConfirmationMessage().getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status->
-        {
+        confirmationMessage.getConfirmationMessage().getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status -> {
             values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), status.getUtilitiesDeviceID().getValue());
         });
 
         using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 
@@ -96,13 +95,13 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
         SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg message = confirmationMessage.getConfirmationMessage();
 
         SetMultimap<String, String> values = HashMultimap.create();
-        confirmationMessage.getConfirmationMessage().getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status->
-        {
+        confirmationMessage.getConfirmationMessage().getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status-> {
             values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), status.getUtilitiesDeviceID().getValue());
         });
 
         Set<EndPointConfiguration> successEndpoints = using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")
                 .toEndpoints(endpoints)
+                .withRelatedAttributes(values)
                 .send(message).keySet();
 
         endpoints.removeAll(successEndpoints);

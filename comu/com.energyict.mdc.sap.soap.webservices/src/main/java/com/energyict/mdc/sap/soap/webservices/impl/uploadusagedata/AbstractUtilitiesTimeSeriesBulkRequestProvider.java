@@ -20,7 +20,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
@@ -118,7 +117,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
             if (message != null) {
                 Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                         .toEndpoints(endPointConfiguration)
-                        .withRelatedObject(values)
+                        .withRelatedAttributes(values)
                         .send(message)
                         .keySet();
                 if (!processedEndpoints.contains(endPointConfiguration)) {
@@ -136,7 +135,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         }
     }
 
-    abstract MSG createMessage(Stream<? extends ExportData> data, String uuid, SetMultimap<String, String> values);
+    abstract MSG createMessage(Stream<? extends ExportData> data, String uuid, SetMultimap<String, String> attributes);
 
     abstract String getMessageSenderMethod();
 

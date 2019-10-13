@@ -5,21 +5,23 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectBinding;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
-public class WebServiceCallRelatedObjectBindingImpl implements WebServiceCallRelatedObjectBinding, HasId {
+public class WebServiceCallRelatedAttributeBindingImpl implements WebServiceCallRelatedAttributeBinding, HasId {
     private final DataModel dataModel;
 
     private long id;
+    @IsPresent
     private Reference<WebServiceCallOccurrence> occurrence = Reference.empty();
-    private Reference<WebServiceCallRelatedObject> type = Reference.empty();
+    @IsPresent
+    private Reference<WebServiceCallRelatedAttribute> type = Reference.empty();
 
     public enum Fields {
         ID("id"),
@@ -38,14 +40,13 @@ public class WebServiceCallRelatedObjectBindingImpl implements WebServiceCallRel
     }
 
     @Inject
-    public WebServiceCallRelatedObjectBindingImpl(DataModel dataModel) {
+    public WebServiceCallRelatedAttributeBindingImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
 
-
-    public WebServiceCallRelatedObjectBindingImpl init(WebServiceCallOccurrence occurrence,
-                                                       WebServiceCallRelatedObject type) {
+    public WebServiceCallRelatedAttributeBindingImpl init(WebServiceCallOccurrence occurrence,
+                                                          WebServiceCallRelatedAttribute type) {
         this.occurrence.set(occurrence);
         this.type.set(type);
         return this;
@@ -57,12 +58,14 @@ public class WebServiceCallRelatedObjectBindingImpl implements WebServiceCallRel
     }
 
     @Override
-    public Optional<WebServiceCallOccurrence> getOccurrence(){
-        return this.occurrence.getOptional();
+    public WebServiceCallOccurrence getOccurrence() {
+        return this.occurrence.get();
     }
 
     @Override
-    public Optional<WebServiceCallRelatedObject> getType(){return this.type.getOptional();}
+    public WebServiceCallRelatedAttribute getType() {
+        return this.type.get();
+    }
 
 
     public void save() {

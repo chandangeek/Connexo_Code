@@ -23,7 +23,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectTypeProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributesTypeProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -59,7 +59,6 @@ import java.io.File;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +72,7 @@ import java.util.stream.Stream;
         service = {WebServicesDataModelService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + WebServicesService.COMPONENT_NAME,
         immediate = true)
-public class
-WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageSeedProvider, TranslationKeyProvider, BundleWaiter.Startable {
+public class WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageSeedProvider, TranslationKeyProvider, BundleWaiter.Startable {
     private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -207,14 +205,15 @@ WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageS
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addAttributesTypes(WebServiceCallRelatedObjectTypeProvider provider){
+    public void addAttributeTypes(WebServiceCallRelatedAttributesTypeProvider provider){
+
         webServiceCallOccurrenceService.addRelatedObjectTypes(provider.getComponentName(),
                                                                 provider.getLayer(),
-                                                                provider.getTypes());
+                                                                provider.getAttributeTranslations());
     };
 
-    public void removeAttributesTypes(WebServiceCallRelatedObjectTypeProvider provider){
-        //Emtpy. Needed just for OSGI framework.
+    public void removeAttributeTypes(WebServiceCallRelatedAttributesTypeProvider provider){
+        webServiceCallOccurrenceService.removeRelatedObjectTypes(provider.getAttributeTranslations());
     }
 
     private Module getModule(String logDirectory) {

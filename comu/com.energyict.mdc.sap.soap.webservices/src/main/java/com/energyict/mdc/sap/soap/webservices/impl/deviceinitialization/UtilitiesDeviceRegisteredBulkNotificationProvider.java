@@ -110,7 +110,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         });
 
         using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(notificationMessage);
     }
 

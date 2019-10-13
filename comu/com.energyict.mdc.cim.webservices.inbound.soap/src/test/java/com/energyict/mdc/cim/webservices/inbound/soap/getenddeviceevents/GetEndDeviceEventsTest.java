@@ -146,7 +146,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
 
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
@@ -173,7 +173,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -208,7 +208,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -244,7 +244,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -273,7 +273,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         // Business method
         EndDeviceEventsResponseMessageType response = getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+        verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
         assertThat(response.getHeader().getNoun()).isEqualTo("GetEndDeviceEvents");
@@ -306,7 +306,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -334,7 +334,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -367,7 +367,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         try {
             // Business method
             getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
-            verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+            verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts

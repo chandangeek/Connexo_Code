@@ -71,11 +71,11 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
 
                 SetMultimap<String, String> values = HashMultimap.create();
                 createdEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
-                    if (!event.getNames().isEmpty()){
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
+                    if (!event.getAssets().getNames().isEmpty()){
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getAssets().getNames().get(0).getName());
                     }
-                    if (event.getMRID() != null) {
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
+                    if (event.getAssets().getMRID() != null) {
+                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
                     }
                     if(event.getUsagePoint() != null) {
                         if (!event.getUsagePoint().getNames().isEmpty() ) {
@@ -111,10 +111,10 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                 String correlationId = closedEndDeviceEventsEventMessage.getHeader() == null ? null : closedEndDeviceEventsEventMessage.getHeader().getCorrelationID();
                 SetMultimap<String, String> values = HashMultimap.create();
                 closedEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
-                    if (!event.getNames().isEmpty()) {
+                    if (!event.getAssets().getNames().isEmpty()) {
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
                     }
-                    if (event.getMRID() != null) {
+                    if (event.getAssets().getMRID() != null) {
                         values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
                     }
                     if(event.getUsagePoint() != null) {

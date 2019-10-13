@@ -13,7 +13,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulk
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilsDvceERPSmrtMtrRegedBulkNotifMsg;
 
-import aQute.lib.collections.MultiMap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -53,7 +52,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         deviceIds = Arrays.asList("100000000524205", "100000000524206", "100000000524207");
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
@@ -77,7 +76,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
 
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut");
         verify(requestSender).send(any(UtilsDvceERPSmrtMtrRegedBulkNotifMsg.class));
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
     }
 
     @Test

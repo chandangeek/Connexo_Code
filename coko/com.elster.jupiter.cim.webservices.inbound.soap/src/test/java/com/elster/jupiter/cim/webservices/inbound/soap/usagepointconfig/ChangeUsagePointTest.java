@@ -22,6 +22,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeFail;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
@@ -48,6 +49,7 @@ import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigFaultMessageTyp
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigResponseMessageType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.SetMultimap;
 
@@ -86,7 +88,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -597,7 +598,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_USAGE_POINT_STATE_WITH_NAME.getErrorCode(),
                 "No usage point state 'Drunk' is found in current life cycle.");
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -627,7 +631,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                         MessageSeeds.TRANSITION_ACTION_FAILED.getErrorCode(),
                         "Transition can't be performed due to failed transition action 'Ordinary action': This action acts ordinarily."
                 ));
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -653,7 +660,11 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                 ImmutableMap.of(connectionStatePropertySpec.getName(), logicallyDisconnectedValue));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -698,7 +709,9 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
 
         verify(usagePointLifeCycleService).performTransition(usagePoint, customTransition, "INS", Collections.emptyMap());
         verify(usagePoint).setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED);
-        verify(webServiceCallOccurrence, times(1)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -747,7 +760,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePointLifeCycleService).performTransition(usagePoint, deactivate, "INS", Collections.emptyMap());
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -790,7 +806,9 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePoint, never()).setName(anyString());
         verify(usagePoint, never()).update();
         verify(usagePoint).setConnectionState(ConnectionState.PHYSICALLY_DISCONNECTED);
-        verify(webServiceCallOccurrence, times(1)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         assertKeptDetails();
 
@@ -836,7 +854,11 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePoint, never()).update();
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         assertKeptDetails();
 
@@ -886,7 +908,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 "ERRORCODE",
                 "ErrorMessage");
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -909,7 +934,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 null,
                 "ErrorMessage");
-        verify(webServiceCallOccurrence, times(2)).createRelatedObjectIndependantTransaction(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -917,7 +945,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         // Prepare request
         UsagePointConfig usagePointConfig = new UsagePointConfig();
         ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo
-                = createUsagePoint("\t\n\r ", USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
+                = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
         usagePointConfig.getUsagePoint().add(usagePointInfo);
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
         usagePointConfigRequest.getHeader().setAsyncReplyFlag(true);
@@ -927,7 +955,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
 
         // Assert service call
         verify(serviceCall).requestTransition(com.elster.jupiter.servicecall.DefaultState.PENDING);
-        verify(webServiceCallOccurrence).createRelatedObjects(any(SetMultimap.class));
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     private ch.iec.tc57._2011.usagepointconfig.UsagePoint createUsagePoint(String mRID, String name, PhaseCode phaseCode,

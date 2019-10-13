@@ -44,7 +44,7 @@ public class UtilitiesDeviceBulkCreateConfirmationTest extends AbstractOutboundW
     @Mock
     private UtilitiesDeviceCreateConfirmationMessage outboundMessage;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    UtilsDvceERPSmrtMtrCrteConfMsg utilCreateConfMsg;
+    private UtilsDvceERPSmrtMtrCrteConfMsg utilCreateConfMsg;
 
 
     private UtilitiesDeviceBulkCreateConfirmationProvider provider;
@@ -59,7 +59,7 @@ public class UtilitiesDeviceBulkCreateConfirmationTest extends AbstractOutboundW
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
         when(confirmationMessage.getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage()).thenReturn(utilCreateConfMsgs);
@@ -81,7 +81,7 @@ public class UtilitiesDeviceBulkCreateConfirmationTest extends AbstractOutboundW
                 "UtilDeviceID");
 
         verify(provider).using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(confirmationMessage);
     }
 

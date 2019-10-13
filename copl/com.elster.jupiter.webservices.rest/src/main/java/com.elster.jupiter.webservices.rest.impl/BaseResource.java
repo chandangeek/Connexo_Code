@@ -17,7 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.users.User;
 
 import com.google.common.collect.Range;
@@ -156,15 +156,12 @@ public abstract class BaseResource {
         }
 
         if (filter.hasProperty("wsRelatedObjectId")) {
-            Integer objectId = filter.getInteger("wsRelatedObjectId");
-            if (objectId != null){
-                Optional<WebServiceCallRelatedObject> wscRo = webServiceCallOccurrenceService.getRelatedObjectById(objectId);
-                if (wscRo.isPresent()){
-                    finderBuilder.withRelatedObject(wscRo.get());
-                }
+            long objectId = filter.getInteger("wsRelatedObjectId");
+
+            Optional<WebServiceCallRelatedAttribute> wscRo = webServiceCallOccurrenceService.getRelatedObjectById(objectId);
+            if (wscRo.isPresent()) {
+                finderBuilder.withRelatedAttribute(wscRo.get());
             }
-
-
         }
 
         List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();

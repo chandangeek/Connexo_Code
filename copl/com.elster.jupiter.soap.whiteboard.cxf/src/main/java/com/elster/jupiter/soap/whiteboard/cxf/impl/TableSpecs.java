@@ -14,8 +14,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectBinding;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -146,53 +146,53 @@ public enum TableSpecs {
     WS_OCC_RELATED_OBJECTS{
         @Override
         void addTo(DataModel dataModel) {
-            Table<WebServiceCallRelatedObject> table = dataModel.addTable(this.name(), WebServiceCallRelatedObject.class);
-            table.map(WebServiceCallRelatedObjectImpl.class);
+            Table<WebServiceCallRelatedAttribute> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttribute.class);
+            table.map(WebServiceCallRelatedAttributeImpl.class);
             table.since(version(10, 7));
 
             Column idColumn = table.addAutoIdColumn();
 
             table.column("OBJECT_KEY")
                     .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectImpl.Fields.OBJECT_KEY.fieldName())
+                    .notNull()
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.OBJECT_KEY.fieldName())
                     .add();
             table.column("OBJECT_VALUE")
                     .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectImpl.Fields.OBJECT_VALUE.fieldName())
+                    .notNull()
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.OBJECT_VALUE.fieldName())
                     .add();
 
             table.primaryKey("PK_WS_RELATED_OBJECTS").on(idColumn).add();
-            //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
     WS_OCC_BINDING {
         @Override
         void addTo(DataModel dataModel) {
-            Table<WebServiceCallRelatedObjectBinding> table = dataModel.addTable(this.name(), WebServiceCallRelatedObjectBinding.class);
-            table.map(WebServiceCallRelatedObjectBindingImpl.class);
+            Table<WebServiceCallRelatedAttributeBinding> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttributeBinding.class);
+            table.map(WebServiceCallRelatedAttributeBindingImpl.class);
             table.since(version(10, 7));
 
             Column idColumn = table.addAutoIdColumn();
 
-            Column occurrence = table.column("OCCURRENCEID").number().add();
+            Column occurrence = table.column("OCCURRENCEID").number().notNull().add();
             table.foreignKey("FK_WS_RO_OCCURRENCE")
                     .references(WS_CALL_OCCURRENCE.name())
                     .on(occurrence)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(WebServiceCallRelatedObjectBindingImpl.Fields.OCCURRENCE.fieldName())
+                    .map(WebServiceCallRelatedAttributeBindingImpl.Fields.OCCURRENCE.fieldName())
                     .add();
 
             /* TO-DO: rename column */
-            Column type = table.column("TYPEID").number().add();
+            Column type = table.column("TYPEID").number().notNull().add();
             table.foreignKey("FK_WS_RO_TYPE")
                     .references(WS_OCC_RELATED_OBJECTS.name())
                     .on(type)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(WebServiceCallRelatedObjectBindingImpl.Fields.TYPE.fieldName())
+                    .map(WebServiceCallRelatedAttributeBindingImpl.Fields.TYPE.fieldName())
                     .add();
 
             table.primaryKey("PK_WS_OCC_BINDING").on(idColumn).add();
-            //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
 

@@ -73,7 +73,7 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
         });
 
         using("meterReadingDocumentERPResultBulkCreateRequestCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(resultMessage.getBulkResultMessage());
     }
 

@@ -117,7 +117,7 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
             });
 
             using(method)
-                    .withRelatedObject(values)
+                    .withRelatedAttributes(values)
                     .send(message);
         }
     }
@@ -156,7 +156,7 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
 
         Map response = using(method)
                 .toEndpoints(endPointConfiguration)
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(message);
         if (response == null || response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((MeterReadingsResponseMessageType)response.get(endPointConfiguration)).getReply().getResult()) {
             return false;

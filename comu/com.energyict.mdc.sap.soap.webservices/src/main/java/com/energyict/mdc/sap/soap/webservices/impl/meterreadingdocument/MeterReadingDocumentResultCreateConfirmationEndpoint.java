@@ -9,6 +9,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentERPResultCreateConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMtrRdngDoc;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfUtilsMsmtTsk;
 
 import com.energyict.cbo.ObservationTimestampProperties;
 import com.google.common.collect.HashMultimap;
@@ -31,14 +33,12 @@ public class MeterReadingDocumentResultCreateConfirmationEndpoint extends Abstra
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                        Optional.ofNullable(request.getMeterReadingDocument()).ifPresent(doc->{
-                            Optional.ofNullable(doc.getUtiltiesMeasurementTask()).ifPresent(task->{
-                                Optional.ofNullable(task.getUtiltiesDevice()).ifPresent(utilDevice->{
-                                    createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                                            utilDevice.getUtilitiesDeviceID().getValue());
-                                });
-                            });
+                        Optional.ofNullable(request.getMeterReadingDocument()).map(MtrRdngDocERPRsltCrteConfMtrRdngDoc::getUtiltiesMeasurementTask).
+                                map(MtrRdngDocERPRsltCrteConfUtilsMsmtTsk::getUtiltiesDevice).ifPresent(utilDevice->{
+                            createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                                    utilDevice.getUtilitiesDeviceID().getValue());
                         });
+
                         serviceCallCommands
                                 .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
                                         .builder()

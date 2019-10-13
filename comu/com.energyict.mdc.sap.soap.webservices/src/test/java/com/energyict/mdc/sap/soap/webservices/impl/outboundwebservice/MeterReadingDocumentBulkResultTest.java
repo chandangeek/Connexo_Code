@@ -58,7 +58,7 @@ public class MeterReadingDocumentBulkResultTest extends AbstractOutboundWebservi
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         when(outboundMessage.getUrl()).thenReturn(getURL());
         when(outboundMessage.getBulkResultMessage()).thenReturn(resultMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
@@ -85,7 +85,7 @@ public class MeterReadingDocumentBulkResultTest extends AbstractOutboundWebservi
 
         verify(provider).using("meterReadingDocumentERPResultBulkCreateRequestCOut");
         verify(requestSender).send(resultMessage);
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
     }
 
     @Test

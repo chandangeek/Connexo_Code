@@ -63,6 +63,6 @@ public interface OutboundEndPointProvider extends EndPointProvider {
          */
         Map<EndPointConfiguration, ?> sendRawXml(String message);
 
-        RequestSender withRelatedObject(SetMultimap<String,String> values);
+        RequestSender withRelatedAttributes(SetMultimap<String,String> values);
     }
 }

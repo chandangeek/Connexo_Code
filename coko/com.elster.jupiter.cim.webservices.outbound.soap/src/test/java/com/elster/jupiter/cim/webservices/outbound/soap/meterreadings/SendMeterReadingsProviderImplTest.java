@@ -96,7 +96,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         when(requestSender.toEndpoints(endPointConfiguration)).thenReturn(requestSender);
         Map responseMap = new HashMap();
         responseMap.put(endPointConfiguration, response);
-        when(requestSender.withRelatedObject(any())).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any())).thenReturn(requestSender);
         when(requestSender.send(any())).thenReturn(responseMap);
     }
 
@@ -131,7 +131,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         });
 
         verify(provider).using("createdMeterReadings");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 
@@ -177,7 +177,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         });
         verify(provider).using("createdMeterReadings");
         verify(requestSender).toEndpoints(endPointConfiguration);
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 

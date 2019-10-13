@@ -1,20 +1,20 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.device.data;
+package com.elster.jupiter.metering;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-public enum DeviceAttributesTranslations implements TranslationKey {
+public enum UsagePointAttributesTranslations implements TranslationKey {
 
-        DEVICE_NAME("deviceName", "Device name"),
-        DEVICE_MRID("mrID", "Device mrID"),
-        DEVICE_SERIAL_NUMBER("serialNumber", "Device serial number");
+        USAGE_POINT_NAME("usagePointName", "Usage point name"),
+        USAGE_POINT_MRID("usagePointMrID", "Usage point MRID");
+
 
         private final String key;
         private final String defaultFormat;
 
-        DeviceAttributesTranslations(String key, String defaultFormat) {
+        UsagePointAttributesTranslations (String key, String defaultFormat) {
             this.key = key;
             this.defaultFormat = defaultFormat;
         }
@@ -28,5 +28,4 @@ public enum DeviceAttributesTranslations implements TranslationKey {
         public String getDefaultFormat() {
             return defaultFormat;
         }
-
 }

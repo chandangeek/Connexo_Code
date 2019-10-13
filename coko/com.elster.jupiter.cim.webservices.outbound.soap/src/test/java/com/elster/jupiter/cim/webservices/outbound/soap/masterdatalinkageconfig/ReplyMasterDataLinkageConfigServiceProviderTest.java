@@ -99,7 +99,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url, "epcId", 1l));
         when(provider.using(anyString())).thenReturn(requestSender);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(anyObject())).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(anyObject())).thenReturn(requestSender);
         when(endPointConfiguration.getUrl()).thenReturn(url);
 
         when(failedLinkage.getErrorCode()).thenReturn(ERROR_CODE);
@@ -170,7 +170,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
         verify(provider).using("createdMasterDataLinkageConfig");
         verify(requestSender).toEndpoints(endPointConfiguration);
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
@@ -218,7 +218,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
         verify(provider).using("closedMasterDataLinkageConfig");
         verify(requestSender).toEndpoints(endPointConfiguration);
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
@@ -281,7 +281,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
         verify(provider).using("closedMasterDataLinkageConfig");
         verify(requestSender).toEndpoints(endPointConfiguration);
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 

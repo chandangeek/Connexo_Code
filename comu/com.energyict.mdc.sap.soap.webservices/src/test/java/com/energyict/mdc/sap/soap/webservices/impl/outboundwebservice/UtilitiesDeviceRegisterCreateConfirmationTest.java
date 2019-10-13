@@ -29,7 +29,6 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -55,7 +54,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationTest extends AbstractOutbo
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         when(outboundMessage.getConfirmationMessage()).thenReturn(Optional.of(confirmationMessage));
         when(confirmationMessage.getUtilitiesDevice().getID().getValue()).thenReturn("UtilDeviceID");
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
@@ -77,7 +76,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationTest extends AbstractOutbo
 
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut");
         verify(requestSender).send(confirmationMessage);
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
     }
 
     @Test

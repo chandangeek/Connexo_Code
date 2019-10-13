@@ -7,7 +7,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
     xtype: 'mss-view-history-history-topfilter',
     requires: [
         'Wss.store.Endpoints',
-        'Wss.store.RelatedObjectStore'
+        'Wss.store.RelatedAttributeStore'
     ],
     endpoint: null,
 
@@ -73,7 +73,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 emptyText: Uni.I18n.translate('mdc.processes.allprocessestopfilter.objects', 'MDC', 'Objects'),
                 displayField: 'displayValue',
                 valueField: "id",
-                store: 'Wss.store.RelatedObjectStore',
+                store: 'Wss.store.RelatedAttributeStore',
                 queryMode: 'remote',
                 queryParam: 'like',
                 queryCaching: false,

@@ -1,20 +1,20 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.elster.jupiter.mdm.usagepoint.data;
+package com.elster.jupiter.metering;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-public enum UsagePointAttributesTranslations implements TranslationKey {
+public enum DeviceAttributesTranslations implements TranslationKey {
 
-        USAGE_POINT_NAME("usagePointName", "Usage point name"),
-        USAGE_POINT_MRID("usagePointMrID", "Usage point mrID");
-
+        DEVICE_NAME("deviceName", "Device name"),
+        DEVICE_MRID("mrID", "Device MRID"),
+        DEVICE_SERIAL_NUMBER("serialNumber", "Device serial number");
 
         private final String key;
         private final String defaultFormat;
 
-        UsagePointAttributesTranslations (String key, String defaultFormat) {
+        DeviceAttributesTranslations(String key, String defaultFormat) {
             this.key = key;
             this.defaultFormat = defaultFormat;
         }
@@ -28,4 +28,5 @@ public enum UsagePointAttributesTranslations implements TranslationKey {
         public String getDefaultFormat() {
             return defaultFormat;
         }
+
 }

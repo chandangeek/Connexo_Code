@@ -35,13 +35,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.sql.rowset.spi.SyncFactoryException;
 import javax.xml.ws.Service;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -152,7 +149,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
                 record.getEndDevice().getMRID());
 
         using("createdEndDeviceEvents")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 

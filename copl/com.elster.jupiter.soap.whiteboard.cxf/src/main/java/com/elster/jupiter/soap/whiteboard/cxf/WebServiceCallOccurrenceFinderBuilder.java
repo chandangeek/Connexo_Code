@@ -27,7 +27,7 @@ public interface WebServiceCallOccurrenceFinderBuilder {
 
     WebServiceCallOccurrenceFinderBuilder onlyOutbound();
 
-    WebServiceCallOccurrenceFinderBuilder withRelatedObject(WebServiceCallRelatedObject relatedObjectId);
+    WebServiceCallOccurrenceFinderBuilder withRelatedAttribute(WebServiceCallRelatedAttribute relatedObjectId);
 
     Finder<WebServiceCallOccurrence> build();
 

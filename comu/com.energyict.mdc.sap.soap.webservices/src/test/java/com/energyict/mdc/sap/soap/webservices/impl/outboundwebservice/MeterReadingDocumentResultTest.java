@@ -55,7 +55,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         when(outboundMessage.getUrl()).thenReturn(getURL());
         when(outboundMessage.getResultMessage()).thenReturn(resultMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue()).thenReturn("UtilMeasurmentTaskID");
         when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceID");
     }
@@ -75,7 +75,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),"UtilDeviceID");
 
         verify(provider).using("meterReadingDocumentERPResultCreateRequestCOut");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(resultMessage);
     }
 

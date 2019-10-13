@@ -48,7 +48,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
         service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, TranslationKeyProvider.class},
@@ -169,6 +168,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
 
+
         SetMultimap<String, String> values = HashMultimap.create();
 
         successfulDevices.forEach(device->{
@@ -179,7 +179,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
         using(method)
                 .toEndpoints(endPointConfiguration)
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 

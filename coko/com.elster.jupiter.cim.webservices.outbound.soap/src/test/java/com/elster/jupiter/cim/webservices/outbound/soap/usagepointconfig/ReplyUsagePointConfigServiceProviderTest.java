@@ -48,7 +48,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import aQute.lib.collections.MultiMap;
 import ch.iec.tc57._2011.replyusagepointconfig.FaultMessage;
 import ch.iec.tc57._2011.replyusagepointconfig.UsagePointConfigPort;
 import ch.iec.tc57._2011.schema.message.ReplyType;
@@ -144,7 +143,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         when(usagePoint.forCustomProperties()).thenReturn(usagepointCustomPropertySetExtension);
         when(usagepointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
         when(testable.using(anyString())).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(any(SetMultimap.class ))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class ))).thenReturn(requestSender);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
     }
 
@@ -165,7 +164,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
             values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
         });
         verify(testable).using("createdUsagePointConfig");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.PARTIAL, value.getReply().getResult());
@@ -194,7 +193,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("createdUsagePointConfig");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.OK, value.getReply().getResult());
@@ -219,7 +218,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("createdUsagePointConfig");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.FAILED, value.getReply().getResult());
@@ -249,7 +248,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("changedUsagePointConfig");
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.PARTIAL, value.getReply().getResult());

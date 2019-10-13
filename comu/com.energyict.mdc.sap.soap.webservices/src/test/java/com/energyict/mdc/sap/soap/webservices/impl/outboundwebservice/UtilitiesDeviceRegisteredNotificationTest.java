@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -63,7 +62,7 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(requestSender.withRelatedObject(any(SetMultimap.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         deviceId = "100000000524205";
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
@@ -84,7 +83,7 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
 
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut");
         verify(requestSender).send(any(UtilsDvceERPSmrtMtrRegedNotifMsg.class));
-        verify(requestSender).withRelatedObject(values);
+        verify(requestSender).withRelatedAttributes(values);
     }
 
     @Test

@@ -9,8 +9,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectBinding;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 
@@ -92,10 +92,10 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withRelatedObject(WebServiceCallRelatedObject relatedObject){
-        this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObjectBinding.class)
-                .asSubquery(this.subCondition.and(where(WebServiceCallRelatedObjectBindingImpl.Fields.TYPE.fieldName()).isEqualTo(relatedObject)),
-                        WebServiceCallRelatedObjectBindingImpl.Fields.OCCURRENCE.fieldName()), WebServiceCallRelatedObjectBindingImpl.Fields.ID.fieldName()));
+    public WebServiceCallOccurrenceFinderBuilder withRelatedAttribute(WebServiceCallRelatedAttribute relatedObject){
+        this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedAttributeBinding.class)
+                .asSubquery(this.subCondition.and(where(WebServiceCallRelatedAttributeBindingImpl.Fields.TYPE.fieldName()).isEqualTo(relatedObject)),
+                        WebServiceCallRelatedAttributeBindingImpl.Fields.OCCURRENCE.fieldName()), WebServiceCallRelatedAttributeBindingImpl.Fields.ID.fieldName()));
         return this;
     }
 

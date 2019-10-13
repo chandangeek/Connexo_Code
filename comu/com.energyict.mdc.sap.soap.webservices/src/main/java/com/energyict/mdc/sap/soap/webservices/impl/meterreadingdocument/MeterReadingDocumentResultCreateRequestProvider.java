@@ -70,7 +70,7 @@ public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOut
         values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                 resultMessage.getResultMessage().getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
         using("meterReadingDocumentERPResultCreateRequestCOut")
-                .withRelatedObject(values)
+                .withRelatedAttributes(values)
                 .send(resultMessage.getResultMessage());
     }
 

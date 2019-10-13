@@ -36,8 +36,8 @@ public interface WebServiceCallOccurrence {
     void setStatus(WebServiceCallOccurrenceStatus status);
     void setPayload(String payload);
     void setApplicationName(String applicationName);
-    void createRelatedObjectIndependantTransaction( String key, String value);
-    void createRelatedObjects(SetMultimap<String, String> values);
+    void saveRelatedAttribute(String key, String value);
+    void saveRelatedAttributes(SetMultimap<String, String> values);
     void retry();
 
     void save();
