@@ -37,7 +37,8 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         READING_ATTEMPT("readingAttempt", "readingAttempt"),
         ACTUAL_READING_DATE("actualReadingDate", "actualReadingDate"),
         READING("reading", "reading"),
-        CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap");
+        CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
+        COM_TASK_EXECUTION_ID("comTaskExecutionId", "COM_TASK_EXECUTION_ID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -93,6 +94,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
     private BigDecimal reading;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String cancelledBySap;
+    private Long comTaskExecutionId;
 
     public MeterReadingDocumentCreateResultDomainExtension() {
         super();
@@ -239,6 +241,15 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.reading = reading;
     }
 
+    public Long getComTaskExecutionId() {
+        return comTaskExecutionId;
+    }
+
+    public void setComTaskExecutionId(Long comTaskExecutionId) {
+        this.comTaskExecutionId = comTaskExecutionId;
+    }
+
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -259,6 +270,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.setActualReadingDate((Instant) propertyValues.getProperty(FieldNames.ACTUAL_READING_DATE.javaName()));
         this.setReading((BigDecimal) propertyValues.getProperty(FieldNames.READING.javaName()));
         this.setCancelledBySap((String) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
+        this.setComTaskExecutionId((Long) propertyValues.getProperty(FieldNames.COM_TASK_EXECUTION_ID.javaName()));
     }
 
     @Override
@@ -279,6 +291,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         propertySetValues.setProperty(FieldNames.ACTUAL_READING_DATE.javaName(), this.getActualReadingDate());
         propertySetValues.setProperty(FieldNames.READING.javaName(), this.getReading());
         propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.getCancelledBySap());
+        propertySetValues.setProperty(FieldNames.COM_TASK_EXECUTION_ID.javaName(), this.getComTaskExecutionId());
     }
 
     @Override
