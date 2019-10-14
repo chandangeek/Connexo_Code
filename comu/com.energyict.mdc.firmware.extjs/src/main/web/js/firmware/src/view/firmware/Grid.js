@@ -20,7 +20,7 @@ Ext.define('Fwc.view.firmware.Grid', {
     columns: [
         {
             text: Uni.I18n.translate('firmware.field.rank', 'FWC', 'Rank'),
-            flex: 1,
+            width: 63,
             dataIndex: 'rank',
             renderer: function (value, metaData, record, rowIndex, fullIndex, dataSource) {
                 var rIndex = value ? value : '';
@@ -34,26 +34,26 @@ Ext.define('Fwc.view.firmware.Grid', {
         {
             text: Uni.I18n.translate('general.version', 'FWC', 'Version'),
             dataIndex: 'firmwareVersion',
-            flex:2
+            width: 210
         },
         {
             text: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
-            flex: 1,
+            width: 180,
             dataIndex: 'type'
         },
         {
             text: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
-            flex: 2,
+            width: 210,
             dataIndex: 'imageIdentifier'
         },
         {
             text: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
-            flex: 1,
+            width: 128,
             dataIndex: 'status'
         },
         {
             text: Uni.I18n.translate('firmware.field.meterDepVersion', 'FWC', 'Min meter FW'),
-            flex: 1,
+            width: 180,
             dataIndex: 'meterFirmwareDependency',
             itemId: 'minMeterLevel',
             hidden: true,
@@ -63,7 +63,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         },
         {
             text: Uni.I18n.translate('firmware.field.communicationDepVersion', 'FWC', 'Min com FW'),
-            flex: 1,
+            width: 180,
             itemId: 'minCommLevel',
             dataIndex: 'communicationFirmwareDependency',
             hidden: true,
@@ -73,7 +73,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         },
         {
             text: Uni.I18n.translate('firmware.field.auxiliaryDepVersion', 'FWC', 'Min aux FW'),
-            flex: 1,
+            width: 180,
             itemId: 'minAuxiliaryLevel',
             dataIndex: 'auxiliaryFirmwareDependency',
             hidden: true,

@@ -38,6 +38,8 @@ public interface TimeOfUseCampaign {
 
     String getUpdateType();
 
+    boolean isManuallyCancelled();
+
     ServiceCall getServiceCall();
 
     Map<DefaultState, Long> getNumbersOfChildrenWithStatuses();
@@ -66,17 +68,9 @@ public interface TimeOfUseCampaign {
 
     Long getValidationComTaskId();
 
-    void setCalendarUploadComTaskId(Long calendarUploadComTaskId);
-
-    void setValidationComTaskId(Long validationComTaskId);
-
     Optional<ConnectionStrategy> getCalendarUploadConnectionStrategy();
 
     Optional<ConnectionStrategy> getValidationConnectionStrategy();
-
-    void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy);
-
-    void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy);
 
     ComWindow getComWindow();
 }

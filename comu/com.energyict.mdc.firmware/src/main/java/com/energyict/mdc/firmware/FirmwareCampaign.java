@@ -31,13 +31,9 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     FirmwareType getFirmwareType();
 
-    void setFirmwareType(FirmwareType firmwareType);
-
     FirmwareVersion getFirmwareVersion();
 
     ProtocolSupportedFirmwareOptions getFirmwareManagementOption();
-
-    void setManagementOption(ProtocolSupportedFirmwareOptions upgradeOption);
 
     Map<String, Object> getProperties();
 
@@ -56,6 +52,8 @@ public interface FirmwareCampaign extends HasId, HasName {
     Instant getActivationDate();
 
     TimeDuration getValidationTimeout();
+
+    boolean isManuallyCancelled();
 
     ServiceCall getServiceCall();
 
@@ -82,14 +80,6 @@ public interface FirmwareCampaign extends HasId, HasName {
     Instant getFinishedOn();
 
     List<DeviceInFirmwareCampaign> getDevices();
-
-    void setFirmwareUploadComTaskId(Long firmwareUploadComTaskId);
-
-    void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy);
-
-    void setValidationComTaskId(Long validationComTaskId);
-
-    void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy);
 
     Long getFirmwareUploadComTaskId();
 

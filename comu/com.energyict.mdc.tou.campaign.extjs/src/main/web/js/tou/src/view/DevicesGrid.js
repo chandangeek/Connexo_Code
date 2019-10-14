@@ -15,6 +15,7 @@ Ext.define('Tou.view.DevicesGrid', {
     overflowY: 'auto',
     maxHeight: 430,
     campaignIsOngoing: null,
+    manuallyCancelled: null,
     viewConfig: {
         markDirty: false
     },
@@ -78,13 +79,11 @@ Ext.define('Tou.view.DevicesGrid', {
                 width: 120,
                 privileges: Tou.privileges.TouCampaign.administrate,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
-                    if (!me.campaignIsOngoing) {
+                    if (me.manuallyCancelled) {
                         return true;
                     }
                     switch (record.get('status')) { // current device status
                     case 'Pending':
-                    case 'Ongoing':
-                        return false;
                     case 'Cancelled':
                     case 'Failed':
                     case 'Configuration error':
@@ -95,7 +94,8 @@ Ext.define('Tou.view.DevicesGrid', {
                 },
                 menu: {
                     xtype: 'tou-campaigns-device-action-menu',
-                    itemId: 'tou-campaigns-device-action-menu'
+                    itemId: 'tou-campaigns-device-action-menu',
+                    manuallyCancelled: me.manuallyCancelled
                 }
             }
         ];
