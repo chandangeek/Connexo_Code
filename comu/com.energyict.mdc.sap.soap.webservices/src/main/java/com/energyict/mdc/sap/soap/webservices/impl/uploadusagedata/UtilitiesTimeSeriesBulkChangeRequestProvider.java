@@ -20,10 +20,10 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.BusinessDocumentMessageID;
@@ -159,7 +159,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .forEach(item -> addDataItem(msg, item, now));
         if (msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().size() > 0) {
             msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().forEach(message->{
-                        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+                        values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
                                 message.getUtilitiesTimeSeries().getID().getValue());
                     });
             return msg;

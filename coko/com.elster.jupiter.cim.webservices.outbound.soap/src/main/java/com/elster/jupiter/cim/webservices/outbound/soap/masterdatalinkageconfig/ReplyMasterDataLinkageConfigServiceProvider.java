@@ -6,11 +6,12 @@ package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
@@ -94,17 +95,17 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		}
 		SetMultimap<String, String> values = HashMultimap.create();
 		successfulLinkages.forEach(link->{
-			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
-			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
-			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
-			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+			values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+			values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
 
 		});
 		failedLinkages.forEach(link->{
-			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
-			values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
-			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
-			values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+			values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+			values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+			values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
 		});
 
 		using(method)

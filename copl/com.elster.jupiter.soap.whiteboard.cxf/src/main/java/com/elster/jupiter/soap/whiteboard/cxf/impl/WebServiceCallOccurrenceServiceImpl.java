@@ -112,10 +112,13 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     };
 
     public void addRelatedObjectTypes(String component, Layer layer, Map<String, TranslationKey> typesMap){
+
         LayerAndComponent layerAndComponent = new LayerAndComponent(layer ,component);
         types.putAll(typesMap);
+        System.out.println("TYPES="+types);
         typesMap.keySet().forEach(key->{
             layerAndComponentsMap.put(key, layerAndComponent);
+            System.out.println("layerAndComponentsMap="+layerAndComponentsMap);
         });
     }
 

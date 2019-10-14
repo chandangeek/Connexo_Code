@@ -4,12 +4,13 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
@@ -102,16 +103,16 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
             SetMultimap<String, String> values = HashMultimap.create();
             readingInfos.forEach(reading->{
                 reading.getMeter().ifPresent(meter->{
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),
+                    values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
                             meter.getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                    values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
                             meter.getMRID());
                 });
 
                 reading.getUsagePoint().ifPresent(usp->{
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                    values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(),
                             usp.getName());
-                    values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                    values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
                             usp.getMRID());
                 });
             });
@@ -140,16 +141,16 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
         SetMultimap<String, String> values = HashMultimap.create();
         meterReadings.getMeterReading().forEach(reading->{
             Optional.ofNullable(reading.getMeter()).ifPresent(meter->{
-                values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),
+                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
                         meter.getNames().get(0).getName());
-                values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
                         meter.getMRID());
             });
 
             Optional.ofNullable(reading.getUsagePoint()).ifPresent(usp->{
-                values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(),
                         usp.getNames().get(0).getName());
-                values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
                         usp.getMRID());
             });
         });

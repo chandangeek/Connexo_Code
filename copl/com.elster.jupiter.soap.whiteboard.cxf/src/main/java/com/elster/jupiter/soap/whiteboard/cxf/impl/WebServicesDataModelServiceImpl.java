@@ -23,7 +23,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributesTypeProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeTypeProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -205,14 +205,13 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addAttributeTypes(WebServiceCallRelatedAttributesTypeProvider provider){
-
+    public void addAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider){
         webServiceCallOccurrenceService.addRelatedObjectTypes(provider.getComponentName(),
                                                                 provider.getLayer(),
                                                                 provider.getAttributeTranslations());
     };
 
-    public void removeAttributeTypes(WebServiceCallRelatedAttributesTypeProvider provider){
+    public void removeAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider){
         webServiceCallOccurrenceService.removeRelatedObjectTypes(provider.getAttributeTranslations());
     }
 

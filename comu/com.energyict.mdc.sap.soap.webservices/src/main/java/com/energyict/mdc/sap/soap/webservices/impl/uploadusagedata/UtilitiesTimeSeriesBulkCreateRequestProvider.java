@@ -19,11 +19,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageID;
@@ -38,7 +38,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqUtilsTmeSers;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
@@ -162,7 +161,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .forEach(item -> addDataItem(msg, item, now));
         if (msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().size() > 0) {
             msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().forEach(message->{
-                values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+                values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
                         message.getUtilitiesTimeSeries().getID().getValue());
             });
             return msg;

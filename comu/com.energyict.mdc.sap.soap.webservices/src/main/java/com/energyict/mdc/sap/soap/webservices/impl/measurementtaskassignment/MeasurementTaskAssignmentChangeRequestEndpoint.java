@@ -14,9 +14,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeProcessor;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -63,15 +63,15 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     public void utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             SetMultimap<String, String> values = HashMultimap.create();
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+            values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
                     request.getUtilitiesTimeSeries().getID().getValue());
             request.getUtilitiesTimeSeries().getMeasurementTaskAssignmentRole().forEach(role->
             {
-                values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
                         role.getUtilitiesMeasurementTaskID().getValue());
             });
 
-            createRelatedObjects(values);
+            saveRelatedAttributes(values);
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> handleMessage(requestMessage));

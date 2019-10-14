@@ -143,13 +143,13 @@ public abstract class AbstractInboundEndPoint {
         webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
     }
 
-    protected void createRelatedObject(String type, String value){
+    protected void saveRelatedAttribute(String type, String value){
         if (value != null && !value.isEmpty()) {
             webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttribute(type, value);
         }
     }
 
-    protected void createRelatedObjects(SetMultimap<String, String> values){
+    protected void saveRelatedAttributes(SetMultimap<String, String> values){
         webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttributes(values);
     }
 

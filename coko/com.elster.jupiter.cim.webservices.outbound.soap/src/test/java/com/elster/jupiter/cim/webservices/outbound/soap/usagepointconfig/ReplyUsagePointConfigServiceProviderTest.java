@@ -33,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -43,7 +44,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -156,12 +156,12 @@ public class ReplyUsagePointConfigServiceProviderTest {
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         SetMultimap<String, String> values = HashMultimap.create();
         Arrays.asList(usagePoint).forEach(up->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
         });
         Arrays.asList(FAILED_OP).forEach(upF->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
         });
         verify(testable).using("createdUsagePointConfig");
         verify(requestSender).withRelatedAttributes(values);
@@ -188,8 +188,8 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 BigDecimal.ONE, CORRELATION_ID);
         SetMultimap<String, String> values = HashMultimap.create();
         Arrays.asList(usagePoint).forEach(up->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
         });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("createdUsagePointConfig");
@@ -213,8 +213,8 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 BigDecimal.ONE, CORRELATION_ID);
         SetMultimap<String, String> values = HashMultimap.create();
         Arrays.asList(FAILED_OP).forEach(upF->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
         });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("createdUsagePointConfig");
@@ -239,12 +239,12 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 EXPECTED_NUMBER_OF_CALLS, CORRELATION_ID);
         SetMultimap<String, String> values = HashMultimap.create();
         Arrays.asList(usagePoint).forEach(up->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
         });
         Arrays.asList(FAILED_OP).forEach(upF->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upF.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), upF.getUsagePointName());
         });
         //verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(testable).using("changedUsagePointConfig");

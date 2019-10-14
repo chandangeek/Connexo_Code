@@ -12,9 +12,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.SetMultimap;
 
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -228,34 +231,51 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         });
     }
 
-    @Override
     public void saveRelatedAttributes(SetMultimap<String,String> values){
         transactionService.runInIndependentTransaction(()-> {
-            List<WebServiceCallRelatedAttributeImpl> relatedObjectListToCreate = new ArrayList<>();
-            List<WebServiceCallRelatedAttributeBindingImpl> relatedObjectBindingList = new ArrayList<>();
-            String[] fieldName = {"key", "value"};
-            values.keySet().forEach(key -> {
-                values.get(key).forEach(value -> {
-                    if (value != null) {
-                        String[] tmpValues = {key, value};
-                        Optional<WebServiceCallRelatedAttributeImpl> relatedObject = dataModel.mapper(WebServiceCallRelatedAttributeImpl.class)
-                                .getUnique(fieldName, tmpValues);
+            List<WebServiceCallRelatedAttributeImpl> relatedAttributeListToCreate = new ArrayList<>();
+            List<WebServiceCallRelatedAttributeBindingImpl> relatedAttributeBindingList = new ArrayList<>();
 
-                        if (!relatedObject.isPresent()) {
-                            relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class));
-                            relatedObject.get().init(key, value);
-                            relatedObjectListToCreate.add(relatedObject.get());
-                        }
+            if (values.isEmpty()){
+                return;
+            }
 
-                        WebServiceCallRelatedAttributeBindingImpl relatedObjectBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
-                        relatedObjectBinding.init(this, relatedObject.get());
-                        relatedObjectBindingList.add(relatedObjectBinding);
+            Condition condition = values.entries().stream()
+                    .filter(entry -> entry.getValue() != null && entry.getKey() != null)
+                    .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName()).isEqualTo(entry.getKey())
+                            .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue())))
+                    .reduce(Condition::or).get();
+            /* Find all related attributes that has been already created */
+            List<WebServiceCallRelatedAttributeImpl> createdRelatedAttrubuteList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition);
+
+            /* Find all related attributes that should be created */
+            values.entries().forEach(entry->{
+                if (entry.getKey() != null && entry.getValue() != null) {
+                    WebServiceCallRelatedAttributeImpl relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
+                    relatedObject.init(entry.getKey(), entry.getValue());
+                    if (!createdRelatedAttrubuteList.contains(relatedObject)) {
+                        relatedAttributeListToCreate.add(relatedObject);
                     }
-                });
+                }
             });
 
-            dataModel.mapper(WebServiceCallRelatedAttributeImpl.class).persist(relatedObjectListToCreate);
-            dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedObjectBindingList);
+            /* Create related attributes that hasn't been created yet */
+            dataModel.mapper(WebServiceCallRelatedAttributeImpl.class).persist(relatedAttributeListToCreate);
+
+
+            createdRelatedAttrubuteList.forEach(obj->{
+                WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
+                relatedAttributeBinding.init(this, obj);
+                relatedAttributeBindingList.add(relatedAttributeBinding);
+            });
+
+            relatedAttributeListToCreate.forEach(obj->{
+                WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
+                relatedAttributeBinding.init(this, obj);
+                relatedAttributeBindingList.add(relatedAttributeBinding);
+            });
+
+            dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedAttributeBindingList);
         });
     }
 

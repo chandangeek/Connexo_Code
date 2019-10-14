@@ -9,7 +9,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut;
@@ -80,7 +80,7 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
         SetMultimap<String, String> values = HashMultimap.create();
 
         confirmationMessage.getConfirmationMessage().getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status -> {
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), status.getUtilitiesDeviceID().getValue());
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), status.getUtilitiesDeviceID().getValue());
         });
 
         using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")
@@ -96,7 +96,7 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
 
         SetMultimap<String, String> values = HashMultimap.create();
         confirmationMessage.getConfirmationMessage().getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status-> {
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), status.getUtilitiesDeviceID().getValue());
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), status.getUtilitiesDeviceID().getValue());
         });
 
         Set<EndPointConfiguration> successEndpoints = using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")

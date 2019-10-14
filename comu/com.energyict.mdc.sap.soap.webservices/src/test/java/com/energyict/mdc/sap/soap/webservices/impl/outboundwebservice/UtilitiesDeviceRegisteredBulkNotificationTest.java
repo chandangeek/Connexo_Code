@@ -6,7 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut;
@@ -70,7 +70,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
         SetMultimap<String,String> values = HashMultimap.create();
 
         deviceIds.forEach(deviceId->{
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                     deviceId);
         });
 

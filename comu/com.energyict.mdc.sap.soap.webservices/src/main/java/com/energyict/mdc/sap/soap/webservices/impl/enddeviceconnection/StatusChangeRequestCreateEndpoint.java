@@ -5,7 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg;
@@ -32,11 +32,11 @@ public class StatusChangeRequestCreateEndpoint extends AbstractInboundEndPoint i
             SetMultimap<String, String> values = HashMultimap.create();
 
             request.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status->{
-                values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                         status.getUtilitiesDeviceID().getValue());
             });
 
-            createRelatedObjects(values);
+            saveRelatedAttributes(values);
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> serviceCallCommands.createServiceCallAndTransition(

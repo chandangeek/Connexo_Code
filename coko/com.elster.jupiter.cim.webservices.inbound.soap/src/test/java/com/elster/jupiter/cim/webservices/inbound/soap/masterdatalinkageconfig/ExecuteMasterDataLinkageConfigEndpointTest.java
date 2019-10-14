@@ -7,11 +7,12 @@ package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
@@ -106,10 +107,10 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         when(localizedException.getErrorCode()).thenReturn(LOCALIZED_EXCEPTION_CODE);
         when(localizedException.getLocalizedMessage()).thenReturn(LOCALIZED_EXCEPTION_MESSAGE);
 
-        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), "mtnm");
-        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), "mtmr");
-        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), "upnm");
-        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), "upmr");
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), "mtnm");
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), "mtmr");
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), "upnm");
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), "upmr");
     }
 
     @Test

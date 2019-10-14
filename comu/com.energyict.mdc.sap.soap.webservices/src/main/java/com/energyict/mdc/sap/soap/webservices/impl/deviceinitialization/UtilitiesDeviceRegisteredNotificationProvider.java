@@ -12,9 +12,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.BusinessDocumentMessageHeader;
@@ -165,7 +165,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     public void call(String sapDeviceId) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
         SetMultimap<String, String> values = HashMultimap.create();
-        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
         using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .withRelatedAttributes(values)
                 .send(notificationMessage);

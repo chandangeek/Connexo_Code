@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
@@ -28,6 +29,8 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.connexo._2018.schema.securitykeys.AllowedDeviceStatuses;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKeys;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.w3._2001._04.xmlenc.CipherDataType;
 import org.w3._2001._04.xmlenc.EncryptedDataType;
 
@@ -104,7 +107,11 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         verify(device).setManufacturer(MANUFACTURER);
         verify(device).setModelNumber(MODEL_NUMBER);
         verify(device).setModelVersion(MODEL_VERSION);
-        verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -189,7 +196,11 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
                     .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS
                     .translate(thesaurus, DEVICE_NAME, STATE_NAME));
-            verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         }
     }
 
@@ -237,7 +248,11 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT
                     .translate(thesaurus, DEVICE_NAME, securityAccessorName));
-            verify(webServiceCallOccurrence, times(3)).saveRelatedAttribute(anyString(), anyString());
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         }
     }
 

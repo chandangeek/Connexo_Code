@@ -20,8 +20,8 @@ public class WebServiceCallRelatedAttributeImpl implements WebServiceCallRelated
 
     public enum Fields {
         ID("id"),
-        OBJECT_KEY("key"),
-        OBJECT_VALUE("value");
+        ATTRIBUTE_KEY("key"),
+        ATTRIBUTE_VALUE("value");
 
         private final String javaFieldName;
 
@@ -71,5 +71,27 @@ public class WebServiceCallRelatedAttributeImpl implements WebServiceCallRelated
     @Override
     public String toString () {
         return "KEY = "+key +"value = "+value;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        System.out.println("CALL equals!!!!!!!!");
+
+        if (this == o) {
+            System.out.println("THE SAME OBJECT!!!!!!!!");
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            System.out.println("NULL or not the same object !!!!!!!!" );
+            return false;
+        }
+        /*if (!super.equals(o)) {
+            return false;
+        }*/
+
+        WebServiceCallRelatedAttributeImpl that = (WebServiceCallRelatedAttributeImpl) o;
+        return this.getKey().equals(that.getKey()) && this.getValue().equals(that.getValue());
+
     }
 }

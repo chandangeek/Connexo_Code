@@ -6,7 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkResult;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOut;
@@ -66,9 +66,9 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
         SetMultimap<String, String> values = HashMultimap.create();
         resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().forEach(reading->{
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+            values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
                     reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                     reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
         });
 

@@ -1,6 +1,8 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -8,10 +10,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
@@ -72,21 +70,21 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                 SetMultimap<String, String> values = HashMultimap.create();
                 createdEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
                     if (!event.getAssets().getNames().isEmpty()){
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getAssets().getNames().get(0).getName());
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getAssets().getNames().get(0).getName());
                     }
                     if (event.getAssets().getMRID() != null) {
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
                     }
                     if(event.getUsagePoint() != null) {
                         if (!event.getUsagePoint().getNames().isEmpty() ) {
-                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
                         }
                         if (event.getUsagePoint().getMRID() != null) {
-                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
                         }
                     }
                 });
-                createRelatedObjects(values);
+                saveRelatedAttributes(values);
 
                 List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
 
@@ -112,21 +110,21 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                 SetMultimap<String, String> values = HashMultimap.create();
                 closedEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
                     if (!event.getAssets().getNames().isEmpty()) {
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
                     }
                     if (event.getAssets().getMRID() != null) {
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
                     }
                     if(event.getUsagePoint() != null) {
                         if (!event.getUsagePoint().getNames().isEmpty() ) {
-                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
                         }
                         if (event.getUsagePoint().getMRID() != null) {
-                            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
                         }
                     }
                 });
-                createRelatedObjects(values);
+                saveRelatedAttributes(values);
                 List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
                 EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                         .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,

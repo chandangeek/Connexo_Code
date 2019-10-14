@@ -6,11 +6,11 @@ package com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.replyusagepointconfig.ReplyUsagePointConfig;
@@ -125,12 +125,12 @@ public class ReplyUsagePointConfigServiceProvider
         SetMultimap<String, String> values = HashMultimap.create();
 
         successList.forEach(up->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
         });
         failureList.forEach(upFail->{
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upFail.getUsagePointMrid());
-            values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), upFail.getUsagePointName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upFail.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), upFail.getUsagePointName());
         });
         using(method)
                 .toEndpoints(endPointConfiguration)

@@ -26,7 +26,7 @@ public class WebServiceCallRelatedAttributeBindingImpl implements WebServiceCall
     public enum Fields {
         ID("id"),
         OCCURRENCE("occurrence"),
-        TYPE("type");
+        ATTRIBUTE("type");
 
         private final String javaFieldName;
 

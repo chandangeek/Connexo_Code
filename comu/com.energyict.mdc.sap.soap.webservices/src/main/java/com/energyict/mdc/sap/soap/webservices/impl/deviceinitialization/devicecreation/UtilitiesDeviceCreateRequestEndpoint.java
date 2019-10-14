@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
@@ -10,7 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
@@ -76,8 +77,8 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
         runInTransactionWithOccurrence(() -> {
 
             Optional.ofNullable(request).ifPresent(requestMsg->{
-                createRelatedObject(WebServiceRequestAttributesNames.SAP_SERIAL_ID.getAttributeName(), getSerialId(requestMsg));
-                createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), getDeviceId(requestMsg));
+                saveRelatedAttribute(CimAttributeNames.SERIAL_ID.getAttributeName(), getSerialId(requestMsg));
+                saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), getDeviceId(requestMsg));
             });
 
 

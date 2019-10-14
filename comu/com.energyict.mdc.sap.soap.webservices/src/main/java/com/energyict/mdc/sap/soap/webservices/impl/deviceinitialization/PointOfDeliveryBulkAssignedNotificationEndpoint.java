@@ -8,10 +8,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageID;
@@ -23,6 +23,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknot
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.UtilitiesPointOfDeliveryPartyID;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -57,9 +60,10 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
         PodBulkMessage bulkMsg = new PodBulkMessage(msg);
         if (bulkMsg.isValid()) {
+            SetMultimap<String, String> values = HashMultimap.create();
             bulkMsg.podMessages.forEach(message -> {
                 if (message.isValid()) {
-                    createRelatedObject(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId);
+                    values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId);
                     Optional<Device> device = sapCustomPropertySets.getDevice(message.deviceId);
                     if (device.isPresent()) {
                         try {
@@ -74,6 +78,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
                     log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
                 }
             });
+            saveRelatedAttributes(values);
         } else {
             log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
         }

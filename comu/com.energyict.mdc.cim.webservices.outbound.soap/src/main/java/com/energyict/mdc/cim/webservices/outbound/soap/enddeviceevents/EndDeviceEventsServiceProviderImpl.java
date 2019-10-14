@@ -6,13 +6,13 @@ package com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents;
 
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
@@ -143,9 +143,9 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
 
         SetMultimap<String, String> values = HashMultimap.create();
 
-        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(),
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
                 record.getEndDevice().getName());
-        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(),
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
                 record.getEndDevice().getMRID());
 
         using("createdEndDeviceEvents")

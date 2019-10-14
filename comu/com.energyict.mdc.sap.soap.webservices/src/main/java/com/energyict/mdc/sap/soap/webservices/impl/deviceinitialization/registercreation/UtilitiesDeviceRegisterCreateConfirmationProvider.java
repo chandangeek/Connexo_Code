@@ -6,7 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut;
@@ -61,7 +61,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
         SetMultimap<String, String> values = HashMultimap.create();
-        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                 msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
 
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")

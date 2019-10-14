@@ -6,6 +6,8 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingTypeFilter;
@@ -22,7 +24,6 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
@@ -161,23 +162,24 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 SetMultimap<String, String> values = HashMultimap.create();
                 getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice().forEach(device->{
                     if (!device.getNames().isEmpty()){
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
+
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
                     }
                     if (device.getMRID() != null){
-                        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
                     }
 
                 });
                 getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(usp->{
                     if (!usp.getNames().isEmpty()){
-                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
                     }
                     if (usp.getMRID() != null){
-                        values.put(WebServiceRequestAttributesNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
                     }
                 });
 
-                createRelatedObjects(values);
+                saveRelatedAttributes(values);
 
                 checkGetMeterReading(getMeterReadings, async);
 

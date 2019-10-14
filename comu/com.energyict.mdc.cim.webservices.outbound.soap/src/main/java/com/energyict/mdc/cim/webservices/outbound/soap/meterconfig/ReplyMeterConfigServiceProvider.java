@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -14,7 +15,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
@@ -172,9 +172,9 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         SetMultimap<String, String> values = HashMultimap.create();
 
         successfulDevices.forEach(device->{
-            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), device.getName());
-            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getmRID());
-            values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), device.getName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getmRID());
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber());
         });
 
         using(method)

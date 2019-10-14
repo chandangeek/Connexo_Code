@@ -143,39 +143,39 @@ public enum TableSpecs {
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
-    WS_OCC_RELATED_OBJECTS{
+    WS_OCC_RELATED_ATTR{
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallRelatedAttribute> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttribute.class);
             table.map(WebServiceCallRelatedAttributeImpl.class);
-            table.since(version(10, 7));
+            table.since(version(10, 7, 1));
 
             Column idColumn = table.addAutoIdColumn();
 
-            table.column("OBJECT_KEY")
+            Column keyColumn = table.column("ATTR_KEY")
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(WebServiceCallRelatedAttributeImpl.Fields.OBJECT_KEY.fieldName())
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName())
                     .add();
-            table.column("OBJECT_VALUE")
+            Column valueColumn = table.column("ATTR_VALUE")
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(WebServiceCallRelatedAttributeImpl.Fields.OBJECT_VALUE.fieldName())
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName())
                     .add();
-
-            table.primaryKey("PK_WS_RELATED_OBJECTS").on(idColumn).add();
+            table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn).add();
+            table.primaryKey("PK_WS_RELATED_ATTRBT").on(idColumn).add();
         }
     },
-    WS_OCC_BINDING {
+    WS_OCC_ATTRBTS_BINDING {
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallRelatedAttributeBinding> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttributeBinding.class);
             table.map(WebServiceCallRelatedAttributeBindingImpl.class);
-            table.since(version(10, 7));
+            table.since(version(10, 7, 1));
 
             Column idColumn = table.addAutoIdColumn();
 
-            Column occurrence = table.column("OCCURRENCEID").number().notNull().add();
+            Column occurrence = table.column("OCCURRENCE").number().notNull().add();
             table.foreignKey("FK_WS_RO_OCCURRENCE")
                     .references(WS_CALL_OCCURRENCE.name())
                     .on(occurrence)
@@ -183,13 +183,12 @@ public enum TableSpecs {
                     .map(WebServiceCallRelatedAttributeBindingImpl.Fields.OCCURRENCE.fieldName())
                     .add();
 
-            /* TO-DO: rename column */
-            Column type = table.column("TYPEID").number().notNull().add();
-            table.foreignKey("FK_WS_RO_TYPE")
-                    .references(WS_OCC_RELATED_OBJECTS.name())
+            Column type = table.column("ATTRIBUTE").number().notNull().add();
+            table.foreignKey("FK_WS_RA_ATTRIBUTE")
+                    .references(WS_OCC_RELATED_ATTR.name())
                     .on(type)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(WebServiceCallRelatedAttributeBindingImpl.Fields.TYPE.fieldName())
+                    .map(WebServiceCallRelatedAttributeBindingImpl.Fields.ATTRIBUTE.fieldName())
                     .add();
 
             table.primaryKey("PK_WS_OCC_BINDING").on(idColumn).add();

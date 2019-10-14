@@ -8,9 +8,9 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut;
@@ -78,7 +78,7 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
         provider.call(deviceId);
 
         SetMultimap<String,String> values = HashMultimap.create();
-        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                 deviceId);
 
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut");

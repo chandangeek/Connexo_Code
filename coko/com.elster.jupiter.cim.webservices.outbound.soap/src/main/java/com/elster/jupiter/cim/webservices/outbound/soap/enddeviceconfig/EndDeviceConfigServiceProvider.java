@@ -4,10 +4,10 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.EndDeviceAttributesProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.events.LocalEvent;
@@ -192,9 +192,9 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
             message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED);
         }
         SetMultimap<String, String> values = HashMultimap.create();
-        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_MR_ID.getAttributeName(), endDevice.getMRID());
-        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), endDevice.getSerialNumber());
-        values.put(WebServiceRequestAttributesNames.CIM_DEVICE_NAME.getAttributeName(), endDevice.getName());
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), endDevice.getMRID());
+        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), endDevice.getSerialNumber());
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), endDevice.getName());
 
         using(methodName)
                 .toEndpoints(endPointConfigurations)

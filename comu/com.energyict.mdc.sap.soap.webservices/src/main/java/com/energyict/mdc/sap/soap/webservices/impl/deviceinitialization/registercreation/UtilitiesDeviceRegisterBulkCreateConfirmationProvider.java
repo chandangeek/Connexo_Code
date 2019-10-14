@@ -6,7 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterBulkCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut;
@@ -63,7 +63,7 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationProvider extends Abstr
         SetMultimap<String, String> values = HashMultimap.create();
         if (msg.getBulkConfirmationMessage().isPresent()){
             msg.getBulkConfirmationMessage().get().getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage().forEach(cnfMsg->{
-                values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                         cnfMsg.getUtilitiesDevice().getID().getValue());
             });
         }

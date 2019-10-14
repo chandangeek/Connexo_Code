@@ -6,8 +6,8 @@ package com.energyict.mdc.sap.soap.webservices.impl.eventmanagement;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestCOutService;
@@ -68,7 +68,7 @@ public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPoin
         SetMultimap<String, String> values = HashMultimap.create();
 
         reqMsg.getUtilitiesSmartMeterEventERPCreateRequestMessage().forEach(msg->{
-            values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                     msg.getUtilitiesSmartMeterEvent().getUtilitiesDeviceID().getValue());
         });
 

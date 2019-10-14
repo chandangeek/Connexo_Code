@@ -6,7 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceRequestAttributesNames;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateResultMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateRequestProvider;
@@ -71,8 +71,8 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         provider.call(outboundMessage);
 
         SetMultimap<String, String> values = HashMultimap.create();
-        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), "UtilMeasurmentTaskID");
-        values.put(WebServiceRequestAttributesNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),"UtilDeviceID");
+        values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), "UtilMeasurmentTaskID");
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),"UtilDeviceID");
 
         verify(provider).using("meterReadingDocumentERPResultCreateRequestCOut");
         verify(requestSender).withRelatedAttributes(values);
