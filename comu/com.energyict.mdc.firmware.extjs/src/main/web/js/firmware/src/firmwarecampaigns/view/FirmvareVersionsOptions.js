@@ -156,7 +156,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                         items: [
                             {
                                 itemId: 'curFirmwareCheck',
-                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type.') + '</b>',
+                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type') + '</b>',
                                 inputValue: 'COMMON',
                                 margin: '10 0',
                                 listeners: {

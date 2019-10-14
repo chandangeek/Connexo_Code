@@ -10,7 +10,8 @@ import java.util.Optional;
 enum ConfigurationEventReason {
     PURPOSE_ACTIVE("Purpose Active"),
     PURPOSE_INACTIVE("Purpose Inactive"),
-    CHANGE_STATUS("Change Status");
+    CHANGE_STATUS("Change Status"),
+    CHANGE_LIFECYCLE("Change Lifecycle");
 
     private String reasonText;
 

@@ -164,7 +164,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
 
 
                                         if (currentFirmwareCheck && currentFirmwareCheck.activated){
-                                            result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type.");
+                                            result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type");
                                         }
 
                                         var me  = this;
