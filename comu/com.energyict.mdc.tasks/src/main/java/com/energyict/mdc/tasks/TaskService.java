@@ -20,6 +20,8 @@ public interface TaskService {
 
     String COMPONENT_NAME = TASK_SERVICE_COMPONENT_NAME;
 
+    String FIRMWARE_COMTASK_NAME = "Firmware management";
+
     public ComTask newComTask(String name);
 
     public Optional<ComTask> findComTask(long id);

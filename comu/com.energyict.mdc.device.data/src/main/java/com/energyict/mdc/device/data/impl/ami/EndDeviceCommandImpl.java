@@ -35,7 +35,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
     protected final List<DeviceMessageId> possibleDeviceMessageIds;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
-    private final Thesaurus thesaurus;
+    protected final Thesaurus thesaurus;
 
     private List<PropertySpec> commandArgumentSpecs = null;
     private Map<PropertySpec, Object> propertyValueMap = new HashMap<>();
@@ -123,12 +123,12 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
         return propertyValueMap;
     }
 
-    private Device findDeviceForEndDevice(EndDevice endDevice) {
+    protected Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
-    private DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {
+    protected DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {
         return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())
                 .orElseThrow(NoSuchElementException.deviceMessageSpecWithIdNotFound(thesaurus, deviceMessageId.dbValue()));
     }

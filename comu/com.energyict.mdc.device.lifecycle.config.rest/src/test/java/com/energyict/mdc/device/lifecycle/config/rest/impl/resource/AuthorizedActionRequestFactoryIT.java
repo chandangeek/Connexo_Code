@@ -13,6 +13,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.TableSpecs;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
@@ -90,6 +91,8 @@ public class AuthorizedActionRequestFactoryIT {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceLifeCycleService deviceLifeCycleService;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     @BeforeClass
     public static void initialize() {
@@ -158,7 +161,7 @@ public class AuthorizedActionRequestFactoryIT {
                         new ConcurrentModificationExceptionFactory(this.thesaurus),
                         this.nlsService);
         microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(deviceLifeCycleService, thesaurus);
-        authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, deviceLifeCycleConfigurationService, microActionAndCheckInfoFactory);
+        authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, deviceLifeCycleConfigurationService, microActionAndCheckInfoFactory,meteringTranslationService);
     }
 
     @Transactional

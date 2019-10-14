@@ -34,7 +34,8 @@ Ext.define('Uni.property.form.Property', {
     ],
     defaults: {
         labelWidth: 250,
-        resetButtonHidden: false
+        resetButtonHidden: false,
+        hiddenFieldKeys: []
     },
     layout: {
         type: 'vbox',
@@ -94,6 +95,11 @@ Ext.define('Uni.property.form.Property', {
             if (!(property instanceof Uni.property.model.Property)) {
                 throw '!(entry instanceof Uni.property.model.Property)';
             }
+			
+			var propertyKey = property.get('key');
+			if(propertyKey && me.defaults.hiddenFieldKeys && me.defaults.hiddenFieldKeys.includes(propertyKey)) {
+				return;
+			}
 
             if (me.isEdit && property.get('canBeOverridden') !== null) {
                 addPropertyToForm = property.get('canBeOverridden');

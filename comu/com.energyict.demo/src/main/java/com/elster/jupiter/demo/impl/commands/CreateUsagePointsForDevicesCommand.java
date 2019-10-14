@@ -26,7 +26,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;

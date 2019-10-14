@@ -51,6 +51,7 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.LibraryType;
 import com.energyict.mdc.upl.io.ModemType;
@@ -142,6 +143,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile AppService appService;
     private volatile SecurityManagementService securityManagementService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
+    private volatile TimeOfUseCampaignService timeOfUseCampaignService;
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
@@ -167,7 +169,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             IdentificationService identificationService,
             FirmwareService firmwareService,
             UpgradeService upgradeService,
-            SecurityManagementService securityManagementService) {
+            SecurityManagementService securityManagementService,
+            TimeOfUseCampaignService timeOfUseCampaignService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -199,6 +202,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setFirmwareService(firmwareService);
         setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
+        setTimeOfUseCampaignService(timeOfUseCampaignService);
         activate(componentContext.getBundleContext());
     }
 
@@ -331,6 +335,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setTimeOfUseCampaignService(TimeOfUseCampaignService timeOfUseCampaignService) {
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 
     @Override
@@ -935,6 +944,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public FirmwareService firmwareService() {
             return firmwareService;
+        }
+
+        @Override
+        public TimeOfUseCampaignService touService() {
+            return timeOfUseCampaignService;
         }
 
         @Override

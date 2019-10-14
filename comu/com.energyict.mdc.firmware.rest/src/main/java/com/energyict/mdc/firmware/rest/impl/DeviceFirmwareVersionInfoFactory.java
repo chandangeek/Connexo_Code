@@ -104,7 +104,7 @@ public class DeviceFirmwareVersionInfoFactory {
                 .map(firmwareType -> firmwareService.getActiveFirmwareVersion(device, firmwareType))
                 .flatMap(Functions.asStream())
                 .forEach(info::addActiveVersion);
-        FirmwareManagementDeviceUtils versionUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+        FirmwareManagementDeviceUtils versionUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device, true);
         for (DeviceMessage message : versionUtils.getFirmwareMessages()) {
             from(info, message, versionUtils);
         }

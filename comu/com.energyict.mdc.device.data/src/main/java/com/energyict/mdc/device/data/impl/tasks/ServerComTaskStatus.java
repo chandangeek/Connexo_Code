@@ -103,7 +103,7 @@ public enum ServerComTaskStatus {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append(isNotPriorityTask() +
                     "and cte.onhold = 0 and ((cte.comport is null) and " +
-                    " (not exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
+                    " (not exists (select * from busytask where busytask.comport is not null and busytask.connectiontask = cte.connectiontask " +
                     " and busytask.lastcommunicationstart <= cte.lastexecutiontimestamp " +
                     " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
                     " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
@@ -143,7 +143,7 @@ public enum ServerComTaskStatus {
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and hp.comtaskexecution = cte.id and cte.onhold = 0 and ((cte.comport is null) and " +
-                    " (not exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
+                    " (not exists (select * from busytask where busytask.comport is not null and busytask.connectiontask = cte.connectiontask " +
                     " and busytask.lastcommunicationstart <= cte.lastexecutiontimestamp " +
                     " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
                     " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
@@ -516,7 +516,7 @@ public enum ServerComTaskStatus {
 
     private static void isConnectionExecuting(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
         sqlBuilder.append(
-                " exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
+                " exists (select * from busytask where busytask.comport is not null and busytask.connectiontask = cte.connectiontask " +
                         " AND busytask.lastcommunicationstart IS NOT NULL " +
                         " AND busytask.lastcommunicationstart <= cte.lastexecutiontimestamp " +
                         " AND (cte.ignorenextexecspecs = 1 " +

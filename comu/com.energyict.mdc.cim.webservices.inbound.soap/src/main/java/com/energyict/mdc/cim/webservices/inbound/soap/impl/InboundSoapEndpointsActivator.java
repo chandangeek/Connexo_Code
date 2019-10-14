@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
@@ -115,10 +116,15 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private static final String CIM_METER_READINGS = "CIM MeterReadings";
 
     private static final Logger LOGGER = Logger.getLogger(InboundSoapEndpointsActivator.class.getName());
-    public static final String RECURRENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurrenttaskfrequency";
-    public static final String RECURRENT_TASK_NAME = "Future com tasks execution task";
-    public static final int RECURRENT_TASK_DEFAULT_FREQUENCY = 5;
-    public static final int RECURRENT_TASK_RETRY_DELAY = 60;
+    private static final String RECURRENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurrenttaskfrequency";
+    private static final String RECURRENT_TASK_NAME = "Future com tasks execution task";
+    private static final int RECURRENT_TASK_DEFAULT_FREQUENCY = 5;
+    private static final int RECURRENT_TASK_RETRY_DELAY = 60;
+    public static int actualRecurrentTaskFrequency = RECURRENT_TASK_DEFAULT_FREQUENCY;
+
+    private static final String RECURRENT_TASK_READ_OUT_DELAY = "com.energyict.mdc.cim.webservices.inbound.soap.readoutdelay";
+    private static final int RECURRENT_TASK_DEFAULT_READ_OUT_DELAY = 1;
+    public static int actualRecurrentTaskReadOutDelay = RECURRENT_TASK_DEFAULT_READ_OUT_DELAY;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -156,6 +162,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile MasterDataService masterDataService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -181,7 +188,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          OrmService ormService, TaskService taskService,
                                          DeviceMessageSpecificationService deviceMessageSpecificationService,
                                          MasterDataService masterDataService,
-                                         CommunicationTaskService communicationTaskService) {
+                                         CommunicationTaskService communicationTaskService,
+                                         MeteringTranslationService meteringTranslationService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -215,6 +223,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setMasterDataService(masterDataService);
         setCommunicationTaskService(communicationTaskService);
+        setMeteringTranslationService(meteringTranslationService);
     }
 
     private Module getModule() {
@@ -247,6 +256,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
 				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(SendMeterReadingsProvider.class).toInstance(sendMeterReadingsProvider);
                 bind(MessageService.class).toInstance(messageService);
@@ -270,6 +280,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
                                 version(10, 7), UpgraderV10_7.class));
+        setActualRecurrentTaskFrequency();
+        setActualRecurrentTaskReadOutDelay();
         createOrUpdateFutureComTasksExecutionTask();
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
@@ -282,30 +294,38 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         converters.forEach(propertyValueInfoService::removePropertyValueInfoConverter);
     }
 
-    public void createOrUpdateFutureComTasksExecutionTask() {
+    private void createOrUpdateFutureComTasksExecutionTask() {
         threadPrincipalService.set(() -> "Activator");
         try (TransactionContext context = transactionService.getContext()) {
-            String property = bundleContext.getProperty(RECURRENT_TASK_FREQUENCY);
-            int frequency = RECURRENT_TASK_DEFAULT_FREQUENCY;
-            if (property != null) {
-                frequency = Integer.parseInt(property);
-            }
-
             Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(RECURRENT_TASK_NAME);
             if (taskOptional.isPresent()) {
                 RecurrentTask task = taskOptional.get();
-                task.setScheduleExpression(PeriodicalScheduleExpression.every(frequency).minutes().at(0).build());
+                task.setScheduleExpression(PeriodicalScheduleExpression.every(actualRecurrentTaskFrequency).minutes().at(0).build());
                 task.save();
             } else {
                 createActionTask(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION,
                         RECURRENT_TASK_RETRY_DELAY,
                         TranslationKeys.FUTURE_COM_TASK_EXECUTION_NAME,
                         RECURRENT_TASK_NAME,
-                        "0 0/" + frequency + " * 1/1 * ? *");
+                        "0 0/" + actualRecurrentTaskFrequency + " * 1/1 * ? *");
             }
             context.commit();
         } catch (Exception e) {
             LOGGER.severe(e.getMessage());
+        }
+    }
+
+    private void setActualRecurrentTaskFrequency() {
+        String property = bundleContext.getProperty(RECURRENT_TASK_FREQUENCY);
+        if (property != null) {
+            actualRecurrentTaskFrequency = Integer.parseInt(property);
+        }
+    }
+
+    private void setActualRecurrentTaskReadOutDelay() {
+        String property = bundleContext.getProperty(RECURRENT_TASK_READ_OUT_DELAY);
+        if (property != null) {
+            actualRecurrentTaskReadOutDelay = Integer.parseInt(property);
         }
     }
 
@@ -512,10 +532,14 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     }
 
 	@Reference
-	public void setDeviceLifeCycleConfigurationService(
-			DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+	public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
 		this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
 	}
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
 
     @Reference
     public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {

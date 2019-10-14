@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -75,6 +76,8 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @Valid
     private List<CreationRuleAction> actions = new ArrayList<>();//for validation
     private List<CreationRuleAction> persistentActions = new ArrayList<>();
+    
+    private List<CreationRuleExclGroup> excludedGroupMappings = new ArrayList<>();
 
     private final IssueService issueService;
     private final Clock clock;
@@ -191,6 +194,16 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     public List<CreationRuleAction> getActions() {
         return Collections.unmodifiableList(persistentActions);
     }
+    
+    @Override
+    public List<CreationRuleExclGroup> getExcludedGroupMappings() {
+        return Collections.unmodifiableList(excludedGroupMappings);
+    }
+    
+    void setExcludedDeviceGroupList(final List<CreationRuleExclGroup> exclGroupMappingList) {
+        this.excludedGroupMappings.clear();
+        this.excludedGroupMappings.addAll(exclGroupMappingList);
+    }
 
     @Override
     public boolean isActive() {
@@ -210,7 +223,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         }
     }
 
-    CreationRuleProperty addProperty(String name, Object value) {
+    public CreationRuleProperty addProperty(String name, Object value) {
         CreationRuleProperty newProperty = getDataModel().getInstance(CreationRulePropertyImpl.class).init(this, name, value);
         properties.add(newProperty);
         return newProperty;

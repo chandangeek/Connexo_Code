@@ -26,6 +26,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+
 public class StatusChangeRequestCreateConfirmationMessage {
 
     private final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
@@ -68,7 +70,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
-            confirmationMessage.setLog(createLog(exceptionID, "PRE", exceptionMessage));
+            confirmationMessage.setLog(createLog(exceptionID, PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
 

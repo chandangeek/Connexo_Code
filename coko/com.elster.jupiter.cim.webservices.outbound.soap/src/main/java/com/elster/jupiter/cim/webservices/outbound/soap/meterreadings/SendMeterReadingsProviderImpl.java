@@ -75,7 +75,7 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
     }
 
     @Override
-    public Class getService() {
+    public Class<MeterReadingsPort> getService() {
         return MeterReadingsPort.class;
     }
 

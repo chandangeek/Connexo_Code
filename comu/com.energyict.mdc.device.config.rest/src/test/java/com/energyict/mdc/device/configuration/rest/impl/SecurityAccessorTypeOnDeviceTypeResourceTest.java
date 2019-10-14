@@ -12,7 +12,9 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Group;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 
 import com.jayway.jsonpath.JsonModel;
@@ -53,6 +55,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(securityAccessorType1, securityAccessorType2));
         when(deviceType.getDefaultKeyOfSecurityAccessorType(any(SecurityAccessorType.class))).thenReturn(Optional.of("ABCD"));
+        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType1 = mockSecurityAccessorTypeOnDeviceType(securityAccessorType1);
+        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType2 = mockSecurityAccessorTypeOnDeviceType(securityAccessorType2);
+        when(deviceType.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessorTypeOnDeviceType1, securityAccessorTypeOnDeviceType2));
 
         Response response = target("/devicetypes/66/securityaccessors").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -133,6 +138,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(securityAccessorType));
         when(deviceType.getDefaultKeyOfSecurityAccessorType(any(SecurityAccessorType.class))).thenReturn(Optional.of("ABCD"));
 
+        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = mockSecurityAccessorTypeOnDeviceType(securityAccessorType);
+        when(deviceType.getSecurityAccessors()).thenReturn(Collections.singletonList(securityAccessorTypeOnDeviceType));
+
         Response response = target("/devicetypes/66/securityaccessors/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -197,7 +205,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         SecurityAccessorType securityAccessorType2 = mockCertificateAccessorType(2, 1, "Namew", "Epic description2");
         when(securityManagementService.findAndLockSecurityAccessorType(1, 2)).thenReturn(Optional.of(securityAccessorType1));
         when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(securityAccessorType2));
-        when(deviceType.addSecurityAccessorTypes(anyVararg())).thenReturn(true);
+        when(deviceType.addDeviceSecurityAccessorType(anyVararg())).thenReturn(true);
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
         info.name = deviceType.getName();
@@ -206,7 +214,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(deviceType).addSecurityAccessorTypes(securityAccessorType1, securityAccessorType2);
+        verify(deviceType).addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType1));
         verify(deviceType).update();
     }
 
@@ -250,7 +258,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("device type 1 has changed");
         assertThat(model.<Number>get("$.version")).isEqualTo(24);
-        verify(deviceType, never()).addSecurityAccessorTypes(anyVararg());
+        verify(deviceType, never()).addDeviceSecurityAccessorType(anyVararg());
         verify(deviceType, never()).update();
     }
 
@@ -283,7 +291,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("Certificate has changed");
         assertThat(model.<Number>get("$.version")).isNull();
-        verify(deviceType, never()).addSecurityAccessorTypes(anyVararg());
+        verify(deviceType, never()).addDeviceSecurityAccessorType(anyVararg());
         verify(deviceType, never()).update();
     }
 
@@ -292,8 +300,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         DeviceType deviceType = mockDeviceType("device type 1", 66);
         when(deviceConfigurationService.findAndLockDeviceType(66, 13)).thenReturn(Optional.of(deviceType));
         SecurityAccessorType securityAccessorType = mockKeyAccessorType(1, 1, "Name", "Epic description");
-        when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(securityAccessorType));
-        when(deviceType.removeSecurityAccessorType(securityAccessorType)).thenReturn(true);
+        DeviceSecurityAccessorType deviceSecurityAccessorType = new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType);
+        when(deviceType.removeDeviceSecurityAccessorType(deviceSecurityAccessorType)).thenReturn(true);
+        when(deviceType.getDeviceSecurityAccessorType()).thenReturn(Collections.singletonList(deviceSecurityAccessorType));
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
         info.name = deviceType.getName();
@@ -301,7 +310,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        verify(deviceType).removeSecurityAccessorType(securityAccessorType);
+        verify(deviceType).removeDeviceSecurityAccessorType(deviceSecurityAccessorType);
         verify(deviceType).update();
     }
 
@@ -317,7 +326,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceType, never()).removeSecurityAccessorType(any(SecurityAccessorType.class));
+        verify(deviceType, never()).removeDeviceSecurityAccessorType(any(DeviceSecurityAccessorType.class));
         verify(deviceType, never()).update();
     }
 
@@ -337,7 +346,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("device type 1 has changed");
         assertThat(model.<Number>get("$.version")).isEqualTo(24);
-        verify(deviceType, never()).removeSecurityAccessorType(any(SecurityAccessorType.class));
+        verify(deviceType, never()).removeDeviceSecurityAccessorType(any(DeviceSecurityAccessorType.class));
         verify(deviceType, never()).update();
     }
 
@@ -358,6 +367,18 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         TimeDuration validityPeriod = TimeDuration.months(2);
         when(securityAccessorType.getDuration()).thenReturn(Optional.of(validityPeriod));
         return securityAccessorType;
+    }
+
+    private SecurityAccessorTypeOnDeviceType mockSecurityAccessorTypeOnDeviceType(SecurityAccessorType securityAccessorType) {
+        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = mock(SecurityAccessorTypeOnDeviceType.class);
+        DeviceSecurityAccessorType deviceSecurityAccessorType = mock(DeviceSecurityAccessorType.class);
+        when(securityAccessorTypeOnDeviceType.getSecurityAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageSpecification()).thenReturn(Optional.empty());
+        when(deviceSecurityAccessorType.getWrappingSecurityAccessor()).thenReturn(Optional.of(securityAccessorType));
+        when(securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType()).thenReturn(deviceSecurityAccessorType);
+        when(deviceSecurityAccessorType.getSecurityAccessor()).thenReturn(securityAccessorType);
+        mockUserActions(securityAccessorType);
+        return securityAccessorTypeOnDeviceType;
     }
 
     private SecurityAccessorType mockCertificateAccessorType(long id, long version, String name, String description) {

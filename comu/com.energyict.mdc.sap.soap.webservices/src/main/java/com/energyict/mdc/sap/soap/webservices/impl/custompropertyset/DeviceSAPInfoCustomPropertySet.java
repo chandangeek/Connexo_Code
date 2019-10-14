@@ -15,7 +15,9 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import java.util.Arrays;
@@ -35,10 +37,12 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
     // Common for all domain objects
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
+    private final SAPCustomPropertySets sapCustomPropertySets;
 
-    DeviceSAPInfoCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    DeviceSAPInfoCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus, SAPCustomPropertySets sapCustomPropertySets) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
     @Override
@@ -142,7 +146,12 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
+                }
+            });
         }
 
         @Override

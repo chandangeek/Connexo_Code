@@ -1389,7 +1389,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
         GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
                 .withReading(ReadingBuilder.createRequest()
-                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withTimePeriod(ReadingSourceEnum.METER.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
                         .withConnectionMethod("something wrong")
                         .get())
                 .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)

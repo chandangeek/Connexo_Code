@@ -8,40 +8,34 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.PropertyType;
+import com.elster.jupiter.issue.share.entity.values.AssignIssueFormValue;
+import com.elster.jupiter.issue.share.entity.values.CloseIssueFormValue;
+import com.elster.jupiter.issue.share.entity.values.EndPointValue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.WebServicesEndPointFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmServiceImpl;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.dynamic.PropertySpecService;
-
 import com.google.common.collect.ImmutableList;
-import org.json.JSONObject;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -52,103 +46,137 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
     private static final String NAME = "WebServiceNotificationAlarmAction";
     public static final String WEBSERVICE = NAME + ".webService";
     public static final String CLOSE = NAME + ".close";
+    private static final String ASSIGN_ISSUE_FORM = "AssignAlarmForm";
+    private static final String CLOSE_ISSUE_FORM = "CloseAlarmForm";
 
-    private DeviceAlarmService deviceAlarmService;
-    private IssueService issueService;
-    private UserService userService;
-    private IssueWebServiceClient issueWebServiceClient;
-    private ThreadPrincipalService threadPrincipalService;
-    private final EndPointConfigurationService endPointConfigurationService;
+    private final DeviceAlarmService deviceAlarmService;
+    private final IssueService issueService;
+    private final PropertyFactoriesProvider propertyFactoriesProvider;
+    private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public WebServiceNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, DeviceAlarmService deviceAlarmService, UserService userService, ThreadPrincipalService threadPrincipalService, EndPointConfigurationService endPointConfigurationService) {
+    public WebServiceNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, DeviceAlarmService deviceAlarmService, UserService userService, ThreadPrincipalService threadPrincipalService, EndPointConfigurationService endPointConfigurationService, final PropertyFactoriesProvider propertyFactoriesProvider, final ThreadPrincipalService threadPrincipalService1) {
         super(dataModel, thesaurus, propertySpecService);
         this.deviceAlarmService = deviceAlarmService;
         this.issueService = issueService;
-        this.userService = userService;
-        this.threadPrincipalService = threadPrincipalService;
-        this.endPointConfigurationService = endPointConfigurationService;
-    }
-
-    @Reference
-    public void setIssueWebServiceClient(IssueWebServiceClient issueWebServiceClient) {
-        this.issueWebServiceClient = issueWebServiceClient;
+        this.propertyFactoriesProvider = propertyFactoriesProvider;
+        this.threadPrincipalService = threadPrincipalService1;
     }
 
     @Override
-    public IssueActionResult execute(Issue issue) {
+    public IssueActionResult execute(final Issue issue) {
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
-        Optional<EndPointConfiguration> endPointConfiguration = getEndPointConfiguration();
-        Optional<Boolean> closeAlarm = getCloseAlarm();
 
-        endPointConfiguration.ifPresent(endPointConfig -> ((DeviceAlarmServiceImpl) deviceAlarmService).getIssueWebServiceClients()
-                .stream().filter(alarmWebServiceClient -> alarmWebServiceClient.getWebServiceName().equals(endPointConfig.getWebServiceName()))
-                .findFirst().ifPresent(alarmWebServiceClient1 -> {
-                    if (alarmWebServiceClient1.call(issue, endPointConfig)) {
-                        closeAlarm.ifPresent(close -> {
-                            if (close == true) {
-                                ((OpenIssue) issue).close(issueService.findStatus(IssueStatus.FORWARDED).get());
-                            }
-                        });
-                    }
+        Optional<EndPointConfiguration> endPointConfiguration = getEndPointConfiguration();
+
+        if (endPointConfiguration.isPresent()) {
+            final EndPointConfiguration endPointConfig = endPointConfiguration.get();
+            final List<IssueWebServiceClient> alarmWebServiceClients = ((DeviceAlarmServiceImpl) deviceAlarmService).getIssueWebServiceClients();
+            final Optional<IssueWebServiceClient> alarmWebServiceClient = alarmWebServiceClients.stream()
+                    .filter(webServiceClient -> webServiceClient.getWebServiceName().equals(endPointConfig.getWebServiceName()))
+                    .findFirst();
+
+            if (alarmWebServiceClient.isPresent()) {
+                final IssueWebServiceClient webServiceClient = alarmWebServiceClient.get();
+                if (webServiceClient.call(issue, endPointConfig)) {
+                    assignIssueSubAction(issue);
+                    closeIssueSubAction(issue);
                     result.success(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CALLED).format());
-                }));
+                } else {
+                    result.fail(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CALLED_FAILED).format());
+                }
+            } else {
+                result.fail(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_ENDPOINT_DOES_NOT_EXIST).format());
+            }
+        } else {
+            result.fail(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_ENDPOINT_CONFIGURATION_DOES_NOT_EXIST).format());
+        }
+
         return result;
     }
 
-    private Optional<EndPointConfiguration> getEndPointConfiguration() {
-        Object value = properties.get(WEBSERVICE);
-        if (value != null) {
-            return Optional.ofNullable(((EndPoint) value).endPointConfiguration);
-        }
-        return Optional.empty();
+    private void assignIssueSubAction(final Issue issue) {
+        final Optional<AssignIssueFormValue> assignIssueForm = getAssignIssueForm();
+        assignIssueForm.ifPresent(aif -> {
+            final Boolean checkboxValue = aif.getCheckbox().orElse(Boolean.FALSE);
+            if (checkboxValue) {
+                final Optional<User> user = assignIssueForm.get().getUser();
+                final Optional<WorkGroup> workGroup = assignIssueForm.get().getWorkgroup();
+                final Optional<String> assignIssueComment = assignIssueForm.get().getComment();
+                if (user.isPresent() && workGroup.isPresent()) {
+                    issue.assignTo(user.get().getId(), workGroup.get().getId());
+                }
+                assignIssueComment.map(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
+            }
+        });
     }
 
-    private Optional<Boolean> getCloseAlarm() {
-        Object value = properties.get(CLOSE);
-        if (value != null) {
-            return Optional.ofNullable(((Boolean) properties.get(CLOSE)));
+    private void closeIssueSubAction(final Issue issue) {
+        final Optional<CloseIssueFormValue> closeIssueForm = getCloseIssueForm();
+        closeIssueForm.ifPresent(cif -> {
+            final Boolean checkboxValue = cif.getCheckbox().orElse(Boolean.FALSE);
+            if (checkboxValue) {
+                final Optional<IssueStatus> issueStatus = closeIssueForm.get().getIssueStatus();
+                final Optional<String> closeIssueComment = closeIssueForm.get().getComment();
+                final Optional<IssueStatus> status = issueService.findStatus(issueStatus.map(IssueStatus::getKey).orElse(IssueStatus.FORWARDED));
+                status.map(((OpenIssue) issue)::close);
+                closeIssueComment.map(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
+            }
+        });
+    }
+
+    private Optional<EndPointConfiguration> getEndPointConfiguration() {
+        final Object value = properties.get(WEBSERVICE);
+
+        if (Objects.isNull(value)) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        return Optional.of(((EndPointValue) value).getEndPointConfiguration());
+    }
+
+    private Optional<AssignIssueFormValue> getAssignIssueForm() {
+        final Object assignIssueForm = properties.get(ASSIGN_ISSUE_FORM);
+
+        if (Objects.isNull(assignIssueForm)) {
+            return Optional.empty();
+        }
+
+        return Optional.of((AssignIssueFormValue) assignIssueForm);
+    }
+
+    private Optional<CloseIssueFormValue> getCloseIssueForm() {
+        final Object assignIssueForm = properties.get(CLOSE_ISSUE_FORM);
+
+        if (Objects.isNull(assignIssueForm)) {
+            return Optional.empty();
+        }
+
+        return Optional.of((CloseIssueFormValue) assignIssueForm);
     }
 
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        EndPoint[] possibleValues = this.getPossibleStatuses();
-        builder.add(
-                getPropertySpecService()
-                        .specForValuesOf(new EndPointConfigurationFactory())
-                        .named(WEBSERVICE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION)
-                        .describedAs(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION)
-                        .fromThesaurus(getThesaurus())
-                        .markRequired()
-                        .setDefaultValue(possibleValues.length == 1 ? possibleValues[0] : null)
-                        .addValues(possibleValues)
-                        .markExhaustive()
-                        .finish());
 
-        Map<String, String> description = new HashMap<>();
-        description.put("tooltip", getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM_DESCRIPTION).format());
+        final PropertySpec webServiceNotificationDropdown = propertyFactoriesProvider
+                .getFactory(PropertyType.ENDPOINT_COMBOBOX)
+                .getElement(WEBSERVICE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION);
 
-        BasicPropertySpec closeItem = new BasicPropertySpec(new BooleanFactory());
-        closeItem.setName(CLOSE);
-        closeItem.setDisplayName(getThesaurus().getFormat(TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM).format());
-        closeItem.setDescription(new JSONObject(description).toString());
-        builder.add(closeItem);
+        final PropertySpec assigneeElementsGroup = propertyFactoriesProvider
+                .getFactory(PropertyType.ASSIGN_ISSUE_FORM)
+                .getElement(ASSIGN_ISSUE_FORM, TranslationKeys.ACTION_ASSIGN_ALARM, TranslationKeys.ACTION_ASSIGN_ALARM);
+
+        final PropertySpec closeIssueForm = propertyFactoriesProvider
+                .getFactory(PropertyType.CLOSE_ISSUE_FORM)
+                .getElement(CLOSE_ISSUE_FORM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM);
+
+        builder.add(webServiceNotificationDropdown);
+        builder.add(assigneeElementsGroup);
+        builder.add(closeIssueForm);
 
         return builder.build();
-    }
-
-    private EndPoint[] getPossibleStatuses() {
-        return endPointConfigurationService.findEndPointConfigurations().stream()
-                .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration ->
-                        ((DeviceAlarmServiceImpl) deviceAlarmService).getIssueWebServiceClients().stream()
-                                .filter(issueWebServiceClient1 -> issueWebServiceClient1.getWebServiceName().compareTo(endPointConfiguration.getWebServiceName()) == 0)
-                                .count() > 0)
-                .map(EndPoint::new).toArray(EndPoint[]::new);
     }
 
     @Override
@@ -170,77 +198,8 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
     public String getFormattedProperties(Map<String, Object> props) {
         Object value = props.get(WEBSERVICE);
         if (value != null) {
-            return Optional.ofNullable(((WebServiceNotificationAlarmAction.EndPoint) value).endPointConfiguration).get().getName();
+            return ((EndPointValue) value).getEndPointConfiguration().getName();
         }
         return "";
-    }
-
-    public static class EndPoint extends HasIdAndName {
-
-        private EndPointConfiguration endPointConfiguration;
-
-        public EndPoint(EndPointConfiguration endPointConfiguration) {
-            this.endPointConfiguration = endPointConfiguration;
-        }
-
-        @Override
-        public Object getId() {
-            return endPointConfiguration.getId();
-        }
-
-        @Override
-        public String getName() {
-            return endPointConfiguration.getName();
-        }
-    }
-
-    private class EndPointConfigurationFactory implements ValueFactory<EndPoint>, WebServicesEndPointFactory {
-        @Override
-        public EndPoint fromStringValue(String stringValue) {
-            return endPointConfigurationService.findEndPointConfigurations()
-                    .stream()
-                    .filter(p -> p.getId() == Long.valueOf(stringValue))
-                    .findFirst()
-                    .map(EndPoint::new)
-                    .orElse(null);
-        }
-
-        @Override
-        public String toStringValue(EndPoint endPoint) {
-            return String.valueOf(endPoint.getId());
-        }
-
-        @Override
-        public Class<EndPoint> getValueType() {
-            return EndPoint.class;
-        }
-
-        @Override
-        public EndPoint valueFromDatabase(Object object) {
-            return this.fromStringValue((String) object);
-        }
-
-        @Override
-        public Object valueToDatabase(EndPoint object) {
-            return this.toStringValue(object);
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, EndPoint value) throws SQLException {
-            if (value != null) {
-                statement.setObject(offset, valueToDatabase(value));
-            } else {
-                statement.setNull(offset, Types.VARCHAR);
-            }
-        }
-
-        @Override
-        public void bind(SqlBuilder builder, EndPoint value) {
-            if (value != null) {
-                builder.addObject(this.valueToDatabase(value));
-            } else {
-                builder.addNull(Types.VARCHAR);
-            }
-        }
     }
 }

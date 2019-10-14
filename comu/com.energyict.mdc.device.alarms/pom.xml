@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -23,6 +23,10 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
         </dependency>
 
         <!-- Jupiter modules -->
@@ -138,6 +142,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mail</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -277,8 +285,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        <groupId>com.google.inject</groupId>
-        <artifactId>guice</artifactId>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -354,15 +362,15 @@
                 </configuration>
             </plugin>
             <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.7.2.201409121644</version>
-            <configuration>
-                <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-                <excludes>
-                <exclude>org.drools.*</exclude>
-                </excludes>
-            </configuration>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.2.201409121644</version>
+                <configuration>
+                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                    <excludes>
+                        <exclude>org.drools.*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

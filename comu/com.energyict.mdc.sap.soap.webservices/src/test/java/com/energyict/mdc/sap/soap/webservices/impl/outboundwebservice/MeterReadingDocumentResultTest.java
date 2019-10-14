@@ -52,7 +52,6 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(outboundMessage.getUrl()).thenReturn(getURL());
         when(outboundMessage.getResultMessage()).thenReturn(resultMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
         when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);

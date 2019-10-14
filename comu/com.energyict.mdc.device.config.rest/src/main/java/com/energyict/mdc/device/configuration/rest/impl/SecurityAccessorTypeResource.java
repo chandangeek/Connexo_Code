@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.hsm.HsmPublicConfiguration;
-import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -33,6 +33,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.PathPrependingConstraintViolationException;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
@@ -257,6 +258,7 @@ public class SecurityAccessorTypeResource {
             keyFunctionTypeBuilder.keySize(securityAccessorTypeInfo.keySize);
             keyFunctionTypeBuilder.reversible(securityAccessorTypeInfo.isReversible);
         }
+        keyFunctionTypeBuilder.isWrapper(securityAccessorTypeInfo.isWrapper);
 
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
         SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(keyFunctionType);
@@ -312,6 +314,7 @@ public class SecurityAccessorTypeResource {
             updater.keySize(securityAccessorTypeInfo.keySize);
             updater.reversible(securityAccessorTypeInfo.isReversible);
         }
+        new IsWrapperUpdater(securityAccessorTypeInfo, securityAccessorType, updater, resourceHelper, exceptionFactory).update();
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
         } else {
@@ -408,8 +411,8 @@ public class SecurityAccessorTypeResource {
     public Response getHsmLabels() {
         try {
             return Response.ok(hsmPublicConfiguration.labels()).build();
-        } catch (HsmBaseException e) {
-            throw new RuntimeException(e);
+        } catch (HsmNotConfiguredException e) {
+            throw new TranslatableApplicationException(thesaurus, MessageSeeds.HSM_NOT_CONFIGURED, e);
         }
     }
 

@@ -66,7 +66,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
             this.sqlBuilder.append(BUSY_TASK_ALIAS_NAME);
             this.sqlBuilder.append(" where ");
             this.sqlBuilder.append(BUSY_TASK_ALIAS_NAME);
-            this.sqlBuilder.append(".connectiontask = id) or comserver is not null) ");
+            this.sqlBuilder.append(".connectiontask = id) or comport is not null) ");
             this.groupByAspect.appendGroupByClause(this.sqlBuilder);
             this.sqlBuilder.append(" UNION ALL ");
         }
@@ -113,7 +113,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
     }
 
     protected void appendConnectionTaskSelectClauseInWithClause(SqlBuilder sqlBuilder) {
-        sqlBuilder.append("connT.id, connT.discriminator, connT.comserver, connT.status, connT.currentretrycount, connT.lastsuccessfulcommunicationend, connT.nextexecutiontimestamp, connT.lastExecutionFailed, connT.connectiontypepluggableclass, connT.comportpool");
+        sqlBuilder.append("connT.id, connT.discriminator, connT.comport, connT.status, connT.currentretrycount, connT.lastsuccessfulcommunicationend, connT.nextexecutiontimestamp, connT.lastExecutionFailed, connT.connectiontypepluggableclass, connT.comportpool");
     }
 
     protected void appendConnectionTaskFromClauseInWithClause(SqlBuilder sqlBuilder) {
@@ -131,7 +131,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         this.taskStatusses.forEach(each -> each.appendBreakdownCaseClause(this.sqlBuilder, clock));
         this.sqlBuilder.append("      END taskStatus");
         this.sqlBuilder.append("    FROM CT WHERE not exists (SELECT 1 FROM busytask WHERE busytask.connectiontask = id and comport is not null)");
-        this.sqlBuilder.append("              AND comserver is null)");
+        this.sqlBuilder.append("              AND comport is null)");
     }
 
     private boolean needsNotBusyConnectionTaskWithClause() {

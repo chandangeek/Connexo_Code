@@ -104,8 +104,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     MeteringService meteringService;
     @Mock
-    MeteringGroupsService meteringGroupsService;
-    @Mock
     UserService userService;
     @Mock
     NlsService nlsService;
@@ -118,10 +116,11 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     PropertyValueInfoService propertyValueInfoService;
     @Mock
+    MeteringGroupsService meteringGroupsService;
+    @Mock
     LocationService locationService;
     @Mock
     SearchLocationService searchLocationService;
-
 
     @Provider
     @javax.annotation.Priority(Priorities.AUTHORIZATION)
@@ -154,13 +153,13 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setSearchLocationService(searchLocationService);
         application.setIssueService(issueService);
         application.setMeteringService(meteringService);
-        application.setMeteringGroupsService(meteringGroupsService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setRestQueryService(restQueryService);
         application.setUserService(userService);
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setMeteringGroupsService(meteringGroupsService);
         application.setClock(clock);
         return application;
     }

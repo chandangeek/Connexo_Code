@@ -1,9 +1,18 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.LTEModemSetup;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -15,37 +24,32 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
-import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEPingAddress;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.capturePeriodAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
-
 public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
-
 
     private static final ObisCode LTE_IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.5.44.0.0.255");
 
     public static final String MBUS_DAILY_BILLING_OBISCODE = "0.x.99.2.0.255";
     public static final String MBUS_MONTHLY_BILLING_OBISCODE = "0.x.98.1.0.255";
     public static final String MBUS_LOAD_PROFILE_PERIOD_1 = "0.x.24.3.0.255";
-    public static final String MBUS_CONFIGURATION_OBJECT = "1.1.94.31.3.255";
+    public static final ObisCode MBUS_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
 
     public ESMR50MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor);
@@ -72,13 +76,11 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
                     collectedMessage = doSetLteApn(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_LTE_PING_ADDRESS)) {
                     collectedMessage = doSetLtePingAddress(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_LTE_PING_ADDRESS)) {
-                    collectedMessage = doSetLtePingAddress(pendingMessage);
-                }else if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_DEFINITION)) {
+                } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_DEFINITION)) {
                     collectedMessage = writeCaptureDefinition(pendingMessage);
-                }else if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_PERIOD)) {
+                } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_PERIOD)) {
                     collectedMessage = writeCapturePeriod(pendingMessage);
-                }else if (pendingMessage.getSpecification().equals(MBusConfigurationDeviceMessage.SetMBusConfigBit11)) {
+                } else if (pendingMessage.getSpecification().equals(MBusConfigurationDeviceMessage.SetMBusConfigBit11)) {
                     collectedMessage = doMbusChangeConfigurationObject(pendingMessage);
                 } else {
                     collectedMessage = null;
@@ -189,14 +191,13 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         return collectedMessage;
     }
 
-    private CollectedMessage doMbusChangeConfigurationObject(OfflineDeviceMessage pendingMessage) throws ProtocolException {
+    private CollectedMessage doMbusChangeConfigurationObject(OfflineDeviceMessage pendingMessage) {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         int bit11 = getIntegerAttribute(pendingMessage);// TODO check that the field is a number. Change attribute type maybe?
-        ObisCode configObject = ObisCode.fromString(MBUS_CONFIGURATION_OBJECT);
         getProtocol().journal("Writing MBus Change Configuration object bit 11 to {"+bit11+"}");
 
         try {
-            Data data = getCosemObjectFactory().getData(configObject);
+            Data data = getCosemObjectFactory().getData(MBUS_CONFIGURATION_OBJECT);
             getProtocol().journal("Reading existing value ...");
             AbstractDataType abstractDataType = data.getValueAttr();
             if (abstractDataType.isStructure()){
@@ -213,11 +214,11 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
             } else {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 getProtocol().journal(" - not a structure!" + abstractDataType.toString());
-                collectedMessage.setDeviceProtocolInformation("Value of "+configObject+" is not a structure:"+abstractDataType.toString());
+                collectedMessage.setDeviceProtocolInformation("Value of "+MBUS_CONFIGURATION_OBJECT+" is not a structure:"+abstractDataType.toString());
             }
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            getProtocol().journal(Level.WARNING, "Could not set MBusConfiguration object " + configObject.toString() + ": " + e.getMessage());
+            getProtocol().journal(Level.WARNING, "Could not set MBusConfiguration object " + MBUS_CONFIGURATION_OBJECT.toString() + ": " + e.getMessage());
             collectedMessage.setDeviceProtocolInformation( e.getMessage());
         }
         return collectedMessage;
@@ -330,5 +331,16 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         ((ESMR50Protocol)getProtocol()).resetFrameCounter(1);
     }
 
+
+    /**
+     * ESMR 5.0:
+     Value ::= structure {
+                    Flags bitstring (16)
+                }
+     */
+    @Override
+    protected int getConfigurationObjectFlagsIndex(){
+        return 0;
+    }
 
 }

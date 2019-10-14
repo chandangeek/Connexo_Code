@@ -70,15 +70,15 @@ public class ComTaskExecutionObsoleteEventHandler implements TopicHandler {
     }
 
     private void handle(ComTaskExecution comTaskExecution) {
-        Optional<ConnectionTask> defaultConnectionTask = this.findDefaultConnectionTaskForTopology(comTaskExecution);
-        Optional<ConnectionTask> connectionTaskBasedOnConnectionFunction = this.findConnectionTaskBasedOnConnectionFunction(comTaskExecution);
+        Optional<ConnectionTask> defaultConnectionTask = findDefaultConnectionTaskForTopology(comTaskExecution);
+        Optional<ConnectionTask> connectionTaskBasedOnConnectionFunction = findConnectionTaskBasedOnConnectionFunction(comTaskExecution);
 
         final Optional<ConnectionTask> connectionTask = defaultConnectionTask.isPresent() ? defaultConnectionTask : connectionTaskBasedOnConnectionFunction;
         connectionTask
-            .map(ConnectionTask::getExecutingComServer)
+            .map(ConnectionTask::getExecutingComPort)
             .ifPresent(cs -> {
                 throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(
-                        comTaskExecution, connectionTask.get().getExecutingComServer(),
+                        comTaskExecution, connectionTask.get().getExecutingComPort(),
                         this.thesaurus,
                         MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE);
             });

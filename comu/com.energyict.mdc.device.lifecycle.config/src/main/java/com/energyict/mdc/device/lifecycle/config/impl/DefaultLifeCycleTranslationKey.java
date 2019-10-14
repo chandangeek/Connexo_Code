@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 
 /**

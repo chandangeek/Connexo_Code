@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 public enum ProcessingResultCode {
 
     SUCCESSFUL("3"),
+    PARTIALLY_SUCCESSFUL("4"),
     FAILED("5"),
     ;
 

@@ -27,6 +27,7 @@ public class CreationRuleInfo {
     public DueInInfo dueIn;
     public List<CreationRuleActionInfo> actions = Collections.emptyList();
     public List<PropertyInfo> properties = Collections.emptyList();
+    public List<CreationRuleExclGroupInfo> exclGroups = Collections.emptyList();
     public long creationDate;
     public long modificationDate;
     public long version;

@@ -130,6 +130,7 @@ Ext.define('Isu.view.issues.Preview', {
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
                         name: 'usage_point',
                         renderer: function (value) {
+
                             if (me.getRecord()) {
                                 if (me.getRecord().get('issueType').uid === 'webservice') {
                                     me.down('#issue-preview-usage-point').setVisible(false);
@@ -139,7 +140,7 @@ Ext.define('Isu.view.issues.Preview', {
                                     me.down('#issue-preview-usage-point').setVisible(true);
                                 }
                             }
-                            return value;
+                            return value && !Ext.isEmpty(value) ? value : '-';
                         }
                     },
                     {

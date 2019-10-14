@@ -76,6 +76,7 @@ import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -450,9 +451,10 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        byte[] masterKey = session.getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
         byte[] oldSymmetricKey = session.getProperties().getSecurityProvider().getGlobalKey();
 
         Array encryptionKeyArray = new Array();
@@ -479,9 +481,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected void changeAuthKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        byte[] masterKey = session.getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
 
         Array authenticationKeyArray = new Array();
         Structure keyData = new Structure();
@@ -711,11 +713,12 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     .map(this::callHomeId)
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(";"));
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
+            KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, (KeyAccessorType) messageAttribute);
+            return keyRenewalInfo.toJson();
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string propertyspecs
         }

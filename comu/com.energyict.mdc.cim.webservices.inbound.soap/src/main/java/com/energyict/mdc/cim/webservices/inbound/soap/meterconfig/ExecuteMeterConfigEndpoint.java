@@ -40,6 +40,7 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
 import com.google.common.collect.HashMultimap;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
@@ -273,7 +274,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return responseMessage;
     }
 
-    private MeterConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb, String correlationId) {
+    private MeterConfigResponseMessageType createResponseMessageCustomPayload(HeaderType.Verb verb, String correlationId, ReplyType replyType) {
         MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory
                 .createMeterConfigResponseMessageType();
 
@@ -282,12 +283,14 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         header.setNoun(NOUN);
         header.setVerb(verb);
         header.setCorrelationID(correlationId);
+
         responseMessage.setHeader(header);
-
-        // set reply
-        responseMessage.setReply(replyTypeFactory.okReplyType());
-
+        responseMessage.setReply(replyType);
         return responseMessage;
+    }
+
+    private MeterConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb, String correlationId) {
+        return createResponseMessageCustomPayload(verb, correlationId, replyTypeFactory.okReplyType());
     }
 
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
@@ -347,11 +350,26 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
-
-                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
-                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
-
-                    return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                    List<FaultMessage> faultMessages = new ArrayList<>();
+                    meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo ->  {
+                        try {
+                            deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                        } catch (FaultMessage e) {
+                            faultMessages.add(e);
+                        }
+                    });
+                    if (meterConfig.getMeter().size() == faultMessages.size()) {
+                        throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.FAILED);
+                    } else {
+                        EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
+                        createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                        if (faultMessages.isEmpty()) {
+                            return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                        } else  {
+                            return createResponseMessageCustomPayload(Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID(),
+                                    faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.PARTIAL).getFaultInfo().getReply());
+                        }
+                    }
                 } else {
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst()

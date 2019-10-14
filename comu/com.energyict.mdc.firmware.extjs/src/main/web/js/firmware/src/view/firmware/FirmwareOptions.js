@@ -164,7 +164,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
 
 
                                         if (currentFirmwareCheck && currentFirmwareCheck.activated){
-                                            result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version");
+                                            result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type.");
                                         }
 
                                         var me  = this;
@@ -203,8 +203,8 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                         if (masterFirmwareCheck && masterFirmwareCheck.activated){
                                             var masterFirmwareOptionTemplate = [];
                                             var masterFirmwareOptionsValues = {
-                                                       'FINAL' : Uni.I18n.translate('general.masterFirmwareFinalOption', 'FWC', 'Final status of firmware on master device'),
-                                                       'TEST' : Uni.I18n.translate('general.masterFirmwareTestOption', 'FWC', 'Test status of firmware on master device')
+                                                       'FINAL' : Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of firmware on master device'),
+                                                       'TEST' : Uni.I18n.translate('general.upload.fw.masterFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device')
                                                     };
                                             masterFirmwareCheck['statuses'].sort();
                                             masterFirmwareCheck['statuses'].forEach(function(item){

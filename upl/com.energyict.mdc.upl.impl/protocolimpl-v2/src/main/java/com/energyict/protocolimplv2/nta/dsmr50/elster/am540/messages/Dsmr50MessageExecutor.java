@@ -9,19 +9,19 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.DSMR40ActivityCalendarController;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,13 +55,6 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor);
     }
 
-    @Override
-    protected AbstractMessageExecutor getMbusMessageExecutor() {
-        if (this.mbusMessageExecutor == null) {
-            this.mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
-        }
-        return this.mbusMessageExecutor;
-    }
 
     @Override
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {
@@ -166,50 +159,13 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         return ch >= 32 && ch < 127;
     }
 
-    @Override
-    protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
-        Array authenticationKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        authenticationKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(authenticationKeyArray);
-
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
-    }
 
     @Override
-    protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] oldKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
-        Array encryptionKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        encryptionKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(encryptionKeyArray);
-
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
-
-        //Reset frame counter, only if a different key has been written
-        if (Arrays.equals(oldKey, newSymmetricKey)) {
-            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
-            securityContext.setFrameCounter(1);
-            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+    protected AbstractMessageExecutor getMbusMessageExecutor() {
+        if (this.mbusMessageExecutor == null) {
+            this.mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
         }
+        return this.mbusMessageExecutor;
     }
 
     /**

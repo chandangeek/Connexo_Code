@@ -65,6 +65,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -75,6 +77,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -507,4 +510,17 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         return propertySpec;
     }
+    
+    protected void preparePrivileges(ComTask comTask, User user) {
+        Set<ComTaskUserAction> userActions = new HashSet<>();
+        userActions.add(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1);
+        when(comTask.getUserActions()).thenReturn(userActions);
+        Set<Privilege> privileges = new HashSet<>();
+        Privilege privilege = mock(Privilege.class);
+        when(privilege.getName()).thenReturn(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1.getPrivilege());
+        privileges.add(privilege);
+        when(user.getPrivileges()).thenReturn(privileges);
+    }
+
+
 }

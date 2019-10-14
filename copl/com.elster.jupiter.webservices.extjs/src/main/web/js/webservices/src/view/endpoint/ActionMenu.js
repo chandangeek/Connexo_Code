@@ -8,11 +8,11 @@ Ext.define('Wss.view.endpoint.ActionMenu', {
 
     initComponent: function() {
         var me = this;
-        var direction = me.endpoint.get('direction');
+        var direction = me.endpoint && me.endpoint.get && me.endpoint.get('direction');
         this.items = [
             (direction && direction.id === "OUTBOUND" && me.record.get('statusId') !== "ONGOING" && me.record.get('payload') !== "") && {
                 itemId: 'endpoint-occurrence-retry',
-                text: Uni.I18n.translate('general.retry', 'WSS', 'Retry'),
+                text: Uni.I18n.translate('webservices.retry.action', 'WSS', 'Retry now'),
                 action: 'retry',
                 privileges: Wss.privileges.Webservices.retry
             },

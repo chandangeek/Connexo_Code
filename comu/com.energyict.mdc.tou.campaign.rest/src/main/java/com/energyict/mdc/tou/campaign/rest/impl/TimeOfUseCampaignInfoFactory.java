@@ -91,7 +91,7 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.id = campaign.getId();
         timeOfUseCampaignInfo.version = campaign.getVersion();
         timeOfUseCampaignInfo.withUniqueCalendarName = campaign.isWithUniqueCalendarName();
-        timeOfUseCampaignInfo.sendCalendarComTask = new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),timeOfUseCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
+        timeOfUseCampaignInfo.sendCalendarComTask = campaign.getCalendarUploadComTaskId() == 0 ? null :new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),timeOfUseCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
         timeOfUseCampaignInfo.validationComTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(new Long(campaign.getValidationComTaskId()),timeOfUseCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
         timeOfUseCampaignInfo.sendCalendarConnectionStrategy = campaign.getCalendarUploadConnectionStrategy().isPresent()? new IdWithNameInfo(campaign.getCalendarUploadConnectionStrategy().get().name(),thesaurus.getString(campaign.getCalendarUploadConnectionStrategy().get().name(), campaign.getCalendarUploadConnectionStrategy().get().name())):null;
         timeOfUseCampaignInfo.validationConnectionStrategy = campaign.getValidationConnectionStrategy().isPresent()?new IdWithNameInfo(campaign.getValidationConnectionStrategy().get().name(),thesaurus.getString(campaign.getValidationConnectionStrategy().get().name(), campaign.getValidationConnectionStrategy().get().name())):null;

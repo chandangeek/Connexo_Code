@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -69,7 +70,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile CustomPropertySetService customPropertySetService;
     private volatile SecurityManagementService securityManagementService;
     private volatile HsmEnergyService hsmEnergyService;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
@@ -88,7 +89,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             DeviceLifeCycleService deviceLifeCycleService, DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
             SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+            MeteringTranslationService meteringTranslationService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -99,7 +100,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.customPropertySetService = customPropertySetService;
         this.securityManagementService = securityManagementService;
         this.hsmEnergyService = hsmEnergyService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Override
@@ -276,9 +277,8 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     }
 
     @Reference
-    public void setDeviceLifeCycleConfigurationService(
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
@@ -296,7 +296,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private DeviceBuilder getDeviceBuilder() {
         if (deviceBuilder == null) {
             deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService,
-                    deviceService, getMessageFactory(), deviceLifeCycleConfigurationService);
+                    deviceService, getMessageFactory(), meteringTranslationService);
         }
         return deviceBuilder;
     }

@@ -8,7 +8,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
@@ -463,7 +462,6 @@ Irrelevant as delete is not supported any more
     public void makeObsoleteWhenConnectionTaskHasComServerFilledInTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         OutboundComPort outboundComPort = createOutboundComPort();
-        ComServer comServer = outboundComPort.getComServer();
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "ObsoleteTest", "ObsoleteTest", Instant.now());
         device.save();
@@ -473,7 +471,7 @@ Irrelevant as delete is not supported any more
         comTaskExecutionBuilder.connectionTask(connectionTask);
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comport = " + outboundComPort.getId() + " where id = " + connectionTask.getId());
 
         // Business method
         device.removeComTaskExecution(comTaskExecution);

@@ -50,7 +50,7 @@ Ext.define('Sct.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.serviceCallTypes', 'SCT', 'Service call types'),
                         href: '#/administration/servicecalltypes',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.serviceCallTypes'),
+                        hidden: !(Uni.Auth.hasPrivilege('privilege.view.serviceCallTypes') || Uni.Auth.hasPrivilege('privilege.administrate.serviceCallTypes')),
                         route: 'servicecalltypes'
                     }
                 ]
