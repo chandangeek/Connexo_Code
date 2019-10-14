@@ -11,7 +11,10 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
+import com.energyict.protocolimplv2.nta.esmr50.sagemcom.registers.T210RegisterFactory;
 
 import java.io.IOException;
 import java.util.Date;
@@ -22,6 +25,14 @@ public class T210 extends ESMR50Protocol implements SerialNumberSupport {
 
     public T210(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+    }
+
+    @Override
+    public DeviceRegisterSupport getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new T210RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return registerFactory;
     }
 
     @Override

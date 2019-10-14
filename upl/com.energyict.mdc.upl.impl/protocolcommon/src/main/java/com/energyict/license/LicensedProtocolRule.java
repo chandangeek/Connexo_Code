@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public enum LicensedProtocolRule implements LicensedProtocol {
 
-    /* Please keep the list of protocols organized by protocol generation
+    /* Please keep the list of protocols organized by protocol| generation
      * to make it easier to modify the list that is expected to become big
      * and therefore difficult to maintain.
      * New protocols are required to be of type DeviceProtocol
@@ -382,6 +382,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CRYPTO_GENERIC_ESMR50_MBUS(321, "com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50MbusDevice", FamilyRule.EICT_NTA),//not to be sold or licensed to customers
 
     HONEYWELL_AS300N(322, "com.energyict.protocolimplv2.dlms.hon.as300n.AS300N"),
+
+    SAGEMCOM_T210_CATM(323, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210CatM", FamilyRule.DSMR_NTA),
+    CRYPTO_T210_CATM(324, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.CryptoT210CatM", FamilyRule.DSMR_NTA),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
