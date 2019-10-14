@@ -9,8 +9,8 @@ import com.energyict.mdc.device.data.importers.impl.attributes.connection.Connec
 import com.energyict.mdc.device.data.importers.impl.attributes.protocoldialects.ProtocolDialectAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.protocols.ProtocolAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
-import com.energyict.mdc.device.data.importers.impl.customattributes.CustomAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.DeviceCertificatesImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.customattributes.CustomAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.deviceeventsimport.DeviceEventsImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.commission.DeviceCommissioningImportFactory;
@@ -19,20 +19,14 @@ import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceI
 import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterFactory;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceKeyImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterFactory;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterFactory;
-import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterMessageHandler;
-import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.loadprofilenextreading.DeviceLoadProfileNextReadingImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 
 public enum TranslationKeys implements TranslationKey {
 
     DATA_IMPORTER_SUBSCRIBER(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME, "Handle data import"),
-    SECURE_SHIPMENT_IMPORT_SUBSCRIBER(SecureDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME, "Handle secure shipment import"),
-    SECURE_SHIPMENT_KEY_SUBSCRIBER(SecureDeviceKeyImporterMessageHandler.SUBSCRIBER_NAME, "Handle secure key import"),
-    SECURE_HSM_SHIPMENT_IMPORT_SUBSCRIBER(SecureHSMDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME, "Handle hsm secure shipment import"),
 
     IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED("ImportResultNoDevicesWereProcessed", "Failed to complete, no devices have been processed."),
     IMPORT_RESULT_FAIL("ImportResultFail", "Failed to complete. {0} devices processed successfully."),

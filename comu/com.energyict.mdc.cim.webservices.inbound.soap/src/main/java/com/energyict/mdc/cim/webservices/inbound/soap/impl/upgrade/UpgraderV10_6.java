@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
@@ -9,9 +8,8 @@ import com.elster.jupiter.orm.OrmService;
 
 import javax.inject.Inject;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-
 
 public class UpgraderV10_6 extends SqlExecuteUpgrader {
 
@@ -22,9 +20,6 @@ public class UpgraderV10_6 extends SqlExecuteUpgrader {
 
     @Override
     protected List<String> getSQLStatementsToExecute() {
-        return Arrays.asList(
-                ignoreColumnExistsOrTableDoesNotExist("alter table MCP_SCS_CNT modify (CALLBACK_URL NULL)"),
-                ignoreColumnExistsOrTableDoesNotExist("alter table MCP_SCS_CNTJRNL modify (CALLBACK_URL NULL)"));
+        return new ArrayList<>();
     }
-
 }
