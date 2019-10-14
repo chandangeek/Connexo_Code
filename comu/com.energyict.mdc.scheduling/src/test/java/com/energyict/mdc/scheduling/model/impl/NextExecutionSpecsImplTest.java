@@ -250,8 +250,8 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
-    public void everyTwoWeeksTest() {
-        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(2, TimeDuration.TimeUnit.WEEKS));
+    public void everyTwoWeeksTest() {  // 1<= weeks <= 52
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(53, TimeDuration.TimeUnit.WEEKS));
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
 
         // Business method

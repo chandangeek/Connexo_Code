@@ -758,6 +758,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole1));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        when(meterActivation.getInterval()).thenReturn(Interval.of(Range.greaterThan(now)));
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
 
         IssueFilter issueFilter = mock(IssueFilter.class);

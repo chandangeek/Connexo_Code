@@ -44,6 +44,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -84,7 +85,7 @@ public class ToUCampaignHandlerTest {
         when(timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(any())).thenReturn(Optional.of(timeOfUseItem));
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(event.getType()).thenReturn(eventType);
-        when(timeOfUseItem.cancel()).thenReturn(serviceCall);
+        when(timeOfUseItem.cancel(anyBoolean())).thenReturn(serviceCall);
         when(timeOfUseItem.getServiceCall()).thenReturn(serviceCall);
         when(timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(any())).thenReturn(Optional.ofNullable(timeOfUseItem));
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);

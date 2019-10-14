@@ -11,9 +11,9 @@ public enum TranslationSeeds implements TranslationKey {
     DESCRIPTION("description", "Description"),
     DOMAIN("domain", "Domain"),
     STATUS("active", "Status"),
-    LANGUAGE("languageTag", "Language"),
-    CREATETIME("createTime", "Created on"),
-    MODTIME("modTime", "Modified on"),
+    LANGUAGE("language", "Language"),
+    CREATETIME("createdOn", "Created on"),
+    MODTIME("modifiedOn", "Modified on"),
     LASTSUCCESSFULLOGIN("lastSuccessfulLogin", "Last successful login"),
     LASTUNSUCCESSFULLOGIN("lastUnSuccessfulLogin", "Last unsuccessful login");
 
