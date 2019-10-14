@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
 
     getTimeStampValue: function() {
         var dateTimeWidget = this.down('date-time');
-        if (dateTimeWidget && dateTimeWidget.getValue) {
+        if (dateTimeWidget && dateTimeWidget.getValue && dateTimeWidget.getValue()) {
             return dateTimeWidget.getValue().getTime();
         } else {
             return null;
@@ -86,6 +86,13 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
         var dateTimeWidget = this.down('date-time');
         if (dateTimeWidget && dateTimeWidget.setValue) {
             dateTimeWidget.setValue(value);
+        }
+    },
+
+    markInvalid: function(value){
+        var dateTimeWidget = this.down('date-time');
+        if (dateTimeWidget) {
+            dateTimeWidget.markInvalid(value);
         }
     }
 });
