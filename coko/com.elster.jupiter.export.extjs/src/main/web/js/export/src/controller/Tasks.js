@@ -907,7 +907,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.resumeLayouts(true);
     },
 
-    initAddExportTaskForm: function(view){
+    showAddExportTask: function(){
         var me = this,
             view = Ext.create('Dxp.view.tasks.Add'),
             dataSelectorCombo = view.down('#data-selector-combo'),
@@ -986,19 +986,6 @@ Ext.define('Dxp.controller.Tasks', {
             }
         });
         me.recurrenceEnableDisable();
-    },
-
-    showAddExportTask: function () {
-        var me = this,
-            view = Ext.create('Dxp.view.tasks.Add');
-            me.initAddExportTaskForm(view);
-    },
-
-    showAddExportTaskForm: function () {
-        var me = this,
-            view = Ext.create('add-data-export-task-form');
-            me.getAddPage().add(form);
-            me.initAddExportTaskForm(form);
     },
 
     showRunWithParameters: function(taskId) {
