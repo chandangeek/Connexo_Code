@@ -51,7 +51,7 @@ Ext.define('Fwc.controller.History', {
                     action: 'editFirmwareOptionsSignature'
                 },
                 editOptions: {
-                    title: Uni.I18n.translate('general.firmwareManagementSpecification.edit', 'FWC', 'Edit firmware management specifications'),
+                    title: Uni.I18n.translate('general.firmwareManagementSpecifications.edit', 'FWC', 'Edit firmware management specifications'),
                     route: 'editoptions',
                     controller: 'Fwc.controller.Firmware',
                     action: 'editFirmwareOptions'

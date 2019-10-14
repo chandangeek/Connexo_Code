@@ -133,7 +133,7 @@ Ext.define('Fwc.view.firmware.Grid', {
                 };
 
                 me.columns.push({
-                     header: Uni.I18n.translate('general.ordering', 'EST', 'Ordering'),
+                     header: Uni.I18n.translate('general.ordering', 'FWC', 'Ordering'),
                      itemId: 'ordering-col',
                      align: 'center',
                      renderer: function () {
