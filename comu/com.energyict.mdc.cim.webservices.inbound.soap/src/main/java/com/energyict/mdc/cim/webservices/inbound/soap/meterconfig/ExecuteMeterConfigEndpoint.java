@@ -94,7 +94,6 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     public MeterConfigResponseMessageType createMeterConfig(MeterConfigRequestMessageType requestMessage)
             throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
-
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
@@ -114,7 +113,6 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
 
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
-
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
@@ -133,7 +131,6 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             OperationEnum.CREATE);
 
                     Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
-
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {
@@ -189,11 +186,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
 
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
-
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.UPDATE, requestMessage.getHeader().getCorrelationID());
-
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
@@ -374,10 +369,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst()
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
-
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-
                     return createResponseMessage(device, HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {

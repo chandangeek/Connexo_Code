@@ -106,12 +106,10 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
                 if (meters.isEmpty()) {
                     throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
                 }
-
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
                     createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, correlationId);
-
                     return createQuickResponseMessage(correlationId);
                 } else if (meters.size() > 1) {
                     throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.SYNC_MODE_NOT_SUPPORTED);

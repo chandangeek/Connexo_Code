@@ -37,7 +37,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-
 public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint implements UsagePointConfigPort, ApplicationSpecific {
     private static final String NOUN = "UsagePointConfig";
     private final ReplyTypeFactory replyTypeFactory;
@@ -118,12 +117,10 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     return processAsynchronously(message, action);
                 }
-
                 List<UsagePoint> usagePoints = retrieveUsagePoints(message.getPayload(), messageSeed);
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(messageSeed,
                                 MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-
                 com.elster.jupiter.metering.UsagePoint connexoUsagePoint = synchronousProcessor.apply(usagePoint);
             String correlationId = message.getHeader() == null ? null : message.getHeader().getCorrelationID();
             return createResponse(connexoUsagePoint, verb, usagePoints.size() > 1, correlationId);
@@ -263,8 +260,6 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
             UsagePoint usagePoint = usagePoints.stream().findFirst()
                     .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_GET_USAGE_POINT,
                             MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-
-
             com.elster.jupiter.metering.UsagePoint retrieved = usagePointBuilderProvider.get().from(usagePoint, 0) // bulk operation is not supported, only first element is processed
                     .get();
         String correlationId  = getUsagePointConfigRequestMessage.getHeader() == null ? null : getUsagePointConfigRequestMessage.getHeader().getCorrelationID();

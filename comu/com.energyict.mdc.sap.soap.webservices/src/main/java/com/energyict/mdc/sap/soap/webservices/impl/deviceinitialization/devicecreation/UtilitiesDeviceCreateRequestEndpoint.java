@@ -72,7 +72,6 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
                 saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), getDeviceId(requestMsg));
             });
 
-
             if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceCreateConfirmation.NAME);

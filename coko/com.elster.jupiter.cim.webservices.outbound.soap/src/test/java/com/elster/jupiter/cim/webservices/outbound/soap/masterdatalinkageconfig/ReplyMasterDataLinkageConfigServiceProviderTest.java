@@ -167,8 +167,6 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
         });
 
-
-
         verify(provider).using("createdMasterDataLinkageConfig");
         verify(requestSender).toEndpoints(endPointConfiguration);
         verify(requestSender).withRelatedAttributes(values);

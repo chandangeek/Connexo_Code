@@ -147,7 +147,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
-
                 SyncReplyIssue syncReplyIssue = syncReplyIssueProvider.get();
                 GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest()
                         .getGetMeterReadings())
@@ -182,7 +181,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 saveRelatedAttributes(values);
 
                 checkGetMeterReading(getMeterReadings, async);
-
                 // run async
                 if (async) {
                     return runAsyncMode(getMeterReadingsRequestMessage, syncReplyIssue);
@@ -212,7 +210,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
                 // -UsagePoint
                 List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
-
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 

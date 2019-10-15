@@ -167,8 +167,6 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
-
-
         SetMultimap<String, String> values = HashMultimap.create();
 
         successfulDevices.forEach(device->{
