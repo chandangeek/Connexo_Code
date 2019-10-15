@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
@@ -53,6 +54,11 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
+                MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = serviceCall
+                        .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                masterExtension.setAttemptNumber(masterExtension.getAttemptNumber().add(BigDecimal.ONE));
+                serviceCall.update(masterExtension);
                 immediately.remove(serviceCall.getId());
                 scheduled.remove(serviceCall.getId());
                 serviceCall.findChildren().stream().forEach(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
@@ -134,11 +140,20 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 break;
             case PAUSED:
                 parentServiceCall = lock(parentServiceCall);
-                if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
-                    if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
+                MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = parentServiceCall
+                        .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                BigDecimal attempts = new BigDecimal(WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+                BigDecimal currentAttempt = masterExtension.getAttemptNumber();
+                if (currentAttempt.compareTo(attempts) == -1) {
+                    if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
+                        if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
+                            parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        }
+                        parentServiceCall.requestTransition(DefaultState.PAUSED);
                     }
-                    parentServiceCall.requestTransition(DefaultState.PAUSED);
+                } else {
+                    parentServiceCall.requestTransition(DefaultState.CANCELLED);
                 }
                 break;
             default:

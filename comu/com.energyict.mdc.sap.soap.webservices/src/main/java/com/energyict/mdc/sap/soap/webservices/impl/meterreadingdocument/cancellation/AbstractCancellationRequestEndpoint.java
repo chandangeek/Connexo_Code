@@ -131,33 +131,33 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
         List<MeterReadingDocumentCreateResultDomainExtension> serviceCallFinder = getResultExtensions(meterReadingDocumentIds);
 
         serviceCallFinder.stream().forEach(extension -> {
-                String documentId = extension.getMeterReadingDocumentId();
-                try {
-                    ServiceCall serviceCall = extension.getServiceCall();
+            String documentId = extension.getMeterReadingDocumentId();
+            try {
+                ServiceCall serviceCall = extension.getServiceCall();
+                if (serviceCall.getState().isOpen()) {
+                    serviceCall = lock(serviceCall);
                     if (serviceCall.getState().isOpen()) {
-                        serviceCall = lock(serviceCall);
-                        if (serviceCall.getState().isOpen()) {
-                            serviceCall.log(com.elster.jupiter.servicecall.LogLevel.INFO, "Cancel the service call by request from SAP.");
-                            extension.setCancelledBySap(true);
-                            serviceCall.update(extension);
-                            if (serviceCall.getState().equals(DefaultState.CREATED)) {
-                                serviceCall.requestTransition(DefaultState.PENDING);
-                            }
-                            serviceCall.requestTransition(DefaultState.CANCELLED);
-                            meterReadingDocumentIds.remove(documentId);
-                            cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, true));
-                        } else {
-                            meterReadingDocumentIds.remove(documentId);
-                            cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.METER_READING_DOCUMENT_IS_PROCESSED, documentId));
+                        serviceCall.log(com.elster.jupiter.servicecall.LogLevel.INFO, "Cancel the service call by request from SAP.");
+                        extension.setCancelledBySap(true);
+                        serviceCall.update(extension);
+                        if (serviceCall.getState().equals(DefaultState.CREATED)) {
+                            serviceCall.requestTransition(DefaultState.PENDING);
                         }
+                        serviceCall.requestTransition(DefaultState.CANCELLED);
+                        meterReadingDocumentIds.remove(documentId);
+                        cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, true));
                     } else {
                         meterReadingDocumentIds.remove(documentId);
                         cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.METER_READING_DOCUMENT_IS_PROCESSED, documentId));
                     }
-                } catch (Exception ex) {
+                } else {
                     meterReadingDocumentIds.remove(documentId);
-                    cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.ERROR_CANCELLING_METER_READING_DOCUMENT, ex.getLocalizedMessage()));
+                    cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.METER_READING_DOCUMENT_IS_PROCESSED, documentId));
                 }
+            } catch (Exception ex) {
+                meterReadingDocumentIds.remove(documentId);
+                cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.ERROR_CANCELLING_METER_READING_DOCUMENT, ex.getLocalizedMessage()));
+            }
         });
     }
 
@@ -186,10 +186,15 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
             serviceCall = lock(serviceCall);
             if (getResultExtensions(Arrays.asList(documentId)).isEmpty()) {
                 Optional<MeterReadingDocumentCreateRequestDomainExtension> requestExtension = serviceCall.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class);
-                requestExtension.get().setCancelledBySap(true);
+
+                if (!requestExtension.get().isCancelledBySap()) {
+                    requestExtension.get().setCancelledBySap(true);
+                    cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, true));
+                } else {
+                    cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, false, MessageSeeds.METER_READING_DOCUMENT_IS_PROCESSED, documentId));
+                }
                 serviceCall.update(requestExtension.get());
                 meterReadingDocumentIds.remove(documentId);
-                cancelledDocuments.add(new CancelledMeterReadingDocument(documentId, true));
             }
         }
     }
