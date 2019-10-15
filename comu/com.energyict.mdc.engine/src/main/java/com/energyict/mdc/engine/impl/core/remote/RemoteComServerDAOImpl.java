@@ -199,7 +199,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             Map<String, Object> queryParameters = new HashMap<>();
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_HIGH_PRIORITY_LOAD, currentHighPriorityLoadPerComPortPool);
-            queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, date);
+            queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, Date.from(date));
             JSONObject response = post(QueryMethod.FindExecutableHighPriorityOutboundComTasks, queryParameters);
             HighPriorityComJob[] comJobs = toArrayObject(response, new ObjectParser<HighPriorityComJob[]>(), HighPriorityComJob[].class);
             return CollectionConverter.convertGenericArrayToList(comJobs);
@@ -564,7 +564,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE, rescheduleDate);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE, Date.from(rescheduleDate));
         this.post(QueryMethod.ExecutionRescheduled, queryParameters);
     }
 
@@ -572,7 +572,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE, comWindowStartDate);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE, Date.from(comWindowStartDate));
         post(QueryMethod.ExecutionRescheduledToComWindow, queryParameters);
     }
 
@@ -657,7 +657,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.LOADPROFILE_IDENTIFIER, loadProfileIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COLLECTED_LOADPROFILE, collectedLoadProfile);
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, currentDate);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, Date.from(currentDate));
         post(QueryMethod.StoreLoadProfile, queryParameters);
 
     }
@@ -667,7 +667,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER, logBookIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COLLECTED_LOGBOOK, collectedLogBook);
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, currentDate);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, Date.from(currentDate));
         post(QueryMethod.StoreLogBookData, queryParameters);
     }
 
@@ -705,7 +705,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.REGISTER_IDENTIFIER, identifier);
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.WHEN, identifier);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.WHEN, Date.from(when));
         JSONObject response = post(QueryMethod.FindOfflineRegister, queryParameters);
         return Optional.of(toObject(response, new ObjectParser<OfflineRegister>()));
     }
@@ -777,7 +777,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_IDENTIFIER, messageIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_STATUS, newDeviceMessageStatus);
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.SENT_DATE, sentDate);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.SENT_DATE, Date.from(sentDate));
         if (protocolInformation != null) {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION, protocolInformation);
         }

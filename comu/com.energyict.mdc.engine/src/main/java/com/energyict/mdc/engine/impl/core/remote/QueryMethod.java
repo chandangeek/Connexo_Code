@@ -77,7 +77,7 @@ public enum QueryMethod {
             Long comServerId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMSERVER);
             Optional<ComServer> comServer = serviceProvider.engineConfigurationService().findComServer(comServerId);
             if (comServer.isPresent()) {
-                Instant modificationDate = this.getInstant(parameters, RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE);
+                Instant modificationDate = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE);
                 if (comServer.get().getModTime().isAfter(modificationDate)) {
                     return comServer.get();
                 }
@@ -104,8 +104,8 @@ public enum QueryMethod {
             Map<Long, Integer> currentHighPriorityLoadPerComPortPool = extractCurrentHighPriorityLoadPerComPortPool(parameters);
             if (comServer.isPresent()) {
                 if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE)) {
-                    Date date = new Date(getLong(parameters, RemoteComServerQueryJSonPropertyNames.CURRENT_DATE));
-                    return serviceProvider.comServerDAO().findExecutableHighPriorityOutboundComTasks((OutboundCapableComServer) comServer.get(), currentHighPriorityLoadPerComPortPool, date.toInstant());
+                    Instant date = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.CURRENT_DATE);
+                    return serviceProvider.comServerDAO().findExecutableHighPriorityOutboundComTasks((OutboundCapableComServer) comServer.get(), currentHighPriorityLoadPerComPortPool, date);
                 } else
                     return serviceProvider.comServerDAO().findExecutableHighPriorityOutboundComTasks((OutboundCapableComServer) comServer.get(), currentHighPriorityLoadPerComPortPool);
             }
@@ -211,9 +211,9 @@ public enum QueryMethod {
                 Long comTaskExecutionId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
                 Optional<ComTaskExecution> comTaskExecution = serviceProvider.communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE)) {
-                    Date rescheduleDate = new Date(getLong(parameters, RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE));
+                    Instant rescheduleDate = getInstant(parameters,  RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE);
                     if(comTaskExecution.isPresent()){
-                        this.executionRescheduled(serviceProvider, comTaskExecution.get(), rescheduleDate.toInstant());
+                        this.executionRescheduled(serviceProvider, comTaskExecution.get(), rescheduleDate);
                     }
                 }
             } else if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK)) {
@@ -233,9 +233,9 @@ public enum QueryMethod {
                 Integer comTaskExecutionId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
                 Optional<ComTaskExecution> comTaskExecution = serviceProvider.communicationTaskService().findComTaskExecution(comTaskExecutionId);
                 if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE)) {
-                    Date rescheduleDate = new Date((Long) parameters.get(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE));
+                    Instant rescheduleDate = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE);
                     if(comTaskExecution.isPresent()){
-                        executionRescheduledToComWindow(serviceProvider, comTaskExecution.get(), rescheduleDate.toInstant());
+                        executionRescheduledToComWindow(serviceProvider, comTaskExecution.get(), rescheduleDate);
                     }
                 }
             }
@@ -522,10 +522,9 @@ public enum QueryMethod {
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
             try {
                 ObjectParser<RegisterIdentifier> parser = new ObjectParser<>();
-                ObjectParser<Instant> parserInstant = new ObjectParser<>();
                 JSONObject jsonObject = new JSONObject(parameters);
                 RegisterIdentifier registerIdentifier = parser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.REGISTER_IDENTIFIER);
-                Instant when = parserInstant.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.WHEN);
+                Instant when = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.WHEN);
                 return serviceProvider.comServerDAO().findOfflineRegister(registerIdentifier, when);
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -631,11 +630,10 @@ public enum QueryMethod {
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
             try {
                 ObjectParser<MessageIdentifier> parser = new ObjectParser<>();
-                ObjectParser<Instant> parserInstant = new ObjectParser<>();
                 JSONObject jsonObject = new JSONObject(parameters);
                 MessageIdentifier messageIdentifier = parser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.MESSAGE_IDENTIFIER);
                 DeviceMessageStatus newMessageStatus = DeviceMessageStatus.valueOf((String) parameters.get(RemoteComServerQueryJSonPropertyNames.MESSAGE_STATUS));
-                Instant instantDate = parserInstant.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.SENT_DATE);
+                Instant instantDate = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.SENT_DATE);
                 String protocolInformation = null;
                 if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION)) {
                     protocolInformation = (String) parameters.get(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION);
@@ -722,8 +720,8 @@ public enum QueryMethod {
                 ObjectParser<CollectedLoadProfile> collectedLoadProfileObjectParser = new ObjectParser<>();
                 LoadProfileIdentifier loadProfileIdentifier = loadProfileIdentifierObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.LOADPROFILE_IDENTIFIER);
                 CollectedLoadProfile collectedLoadProfile = collectedLoadProfileObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.COLLECTED_LOADPROFILE);
-                Date date = new Date(getLong(parameters, RemoteComServerQueryJSonPropertyNames.CURRENT_DATE));
-                this.storeLoadProfile(serviceProvider, loadProfileIdentifier, collectedLoadProfile, date.toInstant());
+                Instant date = getInstant(parameters,  RemoteComServerQueryJSonPropertyNames.CURRENT_DATE);
+                this.storeLoadProfile(serviceProvider, loadProfileIdentifier, collectedLoadProfile, date);
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -739,8 +737,8 @@ public enum QueryMethod {
                 ObjectParser<CollectedLogBook> collectedLogBookObjectParser = new ObjectParser<>();
                 LogBookIdentifier logBookIdentifier = logBookIdentifierObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER);
                 CollectedLogBook collectedLogBook = collectedLogBookObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.COLLECTED_LOGBOOK);
-                Date date = new Date(getLong(parameters, RemoteComServerQueryJSonPropertyNames.CURRENT_DATE));
-                this.storeLogBookData(serviceProvider, logBookIdentifier, collectedLogBook, date.toInstant());
+                Instant date = getInstant(parameters,  RemoteComServerQueryJSonPropertyNames.CURRENT_DATE);
+                this.storeLogBookData(serviceProvider, logBookIdentifier, collectedLogBook, date);
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
@@ -816,15 +814,7 @@ public enum QueryMethod {
         }
     }
 
-    private static Date getDate(Object parameter) {
-        if (parameter instanceof Date) {
-            return (Date)parameter;
-        }
-        if (parameter instanceof Long) {
-            return new Date((Long)parameter);
-        }
-        return null;
-    }
+
 
     /**
      * Defines the services that are required by all QueryMethods.
@@ -847,7 +837,24 @@ public enum QueryMethod {
 
     }
 
-    Long getLong(Map<String, Object> parameters, String jsonPropertyName) {
+    private static Date getDate(Object parameter) {
+        if (parameter instanceof Date) {
+            return (Date)parameter;
+        }
+        if (parameter instanceof Long) {
+            return new Date((Long)parameter);
+        }
+        return null;
+    }
+
+    private static Instant getInstant(Map<String, Object> parameters, String jsonPropertyName) {
+        Date date = getDate(parameters.get(jsonPropertyName));
+        if (date != null)
+            return date.toInstant();
+        return null;
+    }
+
+    private static Long getLong(Map<String, Object> parameters, String jsonPropertyName) {
         Object parameter = parameters.get(jsonPropertyName);
         if (parameter instanceof Long) {
             return (Long) parameter;
@@ -1038,10 +1045,6 @@ public enum QueryMethod {
 
     private <T> T executeTransaction(ServiceProvider serviceProvider, ExceptionThrowingSupplier<T, RuntimeException> transaction) {
         return serviceProvider.transactionService().execute(transaction);
-    }
-
-    protected Instant getInstant(Map<String, Object> parameters, String jsonPropertyName) {
-        return getDate(parameters.get(jsonPropertyName)).toInstant();
     }
 
     private boolean nameMatches(String name) {
