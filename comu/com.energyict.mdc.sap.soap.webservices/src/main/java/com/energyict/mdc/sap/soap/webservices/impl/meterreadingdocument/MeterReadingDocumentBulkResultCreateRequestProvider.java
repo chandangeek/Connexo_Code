@@ -6,11 +6,14 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkResult;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOutService;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -61,7 +64,16 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
 
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
+        SetMultimap<String, String> values = HashMultimap.create();
+        resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().forEach(reading->{
+            values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                    reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
+        });
+
         using("meterReadingDocumentERPResultBulkCreateRequestCOut")
+                .withRelatedAttributes(values)
                 .send(resultMessage.getBulkResultMessage());
     }
 

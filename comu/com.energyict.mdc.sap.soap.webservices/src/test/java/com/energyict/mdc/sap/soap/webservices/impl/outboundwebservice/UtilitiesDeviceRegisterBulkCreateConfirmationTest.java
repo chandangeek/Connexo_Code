@@ -6,25 +6,33 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateConfirmationProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegBulkCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,18 +45,27 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationTest extends AbstractO
     private UtilsDvceERPSmrtMtrRegBulkCrteConfMsg confirmationMessage;
     @Mock
     private UtilitiesDeviceRegisterCreateConfirmationMessage outboundMessage;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private UtilsDvceERPSmrtMtrRegCrteConfMsg msgMock;
+
+
+    private List<UtilsDvceERPSmrtMtrRegCrteConfMsg> msgList = new ArrayList<>();
 
     UtilitiesDeviceRegisterBulkCreateConfirmationProvider provider;
 
     @Before
     public void setUp() {
+        msgList.add(msgMock);
         provider = spy(new UtilitiesDeviceRegisterBulkCreateConfirmationProvider());
         when(webServiceCallOccurrence.getId()).thenReturn(1l);
         when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         when(outboundMessage.getBulkConfirmationMessage()).thenReturn(Optional.of(confirmationMessage));
+        when(confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage()).thenReturn(msgList);
+        when(msgMock.getUtilitiesDevice().getID().getValue()).thenReturn("UtilDeviceID");
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
 
@@ -62,7 +79,12 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationTest extends AbstractO
         provider.addRequestConfirmationPort(port, properties);
         provider.call(outboundMessage);
 
+        SetMultimap<String,String> values = HashMultimap.create();
+
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                "UtilDeviceID");
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut");
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(confirmationMessage);
     }
 

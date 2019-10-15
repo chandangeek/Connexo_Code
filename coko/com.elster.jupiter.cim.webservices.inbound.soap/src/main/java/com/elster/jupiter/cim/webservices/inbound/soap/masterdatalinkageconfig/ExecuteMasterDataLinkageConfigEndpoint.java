@@ -7,6 +7,8 @@ package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -23,6 +25,8 @@ import ch.iec.tc57._2011.executemasterdatalinkageconfig.MasterDataLinkageConfigP
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -81,6 +85,28 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
         masterDataLinkageMessageValidatorProvider.get().validate(message, action);
         return runInTransactionWithOccurrence(() -> {
             try {
+                SetMultimap<String, String> values = HashMultimap.create();
+                message.getPayload()
+                        .getMasterDataLinkageConfig().getMeter().stream().forEach(meter ->{
+                            if (!meter.getNames().isEmpty()) {
+                                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                            }
+                            if (meter.getMRID()!= null) {
+                                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                            }
+                });
+                message.getPayload()
+                        .getMasterDataLinkageConfig().getUsagePoint().stream().forEach(usagePoint ->{
+                    if (!usagePoint.getNames().isEmpty()) {
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                    }
+                    if (usagePoint.getMRID() != null) {
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
+                    }
+                });
+
+                saveRelatedAttributes(values);
+
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     return processAsynchronously(message, action);
                 }
