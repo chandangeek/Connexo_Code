@@ -153,5 +153,13 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pubsub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -218,8 +218,13 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
                         .describedAs(TranslationKeys.CANCELLED_BY_SAP_DESCRIPTION)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .longSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName(), TranslationKeys.COM_TASK_EXECUTION_ID)
+                        .fromThesaurus(thesaurus)
                         .finish()
-        );
+                );
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterReadingDocumentCreateResultDomainExtension> {
@@ -352,6 +357,12 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CANCELLED_BY_SAP.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONGWRAPPER)
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName())
                     .since(Version.version(10, 7, 1))
                     .add();
         }
