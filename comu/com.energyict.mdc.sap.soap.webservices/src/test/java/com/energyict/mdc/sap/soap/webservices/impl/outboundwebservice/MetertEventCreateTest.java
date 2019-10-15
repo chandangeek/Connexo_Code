@@ -46,6 +46,7 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any())).thenReturn(requestSender);
     }
 
     @Test
@@ -55,7 +56,9 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
         provider.send(reqMsg);
         verify(provider).using("utilitiesSmartMeterEventERPBulkCreateRequestCOut");
         verify(requestSender).send(reqMsg);
+        verify(requestSender).withRelatedAttributes(any());
     }
+
 
     @Test
     public void testCallWithoutPort() {
