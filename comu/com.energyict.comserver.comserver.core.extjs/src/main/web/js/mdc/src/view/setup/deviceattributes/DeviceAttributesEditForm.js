@@ -185,7 +185,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 xtype: 'numberfield',
                 name: 'multiplierEdit',
-                minValue: 1,
+                minValue: 0.000001,
+                decimalPrecision: 6,
                 maxValue: 2147483647,
                 itemId: 'multiplierEdit',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier')
@@ -198,7 +199,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 xtype: 'numberfield',
                 name: 'multiplierEdit',
-                minValue: 1,
+                minValue: 0.000001,
+                decimalPrecision: 6,
                 maxValue: 2147483647,
                 itemId: 'multiplierEdit',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier')
