@@ -109,12 +109,14 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                 String correlationId = closedEndDeviceEventsEventMessage.getHeader() == null ? null : closedEndDeviceEventsEventMessage.getHeader().getCorrelationID();
                 SetMultimap<String, String> values = HashMultimap.create();
                 closedEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
+
                     if (!event.getAssets().getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getNames().get(0).getName());
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getAssets().getNames().get(0).getName());
                     }
                     if (event.getAssets().getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getMRID());
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
                     }
+
                     if(event.getUsagePoint() != null) {
                         if (!event.getUsagePoint().getNames().isEmpty() ) {
                             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
