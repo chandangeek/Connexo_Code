@@ -36,7 +36,7 @@ public class ComServerMobileGuiJConfigEntries {
     }
 
     static public String getWorkingDir() {
-        File f = new File("");
-        return (f.getAbsolutePath() + "\\");
+        String connexoHome = System.getProperty("connexo.home", "");
+        return  new File(connexoHome).getAbsolutePath()+ "\\";
     }
 }

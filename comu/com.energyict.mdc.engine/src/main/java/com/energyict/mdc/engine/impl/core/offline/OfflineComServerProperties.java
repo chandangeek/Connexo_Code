@@ -9,10 +9,7 @@ package com.energyict.mdc.engine.impl.core.offline;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 /**
@@ -48,7 +45,9 @@ public class OfflineComServerProperties {
         InputStream inputStream = null;
         Properties properties = new Properties();
         try {
-            inputStream = new FileInputStream("conf/" + PROPERTIES_FILE);
+            File connexoHome = new File(System.getProperty("connexo.home", ""));
+            File propertiesFile = new File(connexoHome.getAbsoluteFile(), "conf/" + PROPERTIES_FILE);
+            inputStream = new FileInputStream(propertiesFile);
             properties.load(inputStream);
             return properties;
         } catch (FileNotFoundException e) {
