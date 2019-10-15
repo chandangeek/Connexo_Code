@@ -9,7 +9,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingHandleComTaskExecution;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
 
@@ -19,9 +19,9 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Clock;
 import java.util.Optional;
 
-@Component(name = "MeterReadingDocumentCreateResultServiceCallHandler", service = {ServiceCallHandler.class, SAPMeterReadingHandleComTaskExecution.class},
+@Component(name = "MeterReadingDocumentCreateResultServiceCallHandler", service = {ServiceCallHandler.class, SAPMeterReadingComTaskExecutionHelper.class},
         immediate = true, property = "name=" + MeterReadingDocumentCreateResultServiceCallHandler.NAME)
-public class MeterReadingDocumentCreateResultServiceCallHandler implements ServiceCallHandler, SAPMeterReadingHandleComTaskExecution {
+public class MeterReadingDocumentCreateResultServiceCallHandler implements ServiceCallHandler, SAPMeterReadingComTaskExecutionHelper {
 
     public static final String NAME = "MeterReadingDocumentCreateResultServiceCallHandler";
     public static final String VERSION = "v1.0";

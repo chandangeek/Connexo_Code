@@ -14,14 +14,14 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.TaskStatus;
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingHandleComTaskExecution;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name = "com.energyict.mdc.sap.soap.custom.meterreadingdocument.ondemandhandler", service = Subscriber.class, immediate = true)
+@Component(name = "SAPMeterReadingDocumentOnDemandHandler", service = Subscriber.class, immediate = true)
 public class SAPMeterReadingDocumentOnDemandHandler extends EventHandler<LocalEvent> {
     private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
     private final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
@@ -29,7 +29,7 @@ public class SAPMeterReadingDocumentOnDemandHandler extends EventHandler<LocalEv
     private final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
 
     private volatile ServiceCallService serviceCallService;
-    private volatile SAPMeterReadingHandleComTaskExecution sapMeterReadingHandleComTaskExecution;
+    private volatile SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper;
 
     public SAPMeterReadingDocumentOnDemandHandler() {
         super(LocalEvent.class);
@@ -37,15 +37,15 @@ public class SAPMeterReadingDocumentOnDemandHandler extends EventHandler<LocalEv
 
     @Inject
     public SAPMeterReadingDocumentOnDemandHandler(ServiceCallService serviceCallService,
-                                                  SAPMeterReadingHandleComTaskExecution sapMeterReadingHandleComTaskExecution) {
-        super(LocalEvent.class);
-        this.serviceCallService = serviceCallService;
-        this.sapMeterReadingHandleComTaskExecution = sapMeterReadingHandleComTaskExecution;
+                                                  SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper) {
+        this();
+        setServiceCallService(serviceCallService);
+        setSapMeterReadingComTaskExecutionHelper(sapMeterReadingComTaskExecutionHelper);
     }
 
     @Reference
-    public void setSapMeterReadingHandleComTaskExecution(SAPMeterReadingHandleComTaskExecution sapMeterReadingHandleComTaskExecution) {
-        this.sapMeterReadingHandleComTaskExecution = sapMeterReadingHandleComTaskExecution;
+    public void setSapMeterReadingComTaskExecutionHelper(SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper) {
+        this.sapMeterReadingComTaskExecutionHelper = sapMeterReadingComTaskExecutionHelper;
     }
 
     @Reference
@@ -85,10 +85,10 @@ public class SAPMeterReadingDocumentOnDemandHandler extends EventHandler<LocalEv
             return;
         }
 
-        findAvailableServiceCalls(comTaskExecution.getDevice(), sapMeterReadingHandleComTaskExecution.getServiceCallTypeName())
+        findAvailableServiceCalls(comTaskExecution.getDevice(), sapMeterReadingComTaskExecutionHelper.getServiceCallTypeName())
                 .stream()
                 .forEach(serviceCall -> {
-                    sapMeterReadingHandleComTaskExecution.calculateData(serviceCall, comTaskExecution.getId());
+                    sapMeterReadingComTaskExecutionHelper.calculateData(serviceCall, comTaskExecution.getId());
                 });
     }
 

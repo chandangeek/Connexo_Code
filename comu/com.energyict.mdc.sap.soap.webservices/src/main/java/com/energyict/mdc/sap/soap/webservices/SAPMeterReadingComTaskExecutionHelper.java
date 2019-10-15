@@ -9,7 +9,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface SAPMeterReadingHandleComTaskExecution {
+public interface SAPMeterReadingComTaskExecutionHelper {
 
     void calculateData(ServiceCall serviceCall, long comTaskExecutionId);
 
