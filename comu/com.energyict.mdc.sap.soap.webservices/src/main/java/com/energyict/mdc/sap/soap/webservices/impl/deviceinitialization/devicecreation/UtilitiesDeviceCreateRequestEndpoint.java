@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
@@ -12,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
@@ -64,6 +66,12 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
     @Override
     public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
+
+            Optional.ofNullable(request).ifPresent(requestMsg->{
+                saveRelatedAttribute(CimAttributeNames.SERIAL_ID.getAttributeName(), getSerialId(requestMsg));
+                saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), getDeviceId(requestMsg));
+            });
+
             if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceCreateConfirmation.NAME);

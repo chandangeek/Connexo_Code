@@ -1,6 +1,8 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -8,9 +10,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
@@ -25,7 +24,9 @@ import ch.iec.tc57._2011.receiveenddeviceevents.EndDeviceEventsPort;
 import ch.iec.tc57._2011.receiveenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -65,11 +66,33 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
         return runInTransactionWithOccurrence(() -> {
             try {
                 String correlationId = createdEndDeviceEventsEventMessage.getHeader() == null ? null : createdEndDeviceEventsEventMessage.getHeader().getCorrelationID();
+
+                SetMultimap<String, String> values = HashMultimap.create();
+                createdEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
+                    if (!event.getAssets().getNames().isEmpty()){
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getAssets().getNames().get(0).getName());
+                    }
+                    if (event.getAssets().getMRID() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
+                    }
+                    if(event.getUsagePoint() != null) {
+                        if (!event.getUsagePoint().getNames().isEmpty() ) {
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
+                        }
+                        if (event.getUsagePoint().getMRID() != null) {
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
+                        }
+                    }
+                });
+                saveRelatedAttributes(values);
+
                 List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
+
                 EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                         .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
                                 MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
                 EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
+
                 return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1, correlationId);
             } catch (VerboseConstraintViolationException e) {
                 throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
@@ -83,7 +106,27 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
     public EndDeviceEventsResponseMessageType closedEndDeviceEvents(EndDeviceEventsEventMessageType closedEndDeviceEventsEventMessage) throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
-            String correlationId = closedEndDeviceEventsEventMessage.getHeader() == null ? null : closedEndDeviceEventsEventMessage.getHeader().getCorrelationID();
+                String correlationId = closedEndDeviceEventsEventMessage.getHeader() == null ? null : closedEndDeviceEventsEventMessage.getHeader().getCorrelationID();
+                SetMultimap<String, String> values = HashMultimap.create();
+                closedEndDeviceEventsEventMessage.getPayload().getEndDeviceEvents().getEndDeviceEvent().forEach(event->{
+
+                    if (!event.getAssets().getNames().isEmpty()) {
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getAssets().getNames().get(0).getName());
+                    }
+                    if (event.getAssets().getMRID() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
+                    }
+
+                    if(event.getUsagePoint() != null) {
+                        if (!event.getUsagePoint().getNames().isEmpty() ) {
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
+                        }
+                        if (event.getUsagePoint().getMRID() != null) {
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), event.getUsagePoint().getMRID());
+                        }
+                    }
+                });
+                saveRelatedAttributes(values);
                 List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
                 EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                         .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,

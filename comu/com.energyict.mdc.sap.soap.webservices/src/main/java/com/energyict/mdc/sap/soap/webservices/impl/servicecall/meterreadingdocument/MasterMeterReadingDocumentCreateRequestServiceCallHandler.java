@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -45,6 +46,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     private Map<Long, List<ServiceCall>> immediately = new HashMap<>();
     private Map<Long, List<ServiceCall>> scheduled = new HashMap<>();
@@ -172,6 +174,11 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
+    @Reference
+    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
@@ -269,6 +276,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.METER_READING_DOCUMENT_CREATE_RESULT);
             ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType).extendedWith(childDomainExtension);
+            sapCustomPropertySets.getDevice(requestDomainExtension.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
             return Optional.of(serviceCallBuilder.create());
         } else {
             return Optional.empty();

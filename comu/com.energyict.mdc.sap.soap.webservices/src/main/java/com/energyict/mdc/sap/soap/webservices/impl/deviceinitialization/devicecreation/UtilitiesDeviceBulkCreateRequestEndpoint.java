@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -16,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceBulkCreateConfirmation;
@@ -27,6 +29,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilitiesDeviceERPSmartMeterBulkCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrBlkCrteReqMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -64,6 +69,15 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
     @Override
     public void utilitiesDeviceERPSmartMeterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrBlkCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
+            SetMultimap<String, String> values = HashMultimap.create();
+
+            request.getUtilitiesDeviceERPSmartMeterCreateRequestMessage().forEach(req->{
+                values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), req.getUtilitiesDevice().getSerialID());
+                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), req.getUtilitiesDevice().getID().getValue());
+            });
+
+            saveRelatedAttributes(values);
+
             if (!isAnyActiveEndpoint(UtilitiesDeviceBulkCreateConfirmation.NAME)) {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceBulkCreateConfirmation.NAME);
