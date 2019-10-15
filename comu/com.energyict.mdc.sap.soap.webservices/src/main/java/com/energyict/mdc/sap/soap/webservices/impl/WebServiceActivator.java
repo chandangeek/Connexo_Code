@@ -183,9 +183,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
     // Update SAP export task
-    private static final String UPDATE_SAP_EXPORT_TASK_PROPERTY = "com.elster.jupiter.sap.updatesapexporttaskinterval";
     private static final String UPDATE_SAP_EXPORT_TASK_NAME = "Update SAP export group task";
-    private static final int UPDATE_SAP_EXPORT_TASK_SCHEDULE = 7; // Every 7 days
     private static final int UPDATE_SAP_EXPORT_TASK_RETRY_DELAY = 60;
 
     private static String exportTaskName;
@@ -392,82 +390,49 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     private void createOrUpdateUpdateSapExportTask() {
-        threadPrincipalService.set(() -> "Activator");
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<String> property = Optional.ofNullable(getPropertyValue(bundleContext, UPDATE_SAP_EXPORT_TASK_PROPERTY));
-            int frequency = UPDATE_SAP_EXPORT_TASK_SCHEDULE;
-            if (property.isPresent()) {
-                frequency = Integer.parseInt(property.get());
-            }
+        Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.UPDATE_SAP_EXPORT_TASK_PROPERTY);
 
-            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(UPDATE_SAP_EXPORT_TASK_NAME);
-            if (taskOptional.isPresent()) {
-                RecurrentTask task = taskOptional.get();
-                task.setScheduleExpression(PeriodicalScheduleExpression.every(frequency).days().at(0, 20, 0).build());
-                task.save();
-            } else {
-                createActionTask(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DESTINATION,
-                        UPDATE_SAP_EXPORT_TASK_RETRY_DELAY,
-                        TranslationKeys.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME,
-                        UPDATE_SAP_EXPORT_TASK_NAME,
-                        UPDATE_SAP_EXPORT_TASK_SCHEDULE);
-            }
-            context.commit();
-        } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
-        }
-    }
-
-    private void createActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, int days) {
-        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
-                .get()
-                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
-        destination.activate();
-        destination.subscribe(subscriberSpecName, WebServiceActivator.COMPONENT_NAME, Layer.DOMAIN);
-
-        taskService.newBuilder()
-                .setApplication(WebServiceActivator.APPLICATION_NAME)
-                .setName(taskName)
-                .setScheduleExpression(PeriodicalScheduleExpression.every(days).days().at(0, 20, 0).build())
-                .setDestination(destination)
-                .setPayLoad("payload")
-                .scheduleImmediately(true)
-                .build();
-    }
-
-    private void createMinutesActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, int minutes) {
-        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
-                .get()
-                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
-        destination.activate();
-        destination.subscribe(subscriberSpecName, WebServiceActivator.COMPONENT_NAME, Layer.DOMAIN);
-
-        taskService.newBuilder()
-                .setApplication(WebServiceActivator.APPLICATION_NAME)
-                .setName(taskName)
-                .setScheduleExpression(PeriodicalScheduleExpression.every(minutes).minutes().at(0).build())
-                .setDestination(destination)
-                .setPayLoad("payload")
-                .scheduleImmediately(true)
-                .build();
+        createOrUpdateActionTask(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DESTINATION,
+                UPDATE_SAP_EXPORT_TASK_RETRY_DELAY,
+                TranslationKeys.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME,
+                UPDATE_SAP_EXPORT_TASK_NAME,
+                PeriodicalScheduleExpression.every(frequency).days().at(0, 20, 0).build().encoded());
     }
 
     private void createOrUpdateCheckStatusChangeCancellationTask() {
+        Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.CHECK_STATUS_CHANGE_FREQUENCY);
+
+        createOrUpdateActionTask(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DESTINATION,
+                CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_RETRY_DELAY,
+                TranslationKeys.CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER_NAME,
+                CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME,
+                PeriodicalScheduleExpression.every(frequency).minutes().at(0).build().encoded());
+    }
+
+    private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
+                                          TranslationKey subscriberSpecName, String taskName, String taskSchedule) {
         threadPrincipalService.set(() -> "Activator");
         try (TransactionContext context = transactionService.getContext()) {
-            Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.CHECK_STATUS_CHANGE_FREQUENCY);
-
-            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME);
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(taskName);
             if (taskOptional.isPresent()) {
                 RecurrentTask task = taskOptional.get();
-                task.setScheduleExpression(PeriodicalScheduleExpression.every(frequency).minutes().at(0).build());
+                task.setScheduleExpressionString(taskSchedule);
                 task.save();
             } else {
-                createMinutesActionTask(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DESTINATION,
-                        CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_RETRY_DELAY,
-                        TranslationKeys.CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER_NAME,
-                        CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME,
-                        frequency);
+                DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                        .get()
+                        .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+                destination.activate();
+                destination.subscribe(subscriberSpecName, WebServiceActivator.COMPONENT_NAME, Layer.DOMAIN);
+
+                taskService.newBuilder()
+                        .setApplication(WebServiceActivator.APPLICATION_NAME)
+                        .setName(taskName)
+                        .setScheduleExpressionString(taskSchedule)
+                        .setDestination(destination)
+                        .setPayLoad("payload")
+                        .scheduleImmediately(true)
+                        .build();
             }
             context.commit();
         } catch (Exception e) {

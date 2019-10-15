@@ -257,6 +257,12 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
+    public void setScheduleExpressionString(String expression) {
+        this.cronString = expression;
+        this.scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
+    }
+
+    @Override
     public void triggerNow() {
         TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
         enqueue(taskOccurrence);

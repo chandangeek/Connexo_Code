@@ -58,9 +58,9 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     private String reasonCode;
     private Instant processDate;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Boolean bulk;
+    private boolean bulk;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Boolean cancelledBySap;
+    private boolean cancelledBySap;
 
     public String getId() {
         return id;
@@ -94,19 +94,19 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
         this.processDate = processDate;
     }
 
-    public Boolean isBulk() {
+    public boolean isBulk() {
         return bulk;
     }
 
-    public void setBulk(Boolean bulk) {
+    public void setBulk(boolean bulk) {
         this.bulk = bulk;
     }
 
-    public Boolean isCancelledBySap() {
+    public boolean isCancelledBySap() {
         return cancelledBySap;
     }
 
-    public void setCancelledBySap(Boolean cancelledBySap) {
+    public void setCancelledBySap(boolean cancelledBySap) {
         this.cancelledBySap = cancelledBySap;
     }
 

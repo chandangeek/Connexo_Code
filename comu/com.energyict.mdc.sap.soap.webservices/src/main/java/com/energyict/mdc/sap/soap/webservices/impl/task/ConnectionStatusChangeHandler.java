@@ -93,15 +93,13 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
 
     private void sendResponseMessage(ServiceCall parent, DefaultState finalState) {
         try (TransactionContext context = transactionService.getContext()) {
-            if (parent.canTransitionTo(DefaultState.ONGOING)) {
-                parent.requestTransition(DefaultState.ONGOING);
-            }
+            parent.transitionWithLockIfPossible(DefaultState.ONGOING);
 
             ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
             parent.log(LogLevel.INFO, "Sending confirmation for disconnection order number: " + extension.getId());
 
             if (extension.isCancelledBySap() && finalState.equals(DefaultState.CANCELLED)) {
-                parent.requestTransition(finalState);
+                parent.transitionWithLockIfPossible(finalState);
             } else {
                 if (extension.isBulk()) {
                     StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage

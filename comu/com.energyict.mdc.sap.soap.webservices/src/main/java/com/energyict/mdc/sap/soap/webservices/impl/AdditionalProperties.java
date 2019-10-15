@@ -19,6 +19,7 @@ public enum AdditionalProperties {
     METER_REPLACEMENT_ADD_INTERVAL("com.elster.jupiter.sap.meterreplacementaddinterval", 1440),
     CHECK_STATUS_CHANGE_TIMEOUT("com.elster.jupiter.sap.statuschangetimeout", 60),
     CHECK_STATUS_CHANGE_FREQUENCY("com.elster.jupiter.sap.statuschangetaskfrequency", 30),
+    UPDATE_SAP_EXPORT_TASK_PROPERTY("com.elster.jupiter.sap.updatesapexporttaskinterval", 7),
     ;
 
     private String key;

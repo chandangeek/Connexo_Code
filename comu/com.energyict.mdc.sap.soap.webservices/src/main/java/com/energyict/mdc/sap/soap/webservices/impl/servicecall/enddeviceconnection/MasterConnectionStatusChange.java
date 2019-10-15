@@ -8,10 +8,11 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component(name = MasterConnectionStatusChange.NAME, service = ServiceCallHandler.class,
         property = "name=" + MasterConnectionStatusChange.NAME, immediate = true)
@@ -51,36 +52,20 @@ public class MasterConnectionStatusChange implements ServiceCallHandler {
     }
 
     private void resultTransition(ServiceCall parent) {
-        List<ServiceCall> children = findChildren(parent);
-        if (isLastChild(children)) {
+        List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
+        if (ServiceCallHelper.isLastChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
-            } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (hasAllChildrenInState(children, DefaultState.CANCELLED)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
                 parent.requestTransition(DefaultState.CANCELLED);
-            } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 parent.requestTransition(DefaultState.FAILED);
             }
         }
-    }
-
-    private boolean isLastChild(List<ServiceCall> serviceCalls) {
-        return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
-    }
-
-    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private List<ServiceCall> findChildren(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
-    }
-
-    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
     }
 
 }
