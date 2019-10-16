@@ -57,7 +57,15 @@ public enum MessageSeeds implements MessageSeed {
     CATEGORY_NOT_FOUND(2032, Constants.CATEGORY_NOT_FOUND, "The category {0} does not exist."),
     EVENTSET_NAME_FIELD_TOO_LONG(2033, Constants.EVENTSET_NAME_FIELD_TOO_LONG, "Event Set name is too long, it must not exceed 80 characters.", Level.SEVERE),
     NO_DAYTYPE_DEFINED_WITH_NAME(2034, "calendar.import.no.daytype.defined.with.name", "There is no day type defined with name \"{0}\"."),
-    CANNOT_ADD_PAST_EXCEPTIONS_TO_ACTIVE_CALENDAR(2035, "calendar.update.no.past.exceptions.on.active.calendar", "You can't add fixed exceptional occurrences in the past to an active calendar"),
+    CANNOT_ADD_PAST_EXCEPTIONS_TO_ACTIVE_CALENDAR(2035, "calendar.update.no.past.exceptions.on.active.calendar", "You can''t add fixed exceptional occurrences in the past to an active calendar"),
+    IMPORT_FAILED_CANT_CHANGE_NAME(2036, "ImportFailedCantChangeName", "Can''t change the name of {0} calendar because it is active.", Level.SEVERE),
+    IMPORT_FAILED_CANT_CHANGE_START_YEAR(2037, "ImportFailedCantChangeStartYear", "Can''t change start year of calculations in {0} calendar because it is active.", Level.SEVERE),
+    IMPORT_FAILED_CANT_CHANGE_PERIODS(2038, "ImportFailedCantChangePeriods", "Can''t change periods in {0} calendar because it is active.", Level.SEVERE),
+    IMPORT_FAILED_CANT_CHANGE_DAY_TYPES(2039, "ImportFailedCantChangeDayTypes", "Can''t change day types in {0} calendar because it is active.", Level.SEVERE),
+    IMPORT_FAILED_CANT_CHANGE_EVENT_SET(2040, "ImportFailedCantChangeEventSet", "Can''t change event set name in {0} calendar because it is active.", Level.SEVERE),
+    IMPORT_FAILED_CANT_CHANGE_REC_SPECIAL_DAYS(2041, "ImportFailedCantChangeRecurringSpecialDays", "Can''t change recurring special days in {0} calendar because it is active.", Level.SEVERE),
+    IMPORT_FAILED_NO_CHANGES(2042, "ImportFailedNoChanges", "No changes applied to {0} calendar because it is identical to the uploaded one.", Level.SEVERE),
+    IMPORT_FAILED_DAY_TYPE_NOT_FOUND(2043, "ImportFailedDayTypeNotFound", "{0} day type not found in {1} calendar.", Level.SEVERE),
     ;
 
     private final int number;

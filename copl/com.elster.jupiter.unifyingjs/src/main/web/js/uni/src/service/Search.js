@@ -384,8 +384,10 @@ Ext.define('Uni.service.Search', {
         me.getSearchResultsStore().removeAll();
         me.setDomain(me.searchDomain, function () {
             me.applyFilters();
-            Ext.getCmp('loadDropDown').clearValue();
-            Ext.getCmp('saveSearchButton').disable();
+            if(me.loadCombo && me.saveSearchButton){
+                me.loadCombo.clearValue();
+                me.saveSearchButton.disable();
+            }
         })
     },
 
@@ -715,6 +717,8 @@ Ext.define('Uni.service.Search', {
     },
 
     openSaveSearch: function (contRef) {
+        this.loadCombo = contRef.getLoadButton();
+        this.saveSearchButton = contRef.getSaveSearchButton();
         var me = this;
         var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.save', 'UNI', 'Save'),
@@ -761,6 +765,7 @@ Ext.define('Uni.service.Search', {
                 }
             }]
         });
+        this.saveSearchWindow = confirmationWindow;
         confirmationWindow.show({
             htmlEncode: false,
             msg: Uni.I18n.translate('general.overwriteIndication', 'UNI', 'The previously saved search criteria will be overwritten by entering the same name'),
@@ -770,6 +775,8 @@ Ext.define('Uni.service.Search', {
     },
 
     loadSearch: function (combo, value, a, contRef) {
+        this.loadCombo = contRef.getLoadButton();
+        this.saveSearchButton = contRef.getSaveSearchButton();
         var me = this,
             filters = me.getFilters();
         combo.selectedValue = combo.getValue();
@@ -811,7 +818,7 @@ Ext.define('Uni.service.Search', {
         var me = this;
         var flag= false;
         var router = this.router;
-        var name = Ext.getCmp('saveEntered').getValue();
+        var name = me.saveSearchWindow.down('#Save-Entered').getValue();
         if (router && router.currentRoute == 'search') {
             Uni.util.History.setParsePath(false);
             router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
@@ -828,7 +835,7 @@ Ext.define('Uni.service.Search', {
                 },
                 success: function (response) {
                     flag=true;
-                    Ext.getCmp('loadDropDown').getStore().load();
+                    contRef.getLoadButton().getStore().load();
                     if(JSON.parse(response.responseText).status === 'Save')
                         contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.saveSearch', 'UNI', 'Search criteria saved'));
                     else
@@ -860,7 +867,7 @@ Ext.define('Uni.service.Search', {
             async : false,
             success: function (response) {
                 me.clearFilters();
-                var loadButtonCmp= Ext.getCmp('loadDropDown');
+                var loadButtonCmp= contRef.getLoadButton();
                 loadButtonCmp.clearValue();
                 loadButtonCmp.getStore().load();
                 contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));

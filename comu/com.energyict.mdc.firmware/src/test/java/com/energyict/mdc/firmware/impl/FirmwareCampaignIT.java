@@ -264,7 +264,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
                 .withValidationTimeout(new TimeDuration(2, TimeDuration.TimeUnit.MINUTES))
                 .create();
         firmwareCampaign.cancel();
-        assertThat(firmwareCampaign.getServiceCall().getState()).isEqualTo(DefaultState.CANCELLED);
+        assertThat(serviceCallService.getServiceCallFinder().find().get(0).getLogs().find().contains("campaign cancelled by user"));
     }
 
 

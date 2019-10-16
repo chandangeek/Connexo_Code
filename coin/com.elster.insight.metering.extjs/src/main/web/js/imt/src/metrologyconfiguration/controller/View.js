@@ -156,7 +156,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 store.getProxy().extraParams.id = id;
                 store.getProxy().extraParams.linked = false;
-                store.load();
+                store.load(function (record){
+                    if ( !record || !record.length ){
+                        widget.getAddButton().hide();
+                    }
+                });
                 pageMainContent.setLoading(false);
 
                 widget.getAddButton().on('click', function () {

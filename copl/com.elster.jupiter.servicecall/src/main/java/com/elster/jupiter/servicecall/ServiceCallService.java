@@ -191,4 +191,7 @@ public interface ServiceCallService {
 
     List<DestinationSpec> getCompatibleQueues4();
 
+    void addServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler);
+
+    void removeServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler);
 }

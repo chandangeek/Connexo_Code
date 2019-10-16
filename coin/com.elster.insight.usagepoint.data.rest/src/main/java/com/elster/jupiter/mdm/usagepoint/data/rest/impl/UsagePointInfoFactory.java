@@ -458,6 +458,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = new HashMap<>();
 
         usagePoint.getMeterActivations().stream()
+                .filter(meterActivation -> !meterActivation.getInterval().toClosedRange().hasUpperBound() || meterActivation.getInterval()
+                        .toClosedRange()
+                        .upperEndpoint()
+                        .toEpochMilli() >= clock.instant().toEpochMilli())
                 .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
                 .sorted(Comparator.comparing(MeterActivation::getStart))
                 .forEach(meterActivation -> meterRoleToMeterInfoMapping.putIfAbsent(meterActivation.getMeterRole().get(), meterActivation));
