@@ -189,7 +189,9 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         .anyMatch(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
                                 || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING))) {
                     serviceCallService.lockServiceCall(serviceCall.getId());
-                    serviceCall.requestTransition(DefaultState.ONGOING);
+                    if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
+                    }
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_STARTED).format());
                 } else {
                     firmwareItem.cancel(false);
