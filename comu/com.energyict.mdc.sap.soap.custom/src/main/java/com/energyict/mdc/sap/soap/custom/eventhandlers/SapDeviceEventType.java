@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class SapDeviceEventType {
+public class SAPDeviceEventType {
     private enum CsvField {
         FORWARDED_TO_SAP,
         EVENT_CODE,
@@ -39,7 +39,7 @@ public class SapDeviceEventType {
     private final int originTypeCode;
     private final boolean forwardedToSap;
 
-    private SapDeviceEventType(String csvEntry, String separator) {
+    private SAPDeviceEventType(String csvEntry, String separator) {
         String[] values = csvEntry.split(separator, CsvField.values().length);
         eventCode = parseString(values, CsvField.EVENT_CODE).filter(Predicates.not(NO_EVENT_CODE::equals)).orElse(null);
         deviceEventCode = parseString(values, CsvField.DEVICE_EVENT_CODE).orElse(null);
@@ -58,8 +58,8 @@ public class SapDeviceEventType {
         originTypeCode = parseMandatoryInt(values, CsvField.ORIGIN_TYPE_CODE);
     }
 
-    static SapDeviceEventType parseFromCsvEntry(String csvEntry, String separator) {
-        return new SapDeviceEventType(csvEntry, separator);
+    static SAPDeviceEventType parseFromCsvEntry(String csvEntry, String separator) {
+        return new SAPDeviceEventType(csvEntry, separator);
     }
 
     private static Optional<String> parseString(String[] values, CsvField field) {

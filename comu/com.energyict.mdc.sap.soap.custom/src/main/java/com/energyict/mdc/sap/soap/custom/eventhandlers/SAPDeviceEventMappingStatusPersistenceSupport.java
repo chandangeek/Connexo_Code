@@ -17,12 +17,12 @@ import java.util.Optional;
 
 public class SAPDeviceEventMappingStatusPersistenceSupport implements PersistenceSupport<ServiceCall, SAPDeviceEventMappingStatusDomainExtension> {
 
-    private static final String TABLE_NAME = CustomSapDeviceEventHandler.COMPONENT_NAME + "_EVENT_MAPPING_STATUS";
+    private static final String TABLE_NAME = CustomSAPDeviceEventHandler.COMPONENT_NAME + "_EVENT_MAPPING_STATUS";
     private static final String FK_NAME = "FK_" + TABLE_NAME + "_SC";
 
     @Override
     public String componentName() {
-        return CustomSapDeviceEventHandler.COMPONENT_NAME;
+        return CustomSAPDeviceEventHandler.COMPONENT_NAME;
     }
 
     @Override
@@ -66,16 +66,19 @@ public class SAPDeviceEventMappingStatusPersistenceSupport implements Persistenc
                 .number()
                 .conversion(ColumnConversion.NUMBER2INTWRAPPER)
                 .map(SAPDeviceEventMappingStatusDomainExtension.FieldNames.LOADED_ENTRIES_NUMBER.javaName())
+                .notNull()
                 .add();
         table.column(SAPDeviceEventMappingStatusDomainExtension.FieldNames.FAILED_ENTRIES_NUMBER.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2INTWRAPPER)
                 .map(SAPDeviceEventMappingStatusDomainExtension.FieldNames.FAILED_ENTRIES_NUMBER.javaName())
+                .notNull()
                 .add();
         table.column(SAPDeviceEventMappingStatusDomainExtension.FieldNames.SKIPPED_ENTRIES_NUMBER.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2INTWRAPPER)
                 .map(SAPDeviceEventMappingStatusDomainExtension.FieldNames.SKIPPED_ENTRIES_NUMBER.javaName())
+                .notNull()
                 .add();
         table.column(SAPDeviceEventMappingStatusDomainExtension.FieldNames.PATH.databaseName())
                 .varChar()
@@ -91,6 +94,6 @@ public class SAPDeviceEventMappingStatusPersistenceSupport implements Persistenc
 
     @Override
     public String application() {
-        return CustomSapDeviceEventHandler.APPLICATION_NAME;
+        return CustomSAPDeviceEventHandler.APPLICATION_NAME;
     }
 }

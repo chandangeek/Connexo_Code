@@ -27,8 +27,8 @@ import java.util.logging.Logger;
 
 class ForwardedDeviceEventTypesFormatter {
     private static final Logger LOGGER = Logger.getLogger(ForwardedDeviceEventTypesFormatter.class.getName());
-    private final Map<String, SapDeviceEventType> forwardedEventTypesByEventCode = new HashMap<>();
-    private final Map<String, SapDeviceEventType> forwardedEventTypesByDeviceEventCode = new HashMap<>();
+    private final Map<String, SAPDeviceEventType> forwardedEventTypesByEventCode = new HashMap<>();
+    private final Map<String, SAPDeviceEventType> forwardedEventTypesByDeviceEventCode = new HashMap<>();
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final SAPCustomPropertySets sapCustomPropertySets;
 
@@ -36,7 +36,7 @@ class ForwardedDeviceEventTypesFormatter {
         this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
-    void add(SapDeviceEventType eventType) {
+    void add(SAPDeviceEventType eventType) {
         Optional<String> code = eventType.getEventCode();
         if (code.isPresent()) {
             forwardedEventTypesByEventCode.put(code.get(), eventType);
@@ -46,7 +46,7 @@ class ForwardedDeviceEventTypesFormatter {
     }
 
     Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt> filterAndFormat(EndDeviceEventRecord eventRecord) {
-        SapDeviceEventType eventType = forwardedEventTypesByEventCode.get(eventRecord.getEventTypeCode());
+        SAPDeviceEventType eventType = forwardedEventTypesByEventCode.get(eventRecord.getEventTypeCode());
         if (eventType == null) {
             eventType = forwardedEventTypesByDeviceEventCode.get(eventRecord.getDeviceEventType());
         }
@@ -70,25 +70,25 @@ class ForwardedDeviceEventTypesFormatter {
         return Optional.of(info);
     }
 
-    private UtilitiesSmartMeterEventCategoryCode formatCategoryCode(SapDeviceEventType eventType) {
+    private UtilitiesSmartMeterEventCategoryCode formatCategoryCode(SAPDeviceEventType eventType) {
         UtilitiesSmartMeterEventCategoryCode categoryCode = objectFactory.createUtilitiesSmartMeterEventCategoryCode();
         categoryCode.setValue(Integer.toString(eventType.getCategoryCode()));
         return categoryCode;
     }
 
-    private UtilitiesSmartMeterEventTypeCode formatTypeCode(SapDeviceEventType eventType) {
+    private UtilitiesSmartMeterEventTypeCode formatTypeCode(SAPDeviceEventType eventType) {
         UtilitiesSmartMeterEventTypeCode typeCode = objectFactory.createUtilitiesSmartMeterEventTypeCode();
         typeCode.setValue(Integer.toString(eventType.getTypeCode()));
         return typeCode;
     }
 
-    private UtilitiesSmartMeterEventSeverityCode formatSeverityCode(SapDeviceEventType eventType) {
+    private UtilitiesSmartMeterEventSeverityCode formatSeverityCode(SAPDeviceEventType eventType) {
         UtilitiesSmartMeterEventSeverityCode severityCode = objectFactory.createUtilitiesSmartMeterEventSeverityCode();
         severityCode.setValue(Integer.toString(eventType.getSeverityCode()));
         return severityCode;
     }
 
-    private UtilitiesSmartMeterEventOriginTypeCode formatOriginTypeCode(SapDeviceEventType eventType) {
+    private UtilitiesSmartMeterEventOriginTypeCode formatOriginTypeCode(SAPDeviceEventType eventType) {
         UtilitiesSmartMeterEventOriginTypeCode originTypeCode = objectFactory.createUtilitiesSmartMeterEventOriginTypeCode();
         originTypeCode.setValue(Integer.toString(eventType.getOriginTypeCode()));
         return originTypeCode;
@@ -113,7 +113,7 @@ class ForwardedDeviceEventTypesFormatter {
         return utilitiesDeviceID;
     }
 
-    private UtilitiesSmartMeterEventID formatEventId(String sapDeviceId, SapDeviceEventType eventType, Instant time) {
+    private UtilitiesSmartMeterEventID formatEventId(String sapDeviceId, SAPDeviceEventType eventType, Instant time) {
         UtilitiesSmartMeterEventID utilitiesSmartMeterEventID = objectFactory.createUtilitiesSmartMeterEventID();
         utilitiesSmartMeterEventID.setValue(sapDeviceId + '_'
                 + eventType.getCategoryCode() + '.' + eventType.getTypeCode() + '.' + eventType.getSeverityCode() + '.' + eventType.getOriginTypeCode()

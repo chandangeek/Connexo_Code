@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import javax.validation.constraints.NotNull;
-import java.util.Optional;
 
 public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
@@ -52,9 +51,9 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    private Integer loadedEntriesNumber;
-    private Integer failedEntriesNumber;
-    private Integer skippedEntriesNumber;
+    private int loadedEntriesNumber;
+    private int failedEntriesNumber;
+    private int skippedEntriesNumber;
     @NotNull
     private String path;
     @NotNull
@@ -64,27 +63,27 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
         return serviceCall.get();
     }
 
-    public Optional<Integer> getFailedEntriesNumber() {
-        return Optional.ofNullable(failedEntriesNumber);
+    public int getFailedEntriesNumber() {
+        return failedEntriesNumber;
     }
 
-    public void setFailedEntriesNumber(Integer failedEntriesNumber) {
+    public void setFailedEntriesNumber(int failedEntriesNumber) {
         this.failedEntriesNumber = failedEntriesNumber;
     }
 
-    public Optional<Integer> getLoadedEntriesNumber() {
-        return Optional.ofNullable(loadedEntriesNumber);
+    public int getLoadedEntriesNumber() {
+        return loadedEntriesNumber;
     }
 
-    public void setLoadedEntriesNumber(Integer loadedEntriesNumber) {
+    public void setLoadedEntriesNumber(int loadedEntriesNumber) {
         this.loadedEntriesNumber = loadedEntriesNumber;
     }
 
-    public Optional<Integer> getSkippedEntriesNumber() {
-        return Optional.ofNullable(skippedEntriesNumber);
+    public int getSkippedEntriesNumber() {
+        return skippedEntriesNumber;
     }
 
-    public void setSkippedEntriesNumber(Integer skippedEntriesNumber) {
+    public void setSkippedEntriesNumber(int skippedEntriesNumber) {
         this.skippedEntriesNumber = skippedEntriesNumber;
     }
 
@@ -107,20 +106,25 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
     @Override
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         serviceCall.set(domainInstance);
-        setLoadedEntriesNumber(Math.toIntExact((Long) propertyValues.getProperty(FieldNames.LOADED_ENTRIES_NUMBER.javaName())));
-        setFailedEntriesNumber(Math.toIntExact((Long) propertyValues.getProperty(FieldNames.FAILED_ENTRIES_NUMBER.javaName())));
-        setSkippedEntriesNumber(Math.toIntExact((Long) propertyValues.getProperty(FieldNames.SKIPPED_ENTRIES_NUMBER.javaName())));
+        setLoadedEntriesNumber(getLongPropertyAndMapToInt(propertyValues, FieldNames.LOADED_ENTRIES_NUMBER));
+        setFailedEntriesNumber(getLongPropertyAndMapToInt(propertyValues, FieldNames.FAILED_ENTRIES_NUMBER));
+        setSkippedEntriesNumber(getLongPropertyAndMapToInt(propertyValues, FieldNames.SKIPPED_ENTRIES_NUMBER));
         setPath((String) propertyValues.getProperty(FieldNames.PATH.javaName()));
         setSeparator((String) propertyValues.getProperty(FieldNames.SEPARATOR.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.LOADED_ENTRIES_NUMBER.javaName(), getLoadedEntriesNumber().map(Integer::longValue).orElse(null));
-        propertySetValues.setProperty(FieldNames.FAILED_ENTRIES_NUMBER.javaName(), getFailedEntriesNumber().map(Integer::longValue).orElse(null));
-        propertySetValues.setProperty(FieldNames.SKIPPED_ENTRIES_NUMBER.javaName(), getSkippedEntriesNumber().map(Integer::longValue).orElse(null));
+        propertySetValues.setProperty(FieldNames.LOADED_ENTRIES_NUMBER.javaName(), (long) getLoadedEntriesNumber());
+        propertySetValues.setProperty(FieldNames.FAILED_ENTRIES_NUMBER.javaName(), (long) getFailedEntriesNumber());
+        propertySetValues.setProperty(FieldNames.SKIPPED_ENTRIES_NUMBER.javaName(), (long) getSkippedEntriesNumber());
         propertySetValues.setProperty(FieldNames.PATH.javaName(), getPath());
         propertySetValues.setProperty(FieldNames.SEPARATOR.javaName(), getSeparator());
+    }
+
+    private static int getLongPropertyAndMapToInt(CustomPropertySetValues values, FieldNames name) {
+        Object value = values.getProperty(name.javaName());
+        return value == null ? 0 : Math.toIntExact((Long) value);
     }
 
     @Override
