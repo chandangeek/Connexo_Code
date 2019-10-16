@@ -90,7 +90,6 @@ public class DeviceMessageResource {
         ((DeviceMessageQueryFilterImpl) deviceMessageQueryFilter).setMessageCategories(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition());
 
         List<DeviceMessageInfo> infos = resourceHelper.getDeviceMessages(deviceMessageQueryFilter, queryParameters).stream().
-                sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
                 map(deviceMessage -> deviceMessageInfoFactory.asFullInfo(deviceMessage, uriInfo)).
                 collect(toList());
 
