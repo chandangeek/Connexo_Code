@@ -299,7 +299,8 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     @Override
     public void executionFailed() {
         ((ComTaskExecutionImpl) comTaskExecution).executionFailed();
-        LOGGER.info("[high-prio] device: " + comTaskExecution.getDevice().getName() + "; comTaskExecution status: " + comTaskExecution.getStatus());        if (TaskStatus.Failed.equals(comTaskExecution.getStatus())) {
+        LOGGER.info("[high-prio] device: " + comTaskExecution.getDevice().getName() + "; comTaskExecution status: " + comTaskExecution.getStatus());
+        if (TaskStatus.Failed.equals(comTaskExecution.getStatus()) || TaskStatus.NeverCompleted.equals(comTaskExecution.getStatus())) {
             ((PriorityComTaskExecutionLinkImpl) comTaskExecutionLink).delete();
         } else {
             // execution attempt failed, will retry - should not delete yet the high-prio task

@@ -24,13 +24,11 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
         var me = this;
         var managementOption = record.get('managementOption');
         var showValidation = managementOption.id === 'activate' || managementOption.id === 'activateOnDate';
-        var manuallyCancelled = record.get('manuallyCancelled');
 
         me.callParent(arguments);
 
         me.down('[name="validationComTask"]').setVisible(showValidation);
         me.down('[name="validationConnectionStrategy"]').setVisible(showValidation);
-        me.down('#firmware-campaigns-detail-action-menu-button').setVisible(manuallyCancelled);
     },
     initComponent: function () {
         var me = this;

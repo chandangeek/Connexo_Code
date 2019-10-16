@@ -612,9 +612,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     @Override
     public List<ServiceCallType> getTypes() {
         return Arrays.asList(serviceCallService.findServiceCallType(TimeOfUseCampaignServiceCallHandler.NAME, TimeOfUseCampaignServiceCallHandler.VERSION)
-                        .orElseThrow(() -> new IllegalStateException(thesaurus.getSimpleFormat(MessageSeeds.SC_TYPE_NOT_FOUND).format())),
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")),
                 serviceCallService.findServiceCallType(TimeOfUseItemServiceCallHandler.NAME, TimeOfUseItemServiceCallHandler.VERSION)
-                        .orElseThrow(() -> new IllegalStateException(thesaurus.getSimpleFormat(MessageSeeds.SC_TYPE_NOT_FOUND).format())));
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")));
     }
 
     @Override

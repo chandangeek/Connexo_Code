@@ -52,7 +52,7 @@ public class CustomPropertySetRegistrationTopicHandler implements TopicHandler {
                     this.ormService.getDataModel(cps.getPersistenceSupport().componentName())
                             .ifPresent(dataModel -> dataModel.getTable(cps.getPersistenceSupport().tableName())
                                     .audit("")
-                                    .domainContext(AuditDomainContextType.USAGEPOINT_CUSTOM_ATTRIBUTES.ordinal())
+                                    .domainContext(AuditDomainContextType.USAGEPOINT_CUSTOM_ATTRIBUTES.domainContextId())
                                     .domainReferences(cps.getPersistenceSupport().domainForeignKeyName())
                                     .contextReferenceColumn(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                                     .build());

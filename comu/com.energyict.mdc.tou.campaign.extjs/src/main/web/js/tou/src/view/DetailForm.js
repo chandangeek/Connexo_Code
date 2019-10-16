@@ -26,13 +26,11 @@ Ext.define('Tou.view.DetailForm', {
         var me = this;
         var activationOption = record.get('activationOption');
         var showValidation = activationOption === 'immediately' || activationOption === 'onDate';
-        var manuallyCancelled = record.get('manuallyCancelled');
 
         me.callParent(arguments);
 
         me.down('[name="validationComTask"]').setVisible(showValidation);
         me.down('[name="validationConnectionStrategy"]').setVisible(showValidation);
-        me.down('#firmware-campaigns-detail-action-menu-button').setVisible(manuallyCancelled);
     },
 
     initComponent: function () {

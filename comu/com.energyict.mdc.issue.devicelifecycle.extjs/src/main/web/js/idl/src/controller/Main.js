@@ -48,29 +48,33 @@ Ext.define('Idl.controller.Main', {
             dataCollection = null,
             items = [];
 
-        if (Isu.privileges.Issue.canViewIssue()) {
-
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace','IDL','Workspace'),
                 glyph: 'workspace',
                 portal: 'workspace',
                 index: 30
             }));
+        }
 
-            items.push({
-                text: Uni.I18n.translate('general.issues','IDL','Issues'),
-                href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['devicelifecycle']})
-            });
-            items.push({
-                text: Uni.I18n.translate('devicelifecycle.myOpenIssues','IDL','My open issues'),
-                itemId: 'datavalidation-my-open-issues',
-                href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['devicelifecycle'], myopenissues: true, status: ['status.open', 'status.in.progress']})
-            });
-            items.push({
-                text: Uni.I18n.translate('devicelifecycle.myWorkgroupsIssues', 'IDL', 'My workgroups issues'),
-                itemId: 'datavalidation-my-workgroup-issues',
-                href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['devicelifecycle'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
-             });
+        if (Isu.privileges.Issue.canViewAdminDevice()) {
+
+            if (Isu.privileges.Issue.canViewAdminDevice()) {
+                items.push({
+                    text: Uni.I18n.translate('general.issues','IDL','Issues'),
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['devicelifecycle']})
+                });
+                items.push({
+                    text: Uni.I18n.translate('devicelifecycle.myOpenIssues','IDL','My open issues'),
+                    itemId: 'datavalidation-my-open-issues',
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['devicelifecycle'], myopenissues: true, status: ['status.open', 'status.in.progress']})
+                });
+                items.push({
+                    text: Uni.I18n.translate('devicelifecycle.myWorkgroupsIssues', 'IDL', 'My workgroups issues'),
+                    itemId: 'datavalidation-my-workgroup-issues',
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['devicelifecycle'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
+                });
+            }
 
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.devicelifecycle.issues','IDL','Device lifecycle issues'),

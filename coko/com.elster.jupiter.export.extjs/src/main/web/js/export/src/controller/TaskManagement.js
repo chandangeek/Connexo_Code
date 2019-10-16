@@ -16,7 +16,7 @@ Ext.define('Dxp.controller.TaskManagement', {
     },
 
     canAdministrate: function () {
-        return Dxp.privileges.DataExport.canAdministrate();
+        return false;
     },
 
     canView: function () {

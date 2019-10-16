@@ -82,7 +82,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                             itemId: 'deviceEventsBtn'
                         },
                         {
-                            text: Uni.I18n.translate('device.firmware.failed.log', 'FWC', 'View log'),
+                            text: Uni.I18n.translate('general.viewLog', 'FWC', 'View log'),
                             ui: 'link',
                             action: 'viewLog',
                             hidden: true,
@@ -156,7 +156,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         {
             xtype: 'displayfield',
             itemId: 'firmware-image-identifier-field',
-            fieldLabel: Uni.I18n.translate('device.firmware.field.image.identifier', 'FWC', 'Image identifier'),
+            fieldLabel: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
             name: 'imageIdentifier',
             renderer: function (value, field) {
                 var returnValue = value;

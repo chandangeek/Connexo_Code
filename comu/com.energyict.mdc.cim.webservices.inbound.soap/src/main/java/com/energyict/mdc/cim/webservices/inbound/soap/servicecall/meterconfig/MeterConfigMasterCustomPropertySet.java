@@ -215,9 +215,17 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
+            Column oldColumn = table.column(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName())
+                    .varChar()
+                    .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
+                    .notNull()
+                    .upTo(Version.version(10, 6))
+                    .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName())
                     .varChar()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
+                    .since(Version.version(10, 6))
+                    .previously(oldColumn)
                     .add();
             table.column(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.databaseName())
                     .varChar()

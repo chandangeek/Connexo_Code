@@ -30,7 +30,8 @@ Ext.define('Imt.processes.controller.WorkspaceProcesses', {
         'Imt.processes.store.InsightProcessesStore',
         'Imt.processes.store.InsightProcessesFilterStore',
         'Imt.processes.store.InsightProcessTypeStore',
-        'Imt.processes.store.InsightProcessesStatusStore'
+        'Imt.processes.store.InsightProcessesStatusStore',
+        'Imt.processes.store.ObjectStoreInsightExt'
     ],
     
     views: [
