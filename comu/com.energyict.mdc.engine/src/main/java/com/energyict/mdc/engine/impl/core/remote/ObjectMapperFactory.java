@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
@@ -34,6 +35,7 @@ public final class ObjectMapperFactory {
         ObjectMapper mapper = new ObjectMapper();
 
         mapper.registerModule(new Jdk8Module());
+        mapper.registerModule(new GuavaModule());
         mapper.registerModule(new JavaTimeModule());
         SimpleModule customModule = new SimpleModule("TypedPropertiesDeserializerModule", new Version(1, 0, 0, null));
         customModule.addDeserializer(ZoneInfo.class, new ZoneInfoJsonDeserializer());

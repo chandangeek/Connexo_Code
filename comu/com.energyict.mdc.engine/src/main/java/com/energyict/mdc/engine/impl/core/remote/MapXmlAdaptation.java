@@ -115,8 +115,7 @@ public class MapXmlAdaptation {
 
     private ObjectMapper getObjectMapper() {
         if (this.objectMapper == null) {
-            objectMapper = new ObjectMapper();
-            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            objectMapper = ObjectMapperFactory.newMapper();
         }
         return this.objectMapper;
     }

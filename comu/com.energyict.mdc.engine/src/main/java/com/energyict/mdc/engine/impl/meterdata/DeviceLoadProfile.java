@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -102,18 +103,14 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return collectedIntervalData;
     }
 
-    @JsonIgnore
-    @XmlTransient
     public Range<Instant> getCollectedIntervalDataRange() {
         return collectedIntervalDataRange;
     }
 
     @Override
-    @JsonIgnore
-    @XmlTransient
     public List<ChannelInfo> getChannelInfo() {
         if (this.deviceChannelInfo == null) {
-            return Collections.emptyList();
+            this.deviceChannelInfo = new ArrayList<ChannelInfo>();
         }
         return deviceChannelInfo;
     }
