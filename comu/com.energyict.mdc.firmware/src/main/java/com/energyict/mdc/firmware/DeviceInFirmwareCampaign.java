@@ -34,5 +34,7 @@ public interface DeviceInFirmwareCampaign {
 
     long getId();
 
+    boolean doesDeviceAlreadyHaveTheSameVersion();
+
     void delete();
 }

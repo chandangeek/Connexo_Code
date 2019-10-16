@@ -151,7 +151,7 @@ public class FirmwareCampaignHandlerTest {
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
-        when(firmwareItemDomainExtension.deviceAlreadyHasTheSameVersion()).thenReturn(true);
+        when(firmwareItemDomainExtension.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(true);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
@@ -164,7 +164,7 @@ public class FirmwareCampaignHandlerTest {
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
-        when(firmwareItemDomainExtension.deviceAlreadyHasTheSameVersion()).thenReturn(false);
+        when(firmwareItemDomainExtension.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(false);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
