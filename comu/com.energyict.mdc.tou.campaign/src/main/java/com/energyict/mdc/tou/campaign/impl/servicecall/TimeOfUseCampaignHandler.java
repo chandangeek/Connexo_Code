@@ -151,11 +151,11 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         Optional<TimeOfUseCampaignItem> optionalTimeOfUseCampaignItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice());
         if (optionalTimeOfUseCampaignItem.isPresent()) {
-            TimeOfUseItemDomainExtension timeOfUseCampaignItem = (TimeOfUseItemDomainExtension) optionalTimeOfUseCampaignItem.get();
+            TimeOfUseItemDomainExtension timeOfUseCampaignItem = optionalTimeOfUseCampaignItem.get().getServiceCall().getExtension(TimeOfUseItemDomainExtension.class).get();
+            TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignItem.getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
             if (timeOfUseCampaignItem.getStepOfUpdate() == 0) {
                 if (isForCalendar(comTaskExecution)) {
                     boolean planning = true;
-                    TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignItem.getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
                     Device device = comTaskExecution.getDevice();
                     if (plannedCalendarIsOnCampaign(device, timeOfUseCampaign)) {
                         if (device.calendars().getPlannedPassive()
@@ -190,7 +190,6 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             } else if (timeOfUseCampaignItem.getStepOfUpdate() == 1) {
                 if (comTaskExecution.getComTask().getProtocolTasks().stream()
                         .anyMatch(StatusInformationTask.class::isInstance)) {
-                    TimeOfUseCampaign timeOfUseCampaign = optionalTimeOfUseCampaignItem.get().getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
                     Instant calendarsTimeUpload = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get()
                             .getServiceCall().getLastModificationTime();
                     if (calendarsTimeUpload.plusMillis(timeOfUseCampaign.getValidationTimeout()).isBefore(clock.instant())) {

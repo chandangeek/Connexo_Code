@@ -333,12 +333,11 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return true;
     }
 
-    boolean deviceAlreadyHasTheSameVersion() {
+    @Override
+    public boolean doesDeviceAlreadyHaveTheSameVersion() {
         FirmwareVersion targetFirmwareVersion = getFirmwareCampaign().getFirmwareVersion();
         Optional<ActivatedFirmwareVersion> activeVersion = firmwareService.getActiveFirmwareVersion(getDevice(), getFirmwareCampaign().getFirmwareType());
-        return activeVersion.isPresent()
-                && targetFirmwareVersion != null
-                && activeVersion.get().getFirmwareVersion().getId() == targetFirmwareVersion.getId();
+        return activeVersion.isPresent() && activeVersion.get().getFirmwareVersion().equals(targetFirmwareVersion);
     }
 
     private void createFirmwareMessage(DeviceMessageId firmwareMessageId, boolean resume) {
