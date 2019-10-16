@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
             },
             {
                  xtype: 'uni-default-button',
+                 itemId: 'calendarResetButton',
                  disabled: true,
                  tooltip: Uni.I18n.translate('general.restoreDefaultEmptyValue', 'MDC', 'Restore to default empty value'),
                  hidden: false,

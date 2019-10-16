@@ -281,6 +281,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'deviceDateFieldEdited',
                 name: 'decommissioningDateEdit',
                 itemId: 'decommissioningDateEdit',
+                width: 490,
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.decommissionDate', 'MDC', 'Decommissioning date')
             }
         ];
