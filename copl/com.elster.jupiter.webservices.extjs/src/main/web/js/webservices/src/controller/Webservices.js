@@ -135,6 +135,7 @@ Ext.define('Wss.controller.Webservices', {
 
                    me.getApplication().fireEvent('changecontentevent', view);
                    me.getApplication().fireEvent('occurenceload', endpointName);
+                   me.getApplication().fireEvent('endpointlogdate', occurrence.data.startTime);
 
               }
         });

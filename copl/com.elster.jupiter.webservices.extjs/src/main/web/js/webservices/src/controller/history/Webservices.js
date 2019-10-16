@@ -68,9 +68,16 @@ Ext.define('Wss.controller.history.Webservices', {
                                 occurrence: {
                                     privileges: ['privilege.administrate.webservices', 'privilege.view.webservices'],
                                     route: '{occurenceId}',
-                                    title: Uni.I18n.translate('general.logs', 'WSS', "Log '{0}'",Uni.DateTime.formatDateTimeShort(me.time), false),
                                     controller: 'Wss.controller.Webservices',
                                     action: 'showWebserviceEndPoint',
+                                    callback: function (route) {
+                                        this.getApplication().on('endpointlogdate', function (time) {
+                                            route.setTitle(Uni.I18n.translate('general.logs', 'WSS', "Log '{0}'", Uni.DateTime.formatDateTimeShort(time) , false));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+
                                 }
                             },
                         },
