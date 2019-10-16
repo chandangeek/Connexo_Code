@@ -90,7 +90,7 @@ public enum TranslationKeys implements TranslationKey {
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
     AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
-    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one LRN was set on the device"),
+    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one Logical Register Number was set on the device"),
     ;
 
     private final String key;
