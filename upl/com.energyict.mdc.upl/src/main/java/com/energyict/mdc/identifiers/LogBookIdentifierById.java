@@ -55,6 +55,7 @@ public final class LogBookIdentifierById implements LogBookIdentifier {
             @XmlElement(type = DeviceIdentifierByMRID.class),
             @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
             @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
     })
     @Override
     public DeviceIdentifier getDeviceIdentifier() {

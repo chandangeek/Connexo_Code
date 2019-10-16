@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.core.offline.adapters;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
@@ -16,7 +17,7 @@ public class DeviceIdentifierMeterReadingWrapper {
     private DeviceIdentifier deviceIdentifier;
 
     @XmlElements(
-            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class)}
+            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class), @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),}
     )
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;

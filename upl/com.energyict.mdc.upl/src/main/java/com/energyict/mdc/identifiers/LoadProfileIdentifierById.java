@@ -50,6 +50,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
             @XmlElement(type = DeviceIdentifierByMRID.class),
             @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
             @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
     })
     @Override
     public DeviceIdentifier getDeviceIdentifier() {

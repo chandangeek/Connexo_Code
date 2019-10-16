@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.core.offline;
 
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -64,7 +66,14 @@ public class DeviceComTaskWrapper {
         return comTaskId;
     }
 
-    @XmlAttribute
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }

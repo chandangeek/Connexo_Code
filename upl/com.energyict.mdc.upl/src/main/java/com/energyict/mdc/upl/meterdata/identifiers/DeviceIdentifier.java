@@ -37,10 +37,6 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (10:56)
  */
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.CLASS,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "type")
 public interface DeviceIdentifier extends Identifier {
 
     interface Finder {

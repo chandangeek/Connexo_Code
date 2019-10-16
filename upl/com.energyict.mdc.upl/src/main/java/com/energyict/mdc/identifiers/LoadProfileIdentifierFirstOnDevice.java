@@ -56,6 +56,7 @@ public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier
             @XmlElement(type = DeviceIdentifierByMRID.class),
             @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
             @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
     })
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;

@@ -120,7 +120,7 @@ public interface OfflineRegister extends Offline {
      * @return the deviceIdentifier
      */
     @XmlElements(
-            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class)}
+            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class), @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),}
     )
     DeviceIdentifier getDeviceIdentifier();
 

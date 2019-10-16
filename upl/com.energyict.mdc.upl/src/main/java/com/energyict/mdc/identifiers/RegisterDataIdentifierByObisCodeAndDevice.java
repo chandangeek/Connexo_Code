@@ -57,7 +57,7 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     @XmlElements(
-            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class)}
+            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class), @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),}
     )
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;

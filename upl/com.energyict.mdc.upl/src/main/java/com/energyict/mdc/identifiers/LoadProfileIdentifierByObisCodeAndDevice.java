@@ -79,6 +79,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
             @XmlElement(type = DeviceIdentifierByMRID.class),
             @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
             @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
     })
     @XmlAttribute
     public DeviceIdentifier getDeviceIdentifier() {

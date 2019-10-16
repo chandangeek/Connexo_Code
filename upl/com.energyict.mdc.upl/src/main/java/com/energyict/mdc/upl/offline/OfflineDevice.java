@@ -172,7 +172,7 @@ public interface OfflineDevice extends Offline {
     DeviceProtocolCache getDeviceProtocolCache();
 
     @XmlElements(
-            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class)}
+            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class), @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),}
     )
     DeviceIdentifier getDeviceIdentifier();
 
