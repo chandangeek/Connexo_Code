@@ -8,18 +8,20 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
 import java.util.Optional;
 
-@Component(name = "MeterReadingDocumentCreateResultServiceCallHandler", service = ServiceCallHandler.class,
+@Component(name = "MeterReadingDocumentCreateResultServiceCallHandler", service = {ServiceCallHandler.class, SAPMeterReadingComTaskExecutionHelper.class},
         immediate = true, property = "name=" + MeterReadingDocumentCreateResultServiceCallHandler.NAME)
-public class MeterReadingDocumentCreateResultServiceCallHandler implements ServiceCallHandler {
+public class MeterReadingDocumentCreateResultServiceCallHandler implements ServiceCallHandler, SAPMeterReadingComTaskExecutionHelper {
 
     public static final String NAME = "MeterReadingDocumentCreateResultServiceCallHandler";
     public static final String VERSION = "v1.0";
@@ -50,9 +52,42 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                     executeReasonCodeProvider(serviceCall);
                 }
                 break;
+            case CANCELLED:
+                    MeterReadingDocumentCreateResultDomainExtension extension = serviceCall
+                            .getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
+                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                    if(extension.getCancelledBySap() == null) {
+                        extension.setCancelledBySap(false);
+                        serviceCall.update(extension);
+                    }
+                break;
             default:
                 break;
         }
+    }
+
+    @Override
+    public void calculateData(ServiceCall serviceCall, long comTaskExecutionId) {
+        MeterReadingDocumentCreateResultDomainExtension resultExtension = serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        if (resultExtension.getComTaskExecutionId() == comTaskExecutionId) {
+            resultExtension.setComTaskExecutionId(null);
+            serviceCall.update(resultExtension);
+            createCollectionDataBuilder(serviceCall).calculate();
+        }
+    }
+
+    @Override
+    public void setComTaskExecutionId(ServiceCall serviceCall, long comTaskExecutionId) {
+        MeterReadingDocumentCreateResultDomainExtension resultExtension = serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        resultExtension.setComTaskExecutionId(comTaskExecutionId);
+        serviceCall.update(resultExtension);
+    }
+
+    @Override
+    public String getServiceCallTypeName() {
+        return NAME;
     }
 
     private void executeReasonCodeProvider(ServiceCall serviceCall) {
@@ -71,9 +106,13 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                     .map(WebServiceActivator::findReadingReasonProvider)
                     .map(Optional::get)
                     .orElseThrow(() -> new IllegalStateException("Unable to get reading reason provider for service call"))
-                    .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock)
-                            .from(serviceCall, WebServiceActivator.SAP_PROPERTIES)
-                            .build());
+                    .process(createCollectionDataBuilder(serviceCall));
         }
+    }
+
+    private SAPMeterReadingDocumentCollectionData createCollectionDataBuilder(ServiceCall serviceCall){
+        return SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock)
+                .from(serviceCall, WebServiceActivator.SAP_PROPERTIES)
+                .build();
     }
 }

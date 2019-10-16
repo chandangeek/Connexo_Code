@@ -6,15 +6,21 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateResultMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateRequestProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MtrRdngDocERPRsltCrteReqMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -31,7 +37,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
 
     @Mock
     private MeterReadingDocumentERPResultCreateRequestCOut port;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private MtrRdngDocERPRsltCrteReqMsg resultMessage;
     @Mock
     private MeterReadingDocumentCreateResultMessage outboundMessage;
@@ -48,6 +54,9 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
         when(outboundMessage.getResultMessage()).thenReturn(resultMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
+        when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue()).thenReturn("UtilMeasurmentTaskID");
+        when(resultMessage.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceID");
     }
 
     @Test
@@ -60,7 +69,12 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         provider.addResultPort(port, properties);
         provider.call(outboundMessage);
 
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), "UtilMeasurmentTaskID");
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),"UtilDeviceID");
+
         verify(provider).using("meterReadingDocumentERPResultCreateRequestCOut");
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(resultMessage);
     }
 

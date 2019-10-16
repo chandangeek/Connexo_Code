@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -33,6 +34,8 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -164,8 +167,17 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        successfulDevices.forEach(device->{
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), device.getName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getmRID());
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber());
+        });
+
         using(method)
                 .toEndpoints(endPointConfiguration)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 

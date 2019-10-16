@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageID;
@@ -21,6 +22,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulkno
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -55,8 +59,10 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
     private void handleMessage(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
         LocationBulkMessage bulkMsg = new LocationBulkMessage(msg);
         if (bulkMsg.isValid()) {
+            SetMultimap<String, String> values = HashMultimap.create();
             bulkMsg.locationMessages.forEach(message -> {
                 if (message.isValid()) {
+                    values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId);
                     Optional<Device> device = sapCustomPropertySets.getDevice(message.deviceId);
                     if (device.isPresent()) {
                         try {
@@ -71,6 +77,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
                     log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
                 }
             });
+            saveRelatedAttributes(values);
         } else {
             log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
         }

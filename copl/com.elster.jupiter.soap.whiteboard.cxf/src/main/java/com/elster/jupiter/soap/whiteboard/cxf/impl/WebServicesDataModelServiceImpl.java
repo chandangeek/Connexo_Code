@@ -23,6 +23,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeTypeProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -89,6 +90,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     private volatile WebServicesServiceImpl webServicesService;
     private volatile EndPointConfigurationServiceImpl endPointConfigurationService;
     private volatile WebServiceCallOccurrenceServiceImpl webServiceCallOccurrenceService;
+    private volatile NlsService nlsService;
 
     public WebServicesDataModelServiceImpl() {
         // for OSGi
@@ -140,6 +142,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
@@ -201,6 +204,17 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider){
+        webServiceCallOccurrenceService.addRelatedObjectTypes(provider.getComponentName(),
+                                                                provider.getLayer(),
+                                                                provider.getAttributeTranslations());
+    };
+
+    public void removeAttributeTypes(WebServiceCallRelatedAttributeTypeProvider provider){
+        webServiceCallOccurrenceService.removeRelatedObjectTypes(provider.getAttributeTranslations());
+    }
+
     private Module getModule(String logDirectory) {
         return new AbstractModule() {
             @Override
@@ -240,7 +254,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         }
         webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock);
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
-        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel,endPointConfigurationService);
+        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel,endPointConfigurationService, nlsService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
@@ -249,7 +263,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 ImmutableMap.of(
                         V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
                         UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class,
-                        UpgraderV10_7.VERSION, UpgraderV10_7.class
+                        UpgraderV10_7.VERSION, UpgraderV10_7.class,
+                        UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class
                 ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();

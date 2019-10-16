@@ -6,11 +6,15 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateConfirmationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +23,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
@@ -30,7 +35,7 @@ import static org.mockito.Mockito.when;
 public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebserviceTest {
     @Mock
     private UtilitiesDeviceERPSmartMeterCreateConfirmationCOut port;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage;
 
     private UtilitiesDeviceCreateConfirmationProvider provider;
@@ -43,7 +48,9 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+        when(confirmationMessage.getUtilitiesDevice().getID().getValue()).thenReturn("UtilDeviceID");
     }
 
     @Test
@@ -57,6 +64,10 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
         provider.call(confirmationMessage);
 
         verify(provider).using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut");
+        SetMultimap<String,String> values = HashMultimap.create();
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                "UtilDeviceID");
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(confirmationMessage);
     }
 

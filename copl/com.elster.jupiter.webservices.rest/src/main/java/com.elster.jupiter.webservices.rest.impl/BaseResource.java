@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.users.User;
 
 import com.google.common.collect.Range;
@@ -151,6 +152,15 @@ public abstract class BaseResource {
                 finderBuilder.onlyInbound();
             } else if (typeList.contains("OUTBOUND") && !typeList.contains("INBOUND")) {
                 finderBuilder.onlyOutbound();
+            }
+        }
+
+        if (filter.hasProperty("wsRelatedObjectId")) {
+            long objectId = filter.getInteger("wsRelatedObjectId");
+
+            Optional<WebServiceCallRelatedAttribute> wscRo = webServiceCallOccurrenceService.getRelatedObjectById(objectId);
+            if (wscRo.isPresent()) {
+                finderBuilder.withRelatedAttribute(wscRo.get());
             }
         }
 

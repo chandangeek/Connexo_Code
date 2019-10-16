@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.util.Pair;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.SetMultimap;
 import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 import org.osgi.service.component.annotations.Reference;
@@ -131,9 +132,17 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         private final String methodName;
         private String payload;
         private Collection<EndPointConfiguration> endPointConfigurations;
+        private SetMultimap<String,String> values;
+
 
         private RequestSenderImpl(String methodName) {
             this.methodName = methodName;
+        }
+
+
+        public RequestSenderImpl withRelatedAttributes(SetMultimap<String,String> values){
+            this.values = values;
+            return this;
         }
 
         @Override
@@ -237,6 +246,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         long id = webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
+                            if (values != null) {
+                                WebServiceCallOccurrence wsCo= webServicesService.getOngoingOccurrence(id);
+                                wsCo.saveRelatedAttributes(values);
+                            }
                             Object response = method.invoke(port, request);
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);
