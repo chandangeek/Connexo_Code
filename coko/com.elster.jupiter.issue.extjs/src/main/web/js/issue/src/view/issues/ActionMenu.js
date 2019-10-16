@@ -255,7 +255,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         var me = this,
             issueId = me.record.getId(),
             issueType = me.record.get('issueType').uid,
-            fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0],
+            fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0] ? true: false,
             predefinedItems = me.getPredefinedItems();
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
@@ -311,7 +311,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 issueId: issueId
                             },
                             {
-                                details: menuItem.details,
+                                details: fromDetails,
                                 issueType: issueType
                             }
                         );
@@ -322,7 +322,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 issueId: issueId
                             },
                             {
-                                details: (fromDetails) ? true : false,
+                                details: fromDetails,
                                 issueType: issueType
                             }
                         );
@@ -338,7 +338,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
                 action: 'startProcess',
                 section: this.SECTION_ACTION,
-                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false, issueType: issueType}),
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: fromDetails, issueType: issueType}),
                 details: false
             });
         }
