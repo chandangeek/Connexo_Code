@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
     xtype: 'deviceDateFieldEdited',
     layout: 'hbox',
     initialValue: undefined,
-    itemIdReset: undefined,
     items: [
          {
             xtype: 'container',
@@ -49,7 +48,6 @@ Ext.define('Mdc.view.setup.deviceattributes.form.DateFieldEdited', {
             },
             {
                  xtype: 'uni-default-button',
-                 itemId: this.itemIdReset,
                  disabled: true,
                  tooltip: Uni.I18n.translate('general.restoreDefaultEmptyValue', 'MDC', 'Restore to default empty value'),
                  hidden: false,

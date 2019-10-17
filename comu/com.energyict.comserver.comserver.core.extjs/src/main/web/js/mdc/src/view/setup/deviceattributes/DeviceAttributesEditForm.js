@@ -241,7 +241,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             },
             {
                 xtype: 'deviceDateFieldEdited',
-                itemIdReset: 'installationDateReset',
                 itemId: 'installationDateEdit',
                 name: 'installationDateEdit',
                 width: 490,
@@ -261,7 +260,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             },
             {
                 xtype: 'deviceDateFieldEdited',
-                itemIdReset: 'deactivationReset',
                 itemId: 'deactivationDateEdit',
                 name: 'deactivationDate',
                 width: 490,
@@ -282,7 +280,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             },
             {
                 xtype: 'deviceDateFieldEdited',
-                itemIdReset: 'decommissioningReset',
                 name: 'decommissioningDateEdit',
                 itemId: 'decommissioningDateEdit',
                 width: 490,
