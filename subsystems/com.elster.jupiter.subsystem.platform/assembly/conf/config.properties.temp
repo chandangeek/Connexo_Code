@@ -18,6 +18,7 @@ org.osgi.framework.system.packages.extra=sun.net.http,sun.net.www.protocol.http,
 	sun.security.util,sun.security.x509,sun.security.provider,sun.misc,sun.awt.image.codec,com.sun.net.ssl,\
     com.sun.jimi.core,com.sun.net.ssl.internal.ssl,sun.util.calendar,\
     com.sun.javadoc,com.sun.tools.javadoc,javax.ejb,javax.persistence,javax.xml,\
+    javax.xml.bind;version=2.3.1,javax.xml.bind.annotation;version=2.3.1,javax.xml.bind.annotation.adapters;version=2.3.1,\
     com.sun.xml.internal.ws,com.sun.proxy
 
 
