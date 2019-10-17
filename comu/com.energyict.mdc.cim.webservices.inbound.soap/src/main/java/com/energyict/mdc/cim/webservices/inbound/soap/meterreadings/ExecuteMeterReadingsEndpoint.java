@@ -367,6 +367,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 syncReplyIssue.getReadingExistedRegisterGroupsMap().containsKey(index)){
             return comTaskExecutions.stream()
                     .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
+                    .filter(comTaskExecution ->!comTaskExecution.isOnHold())
                     .filter(comTaskExecution -> {
                         if (isRegular) {
                             return comTaskExecution.getProtocolTasks().stream()
@@ -386,6 +387,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
         return comTaskExecutions.stream()
                 .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
+                .filter(comTaskExecution ->!comTaskExecution.isOnHold())
                 .filter(comTaskExecution -> comTaskExecution.getProtocolTasks().stream()
                         .anyMatch(protocolTask -> isRegular
                                 ? protocolTask instanceof LoadProfilesTask
