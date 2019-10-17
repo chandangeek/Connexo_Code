@@ -174,6 +174,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getmRID());
             values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber());
         });
+        
+        failedDevices.forEach(meterOperation->{
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meterOperation.getMeterName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meterOperation.getmRID());
+        });
 
         using(method)
                 .toEndpoints(endPointConfiguration)
