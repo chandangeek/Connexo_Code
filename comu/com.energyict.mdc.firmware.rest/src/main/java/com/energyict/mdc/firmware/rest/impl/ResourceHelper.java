@@ -173,7 +173,7 @@ public class ResourceHelper {
     public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(Device device, long campaignId) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
-            deviceInFirmwareCampaign.get().cancel();
+            deviceInFirmwareCampaign.get().cancel(false);
             return Optional.of(deviceInFirmwareCampaignInfoFactory.createInfo(deviceInFirmwareCampaign.get()));
         } else {
             return Optional.empty();

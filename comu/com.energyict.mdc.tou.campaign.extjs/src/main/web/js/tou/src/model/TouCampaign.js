@@ -93,7 +93,8 @@ Ext.define('Tou.model.TouCampaign', {
             useNull: true,
             defaultValue: undefined
         },
-        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}
+        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null},
+        {name: 'manuallyCancelled', defaultValue: null},
     ],
     associations: [{
             type: 'hasMany',

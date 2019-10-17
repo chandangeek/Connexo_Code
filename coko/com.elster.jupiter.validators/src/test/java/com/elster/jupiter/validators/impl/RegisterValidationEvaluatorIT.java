@@ -300,14 +300,14 @@ public class RegisterValidationEvaluatorIT {
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED));
         validationStates = evaluator.getValidationStatus(Collections.emptySet(),
                 channel, channel.getReadings(Range.all()));
         assertThat(validationStates).hasSize(3);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.ENDDEVICE),
                 channel, channel.getReadings(Range.all()));
         assertThat(validationStates).hasSize(3);

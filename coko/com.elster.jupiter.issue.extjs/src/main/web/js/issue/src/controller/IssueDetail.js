@@ -606,8 +606,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 detailsForm = widget.down('#servicecall-details-form');
 
             if (rec.raw.serviceCallInfo && rec.raw.serviceCallInfo.logs && panel) {
-                var data = [],
-                    store;
+                var data = [];
 
                 rec.raw.serviceCallInfo.logs.map(function (log) {
                     data.push(Ext.apply({}, {
@@ -616,19 +615,10 @@ Ext.define('Isu.controller.IssueDetail', {
                         logLevel: log.logLevel,
                     }, log))
                 });
-                if (data.length) {
-                    store = Ext.create(me.serviceCallLogStore, {
-                        data: data,
-                        sorters: [
-                            {
-                                property: 'timestamp',
-                                direction: 'DESC'
-                            }
-                        ],});
-                    panel.getView().bindStore(store);
-                }
+
+                Ext.getStore('Isc.store.Logs').loadData(data);
             }
-            
+
             detailsForm && detailsForm.loadRecord(rec);
 
         }, me, {
@@ -644,8 +634,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 detailsForm = widget.down('#webservice-details-form');
 
             if (rec.raw.webServiceCallOccurrence && rec.raw.webServiceCallOccurrence.logs && panel) {
-                var data = [],
-                    store;
+                var data = [];
 
                 rec.raw.webServiceCallOccurrence.logs.map(function (log) {
                     data.push(Ext.apply({}, {
@@ -654,17 +643,7 @@ Ext.define('Isu.controller.IssueDetail', {
                         logLevel: log.logLevel,
                     }, log))
                 });
-                if (data.length) {
-                    store = Ext.create(me.webServiceLogStore, {
-                        data: data,
-                        sorters: [
-                            {
-                                property: 'timestamp',
-                                direction: 'DESC'
-                            }
-                        ],});
-                    panel.getView().bindStore(store);
-                }
+                Ext.getStore('Iws.store.Logs').loadData(data);
             }
 
             detailsForm && detailsForm.loadRecord(rec);

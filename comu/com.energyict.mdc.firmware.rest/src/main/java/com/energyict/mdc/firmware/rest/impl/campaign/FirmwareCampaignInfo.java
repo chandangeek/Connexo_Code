@@ -48,6 +48,7 @@ public class FirmwareCampaignInfo {
     public IdWithNameInfo validationConnectionStrategy;
 
     public EnumMap<FirmwareCheckManagementOption, CheckManagementOptionInfo> checkOptions;
+    public boolean manuallyCancelled;
 
     public Optional<PropertyInfo> getPropertyInfo(String key) {
         return this.properties.stream().filter(y -> y.key.equals(key)).findFirst();
