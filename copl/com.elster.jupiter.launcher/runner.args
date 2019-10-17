@@ -6,8 +6,8 @@
  -Dcom.elster.jupiter.bpm.user=admin\
  -Dcom.elster.jupiter.bpm.password=admin
 --clean
---systemPackages=javax.activation;version=1.1.1,\
- javax.xml.ws;version=2.2.0,\
+--systemPackages=javax.activation;version=1.2.0,\
+ javax.xml.ws;version=2.3.1,\
  javax.xml.ws.wsaddressing,\
  javax.xml.stream;javax.xml.stream.events;javax.xml.stream.util;version=1.0.0
 mvn:javax.annotation/javax.annotation-api/1.2
