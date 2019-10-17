@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.custom.custompropertyset;
+package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.Units;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;

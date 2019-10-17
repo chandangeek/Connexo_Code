@@ -16,20 +16,23 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.custom.MessageSeeds;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.CTRatioCustomPropertySet;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.CTRatioDomainExtension;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.CustomPropertySets;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.MaxDemandCustomPropertySet;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.MaxDemandDomainExtension;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.PowerFactorCustomPropertySet;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.PowerFactorDomainExtension;
-import com.energyict.mdc.sap.soap.custom.custompropertyset.Units;
+import com.energyict.mdc.sap.soap.custom.eventhandlers.TranslationKeys;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioCustomPropertySet;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioDomainExtension;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CustomPropertySets;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.MaxDemandCustomPropertySet;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.MaxDemandDomainExtension;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.PowerFactorCustomPropertySet;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.PowerFactorDomainExtension;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,6 +41,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +52,11 @@ import java.util.logging.Logger;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATT;
 
 
-@Component(name = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.CustomMeterReadingsEventHandler", service = TopicHandler.class, immediate = true)
-public class CustomMeterReadingsEventHandler implements TopicHandler {
+@Component(name = CustomMeterReadingsEventHandler.NAME, service = TopicHandler.class, immediate = true)
+public class CustomMeterReadingsEventHandler implements TopicHandler, TranslationKeyProvider {
+    static final String COMPONENT_NAME = "CME";
+//    static final String APPLICATION_NAME = "MultiSense";
+    static final String NAME = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.CustomMeterReadingsEventHandler";
 
     private static final String POWER_FACTOR_EVENET_CODE = "8001";
     private static final String MAX_DEMAND_EVENET_CODE = "8002";
@@ -60,23 +67,22 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     private volatile DeviceService deviceService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EventService eventService;
+    private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
-    private final MeteringService meteringService;
+    private final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM ''yy 'at' HH:mm");
 
-    private final SimpleDateFormat formatter = new SimpleDateFormat("dd MM yyyy at HH:mm");
-
-/*
+    // For OSGi purposes
     public CustomMeterReadingsEventHandler() {
+        super();
     }
-*/
 
     @Inject
     public CustomMeterReadingsEventHandler(Thesaurus thesaurus, MeteringService meteringService, SendMeterReadingsProvider sendMeterReadingsProvider) {
-//        this();
+        this();
+        setSendMeterReadingsProvider(sendMeterReadingsProvider);
         this.thesaurus = thesaurus;
         this.meteringService = meteringService;
-        setSendMeterReadingsProvider(sendMeterReadingsProvider);
     }
 
     @Reference
@@ -227,7 +233,6 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                                         }
                                     }
                                 } else {
-                                    // generate error log
                                     MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, device.getName(),
                                             reading.getReadingType().getFullAliasName(), formatter.format(reading.getReading().getTimeStamp()));
                                 }
@@ -241,10 +246,17 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                 if (readingTypes.isPresent()) {
                     if (entry.getKey().getLast().equals(readingType.get())) {
                         for (ReadingInfo reading : entry.getValue()) {
-                            if (maxDemandEvent(reading.getReading().getValue().doubleValue(), reading.getReadingType().getUnit(),
-                                    maxDemandCASValues.get(device).getFirst().doubleValue(), maxDemandCASValues.get(device).getLast())) {
-                                // generate event
-                                sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), MAX_DEMAND_EVENET_CODE);
+                            ReadingTypeUnit readingTypeUnit = reading.getReadingType().getUnit();
+                            if (readingTypeUnit.equals(WATT)) {
+                                if (maxDemandEvent(reading.getReading().getValue().doubleValue(), readingTypeUnit,
+                                        maxDemandCASValues.get(device).getFirst().doubleValue(), maxDemandCASValues.get(device).getLast())) {
+                                    // generate event
+                                    sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), MAX_DEMAND_EVENET_CODE);
+                                }
+                            } else {
+                                MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus,
+                                        reading.getReadingType().getFullAliasName(), formatter.format(reading.getReading().getTimeStamp()));
+
                             }
                         }
                     }
@@ -273,7 +285,8 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         return EventType.READINGS_CREATED.topic();
     }
 
-    public boolean powerFactorEvent(double realPower, double reactivePower, double setpointThreshold, double hysteresisPercentage) {
+    public boolean powerFactorEvent(double realPower, double reactivePower, double setpointThreshold,
+                                    double hysteresisPercentage) {
         double powerFactor = realPower / Math.sqrt(Math.pow(realPower, 2) + Math.pow(reactivePower, 2));
         double deltaPercentage = Math.abs(setpointThreshold) * hysteresisPercentage / 100;
         if (powerFactor <= setpointThreshold - deltaPercentage || powerFactor > setpointThreshold + deltaPercentage) {
@@ -283,17 +296,12 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     }
 
     public boolean maxDemandEvent(double value, ReadingTypeUnit readingTypeUnit, double connectedLoad, String unit) {
-        if (readingTypeUnit.equals(WATT)) {
-            if (unit.equals(Units.kW.getValue())) {
-                value = value / 1000;
-            } else if (unit.equals(Units.MW.getValue())) {
-                value = value / 1000000;
-            }
-            return value > connectedLoad;
-        } else {
-            // generate error
-            return false;
+        if (unit.equals(Units.kW.getValue())) {
+            value = value / 1000;
+        } else if (unit.equals(Units.MW.getValue())) {
+            value = value / 1000000;
         }
+        return value > connectedLoad;
     }
 
     public boolean ctRatioEvent(double value, double ctRatio) {
@@ -351,44 +359,18 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), eventRecord);
     }
 
-/*    public static class EventSource {
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
 
-        private long start;
-        private long end;
-        private long meterId;
+    @Override
+    public Layer getLayer() {
+        return Layer.SOAP;
+    }
 
-        public EventSource() {
-
-        }
-
-        public EventSource(long meterId, long start, long end) {
-            this.end = end;
-            this.meterId = meterId;
-            this.start = start;
-        }
-
-        public long getEnd() {
-            return end;
-        }
-
-        public void setEnd(long end) {
-            this.end = end;
-        }
-
-        public long getMeterId() {
-            return meterId;
-        }
-
-        public void setMeterId(long meterId) {
-            this.meterId = meterId;
-        }
-
-        public long getStart() {
-            return start;
-        }
-
-        public void setStart(long start) {
-            this.start = start;
-        }
-    }*/
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
+    }
 }

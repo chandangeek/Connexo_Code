@@ -1,4 +1,4 @@
-package com.energyict.mdc.sap.soap.custom.custompropertyset;
+package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
 

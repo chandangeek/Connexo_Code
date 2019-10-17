@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.custom.custompropertyset;
+package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
 import com.elster.jupiter.nls.TranslationKey;
 

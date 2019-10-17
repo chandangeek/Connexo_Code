@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.custom.custompropertyset;
+package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -14,8 +14,9 @@ import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.TranslationKeys;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.Units;
 import com.google.inject.Module;
 
 import java.math.BigDecimal;

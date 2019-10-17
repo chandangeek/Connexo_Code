@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.custom.custompropertyset;
+package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -17,6 +17,7 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.custom.MessageSeeds;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.TranslationKeys;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,7 +34,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-@Component(name = "com.energyict.mdc.sap.soap.custom.custompropertyset.CustomPropertySets",
+@Component(name = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CustomPropertySets",
         service = {CustomPropertySets.class, TranslationKeyProvider.class},
         property = "name=" + CustomPropertySets.COMPONENT_NAME, immediate = true)
 public class CustomPropertySets implements TranslationKeyProvider {
