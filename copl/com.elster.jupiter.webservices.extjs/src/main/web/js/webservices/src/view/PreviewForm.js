@@ -183,7 +183,7 @@ Ext.define('Wss.view.PreviewForm', {
                     name: 'password',
                     renderer: function (value) {
                         Ext.isEmpty(value) ? this.hide() : this.show();
-                        return value;
+                        return "******";
                     }
                 },
                 {
