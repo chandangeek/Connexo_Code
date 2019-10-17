@@ -6,11 +6,14 @@ package com.energyict.mdc.sap.soap.custom.eventhandlers;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
@@ -55,8 +58,10 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
     private int failedEntriesNumber;
     private int skippedEntriesNumber;
     @NotNull
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class})
     private String path;
     @NotNull
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class})
     private String separator;
 
     public ServiceCall getServiceCall() {
