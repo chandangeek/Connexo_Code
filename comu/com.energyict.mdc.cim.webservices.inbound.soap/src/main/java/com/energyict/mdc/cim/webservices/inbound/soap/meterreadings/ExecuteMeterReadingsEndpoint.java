@@ -303,11 +303,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue);
         }
         if (isRegularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillDevicesComTaskExecutions2(devices, true, syncReplyIssue, index);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, true, syncReplyIssue, index);
         }
 
         if (isIrregularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillDevicesComTaskExecutions2(devices, false, syncReplyIssue, index);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, false, syncReplyIssue, index);
         }
     }
 
@@ -324,7 +324,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         });
     }
 
-    private void fillDevicesComTaskExecutions2(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index) {
+    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index) {
         for (Device originDevice : devices) {
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
