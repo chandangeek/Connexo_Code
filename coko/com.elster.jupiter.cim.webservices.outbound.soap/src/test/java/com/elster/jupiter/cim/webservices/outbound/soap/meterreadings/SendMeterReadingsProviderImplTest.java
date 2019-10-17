@@ -4,6 +4,8 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,13 +24,16 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+import com.google.common.collect.SetMultimap;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -92,6 +97,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         when(requestSender.toEndpoints(endPointConfiguration)).thenReturn(requestSender);
         Map responseMap = new HashMap();
         responseMap.put(endPointConfiguration, response);
+        when(requestSender.withRelatedAttributes(any())).thenReturn(requestSender);
         when(requestSender.send(any())).thenReturn(responseMap);
     }
 
@@ -109,7 +115,24 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);
 
+        SetMultimap<String, String> values = HashMultimap.create();
+        listReadingInfo.forEach(reading->{
+            reading.getMeter().ifPresent(meter->{
+                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
+                        meter.getName());
+                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                        meter.getMRID());
+            });
+            reading.getUsagePoint().ifPresent(usp->{
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                        usp.getName());
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                        usp.getMRID());
+            });
+        });
+
         verify(provider).using("createdMeterReadings");
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 
@@ -137,8 +160,25 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         when(response.getReply()).thenReturn(reply);
         when(reply.getResult()).thenReturn(ReplyType.Result.OK);
         assertTrue(provider.call(meterReadings, getHeader(HeaderType.Verb.CREATED), endPointConfiguration));
+        SetMultimap<String, String> values = HashMultimap.create();
+        meterReadings.getMeterReading().forEach(reading->{
+            Optional.ofNullable(reading.getMeter()).ifPresent(meter->{
+                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
+                        meter.getNames().get(0).getName());
+                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                        meter.getMRID());
+            });
+
+            Optional.ofNullable(reading.getUsagePoint()).ifPresent(usp->{
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                        usp.getNames().get(0).getName());
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                        usp.getMRID());
+            });
+        });
         verify(provider).using("createdMeterReadings");
         verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 

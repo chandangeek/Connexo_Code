@@ -24,6 +24,8 @@ public enum InboundServices {
     SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST("SAP UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In"),
     SAP_SMART_METER_METER_READING_DOCUMENT_ERP_CANCELLATION_CONFIRMATION("SAP MeterReadingCancellationRequest"),
     SAP_SMART_METER_METER_READING_DOCUMENT_ERP_BULK_CANCELLATION_CONFIRMATION("SAP MeterReadingBulkCancellationRequest"),
+    SAP_METER_REGISTER_CHANGE_REQUEST("SAP MeterRegisterChangeRequest"),
+    SAP_METER_REGISTER_BULK_CHANGE_REQUEST("SAP MeterRegisterBulkChangeRequest"),
     ;
 
     private String name;

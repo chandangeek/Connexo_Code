@@ -6,21 +6,28 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -35,15 +42,21 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
 
     @Mock
     private SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port;
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg confirmationMessage;
     @Mock
     private StatusChangeRequestCreateConfirmationMessage outboundMessage;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts connectionStatus;
+
 
     private StatusChangeRequestCreateConfirmationProvider provider;
+    private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> deviceConnectionStatuses = new ArrayList<>();
+
 
     @Before
     public void setUp() {
+        deviceConnectionStatuses.add(connectionStatus);
         provider = spy(new StatusChangeRequestCreateConfirmationProvider());
         when(webServiceCallOccurrence.getId()).thenReturn(1l);
         when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
@@ -52,6 +65,11 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
         when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
+
+        when(confirmationMessage.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()).thenReturn(deviceConnectionStatuses);
+        when(connectionStatus.getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceID");
+
     }
 
     @Test
@@ -64,8 +82,14 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
         provider.addSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(port, properties);
         provider.call(outboundMessage);
 
+        SetMultimap<String,String> values = HashMultimap.create();
+
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    "UtilDeviceID");
+
         verify(provider).using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut");
         verify(requestSender).send(confirmationMessage);
+        verify(requestSender).withRelatedAttributes(values);
     }
 
     @Test

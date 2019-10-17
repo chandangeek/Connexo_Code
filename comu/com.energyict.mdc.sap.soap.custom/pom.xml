@@ -143,6 +143,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.sap.soap.wsdl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.sap.soap.webservices</artifactId>
         </dependency>
         <dependency>
@@ -157,6 +161,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cim.webservices.outbound.soap</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pubsub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
         </dependency>
     </dependencies>
 </project>

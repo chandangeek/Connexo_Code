@@ -13,6 +13,8 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
@@ -44,6 +46,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     private Map<Long, List<ServiceCall>> immediately = new HashMap<>();
     private Map<Long, List<ServiceCall>> scheduled = new HashMap<>();
@@ -53,6 +56,11 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
+                MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = serviceCall
+                        .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                masterExtension.setAttemptNumber(masterExtension.getAttemptNumber().add(BigDecimal.ONE));
+                serviceCall.update(masterExtension);
                 immediately.remove(serviceCall.getId());
                 scheduled.remove(serviceCall.getId());
                 serviceCall.findChildren().stream().forEach(child -> child.transitionWithLockIfPossible(DefaultState.PENDING));
@@ -134,11 +142,20 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 break;
             case PAUSED:
                 parentServiceCall = lock(parentServiceCall);
-                if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
-                    if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
-                        parentServiceCall.requestTransition(DefaultState.ONGOING);
+                MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = parentServiceCall
+                        .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                BigDecimal attempts = new BigDecimal(WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+                BigDecimal currentAttempt = masterExtension.getAttemptNumber();
+                if (currentAttempt.compareTo(attempts) == -1) {
+                    if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
+                        if (parentServiceCall.canTransitionTo(DefaultState.ONGOING)) {
+                            parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        }
+                        parentServiceCall.requestTransition(DefaultState.PAUSED);
                     }
-                    parentServiceCall.requestTransition(DefaultState.PAUSED);
+                } else {
+                    parentServiceCall.requestTransition(DefaultState.CANCELLED);
                 }
                 break;
             default:
@@ -155,6 +172,11 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
+    }
+
+    @Reference
+    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {
@@ -254,6 +276,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.METER_READING_DOCUMENT_CREATE_RESULT);
             ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType).extendedWith(childDomainExtension);
+            sapCustomPropertySets.getDevice(requestDomainExtension.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
             return Optional.of(serviceCallBuilder.create());
         } else {
             return Optional.empty();

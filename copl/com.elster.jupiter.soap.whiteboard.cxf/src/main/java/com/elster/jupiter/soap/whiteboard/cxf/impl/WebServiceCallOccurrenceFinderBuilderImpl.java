@@ -9,8 +9,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -23,10 +26,12 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCallOccurrenceFinderBuilder {
     private DataModel dataModel;
     private Condition condition;
+    private Condition subCondition;
 
     WebServiceCallOccurrenceFinderBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
         this.condition = Condition.TRUE;
+        this.subCondition = Condition.TRUE;
     }
 
     @Override
@@ -84,6 +89,15 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     public WebServiceCallOccurrenceFinderBuilder onlyOutbound() {
         this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(OutboundEndPointConfiguration.class)
                 .asSubquery(Condition.TRUE, "id"), "endPointConfiguration"));
+        return this;
+    }
+
+    @Override
+    public WebServiceCallOccurrenceFinderBuilder withRelatedAttribute(WebServiceCallRelatedAttribute relatedObject){
+        Subquery subquery = dataModel.query(WebServiceCallRelatedAttributeBinding.class)
+                .asSubquery(this.subCondition.and(where(WebServiceCallRelatedAttributeBindingImpl.Fields.ATTRIBUTE.fieldName()).isEqualTo(relatedObject)),
+                        WebServiceCallRelatedAttributeBindingImpl.Fields.OCCURRENCE.fieldName());
+        this.condition = this.condition.and(ListOperator.IN.contains(subquery, WebServiceCallRelatedAttributeBindingImpl.Fields.ID.fieldName()));
         return this;
     }
 

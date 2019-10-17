@@ -53,6 +53,15 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 });
 
                 break;
+            case CANCELLED:
+                    MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall
+                            .getExtension(MeterReadingDocumentCreateRequestDomainExtension.class)
+                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                    if(extension.getCancelledBySap() == null) {
+                        extension.setCancelledBySap(false);
+                        serviceCall.update(extension);
+                    }
+                break;
             default:
                 // No specific action required for these states
                 break;

@@ -7,11 +7,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilitiesSmartMeterEventERPBulkCreateRequestCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -25,7 +28,8 @@ import java.util.Map;
 @Component(name = MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT,
         service = {MeterEventCreateRequestProvider.class, OutboundSoapEndPointProvider.class}, immediate = true,
         property = {"name=" + MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT})
-public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPointProvider<UtilitiesSmartMeterEventERPBulkCreateRequestCOut> implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPointProvider<UtilitiesSmartMeterEventERPBulkCreateRequestCOut>
+        implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public MeterEventCreateRequestProviderImpl() {
         // for OSGI purposes
@@ -62,7 +66,15 @@ public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPoin
 
     @Override
     public void send(UtilsSmrtMtrEvtERPBulkCrteReqMsg reqMsg) {
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        reqMsg.getUtilitiesSmartMeterEventERPCreateRequestMessage().forEach(msg->{
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                    msg.getUtilitiesSmartMeterEvent().getUtilitiesDeviceID().getValue());
+        });
+
         using("utilitiesSmartMeterEventERPBulkCreateRequestCOut")
+                .withRelatedAttributes(values)
                 .send(reqMsg);
     }
 

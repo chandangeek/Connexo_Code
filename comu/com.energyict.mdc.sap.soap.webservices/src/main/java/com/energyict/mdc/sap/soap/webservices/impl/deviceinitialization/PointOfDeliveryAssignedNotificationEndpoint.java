@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageID;
@@ -53,6 +54,7 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
         PodMessage podMsg = new PodMessage(msg);
         if (podMsg.isValid()) {
+            saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), podMsg.deviceId);
             Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
             if (device.isPresent()) {
                 try {
