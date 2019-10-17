@@ -7,6 +7,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -35,12 +36,15 @@ import com.google.common.collect.SetMultimap;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> extends AbstractOutboundEndPointProvider<EP> implements DataExportWebService, OutboundSoapEndPointProvider {
@@ -49,6 +53,9 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+
+    private int NUMBER_OF_READINGS_PER_MSG = 150;//Some default value
+
 
     AbstractUtilitiesTimeSeriesBulkRequestProvider() {
         // for OSGi
@@ -109,7 +116,92 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     }
 
     @Override
-    public Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
+    public Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data){//
+    /*{
+          return  sendPartOfData(endPointConfiguration, data);
+    }*/
+        System.out.println("CALL!!!!!!!!!");
+        int meterReadingDataNr = 0;
+        List<ServiceCall> srvCallList = new ArrayList<>();
+
+        List<MeterReadingData> readingDataToSend = new ArrayList<>();
+        int x =0;
+
+        List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
+
+        MeterReadingData readingDataTmp = readingDataList.get(0);
+
+        readingDataList.add(readingDataTmp);
+        readingDataList.add(readingDataTmp);
+        readingDataList.add(readingDataTmp);
+
+        Iterator iterator;
+
+        for(iterator = readingDataList.iterator(); iterator.hasNext(); ){
+            MeterReadingData meterReadingData = (MeterReadingData)iterator.next();
+            /*Calculate number of readings that should be sent for this meterReadingData*/
+            int numberOfItemsToSend = meterReadingData.getMeterReading().getReadings().size();
+
+            Iterator intervalBlocksIterator;
+            for (intervalBlocksIterator = meterReadingData.getMeterReading().getIntervalBlocks().iterator();
+                 intervalBlocksIterator.hasNext(); ) {
+                numberOfItemsToSend = numberOfItemsToSend+((IntervalBlock) intervalBlocksIterator.next()).getIntervals().size();
+            }
+
+            if ( numberOfItemsToSend >  NUMBER_OF_READINGS_PER_MSG){
+                /*It means that number of readings in one meterReadingData is more than allowable size.
+                * This reading will not be sent? At current moment no because all reading from one profileId
+                * have to be sent in one message */
+                System.out.println("CONTINUE!!!");
+                continue;
+            }
+
+            //List<IntervalBlock>  tmplist = meterReadingData.getMeterReading().getIntervalBlocks();
+            if (meterReadingDataNr < NUMBER_OF_READINGS_PER_MSG){
+                System.out.println("NUMBER OF READINGS = "+numberOfItemsToSend);
+                System.out.println("NUMBER ALL READINGS = "+meterReadingDataNr);
+                if (NUMBER_OF_READINGS_PER_MSG - meterReadingDataNr > numberOfItemsToSend) {
+                    readingDataToSend.add(meterReadingData);
+                    meterReadingDataNr = meterReadingDataNr + numberOfItemsToSend;
+                    if (!iterator.hasNext()){
+                        System.out.println("SEND 1!!!!!!!!!!");
+                        sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->{
+                            srvCallList.add(srvCall);
+                        });
+                        meterReadingDataNr = 0;
+                        readingDataToSend.clear();
+                    }
+                }else{
+                    System.out.println("SEND 2!!!!!!!!!!");
+                    sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->{
+                        srvCallList.add(srvCall);
+                    });
+                    meterReadingDataNr = numberOfItemsToSend;
+                    readingDataToSend.clear();
+                    readingDataToSend.add(meterReadingData);
+                    if (!iterator.hasNext()){
+                        System.out.println("IT WAS LAST READING SEND IT 2!!!!!!!!!!");
+                        /*It was last readings. Just send it*/
+                        sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->{
+                            srvCallList.add(srvCall);
+                        });
+                    }
+                }
+
+            }else{
+                System.out.println("SEND 3!!!!!!!!!!");
+                sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->srvCallList.add(srvCall));
+                meterReadingDataNr = 0;
+                readingDataToSend.clear();
+            }
+
+        }
+
+        return Optional.of(srvCallList.get(0));
+    }
+
+
+    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data){
         String uuid = UUID.randomUUID().toString();
         try {
             SetMultimap<String, String> values = HashMultimap.create();
