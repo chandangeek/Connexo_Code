@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.task;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -41,6 +42,7 @@ public class CheckStatusChangeCancellationHandler implements TaskExecutor {
                 .forEach(serviceCall -> {
                     ConnectionStatusChangeDomainExtension extension = serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class).get();
                     if (Duration.between(extension.getProcessDate(), now).get(ChronoUnit.SECONDS) > timeoutMinutes * 60) {
+                        serviceCall.log(LogLevel.INFO, "Cancelling service call by timeout");
                         serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
                     }
                 });

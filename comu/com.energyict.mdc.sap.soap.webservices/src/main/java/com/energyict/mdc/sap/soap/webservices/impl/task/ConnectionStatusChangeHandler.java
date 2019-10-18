@@ -17,6 +17,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 
@@ -55,33 +56,14 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
                         .ifPresent(this::resultTransition));
     }
 
-    private List<ServiceCall> findAllChilds(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
-    }
-
-    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private boolean isLastChild(List<ServiceCall> serviceCalls) {
-        return serviceCalls.stream()
-                .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED) ||
-                        sc.getState().equals(DefaultState.FAILED) ||
-                        sc.getState().equals(DefaultState.SUCCESSFUL));
-    }
-
     private void resultTransition(ServiceCall parent) {
-        List<ServiceCall> childs = findAllChilds(parent);
-        if (isLastChild(childs)) {
-            if (hasAllChildrenInState(childs, DefaultState.SUCCESSFUL)) {
+        List<ServiceCall> childs = ServiceCallHelper.findChildren(parent);
+        if (ServiceCallHelper.isLastChild(childs)) {
+            if (ServiceCallHelper.hasAllChildrenInState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.SUCCESSFUL);
-            } else if (hasAllChildrenInState(childs, DefaultState.CANCELLED)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(childs, DefaultState.CANCELLED)) {
                 sendResponseMessage(parent, DefaultState.CANCELLED);
-            } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
+            } else if (ServiceCallHelper.hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 sendResponseMessage(parent, DefaultState.FAILED);
@@ -104,7 +86,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
                 if (extension.isBulk()) {
                     StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
                             .builder(sapCustomPropertySets)
-                            .from(parent, findAllChilds(parent), clock.instant())
+                            .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
                             .build();
 
                     WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> {
@@ -118,7 +100,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
                 } else {
                     StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                             .builder(sapCustomPropertySets)
-                            .from(parent, findAllChilds(parent), clock.instant())
+                            .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
                             .build();
 
                     WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
