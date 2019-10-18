@@ -15,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -207,14 +208,15 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     private void createRelatedObject( String key, String value){
-        if (key != null && value != null) {
+        if (key != null && value != null && !Checks.is(value).emptyOrOnlyWhiteSpace()) {
+            String valueToSave = value.trim();
             String[] fieldName = {"key", "value"};
-            String[] values = {key, value};
+            String[] values = {key, valueToSave};
             Optional<WebServiceCallRelatedAttributeImpl> relatedObject = dataModel.mapper(WebServiceCallRelatedAttributeImpl.class)
                     .getUnique(fieldName, values);
             if (!relatedObject.isPresent()) {
                 relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class));
-                relatedObject.get().init(key, value);
+                relatedObject.get().init(key, valueToSave);
                 relatedObject.get().save();
             }
 
@@ -241,18 +243,18 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             }
 
             Condition condition = values.entries().stream()
-                    .filter(entry -> entry.getValue() != null && entry.getKey() != null)
+                    .filter(entry -> entry.getValue() != null && !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
                     .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName()).isEqualTo(entry.getKey())
-                            .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue())))
+                            .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
                     .reduce(Condition::or).get();
             /* Find all related attributes that has been already created */
             List<WebServiceCallRelatedAttributeImpl> createdRelatedAttrubuteList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition);
 
             /* Find all related attributes that should be created */
             values.entries().forEach(entry->{
-                if (entry.getKey() != null && entry.getValue() != null) {
+                if (entry.getKey() != null && entry.getValue() != null && !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace()) {
                     WebServiceCallRelatedAttributeImpl relatedObject = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
-                    relatedObject.init(entry.getKey(), entry.getValue());
+                    relatedObject.init(entry.getKey(), entry.getValue().trim());
                     if (!createdRelatedAttrubuteList.contains(relatedObject)) {
                         relatedAttributeListToCreate.add(relatedObject);
                     }
