@@ -10,6 +10,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -17,6 +18,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
+import com.google.common.collect.ImmutableMap;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
@@ -170,6 +172,7 @@ class SAPDeviceEventMappingLoader {
 
     private ServiceCallType getServiceCallType() {
         if (serviceCallType == null) {
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", SERVICE_CALL_TYPE_NAME));
             serviceCallType = findServiceCallType()
                     .orElseGet(this::createServiceCallType);
         }
@@ -181,8 +184,9 @@ class SAPDeviceEventMappingLoader {
     }
 
     private ServiceCallType createServiceCallType() {
-        return serviceCallService.createServiceCallType(SERVICE_CALL_TYPE_NAME, SERVICE_CALL_TYPE_VERSION, CustomSAPDeviceEventHandler.APPLICATION_NAME)
+        return serviceCallService.createServiceCallType(SERVICE_CALL_TYPE_NAME, SERVICE_CALL_TYPE_VERSION, "MDC")
                 .customPropertySet(getCustomPropertySet())
+                .handler(SERVICE_CALL_TYPE_NAME)
                 .create();
     }
 
