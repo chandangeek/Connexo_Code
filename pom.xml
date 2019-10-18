@@ -595,6 +595,16 @@
                                     <resources>
                                         <resource>
                                             <directory>${sencha.workspace}</directory>
+                                            <targetPath>${js.dir}</targetPath>
+                                            <includes>
+                                                <include>**/*</include>
+                                            </includes>
+                                        </resource>
+                                        <!-- This is needed while some js files are directly pointed from html (and some app.js) files and needs to have same path as in sencha-compile
+                                        (for modules that append sencha-dev profile and are actually compiling the app, e.g: loaderjs,unifyingjs...)-->
+                                        <resource>
+                                            <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                            <targetPath>${js.dir}</targetPath>
                                             <includes>
                                                 <include>**/*</include>
                                             </includes>
