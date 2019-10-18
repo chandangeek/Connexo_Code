@@ -73,7 +73,15 @@ public class SAPDeviceEventType {
 
     private static Optional<Integer> parseInt(String[] values, CsvField field) {
         return parseString(values, field)
-                .map(Integer::parseInt);
+                .map(string -> toInt(string, field));
+    }
+
+    private static Integer toInt(String value, CsvField field) {
+        try {
+            return value == null ? null : Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Incorrect integer value '" + value + "' for " + field.name() + " on position " + field.ordinal() + '.', e);
+        }
     }
 
     private static boolean parseBoolean(String[] values, CsvField field) {
@@ -85,7 +93,7 @@ public class SAPDeviceEventType {
                     if ("false".equalsIgnoreCase(string)) {
                         return false;
                     }
-                    throw new IllegalArgumentException("Incorrect boolean value for " + field.name() + " on position " + field.ordinal() + '.');
+                    throw new IllegalArgumentException("Incorrect boolean value '" + string + "' for " + field.name() + " on position " + field.ordinal() + '.');
                 })
                 .orElse(false);
     }

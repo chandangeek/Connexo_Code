@@ -59,6 +59,9 @@ public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKey
     static final String APPLICATION_NAME = "MultiSense";
     static final String NAME = "com.energyict.mdc.webservices.demo.eventhandlers.CustomSapDeviceEventHandler";
     private static final Logger LOGGER = Logger.getLogger(NAME);
+    private static final Function<EndDeviceEventRecord, Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt>> NO_MAPPING_FORMATTER = event -> {
+        throw new RuntimeException("Failed to send notification about event " + toString(event) + ": mapping csv hadn't been loaded properly.");
+    };
 
     private volatile BundleContext bundleContext;
     private volatile MeterEventCreateRequestProvider meterEventCreateRequestProvider;
@@ -123,15 +126,15 @@ public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKey
             eventFormatter = formatter::filterAndFormat;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Couldn't load SAP device event mapping csv: " + e.getLocalizedMessage(), e);
-            eventFormatter = event -> {
-                throw new RuntimeException("Failed to send notification about event " + toString(event) + ": mapping csv hadn't been loaded properly.");
-            };
+            eventFormatter = NO_MAPPING_FORMATTER;
         }
     }
 
     @Deactivate
     public void deactivate() {
         customPropertySetService.removeCustomPropertySet(mappingStatusCustomPropertySet);
+        eventFormatter = NO_MAPPING_FORMATTER;
+        mappingStatusCustomPropertySet = null;
         bundleContext = null;
     }
 
