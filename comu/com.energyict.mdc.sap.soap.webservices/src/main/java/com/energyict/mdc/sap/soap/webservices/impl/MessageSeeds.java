@@ -17,6 +17,7 @@ public enum MessageSeeds implements MessageSeed {
     WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to properly send request to the following web service endpoint(s): {0}."),
     INTERVAL_INVALID(5, "wrongInterval", "Invalid interval [{0},{1})."),
     NO_WEB_SERVICE_ENDPOINTS(6, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
+    ERROR_LOADING_PROPERTY(7, "ErrorLoadingProperty", "Error while loading property ''{0}'': ''{1}''."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -64,6 +65,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with obis code ''{0}''"),
     NO_DEFAULT_DEVICE_CONFIGURATION(4021, "NoDefaultDeviceConfiguration", "No default device configuration for device type ''{0}''."),
     SAP_DEVICE_IDENTIFIER_MUST_BE_UNIQUE(4022, "sapDeviceIdentifierMustBeUnique", "SAP device identifier must be unique."),
+    DEVICE_TYPE_IS_NOT_MAPPED(4023, "DeviceTypeIsNotMapped", "There is no device type mapped to material id ''{0}''. Please check com.elster.jupiter.sap.device.types.mapping property."),
     DATASOURCE_NOT_FOUND(4024, "DataSourceNotFound", "Couldn''t find data source on device ''{0}'' by LRN ''{1}'' for specified end date ''{2}''."),
     INVALID_END_DATE(4025, "InvalidEndDate", "Received end date ''{0}'' isn''t in existing custom property set range ''{1}''."),
 

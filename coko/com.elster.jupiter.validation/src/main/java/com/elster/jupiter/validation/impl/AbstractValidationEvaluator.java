@@ -91,9 +91,11 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
         readings.forEach(reading -> {
             Instant timeStamp = reading.getTimeStamp();
-            unprocessedQualityTimes.remove(timeStamp);
-            result.add(getValidationStatusForTimeStamp(timeStamp, channels, configured,
-                    readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap));
+            if (interval.contains(timeStamp)) {
+                unprocessedQualityTimes.remove(timeStamp);
+                result.add(getValidationStatusForTimeStamp(timeStamp, channels, configured,
+                        readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap));
+            }
         });
 
         unprocessedQualityTimes.forEach(timeStamp -> result.add(getValidationStatusForTimeStamp(timeStamp, channels, configured,

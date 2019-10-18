@@ -33,15 +33,15 @@ public enum MessageSeeds implements MessageSeed {
     TARGET_FIRMWARE_STATUS_NOT_ACCEPTED(22, "TargetFirmwareStatusNotAccepted", "Target firmware isn''t in the allowed status.", Level.WARNING),
     DEVICE_FIRMWARE_NOT_READOUT(23, "DeviceFirmwareNotReadout", "Firmware hasn''t been read out after the last upload.", Level.WARNING),
     MASTER_FIRMWARE_NOT_READOUT(24, "MasterFirmwareNotReadout", "Firmware on the master hasn''t been read out after the last upload.", Level.WARNING),
-    METER_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(25, "MeterFirmwareRankBelowMinimumSupported", "Meter firmware is below its minimal level.", Level.WARNING),
-    COMMUNICATION_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(26, "CommFirmwareRankBelowMinimumSupported", "Communication firmware is below its minimal level.", Level.WARNING),
+    METER_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(25, "MeterFirmwareRankBelowMinimumSupported", "Meter firmware is below the minimum level.", Level.WARNING),
+    COMMUNICATION_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(26, "CommFirmwareRankBelowMinimumSupported", "Communication firmware is below the minimum level.", Level.WARNING),
     UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(27, "UploadedFirmwareRankBelowCurrent", "Target firmware version rank is lower than the current firmware rank.", Level.WARNING),
     MASTER_FIRMWARE_NOT_LATEST(28, "MasterFirmwareNotLatest", "Firmware types on the master don''t have the highest level (among firmware types with the acceptable status).", Level.WARNING),
     DEVICE_HAS_GHOST_FIRMWARE(29, "DeviceHasGhostFirmware", "There is firmware with \"Ghost\" status on the device.", Level.WARNING),
     MASTER_HAS_GHOST_FIRMWARE(30, "MasterHasGhostFirmware", "There is firmware with \"Ghost\" status on the master device.", Level.WARNING),
     WRONG_FIRMWARE_TYPE_FOR_AUX_FW_DEPENDENCY(31, "WrongFirmwareTypeForAuxFWDependency", "{0} ''{1}'' can''t be selected as a minimal auxiliary firmware for ''{2}''.", Level.SEVERE),
     WRONG_RANK_FOR_AUX_FW_DEPENDENCY(32, "WrongRankForAuxFWDependency", "Firmware ''{0}'' can''t have dependency on minimal auxiliary firmware ''{1}'' with a higher rank.", Level.SEVERE),
-    AUXILIARY_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(33, "AuxFirmwareRankBelowMinimumSupported", "Auxiliary firmware is below its minimal level.", Level.WARNING),
+    AUXILIARY_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(33, "AuxFirmwareRankBelowMinimumSupported", "Auxiliary firmware is below the minimum level.", Level.WARNING),
 
 
     DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1001, "DevicesWerentAddedBecausePartOtherCampaign", "''{0}'' devices weren''t added to the campaign because they are a part of another ongoing campaign.", Level.INFO),
@@ -71,9 +71,13 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE(4012, "ProtocolOfTheDeviceTypeDoesNotSupportUploadingFirmware", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The protocol of the device type ''{1}'' doesn''t support uploading firmware.", Level.WARNING),
     CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY(4013, "ConnectionWindowOutsideOfCampaignTimeBoundary", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Connection window start of the connection method used by the firmware management communication task of the device is outside of the time boundary of the campaign.", Level.WARNING),
     TASK_FOR_VALIDATION_IS_MISSING(4014, "TaskForValidationIsMissing", "Communication task ''{0}'' required for validation is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
-    TASK_FOR_SENDING_FIRMWARE_IS_MISSING(4015,"TaskForSendingFirmwareIsMissing", "Communication task ''{0}'' for sending firmware is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
-    CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(4016, "ConnectionMethodDoesntMeetTheRequirement","The connection method ''{0}'' set on ''{1}'' doesn''t match the one required on the firmware campaign" ,Level.WARNING),
-    DEVICE_PART_OF_CAMPAIGN(4017, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign", Level.SEVERE);
+    TASK_FOR_SENDING_FIRMWARE_IS_MISSING(4015, "TaskForSendingFirmwareIsMissing", "Communication task ''{0}'' for sending firmware is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
+    CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(4016, "ConnectionMethodDoesntMeetTheRequirement", "The connection method ''{0}'' set on ''{1}'' doesn''t match the one required on the firmware campaign", Level.WARNING),
+    DEVICE_PART_OF_CAMPAIGN(4017, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign", Level.SEVERE),
+    CAMPAIGN_ALREADY_CANCELLED(4019, "CampaignAlreadyCancelled", "The campaign has already been cancelled.", Level.WARNING),
+    DEVICE_IS_NOT_PENDING_STATE(4020, "DeviceIsNotPendingState", "The device service call isn''t in pending state.", Level.WARNING),
+    CAMPAIGN_WITH_DEVICE_CANCELLED(4021, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),
+    ;
 
 
     private final int number;

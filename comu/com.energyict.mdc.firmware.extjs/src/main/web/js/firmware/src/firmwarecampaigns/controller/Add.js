@@ -67,9 +67,23 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             dependenciesCounter = dependencies.length,
             onDependenciesLoaded = function () {
                 dependenciesCounter--;
+
                 if (!dependenciesCounter) {
                     firmwareCampaign.set('name', 'FW-CP-' + new Date().getTime());
                     widget.down('firmware-campaigns-add-form').loadRecord(firmwareCampaign);
+
+                    if(me.getStore('Fwc.store.DeviceTypes').getCount() === 0){
+                        widget.down('#firmware-campaign-device-type').hide();
+                        widget.down('#firmware-campaign-device-type').allowBlank = true;
+                        widget.down('#no-device-type').show();
+                    }
+                    if(me.getStore('Fwc.store.DeviceGroups').getCount() === 0){
+                        widget.down('#firmware-campaign-device-group').hide();
+                        widget.down('#device-group-info').hide();
+                        widget.down('#firmware-campaign-device-group').allowBlank = true;
+                        widget.down('#no-device-group').show();
+                    }
+
                     widget.setLoading(false);
                 }
             };

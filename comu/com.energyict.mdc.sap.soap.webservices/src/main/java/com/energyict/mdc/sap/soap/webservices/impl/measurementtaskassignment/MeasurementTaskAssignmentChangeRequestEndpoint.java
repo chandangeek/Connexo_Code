@@ -101,7 +101,10 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         try {
             Optional<String> selectorName = Optional.ofNullable((String) getEndPointConfiguration().getPropertiesWithValue().get(EXPORTER.getKey()));
-            measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() : DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR);
+            measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() :
+                    dataExportService.getAvailableSelectors().stream()
+                            .filter(s -> s.getName().equals(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR))
+                            .findAny().get().getDisplayName());
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())

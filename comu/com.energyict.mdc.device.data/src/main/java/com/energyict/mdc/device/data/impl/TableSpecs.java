@@ -170,7 +170,7 @@ public enum TableSpecs {
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
             table.audit(DDC_DEVICE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_DDC_DEVICE_ENDDEVICE")
                     .reverseReferenceMap("amrId")
                     .build();
@@ -196,7 +196,7 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.audit(DDC_DEVICEPROTOCOLPROPERTY.name())
-                    .domainContext(AuditDomainContextType.GENERAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.GENERAL_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .build();
         }
@@ -350,7 +350,7 @@ public enum TableSpecs {
                     .map(ConnectionTaskFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName())
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.domainContextId())
                     .domainReferences("FK_DDC_CONNECTIONTASK_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .contextReferenceColumn("ID")
                     .forceReverseReferenceMap(false)
@@ -473,7 +473,7 @@ public enum TableSpecs {
                     .add();
             table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
             table.audit(DDC_COMTASKEXEC.name())
-                    .domainContext(AuditDomainContextType.DEVICE_COMTASKS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_COMTASKS.domainContextId())
                     .domainReferences("FK_DDC_COMTASKEXEC_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .contextReferenceColumn("COMTASK")
                     .build();
@@ -1073,7 +1073,7 @@ public enum TableSpecs {
                     add();
 
             table.audit(DDC_OVERRULEDOBISCODE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.domainContextId())
                     .domainReferences("FK_DDC_OVEROBIS_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .build();
         }

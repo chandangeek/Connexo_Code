@@ -22,6 +22,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -82,7 +83,8 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
                 SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.WritePlcG3Timeout.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_5_Parameters.get(propertySpecService, nlsService, converter),
-                PLCConfigurationDeviceMessage.WRITE_ADP_LQI_RANGE.get(propertySpecService, nlsService, converter)
+                PLCConfigurationDeviceMessage.WRITE_ADP_LQI_RANGE.get(propertySpecService, nlsService, converter),
+                DeviceActionMessage.ReadDLMSAttribute.get(propertySpecService, nlsService, converter)
         );
     }
 

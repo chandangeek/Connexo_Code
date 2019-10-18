@@ -1317,9 +1317,14 @@ Ext.define('Imt.purpose.controller.Readings', {
                             durations.loadData(interval.get('duration'));
                         }
                     } else {
+                        var fromDateMilis = router.queryParams.endInterval.split('-')[0];
+                        var toDateMilis = router.queryParams.endInterval.split('-')[1];
+                        if(isNaN(fromDateMilis)){
+                            fromDateMilis = toDateMilis;
+                        }
                         filterDefault = {
-                            defaultFromDate: new Date(Number(router.queryParams.endInterval.split('-')[0])),
-                            defaultToDate: new Date(Number(router.queryParams.endInterval.split('-')[1]))
+                            defaultFromDate: new Date(Number(fromDateMilis)),
+                            defaultToDate: new Date(Number(toDateMilis))
                         };
                     }
                     widget = Ext.widget('output-readings-history', {

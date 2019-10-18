@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
 import static com.elster.jupiter.servicecall.DefaultState.FAILED;
-import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 
 public class CreateBulkRegisterConfirmationMessageFactory {
@@ -47,12 +46,23 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
 
         bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
-        if (parent.getState().equals(CANCELLED)) {
-            bulkConfirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
-        } else if (hasAllChildrenInState(children, SUCCESSFUL)) {
-            bulkConfirmationMessage.setLog(createSuccessfulLog());
-        } else {
-            bulkConfirmationMessage.setLog(createFailedLog());
+        switch (parent.getState()) {
+            case CANCELLED:
+                bulkConfirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()),
+                        MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                break;
+            case SUCCESSFUL:
+                bulkConfirmationMessage.setLog(createSuccessfulLog());
+                break;
+            case FAILED:
+                bulkConfirmationMessage.setLog(createFailedLog());
+                break;
+            case PARTIAL_SUCCESS:
+                bulkConfirmationMessage.setLog(createPartiallySuccessfulLog());
+                break;
+            default:
+                // No specific action required for these states
+                break;
         }
 
         createBody(bulkConfirmationMessage, children, now);
@@ -191,6 +201,12 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         return log;
     }
 
+    private Log createPartiallySuccessfulLog() {
+        Log log = objectFactory.createLog();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+        return log;
+    }
+
     private Log createFailedLog(String code, String message) {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
@@ -208,10 +224,6 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         logItem.setNote(message);
 
         return logItem;
-    }
-
-    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {

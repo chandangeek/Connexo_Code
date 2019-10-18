@@ -120,6 +120,7 @@ com.elster.jupiter.nls.config.directory=./language-packs
 # com.elster.jupiter.datasource.pool.oracle.ons.nodes=
 # org.osgi.service.http.port=8080
 # com.elster.jupiter.bpm.url=http://localhost:8081/flow
+# com.elster.jupiter.bpm.externalurl=
 # com.elster.jupiter.yellowfin.url=http://localhost:8081/facts
 # com.elster.jupiter.yellowfin.externalurl=https://hostname/facts
 # upgrade=true

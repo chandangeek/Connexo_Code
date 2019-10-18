@@ -261,6 +261,14 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                         }
+                    },
+                    {
+                        itemId: 'manuallyCancelled-field',
+                        fieldLabel: Uni.I18n.translate('general.manuallyCancelled', 'FWC', 'Manually cancelled'),
+                        name: 'manuallyCancelled',
+                        renderer: function (value) {
+                            return value ? 'Yes' : 'No';
+                        }
                     }
                 ]
             }

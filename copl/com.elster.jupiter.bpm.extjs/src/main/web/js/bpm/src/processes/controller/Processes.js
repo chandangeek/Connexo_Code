@@ -242,7 +242,7 @@ Ext.define('Bpm.processes.controller.Processes', {
     loadEditProcess: function (name, version, activate, record, view) {
         var me = this,
             editProcessForm = view.down('#frm-edit-process'),
-            privilegesGrid, propertyForm,
+            privilegesGrid, propertyForm, customForm,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         me.getApplication().fireEvent('changecontentevent', view);
@@ -259,6 +259,7 @@ Ext.define('Bpm.processes.controller.Processes', {
 
         privilegesGrid = me.getPrivilegesGrid();
         propertyForm = me.getPropertyForm();
+        customForm = me.getCustomForm();
 
         // check selected privileges
         privilegesGrid.getSelectionModel().suspendChanges();
@@ -272,6 +273,7 @@ Ext.define('Bpm.processes.controller.Processes', {
             propertyForm.show();
         } else {
             propertyForm.hide();
+            customForm.hide();
         }
         propertyForm.up('#frm-edit-process').doLayout();
         //  me.getApplication().fireEvent('changecontentevent', view);
