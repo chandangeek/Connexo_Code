@@ -15,7 +15,6 @@ import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.impl.tools.Strings;
 import com.energyict.mdc.engine.monitor.CollectedDataStorageStatistics;
 import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
@@ -24,6 +23,7 @@ import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
+import org.apache.velocity.util.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -260,7 +260,7 @@ public class JSonConverter {
                 if (active == activeProcess) {
                     JSONObject jsonComPort = new JSONObject();
                     jsonComPort.put("id", each.getId());
-                    jsonComPort.put("name", Strings.trim(each.getName()));
+                    jsonComPort.put("name", StringUtils.nullTrim(each.getName()));
                     jsonComPort.put("description", each.getDescription());
                     jsonComPort.put("inbound", each.isInbound());
                     if (lastSeen != null) {
