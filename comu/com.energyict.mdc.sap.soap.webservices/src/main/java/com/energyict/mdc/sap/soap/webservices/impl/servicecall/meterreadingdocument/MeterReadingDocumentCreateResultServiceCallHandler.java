@@ -10,8 +10,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,6 +51,15 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                 if (!oldState.equals(DefaultState.WAITING)) {
                     executeReasonCodeProvider(serviceCall);
                 }
+                break;
+            case CANCELLED:
+                    MeterReadingDocumentCreateResultDomainExtension extension = serviceCall
+                            .getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
+                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                    if(extension.getCancelledBySap() == null) {
+                        extension.setCancelledBySap(false);
+                        serviceCall.update(extension);
+                    }
                 break;
             default:
                 break;
