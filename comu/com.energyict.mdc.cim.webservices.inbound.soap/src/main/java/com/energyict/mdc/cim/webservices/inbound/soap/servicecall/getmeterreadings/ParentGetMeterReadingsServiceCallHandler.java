@@ -87,11 +87,8 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             case REJECTED:
             case FAILED:
             case CANCELLED:
-                // Avoid sending an extra response when data collection succeed but the client is not reachable
-                if (hasFailedChildren(serviceCall)) {
-                    sendResponse(serviceCall, new MeterReadings());
-                }
                 processChildren(serviceCall, CANCELLED);
+                sendResponse(serviceCall, new MeterReadings());
                 break;
             default:
                 // No specific action required for these states
@@ -114,12 +111,6 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .collect(Collectors.toSet()));
         parentServiceCall.findChildren(filter).stream()
                 .forEach(subParentServiceCall -> subParentServiceCall.requestTransition(newState));
-    }
-
-    private boolean hasFailedChildren(ServiceCall parentServiceCall) {
-        ServiceCallFilter filter = new ServiceCallFilter();
-        filter.states.addAll(Arrays.asList(DefaultState.FAILED.name(), CANCELLED.name(), DefaultState.REJECTED.name()));
-        return parentServiceCall.findChildren(filter).stream().findAny().isPresent();
     }
 
     private void collectAndSendResult(ServiceCall serviceCall) {
@@ -163,20 +154,11 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     .withRegisterUpperBoundShift(calculateRegisterUpperBoundShift())
                     .build();
         } catch (FaultMessage faultMessage) {
+            serviceCall.requestTransition(FAILED);
             serviceCall.log(LogLevel.SEVERE,
                     MessageFormat.format("Unable to collect meter readings for source ''{0}'', time range {1}, due to error: " + faultMessage
                                     .getMessage(),
                             source, timeRangeSet));
-
-            if (!hasFailedChildren(serviceCall)) {
-                // all children succeed but parent failed, try to sent an empty response
-                if (sendResponse(serviceCall, new MeterReadings())) {
-                    serviceCall.requestTransition(FAILED);
-                }
-            } else {
-                // empty response will be sent in the FAILED transition handler (default behavior)
-                serviceCall.requestTransition(FAILED);
-            }
             return;
         }
         if (meterReadings == null || meterReadings.getMeterReading().isEmpty()) {
@@ -222,7 +204,6 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             serviceCall.log(LogLevel.SEVERE,
                     MessageFormat.format("Unable to send meter readings data for source ''{0}'', time range {1}", extension
                             .getSource(), timeRangeSet));
-            return false;
         }
         return true;
     }
