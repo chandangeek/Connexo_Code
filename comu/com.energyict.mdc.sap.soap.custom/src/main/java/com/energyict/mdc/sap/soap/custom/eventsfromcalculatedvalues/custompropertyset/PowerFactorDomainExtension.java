@@ -10,7 +10,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.sap.soap.custom.MessageSeeds;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.MessageSeeds;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;

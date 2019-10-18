@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.sap.soap.custom;
+package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -25,7 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     POWER_FACTOR_VALUES_ARE_NULL(101, "PowerFactorValuesAreNull", "Can't calculate power factor on device {0} on reading types {1} for interval {2} due to empty values."),
     POWER_FACTOR_INVALID_READING_TYPE(102, "PowerFactorInvalidReadingType", "Register reading types are not supported by power factor calculation on device type {0}."),
 
-    UNEXPECTED_UNIT_ON_READING_TYPE(200, "UnexpectedUnitOnReadingType", "Unexpected unit on reading type {0} for interval {1}.");
+    UNEXPECTED_UNIT_ON_READING_TYPE(200, "UnexpectedUnitOnReadingType", "Unexpected unit on reading type {0}.");
 
     private final int number;
     private final String key;

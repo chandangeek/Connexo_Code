@@ -4,7 +4,6 @@
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -16,16 +15,12 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.sap.soap.custom.MessageSeeds;
-import com.energyict.mdc.sap.soap.custom.eventhandlers.TranslationKeys;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioCustomPropertySet;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioDomainExtension;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CustomPropertySets;
@@ -33,6 +28,7 @@ import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.customproper
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.MaxDemandDomainExtension;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.PowerFactorCustomPropertySet;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.PowerFactorDomainExtension;
+import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.Units;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -41,7 +37,6 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,24 +48,21 @@ import static com.elster.jupiter.cbo.ReadingTypeUnit.WATT;
 
 
 @Component(name = CustomMeterReadingsEventHandler.NAME, service = TopicHandler.class, immediate = true)
-public class CustomMeterReadingsEventHandler implements TopicHandler, TranslationKeyProvider {
-    static final String COMPONENT_NAME = "CME";
-//    static final String APPLICATION_NAME = "MultiSense";
+public class CustomMeterReadingsEventHandler implements TopicHandler {
     static final String NAME = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.CustomMeterReadingsEventHandler";
 
-    private static final String POWER_FACTOR_EVENET_CODE = "8001";
-    private static final String MAX_DEMAND_EVENET_CODE = "8002";
-    private static final String CT_RATIO_EVENET_CODE = "8003";
+    private static final String POWER_FACTOR_EVENET_CODE = "15000";
+    private static final String MAX_DEMAND_EVENET_CODE = "15001";
+    private static final String CT_RATIO_EVENET_CODE = "15002";
 
     private static final Logger LOGGER = Logger.getLogger(CustomMeterReadingsEventHandler.class.getName());
-    private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
     private volatile DeviceService deviceService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
-    private final SimpleDateFormat formatter = new SimpleDateFormat("dd MMM ''yy 'at' HH:mm");
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM ''yy 'at' HH:mm");
 
     // For OSGi purposes
     public CustomMeterReadingsEventHandler() {
@@ -78,16 +70,15 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
     }
 
     @Inject
-    public CustomMeterReadingsEventHandler(Thesaurus thesaurus, MeteringService meteringService, SendMeterReadingsProvider sendMeterReadingsProvider) {
+    public CustomMeterReadingsEventHandler(EventService eventService, MeteringService meteringService,
+                                           DeviceService deviceService, CustomPropertySetService customPropertySetService,
+                                           Thesaurus thesaurus) {
         this();
-        setSendMeterReadingsProvider(sendMeterReadingsProvider);
+        setEventService(eventService);
+        setMeteringService(meteringService);
+        setDeviceService(deviceService);
+        setCustomPropertySetService(customPropertySetService);
         this.thesaurus = thesaurus;
-        this.meteringService = meteringService;
-    }
-
-    @Reference
-    public void setSendMeterReadingsProvider(SendMeterReadingsProvider sendMeterReadingsProvider) {
-        this.sendMeterReadingsProvider = sendMeterReadingsProvider;
     }
 
     @Override
@@ -110,6 +101,11 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
 
         try {
             ReadingStorer readingStorer = (ReadingStorer) localEvent.getSource();
+            if (!readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT)) {
+                // do not handle event
+                return;
+            }
+            // filter readings
             for (ReadingInfo reading : readingStorer.getReadings()) {
                 if (reading.getMeter().isPresent()) {
                     long meterId = reading.getMeter().get().getId();
@@ -121,6 +117,8 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                             DeviceType deviceType = device.getDeviceType();
                             meterIds.put(meterId, device);
                             boolean isMatchedReading = false;
+                            String cimCode = reading.getReadingType().getMRID();
+
                             // check for power factor
                             Optional<Pair<String, String>> readingTypes = Optional.ofNullable(powerFactorDeviceTypes.get(deviceType));
                             if (!readingTypes.isPresent()) {
@@ -130,8 +128,8 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                                 }
                             }
                             readingTypes = Optional.ofNullable(powerFactorDeviceTypes.get(deviceType));
-                            if (readingTypes.isPresent() && (reading.getReadingType().getFullAliasName().equals(readingTypes.get().getFirst())
-                                    || reading.getReadingType().getFullAliasName().equals(readingTypes.get().getLast()))) {
+                            if (readingTypes.isPresent() && (cimCode.equals(readingTypes.get().getFirst())
+                                    || cimCode.equals(readingTypes.get().getLast()))) {
                                 Optional<CustomPropertySet> cps = getCAS(device, PowerFactorCustomPropertySet.CPS_ID);
                                 if (powerFactorCASValues.get(device) == null) {
                                     if ((boolean) getValue(cps.get(), device, PowerFactorDomainExtension.FieldNames.FLAG.javaName())) {
@@ -148,13 +146,13 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                             // check for max demand
                             Optional<String> readingType = Optional.ofNullable(maxDemandDeviceTypes.get(deviceType));
                             if (!readingType.isPresent()) {
-                                readingType = Optional.ofNullable(getReadingTypesForMaxDemandEvent(deviceType));
+                                readingType = Optional.ofNullable(getReadingTypeForMaxDemandEvent(deviceType));
                                 if (readingType.isPresent() && isCASAssigned(deviceType, MaxDemandCustomPropertySet.CPS_ID)) {
                                     maxDemandDeviceTypes.put(deviceType.getName(), readingType.get());
                                 }
                             }
                             readingType = Optional.ofNullable(maxDemandDeviceTypes.get(deviceType));
-                            if (readingType.isPresent() && (reading.getReadingType().getFullAliasName().equals(readingType.get()))) {
+                            if (readingType.isPresent() && (cimCode.equals(readingType.get()))) {
                                 Optional<CustomPropertySet> cps = getCAS(device, MaxDemandCustomPropertySet.CPS_ID);
                                 if (maxDemandCASValues.get(device) == null) {
                                     if ((boolean) getValue(cps.get(), device, MaxDemandDomainExtension.FieldNames.FLAG.javaName())) {
@@ -171,13 +169,13 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                             // check for ct ratio
                             readingType = Optional.ofNullable(ctRatioDeviceTypes.get(deviceType));
                             if (!readingType.isPresent()) {
-                                readingType = Optional.ofNullable(getReadingTypesForCTRatioEvent(deviceType));
+                                readingType = Optional.ofNullable(getReadingTypeForCTRatioEvent(deviceType));
                                 if (readingType.isPresent() && isCASAssigned(deviceType, CTRatioCustomPropertySet.CPS_ID)) {
                                     ctRatioDeviceTypes.put(deviceType.getName(), readingType.get());
                                 }
                             }
                             readingType = Optional.ofNullable(ctRatioDeviceTypes.get(deviceType));
-                            if (readingType.isPresent() && (reading.getReadingType().getFullAliasName().equals(readingType.get()))) {
+                            if (readingType.isPresent() && (cimCode.equals(readingType.get()))) {
                                 Optional<CustomPropertySet> cps = getCAS(device, CTRatioCustomPropertySet.CPS_ID);
                                 if (ctRatioCASValues.get(device) == null) {
                                     if ((boolean) getValue(cps.get(), device, CTRatioDomainExtension.FieldNames.FLAG.javaName())) {
@@ -191,7 +189,6 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
 
                             // add reading to consider for calculated events
                             if (isMatchedReading) {
-                                String cimCode = reading.getReadingType().getFullAliasName(); // cim code
                                 List<ReadingInfo> list = matchedReadings.getOrDefault(Pair.of(device, cimCode), new ArrayList<>());
                                 list.add(reading);
                                 matchedReadings.put(Pair.of(device, cimCode), list);
@@ -201,6 +198,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                 }
             }
 
+            // generate events
             for (Map.Entry<Pair<Device, String>, List<ReadingInfo>> entry : matchedReadings.entrySet()) {
                 Device device = entry.getKey().getFirst();
                 String deviceTypeName = device.getDeviceType().getName();
@@ -223,8 +221,8 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                                         double reactiveValue = reactiveReading.get().getReading().getValue().doubleValue();
                                         if (value == 0 && reactiveValue == 0) {
                                             MessageSeeds.POWER_FACTOR_VALUES_ARE_NULL.log(LOGGER, thesaurus, device.getName(),
-                                                    reading.getReadingType().getFullAliasName() + "; " + reactiveReading.get().getReadingType().getFullAliasName(),
-                                                    formatter.format(reading.getReading().getTimeStamp()));
+                                                    reading.getReadingType().getMRID() + "; " + reactiveReading.get().getReadingType().getMRID(),
+                                                    dateFormatter.format(reading.getReading().getTimeStamp()));
                                         } else {
                                             if (powerFactorEvent(value, reactiveValue, powerFactorCASValues.get(device).getFirst().doubleValue(), powerFactorCASValues.get(device).getLast().doubleValue())) {
                                                 // generate event
@@ -234,7 +232,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                                     }
                                 } else {
                                     MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, device.getName(),
-                                            reading.getReadingType().getFullAliasName(), formatter.format(reading.getReading().getTimeStamp()));
+                                            reading.getReadingType().getMRID(), dateFormatter.format(reading.getReading().getTimeStamp()));
                                 }
                             }
                         }
@@ -243,7 +241,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
 
                 // generate max demand events
                 Optional<String> readingType = Optional.ofNullable(maxDemandDeviceTypes.get(deviceTypeName));
-                if (readingTypes.isPresent()) {
+                if (readingType.isPresent()) {
                     if (entry.getKey().getLast().equals(readingType.get())) {
                         for (ReadingInfo reading : entry.getValue()) {
                             ReadingTypeUnit readingTypeUnit = reading.getReadingType().getUnit();
@@ -254,8 +252,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
                                     sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), MAX_DEMAND_EVENET_CODE);
                                 }
                             } else {
-                                MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus,
-                                        reading.getReadingType().getFullAliasName(), formatter.format(reading.getReading().getTimeStamp()));
+                                MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, readingType.get());
 
                             }
                         }
@@ -264,7 +261,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
 
                 // generate ct ratio events
                 readingType = Optional.ofNullable(ctRatioDeviceTypes.get(deviceTypeName));
-                if (readingTypes.isPresent()) {
+                if (readingType.isPresent()) {
                     if (entry.getKey().getLast().equals(readingType.get())) {
                         for (ReadingInfo reading : entry.getValue()) {
                             if (ctRatioEvent(reading.getReading().getValue().doubleValue(), ctRatioCASValues.get(device).doubleValue())) {
@@ -327,14 +324,14 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
         this.customPropertySetService = customPropertySetService;
     }
 
-
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
 
-    public CustomPropertySetValues getValues(CustomPropertySet customPropertySet, Device device) {
-        return customPropertySetService.getUniqueValuesFor(customPropertySet, device);
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     public Object getValue(CustomPropertySet customPropertySet, Device device, String propertyName) {
@@ -346,31 +343,16 @@ public class CustomMeterReadingsEventHandler implements TopicHandler, Translatio
         return CustomPropertySets.getPowerFactorEventReadingTypes().get(deviceType.getName());
     }
 
-    public String getReadingTypesForMaxDemandEvent(DeviceType deviceType) {
+    public String getReadingTypeForMaxDemandEvent(DeviceType deviceType) {
         return CustomPropertySets.getMaxDemandEventReadingTypes().get(deviceType.getName());
     }
 
-    public String getReadingTypesForCTRatioEvent(DeviceType deviceType) {
+    public String getReadingTypeForCTRatioEvent(DeviceType deviceType) {
         return CustomPropertySets.getCTRatioEventReadingTypes().get(deviceType.getName());
     }
 
     public void sendEvent(Meter meter, Instant date, String code) {
         CalculatedEventRecordImpl eventRecord = new CalculatedEventRecordImpl(meter, meteringService.createEndDeviceEventType(code), date);
         eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), eventRecord);
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.SOAP;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
     }
 }

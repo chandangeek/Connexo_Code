@@ -19,11 +19,18 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
     private final Reference<EndDevice> endDevice = ValueReference.absent();
+    private Instant createdDateTime;
+
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     private Map<String, String> properties = new HashMap<>();
 
-    CalculatedEventRecordImpl(Meter meter, EndDeviceEventType eventType, Instant date) {
+    CalculatedEventRecordImpl(Meter meter, EndDeviceEventType eventType, Instant createdDateTime) {
+        this.endDevice.set(meter);
         this.eventType.set(eventType);
+        this.createdDateTime = createdDateTime;
     }
 
     @Override
@@ -33,17 +40,17 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public Instant getCreateTime() {
-        return null;
+        return createTime;
     }
 
     @Override
     public Instant getModTime() {
-        return null;
+        return modTime;
     }
 
     @Override
     public EndDevice getEndDevice() {
-        return null;
+        return endDevice.get();
     }
 
     @Override
@@ -158,7 +165,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public Instant getCreatedDateTime() {
-        return null;
+        return createdDateTime;
     }
 
     @Override
@@ -193,7 +200,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getUserID() {
-        return null;
+        return userName;
     }
 
     @Override
@@ -213,7 +220,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getEventTypeCode() {
-        return null;
+        return eventType.get().getMRID();
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.Units;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;

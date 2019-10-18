@@ -15,8 +15,6 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.TranslationKeys;
-import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.Units;
 import com.google.inject.Module;
 
 import java.math.BigDecimal;
