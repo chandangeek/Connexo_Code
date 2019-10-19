@@ -907,7 +907,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.resumeLayouts(true);
     },
 
-    showAddExportTask: function () {
+    showAddExportTask: function(){
         var me = this,
             view = Ext.create('Dxp.view.tasks.Add'),
             dataSelectorCombo = view.down('#data-selector-combo'),

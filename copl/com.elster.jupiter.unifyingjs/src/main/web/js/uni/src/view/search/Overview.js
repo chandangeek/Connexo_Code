@@ -140,12 +140,12 @@ Ext.define('Uni.view.search.Overview', {
                                 items: [
                                     {
                                         xtype: 'combobox',
-                                        fieldLabel : Uni.I18n.translate('general.load', 'UNI', 'Load'),
+                                        fieldLabel: Uni.I18n.translate('general.load', 'UNI', 'Load'),
                                         itemId: 'load-button',
-                                        labelAlign : 'left',
-                                        labelWidth:'auto',
-                                        id:'loadDropDown',
-                                        emptyText:  Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
+                                        labelAlign: 'left',
+                                        labelWidth: 'auto',
+                                        id: 'loadDropDown',
+                                        emptyText: Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
                                         queryMode: 'local',
                                         style: {
                                             'margin-right': '25px'
@@ -154,20 +154,20 @@ Ext.define('Uni.view.search.Overview', {
                                         displayField: 'name',
                                         displayValue: 'criteria',
                                         action: 'loadSearch',
-                                        listConfig : {
-                                            minWidth:140,
-                                            maxHeight:250,
+                                        listConfig: {
+                                            minWidth: 140,
+                                            maxHeight: 250,
                                             style: "border-radius : 4px",
-                                            shadow : true,
+                                            shadow: true,
                                             bodyPadding: 10,
-                                            margin :0,
-                                            getInnerTpl : function (displayField) {
+                                            margin: 0,
+                                            getInnerTpl: function (displayField) {
                                                 return '<a id="Remove-Icon" class="icon-cancel-circle2" style="float:right;cursor:default; display:inline-block; font-size:16px; margin-top:2px"></a>{' + displayField + '}';
                                             },
                                             listeners: {
                                                 el: {
                                                     delegate: '.icon-cancel-circle2',
-                                                    click: function(list, record, item, index, e) {
+                                                    click: function (list, record, item, index, e) {
                                                         var cmp = Ext.ComponentQuery.query('#load-button')[0];
                                                         cmp.nameValue = "delete";
                                                         cmp.fireEvent('select', cmp);
@@ -183,8 +183,8 @@ Ext.define('Uni.view.search.Overview', {
                                     {
                                         xtype: 'button',
                                         itemId: 'save-search-button',
-                                        id:'saveSearchButton',
-                                        text:  Uni.I18n.translate('general.save', 'UNI', 'Save'),
+                                        id: 'saveSearchButton',
+                                        text: Uni.I18n.translate('general.save', 'UNI', 'Save'),
                                         action: 'saveSearchWindow',
                                         disabled: true
 
@@ -248,7 +248,7 @@ Ext.define('Uni.view.search.Overview', {
 
         var domainsListeners = domainsStore.on({
             load: function () {
-                var visible = domainsStore.count() === 2 ;
+                var visible = domainsStore.count() > 1;
                 var visibility = domainsStore.count() === 1;
                 me.down('#search-domain').setVisible(visible);
                 me.down('#search-domain-separator').setVisible(visible);

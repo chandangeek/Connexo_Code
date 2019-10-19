@@ -77,8 +77,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()
-                .filter(EndPointConfiguration::isActive)
-                .findAny().isPresent();
+                .anyMatch(EndPointConfiguration::isActive);
     }
 
     private void createServiceCall(ServiceCallType serviceCallType, UtilitiesDeviceRegisterCreateRequestMessage requestMessage) {
@@ -165,12 +164,8 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
     private boolean hasUtilDeviceRegisterRequestServiceCall(String id) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.MODEL_NAME);
-        if (dataModel.isPresent()) {
-            return dataModel.get().stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
-                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
-        }
-        return false;
+        return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                .orElse(false);
     }
-
-
 }

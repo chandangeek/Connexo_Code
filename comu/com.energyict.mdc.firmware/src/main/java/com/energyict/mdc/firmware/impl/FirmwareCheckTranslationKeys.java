@@ -7,7 +7,7 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum FirmwareCheckTranslationKeys implements TranslationKey {
-    MINIMUM_LEVEL_FIRMWARE("MinimumLevelFirmware", "Minimum level firmware"),
+    MINIMUM_LEVEL_FIRMWARE("MinimumLevelFirmware", "Minimum firmware level"),
     NO_DOWNGRADE("NoDowngrade", "The target firmware version should have a higher rank than the current firmware version on the device"),
     MASTER_HAS_LATEST_FIRMWARE("MasterHasLatestFirmware", "Master has latest firmware"),
     NO_GHOST_FIRMWARE("NoGhostFirmware", "No ghost firmware on device"),

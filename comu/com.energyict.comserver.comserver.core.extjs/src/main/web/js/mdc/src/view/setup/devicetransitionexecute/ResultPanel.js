@@ -29,7 +29,8 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                 items: [
                     {
                         xtype: 'container',
-                        html: '<span style="color:#eb5642;">' + '- ' + check.id + '</span>'
+                        html: '<span style="color:#eb5642;">' + '- ' + check.id + '</span>',
+                        itemId: 'errors-container-message'
                     },
                     {
                         xtype: 'button',
@@ -39,7 +40,8 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                         style: {
                             display: 'inline-block',
                             "text-decoration": 'none !important'
-                        }
+                        },
+                        itemId: 'errors-container-button'
                     }
                 ]
             })
@@ -92,7 +94,8 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                     html: '<span style="color:#eb5642;">' + (me.response.microChecks && me.response.microChecks.length
                         ? Uni.I18n.translate('devicetransitionexecute.wizard.step2.checksFail', 'MDC', "Unable to change device state to '{0}' due to failed pretransition checks" + ':', me.response.targetState)
                         : Uni.I18n.translate('devicetransitionexecute.wizard.step2.fail', 'MDC', "Unable to change device state to '{0}' ({1})", [me.response.targetState, me.response.message])
-                    ) + '</span>'
+                    ) + '</span>',
+                    itemId: 'transition-result-error-message'
                 },
                 {
                     xtype: 'container',

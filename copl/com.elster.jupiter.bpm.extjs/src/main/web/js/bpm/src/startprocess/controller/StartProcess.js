@@ -104,6 +104,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             propertyForm = processStartContent.down('property-form'),
             form = startProcessPanel.down('#start-process-form'),
             formErrorsPanel = form.down('#form-errors'),
+            router = me.getController('Uni.controller.history.Router'),
             businessObject = {};
 
         if (form.isValid()) {

@@ -16,27 +16,8 @@
     <packaging>pom</packaging>
     <name>protocols</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
 	<!-- We try to be in sync with the latest EIServer version ... -->
 	<properties>
-		<revision>-SNAPSHOT</revision>
-		<source.version>1.8</source.version>
-		<target.version>1.8</target.version>
-		<universal-protocol.version>4.0.2${revision}</universal-protocol.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<proguard.maven.version>2.0.11</proguard.maven.version>
-		<!-- Supports Java 7 from version 4.7 -->
-		<fest-assertions.version>2.0M8</fest-assertions.version>
-		<assertJ.version>3.2.0</assertJ.version>
-		<protocol.mockito.version>1.9.0</protocol.mockito.version>
         <eict.xmodem.version>1.0.0</eict.xmodem.version>
 		<rxtx-version>2.2pre2</rxtx-version>
     </properties>
@@ -65,13 +46,11 @@
                 <artifactId>xmodem</artifactId>
                 <version>${eict.xmodem.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.rxtx</groupId>
                 <artifactId>rxtx</artifactId>
                 <version>2.2pre2</version>
             </dependency>
-
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
@@ -84,55 +63,8 @@
 				<version>26.0</version>
 				<scope>provided</scope>
 			</dependency>
-
-			<!-- Testing -->
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-all</artifactId>
-				<version>${protocol.mockito.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-module-junit4</artifactId>
-				<version>1.4.10</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-api-mockito</artifactId>
-				<version>1.4.10</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.easytesting</groupId>
-				<artifactId>fest-assert-core</artifactId>
-				<version>${fest-assertions.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.assertj</groupId>
-				<artifactId>assertj-core</artifactId>
-				<version>${assertJ.version}</version>
-				<scope>test</scope>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-	<scm>
-		<connection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</connection>
-		<developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/protocols/trunk</developerConnection>
-	</scm>
-
-	<issueManagement>
-		<system>Jira</system>
-		<url>http://jira.eict.vpdc/browse/COMMUNICATION</url>
-	</issueManagement>
-
-	<ciManagement>
-		<system>Bamboo</system>
-		<url>http://build.eict.vpdc/browse/PROT</url>
-	</ciManagement>
 
 	<modules>
 		<module>protocol-api</module>
@@ -147,27 +79,6 @@
 	</modules>
 
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>2.4</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-install-plugin</artifactId>
-					<version>2.5.2-elster-patch-1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.2-elster-patch-1</version>
-				</plugin>
-			</plugins>
-
-		</pluginManagement>
-
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -178,13 +89,31 @@
 					<target>${target.version}</target>
 				</configuration>
 			</plugin>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+						<manifestEntries>
+							<Implementation-Version>rev. ${buildNumber}</Implementation-Version>
+							<Specification-Version>${project.version}</Specification-Version>
+						</manifestEntries>
+					</archive>
+					<excludes>
+						<exclude>test.com.**.*</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.2.1</version>
 			</plugin>
-
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
@@ -193,13 +122,11 @@
 					</descriptors>
 				</configuration>
 			</plugin>
-
 			<plugin>
 				<artifactId>maven-help-plugin</artifactId>
 				<groupId>org.apache.maven.plugins</groupId>
 				<version>2.1.1</version>
 			</plugin>
-
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
@@ -234,51 +161,11 @@
 				<version>1.0-beta-2</version>
 			</extension>
 		</extensions>
-
 	</build>
 
 	<profiles>
 		<profile>
-			<!-- By default the Test protocols will not be included in the jar -->
-			<id>protocol-releases</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-						<version>2.4</version>
-						<configuration>
-							<archive>
-								<manifest>
-									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-								</manifest>
-								<manifestEntries>
-									<Implementation-Version>rev. ${buildNumber}</Implementation-Version>
-									<Specification-Version>${project.version}</Specification-Version>
-								</manifestEntries>
-							</archive>
-							<excludes>
-								<exclude>text.com.**.*</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<!-- By default the Test protocols will not be included in the jar -->
-			<!-- You can activate this profile by setting the property -Dprotocoljar=test -->
-			<id>protocol-snapshots</id>
-			<activation>
-				<property>
-					<name>protocoljar</name>
-					<value>test</value>
-				</property>
-			</activation>
+			<id>protocol-test</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -302,48 +189,5 @@
 			</build>
 		</profile>
 	</profiles>
-
-
-	<!-- Repositories specification. -->
-	<repositories>
-		<repository>
-			<id>eict-public-snapshots</id>
-			<name>EnergyICT snapshots repository group</name>
-			<url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
-            </url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-
-		<repository>
-			<id>eict-public</id>
-			<name>EnergyICT public repository group</name>
-			<url>http://source.eict.vpdc/nexus/content/groups/public/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
-
-	<distributionManagement>
-		<repository>
-			<id>eict-releases</id>
-			<name>EnergyICT releases repository</name>
-			<url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
-		</repository>
-		<snapshotRepository>
-			<id>eict-snapshots</id>
-			<name>EnergyICT snapshots repository</name>
-			<url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
-			<uniqueVersion>false</uniqueVersion>
-		</snapshotRepository>
-	</distributionManagement>
 
 </project>

@@ -13,8 +13,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
 
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
@@ -41,6 +39,7 @@ public class HsmInstaller implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(SecureHSMDeviceShipmentImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(TranslationKeys.SECURE_HSM_SHIPMENT_IMPORT_SUBSCRIBER, SecureHSMDeviceShipmentImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
+        destinationSpec.subscribe(SecureHSMDeviceShipmentImporterMessageHandler.SECURE_HSM_SHIPMENT_IMPORT_SUBSCRIBER,
+                SecureHSMDeviceShipmentImporterMessageHandler.COMPONENT_NAME, Layer.DOMAIN);
     }
 }

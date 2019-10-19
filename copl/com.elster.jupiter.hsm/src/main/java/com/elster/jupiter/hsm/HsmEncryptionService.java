@@ -1,20 +1,18 @@
 package com.elster.jupiter.hsm;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 
 import com.atos.worldline.jss.api.basecrypto.ChainingMode;
 import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
-import com.atos.worldline.jss.api.basecrypto.SymmetricResponse;
-import com.atos.worldline.jss.api.key.KeyLabel;
 
 public interface HsmEncryptionService {
 
-
-    byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException;
+    byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException, HsmNotConfiguredException;
 
     byte[] symmetricEncrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
 
-    byte[] symmetricDecrypt(byte[] cipher, String label) throws HsmBaseException;
+    byte[] symmetricDecrypt(byte[] cipher, String label) throws HsmBaseException, HsmNotConfiguredException;
 
     byte[] symmetricDecrypt(byte[] cipher, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException;
 

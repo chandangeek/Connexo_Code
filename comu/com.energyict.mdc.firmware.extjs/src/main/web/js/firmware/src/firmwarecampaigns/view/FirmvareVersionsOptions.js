@@ -52,10 +52,10 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'FINAL',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value){
-                                        if (this.originalValue !== value){
+                                    change: function(checkBox, value) {
+                                        if (this.originalValue !== value) {
                                             me.down('#targetFirmwareCheckFinalReset').enable();
-                                        }
+                                        } else me.down('#targetFirmwareCheckFinalReset').disable();
                                     }
                                 }
                             },
@@ -65,10 +65,10 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'TEST',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value){
-                                        if (this.originalValue !== value){
+                                    change: function(checkBox, value) {
+                                        if (this.originalValue !== value) {
                                              me.down('#targetFirmwareCheckTestReset').enable();
-                                        }
+                                        } else me.down('#targetFirmwareCheckTestReset').disable();
                                     }
                                 }
                             }
@@ -160,10 +160,10 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'COMMON',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value){
-                                        if (this.originalValue !== value){
+                                    change: function(checkBox, value) {
+                                        if (this.originalValue !== value) {
                                              me.down('#curFirmwareCheckReset').enable();
-                                        }
+                                        } else me.down('#curFirmwareCheckReset').disable();
                                     }
                                 }
                             }
@@ -244,9 +244,15 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'FINAL',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value){
-                                        if (this.originalValue !== value){
+                                    change: function(checkBox, value) {
+                                        if (this.originalValue !== value) {
                                             me.down('#masterFirmwareCheckFinalReset').enable();
+                                        } else {
+                                            me.down('#masterFirmwareCheckFinalReset').disable();
+
+                                            if (!me.down('#masterFirmwareCheckTest').getValue()) {
+                                                me.down('#masterFirmwareMainOption').setValue(false);
+                                             }
                                         }
                                     }
                                 }
@@ -257,9 +263,15 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 inputValue: 'TEST',
                                 margin: '10 0',
                                 listeners: {
-                                    change: function(checkBox, value){
-                                        if (this.originalValue !== value){
+                                    change: function(checkBox, value) {
+                                        if (this.originalValue !== value) {
                                             me.down('#masterFirmwareCheckTestReset').enable();
+                                        } else {
+                                            me.down('#masterFirmwareCheckTestReset').disable();
+
+                                            if (!me.down('#masterFirmwareCheckFinal').getValue()) {
+                                                me.down('#masterFirmwareMainOption').setValue(false);
+                                            }
                                         }
                                     }
                                 }

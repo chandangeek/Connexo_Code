@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 @Component(name = "issue.data.collection.info.factory", service = {InfoFactory.class}, immediate = true)
 public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataCollection> {
 
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
@@ -53,16 +52,11 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     }
 
     @Inject
-    public DataCollectionIssueInfoFactory(DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TopologyService topologyService) {
+    public DataCollectionIssueInfoFactory(DeviceService deviceService, MeteringTranslationService meteringTranslationService, TopologyService topologyService) {
         this();
         this.deviceService = deviceService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
         this.topologyService = topologyService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Reference

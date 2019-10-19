@@ -226,7 +226,7 @@ public class SioSerialConnectionProperties extends AbstractVersionedPersistentDo
                 this.addAsEnumColumnTo(table);
             }
         },
-        PHONE_NUMBER("phoneNumber", "PHONENUMBER") {
+        PHONE_NUMBER("phoneNumber", "PHONE_NUMBER") {
             @Override
             protected void addTo(Table table) {
                 this.addAsStringColumnTo(table);

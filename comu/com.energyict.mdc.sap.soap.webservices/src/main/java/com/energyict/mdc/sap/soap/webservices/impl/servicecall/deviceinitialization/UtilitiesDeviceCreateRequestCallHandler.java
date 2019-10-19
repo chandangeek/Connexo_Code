@@ -11,15 +11,22 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.DeviceHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 @Component(name = UtilitiesDeviceCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + UtilitiesDeviceCreateRequestCallHandler.NAME, immediate = true)
@@ -33,8 +40,6 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile Thesaurus thesaurus;
-
-    private DeviceHelper deviceHelper;
 
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
@@ -85,7 +90,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         UtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         try {
-            getDeviceHelper().processDeviceCreation(extension.getDeviceId(), extension.getSerialId(), extension.getDeviceType(), extension.getShipmentDate(), extension.getManufacturer(), extension.getModelNumber());
+            processDeviceCreation(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (LocalizedException ex) {
             extension.setError(ex.getMessageSeed(), ex.getMessageArgs());
@@ -94,11 +99,63 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         }
     }
 
-    private DeviceHelper getDeviceHelper() {
-        if (deviceHelper == null) {
-            deviceHelper = new DeviceHelper(thesaurus, deviceService, deviceConfigurationService, sapCustomPropertySets);
+    private void processDeviceCreation(UtilitiesDeviceCreateRequestDomainExtension extension){
+        String sapDeviceId = extension.getDeviceId();
+        String serialId = extension.getSerialId();
+
+        validateSapDeviceIdUniqueness(sapDeviceId, serialId);
+        Device device = getOrCreateDevice(extension);
+        sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+    }
+
+    private void validateSapDeviceIdUniqueness(String sapDeviceId, String serialId) {
+        Optional<Device> other = sapCustomPropertySets.getDevice(sapDeviceId);
+        if (other.isPresent() && !other.get().getSerialNumber().equals(serialId)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.SAP_DEVICE_IDENTIFIER_MUST_BE_UNIQUE);
         }
-        return deviceHelper;
+    }
+
+    private Device getOrCreateDevice(UtilitiesDeviceCreateRequestDomainExtension extension){
+        String serialId = extension.getSerialId();
+        Device device = null;
+        List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
+        if (!devices.isEmpty()) {
+            if (devices.size() == 1) {
+                device = devices.get(0);
+            } else {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.SEVERAL_DEVICES, serialId);
+            }
+        } else {
+            device = createDevice(extension);
+        }
+
+        return device;
+    }
+
+    private Device createDevice(UtilitiesDeviceCreateRequestDomainExtension extension){
+        String deviceTypeName = extension.getDeviceType();
+        if(deviceTypeName == null){
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_TYPE_IS_NOT_MAPPED , extension.getMaterialId());
+        }
+
+        DeviceConfiguration deviceConfig = findDeviceConfiguration(deviceTypeName);
+        DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig,
+                extension.getSerialId(), extension.getShipmentDate());
+        deviceBuilder.withSerialNumber(extension.getSerialId());
+        deviceBuilder.withManufacturer(extension.getManufacturer());
+        deviceBuilder.withModelNumber(extension.getModelNumber());
+        return deviceBuilder.create();
+    }
+
+    private DeviceConfiguration findDeviceConfiguration(String deviceTypeName) {
+        DeviceConfiguration deviceConfiguration =
+                deviceConfigurationService.findDeviceTypeByName(deviceTypeName)
+                        .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE_FOUND, deviceTypeName))
+                        .getConfigurations()
+                        .stream()
+                        .filter(config -> config.isDefault())
+                        .findAny().orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION, deviceTypeName));
+        return deviceConfiguration;
     }
 
 }

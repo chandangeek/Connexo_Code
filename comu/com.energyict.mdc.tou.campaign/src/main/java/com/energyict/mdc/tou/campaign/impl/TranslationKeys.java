@@ -32,6 +32,7 @@ public enum TranslationKeys implements TranslationKey {
     CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "Calendar upload communication task id"),
     VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "Validation connection strategy"),
     CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "Calendar upload connection strategy"),
+    MANUALLY_CANCELLED("manuallyCancelled", "Manually cancelled"),
     ;
 
 

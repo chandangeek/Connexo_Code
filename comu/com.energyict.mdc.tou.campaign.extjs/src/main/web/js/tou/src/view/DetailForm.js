@@ -321,6 +321,14 @@ Ext.define('Tou.view.DetailForm', {
                         renderer: function (value) {
                             return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
                         }
+                    },
+                    {
+                        itemId: 'manuallyCancelled-field',
+                        fieldLabel: Uni.I18n.translate('general.manuallyCancelled', 'TOU', 'Manually cancelled'),
+                        name: 'manuallyCancelled',
+                        renderer: function (value) {
+                            return value ? 'Yes' : 'No'
+                        }
                     }
                 ]
             }
