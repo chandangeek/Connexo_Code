@@ -1,10 +1,8 @@
 package com.energyict.protocolimplv2.nta.esmr50.common;
 
-
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-
 
 public class ESMR50Properties extends DlmsProperties {
 
@@ -34,10 +32,6 @@ public class ESMR50Properties extends DlmsProperties {
         return securityProvider;
     }
 
-    public String getDefaultKey() {
-        return getProperties().getTypedProperty(ESMR50ConfigurationSupport.DEFAULT_KEY, null).toString();
-    }
-
     public String getFUAK() {
         return getProperties().getTypedProperty(ESMR50ConfigurationSupport.FIRMWARE_UPGRADE_AUTHENTICATION_KEY, null).toString();
     }
@@ -45,6 +39,5 @@ public class ESMR50Properties extends DlmsProperties {
     public String getWorkingKeyLabelPhase2() {
         return getProperties().getTypedProperty(ESMR50ConfigurationSupport.WORKING_KEY_LABEL_PHASE2, null).toString();
     }
-
 
 }

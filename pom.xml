@@ -373,6 +373,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
+                    <failOnWarning>true</failOnWarning>
                     <instructions>
                         <Bundle-Vendor>Elster</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
