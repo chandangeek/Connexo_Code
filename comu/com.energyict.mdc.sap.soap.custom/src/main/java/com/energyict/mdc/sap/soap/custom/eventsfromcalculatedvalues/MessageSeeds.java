@@ -24,8 +24,10 @@ public enum MessageSeeds implements MessageSeed {
     POWER_FACTOR_MISSING_READING(100, "PowerFactorMissingReading", "Insufficient data for power factor calculation: no reading available on device {0} on reading type {1} for interval {2}."),
     POWER_FACTOR_VALUES_ARE_NULL(101, "PowerFactorValuesAreNull", "Can't calculate power factor on device {0} on reading types {1} for interval {2} due to empty values."),
     POWER_FACTOR_INVALID_READING_TYPE(102, "PowerFactorInvalidReadingType", "Register reading types are not supported by power factor calculation on device type {0}."),
+    POWER_FACTOR_READING_TYPES_MUST_HAVE_THE_SAME_INTERVAL(103, "PowerFactorReadingTypesMustHaveTheSameInterval", "Power factor reading types {0} must have the same time attribute"),
 
-    UNEXPECTED_UNIT_ON_READING_TYPE(200, "UnexpectedUnitOnReadingType", "Unexpected unit on reading type {0}.");
+    READING_TYPE_NOT_FOUND(200, "ReadingTypeNotFound", "Reading type {0} not found."),
+    UNEXPECTED_UNIT_ON_READING_TYPE(201, "UnexpectedUnitOnReadingType", "Unexpected unit on reading type {0}.");
 
     private final int number;
     private final String key;

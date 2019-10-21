@@ -3,7 +3,9 @@
  */
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -15,11 +17,14 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.metering.StorerProcess;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioCustomPropertySet;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioDomainExtension;
@@ -37,6 +42,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +50,10 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.cbo.ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATT;
+import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
+import static java.util.stream.Collectors.groupingBy;
 
 
 @Component(name = CustomMeterReadingsEventHandler.NAME, service = TopicHandler.class, immediate = true)
@@ -56,6 +65,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     private static final String CT_RATIO_EVENET_CODE = "15002";
 
     private static final Logger LOGGER = Logger.getLogger(CustomMeterReadingsEventHandler.class.getName());
+    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EventService eventService;
@@ -71,14 +81,15 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
 
     @Inject
     public CustomMeterReadingsEventHandler(EventService eventService, MeteringService meteringService,
-                                           DeviceService deviceService, CustomPropertySetService customPropertySetService,
-                                           Thesaurus thesaurus) {
+                                           DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
+                                           CustomPropertySetService customPropertySetService, NlsService nlsService) {
         this();
         setEventService(eventService);
         setMeteringService(meteringService);
+        setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
-        this.thesaurus = thesaurus;
+        setNlsService(nlsService);
     }
 
     @Override
@@ -91,182 +102,126 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         Map<Device, Pair<BigDecimal, String>> maxDemandCASValues = new HashMap<>();
         Map<Device, BigDecimal> ctRatioCASValues = new HashMap<>();
 
-        // device type to config CIM codes of reading types
-        Map<String, Pair<String, String>> powerFactorDeviceTypes = new HashMap<>();
-        Map<String, String> maxDemandDeviceTypes = new HashMap<>();
-        Map<String, String> ctRatioDeviceTypes = new HashMap<>();
-
-        // readings selected for events
-        Map<Pair<Device, String>, List<ReadingInfo>> matchedReadings = new HashMap<>();
-
         try {
-            ReadingStorer readingStorer = (ReadingStorer) localEvent.getSource();
-            if (!readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT)) {
-                // do not handle event
-                return;
-            }
-            // filter readings
-            for (ReadingInfo reading : readingStorer.getReadings()) {
-                if (reading.getMeter().isPresent()) {
-                    long meterId = reading.getMeter().get().getId();
-                    Optional<Device> deviceOpt = Optional.ofNullable(meterIds.get(meterId));
-                    if (!deviceOpt.isPresent()) {
-                        deviceOpt = deviceService.findDeviceByMeterId(meterId);
-                        if (deviceOpt.isPresent()) {
-                            Device device = deviceOpt.get();
-                            DeviceType deviceType = device.getDeviceType();
-                            meterIds.put(meterId, device);
-                            boolean isMatchedReading = false;
-                            String cimCode = reading.getReadingType().getMRID();
+            // Pair of <Meter, Reading type> to list of readings
+            Map<Pair<Meter, String>, List<ReadingInfo>> readings = ((ReadingStorer) localEvent.getSource()).getReadings().stream()
+                    .filter(r -> r.getMeter().isPresent())
+                    .collect(groupingBy(r -> Pair.of(r.getMeter().get(), r.getReadingType().getMRID())));
 
-                            // check for power factor
-                            Optional<Pair<String, String>> readingTypes = Optional.ofNullable(powerFactorDeviceTypes.get(deviceType));
-                            if (!readingTypes.isPresent()) {
-                                readingTypes = Optional.ofNullable(getReadingTypesForPowerFactorEvent(deviceType));
-                                if (readingTypes.isPresent() && isCASAssigned(deviceType, PowerFactorCustomPropertySet.CPS_ID)) {
-                                    powerFactorDeviceTypes.put(deviceType.getName(), readingTypes.get());
+            for (Map.Entry<Pair<Meter, String>, List<ReadingInfo>> entry : readings.entrySet()) {
+                long meterId = entry.getKey().getFirst().getId();
+                Device device = meterIds.get(meterId);
+                if (device == null) {
+                    Optional<Device> deviceOpt = deviceService.findDeviceByMeterId(meterId);
+                    if (deviceOpt.isPresent()) {
+                        meterIds.put(meterId, deviceOpt.get());
+                        DeviceType deviceType = deviceOpt.get().getDeviceType();
+                        String deviceTypeName = deviceType.getName();
+                        // check power factor config for device
+                        Pair<String, String> pfReadingTypes = CustomPropertySets.getPowerFactorEventReadingTypes().get(deviceTypeName);
+                        if (pfReadingTypes != null && validatePowerFactorReadingTypes(deviceTypeName, pfReadingTypes.getFirst(), pfReadingTypes.getLast())) {
+                            if (isCASAssigned(deviceType, PowerFactorCustomPropertySet.CPS_ID)) {
+                                Optional<CustomPropertySet> cps = getCAS(deviceOpt.get(), PowerFactorCustomPropertySet.CPS_ID);
+                                if ((boolean) getValue(cps.get(), deviceOpt.get(), PowerFactorDomainExtension.FieldNames.FLAG.javaName())) {
+                                    device = deviceOpt.get();
+                                    powerFactorCASValues.put(device, Pair.of(
+                                            (BigDecimal) getValue(cps.get(), device, PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName()),
+                                            (BigDecimal) getValue(cps.get(), device, PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName())));
                                 }
                             }
-                            readingTypes = Optional.ofNullable(powerFactorDeviceTypes.get(deviceType));
-                            if (readingTypes.isPresent() && (cimCode.equals(readingTypes.get().getFirst())
-                                    || cimCode.equals(readingTypes.get().getLast()))) {
-                                Optional<CustomPropertySet> cps = getCAS(device, PowerFactorCustomPropertySet.CPS_ID);
-                                if (powerFactorCASValues.get(device) == null) {
-                                    if ((boolean) getValue(cps.get(), device, PowerFactorDomainExtension.FieldNames.FLAG.javaName())) {
-                                        powerFactorCASValues.put(device, Pair.of(
-                                                (BigDecimal) getValue(cps.get(), device, PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName()),
-                                                (BigDecimal) getValue(cps.get(), device, PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName())));
-                                        isMatchedReading = true;
-                                    }
-                                } else {
-                                    isMatchedReading = true;
+                        }
+                        // check max demand config for device
+                        String mdReadingType = CustomPropertySets.getMaxDemandEventReadingTypes().get(deviceTypeName);
+                        if (mdReadingType != null && validateMaxDemandReadingType(mdReadingType)) {
+                            if (isCASAssigned(deviceType, MaxDemandCustomPropertySet.CPS_ID)) {
+                                Optional<CustomPropertySet> cps = getCAS(deviceOpt.get(), MaxDemandCustomPropertySet.CPS_ID);
+                                if ((boolean) getValue(cps.get(), deviceOpt.get(), MaxDemandDomainExtension.FieldNames.FLAG.javaName())) {
+                                    device = deviceOpt.get();
+                                    maxDemandCASValues.put(device, Pair.of(
+                                            (BigDecimal) getValue(cps.get(), device, MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName()),
+                                            (String) getValue(cps.get(), device, MaxDemandDomainExtension.FieldNames.UNIT.javaName())));
                                 }
                             }
-
-                            // check for max demand
-                            Optional<String> readingType = Optional.ofNullable(maxDemandDeviceTypes.get(deviceType));
-                            if (!readingType.isPresent()) {
-                                readingType = Optional.ofNullable(getReadingTypeForMaxDemandEvent(deviceType));
-                                if (readingType.isPresent() && isCASAssigned(deviceType, MaxDemandCustomPropertySet.CPS_ID)) {
-                                    maxDemandDeviceTypes.put(deviceType.getName(), readingType.get());
+                        }
+                        // check ct ratio config for device
+                        String ctrReadingType = CustomPropertySets.getCTRatioEventReadingTypes().get(deviceTypeName);
+                        if (ctrReadingType != null) {
+                            if (isCASAssigned(deviceType, CTRatioCustomPropertySet.CPS_ID)) {
+                                Optional<CustomPropertySet> cps = getCAS(deviceOpt.get(), CTRatioCustomPropertySet.CPS_ID);
+                                if ((boolean) getValue(cps.get(), deviceOpt.get(), CTRatioDomainExtension.FieldNames.FLAG.javaName())) {
+                                    device = deviceOpt.get();
+                                    ctRatioCASValues.put(device, (BigDecimal) getValue(cps.get(), device, CTRatioDomainExtension.FieldNames.CT_RATIO.javaName()));
                                 }
-                            }
-                            readingType = Optional.ofNullable(maxDemandDeviceTypes.get(deviceType));
-                            if (readingType.isPresent() && (cimCode.equals(readingType.get()))) {
-                                Optional<CustomPropertySet> cps = getCAS(device, MaxDemandCustomPropertySet.CPS_ID);
-                                if (maxDemandCASValues.get(device) == null) {
-                                    if ((boolean) getValue(cps.get(), device, MaxDemandDomainExtension.FieldNames.FLAG.javaName())) {
-                                        maxDemandCASValues.put(device, Pair.of(
-                                                (BigDecimal) getValue(cps.get(), device, MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName()),
-                                                (String) getValue(cps.get(), device, MaxDemandDomainExtension.FieldNames.UNIT.javaName())));
-                                        isMatchedReading = true;
-                                    }
-                                } else {
-                                    isMatchedReading = true;
-                                }
-                            }
-
-                            // check for ct ratio
-                            readingType = Optional.ofNullable(ctRatioDeviceTypes.get(deviceType));
-                            if (!readingType.isPresent()) {
-                                readingType = Optional.ofNullable(getReadingTypeForCTRatioEvent(deviceType));
-                                if (readingType.isPresent() && isCASAssigned(deviceType, CTRatioCustomPropertySet.CPS_ID)) {
-                                    ctRatioDeviceTypes.put(deviceType.getName(), readingType.get());
-                                }
-                            }
-                            readingType = Optional.ofNullable(ctRatioDeviceTypes.get(deviceType));
-                            if (readingType.isPresent() && (cimCode.equals(readingType.get()))) {
-                                Optional<CustomPropertySet> cps = getCAS(device, CTRatioCustomPropertySet.CPS_ID);
-                                if (ctRatioCASValues.get(device) == null) {
-                                    if ((boolean) getValue(cps.get(), device, CTRatioDomainExtension.FieldNames.FLAG.javaName())) {
-                                        ctRatioCASValues.put(device, (BigDecimal) getValue(cps.get(), device, CTRatioDomainExtension.FieldNames.CT_RATIO.javaName()));
-                                        isMatchedReading = true;
-                                    }
-                                } else {
-                                    isMatchedReading = true;
-                                }
-                            }
-
-                            // add reading to consider for calculated events
-                            if (isMatchedReading) {
-                                List<ReadingInfo> list = matchedReadings.getOrDefault(Pair.of(device, cimCode), new ArrayList<>());
-                                list.add(reading);
-                                matchedReadings.put(Pair.of(device, cimCode), list);
                             }
                         }
                     }
                 }
-            }
 
-            // generate events
-            for (Map.Entry<Pair<Device, String>, List<ReadingInfo>> entry : matchedReadings.entrySet()) {
-                Device device = entry.getKey().getFirst();
-                String deviceTypeName = device.getDeviceType().getName();
+                // generate events
+                if (device != null) {
+                    String deviceName = device.getName();
+                    DeviceType deviceType = device.getDeviceType();
+                    String deviceTypeName = deviceType.getName();
 
-                // generate power factor events
-                Optional<Pair<String, String>> readingTypes = Optional.ofNullable(powerFactorDeviceTypes.get(deviceTypeName));
-                if (readingTypes.isPresent()) {
-                    if (entry.getKey().getLast().equals(readingTypes.get().getFirst())) {
-                        if (!entry.getValue().get(0).getReadingType().isRegular()) {
-                            MessageSeeds.POWER_FACTOR_INVALID_READING_TYPE.log(LOGGER, thesaurus, deviceTypeName);
-                        } else {
-                            List<ReadingInfo> reactiveReadings = matchedReadings.getOrDefault(Pair.of(device, readingTypes.get().getLast()), new ArrayList<>());
+                    // power factor
+                    Pair<BigDecimal, BigDecimal> pfCpsValues = powerFactorCASValues.get(device);
+                    if (pfCpsValues != null) {
+                        Pair<String, String> pfReadingTypes = CustomPropertySets.getPowerFactorEventReadingTypes().get(deviceTypeName);
+                        if (entry.getKey().getLast().equals(pfReadingTypes.getFirst())) {
                             for (ReadingInfo reading : entry.getValue()) {
-                                Optional<ReadingInfo> reactiveReading = reactiveReadings.stream().filter(r -> r.getReading().getTimeStamp().equals(reading.getReading().getTimeStamp())).findFirst();
+                                Optional<ReadingInfo> reactiveReading = readings.getOrDefault(Pair.of(device, pfReadingTypes.getLast()), new ArrayList<>())
+                                        .stream().filter(r -> r.getReading().getTimeStamp().equals(reading.getReading().getTimeStamp())).findFirst();
                                 if (reactiveReading.isPresent()) {
-                                    if (!reactiveReading.get().getReadingType().isRegular()) {
-                                        MessageSeeds.POWER_FACTOR_INVALID_READING_TYPE.log(LOGGER, thesaurus, deviceTypeName);
+                                    double value = reading.getReading().getValue().doubleValue();
+                                    double reactiveValue = reactiveReading.get().getReading().getValue().doubleValue();
+                                    if (value == 0 && reactiveValue == 0) {
+                                        MessageSeeds.POWER_FACTOR_VALUES_ARE_NULL.log(LOGGER, thesaurus, deviceName,
+                                                reading.getReadingType().getMRID() + ";" + reactiveReading.get().getReadingType().getMRID(),
+                                                dateFormatter.format(reading.getReading().getTimeStamp()));
                                     } else {
-                                        double value = reading.getReading().getValue().doubleValue();
-                                        double reactiveValue = reactiveReading.get().getReading().getValue().doubleValue();
-                                        if (value == 0 && reactiveValue == 0) {
-                                            MessageSeeds.POWER_FACTOR_VALUES_ARE_NULL.log(LOGGER, thesaurus, device.getName(),
-                                                    reading.getReadingType().getMRID() + "; " + reactiveReading.get().getReadingType().getMRID(),
-                                                    dateFormatter.format(reading.getReading().getTimeStamp()));
-                                        } else {
-                                            if (powerFactorEvent(value, reactiveValue, powerFactorCASValues.get(device).getFirst().doubleValue(), powerFactorCASValues.get(device).getLast().doubleValue())) {
-                                                // generate event
-                                                sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), POWER_FACTOR_EVENET_CODE);
-                                            }
+                                        if (powerFactorEvent(value, reactiveValue, pfCpsValues.getFirst().doubleValue(), pfCpsValues.getLast().doubleValue())) {
+                                            // generate event
+                                            sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), POWER_FACTOR_EVENET_CODE);
                                         }
                                     }
                                 } else {
-                                    MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, device.getName(),
+                                    MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, deviceName,
                                             reading.getReadingType().getMRID(), dateFormatter.format(reading.getReading().getTimeStamp()));
                                 }
                             }
                         }
                     }
-                }
 
-                // generate max demand events
-                Optional<String> readingType = Optional.ofNullable(maxDemandDeviceTypes.get(deviceTypeName));
-                if (readingType.isPresent()) {
-                    if (entry.getKey().getLast().equals(readingType.get())) {
-                        for (ReadingInfo reading : entry.getValue()) {
-                            ReadingTypeUnit readingTypeUnit = reading.getReadingType().getUnit();
-                            if (readingTypeUnit.equals(WATT)) {
-                                if (maxDemandEvent(reading.getReading().getValue().doubleValue(), readingTypeUnit,
-                                        maxDemandCASValues.get(device).getFirst().doubleValue(), maxDemandCASValues.get(device).getLast())) {
-                                    // generate event
-                                    sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), MAX_DEMAND_EVENET_CODE);
+                    // max demand
+                    Pair<BigDecimal, String> mdCpsValues = maxDemandCASValues.get(device);
+                    if (mdCpsValues != null) {
+                        String mdReadingType = CustomPropertySets.getMaxDemandEventReadingTypes().get(deviceTypeName);
+                        if (entry.getKey().getLast().equals(mdReadingType)) {
+                            for (ReadingInfo reading : entry.getValue()) {
+                                ReadingTypeUnit readingTypeUnit = reading.getReadingType().getUnit();
+                                if (readingTypeUnit.equals(WATT)) {
+                                    if (maxDemandEvent(reading.getReading().getValue(), reading.getReadingType(),
+                                            mdCpsValues.getFirst().doubleValue(), mdCpsValues.getLast())) {
+                                        // generate event
+                                        sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), MAX_DEMAND_EVENET_CODE);
+                                    }
+                                } else {
+                                    MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, reading.getReadingType().getMRID());
                                 }
-                            } else {
-                                MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, readingType.get());
-
                             }
                         }
                     }
-                }
 
-                // generate ct ratio events
-                readingType = Optional.ofNullable(ctRatioDeviceTypes.get(deviceTypeName));
-                if (readingType.isPresent()) {
-                    if (entry.getKey().getLast().equals(readingType.get())) {
-                        for (ReadingInfo reading : entry.getValue()) {
-                            if (ctRatioEvent(reading.getReading().getValue().doubleValue(), ctRatioCASValues.get(device).doubleValue())) {
-                                // generate event
-                                sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), CT_RATIO_EVENET_CODE);
+                    // ct ratio
+                    BigDecimal ctCpsValue = ctRatioCASValues.get(device);
+                    if (ctCpsValue != null) {
+                        String ctrReadingType = CustomPropertySets.getCTRatioEventReadingTypes().get(deviceTypeName);
+                        if (entry.getKey().getLast().equals(ctrReadingType)) {
+                            for (ReadingInfo reading : entry.getValue()) {
+                                if (ctRatioEvent(reading.getReading().getValue().doubleValue(), ctCpsValue.doubleValue())) {
+                                    // generate event
+                                    sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), CT_RATIO_EVENET_CODE);
+                                }
                             }
                         }
                     }
@@ -275,6 +230,46 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }
+    }
+
+    boolean validatePowerFactorReadingTypes(String deviceTypeName, String readingType, String reactiveReadingType) {
+        TimeAttribute defaultMeasurementPeriod = null;
+        for (String rType : Arrays.asList(readingType, reactiveReadingType)) {
+            Optional<ReadingType> readingTypeRef = meteringService.getReadingType(rType);
+            if (!readingTypeRef.isPresent()) {
+                MessageSeeds.READING_TYPE_NOT_FOUND.log(LOGGER, thesaurus, rType);
+                return false;
+            }
+            if ((rType.equals(readingType) && !readingTypeRef.get().getUnit().equals(WATTHOUR)) ||
+                    (rType.equals(reactiveReadingType) && !readingTypeRef.get().getUnit().equals(VOLTAMPEREREACTIVEHOUR))) {
+                MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, readingType);
+                return false;
+            }
+            if (!readingTypeRef.get().isRegular()) {
+                MessageSeeds.POWER_FACTOR_INVALID_READING_TYPE.log(LOGGER, thesaurus, deviceTypeName);
+                return false;
+            }
+            TimeAttribute measuringPeriod = readingTypeRef.get().getMeasuringPeriod();
+            if (defaultMeasurementPeriod != null && measuringPeriod != defaultMeasurementPeriod) {
+                MessageSeeds.POWER_FACTOR_READING_TYPES_MUST_HAVE_THE_SAME_INTERVAL.log(LOGGER, thesaurus, readingType + ";" + reactiveReadingType);
+                return false;
+            }
+            defaultMeasurementPeriod = measuringPeriod;
+        }
+        return true;
+    }
+
+    boolean validateMaxDemandReadingType(String readingType) {
+        Optional<ReadingType> readingTypeRef = meteringService.getReadingType(readingType);
+        if (!readingTypeRef.isPresent()) {
+            MessageSeeds.READING_TYPE_NOT_FOUND.log(LOGGER, thesaurus, readingType);
+            return false;
+        }
+        if (!readingTypeRef.get().getUnit().equals(WATT)) {
+            MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, readingType);
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -292,11 +287,13 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         return false;
     }
 
-    public boolean maxDemandEvent(double value, ReadingTypeUnit readingTypeUnit, double connectedLoad, String unit) {
+    public boolean maxDemandEvent(BigDecimal readingValue, ReadingType readingType, double connectedLoad, String unit) {
+        double value = MetricMultiplier.quantity(readingValue, readingType.getMultiplier(), readingType.getUnit()).getValue().doubleValue();
+        // convert to WATT
         if (unit.equals(Units.kW.getValue())) {
-            value = value / 1000;
+            connectedLoad = connectedLoad * 1000;
         } else if (unit.equals(Units.MW.getValue())) {
-            value = value / 1000000;
+            connectedLoad = connectedLoad * 1000000;
         }
         return value > connectedLoad;
     }
@@ -312,6 +309,11 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     public Optional<CustomPropertySet> getCAS(Device device, String cpsId) {
         return device.getDeviceType().getCustomPropertySets().stream().map(cps -> cps.getCustomPropertySet()).filter(c -> c.getId().equals(cpsId)).findFirst();
 
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -334,6 +336,11 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
+    }
+
     public Object getValue(CustomPropertySet customPropertySet, Device device, String propertyName) {
         CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(customPropertySet, device);
         return values.getProperty(propertyName);
@@ -352,7 +359,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     }
 
     public void sendEvent(Meter meter, Instant date, String code) {
-        CalculatedEventRecordImpl eventRecord = new CalculatedEventRecordImpl(meter, meteringService.createEndDeviceEventType(code), date);
+        CalculatedEventRecordImpl eventRecord = new CalculatedEventRecordImpl(meter, code, date);
         eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), eventRecord);
     }
 }

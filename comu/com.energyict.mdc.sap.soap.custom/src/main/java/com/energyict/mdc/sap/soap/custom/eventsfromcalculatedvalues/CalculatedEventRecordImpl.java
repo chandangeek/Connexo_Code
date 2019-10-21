@@ -17,9 +17,11 @@ import java.util.Map;
 
 public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
-    private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
+    //    private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
     private final Reference<EndDevice> endDevice = ValueReference.absent();
+    private String code;
     private Instant createdDateTime;
+    private long createdDateTimeMillis;
 
     private Instant createTime;
     private Instant modTime;
@@ -27,10 +29,15 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     private Map<String, String> properties = new HashMap<>();
 
-    CalculatedEventRecordImpl(Meter meter, EndDeviceEventType eventType, Instant createdDateTime) {
+    CalculatedEventRecordImpl(Meter meter, String code, Instant createdDateTime) {
         this.endDevice.set(meter);
-        this.eventType.set(eventType);
+        this.code = code;
         this.createdDateTime = createdDateTime;
+        this.createdDateTimeMillis = createdDateTime.toEpochMilli();
+    }
+
+    public long getCreatedDateTimeMillis() {
+        return createdDateTimeMillis;
     }
 
     @Override
@@ -130,12 +137,12 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public Map<String, String> getProperties() {
-        return null;
+        return properties;
     }
 
     @Override
     public String getDeviceEventType() {
-        return null;
+        return code;
     }
 
     @Override
@@ -205,7 +212,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public Map<String, String> getEventData() {
-        return null;
+        return new HashMap<>();
     }
 
     @Override
@@ -220,7 +227,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getEventTypeCode() {
-        return eventType.get().getMRID();
+        return null;
     }
 
     @Override
