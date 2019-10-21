@@ -129,7 +129,7 @@ public class DataExportTaskHistoryInfoFactory {
         version.getDestinations(versionAt).stream()
                 .sorted(Comparator.comparing(DataExportDestination::getCreateTime))
                 .forEach(destination -> info.task.destinations.add(typeOf(destination).toInfo(serviceLocator, destination)));
-        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(versionAt);
+        Optional<ScheduleExpression> foundSchedule = Optional.of(version.getScheduleExpression());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             info.task.schedule = null;
         } else {
