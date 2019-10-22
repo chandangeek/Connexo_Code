@@ -4,7 +4,7 @@
 
 Ext.define('Wss.controller.history.Webservices', {
     extend: 'Uni.controller.history.Converter',
-
+    alias: 'widget.controller-history-webservice',
     rootToken: 'administration',
 
     routeConfig: {
@@ -68,9 +68,16 @@ Ext.define('Wss.controller.history.Webservices', {
                                 occurrence: {
                                     privileges: ['privilege.administrate.webservices', 'privilege.view.webservices'],
                                     route: '{occurenceId}',
-                                    title: Uni.I18n.translate('general.log', 'WSS', 'Log'),
                                     controller: 'Wss.controller.Webservices',
                                     action: 'showWebserviceEndPoint',
+                                    callback: function (route) {
+                                        this.getApplication().on('endpointlogdate', function (time) {
+                                            route.setTitle(Uni.I18n.translate('general.logs', 'WSS', "Log '{0}'", Uni.DateTime.formatDateTimeShort(time) , false));
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
+
                                 }
                             },
                         },

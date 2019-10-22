@@ -12,7 +12,8 @@ public enum MacroPeriod {
 	SEASONAL(22, "Seasonal"),
 	WEEKLYS(24, "Weekly"),
 	SPECIFIEDPERIOD(32, "Specified period"),
-	YEARLY(1001, "Yearly");
+	YEARLY(1001, "Yearly"),
+	HOURLY(1002, "Hourly");
 
 	private final int id;
 	private final String description;
