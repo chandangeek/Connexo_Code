@@ -985,9 +985,9 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                     Structure structure = attribute.getStructure();
                     structure.getNextDataType();
                     AbstractDataType captureStructure = structure.getNextDataType();
-                    if(captureStructure instanceof com.energyict.dlms.axrdencoding.DateTime && ((com.energyict.dlms.axrdencoding.DateTime) captureStructure).isValidDate()){
+                    if(isValidDateTime(captureStructure)){
                         Date captureTime = ((DateTime) captureStructure).getCalendar(protocol.getDlmsSession().getTimeZone()).getTime();
-                        protocol.getLogger().finest("  > decoded captured time = " + captureTime.toString());
+                        protocol.journal(Level.FINEST, "  > decoded captured time = " + captureTime.toString());
                         return new RegisterValue(
                                 register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
@@ -1015,5 +1015,9 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
         }
 
         return new RegisterValue(register);
+    }
+
+    private boolean isValidDateTime(AbstractDataType captureStructure) {
+        return captureStructure instanceof DateTime && ((DateTime) captureStructure).isValidDate();
     }
 }

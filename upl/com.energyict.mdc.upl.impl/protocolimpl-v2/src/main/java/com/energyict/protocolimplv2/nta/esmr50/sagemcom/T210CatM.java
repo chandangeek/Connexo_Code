@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.nta.esmr50.sagemcom.loadprofiles.T210CatMLoa
 import com.energyict.protocolimplv2.nta.esmr50.sagemcom.registers.T210CatMRegisterFactory;
 
 public class T210CatM extends T210 {
+
     public T210CatM(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
     }

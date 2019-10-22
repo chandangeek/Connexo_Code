@@ -2,11 +2,6 @@ package com.energyict.protocolimplv2.nta.esmr50.common.registers.enums;
 
 /**
  * Created by Paul van Minderhout on 10/07/2019
- */
-
-import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.GSMDiagnosticPSStatusVersion1;
-
-/**
 
  GSM diagnostics (class_id: 47, version: 2)
 

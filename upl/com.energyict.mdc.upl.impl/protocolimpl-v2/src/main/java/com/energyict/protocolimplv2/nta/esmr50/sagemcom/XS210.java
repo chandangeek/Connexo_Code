@@ -10,7 +10,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
-import com.energyict.protocolimplv2.nta.esmr50.sagemcom.registers.T210RegisterFactory;
 import com.energyict.protocolimplv2.nta.esmr50.sagemcom.registers.XS210RegisterFactory;
 
 public class XS210 extends ESMR50Protocol implements SerialNumberSupport {

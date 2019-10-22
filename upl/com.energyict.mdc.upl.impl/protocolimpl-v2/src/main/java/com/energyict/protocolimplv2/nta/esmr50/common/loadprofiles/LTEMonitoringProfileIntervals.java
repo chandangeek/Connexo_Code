@@ -20,7 +20,7 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
 
     private Logger logger = Logger.getAnonymousLogger();
 
-    public LTEMonitoringProfileIntervals(byte[] encodedData, int defaultClockMask, Integer integer, Integer integer1, ProfileIntervalStatusBits statusBits, Logger logger) throws IOException {
+    public LTEMonitoringProfileIntervals(byte[] encodedData, int defaultClockMask, Integer statusMask, Integer channelMask, ProfileIntervalStatusBits statusBits, Logger logger) throws IOException {
         super(encodedData, statusBits);
         this.logger = logger;
     }

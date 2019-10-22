@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public enum LicensedProtocolRule implements LicensedProtocol {
 
-    /* Please keep the list of protocols organized by protocol| generation
+    /* Please keep the list of protocols organized by protocol generation
      * to make it easier to modify the list that is expected to become big
      * and therefore difficult to maintain.
      * New protocols are required to be of type DeviceProtocol

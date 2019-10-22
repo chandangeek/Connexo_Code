@@ -14,7 +14,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
-import com.energyict.protocolimplv2.nta.esmr50.sagemcom.registers.T210RegisterFactory;
 
 import java.io.IOException;
 import java.util.Date;
@@ -30,7 +29,7 @@ public class T210 extends ESMR50Protocol implements SerialNumberSupport {
     @Override
     public DeviceRegisterSupport getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new T210RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+            this.registerFactory = new ESMR50RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
     }
