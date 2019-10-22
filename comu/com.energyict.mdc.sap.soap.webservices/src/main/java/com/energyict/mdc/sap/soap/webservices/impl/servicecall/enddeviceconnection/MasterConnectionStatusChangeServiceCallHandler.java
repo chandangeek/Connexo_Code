@@ -14,11 +14,11 @@ import org.osgi.service.component.annotations.Component;
 
 import java.util.List;
 
-@Component(name = MasterConnectionStatusChange.NAME, service = ServiceCallHandler.class,
-        property = "name=" + MasterConnectionStatusChange.NAME, immediate = true)
-public class MasterConnectionStatusChange implements ServiceCallHandler {
+@Component(name = MasterConnectionStatusChangeServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + MasterConnectionStatusChangeServiceCallHandler.NAME, immediate = true)
+public class MasterConnectionStatusChangeServiceCallHandler implements ServiceCallHandler {
 
-    public static final String NAME = "MasterConnectionStatusChange";
+    public static final String NAME = "MasterConnectionStatusChangeServiceCallHandler";
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
@@ -55,15 +55,15 @@ public class MasterConnectionStatusChange implements ServiceCallHandler {
         List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
         if (ServiceCallHelper.isLastChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
-                parent.requestTransition(DefaultState.ONGOING);
+                parent.transitionWithLockIfPossible(DefaultState.ONGOING);
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
-                parent.requestTransition(DefaultState.SUCCESSFUL);
+                parent.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
-                parent.requestTransition(DefaultState.CANCELLED);
+                parent.transitionWithLockIfPossible(DefaultState.CANCELLED);
             } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
-                parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
+                parent.transitionWithLockIfPossible(DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
-                parent.requestTransition(DefaultState.FAILED);
+                parent.transitionWithLockIfPossible(DefaultState.FAILED);
             }
         }
     }

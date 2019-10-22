@@ -65,7 +65,8 @@ public class StatusChangeRequestCancellationRequestMessage {
 
         private String getCategoryCode(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg msg) {
             return Optional.ofNullable(msg.getUtilitiesConnectionStatusChangeRequest())
-                    .map(m -> m.getCategoryCode().getValue())
+                    .map(m -> m.getCategoryCode())
+                    .map(c -> c.getValue())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

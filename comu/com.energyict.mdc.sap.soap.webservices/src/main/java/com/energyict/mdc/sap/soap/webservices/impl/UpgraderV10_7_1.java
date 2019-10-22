@@ -37,16 +37,16 @@ public class UpgraderV10_7_1 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 7, 1));
-        createOrUpdateServiceCallTypes();
+        createNewlyAddedServiceCallTypes();
     }
 
-    private void createOrUpdateServiceCallTypes() {
+    private void createNewlyAddedServiceCallTypes() {
         for (ServiceCallTypes serviceCallType : ServiceCallTypes.values()) {
-            createOrUpdateServiceCallType(serviceCallType);
+            createNewlyAddedServiceCallType(serviceCallType);
         }
     }
 
-    private void createOrUpdateServiceCallType(ServiceCallTypes serviceCallTypeMapping) {
+    private void createNewlyAddedServiceCallType(ServiceCallTypes serviceCallTypeMapping) {
         Optional<ServiceCallType> serviceCallType = serviceCallService.findServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion());
         if (!serviceCallType.isPresent()) {
             RegisteredCustomPropertySet customPropertySet = customPropertySetService
@@ -60,16 +60,6 @@ public class UpgraderV10_7_1 implements Upgrader {
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)
                     .create();
-        } else {
-            serviceCallTypeMapping.getApplication().ifPresent(
-                    application ->
-                            serviceCallService
-                                    .findServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion()).ifPresent(
-                                    type -> {
-                                        type.setApplication(application);
-                                        type.save();
-                                    }
-                            ));
         }
     }
 }

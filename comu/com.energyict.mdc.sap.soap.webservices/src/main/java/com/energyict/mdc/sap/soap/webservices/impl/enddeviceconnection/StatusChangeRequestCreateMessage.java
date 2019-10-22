@@ -31,15 +31,6 @@ public class StatusChangeRequestCreateMessage {
     private StatusChangeRequestCreateMessage() {
     }
 
-    public StatusChangeRequestCreateMessage(String id, String categoryCode, String utilitiesServiceDisconnectionReasonCode, Instant plannedProcessingDateTime, Map<String, String> deviceConnectionStatus, boolean bulk) {
-        this.id = id;
-        this.categoryCode = categoryCode;
-        this.utilitiesServiceDisconnectionReasonCode = utilitiesServiceDisconnectionReasonCode;
-        this.plannedProcessingDateTime = plannedProcessingDateTime;
-        this.deviceConnectionStatus = deviceConnectionStatus;
-        this.bulk = bulk;
-    }
-
     public String getId() {
         return id;
     }
@@ -78,6 +69,16 @@ public class StatusChangeRequestCreateMessage {
         private Builder() {
         }
 
+        public Builder from(String id, String categoryCode, String utilitiesServiceDisconnectionReasonCode, Instant plannedProcessingDateTime, Map<String, String> deviceConnectionStatus, boolean bulk) {
+            StatusChangeRequestCreateMessage.this.id = id;
+            StatusChangeRequestCreateMessage.this.categoryCode = categoryCode;
+            StatusChangeRequestCreateMessage.this.utilitiesServiceDisconnectionReasonCode = utilitiesServiceDisconnectionReasonCode;
+            StatusChangeRequestCreateMessage.this.plannedProcessingDateTime = plannedProcessingDateTime;
+            StatusChangeRequestCreateMessage.this.deviceConnectionStatus = deviceConnectionStatus;
+            StatusChangeRequestCreateMessage.this.bulk = bulk;
+            return this;
+        }
+
         public Builder from(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg requestMessage) {
             Optional.ofNullable(requestMessage.getUtilitiesConnectionStatusChangeRequest())
                     .ifPresent(statusChangeRequest -> {
@@ -87,11 +88,7 @@ public class StatusChangeRequestCreateMessage {
                         setPlannedProcessingDateTime(statusChangeRequest.getPlannedProcessingDateTime());
                         setDeviceConnectionStatus(getDeviceConnectionStatus(statusChangeRequest));
                     });
-            return this;
-        }
-
-        public Builder setBulk(boolean bulk) {
-            StatusChangeRequestCreateMessage.this.bulk = bulk;
+            StatusChangeRequestCreateMessage.this.bulk = false;
             return this;
         }
 

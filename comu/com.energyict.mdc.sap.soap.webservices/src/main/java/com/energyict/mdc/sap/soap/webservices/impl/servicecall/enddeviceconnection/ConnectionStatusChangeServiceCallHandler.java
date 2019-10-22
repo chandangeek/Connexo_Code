@@ -12,6 +12,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -67,23 +68,19 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
             if (extension.isBulk()) {
                 StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
                         .builder(sapCustomPropertySets)
-                        .from(parent, findChildren(parent), clock.instant())
+                        .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
                         .build();
 
                 WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
             } else {
                 StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                         .builder(sapCustomPropertySets)
-                        .from(parent, findChildren(parent), clock.instant())
+                        .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
                         .build();
 
                 WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
             }
         }
-    }
-
-    private List<ServiceCall> findChildren(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
     @Reference

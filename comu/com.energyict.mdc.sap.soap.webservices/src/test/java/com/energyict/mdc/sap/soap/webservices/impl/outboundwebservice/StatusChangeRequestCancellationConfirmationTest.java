@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationConfirmationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOutService;
@@ -17,7 +16,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscan
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,8 +36,6 @@ public class StatusChangeRequestCancellationConfirmationTest extends AbstractOut
     private SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOut port;
     @Mock
     private SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmationMessage;
-    @Mock
-    private StatusChangeRequestCancellationConfirmationMessage outboundMessage;
 
     private StatusChangeRequestCancellationConfirmationProvider provider;
 
@@ -51,7 +47,6 @@ public class StatusChangeRequestCancellationConfirmationTest extends AbstractOut
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(outboundMessage.getConfirmationMessage()).thenReturn(Optional.of(confirmationMessage));
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
 
@@ -63,7 +58,7 @@ public class StatusChangeRequestCancellationConfirmationTest extends AbstractOut
         properties.put("epcId", 1l);
 
         provider.addRequestConfirmationPort(port, properties);
-        provider.call(outboundMessage);
+        provider.call(confirmationMessage);
 
         verify(provider).using("smartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOut");
         verify(requestSender).send(confirmationMessage);
@@ -76,7 +71,7 @@ public class StatusChangeRequestCancellationConfirmationTest extends AbstractOut
         expectedException.expect(LocalizedException.class);
         expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP StatusChangeRequestCancellationConfirmation'.");
 
-        provider.call(outboundMessage);
+        provider.call(confirmationMessage);
     }
 
     @Test

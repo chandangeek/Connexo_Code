@@ -30,10 +30,10 @@ public class CancellationConfirmationMessageFactory {
     public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createMessage(String requestId, CancelledStatusChangeRequestDocument document, Instant now) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
         confirmMsg.setMessageHeader(createMessageHeader(requestId, now));
-        if (document.getTotalRequests() == -1) {
-            confirmMsg.setLog(createFailedLog(MessageSeeds.ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED, document.getId(), document.getCategoryCode()));
-        } else if (document.getTotalRequests() == 0) {
+        if (document.getTotalRequests() == 0) {
             confirmMsg.setLog(createFailedLog(MessageSeeds.ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS, document.getId(), document.getCategoryCode()));
+        } else if (document.getTotalRequests() > 0 && document.getCancelledRequests() == 0 && document.getNotCancelledRequests() == 0) {
+            confirmMsg.setLog(createFailedLog(MessageSeeds.ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED, document.getId(), document.getCategoryCode()));
         } else if (document.getTotalRequests() == document.getCancelledRequests() && document.getNotCancelledRequests() == 0) {
             confirmMsg.setLog(createSuccessfulLog());
         } else if (document.getTotalRequests() > document.getCancelledRequests() && document.getNotCancelledRequests() > 0) {
@@ -46,7 +46,7 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
-    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createMessage(StatusChangeRequestCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
         confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), now));
         confirmMsg.setLog(objectFactory.createLog());

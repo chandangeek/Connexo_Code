@@ -3,15 +3,15 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
-import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationConfirmationMessage;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg;
 
 public interface StatusChangeRequestCancellationConfirmation {
 
     String NAME = "SAP StatusChangeRequestCancellationConfirmation";
 
     /**
-     * Invoked to cancel status change request
+     * Invoked to send cancelling status change request confirmation
      */
-    void call(StatusChangeRequestCancellationConfirmationMessage confirmationMessage);
+    void call(SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmationMessage);
 
 }

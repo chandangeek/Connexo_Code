@@ -11,6 +11,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCancellati
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -62,9 +63,9 @@ public class StatusChangeRequestCancellationConfirmationProvider extends Abstrac
     }
 
     @Override
-    public void call(StatusChangeRequestCancellationConfirmationMessage msg) {
+    public void call(SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg msg) {
         using("smartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmationCOut")
-                .send(msg.getConfirmationMessage().orElseThrow(() -> new IllegalStateException("Confirmation message is empty.")));
+                .send(msg);
     }
 
     @Override

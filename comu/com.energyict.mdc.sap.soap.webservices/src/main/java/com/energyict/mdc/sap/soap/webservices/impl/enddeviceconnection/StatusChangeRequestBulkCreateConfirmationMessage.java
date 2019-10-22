@@ -28,31 +28,23 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 
 public class StatusChangeRequestBulkCreateConfirmationMessage {
 
     private final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
-    private final Optional<SAPCustomPropertySets> sapCustomPropertySets;
+    private final SAPCustomPropertySets sapCustomPropertySets;
 
     private SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg confirmationMessage;
 
-    private StatusChangeRequestBulkCreateConfirmationMessage() {
-        this.sapCustomPropertySets = Optional.empty();
-    }
-
     private StatusChangeRequestBulkCreateConfirmationMessage(SAPCustomPropertySets sapCustomPropertySets) {
-        this.sapCustomPropertySets = Optional.ofNullable(sapCustomPropertySets);
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
     public SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg getConfirmationMessage() {
         return confirmationMessage;
-    }
-
-    public static Builder builder() {
-        return new StatusChangeRequestBulkCreateConfirmationMessage().new Builder();
     }
 
     public static Builder builder(SAPCustomPropertySets sapCustomPropertySets) {
@@ -65,15 +57,16 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             confirmationMessage = OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg();
         }
 
-        public Builder from(ServiceCall subParent, List<ServiceCall> childs, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(subParent, childs));
+        public Builder from(ServiceCall subParent, List<ServiceCall> children, Instant now) {
+            ServiceCall parent = subParent.getParent().orElseThrow(() -> new IllegalStateException("Unable to get parent for service call"));
+            confirmationMessage.setMessageHeader(createHeader(parent, now));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(subParent, children));
             return this;
         }
 
         public Builder from(StatusChangeRequestBulkCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBody(message));
+            confirmationMessage.setMessageHeader(createHeader(message.getId(), now));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(message));
             confirmationMessage.setLog(createLog(exceptionID, PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
@@ -86,7 +79,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return this;
         }
 
-        public Builder withStatus(String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
+        public Builder withSingleStatus(String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
             UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
             UtilitiesConnectionStatusChangeResultCode resultCode =
                     OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
@@ -100,7 +93,10 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
             deviceConnectionStatus.setProcessingDateTime(processDate);
 
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().forEach(m -> m.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().add(deviceConnectionStatus));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage()
+                    .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
+                    .filter(s -> deviceID.equals(s.getID().getValue()))
+                    .forEach(c -> c.getDeviceConnectionStatus().add(deviceConnectionStatus));
 
             return this;
         }
@@ -108,11 +104,21 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
         private BusinessDocumentMessageHeader createHeader(ServiceCall parent, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             header.setCreationDateTime(now);
-            parent.getExtension(MasterConnectionStatusChangeDomainExtension.class).ifPresent(ext -> {
-                BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
-                id.setValue(ext.getRequestID());
-                header.setID(id);
-            });
+            MasterConnectionStatusChangeDomainExtension extension = parent.getExtension(MasterConnectionStatusChangeDomainExtension.class)
+                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+            BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
+            id.setValue(extension.getRequestID());
+            header.setID(id);
+
+            return header;
+        }
+
+        private BusinessDocumentMessageHeader createHeader(String parentId, Instant now) {
+            BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+            header.setCreationDateTime(now);
+            BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
+            id.setValue(parentId);
+            header.setID(id);
 
             return header;
         }
@@ -140,29 +146,28 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return messageBody;
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(ServiceCall parent, List<ServiceCall> childs) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(ServiceCall parent, List<ServiceCall> children) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
 
-            parent.getExtension(ConnectionStatusChangeDomainExtension.class).ifPresent(domainExtension -> {
-                messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(domainExtension.getId());
-                messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(domainExtension.getCategoryCode());
-            });
-            childs.stream().forEach(serviceCall -> messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
+            ConnectionStatusChangeDomainExtension extension = parent.getExtension(ConnectionStatusChangeDomainExtension.class)
+                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+            messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(extension.getId());
+            messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(extension.getCategoryCode());
+            children.stream().forEach(serviceCall -> messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
                     .add(createDeviceConnectionStatus(serviceCall)));
             return messageBody;
         }
 
-        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBody(StatusChangeRequestBulkCreateMessage message) {
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBodies(StatusChangeRequestBulkCreateMessage message) {
             List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> list = new ArrayList<>();
-            message.getRequests().forEach(r -> {
-                SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
+            return message.getRequests().stream()
+                    .map(m -> {
+                        SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
 
-                messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(r.getId());
-                messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(r.getCategoryCode());
-
-                list.add(messageBody);
-            });
-            return list;
+                        messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(m.getId());
+                        messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(m.getCategoryCode());
+                        return messageBody;
+                    }).collect(Collectors.toList());
         }
 
         private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(StatusChangeRequestCreateMessage message) {
@@ -182,8 +187,8 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             UtilitiesDeviceID deviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
             serviceCall.getTargetObject().ifPresent(id -> {
                 if (id instanceof Device) {
-                    sapCustomPropertySets.ifPresent(cps -> cps.getSapDeviceId(((Device) id).getName())
-                            .ifPresent(sapId -> deviceID.setValue(sapId)));
+                    sapCustomPropertySets.getSapDeviceId((Device) id)
+                            .ifPresent(sapId -> deviceID.setValue(sapId));
                     deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
                 }
             });

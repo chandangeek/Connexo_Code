@@ -72,7 +72,7 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_CANCELLING_STATUS_CHANGE_REQUEST(5002, "ErrorCancellingStatusChangeRequest", "Error while cancelling status change request: ''{0}''."),
     ERROR_CANCELLING_STATUS_CHANGE_REQUEST_LOG(5003, "ErrorCancellingStatusChangeRequestLog", "''{0}'' of ''{1}'' status change requests per device are cancelled. ''{2}'' status change requests aren''t cancelled."),
     ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS(5004, "ErrorCancellingStatusChangeRequestNoRequests", "No status change requests are found to cancel with id ''{0}'' and category code ''{1}''."),
-    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed", "Status change request with id ''{0}'' and category code ''{1}'' is already in final status."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed", "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid meter reading document"),

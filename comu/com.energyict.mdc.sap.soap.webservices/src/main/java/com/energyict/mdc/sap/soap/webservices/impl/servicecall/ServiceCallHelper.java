@@ -20,7 +20,7 @@ public class ServiceCallHelper {
     }
 
     public static List<ServiceCall> findChildren(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
+        return serviceCall.findChildren().find();
     }
 
     public static boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {

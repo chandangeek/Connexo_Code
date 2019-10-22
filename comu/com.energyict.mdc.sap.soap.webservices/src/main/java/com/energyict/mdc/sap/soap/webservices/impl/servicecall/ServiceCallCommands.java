@@ -338,9 +338,9 @@ public class ServiceCallCommands {
         List<ServiceCall> children = findChildren(serviceCall);
 
         if (children.size() > 0 && !hasAllChildrenInState(children, DefaultState.FAILED)) {
-            serviceCall.requestTransition(DefaultState.WAITING);
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
-            serviceCall.requestTransition(DefaultState.FAILED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
         }
     }
 
@@ -433,7 +433,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
-                    StatusChangeRequestBulkCreateConfirmationMessage.builder()
+                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
                             .build();
             sendMessage(confirmationMessage);
@@ -448,7 +448,7 @@ public class ServiceCallCommands {
 
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage message) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
-                StatusChangeRequestBulkCreateConfirmationMessage.builder()
+                StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                         .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
@@ -465,7 +465,7 @@ public class ServiceCallCommands {
     private void sendProcessError(String exceptionCode, String exceptionInfo, StatusChangeRequestCreateMessage message) {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
-                    StatusChangeRequestBulkCreateConfirmationMessage.builder()
+                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, exceptionCode, exceptionInfo, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
@@ -481,9 +481,9 @@ public class ServiceCallCommands {
     private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message, String deviceId) {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
-                    StatusChangeRequestBulkCreateConfirmationMessage.builder()
+                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
-                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .withSingleStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {

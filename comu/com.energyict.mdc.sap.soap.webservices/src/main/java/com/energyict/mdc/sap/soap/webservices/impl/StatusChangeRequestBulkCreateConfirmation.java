@@ -15,5 +15,8 @@ public interface StatusChangeRequestBulkCreateConfirmation {
      */
     void call(StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage);
 
+    /**
+     * Invoked by the service call handler to send confirmation message and complete or fail parent service call
+     */
     boolean call(StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage, ServiceCall parent);
 }

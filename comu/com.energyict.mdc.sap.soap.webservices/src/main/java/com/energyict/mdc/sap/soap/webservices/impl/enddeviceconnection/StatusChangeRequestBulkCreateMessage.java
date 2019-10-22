@@ -54,10 +54,7 @@ public class StatusChangeRequestBulkCreateMessage {
 
         public StatusChangeRequestBulkCreateMessage.Builder from(SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg requestMessage) {
             setId(getRequestId(requestMessage));
-            Optional.ofNullable(requestMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestMessage())
-                    .ifPresent(statusChangeRequest -> {
-                        setRequestMessages(getRequestMessages(statusChangeRequest));
-                    });
+            setRequestMessages(getRequestMessages(requestMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestMessage()));
             return this;
         }
 
@@ -76,12 +73,12 @@ public class StatusChangeRequestBulkCreateMessage {
         }
 
         private StatusChangeRequestCreateMessage getRequestMessage(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg msg) {
-            return new StatusChangeRequestCreateMessage(getId(msg.getUtilitiesConnectionStatusChangeRequest()),
+            return StatusChangeRequestCreateMessage.builder().from(getId(msg.getUtilitiesConnectionStatusChangeRequest()),
                     getCategoryCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     getUtilitiesServiceDisconnectionReasonCode(msg.getUtilitiesConnectionStatusChangeRequest()),
-                    msg.getUtilitiesConnectionStatusChangeRequest().getPlannedProcessingDateTime(),
+                    msg.getUtilitiesConnectionStatusChangeRequest() != null ? msg.getUtilitiesConnectionStatusChangeRequest().getPlannedProcessingDateTime() : null,
                     getDeviceConnectionStatus(msg.getUtilitiesConnectionStatusChangeRequest()),
-                    true);
+                    true).build();
         }
 
         public StatusChangeRequestBulkCreateMessage build() {
@@ -89,7 +86,8 @@ public class StatusChangeRequestBulkCreateMessage {
         }
 
         private String getRequestId(SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg changeRequest) {
-            return Optional.ofNullable(changeRequest.getMessageHeader().getID())
+            return Optional.ofNullable(changeRequest.getMessageHeader())
+                    .map(m -> m.getID())
                     .map(BusinessDocumentMessageID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);

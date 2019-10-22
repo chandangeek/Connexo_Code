@@ -68,6 +68,8 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 sendResponseMessage(parent, DefaultState.FAILED);
             } else if (parent.canTransitionTo(DefaultState.ONGOING)) {
+                //  it handles fail case but when parent is in WAITING state for example.
+                //  sendResponseMessage transfers parent to ONGOING and after that transfers to FAILED state
                 sendResponseMessage(parent, DefaultState.FAILED);
             }
         }

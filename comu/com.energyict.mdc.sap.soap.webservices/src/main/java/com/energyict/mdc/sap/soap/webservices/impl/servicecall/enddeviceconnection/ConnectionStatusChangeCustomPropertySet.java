@@ -38,6 +38,7 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
     private volatile PropertySpecService propertySpecService;
 
     public ConnectionStatusChangeCustomPropertySet() {
+        // for OSGI purpose
     }
 
     @Inject

@@ -19,6 +19,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCancellati
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangePersistenceSupport;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
 
@@ -26,6 +27,8 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -37,6 +40,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     private final ServiceCallService serviceCallService;
     private final Clock clock;
     private final OrmService ormService;
+    private static final CancellationConfirmationMessageFactory MESSAGE_FACTORY = new CancellationConfirmationMessageFactory();
 
     @Inject
     StatusChangeRequestCancellationEndpoint(EndPointConfigurationService endPointConfigurationService,
@@ -81,44 +85,46 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
 
     void handleMessage(StatusChangeRequestCancellationRequestMessage message) {
         if (message.isValid()) {
-            CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
+            try {
+                CompletableFuture.runAsync(() -> {
+                    CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
-            StatusChangeRequestCancellationConfirmationMessage confirmationMessage =
-                    StatusChangeRequestCancellationConfirmationMessage.builder()
-                            .from(message.getRequestId(), document, clock.instant())
-                            .build();
-            sendMessage(confirmationMessage);
+                    sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), document, clock.instant()));
+                }).get();
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e.getCause());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {
-        ConnectionStatusChangeDomainExtension extension = getRequestExtensions(message.getRequestId(), message.getCategoryCode());
+        Optional<ConnectionStatusChangeDomainExtension> extension = getRequestExtension(message.getRequestId(), message.getCategoryCode());
 
-        if (extension == null) {
+        if (!extension.isPresent()) {
             return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), 0, 0, 0);
         }
-        String documentId = extension.getId();
+        String documentId = extension.get().getId();
         int cancelledRequests = 0;
         int notCancelledRequests = 0;
-        ServiceCall parent = extension.getServiceCall();
+        ServiceCall parent = extension.get().getServiceCall();
+        List<ServiceCall> serviceCalls = parent.findChildren().find();
         if (!parent.getState().isOpen()) {
-            return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), -1, 0, 0);
+            // send already processed message
+            return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
         }
-        List<ServiceCall> serviceCalls = extension.getServiceCall().findChildren().stream().collect(Collectors.toList());
         for (ServiceCall serviceCall: serviceCalls) {
             try {
                 if (serviceCall.getState().isOpen()) {
                     serviceCall = lock(serviceCall);
                     if (serviceCall.getState().isOpen()) {
-                        serviceCall.log(com.elster.jupiter.servicecall.LogLevel.INFO, "Cancel the service call by request from SAP.");
-                        if (serviceCall.getState().equals(DefaultState.CREATED)) {
-                            serviceCall.requestTransition(DefaultState.PENDING);
-                        }
+                        serviceCall.log(com.elster.jupiter.servicecall.LogLevel.INFO, "Cancelling the service call by request from SAP.");
                         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                            extension.setCancelledBySap(true);
-                            parent.update(extension);
+                            extension.get().setCancelledBySap(true);
+                            parent.update(extension.get());
                             serviceCall.requestTransition(DefaultState.CANCELLED);
                             cancelledRequests++;
                         } else {
@@ -138,27 +144,23 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         return new CancelledStatusChangeRequestDocument(documentId, message.getCategoryCode(), serviceCalls.size(), cancelledRequests, notCancelledRequests);
     }
 
-    private ConnectionStatusChangeDomainExtension getRequestExtensions(String id, String categoryCode) {
+    private Optional<ConnectionStatusChangeDomainExtension> getRequestExtension(String id, String categoryCode) {
         return ormService.getDataModel(ConnectionStatusChangePersistenceSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model " + ConnectionStatusChangePersistenceSupport.COMPONENT_NAME + " isn't found."))
                 .stream(ConnectionStatusChangeDomainExtension.class)
                 .join(ServiceCall.class)
                 .filter(where(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName()).isEqualTo(id))
                 .filter(where(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName()).isEqualTo(categoryCode))
-                .findFirst().orElse(null);
+                .findFirst();
 
     }
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, MessageSeeds messageSeed) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
-        StatusChangeRequestCancellationConfirmationMessage confirmationMessage =
-                StatusChangeRequestCancellationConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
-                        .build();
-        sendMessage(confirmationMessage);
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, clock.instant()));
     }
 
-    private void sendMessage(StatusChangeRequestCancellationConfirmationMessage confirmationMessage) {
+    private void sendMessage(SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmationMessage) {
         WebServiceActivator.STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS
                 .forEach(service -> service.call(confirmationMessage));
     }

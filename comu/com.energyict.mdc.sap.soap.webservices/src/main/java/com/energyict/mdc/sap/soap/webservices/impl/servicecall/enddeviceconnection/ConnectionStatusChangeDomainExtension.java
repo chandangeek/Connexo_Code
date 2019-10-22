@@ -57,9 +57,7 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String reasonCode;
     private Instant processDate;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean bulk;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean cancelledBySap;
 
     public String getId() {

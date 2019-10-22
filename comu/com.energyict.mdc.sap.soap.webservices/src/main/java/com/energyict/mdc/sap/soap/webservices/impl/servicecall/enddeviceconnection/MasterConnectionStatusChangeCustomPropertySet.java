@@ -33,6 +33,7 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
     private volatile Thesaurus thesaurus;
 
     public MasterConnectionStatusChangeCustomPropertySet() {
+        // for OSGI purpose
     }
 
     @Inject
@@ -86,7 +87,7 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_UUID)
+                        .named(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish()
@@ -94,8 +95,8 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
         );
     }
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
-        private final String TABLE_NAME = "SAP_T02_MASTER_CR_SC_CPS";
-        private final String FK = "FK_SAP_T02_MASTER_CR_SC_CPS";
+        private final String TABLE_NAME = "SAP_C02_MASTER_CR_SC_CPS";
+        private final String FK = "FK_SAP_C02_MASTER_CR_SC_CPS";
 
         @Override
         public String componentName() {
@@ -137,6 +138,7 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
             table.column(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .notNull()
                     .add();
         }
 

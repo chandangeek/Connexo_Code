@@ -23,7 +23,7 @@ import java.time.Clock;
 public class CheckStatusChangeCancellationHandlerFactory implements MessageHandlerFactory {
     public static final String CHECK_STATUS_CHANGE_CANCELLATION_TASK_DESTINATION = "StatusChgCancelTopic";
     public static final String CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER = "StatusChgCancelSubscriber";
-    public static final String CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME = "checkStatusChangeCancellation";
+    public static final String CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME = "Check status change cancellation";
     public static final int CHECK_STATUS_CHANGE_CANCELLATION_TASK_RETRY_DELAY = 60;
 
     private volatile TaskService taskService;
@@ -31,6 +31,7 @@ public class CheckStatusChangeCancellationHandlerFactory implements MessageHandl
     private volatile Clock clock;
 
     public CheckStatusChangeCancellationHandlerFactory() {
+        // for OSGI purpose
     }
 
     @Inject
