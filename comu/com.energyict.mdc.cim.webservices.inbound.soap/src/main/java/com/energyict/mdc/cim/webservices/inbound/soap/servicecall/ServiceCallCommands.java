@@ -355,8 +355,9 @@ public class ServiceCallCommands {
 
         if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay)) {
             Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
+            boolean isComTaskExists = false;
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
-
+                isComTaskExists = true;
                 if (start != null && actualEnd.isBefore(start)) {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
                             MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
@@ -387,7 +388,12 @@ public class ServiceCallCommands {
                     // wait next task execution
                 }
             }
-            subParentServiceCall.requestTransition(DefaultState.WAITING);
+            if(isComTaskExists) {
+                subParentServiceCall.requestTransition(DefaultState.WAITING);
+            }else {
+                subParentServiceCall.requestTransition(DefaultState.FAILED);
+                subParentServiceCall.log(LogLevel.SEVERE,"No proper communication task execution has been found on device.");
+            }
             meterReadingRunning = true;
         }
         return meterReadingRunning;
