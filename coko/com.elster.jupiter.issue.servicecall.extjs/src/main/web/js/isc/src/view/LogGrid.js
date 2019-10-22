@@ -39,25 +39,6 @@ Ext.define('Isc.view.LogGrid', {
             } 
         ];
 
-        me.dockedItems = [
-            {
-                xtype: 'toolbar',
-                itemId: 'components-list-top-toolbar',
-                items: [
-                    '->',
-                    {
-                        xtype: 'exporterbutton',
-                        itemId: 'components-exporter-button',
-                        ui: 'icon',
-                        iconCls: 'icon-file-download',
-                        text: '',
-                        component: me
-                    }
-                ]
-            }
-        ];
-
         me.callParent(arguments);
-        me.bindStore(Ext.getStore('Isc.store.Logs'));
     }
 });
