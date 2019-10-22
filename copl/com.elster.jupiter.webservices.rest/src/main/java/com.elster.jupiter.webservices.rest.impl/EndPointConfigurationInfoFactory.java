@@ -168,12 +168,10 @@ public class EndPointConfigurationInfoFactory {
 
     public EndPointConfiguration updateEndPointConfiguration(OutboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         this.applyCommonChanges(endPointConfiguration, info);
-        if(endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.NONE))
-        {
+        if(endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.NONE)) {
             endPointConfiguration.setPassword(null);
             endPointConfiguration.setUsername(null);
-        }
-        else {
+        } else {
             endPointConfiguration.setPassword(info.password);
             endPointConfiguration.setUsername(info.username);
         }

@@ -362,6 +362,9 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         if(outboundEndPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.BASIC_AUTHENTICATION)) {
             verify(outboundEndPointConfiguration).setUsername("u");
             verify(outboundEndPointConfiguration).setPassword("p");
+        } else {
+            verify(outboundEndPointConfiguration).setUsername(null);
+            verify(outboundEndPointConfiguration).setPassword(null);
         }
         verify(outboundEndPointConfiguration).setHttpCompression(true);
         verify(outboundEndPointConfiguration).setSchemaValidation(true);
