@@ -129,26 +129,29 @@ Ext.define('Wss.controller.Webservices', {
                    var view = Ext.widget('webservice-history-occurence', {
                        router: me.getController('Uni.controller.history.Router'),
                        endpoint: endpoint,
-                       occurrence: occurrence
+                       occurrence: occurrence,
+                       time : occurrence.data.startTime
                    });
 
                    var endpointName = occurrence.getEndpoint() && occurrence.getEndpoint().get('name');
 
                    me.getApplication().fireEvent('changecontentevent', view);
                    me.getApplication().fireEvent('occurenceload', endpointName);
+                   me.getApplication().fireEvent('endpointlogdate', occurrence.data.startTime);
 
               }
         });
     },
 
-    showWebserviceEndPoint: function (endpointId, occurenceId) {
+    showWebserviceEndPoint: function (endpointId, occurrence) {
         var me = this;
 
         if ((Uni.Auth.hasPrivilege('privilege.administrate.webservices')) || (Uni.Auth.hasPrivilege('privilege.view.webservices')) || (Uni.Auth.hasPrivilege('privilege.retry.webservices'))){
             me.getModel('Wss.model.Endpoint').load(endpointId, {
                 success: function (endpoint) {
-                    me.showWebserviceHistoryOccurrence(occurenceId, endpoint);
+                    me.showWebserviceHistoryOccurrence(occurrence, endpoint);
                     me.getApplication().fireEvent('endpointload', endpoint.get('name'));
+
                 }
             });
         }else{

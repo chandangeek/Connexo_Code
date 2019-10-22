@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.profile;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
@@ -129,11 +129,11 @@ public class ZigbeeGasDLMSProfileIntervals extends DLMSProfileIntervals {
      */
     public Number getValueFromDataType(AbstractDataType dataType, TimeZone tz) {
         if ((dataType instanceof OctetString) && (dataType.getOctetString() != null)) {
-            final DateTime dateTime = dataType.getOctetString().getDateTime(tz);
-            if (dateTime == null) {
+            final DateTimeOctetString dateTimeOctetString = dataType.getOctetString().getDateTime(tz);
+            if (dateTimeOctetString == null) {
                 return dataType.intValue();
             } else {
-                return dateTime.getValue().getTimeInMillis();
+                return dateTimeOctetString.getValue().getTimeInMillis();
             }
         }
         final int type = dataType.intValue();

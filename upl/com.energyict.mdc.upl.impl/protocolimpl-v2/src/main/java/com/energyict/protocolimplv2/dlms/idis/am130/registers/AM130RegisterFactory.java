@@ -10,7 +10,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.HistoricalValue;
@@ -309,9 +309,9 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         if (composedRegister.getRegisterCaptureTime() != null) {
             AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
             TimeZone configuredTimeZone = getMeterProtocol().getDlmsSession().getTimeZone();
-            DateTime dlmsDateTime = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
+            DateTimeOctetString dlmsDateTimeOctetString = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
 
-            captureTime = dlmsDateTime.getValue().getTime();
+            captureTime = dlmsDateTimeOctetString.getValue().getTime();
 
             // Add the raw offset.
             int offsetAtCaptureTime = configuredTimeZone.getRawOffset();
@@ -322,10 +322,10 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
             }
 
             int configuredTimeZoneOffset = offsetAtCaptureTime / (-1 * 60 * 1000);
-            if (dlmsDateTime.getDeviation() != configuredTimeZoneOffset) {
+            if (dlmsDateTimeOctetString.getDeviation() != configuredTimeZoneOffset) {
                 timeZoneIssue = getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
-                        "Time zone offset reported by the meter [" + dlmsDateTime.getDeviation() + "] " +
-                                (dlmsDateTime.isDST() ? " (in DST) " : "") +
+                        "Time zone offset reported by the meter [" + dlmsDateTimeOctetString.getDeviation() + "] " +
+                                (dlmsDateTimeOctetString.isDST() ? " (in DST) " : "") +
                                 "differs from the time zone configured in HES [" + configuredTimeZone.getID() + "] = [" + configuredTimeZoneOffset + "]");
             }
 

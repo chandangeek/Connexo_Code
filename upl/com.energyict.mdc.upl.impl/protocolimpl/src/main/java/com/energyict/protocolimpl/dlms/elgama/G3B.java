@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.elgama;
 
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -17,7 +18,6 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -203,7 +203,7 @@ public class G3B extends AbstractDLMSProtocol {
                         final Date date = new Date(System.currentTimeMillis() + roundtripCorrection);
                         final Calendar newTimeToSet = Calendar.getInstance(getTimeZone());
                         newTimeToSet.setTime(date);
-                        getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
+                        getCosemObjectFactory().getClock().setTimeAttr(new DateTimeOctetString(newTimeToSet));
                     }
                 }
                 timeAdjusted = true;
