@@ -78,6 +78,8 @@ public interface ScheduledJob {
      */
     void releaseToken();
 
+    void releaseTokenSilently();
+
     /**
      * Returns the {@link DeviceCommandExecutionToken}
      * that represents execution resources that are allocated
