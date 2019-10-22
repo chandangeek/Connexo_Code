@@ -219,7 +219,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
                 decryptedPassword = new String(decryptedPasswordData, "UTF-8");
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException |
                     InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
-                    | BadPaddingException e) {
+                    | BadPaddingException | ArrayIndexOutOfBoundsException e) {
                 InvalidPasswordException exception = new InvalidPasswordException();
                 Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
                 throw exception;
