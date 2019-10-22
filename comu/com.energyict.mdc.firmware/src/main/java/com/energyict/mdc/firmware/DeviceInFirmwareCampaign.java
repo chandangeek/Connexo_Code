@@ -22,7 +22,7 @@ public interface DeviceInFirmwareCampaign {
 
     ServiceCall getServiceCall();
 
-    ServiceCall cancel();
+    ServiceCall cancel(boolean initFromCampaign);
 
     ServiceCall retry();
 

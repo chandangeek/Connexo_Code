@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.tasks.impl;
 
-import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;

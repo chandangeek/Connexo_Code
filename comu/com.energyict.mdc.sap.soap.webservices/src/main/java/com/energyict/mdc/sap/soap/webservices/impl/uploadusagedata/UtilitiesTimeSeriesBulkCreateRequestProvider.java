@@ -23,6 +23,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageID;
@@ -36,8 +37,10 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqItmSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqUtilsTmeSers;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -149,7 +152,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Override
-    UtilsTmeSersERPItmBulkCrteReqMsg createMessage(Stream<? extends ExportData> data, String uuid) {
+    UtilsTmeSersERPItmBulkCrteReqMsg createMessage(Stream<? extends ExportData> data, String uuid, SetMultimap<String, String> values) {
         UtilsTmeSersERPItmBulkCrteReqMsg msg = new UtilsTmeSersERPItmBulkCrteReqMsg();
         Instant now = getClock().instant();
         msg.setMessageHeader(createMessageHeader(uuid, now));
@@ -157,6 +160,10 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .map(MeterReadingData.class::cast)
                 .forEach(item -> addDataItem(msg, item, now));
         if (msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().size() > 0) {
+            msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().forEach(message->{
+                values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+                        message.getUtilitiesTimeSeries().getID().getValue());
+            });
             return msg;
         }
         return null;

@@ -8,6 +8,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
@@ -138,7 +139,7 @@ public class MeterRegisterChangeConfirmationMessage {
 
         private LogItem createLogItem(String code, String message) {
             LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-            logItemCategoryCode.setValue("PRE");
+            logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
 
             LogItem logItem = objectFactory.createLogItem();
             logItem.setTypeID(code);

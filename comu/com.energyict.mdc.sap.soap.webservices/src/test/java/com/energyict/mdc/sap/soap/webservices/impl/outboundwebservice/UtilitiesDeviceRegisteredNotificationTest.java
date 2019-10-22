@@ -10,11 +10,15 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilsDvceERPSmrtMtrRegedNotifMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -58,6 +62,7 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
         deviceId = "100000000524205";
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
@@ -72,8 +77,13 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
         provider.addRequestConfirmationPort(port, properties);
         provider.call(deviceId);
 
+        SetMultimap<String,String> values = HashMultimap.create();
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                deviceId);
+
         verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut");
         verify(requestSender).send(any(UtilsDvceERPSmrtMtrRegedNotifMsg.class));
+        verify(requestSender).withRelatedAttributes(values);
     }
 
     @Test

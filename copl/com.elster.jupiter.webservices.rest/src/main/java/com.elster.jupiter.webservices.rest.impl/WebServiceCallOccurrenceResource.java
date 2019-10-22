@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.webservices.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -14,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -131,6 +133,29 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
 
         return PagedInfoList.fromPagedList("logs", logsInfo, queryParameters);
 
+    }
+
+    @GET
+    @Path("/relatedattributes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
+    public Response getRelatedObjects(@BeanParam JsonQueryParameters params) {
+        String searchText = params.getLike();
+
+        Finder<WebServiceCallRelatedAttribute> finder = webServiceCallOccurrenceService.getRelatedAttributesByValueLike(searchText);
+
+        if (params.getStart().isPresent() && params.getLimit().isPresent()){
+            finder.paged(params.getStart().get(),params.getLimit().get());
+        }
+
+        List<WebServiceCallRelatedAttribute> listRelatedObjects = finder.find();
+
+        List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream().map(obj-> {
+            return new RelatedAttributeInfo(obj.getId(),
+                                        obj.getValue()+" ("+webServiceCallOccurrenceService.translateAttributeType(obj.getKey())+")");
+        }).collect(toList());
+
+        return Response.ok().entity(listInfo).build();
     }
 
 }

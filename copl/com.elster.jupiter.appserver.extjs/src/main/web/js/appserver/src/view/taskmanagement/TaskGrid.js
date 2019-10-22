@@ -90,7 +90,7 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                         itemId: 'btnAddTask',
                         text: Uni.I18n.translate('taskManagement.general.addTask', 'APR', 'Add task'),
                         privileges: function () {
-                            return Apr.TaskManagementApp.canAdministrate();
+                            return Apr.TaskManagementApp.canAdministrate() && Uni.Auth.hasPrivilege('privilege.edit.AdministerTaskOverview');
                         },
                         href: me.addTaskRoute
                     }

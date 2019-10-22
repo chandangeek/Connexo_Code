@@ -51,7 +51,6 @@ Ext.define('Usr.view.user.BrowseUsers', {
 
     initComponent: function () {
         var me = this,
-            domainsStore = this.getService().getSearchDomainsStore(),
             store = Ext.getStore('Uni.store.search.Properties');
 
         me.items = [
@@ -228,6 +227,17 @@ Ext.define('Usr.view.user.BrowseUsers', {
             destroyable: true
         });
 
+        var domainListeners = me.service.getSearchDomainsStore().on({
+            load: function () {
+                // Added in order to get rid of 'save/load criteria filter' functionallity
+                // As soon as this will be redone on another layer of abstraction, this can be deleted.
+                me.down('#load-button').setVisible(false);
+                me.down('#save-search-button').setVisible(false);
+            },
+            scope: me,
+            destroyable: true
+        });
+
         var resultsListeners = me.service.getSearchResultsStore().on({
             load: me.setGridMaxHeight,
             scope: me,
@@ -236,6 +246,7 @@ Ext.define('Usr.view.user.BrowseUsers', {
 
         me.on('destroy', function () {
             listeners.destroy();
+            domainListeners.destroy();
             resultsListeners.destroy();
         });
     },

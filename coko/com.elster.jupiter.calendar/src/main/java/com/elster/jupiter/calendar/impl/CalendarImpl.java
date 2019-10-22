@@ -432,11 +432,12 @@ public class CalendarImpl implements ServerCalendar {
                                     ((RecurrentPeriodTransitionSpec) spec).getOccurrence().atYear(finalYear),
                                     spec.getPeriod()))
                     .collect(Collectors.toList()));
-            year ++;
+            year++;
         }
         return result;
     }
 
+    @Override
     public EventSet getEventSet() {
         return eventSet.get();
     }
@@ -537,10 +538,10 @@ public class CalendarImpl implements ServerCalendar {
         // Synchronize to avoid that two threads create the same time series
         return new CalendarTimeSeriesImpl(
                 this.timeSeries
-                    .stream()
-                    .filter(timeSeries -> timeSeries.matches(interval, zoneId))
-                    .findAny()
-                    .orElseGet(() -> this.createTimeSeries(interval, zoneId)));
+                        .stream()
+                        .filter(timeSeries -> timeSeries.matches(interval, zoneId))
+                        .findAny()
+                        .orElseGet(() -> this.createTimeSeries(interval, zoneId)));
     }
 
     private CalendarTimeSeriesEntity createTimeSeries(TemporalAmount interval, ZoneId zoneId) {

@@ -313,7 +313,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
         var me = this,
             issueId = me.record.getId(),
             issueType = me.record.get('issueType').uid,
-            fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0],
+            fromDetails = (Ext.ComponentQuery.query('issue-detail-top')[0]) ? true : false,
             predefinedItems = me.getPredefinedItems();
 
         var me = this,
@@ -383,7 +383,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                                 issueId: issueId
                             },
                             {
-                                details: (fromDetails) ? true : false,
+                                details: fromDetails,
                                 issueType: issueType
                             }
                         );
@@ -399,7 +399,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 action: 'startProcess',
                 section: this.SECTION_ACTION,
                 href: me.router.getRoute(me.router.currentRoute + '/view/startProcess').buildUrl({issueId: issueId}, {
-                    details: false,
+                    details: fromDetails,
                     issueType: issueType
                 }),
                 details: false
@@ -412,7 +412,7 @@ Ext.define('Mdc.view.setup.devicehistory.IssueAlarmActionMenu', {
                 text: Uni.I18n.translate('alarms.actionMenu.startProcess', 'MDC', 'Start process'),
                 action: 'startProcess',
                 section: this.SECTION_ACTION,
-                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId}, {details: (detail) ? true : false}),
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId}, {details: fromDetails}),
                 details: false
             });
         }

@@ -25,13 +25,15 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
-        'Wss.store.Roles'
+        'Wss.store.Roles',
+        'Wss.store.RelatedAttributeStore'
     ],
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
         'Wss.model.endpoint.Occurrence',
-        'Wss.model.Log'
+        'Wss.model.Log',
+        'Wss.model.RelatedAttributeModel'
     ],
 
     refs: [
@@ -489,6 +491,7 @@ Ext.define('Wss.controller.Webservices', {
                     view.down('webservices-action-menu').record = record;
                 }
                 me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('endpointload', record.get('name'));
             }
         });
     },

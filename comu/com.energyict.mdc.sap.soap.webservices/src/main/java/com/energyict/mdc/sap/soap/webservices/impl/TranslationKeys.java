@@ -70,11 +70,13 @@ public enum TranslationKeys implements TranslationKey {
     MANUFACTURER("manufacturer", "Manufacturer"),
     MODEL_NUMBER("modelNumber", "Model number"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
+    MATERIAL_ID("materialId", "Material id"),
     NEXT_READING_ATTEMPT_DATE("nextReadingAttemptDate", "Next reading attempt date"),
     READING_ATTEMPT("readingAttempt", "Reading attempt"),
     CANCELLED_BY_SAP("cancelledBySap", "Cancelled by SAP"),
     CANCELLED_BY_SAP_DESCRIPTION("cancelledBySapDescription", "The property is used to distinguish service call cancelled manually in Connexo / by SAP"),
     TIME_ZONE("timeZone", "Time zone"),
+    COM_TASK_EXECUTION_ID("comTaskExecutionId", "Communication task execution id"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
@@ -102,7 +104,7 @@ public enum TranslationKeys implements TranslationKey {
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
     AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
-    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one LRN was set on the device"),
+    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one Logical Register Number was set on the device"),
     ;
 
     private final String key;

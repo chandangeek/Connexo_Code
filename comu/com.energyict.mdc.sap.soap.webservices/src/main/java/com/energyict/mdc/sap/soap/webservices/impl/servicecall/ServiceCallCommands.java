@@ -278,8 +278,8 @@ public class ServiceCallCommands {
     }
 
     private boolean isCurrentDate(Instant date) {
-        LocalDateTime localDate = LocalDateTime.ofInstant(date, ZoneId.of("UTC"));
-        LocalDateTime localNow = LocalDateTime.ofInstant(clock.instant(), ZoneId.of("UTC"));
+        LocalDateTime localDate = LocalDateTime.ofInstant(date, ZoneId.systemDefault());
+        LocalDateTime localNow = LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
 
         return localDate.getDayOfMonth() == localNow.getDayOfMonth() && localDate.getMonth().equals(localNow.getMonth()) && localDate.getYear() == localNow.getYear();
     }

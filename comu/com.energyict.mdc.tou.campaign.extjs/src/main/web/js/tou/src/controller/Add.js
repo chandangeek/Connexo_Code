@@ -98,8 +98,7 @@ Ext.define('Tou.controller.Add', {
                 var activationOption,
                 activationDate;
                 activationOption = activateCalendarItem.getOptionValue();
-                if (activationOption)
-                    record.set('activationOption', activationOption);
+                if (activationOption) record.set('activationOption', activationOption);
                 if (activationOption == 'onDate' && activateCalendarItem.getDateValue())
                     record.set('activationDate', activateCalendarItem.getDateValue());
                 else if (record.data && record.data['activationDate'] !== undefined)
@@ -201,9 +200,12 @@ Ext.define('Tou.controller.Add', {
         errorMessage = form.down('uni-form-error-message'),
         periodCombo = form.down('#period-combo'),
         periodCount = form.down('#period-number'),
-        baseForm = form.getForm();
+        baseForm = form.getForm(),
+        activateCalendarItem = form.down('#activate-calendar');
 
-        if (!form.isValid()) {
+        if (!form.isValid() || !activateCalendarItem.getOptionValue()) {
+            var activateCalendarError = form.down('#activateCalendarErrorMain');
+            activateCalendarItem.getOptionValue() && activateCalendarError ? activateCalendarError.hide() : activateCalendarError.show();
             errorMessage.show();
             return;
         }

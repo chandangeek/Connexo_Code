@@ -94,6 +94,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
@@ -131,6 +134,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -143,6 +147,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
         immediate = true)
 public class WebServiceActivator implements MessageSeedProvider, TranslationKeyProvider {
     private static final Logger LOGGER = Logger.getLogger(WebServiceActivator.class.getName());
+    private static final String DEVICE_TYPES_MAPPING = "com.elster.jupiter.sap.device.types.mapping";
+    private static final String DEFAULT_DEVICE_TYPES_MAPPING = "MTREAHW0MV:A1860;MTREAHW0LV:AS3500";
 
     public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
@@ -186,6 +192,24 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final String UPDATE_SAP_EXPORT_TASK_NAME = "Update SAP export group task";
     private static final int UPDATE_SAP_EXPORT_TASK_RETRY_DELAY = 60;
 
+    // Search data sources by SAP id's
+    private static final String REGISTER_SEARCH_INTERVAL_PROPERTY = "com.elster.jupiter.sap.registersearchinterval";
+    private static final String SEARCH_DATA_SOURCE_TASK_NAME = "SearchDataSourceTask";
+    private static final String SEARCH_DATA_SOURCE_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
+    private static final int SEARCH_DATA_SOURCE_TASK_RETRY_DELAY = 60;
+
+    // Check SAP confirmation timeout
+    private static final String CHECK_CONFIRMATION_TIMEOUT_FREQUENCY_PROPERTY = "com.elster.jupiter.sap.checkconfirmationtimeoutfrequency";
+    private static final String CHECK_CONFIRMATION_TIMEOUT_TASK_NAME = "CheckConfirmationTimeoutTask";
+    private static final String CHECK_CONFIRMATION_TIMEOUT_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
+    private static final int CHECK_CONFIRMATION_TIMEOUT_TASK_RETRY_DELAY = 60;
+
+    // Check scheduled SAP requests
+    private static final String CHECK_SCHEDULED_REQUEST_FREQUENCY_PROPERTY = "com.elster.jupiter.sap.checkscheduledrequestsfrequency";
+    private static final String CHECK_SCHEDULED_REQUEST_TASK_NAME = "CheckScheduledRequestTask";
+    private static final String CHECK_SCHEDULED_REQUEST_TASK_SCHEDULE = "0 0/60 * 1/1 * ? *";
+    private static final int CHECK_SCHEDULED_REQUEST_TASK_RETRY_DELAY = 60;
+
     private static String exportTaskName;
     private static String exportTaskDeviceGroupName;
     private static List<String> listOfRoleCodes;
@@ -199,6 +223,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
@@ -227,6 +252,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private Map<String, String> deviceTypesMap;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -260,6 +286,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return Optional.ofNullable(exportTaskUpdatedDataEndpointName);
     }
 
+    public Map<String, String> getDeviceTypesMap() {
+        return deviceTypesMap;
+    }
+
     public WebServiceActivator() {
         // for OSGI purposes
     }
@@ -277,7 +307,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                TaskService taskService, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService,
                                MeteringGroupsService meteringGroupsService, DataExportService dataExportService,
                                TimeService timeService,
-                               MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor) {
+                               MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
+                               DeviceAlarmService deviceAlarmService,
+                               IssueService issueService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -306,6 +338,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         setDataExportService(dataExportService);
         setTimeService(timeService);
         setMeasurementTaskAssignmentChangeProcessor(measurementTaskAssignmentChangeProcessor);
+        setDeviceAlarmService(deviceAlarmService);
+        setIssueService(issueService);
         activate(bundleContext);
     }
 
@@ -343,6 +377,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 bind(DataExportService.class).toInstance(dataExportService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(MeasurementTaskAssignmentChangeProcessor.class).toInstance(measurementTaskAssignmentChangeProcessor);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(NlsService.class).toInstance(nlsService);
+                bind(WebServiceActivator.class).toInstance(WebServiceActivator.this);
             }
         };
     }
@@ -380,8 +417,25 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_UPDATE_WINDOW));
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
+
+        loadDeviceTypesMap();
         createOrUpdateUpdateSapExportTask();
+        createOrUpdateSearchDataSourceTask();
+        createOrUpdateCheckConfirmationTimeoutTask();
+        createOrUpdateCheckScheduledRequestTask();
         createOrUpdateCheckStatusChangeCancellationTask();
+    }
+
+    private void loadDeviceTypesMap() {
+        try {
+            String strMap = Optional.ofNullable(getPropertyValue(bundleContext, DEVICE_TYPES_MAPPING)).orElse(DEFAULT_DEVICE_TYPES_MAPPING);
+            deviceTypesMap = Arrays.stream(strMap.split(";"))
+                    .map(s -> s.split(":"))
+                    .collect(Collectors.toMap(e -> e[0], e -> e[1]));
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, MessageSeeds.ERROR_LOADING_PROPERTY.getDefaultFormat(DEVICE_TYPES_MAPPING, ex.getLocalizedMessage()));
+            deviceTypesMap = Collections.emptyMap();
+        }
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {
@@ -407,6 +461,33 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 TranslationKeys.CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER_NAME,
                 CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME,
                 PeriodicalScheduleExpression.every(frequency).minutes().at(0).build().encoded());
+    }
+
+    private void createOrUpdateSearchDataSourceTask() {
+        String property = bundleContext.getProperty(REGISTER_SEARCH_INTERVAL_PROPERTY);
+        createOrUpdateActionTask(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DESTINATION,
+                SEARCH_DATA_SOURCE_TASK_RETRY_DELAY,
+                TranslationKeys.SEARCH_DATA_SOURCE_SUBSCRIBER_NAME,
+                SEARCH_DATA_SOURCE_TASK_NAME,
+                property == null ? SEARCH_DATA_SOURCE_TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *");
+    }
+
+    private void createOrUpdateCheckConfirmationTimeoutTask() {
+        String property = bundleContext.getProperty(CHECK_CONFIRMATION_TIMEOUT_FREQUENCY_PROPERTY);
+        createOrUpdateActionTask(CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_DESTINATION,
+                CHECK_CONFIRMATION_TIMEOUT_TASK_RETRY_DELAY,
+                TranslationKeys.CHECK_CONFIRMATION_TIMEOUT_SUBSCRIBER_NAME,
+                CHECK_CONFIRMATION_TIMEOUT_TASK_NAME,
+                property == null ? CHECK_CONFIRMATION_TIMEOUT_TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *");
+    }
+
+    private void createOrUpdateCheckScheduledRequestTask() {
+        String property = bundleContext.getProperty(CHECK_SCHEDULED_REQUEST_FREQUENCY_PROPERTY);
+        createOrUpdateActionTask(CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_DESTINATION,
+                CHECK_SCHEDULED_REQUEST_TASK_RETRY_DELAY,
+                TranslationKeys.CHECK_SCHEDULED_REQUEST_SUBSCRIBER_NAME,
+                CHECK_SCHEDULED_REQUEST_TASK_NAME,
+                property == null ? CHECK_SCHEDULED_REQUEST_TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *");
     }
 
     private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
@@ -695,7 +776,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     public void removeMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
-            MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
+        MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -746,6 +827,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
     }
