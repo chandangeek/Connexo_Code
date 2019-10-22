@@ -40,7 +40,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             return Collections.emptyList();
         }
     },
-    CHANGE_GPRS_USER_CREDENTIALS(4003, "Change the LTE user credentials") {
+    CHANGE_GPRS_USER_CREDENTIALS(4003, "Change the GPRS user credentials") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -49,7 +49,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CHANGE_GPRS_APN_CREDENTIALS(4004, "Change the LTE apn credentials") {
+    CHANGE_GPRS_APN_CREDENTIALS(4004, "Change the GPRS APN credentials") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -636,6 +636,24 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, DeviceMessageConstants.uplinkPingDestinationAddress, DeviceMessageConstants.enableUplinkPingDefaultTranslation)
             );
         }
+    },
+
+    CONFIGURE_INTERFACE_LOCKOUT_PARAMETERS(4077, "Configure interface lockout parameters") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.remoteShellMaxLoginAttempts, DeviceMessageConstants.remoteShellMaxLoginAttemptsDefaultTranslation),
+                    this.durationSpec(service, DeviceMessageConstants.remoteShellLockoutDuration, DeviceMessageConstants.remoteShellLockoutDurationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.webPortalMaxLoginAttempts, DeviceMessageConstants.webPortalMaxLoginAttemptsDefaultTranslation),
+                    this.durationSpec(service, DeviceMessageConstants.webPortalLockoutDuration, DeviceMessageConstants.webPortalLockoutDurationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.snmpMaxLoginAttempts, DeviceMessageConstants.snmpMaxLoginAttemptsDefaultTranslation),
+                    this.durationSpec(service, DeviceMessageConstants.snmpLockoutDuration, DeviceMessageConstants.snmpLockoutDurationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.dlmsLanAllowedFailedAttempts, DeviceMessageConstants.dlmsLanAllowedFailedAttemptsDefaultTranslation),
+                    this.durationSpec(service, DeviceMessageConstants.dlmsLanInitialLockoutTime, DeviceMessageConstants.dlmsLanInitialLockoutTimeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.dlmsWanAllowedFailedAttempts, DeviceMessageConstants.dlmsWanAllowedFailedAttemptsDefaultTranslation),
+                    this.durationSpec(service, DeviceMessageConstants.dlmsWanInitialLockoutTime, DeviceMessageConstants.dlmsWanInitialLockoutTimeDefaultTranslation)
+            );
+        }
     }
     ;
 
@@ -883,7 +901,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         RTU_Discovery_Old_ObisCode("0.18.128.0.0.255"),
         RTU_Discovery_New_ObisCode("0.18.128.0.0.255 "),
         Web_Portal_Config_Old_ObisCode("0.0.128.0.13.255"),
-        Web_Portal_Config_New_ObisCode("0.0.128.0.13.255");
+        Web_Portal_Config_New_ObisCode("0.128.96.197.0.255");
 
         private final String obis;
 

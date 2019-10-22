@@ -10,13 +10,19 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.FailToDeactivateUser;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.UserInfo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UpdateUserTransaction implements Transaction<User> {
 
@@ -50,11 +56,11 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private boolean canUserBeDeactivated(User user){
-        return !info.active && (user.getGroups().stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) || isAnotherUserWithUserAdministratorRole(user));
+        return !info.active  && isAnotherUserWithUserAdministratorPrivileges(user);
     }
 
     private boolean canUserBeActivated(User user){
-        return info.active && (user.getGroups().stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) || isAnotherUserWithUserAdministratorRole(user));
+        return info.active && (user.getGroups().stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) || isAnotherUserWithUserAdministratorPrivileges(user));
     }
 
     private boolean updateMemberships(User user) {
@@ -77,18 +83,34 @@ public class UpdateUserTransaction implements Transaction<User> {
         }
     }
 
-    private boolean isAnotherUserWithUserAdministratorRole(User user){
-        return userService.getUsers().stream()
+    private boolean isAnotherUserWithUserAdministratorPrivileges(User user){
+        for(List<Group> groupsList : userService.getUsers().stream()
                 .filter(u -> u.getId() != user.getId())
                 .filter(User::getStatus)
-                .map(User::getGroups)
-                .anyMatch(groupList -> groupList.stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)));
+                .map(User::getGroups).collect(Collectors.toList())) {
+
+            if(groupsList.stream().anyMatch(g -> isGroupUserAdministratorGroup(g)))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isGroupUserAdministratorGroup(Group group){
+        List<String> privilegesList = new ArrayList<>();
+        group.getPrivileges().values().forEach(privileges->{
+             privilegesList.addAll(privileges.stream().map(Privilege::getName).collect(Collectors.toList()));
+        });
+
+        if (privilegesList.containsAll(Arrays.asList(userService.userAdminPrivileges())))
+            return true;
+
+        return false;
     }
 
     private boolean isGroupNotRemovable(User user, Set<Group> current, Set<Group> targetMemberships){
-        return current.stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE))
-                && targetMemberships.stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE))
-                && !isAnotherUserWithUserAdministratorRole(user);
+        return current.stream().anyMatch(g -> isGroupUserAdministratorGroup(g))
+                && targetMemberships.stream().noneMatch(g -> isGroupUserAdministratorGroup(g))
+                && !isAnotherUserWithUserAdministratorPrivileges(user);
 
     }
 
@@ -116,9 +138,13 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private User fetchUser() {
-        return userService.findAndLockUserByIdAndVersion(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.authenticationName)
-                        .withActualVersion(() -> userService.getUser(info.id).map(User::getVersion).orElse(null))
-                        .supplier());
+        return userService.findAndLockUserByIdAndVersion(info.id, info.version).orElseThrow(conflictFactory
+                .contextDependentConflictOn(
+                        info.authenticationName != null ? info.authenticationName : getUserNameFromId(info.id))
+                .withActualVersion(() -> userService.getUser(info.id).map(User::getVersion).orElse(null)).supplier());
+    }
+
+    private String getUserNameFromId(long id) {
+        return userService.getUser(id).map(User::getName).orElse("-");
     }
 }

@@ -39,6 +39,7 @@ public enum Privileges implements TranslationKey {
     ADMINISTRATE_DEVICE_DATA(Constants.ADMINISTRATE_DEVICE_DATA, "Administrate"),
     ADMINISTRATE_DEVICE_COMMUNICATION(Constants.ADMINISTRATE_DEVICE_COMMUNICATION, "Administrate"),
     OPERATE_DEVICE_COMMUNICATION(Constants.OPERATE_DEVICE_COMMUNICATION, "Operate"),
+    RUN_WITH_PRIO(Constants.RUN_WITH_PRIO, "Run with priority"),
     ADMINISTRATE_DEVICE_GROUP(Constants.ADMINISTRATE_DEVICE_GROUP, "Administrate"),
     ADMINISTRATE_DEVICE_ENUMERATED_GROUP(Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, "Administrate static device groups"),
     VIEW_DEVICE_GROUP_DETAIL(Constants.VIEW_DEVICE_GROUP_DETAIL, "View detail"),
@@ -97,6 +98,7 @@ public enum Privileges implements TranslationKey {
 
         String ADMINISTRATE_DEVICE_COMMUNICATION = "privilege.administrate.deviceCommunication";
         String OPERATE_DEVICE_COMMUNICATION = "privilege.operate.deviceCommunication";
+        String RUN_WITH_PRIO = "privilege.operate.deviceCommunication.runWithPriority";
 
         String ADMINISTRATE_DEVICE_GROUP = "privilege.administrate.deviceGroup";
         String ADMINISTRATE_DEVICE_ENUMERATED_GROUP = "privilege.administrate.deviceOfEnumeratedGroup";

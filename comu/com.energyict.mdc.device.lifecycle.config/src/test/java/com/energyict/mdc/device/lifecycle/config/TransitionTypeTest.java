@@ -5,6 +5,8 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 
 import java.util.Optional;
 

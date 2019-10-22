@@ -20,7 +20,7 @@ import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.modemproperties.AbstractModemProperties;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
 
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -226,7 +226,7 @@ public class SioSerialConnectionProperties extends AbstractVersionedPersistentDo
                 this.addAsEnumColumnTo(table);
             }
         },
-        PHONE_NUMBER("phoneNumber", "PHONENUMBER") {
+        PHONE_NUMBER("phoneNumber", "PHONE_NUMBER") {
             @Override
             protected void addTo(Table table) {
                 this.addAsStringColumnTo(table);

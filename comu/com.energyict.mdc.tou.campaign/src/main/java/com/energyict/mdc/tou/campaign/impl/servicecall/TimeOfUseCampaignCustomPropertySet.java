@@ -13,7 +13,7 @@ import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
 
 import javax.inject.Inject;
@@ -141,6 +141,31 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                 propertySpecService
                         .booleanSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), TranslationKeys.WITH_UNIQUE_CALENDAR_NAME)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), TranslationKeys.CALENDAR_UPLOAD_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName(), TranslationKeys.VALIDATION_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), TranslationKeys.CALENDAR_UPLOAD_CONNECTIONSTRATEGY)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .booleanSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName(), TranslationKeys.MANUALLY_CANCELLED)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

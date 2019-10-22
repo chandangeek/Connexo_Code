@@ -22,6 +22,11 @@ Ext.define('Fwc.firmwarecampaigns.view.SideMenu', {
                 text: Uni.I18n.translate('general.devices', 'FWC', 'Devices'),
                 itemId: 'firmware-campaign-devices-link',
                 href: me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign/devices').buildUrl()
+            },
+            {
+                text: Uni.I18n.translate('firmware.campaigns.configuration', 'FWC', 'Campaign configuration'),
+                itemId: 'firmware-campaign-configuration-link',
+                href: me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign/configuration').buildUrl()
             }
         ];
 

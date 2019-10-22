@@ -15,15 +15,14 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.MissingDataOption;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -36,7 +35,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
@@ -72,7 +70,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.doReturn;
@@ -113,7 +110,7 @@ public class StandardDataSelectorTest {
     @Mock
     private Meter meter1, meter2, meter3;
     @Mock
-    private IReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
+    private ReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
     @Mock
     private ReadingType readingType1;
     @Mock
@@ -308,7 +305,7 @@ public class StandardDataSelectorTest {
         assertThat(obsoleteItem.isActive()).isFalse();
 
         assertThat(selectorConfig.getExportItems().stream()
-                .filter(IReadingTypeDataExportItem::isActive)
+                .filter(ReadingTypeDataExportItem::isActive)
                 .count()).isEqualTo(2);
     }
 }

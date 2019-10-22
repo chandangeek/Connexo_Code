@@ -9,30 +9,33 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.elster.jupiter.users.User;
+
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -46,9 +49,11 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -81,6 +86,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Mock
     private Device device;
+
+    @Mock
+    User user;
 
     @Override
     protected void setupTranslations() {
@@ -117,6 +125,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
         List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(comTaskEnablements);
+        
+        when(securityContext.getUserPrincipal()).thenReturn(user);
     }
 
     public DeviceInfo getDeviceInfo(){
@@ -268,6 +278,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
+        preparePrivileges(comTask, user);
+
 
         device.getComTaskExecutions().add(comTaskExecution);
 
@@ -276,6 +288,31 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecution, times(1)).scheduleNow();
+    }
+
+    @Test
+    public void testRunComTaskFromExecutionWhenUserDoesNotHavePrivilegeToExecuteIt() throws Exception {
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        deviceConfiguration.getComTaskEnablements().add(comTaskEnablement);
+
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+
+        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
+        Set<ComTaskUserAction> userActions = new HashSet<>();
+        userActions.add(ComTaskUserAction.EXECUTE_SCHEDULE_PLAN_COM_TASK_1);
+        when(comTask.getUserActions()).thenReturn(userActions);
+
+        when(user.getPrivileges()).thenReturn(Collections.emptySet());
+
+
+        device.getComTaskExecutions().add(comTaskExecution);
+
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/" + DEVICE_NAME + "/comtasks/111/run").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(comTaskExecution, never()).scheduleNow();
     }
 
     @Test
@@ -400,6 +437,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTask comTask = mockUserComTask(comTaskId);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(taskService.findComTask(comTaskId)).thenReturn(Optional.of(comTask));
+        preparePrivileges(comTask, user);
         return comTask;
     }
 

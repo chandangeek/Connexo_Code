@@ -6,7 +6,7 @@ package com.energyict.mdc.pluggable.rest;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.upl.TypedProperties;
 
 import aQute.bnd.annotation.ProviderType;

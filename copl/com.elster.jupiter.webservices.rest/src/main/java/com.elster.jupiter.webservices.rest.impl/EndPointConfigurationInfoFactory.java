@@ -97,6 +97,8 @@ public class EndPointConfigurationInfoFactory {
         List<PropertySpec> propertySpecs = endPointConfiguration.getPropertySpecs();
         info.properties = propertySpecs.isEmpty() ? Collections.emptyList()
                 : propertyValueInfoService.getPropertyInfos(propertySpecs, endPointConfiguration.getPropertiesWithValue());
+
+        webService.ifPresent(ws -> info.applicationName = ws.getApplicationName());
         return info;
     }
 
@@ -166,8 +168,13 @@ public class EndPointConfigurationInfoFactory {
 
     public EndPointConfiguration updateEndPointConfiguration(OutboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         this.applyCommonChanges(endPointConfiguration, info);
-        endPointConfiguration.setPassword(info.password);
-        endPointConfiguration.setUsername(info.username);
+        if(endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.NONE)) {
+            endPointConfiguration.setPassword(null);
+            endPointConfiguration.setUsername(null);
+        } else {
+            endPointConfiguration.setPassword(info.password);
+            endPointConfiguration.setUsername(info.username);
+        }
         return endPointConfiguration;
     }
 

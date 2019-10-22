@@ -18,17 +18,21 @@ Ext.define('Isu.controller.Main', {
 
     controllers: [
         'Isu.controller.history.Administration',
+        'Isu.controller.AddDeviceGroupFromIssues',
         'Isu.controller.AssignmentRules',
         'Isu.controller.CreationRules',
         'Isu.controller.CreationRuleEdit',
         'Isu.controller.CreationRuleActionEdit',
+        'Isu.controller.CreationRuleGroupsEdit',
         'Isu.controller.IssuesOverview',
         'Isu.controller.IssueDetail',
         'Isu.controller.ApplyIssueAction',
         'Isu.controller.StartProcess',
         'Isu.controller.Overview',
         'Isu.controller.BulkChangeIssues',
-        'Isu.controller.SetPriority'
+        'Isu.controller.SetPriority',
+        'Isu.controller.ManualIssueDetail',
+        'Isu.controller.CreationManualRule'
     ],
 
     init: function () {
@@ -105,6 +109,14 @@ Ext.define('Isu.controller.Main', {
                     }
                 ]
             });
+
+            if (Isu.privileges.Issue.canCreateManualIssue()){
+                issuesPortalItem.data.items.push({
+                        text: Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue'),
+                        itemId: 'new-manually-issue-item',
+                        href: router.getRoute('workspace/newissuemanually').buildUrl()
+                 })
+            }
         }
 
         if (issuesPortalItem) {

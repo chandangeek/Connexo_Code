@@ -7,13 +7,14 @@ package com.elster.jupiter.datavault.impl;
 import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.KeyStoreAliasGenerator;
+import com.elster.jupiter.util.KeyStoreCache;
+import com.elster.jupiter.util.KeyStoreLoader;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
@@ -23,7 +24,6 @@ import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -48,12 +48,14 @@ class KeyStoreDataVault implements DataVault {
     private static final int IV_SIZE = 16;
     private static final String AES_CBC_PKCS5_PADDING = "AES/CBC/PKCS5Padding";
     private static final String KEYSTORE_TYPE = "JCEKS"; // JCEKS allows storing AES symmetric keys
+    private static final KeyStoreAliasGenerator KEY_STORE_ALIAS_GENERATOR = new KeyStoreAliasGenerator("key-", 16);
 
-    private KeyStore keyStore;
+    private KeyStoreCache keyStoreWrapper;
     private final Random random;
     private final ExceptionFactory exceptionFactory;
 
-    private final char[] chars = {'1', '#', 'g', 'W', 'X', 'i', 'A', 'E', 'y', '9', 'R', 'n', 'b', '6', 'M', '%', 'C', 'o', 'j', 'E'};
+    // we use same password for both store and keys within
+    private final char[] password = {'1', '#', 'g', 'W', 'X', 'i', 'A', 'E', 'y', '9', 'R', 'n', 'b', '6', 'M', '%', 'C', 'o', 'j', 'E'};
 
     @Inject
     KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
@@ -63,8 +65,7 @@ class KeyStoreDataVault implements DataVault {
 
     void readKeyStore(InputStream keyStoreBytes) {
         try {
-            this.keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
-            keyStore.load(keyStoreBytes, getPassword());
+            this.keyStoreWrapper = new KeyStoreCache(KeyStoreLoader.load(keyStoreBytes, KEYSTORE_TYPE, password));
         } catch (Exception e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_LOAD_FILE);
         }
@@ -72,15 +73,15 @@ class KeyStoreDataVault implements DataVault {
 
     @Override
     public String encrypt(byte[] plainText) {
-        if (this.keyStore == null) {
+        if (this.keyStoreWrapper == null) {
             throw exceptionFactory.newException(MessageSeeds.NO_KEYSTORE);
         }
         if (plainText == null) {
             return "";
         }
         try {
-            int encryptionKeyId = random.nextInt(this.keyStore.size()) + 1;
-            Cipher cipher = getEncryptionCipherForKey(getKeyAlias(encryptionKeyId));
+            int encryptionKeyId = random.nextInt(this.keyStoreWrapper.size()) + 1;
+            Cipher cipher = getEncryptionCipherForKey(encryptionKeyId);
             byte[] cipherText = cipher.doFinal(plainText);
             byte[] iv = cipher.getIV();
             byte[] concatenated = concatenateFields(cipherText, iv, (byte) encryptionKeyId);
@@ -101,7 +102,7 @@ class KeyStoreDataVault implements DataVault {
 
     @Override
     public byte[] decrypt(String encrypted) {
-        if (this.keyStore == null) {
+        if (this.keyStoreWrapper == null) {
             throw exceptionFactory.newException(MessageSeeds.NO_KEYSTORE);
         }
         if (Checks.is(encrypted).emptyOrOnlyWhiteSpace()) {
@@ -114,7 +115,7 @@ class KeyStoreDataVault implements DataVault {
             byte[] iv = new byte[IV_SIZE];
             System.arraycopy(encryptedString, cipherText.length, iv, 0, iv.length);
 
-            final Cipher cipher = getDecryptionCipherForKey(getKeyAlias(encryptionKeyId), iv);
+            final Cipher cipher = getDecryptionCipherForKey(encryptionKeyId, iv);
             return cipher.doFinal(cipherText);
         } catch (IllegalBlockSizeException | BadPaddingException | UnrecoverableKeyException | InvalidKeyException | NoSuchAlgorithmException | KeyStoreException | NoSuchPaddingException | InvalidAlgorithmParameterException | CertificateException | IOException e) {
             throw exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED);
@@ -124,61 +125,32 @@ class KeyStoreDataVault implements DataVault {
     @Override
     public void createVault(OutputStream stream) throws LocalizedException {
         try {
-            doCreateVault(stream);
+            KeyStoreLoader.generate(stream, KEYSTORE_TYPE, new KeyStoreAliasGenerator(KEY_STORE_ALIAS_GENERATOR.getPreffix(), 16), password);
         } catch (Exception e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_CREATION_FAILED, e.getLocalizedMessage());
         }
     }
 
-    private void doCreateVault(OutputStream stream) throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
-        final KeyStore jks = KeyStore.getInstance(KEYSTORE_TYPE);
-
-        jks.load(null); // This initializes the empty keystore
-
-        for (int keyCount = 1; keyCount <= 16; keyCount++) {
-            final KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(createKey());
-            jks.setEntry("KEY-" + keyCount, secretKeyEntry, new KeyStore.PasswordProtection(getPassword()));
-        }
-
-        jks.store(stream, getPassword());
-
-    }
-
-    private static SecretKey createKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); // uses SecureRandom out of the box
-        keyGenerator.init(128); // longer keys would required unlimited strength JCE
-        return keyGenerator.generateKey();
-
-    }
-
-    private Cipher getEncryptionCipherForKey(String keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, IOException, CertificateException {
+    private Cipher getEncryptionCipherForKey(int keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, IOException, CertificateException {
         Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.encrypt.asInt(), createKeySpecForKey(keyAlias));
         return cipher;
     }
 
-    private Cipher getDecryptionCipherForKey(String keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IOException, CertificateException {
+    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IOException, CertificateException {
         Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
         return cipher;
     }
 
-    private SecretKeySpec createKeySpecForKey(String keyAlias) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
-        final Key key = this.keyStore.getKey(keyAlias, getPassword());
+    private SecretKeySpec createKeySpecForKey(int keyAlias) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
+        final Key key = this.keyStoreWrapper.getKey(KEY_STORE_ALIAS_GENERATOR.getAlias(keyAlias), password);
         if (key == null) {
             throw exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED); // Not giving details about key for security reasons
         }
         byte[] raw = key.getEncoded();
 
         return new SecretKeySpec(raw, "AES");
-    }
-
-    private String getKeyAlias(int keyId) {
-        return "key-" + keyId;
-    }
-
-    private char[] getPassword() {
-        return chars;
     }
 
 }

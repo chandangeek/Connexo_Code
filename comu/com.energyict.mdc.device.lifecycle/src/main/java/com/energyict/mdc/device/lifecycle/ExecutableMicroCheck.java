@@ -4,8 +4,8 @@
 package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.fsm.State;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.Optional;

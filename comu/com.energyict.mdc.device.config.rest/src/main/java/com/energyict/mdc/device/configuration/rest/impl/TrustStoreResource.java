@@ -8,7 +8,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -36,7 +36,7 @@ public class TrustStoreResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public PagedInfoList getTrustStores(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> list = this.securityManagementService.getAllTrustStores().stream().map(IdWithNameInfo::new).collect(toList());
         return PagedInfoList.fromCompleteList("trustStores", list, queryParameters);

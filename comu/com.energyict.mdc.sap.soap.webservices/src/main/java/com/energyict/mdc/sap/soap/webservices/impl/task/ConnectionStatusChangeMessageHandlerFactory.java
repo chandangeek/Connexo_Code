@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.sap.ConnectionStatusChangeMessageHandlerFactory",
         service = MessageHandlerFactory.class,
@@ -31,6 +32,7 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile ServiceCallService serviceCallService;
     private volatile TransactionService transactionService;
+    private volatile Clock clock;
 
     public ConnectionStatusChangeMessageHandlerFactory() {
         // for OSGI purposes
@@ -67,8 +69,13 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public MessageHandler newMessageHandler() {
-        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService, transactionService);
+        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService, transactionService, clock);
     }
 }

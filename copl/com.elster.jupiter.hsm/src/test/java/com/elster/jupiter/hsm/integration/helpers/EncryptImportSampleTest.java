@@ -1,8 +1,7 @@
 package com.elster.jupiter.hsm.integration.helpers;
 
-import com.elster.jupiter.hsm.integration.helpers.keys.AsymmetricKey;
+import com.elster.jupiter.hsm.integration.helpers.keys.TransportedDeviceKey;
 import com.elster.jupiter.hsm.integration.helpers.keys.HsmKeySpecs;
-import com.elster.jupiter.hsm.integration.helpers.keys.OurKeySpecs;
 import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
@@ -21,8 +20,8 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Base64;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,10 +33,8 @@ import org.junit.Test;
 @Ignore
 public class EncryptImportSampleTest {
 
-    private static final AsymmetricKey KEY = HsmKeySpecs.asymmetricKeyB64Spec;
-
     public static final String ENCRYPT_OUT = "encrypt.out";
-
+    public static final AsymmetricAlgorithm RSA_15 = AsymmetricAlgorithm.RSA_15;
 
     @Before
     public void setUp() throws IOException {
@@ -58,15 +55,16 @@ public class EncryptImportSampleTest {
             BadPaddingException,
             IllegalBlockSizeException,
             InvalidKeySpecException {
-
         // including IV and encrypted key
-        Message encryptedDeviceKey = encryptDeviceKey(OurKeySpecs.deviceKey, OurKeySpecs.initVector, OurKeySpecs.wrapperKey);
-        String encryptedWrapperKey = encryptWrapperKey(OurKeySpecs.wrapperKey);
+        TransportedDeviceKey dKey = TransportedDeviceKey.fromPlain(HsmKeySpecs.asymmetricKeyB64Spec, new Message("PasswordPasswordPasswordPassword"), new Message("PasswordPassword"), new Message("0123456789ABCDEF"));
+
+        Message encryptedDeviceKey = encryptDeviceKey(dKey);
+        Message encryptedWrapperKey = encryptWrapperKey(dKey);
 
         writeToFile(encryptedWrapperKey, encryptedDeviceKey);
     }
 
-    private String encryptWrapperKey(Message encryptionPassword) throws
+    private Message encryptWrapperKey(TransportedDeviceKey dKey) throws
             NoSuchPaddingException,
             NoSuchAlgorithmException,
             BadPaddingException,
@@ -74,31 +72,30 @@ public class EncryptImportSampleTest {
             InvalidKeyException,
             InvalidKeySpecException {
         RSAEncryptionHelper rsaEncryptionHelper = new RSAEncryptionHelper();
-        Message encrypt = rsaEncryptionHelper.encrypt(encryptionPassword, AsymmetricAlgorithm.RSA_15, KEY);
-        return Base64.getEncoder().encodeToString(encrypt.getBytes());
+        return rsaEncryptionHelper.encrypt(dKey.getWrappingKey(), AsymmetricAlgorithm.RSA_15, dKey.getHsmKey());
 
     }
 
-    private Message encryptDeviceKey(Message message, Message initVector, Message encryptionKey ) throws
+    private Message encryptDeviceKey(TransportedDeviceKey dKey) throws
             IOException,
             InvalidKeyException,
             NoSuchAlgorithmException,
             NoSuchPaddingException,
             InvalidAlgorithmParameterException {
         AESEncryptionHelper aesEncryptionHelper = new AESEncryptionHelper();
-        Message encryptedPassword = aesEncryptionHelper.encrypt(message, encryptionKey, initVector, SymmetricAlgorithm.AES_256_CBC);
-        Message ivAndEncrypted = getFullDeviceKey(initVector, encryptedPassword);
+        Message encryptedPassword = aesEncryptionHelper.encrypt(dKey.getDeviceKey(), dKey.getWrappingKey(), dKey.getIv(), SymmetricAlgorithm.AES_256_CBC);
+        Message ivAndEncrypted = getFullDeviceKey(dKey.getIv(), encryptedPassword);
 
         return ivAndEncrypted;
     }
 
-    private synchronized void writeToFile(String wrappedKey, Message fullDeviceKey) throws FileNotFoundException {
+    private synchronized void writeToFile(Message wrappedKey, Message fullDeviceKey) throws FileNotFoundException {
         File f = new File(ENCRYPT_OUT);
         try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f), Charset.defaultCharset()))) {
-            String wrapperKeyTxt = "Wrapper key:" + wrappedKey;
+            String wrapperKeyTxt = "Wrapper key:" + wrappedKey.toBase64();
             System.out.println(wrapperKeyTxt);
             pw.println(wrapperKeyTxt);
-            String deviceKeyTxt = "Device Password:" + fullDeviceKey;
+            String deviceKeyTxt = "Device Password:" + fullDeviceKey.toBase64();
             System.out.println(deviceKeyTxt);
             pw.println(deviceKeyTxt);
         }

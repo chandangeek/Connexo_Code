@@ -31,6 +31,7 @@ import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -47,6 +48,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -56,6 +58,7 @@ import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4;
+import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_7;
 import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -63,7 +66,7 @@ import com.energyict.mdc.device.alarms.impl.install.Installer;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
-
+import org.osgi.framework.BundleContext;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -77,6 +80,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -108,7 +112,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile BpmService bpmService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private final List<IssueWebServiceClient> alarmWebServiceClients = new ArrayList<>();
-
+    private static BundleContext bundleContext;
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
     }
@@ -127,7 +131,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   MeteringService meteringService,
                                   BpmService bpmService,
                                   EndPointConfigurationService endPointConfigurationService,
-                                  TimeService timeService) {
+                                  TimeService timeService,
+                                  BundleContext bundleContext) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -142,11 +147,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setTimeService(timeService);
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
-        activate();
+        activate(bundleContext);
     }
 
     @Activate
-    public final void activate() {
+    public void activate(BundleContext bundleContext) {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -166,10 +171,15 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
+
+        setBundleContext(bundleContext);
+
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 4), UpgraderV10_4.class
+                version(10, 4), UpgraderV10_4.class,
+                version(10, 7), UpgraderV10_7.class
         ));
     }
+
 
     @Reference
     public final void setIssueService(IssueService issueService) {
@@ -191,6 +201,14 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN)
                 .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    public void setBundleContext(BundleContext bundleContext){
+        this.bundleContext = bundleContext;
+    }
+
+    public Optional<BundleContext> getBundleContext(){
+        return Optional.of(bundleContext);
     }
 
     @Reference
@@ -352,6 +370,13 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         return eagerClasses;
     }
 
+    private Condition getDeviceGroupSearchCondition(Collection<EndDeviceGroup> endDeviceGroups) {
+        return endDeviceGroups.stream()
+                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "baseIssue.device"))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
     private Condition buildConditionFromFilter(DeviceAlarmFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by issue id
@@ -402,6 +427,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         //filter by device
         if (!filter.getDevices().isEmpty()) {
             condition = condition.and(where("baseIssue.device").in(filter.getDevices()));
+        }
+        //filter by device group
+        if (!filter.getDeviceGroups().isEmpty()) {
+            condition = condition.and(getDeviceGroupSearchCondition(filter.getDeviceGroups()));
         }
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {

@@ -23,8 +23,6 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_WITH_ID_ISNT_FOUND(1006, "DeviceWithIdIsntFound", "Device with id ''{0}'' isn''t found."),
     COULDNT_FIND_SERVICE_CALL_TYPE(1007, "CouldntFindServiceCallType", "Couldn''t find a service call type {0} with version {1}."),
     MISSING_CONNECTION_TASKS(2001, "MissingConnectionTask", "A connection method is missing."),
-    DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG(2002, "DeviceDoesntContainsCommunicationTaskForCalendarsOrContainsOnlyWrong", "The device doesn''t contain a communication task for sending calendars or it is inactive on device/device type level."),
-    DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG(2003, "DeviceDoesntContainsVerificationTaskForCalendarsOrContainsOnlyWrong", "Device doesn''t contain a verification task for calendars or it is inactive on device/device type level."),
     DEVICES_WERENT_ADDED_BECAUSE_DIFFERENT_TYPE(2004, "DevicesWerentAddedBecauseDifferentType", "''{0}'' devices weren''t added to the campaign because they are of a different type."),
     DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(2005, "DevicesWerentAddedBecausePartOtherCampaign", "''{0}'' devices weren''t added to the campaign because they are a part of another ongoing campaign."),
     DEVICES_WERENT_ADDED_BECAUSE_HAVE_THIS_CALENDAR(2006, "DevicesWerentAddedBecauseHaveThisCalendar", "''{0}'' devices weren''t added to the campaign because they already have this calendar."),
@@ -43,6 +41,13 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_WAS_ADDED(2019, "DeviceWasAdded", "Device was added"),
     TOU_ITEM_WITH_ID_ISNT_FOUND(2020, "TimeOfUseCampaignItemWithIdIsntFound", "Time of use campaign item with id {0} isn''t found."),
     TOU_CAMPAIGN_WITH_ID_ISNT_FOUND(2021, "TimeOfUseCampaignWithIdIsntFound", "Time of use campaign with id {0} isn''t found."),
+    TASK_FOR_VALIDATION_IS_MISSING(2022, "TaskForValidationIsMissing", "Communication task ''{0}'' required for validation is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
+    TASK_FOR_SENDING_CALENDAR_IS_MISSING(2023, "TaskForSendingCalendarIsMissing", "Communication task ''{0}'' for sending calendar is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
+    CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(2024, "ConnectionMethodDoesntMeetTheRequirement", "The connection method ''{0}'' set on ''{1}'' doesn't match the one required on the calendar campaign", Level.WARNING),
+    CAMPAIGN_ALREADY_CANCELLED(2026, "CampaignAlreadyCancelled", "The campaign has already been cancelled.", Level.WARNING),
+    DEVICE_IS_NOT_PENDING_STATE(2027, "DeviceIsNotPendingState", "The device service call isn''t in pending state.", Level.WARNING),
+    CAMPAIGN_WITH_DEVICE_CANCELLED(2028, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),
+
 
     CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user."),
     RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.");

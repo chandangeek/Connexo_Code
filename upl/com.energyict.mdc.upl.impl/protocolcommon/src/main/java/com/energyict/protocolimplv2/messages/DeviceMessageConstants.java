@@ -85,6 +85,10 @@ public final class DeviceMessageConstants {
     public static final String MaxCyclesDefaultTranslation = "Maximum cycles";
     public static final String RequestedBlockSize = "FirmwareDeviceMessage.RequestedBlockSize";
     public static final String RequestedBlockSizeDefaultTranslation = "Requested block size";
+    public static final String MulticastGroup = "FirmwareDeviceMessage.MulticastGroup";
+    public static final String MulticastGroupDefaultTranslation = "Multicast group";
+    public static final String UdpMeterPort = "FirmwareDeviceMessage.UdpMeterPort";
+    public static final String UdpMeterPortDefaultTranslation = "UDP meter port";
     public static final String PadLastBlock = "FirmwareDeviceMessage.PadLastBlock";
     public static final String PadLastBlockDefaultTranslation = "Pad the last block";
     public static final String UseTransferredBlockStatus = "FirmwareDeviceMessage.UseTransferredBlockStatus";
@@ -219,6 +223,8 @@ public final class DeviceMessageConstants {
     public static final String newEncryptionKeyAttributeDefaultTranslation = "New encryption key";
     public static final String newPSKAttributeName = "SecurityMessage.new.PSK";
     public static final String newPSKDefaultTranslation = "New wrapped PSK";
+    public static final String newPSKKEKAttributeName = "SecurityMessage.new.PSK_KEK";
+    public static final String newPSKKEKDefaultTranslation = "New PSK KEK";
     public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
     public static final String newWrappedEncryptionKeyDefaultTranslation = "New wrapped encryption key";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
@@ -307,6 +313,8 @@ public final class DeviceMessageConstants {
     public static final String crlIssuerNameDefaultTranslation = "X.500 name of the CRL issuer";
     public static final String trustedCertificateWrapperAttributeName = "SecurityMessage.trustedCertificate";
     public static final String trustedCertificateWrapperDefaultTranslation = "Trusted certificate containing the CRL to send";
+    public static final String trustStoreNameAttributeName = "SecurityMessage.trustStoreName";
+    public static final String trustedStoreNameDefaultTranslation = "Trust store name";
 
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateTypeAttributeDefaultTranslation = "Certificate type";
@@ -536,7 +544,7 @@ public final class DeviceMessageConstants {
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.configuserfile";
     public static final String UserFileConfigAttributeDefaultTranslation = "Configuration file";
     public static final String loadProfileAttributeName = "load profile";
-    public static final String loadProfileAttributeDefaultTranslation = "LoadProfile";
+    public static final String loadProfileAttributeDefaultTranslation = "Load Profile";
     public static final String fromDateAttributeName = "from";
     public static final String fromDateAttributeDefaultTranslation = "From";
     public static final String fromDateAttributeNameDefaultTranslation = "From";
@@ -1595,6 +1603,13 @@ public final class DeviceMessageConstants {
     public static final String SET_LOCKOUT_DURATION_DEFAULT_TRANSLATION = "Lockout Duration";
     public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
     public static final String executionMinutesForEachHourDefaultTranslation = "Execution minutes for each hour of the day";
+    public static final String daysOfMonthSchedule = "DeviceActionMessage.SetModemSchedule.DaysOfMonth";
+    public static final String daysOfMonthScheduleDefaultTranslation = "Days of month when the modem will be reset";
+    public static final String daysOfWeekSchedule = "DeviceActionMessage.SetModemSchedule.DaysOfWeek";
+    public static final String daysOfWeekScheduleDefaultTranslation = "Days of week when the modem will be reset";
+    public static final String enableModemResetSchedule = "DeviceActionMessage.SetModemSchedule.EnableModemResetScheduler";
+    public static final String enableModemResetScheduleDefaultTranslation = "Enable modem reset scheduler";
+    ;
 
     // Hide constructor for class with only public constants
     private DeviceMessageConstants() {
@@ -1652,6 +1667,9 @@ public final class DeviceMessageConstants {
 
     public static final String adHocEndOfBillingActivationDatedAttributeName = "AdHocEndOfBilling.activationDateTime";
     public static final String adHocEndOfBillingActivationDatedAttributeDefaultTranslation = "Ad hoc end of billing date";
+
+    public static final String billingDateConfigurationDefaultTranslation = "Billing date configuration";
+
     public static final String attributeId = "DeviceActionMessage.AttributeId";
     public static final String attributeIdDefaultTranslation = "Attribute ID";
     public static final String classId = "DeviceActionMessage.ClassID";
@@ -1726,6 +1744,31 @@ public final class DeviceMessageConstants {
     public static final String snmpAuthPassphraseDefaultTranslation = "USM authentication passphrase";
     public static final String snmpUserState = "NetworkConnectivityMessage.snmpUserState";
     public static final String snmpUserStateDefaultTranslation = "User state";
+    public static final String snmpMaxLoginAttempts = "NetworkConnectivityMessage.snmpMaxLoginAttempts";
+    public static final String snmpMaxLoginAttemptsDefaultTranslation = "SNMP max login attempts";
+    public static final String snmpLockoutDuration = "NetworkConnectivityMessage.snmpLockoutDuration";
+    public static final String snmpLockoutDurationDefaultTranslation = "SNMP lockout duration";
+
+    // Communication Port Protection IC
+    public static final String dlmsLanAllowedFailedAttempts = "NetworkConnectivityMessage.dlmsLanAllowedFailedAttempts";
+    public static final String dlmsLanAllowedFailedAttemptsDefaultTranslation = "DLMS LAN allowed failed attempts";
+    public static final String dlmsLanInitialLockoutTime = "NetworkConnectivityMessage.dlmsLanInitialLockoutTime";
+    public static final String dlmsLanInitialLockoutTimeDefaultTranslation = "DLMS LAN initial lockout time";
+    public static final String dlmsWanAllowedFailedAttempts = "NetworkConnectivityMessage.dlmsWanAllowedFailedAttempts";
+    public static final String dlmsWanAllowedFailedAttemptsDefaultTranslation = "DLMS WAN allowed failed attempts";
+    public static final String dlmsWanInitialLockoutTime = "NetworkConnectivityMessage.dlmsWanInitialLockoutTime";
+    public static final String dlmsWanInitialLockoutTimeDefaultTranslation = "DLMS WAN initial lockout time";
+
+    // Remote Shell IC
+    public static final String remoteShellMaxLoginAttempts = "NetworkConnectivityMessage.remoteShellMaxLoginAttempts";
+    public static final String remoteShellMaxLoginAttemptsDefaultTranslation = "Remote shell max login attempts";
+    public static final String remoteShellLockoutDuration = "NetworkConnectivityMessage.remoteShellLockoutDuration";
+    public static final String remoteShellLockoutDurationDefaultTranslation = "Remote shell lockout duration";
+    // Web Portal IC
+    public static final String webPortalMaxLoginAttempts = "NetworkConnectivityMessage.webPortalMaxLoginAttempts";
+    public static final String webPortalMaxLoginAttemptsDefaultTranslation = "Web portal max login attempts";
+    public static final String webPortalLockoutDuration = "NetworkConnectivityMessage.webPortalLockoutDuration";
+    public static final String webPortalLockoutDurationDefaultTranslation = "Web portal lockout duration";
 
     //VPN Setup IC
     public static final String vpnEnabled = "NetworkConnectivityMessage.vpnEnabled";

@@ -4,7 +4,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.HexString;

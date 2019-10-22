@@ -8,24 +8,25 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.data.Device;
+import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComCommandJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionMessageJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.ModuleConstants;
 
@@ -42,7 +43,7 @@ import java.util.stream.Collectors;
 @Component(name = "issue.data.collection.info.factory", service = {InfoFactory.class}, immediate = true)
 public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataCollection> {
 
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
     private Device device;
@@ -51,21 +52,21 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     }
 
     @Inject
-    public DataCollectionIssueInfoFactory(DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TopologyService topologyService) {
+    public DataCollectionIssueInfoFactory(DeviceService deviceService, MeteringTranslationService meteringTranslationService, TopologyService topologyService) {
         this();
         this.deviceService = deviceService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
         this.topologyService = topologyService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -293,7 +294,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

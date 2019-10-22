@@ -8,7 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
 import org.osgi.service.component.annotations.Component;

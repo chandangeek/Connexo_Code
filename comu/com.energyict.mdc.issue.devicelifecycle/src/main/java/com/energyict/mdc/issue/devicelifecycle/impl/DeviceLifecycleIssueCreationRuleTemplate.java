@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -26,10 +27,10 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
 import com.elster.jupiter.properties.rest.RecurrenceSelectionPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.devicelifecycle.DeviceLifecycleIssueFilter;
@@ -77,6 +78,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     private List<DeviceLifeCycleTransitionPropsInfo> deviceLifeCycleProps = new ArrayList<>();
 
@@ -86,7 +88,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
 
     @Inject
     public DeviceLifecycleIssueCreationRuleTemplate(IssueDeviceLifecycleService issueDeviceLifecycleIssueService, IssueService issueService,
-                                                    NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+                                                    NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,MeteringTranslationService meteringTranslationService) {
         this();
         setIssueDeviceLifecycleService(issueDeviceLifecycleIssueService);
         setIssueService(issueService);
@@ -94,6 +96,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setMeteringTranslationService(meteringTranslationService);
     }
 
 
@@ -196,6 +199,11 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
     @Override
     public void updateIssue(OpenIssue openIssue, IssueEvent event) {
         event.apply(openIssue);
@@ -205,13 +213,18 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                     new IllegalArgumentException(TranslationKeys.UNABLE_TO_UPDATE_TRANSITION_STATUS.getDefaultFormat()) {
                     }));
         }
-        Optional<RecurrenceSelectionInfo> newEventProps = openIssue.getRule()
-                .getProperties()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
-                .findFirst()
-                .map(found -> (RecurrenceSelectionInfo) found.getValue());
+        Optional<RecurrenceSelectionInfo> newEventProps;
+        if (openIssue.getRule().isPresent()) {
+            newEventProps = openIssue.getRule().get()
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
+                    .findFirst()
+                    .map(found -> (RecurrenceSelectionInfo) found.getValue());
+        } else {
+            newEventProps = Optional.empty();
+        }
         if (newEventProps.isPresent() &&
                 newEventProps.get().hasIncreaseUrgency()) {
             openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()
@@ -232,7 +245,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                                         stateTransition,
                                         stateTransition.getFrom(),
                                         stateTransition.getTo(),
-                                        deviceLifeCycleConfigurationService, thesaurus)))
+                                        deviceLifeCycleConfigurationService, thesaurus, meteringTranslationService)))
                 );
 
     }
@@ -458,7 +471,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             }
 
 
-            return new DeviceLifeCycleTransitionPropsInfo(deviceType, deviceLifecycle, stateTransition, fromState, toState, deviceLifeCycleConfigurationService, thesaurus);
+            return new DeviceLifeCycleTransitionPropsInfo(deviceType, deviceLifecycle, stateTransition, fromState, toState, deviceLifeCycleConfigurationService, thesaurus, meteringTranslationService);
         }
 
         @Override
@@ -508,16 +521,18 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         private State fromState;
         private State toState;
         private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+        private MeteringTranslationService meteringTranslationService;
         private Thesaurus thesaurus;
 
         DeviceLifeCycleTransitionPropsInfo(DeviceType deviceType, DeviceLifeCycle deviceLifeCycle, StateTransition stateTransition, State from, State to,
-                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Thesaurus thesaurus) {
+                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Thesaurus thesaurus,MeteringTranslationService meteringTranslationService) {
             this.deviceType = deviceType;
             this.deviceLifeCycle = deviceLifeCycle;
             this.stateTransition = stateTransition;
             this.fromState = from;
             this.toState = to;
             this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+            this.meteringTranslationService = meteringTranslationService;
             this.thesaurus = thesaurus;
         }
 
@@ -563,7 +578,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         private String getStateName(State state) {
             return DefaultState
                     .from(state)
-                    .map(deviceLifeCycleConfigurationService::getDisplayName)
+                    .map(meteringTranslationService::getDisplayName)
                     .orElseGet(state::getName);
         }
 
@@ -596,6 +611,9 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             if (!toState.equals(that.toState)) {
                 return false;
             }
+            if(!meteringTranslationService.equals(that.meteringTranslationService)){
+                return false;
+            }
             return deviceLifeCycleConfigurationService.equals(that.deviceLifeCycleConfigurationService);
         }
 
@@ -608,6 +626,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
             result = 31 * result + fromState.hashCode();
             result = 31 * result + toState.hashCode();
             result = 31 * result + deviceLifeCycleConfigurationService.hashCode();
+            result = 31 * result + meteringTranslationService.hashCode();
             return result;
         }
     }

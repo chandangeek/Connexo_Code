@@ -12,13 +12,16 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.energyict.mdc.app.MdcAppService;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -74,13 +77,13 @@ public class MdcAppInstaller {
                 InstallIdentifier.identifier("MultiSense", "MDA"),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class,
-                        version(10, 3), UpgraderV10_3.class,
-                        version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class,
-                        version(10, 6), UpgraderV10_6.class
-                )
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 3), UpgraderV10_3.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 4, 1),UpgraderV10_4_1.class)
+                        .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), UpgraderV10_7.class).build()
         );
     }
 
@@ -158,6 +161,9 @@ public class MdcAppInstaller {
                     //Device communications
                     com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
 
+                    //Device communications
+                    com.energyict.mdc.device.data.security.Privileges.Constants.RUN_WITH_PRIO,
+
                     //Device data
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
 
@@ -168,13 +174,13 @@ public class MdcAppInstaller {
                     com.energyict.mdc.device.command.security.Privileges.Constants.VIEW_COMMAND_LIMITATION_RULE,
 
                     //Device life cycle
-                    com.energyict.mdc.device.lifecycle.config.Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE,
+                    com.energyict.mdc.common.device.lifecycle.config.Constants.VIEW_DEVICE_LIFE_CYCLE,
 
                     //Device master data
-                    com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_MASTER_DATA,
+                    DeviceConfigConstants.VIEW_MASTER_DATA,
 
                     //Device types
-                    com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
+                    DeviceConfigConstants.VIEW_DEVICE_TYPE,
 
                     //Devices
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE,
@@ -211,6 +217,7 @@ public class MdcAppInstaller {
                     com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE,
 
                     //Alarms
                     com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM,
@@ -258,7 +265,12 @@ public class MdcAppInstaller {
                     com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS,
 
                     //Time of use campaigns
-                    com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS
+                    com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS,
+
+                    //WebServices
+                    com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                    com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
+
             };
         }
     }

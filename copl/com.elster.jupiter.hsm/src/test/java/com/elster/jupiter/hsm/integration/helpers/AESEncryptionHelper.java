@@ -1,6 +1,5 @@
 package com.elster.jupiter.hsm.integration.helpers;
 
-import com.elster.jupiter.hsm.integration.helpers.keys.OurKeySpecs;
 import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 
@@ -79,12 +78,16 @@ public class AESEncryptionHelper {
     @Test
     public void test() throws InvalidKeyException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchPaddingException, IOException {
 
-        Message encrypt = encrypt(OurKeySpecs.deviceKey, OurKeySpecs.wrapperKey, OurKeySpecs.initVector, SymmetricAlgorithm.AES_256_CBC);
-        System.out.println("Encrypted B64 (no iv):" + encrypt.toBase64());
-        System.out.println("Encrypted B64 (with iv):" + EncryptImportSampleTest.getFullDeviceKey(OurKeySpecs.initVector, encrypt).toBase64());
-        Message decrypt = decrypt(encrypt, OurKeySpecs.wrapperKey, OurKeySpecs.initVector, SymmetricAlgorithm.AES_256_CBC);
+        Message wrappingKey = new Message("PasswordPasswordPasswordPassword");
+        Message deviceKey = new Message("0123456789ABCDEF");
+        Message iv = new Message("PasswordPassword");
 
-        Assert.assertEquals(OurKeySpecs.deviceKey, decrypt);
+        Message encrypt = encrypt(deviceKey, wrappingKey, iv, SymmetricAlgorithm.AES_256_CBC);
+        System.out.println("Encrypted B64 (no iv):" + encrypt.toBase64());
+        System.out.println("Encrypted B64 (with iv):" + EncryptImportSampleTest.getFullDeviceKey(iv, encrypt).toBase64());
+        Message decrypt = decrypt(encrypt, wrappingKey, iv, SymmetricAlgorithm.AES_256_CBC);
+
+        Assert.assertEquals(deviceKey, decrypt);
 
     }
 

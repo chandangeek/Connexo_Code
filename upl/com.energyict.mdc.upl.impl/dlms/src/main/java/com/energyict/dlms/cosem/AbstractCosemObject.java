@@ -547,6 +547,21 @@ public abstract class AbstractCosemObject {
     }
 
     /**
+     * Attribute as defined in the object docs
+     * 1 - logical name
+     * 2..n attribute 2..n
+     *
+     * @param attribute the attribute to read
+     * @param fromOffset the number of the octect from starting to read
+     * @param length the number of octects that want to read
+     * @return the response from the device
+     * @throws java.io.IOException
+     */
+    protected byte[] getLNResponseData(int attribute, int fromOffset, int length) throws IOException {
+        return getResponseDataANSI((attribute - 1) * 8, fromOffset, length);
+    }
+
+    /**
      * @param attribute
      * @param from
      * @param to
@@ -850,6 +865,27 @@ public abstract class AbstractCosemObject {
                 request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
             }
             responseData = sendAndReceiveValidResponse(request);
+            return checkCosemPDUResponseHeader(responseData);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ProtocolException(e, "Received partial response or invalid packet from device!");
+        }
+    }
+
+    /**
+     * Build up the request, send it to the device and return the checked
+     * response data as byte[]
+     */
+    protected byte[] getResponseDataANSI(int attribute, int fromOffset, int length) throws IOException {
+        try {
+            byte[] request = null;
+            if (this.objectReference.isLNReference()) {
+                byte[] selectiveBuffer = (getBufferEntryDescriptorANSI(fromOffset, length));
+                request = buildGetRequest(getClassId(), this.objectReference.getLn(), DLMSUtils.attrSN2LN(attribute), selectiveBuffer);
+            } else if (this.objectReference.isSNReference()) {
+                byte[] selectiveBuffer = (getBufferEntryDescriptorANSI(fromOffset, length));
+                request = buildReadRequest((short) this.objectReference.getSn(), attribute, selectiveBuffer);
+            }
+            byte[] responseData = sendAndReceiveValidResponse(request);
             return checkCosemPDUResponseHeader(responseData);
         } catch (IndexOutOfBoundsException e) {
             throw new ProtocolException(e, "Received partial response or invalid packet from device!");
@@ -1932,6 +1968,38 @@ public abstract class AbstractCosemObject {
         byte[] bytesToSelectedValue = DLMSUtils.getBytesFromInt(toValue, 2);
         intreq[FROM_ENTRY_OFFSET + 14] = bytesToSelectedValue[0];
         intreq[FROM_ENTRY_OFFSET + 15] = bytesToSelectedValue[1];
+
+        return intreq;
+    }
+
+    private byte[] getBufferEntryDescriptorANSI(int fromOffset, int length) {
+
+        byte[] intreq = {
+                (byte) 0x01, // offset descriptor
+                (byte) 0x02, // structure
+                (byte) 0x02, // 2 items in structure
+
+                // from_offset - double-long-unsigned --> offset of start to retrieve
+                (byte) 0xFF, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03,
+
+                //count - long-unsigned --> length of octets requested
+                (byte) 0xFF, (byte) 0x00, (byte) 0x01,
+
+        };
+
+        int FROM_ENTRY_OFFSET = 3;
+
+        intreq[FROM_ENTRY_OFFSET] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
+        byte[] bytesFromEntry = DLMSUtils.getBytesFromInt(fromOffset, 4);
+        intreq[FROM_ENTRY_OFFSET + 1] = bytesFromEntry[0];
+        intreq[FROM_ENTRY_OFFSET + 2] = bytesFromEntry[1];
+        intreq[FROM_ENTRY_OFFSET + 3] = bytesFromEntry[2];
+        intreq[FROM_ENTRY_OFFSET + 4] = bytesFromEntry[3];
+
+        intreq[FROM_ENTRY_OFFSET + 5] = AxdrType.LONG_UNSIGNED.getTag();
+        byte[] bytesToEntry = DLMSUtils.getBytesFromInt(length, 2);
+        intreq[FROM_ENTRY_OFFSET + 6] = bytesToEntry[0];
+        intreq[FROM_ENTRY_OFFSET + 7] = bytesToEntry[1];
 
         return intreq;
     }

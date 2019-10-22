@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.audit.impl;
 
+import com.elster.jupiter.audit.ApplicationType;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
@@ -30,8 +31,8 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
 
     private Condition condition = Condition.TRUE;
 
-    public AuditTrailFilterImpl(ThreadPrincipalService threadPrincipalService, AuditService auditService) {
-        setContext(threadPrincipalService, auditService);
+    public AuditTrailFilterImpl(ThreadPrincipalService threadPrincipalService, ApplicationType applicationType, AuditService auditService) {
+        setContext(threadPrincipalService, applicationType, auditService);
     }
 
     @Override
@@ -89,11 +90,12 @@ public class AuditTrailFilterImpl implements AuditTrailFilter {
         domainPk = Optional.of(domain);
     }
 
-    private AuditTrailFilter setContext(ThreadPrincipalService threadPrincipalService, AuditService auditService) {
+    private AuditTrailFilter setContext(ThreadPrincipalService threadPrincipalService, ApplicationType applicationType, AuditService auditService) {
         List<AuditDomainContextType> domainContexts = ((AuditServiceImpl) auditService).getAuditTrailDecoderHandles().stream()
                 .filter(auditTrailDecoderHandle ->
                         hasAtLeastOnePrivileges(auditTrailDecoderHandle.getPrivileges(), threadPrincipalService))
                 .map(AuditTrailDecoderHandle::getAuditDomainContextType)
+                .filter(auditDomainContextType -> auditDomainContextType.domainType().getApplicationType().equals(applicationType))
                 .collect(Collectors.toList());
         condition = condition.and(Where.where(AuditTrailImpl.Field.DOMAINCONTEXT.fieldName()).in(domainContexts));
         return this;

@@ -61,6 +61,14 @@ Ext.define('Mdc.controller.Search', {
         {
             ref: 'resultsGrid',
             selector: 'uni-view-search-overview uni-view-search-results'
+        },
+        {
+            ref: 'loadButton',
+            selector: 'uni-view-search-overview #load-button'
+        },
+        {
+            ref: 'saveSearchButton',
+            selector: 'uni-view-search-overview button[action=saveSearchWindow]'
         }
     ],
 
@@ -94,6 +102,20 @@ Ext.define('Mdc.controller.Search', {
                     fn: me.service.applyFilters,
                     scope: me.service
                 }
+            },
+            'uni-view-search-overview button[action=saveSearchWindow]': {
+                click: function(){
+                    me.service.openSaveSearch(me);
+                    scope: me.service
+
+                }
+            },
+            'uni-view-search-overview #load-button': {
+                select: function (combo, value, a){
+                    me.service.loadSearch(combo, value, a, me);
+                    scope: me.service;
+                }
+
             },
             'uni-view-search-overview button[action=count]': {
                 click: {
@@ -196,7 +218,7 @@ Ext.define('Mdc.controller.Search', {
 
         var storeListeners = searchResults.on('load', function (store, items) {
             var btn = grid.down('#search-bulk-actions-button');
-            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.common.device.data.Device" && items && items.length));
         }, this, {destroyable: true});
 
         widget.on('destroy', function () {
@@ -218,5 +240,6 @@ Ext.define('Mdc.controller.Search', {
             filters = me.service.getFilters();
 
         searchOverview.down('[action=clearFilters]').setDisabled(!(filters && filters.length));
+        searchOverview.down('[action=saveSearchWindow]').setDisabled(!(filters && filters.length))
     }
 });

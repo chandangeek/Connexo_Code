@@ -10,7 +10,8 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         'Isu.store.CreationRuleActionPhases',
         'Isu.store.Clipboard',
         'Isu.store.Users',
-        'Isu.store.IssueTypes'
+        'Isu.store.IssueTypes',
+        'Isu.store.CreationRuleIssueTypes'
     ],
 
     views: [
@@ -77,7 +78,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
                     }
                 });
             } else {
-                me.getStore('Isu.store.IssueTypes').load(function (records) {
+                me.getStore('Isu.store.CreationRuleIssueTypes').load(function (records) {
                     var rule = Ext.create('Isu.model.CreationRule');
 
                     rule.setIssueType(records[0]);
@@ -100,7 +101,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
 
         Ext.util.History.un('change', me.checkRoute, me);
 
-        if (!Ext.Array.findBy(allowableRoutes, function (item) {return item === currentRoute})) {
+        if (!Ext.Array.findBy(allowableRoutes, function (item) {return (currentRoute === item || currentRoute.startsWith(item + '/'))})) {
             me.getStore('Isu.store.Clipboard').clear('issuesCreationRuleState');
         }
     },
@@ -118,6 +119,10 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         form.updateRecord();
         record = form.getRecord();
         record.getProxy().url = '/api/isu/creationrules/validateaction';
+        var clipboard = Ext.getStore('Isu.store.Clipboard');
+        var issuesCreationRuleState = clipboard && clipboard.get('issuesCreationRuleState');
+        var reason_id = issuesCreationRuleState && issuesCreationRuleState.get('reason_id');
+        record.getProxy().extraParams = reason_id ? {"reason_id": reason_id} : {};
         record.save({
             callback: function (validatedRecord, operation, success) {
                 var json;

@@ -8,15 +8,18 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>issue.task.extjs</artifactId>
     <packaging>bundle</packaging>
     <name>com.elster.jupiter.issue.task.extjs</name>
 
+
     <properties>
-         <baseline>(,${project.version})</baseline>
+        <baseline>(,${project.version})</baseline>
+        <js.dir>js/itk</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
     </properties>
 
     <dependencies>
@@ -54,15 +57,5 @@
             <artifactId>issue.extjs</artifactId>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/itk</js.dir>
-                <package.name>${project.groupId}.${project.artifactId}</package.name>
-            </properties>
-        </profile>
-    </profiles>
 
 </project>

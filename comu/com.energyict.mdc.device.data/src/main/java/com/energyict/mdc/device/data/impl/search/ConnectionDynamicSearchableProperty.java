@@ -10,14 +10,17 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 
 import com.google.inject.Inject;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 public class ConnectionDynamicSearchableProperty extends AbstractDynamicSearchableProperty<ConnectionDynamicSearchableProperty> {
 
@@ -61,6 +64,10 @@ public class ConnectionDynamicSearchableProperty extends AbstractDynamicSearchab
         SqlBuilder builder = new SqlBuilder();
         builder.openBracket();
         builder.add(this.toSqlFragment("props." + getPropertySpec().getName(), condition, now));
+        builder.append(" AND props.STARTTIME < ");
+        builder.append(Long.toString(now.toEpochMilli()));
+        builder.append(" AND props.ENDTIME > ");
+        builder.append(Long.toString(now.toEpochMilli()));
         builder.append(" OR props." + getPropertySpec().getName());
         builder.append(" IS NULL AND ");
         builder.add(selectDeviceConfigurationProperties(condition, now));
@@ -80,5 +87,10 @@ public class ConnectionDynamicSearchableProperty extends AbstractDynamicSearchab
         builder.add(toSqlFragment("DTC_PARTIALCONNECTIONTASKPROPS.VALUE", condition, now));
         builder.closeBracket();
         return builder;
+    }
+
+    @Override
+    public List<String> getAvailableOperators(){
+        return Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.IN.code(), SearchablePropertyOperator.NOT_EQUAL.code());
     }
 }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
@@ -17,7 +18,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostResolvedEvent;
@@ -28,7 +29,8 @@ import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
-
+import org.junit.Test;
+import org.mockito.Matchers;
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
@@ -38,9 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -108,7 +107,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(2);
+        assertThat(service.getCounter()).isEqualTo(1);
     }
 
     @Test
@@ -136,7 +135,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(6);
+        assertThat(service.getCounter()).isEqualTo(2);
     }
 
     @Test
@@ -151,7 +150,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(5);
+        assertThat(service.getCounter()).isEqualTo(1);
     }
 
     @Test
@@ -195,10 +194,12 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         IssueService issueService = mockIssueService(issueCreationService);
         DeviceService deviceService = mockDeviceService();
         MeteringService meteringService = mockMeteringService();
+        EventService eventService = mockEventService();
         DataCollectionEventHandlerFactory handlerFactory = getInjector().getInstance(DataCollectionEventHandlerFactory.class);
         handlerFactory.setIssueService(issueService);
         handlerFactory.setDeviceService(deviceService);
         handlerFactory.setMeteringService(meteringService);
+        handlerFactory.setEventService(eventService);
         return handlerFactory.newMessageHandler();
     }
 
@@ -210,6 +211,12 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         return issueService;
     }
 
+    private EventService mockEventService() {
+        EventService eventService = mock(EventService.class);
+        when(eventService.getEventType(Matchers.anyString())).thenReturn(Optional.empty());
+        return eventService;
+    }
+
     private MeteringService mockMeteringService() {
         MeteringService meteringService = mock(MeteringService.class);
         AmrSystem amrSystem = mock(AmrSystem.class);
@@ -219,6 +226,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         when(stage.getName()).thenReturn(EndDeviceStage.OPERATIONAL.getKey());
         when(state.getStage()).thenReturn(Optional.of(stage));
         when(meter.getState()).thenReturn(Optional.of(state));
+        when(meteringService.findEndDeviceByMRID(Matchers.anyString())).thenReturn(Optional.empty());
 
         when(meteringService.findAmrSystem(1)).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(Matchers.anyString())).thenReturn(Optional.of(meter));

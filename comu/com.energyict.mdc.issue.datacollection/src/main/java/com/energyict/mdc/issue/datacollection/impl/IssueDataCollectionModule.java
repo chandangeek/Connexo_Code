@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.issue.datacollection.impl;
 
+import java.time.Clock;
+
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -37,6 +39,8 @@ public class IssueDataCollectionModule extends AbstractModule {
         requireBinding(CommunicationTaskService.class);
         requireBinding(ConnectionTaskService.class);
         requireBinding(PropertySpecService.class);
+        requireBinding(MeteringGroupsService.class);
+        requireBinding(Clock.class);
 
         bind(IssueDataCollectionService.class).to(IssueDataCollectionServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataCollectionEventHandlerFactory.class).in(Scopes.SINGLETON);

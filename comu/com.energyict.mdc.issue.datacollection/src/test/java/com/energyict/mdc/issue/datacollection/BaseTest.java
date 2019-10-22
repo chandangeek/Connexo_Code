@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -16,6 +17,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -57,6 +59,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -158,6 +161,7 @@ public abstract class BaseTest {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 
@@ -256,8 +260,16 @@ public abstract class BaseTest {
         return injector.getInstance(JsonService.class);
     }
 
+    protected EventService getEventService() {
+        return injector.getInstance(EventService.class);
+    }
+
     protected MeteringService getMeteringService() {
         return injector.getInstance(MeteringService.class);
+    }
+
+    protected TimeService getTimeService() {
+        return injector.getInstance(TimeService.class);
     }
 
     protected DeviceService getDeviceService() {

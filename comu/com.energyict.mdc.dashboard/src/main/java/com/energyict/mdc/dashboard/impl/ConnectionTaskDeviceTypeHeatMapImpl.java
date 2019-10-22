@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
-import com.energyict.mdc.device.config.DeviceType;
 
 /**
  * Provides an implementation for the {@link ConnectionTaskDeviceTypeHeatMap} interface.

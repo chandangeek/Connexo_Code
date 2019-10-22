@@ -11,11 +11,12 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
 
+@HasValidStatusAndFormat(groups = {Save.Create.class, Save.Update.class})
 public class SIMCardDomainExtension extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<Device> {
 
     public enum FieldNames {

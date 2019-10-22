@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -118,6 +119,7 @@ public class InMemoryPersistence {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 }

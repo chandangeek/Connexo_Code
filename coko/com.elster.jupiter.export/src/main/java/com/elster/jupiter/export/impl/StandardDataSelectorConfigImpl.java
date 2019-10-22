@@ -88,7 +88,7 @@ abstract class StandardDataSelectorConfigImpl implements DataSelectorConfig {
         return userName;
     }
 
-    DataModel getDataModel() {
+    public DataModel getDataModel() {
         return dataModel;
     }
 

@@ -6,7 +6,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
 
 /**
@@ -16,7 +16,7 @@ public class LoadProfileTypePropertyValueConverter implements PropertyValueConve
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && LoadProfileType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        return propertySpec != null && propertySpec.getValueFactory().getValueType().isAssignableFrom(LoadProfileType.class);
     }
 
     @Override

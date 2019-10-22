@@ -7,7 +7,7 @@ package com.energyict.mdc.issue.devicelifecycle.impl.event;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -19,9 +19,9 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.devicelifecycle.DeviceLifecycleIssueFilter;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
@@ -83,7 +83,7 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
                 return Optional.of(meterRef.get());
             }
         }
-        throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device);
+        throw new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device);
     }
 
     @Override
@@ -92,6 +92,7 @@ public abstract class DeviceLifecycleEvent implements IssueEvent {
         Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
         if(rule.isPresent()){
             filter.setRule(rule.get());
+            getEndDevice().ifPresent(filter::setDevice);
             new ArrayList<String>(){{
                 add(IssueStatus.OPEN);
                 add(IssueStatus.IN_PROGRESS);

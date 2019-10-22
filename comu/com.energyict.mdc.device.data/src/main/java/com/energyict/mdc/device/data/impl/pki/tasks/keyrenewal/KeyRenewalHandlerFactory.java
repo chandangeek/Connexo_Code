@@ -17,8 +17,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.KeyRenewalService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.pki.PropertyValueRequiredException;
 
 import com.google.inject.Inject;
 import org.osgi.framework.BundleContext;
@@ -150,15 +148,15 @@ public class KeyRenewalHandlerFactory implements KeyRenewalService, MessageHandl
     }
 
     private void getTaskProperties(BundleContext bundleContext) {
-        keyRenewalBpmProcessDefinitionId = getTaskProperty(bundleContext, KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY));
-        String expirationDays = getTaskProperty(bundleContext, KEY_DAYS_TILL_EXPIRATION_PROPERTY)
-                .orElseThrow(() -> new PropertyValueRequiredException(thesaurus, MessageSeeds.PROPERTY_VALUE_REQUIRED, KEY_DAYS_TILL_EXPIRATION_PROPERTY));
-        keyRenewalExpitationDays = Integer.parseInt(expirationDays);
+        getTaskProperty(bundleContext, KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY)
+                .ifPresent(p -> keyRenewalBpmProcessDefinitionId = p);
+        getTaskProperty(bundleContext, KEY_DAYS_TILL_EXPIRATION_PROPERTY)
+                .map(p -> Integer.parseInt(p))
+                .ifPresent(expirationDays -> keyRenewalExpitationDays = expirationDays);
     }
 
     private Optional<String> getTaskProperty(BundleContext context, String property) {
-        return Optional.ofNullable(context.getProperty(property));
+        return Optional.ofNullable(context.getProperty(property)).filter(p -> p.trim().length() > 0);
     }
 
 }

@@ -8,15 +8,16 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.devicelifecycle.FailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
@@ -43,16 +44,16 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
     private DeviceService deviceService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     public DeviceLifecycleIssueInfoFactory() {
     }
 
     @Inject
-    public DeviceLifecycleIssueInfoFactory(DeviceService deviceService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifecycleIssueInfoFactory(DeviceService deviceService, NlsService nlsService, MeteringTranslationService meteringTranslationService) {
         this.deviceService = deviceService;
         setNlsService(nlsService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setMeteringTranslationService(meteringTranslationService);
     }
 
     @Reference
@@ -69,8 +70,8 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
     }
 
     @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public DeviceLifecycleIssueInfo asInfo(IssueDeviceLifecycle issue, Class<? extends DeviceInfo> deviceInfoClass) {
@@ -114,7 +115,7 @@ public class DeviceLifecycleIssueInfoFactory implements InfoFactory<IssueDeviceL
     }
 
     private String getTransitionStateDisplayName(State state) {
-        return DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName);
+        return DefaultState.from(state).map(meteringTranslationService::getDisplayName).orElseGet(state::getName);
     }
 
     @Override

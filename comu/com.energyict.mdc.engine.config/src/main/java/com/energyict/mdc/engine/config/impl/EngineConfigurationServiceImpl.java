@@ -20,34 +20,36 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_6_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComPortPoolMember;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPoolMember;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OfflineComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.security.Privileges;
-import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -185,7 +187,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
                 version(10, 3), V10_3SimpleUpgrader.class,
-                version(10, 4,3), V10_4_3SimpleUpgrader.class));
+                version(10, 4, 3), V10_4_3SimpleUpgrader.class,
+                version(10, 6, 1), V10_6_1SimpleUpgrader.class));
     }
 
     public DataModel getDataModel() {
@@ -330,6 +333,14 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         return convertComportListToOutBoundComPorts(getComPortDataMapper().select(condition));
     }
 
+    public List<OutboundComPort> findAllOutboundComPortsByComServer(ComServer comServer) {
+//        Condition condition = where("class").isEqualTo(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(where("obsoleteDate").isNull())
+//                .and(where("comServer").isEqualTo(comServer.getId()));
+        return convertComportListToOutBoundComPorts(findAllOutboundComPorts()
+                .stream()
+                .filter(cp -> cp.getComServer().equals(comServer)).collect(Collectors.toList()));
+    }
+
     @Override
     public List<InboundComPort> findAllInboundComPorts() {
         Condition condition = where("class").isNotEqual(ComPortImpl.OUTBOUND_DISCRIMINATOR).and(where("obsoleteDate").isNull());
@@ -443,8 +454,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout) {
-        final OutboundComPortPoolImpl outboundComPortPool = dataModel.getInstance(OutboundComPortPoolImpl.class).initialize(name, comPortType, taskExecutionTimeout);
+    public OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout, long pctHighPrioTasks) {
+        final OutboundComPortPoolImpl outboundComPortPool = dataModel.getInstance(OutboundComPortPoolImpl.class).initialize(name, comPortType, taskExecutionTimeout, pctHighPrioTasks);
         outboundComPortPool.save();
         return outboundComPortPool;
     }
@@ -479,6 +490,17 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public List<Long> findContainingActiveComPortPoolsForComPort(ComPort comPort) {
+        List<ComPortPoolMember> comPortPoolMembers = getComPortPoolMemberDataMapper().find("comPort", comPort);
+        return comPortPoolMembers
+                .stream()
+                .map(ComPortPoolMember::getComPortPool)
+                .filter(ComPortPool::isActive)
+                .map(ComPortPool::getId)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ComPortPool> findContainingComPortPoolsForComServer(ComServer comServer) {
         return DecoratedStream.decorate(comServer.getComPorts().stream())
                 .filter(each -> each instanceof OutboundComPort)
@@ -492,6 +514,27 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     public List<ComPortPool> findAllComPortPools() {
         Condition condition = where("obsoleteDate").isNull();
         return getComPortPoolDataMapper().select(condition);
+    }
+
+    @Override
+    public long calculateMaxPriorityConnections(ComPortPool comPortPool, long pctHighPrioTasks) {
+        float tempMaxPriorityConnections = 0;
+
+        for (ComPort comPort : comPortPool.getComPorts()) {
+            long numberOfPortPoolsUsedByThePort = getNumberOfPortPoolsUsedByThePort(comPort);
+            if(numberOfPortPoolsUsedByThePort != 0)
+                tempMaxPriorityConnections += (float)comPort.getNumberOfSimultaneousConnections()/numberOfPortPoolsUsedByThePort;
+        }
+        return (long)Math.ceil(tempMaxPriorityConnections * ((float)pctHighPrioTasks/100));
+    }
+
+    private long getNumberOfPortPoolsUsedByThePort(ComPort comPort) {
+        long comPortInUseByPortPools = 0;
+        for (ComPortPool comPortPool : findAllComPortPools()) {
+            comPortInUseByPortPools += comPortPool.getComPorts().stream().filter(temp -> temp.getId() == comPort.getId()).count();
+        }
+
+        return comPortInUseByPortPools;
     }
 
     @Override
@@ -527,5 +570,10 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public ComServer lockComServer(ComServer comServer) {
         return getComServerDataMapper().lock(comServer.getId());
+    }
+
+    @Override
+    public ComPort lockComPort(ComPort comPort) {
+        return getComPortDataMapper().lock(comPort.getId());
     }
 }

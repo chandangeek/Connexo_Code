@@ -7,10 +7,11 @@ package com.energyict.mdc.usagepoint.data.rest.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
@@ -23,12 +24,12 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class MeterInfoFactory {
     private final DeviceService deviceService;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
-    public MeterInfoFactory(DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public MeterInfoFactory(DeviceService deviceService, MeteringTranslationService meteringTranslationService) {
         this.deviceService = deviceService;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     private static class MACollector {
@@ -74,7 +75,7 @@ public class MeterInfoFactory {
             deviceService.findDeviceById(Long.parseLong(meter.getAmrId())).ifPresent(device -> {
                 meterInfo.serialNumber = device.getSerialNumber();
                 meterInfo.deviceType = new IdWithNameInfo(device.getDeviceType().getId(), device.getDeviceType().getName());
-                meterInfo.state = DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName);
+                meterInfo.state = DefaultState.from(device.getState()).map(meteringTranslationService::getDisplayName).orElseGet(device.getState()::getName);
             });
         });
         meterInfo.start = meterActivation.getStart().toEpochMilli();

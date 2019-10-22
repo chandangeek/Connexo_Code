@@ -24,6 +24,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
 
     public static final String NAME = "MeterReadingDocumentCreateResultServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
     private volatile MeteringService meteringService;
@@ -61,6 +62,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
         if (domainExtension.isFutureCase() && domainExtension.getProcessingDate().isAfter(clock.instant())) {
             serviceCall.requestTransition(DefaultState.PAUSED);
         } else if (domainExtension.getChannelId() == null) {
+            serviceCall.log(LogLevel.SEVERE, "Channel/register id is null");
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {
             Optional.of(domainExtension)

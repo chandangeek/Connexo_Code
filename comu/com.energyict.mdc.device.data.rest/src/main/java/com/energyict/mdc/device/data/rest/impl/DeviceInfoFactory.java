@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -15,10 +16,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -55,6 +56,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private volatile MeteringZoneService meteringZoneService;
     private volatile MeteringService meteringService;
     private volatile EndDeviceZoneInfoFactory endDeviceZoneInfoFactory;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     public DeviceInfoFactory() {
     }
@@ -64,7 +66,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                              MeteringZoneService meteringZoneService, MeteringService meteringService, EndDeviceZoneInfoFactory endDeviceZoneInfoFactory,
                              MultiElementDeviceService multiElementDeviceService,
                              IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService,
-                             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, FirmwareService firmwareService, Clock clock) {
+                             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, FirmwareService firmwareService, Clock clock,
+                             MeteringTranslationService meteringTranslationService) {
         this();
         this.thesaurus = thesaurus;
         this.setBatchService(batchService);
@@ -79,6 +82,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         this.endDeviceZoneInfoFactory = endDeviceZoneInfoFactory;
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setFirmwareService(firmwareService);
+        this.setMeteringTranslationService(meteringTranslationService);
     }
 
     @Reference
@@ -123,9 +127,15 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
+
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
@@ -147,7 +157,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     new GatewayRetriever(topologyService),
                     new IssueRetriever(issueService),
                     this.thesaurus,
-                    this.deviceLifeCycleConfigurationService,
+                    this.meteringTranslationService,
                     new DeviceValidationRetriever(deviceService));
     }
 
@@ -157,7 +167,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         IssueRetriever issueRetriever = new IssueRetriever(issueService, domainObjects);
         DeviceValidationRetriever validationRetriever = new DeviceValidationRetriever(deviceService, domainObjects);
         return domainObjects.stream()
-                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, deviceLifeCycleConfigurationService, validationRetriever))
+                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus,meteringTranslationService, validationRetriever))
                 .collect(Collectors.toList());
     }
 
@@ -177,7 +187,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                 meteringService.findEndDeviceByMRID(device.getmRID()).get())
                 .stream().limit(5).map(deviceZones -> endDeviceZoneInfoFactory.from(deviceZones)).collect(Collectors.toList());
         DeviceInfo deviceInfo = DeviceInfo.from(device, slaveDevices, zones, topologyService, multiElementDeviceService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
-                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock);
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock, meteringTranslationService);
         deviceInfo.protocolNeedsImageIdentifierForFirmwareUpgrade = firmwareService.imageIdentifierExpectedAtFirmwareUpload(device.getDeviceType());
         return deviceInfo;
     }
@@ -205,6 +215,9 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(createDescription("manufacturer", String.class));
         infos.add(createDescription("modelNbr", String.class));
         infos.add(createDescription("modelVersion", String.class));
+        infos.add(createDescription("activeCalendar", String.class));
+        infos.add(createDescription("passiveCalendar", String.class));
+        infos.add(createDescription("plannedPassiveCalendar", String.class));
         infos.add(createDescription("hasServiceKeys", Boolean.class));
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 

@@ -13,18 +13,26 @@ import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
+import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.FiltrableByComTask;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -34,6 +42,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -49,12 +61,14 @@ import org.kie.internal.utils.CompositeClassLoader;
 
 import javax.inject.Inject;
 import javax.naming.OperationNotSupportedException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -75,6 +89,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile Optional<User> batchUser;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile UserService userService;
+    private volatile Clock clock;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -96,7 +111,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             KieResources resourceFactoryService,
             EndPointConfigurationService endPointConfigurationService,
             Thesaurus thesaurus,
-            EventService eventService) {
+            EventService eventService,
+            Clock clock) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
@@ -107,6 +123,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.endPointConfigurationService = endPointConfigurationService;
         this.eventService = eventService;
         this.userService = userService;
+        this.clock = clock;
     }
 
     @Override
@@ -132,6 +149,37 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     @Override
+    public List<CreationRuleAction> findActionsByMultiValueProperty(List<IssueTypes> issueTypes, String propertyKey,
+            List<String> groupIdsList) {
+        final List<CreationRuleAction> actionsList;
+        if (issueTypes != null && !issueTypes.isEmpty()) {
+            final Condition condition = Where.where("type.issueType.key")
+                    .in(issueTypes.stream().map(type -> type.getName()).collect(Collectors.toList()));
+            actionsList = dataModel.query(CreationRuleAction.class, IssueActionType.class, IssueType.class)
+                    .select(condition);
+        } else {
+            actionsList = dataModel.stream(CreationRuleAction.class).select();
+        }
+        final List<CreationRuleAction> filteredActions = actionsList.stream().filter(action -> {
+            if (action.getProperties().containsKey(propertyKey)) {
+                if (groupIdsList != null) {
+                    List<HasId> value = (List<HasId>) action.getProperties().get(propertyKey);
+                    if (value != null && !value.isEmpty()) {
+                        List<String> valuesList = value.stream().map(object -> String.valueOf(object.getId()))
+                                .collect(Collectors.toList());
+                        valuesList.retainAll(groupIdsList);
+                        if (!valuesList.isEmpty()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
+        return filteredActions;
+    }
+
+    @Override
     public Optional<CreationRuleTemplate> findCreationRuleTemplate(String name) {
         if (name != null) {
             CreationRuleTemplate template = issueService.getCreationRuleTemplates().get(name);
@@ -142,9 +190,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public List<CreationRuleTemplate> getCreationRuleTemplates() {
-        List<CreationRuleTemplate> templates = new ArrayList<>();
-        templates.addAll(issueService.getCreationRuleTemplates().values());
-        return templates;
+        return new ArrayList<>(issueService.getCreationRuleTemplates().values());
     }
 
     @Override
@@ -182,8 +228,20 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                     + " was restricted");
             return;
         }
-
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
+            if (event.getEndDevice().isPresent() && isEndDeviceExcludedForRule(event.getEndDevice().get(), firedRule)) {
+                LOG.info("Issue creation for device " + event.getEndDevice().map(EndDevice::getName) + " for rule "
+                        + firedRule.getName()
+                        + " is restricted because the device is in the Issue Creation Rule's excluded device group(s)");
+                return;
+            }
+            if (isIssueCreationRestrictedByComTask(firedRule, event)) {
+                final String deviceName = event.getEndDevice().map(dev -> dev.getName()).orElse("");
+                LOG.info("Issue creation rule \'" + firedRule.getName()
+                        + "\' is restricted by the comunication task(s) of the event, for device \'" + deviceName
+                        + "\'");
+                return;
+            }
             CreationRuleTemplate template = firedRule.getTemplate();
             Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
             if (existingIssue.isPresent()) {
@@ -213,6 +271,19 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         );
     }
 
+    private boolean isEndDeviceExcludedForRule(EndDevice endDevice, CreationRule creationRule) {
+        if (creationRule.getExcludedGroupMappings() != null) {
+            final Instant now = clock.instant();
+            for (CreationRuleExclGroup mapping : creationRule.getExcludedGroupMappings()) {
+                final EndDeviceGroup group = mapping.getEndDeviceGroup();
+                if (group.isMember(endDevice, now)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
         try {
             batchUser = userService.findUser("batch executor");
@@ -228,6 +299,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
         baseIssue.setPriority(firedRule.getPriority());
+        baseIssue.setType(firedRule.getIssueType());
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         event.getUsagePoint().ifPresent(baseIssue::setUsagePoint);
         baseIssue.save();
@@ -255,9 +327,30 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         return Integer.parseInt(values.get(0)) == 1;
     }
 
+    private boolean isIssueCreationRestrictedByComTask(CreationRule rule, IssueEvent event) {
+        if (event instanceof FiltrableByComTask) {
+            if (rule.getTemplate() instanceof AllowsComTaskFiltering) {
+                List<HasId> comTasks = (List<HasId>) ((AllowsComTaskFiltering) rule.getTemplate())
+                        .getExcludedComTasks(rule.getProperties());
+                if (comTasks != null && !comTasks.isEmpty()) {
+                    return ((FiltrableByComTask) event).matchesByComTask(comTasks);
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public void processIssueResolutionEvent(long ruleId, IssueEvent event) {
         findCreationRuleById(ruleId).get().getTemplate().resolveIssue(event);
+    }
+
+    @Override
+    public void processIssueDiscardPriorityOnResolutionEvent(final long ruleId, final IssueEvent event) {
+        final Optional<CreationRule> creationRule = findCreationRuleById(ruleId);
+        creationRule.ifPresent(rule -> {
+            rule.getTemplate().issueSetPriorityValueToDefault(event, rule.getPriority());
+        });
     }
 
     @Override

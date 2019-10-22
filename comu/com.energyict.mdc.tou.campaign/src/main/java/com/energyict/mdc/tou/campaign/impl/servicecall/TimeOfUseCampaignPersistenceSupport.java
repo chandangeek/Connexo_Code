@@ -8,8 +8,9 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import com.google.inject.AbstractModule;
@@ -124,6 +125,30 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName())
                 .notNull()
                 .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName())
+                .since(Version.version(10, 7))
+                .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
+                .since(Version.version(10, 7))
+                .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.databaseName())
+                .varChar(Table.NAME_LENGTH)
+                .conversion(ColumnConversion.CHAR2ENUM)
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName())
+                .since(Version.version(10, 7))
+                .add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
+                .varChar(Table.NAME_LENGTH)
+                .conversion(ColumnConversion.CHAR2ENUM)
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
+                .since(Version.version(10, 7))
+                .add();
         table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)
                 .references(Calendar.class)
@@ -135,6 +160,13 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.DEVICE_TYPE.javaName())
                 .add();
         table.unique("UK_" + TABLE_NAME + "_NAME").on(name).add();
+        table.column(TimeOfUseCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.databaseName())
+                .installValue("'N'")
+                .bool()
+                .map(TimeOfUseCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName())
+                .notNull()
+                .since(Version.version(10, 7))
+                .add();
     }
 
     @Override

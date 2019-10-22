@@ -8,8 +8,10 @@ import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -19,9 +21,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,7 +78,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
                     this.getStateName(device.getState()),
                     sourceStates
                             .stream()
-                            .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
+                            .map(getContext().getMeteringTranslationService()::getDisplayName)
                             .collect(Collectors.joining(", ")));
         }
 
@@ -114,13 +114,13 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     private String getStateName(T data) {
-        return this.getContext().getDeviceLifeCycleConfigurationService().getDisplayName(getTargetState(data));
+        return this.getContext().getMeteringTranslationService().getDisplayName(getTargetState(data));
     }
 
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
+                .map(getContext().getMeteringTranslationService()::getDisplayName)
                 .orElseGet(state::getName);
     }
 

@@ -13,13 +13,14 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,7 +78,7 @@ public class MeterReadingEventHandlerTest {
         onDemandReadServiceCallDomainExtension.setExpectedTasks(BigDecimal.ONE);
         onDemandReadServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         onDemandReadServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        onDemandReadServiceCallDomainExtension.setTriggerDate(BigDecimal.ZERO);
+        onDemandReadServiceCallDomainExtension.setTriggerDate(Instant.MIN);
         when(serviceCall.getExtensionFor(any(OnDemandReadServiceCallCustomPropertySet.class))).thenReturn(Optional.of(onDemandReadServiceCallDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(onDemandReadServiceCallDomainExtension));
         when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));

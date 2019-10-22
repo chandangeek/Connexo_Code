@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.impl.records.CreationRuleActionImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleActionPropertyImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.CreationRulePropertyImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleExclGroupImpl;
 import com.elster.jupiter.issue.impl.records.HistoricalIssueImpl;
 import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
 import com.elster.jupiter.issue.impl.records.IssueCommentImpl;
@@ -22,6 +23,7 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionProperty;
 import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
@@ -32,11 +34,11 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UniqueConstraint;
 import com.elster.jupiter.orm.Version;
@@ -60,6 +62,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_DUE_IN_VALUE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_JOURNAL_TABLE_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_EXCL_GROUP_JOURNAL_TABLE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_OBSOLETE_TIME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_PK_NAME;
@@ -81,6 +84,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_REASON_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_RULE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_STATUS_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_URGENCY;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USAGEPOINT_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USER_ID;
@@ -92,6 +96,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_USER_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_CREATEDATETIME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_DEVICE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_ISSUE_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_STATUS;
@@ -100,6 +105,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_U
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_FK_TO_WORKGROUP;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_COLUMN_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_DEVICE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_ISSUE_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_HIST_FK_TO_STATUS;
@@ -124,6 +130,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_CO
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_COLUMN_TRANSLATION;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_TYPE_PK_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_DEVICE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_ISSUE_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_REASON;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_RULE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.OPEN_ISSUE_FK_TO_STATUS;
@@ -173,7 +180,8 @@ public enum TableSpecs {
             table.cache();
 
             Column key = table.column(ISSUE_TYPE_COLUMN_KEY).map("key").varChar(NAME_LENGTH).notNull().add();
-            table.column(ISSUE_TYPE_COLUMN_PREFIX).map("prefix").varChar(3).notNull().since(version(10, 2)).installValue("'DCI'").add();
+            table.column(ISSUE_TYPE_COLUMN_PREFIX).map("prefix").varChar(3).notNull().since(version(10, 2))
+                    .installValue("'DCI'").add();
             table.column(ISSUE_TYPE_COLUMN_TRANSLATION).map("translationKey").varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
@@ -190,12 +198,14 @@ public enum TableSpecs {
 
             Column key = table.column(ISSUE_REASON_COLUMN_KEY).map("key").varChar(NAME_LENGTH).notNull().add();
             table.column(ISSUE_REASON_COLUMN_TRANSLATION).map("translationKey").varChar(NAME_LENGTH).notNull().add();
-            table.column(ISSUE_REASON_COLUMN_DESCRIPTION).map("descrTranslationKey").varChar(NAME_LENGTH).notNull().add();
+            table.column(ISSUE_REASON_COLUMN_DESCRIPTION).map("descrTranslationKey").varChar(NAME_LENGTH).notNull()
+                    .add();
             Column typeRefIdColumn = table.column(ISSUE_REASON_COLUMN_TYPE).varChar(NAME_LENGTH).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(ISSUE_REASON_PK_NAME).on(key).add();
-            table.foreignKey(ISSUE_REASON_FK_TO_ISSUE_TYPE).map("issueType").on(typeRefIdColumn).references(ISU_TYPE.name()).add();
+            table.foreignKey(ISSUE_REASON_FK_TO_ISSUE_TYPE).map("issueType").on(typeRefIdColumn)
+                    .references(ISU_TYPE.name()).add();
         }
     },
 
@@ -208,7 +218,8 @@ public enum TableSpecs {
 
             Column key = table.column(ISSUE_STATUS_COLUMN_KEY).map("key").varChar(NAME_LENGTH).notNull().add();
             table.column(ISSUE_STATUS_COLUMN_TRANSLATION).map("translationKey").varChar(NAME_LENGTH).notNull().add();
-            table.column(ISSUE_STATUS_COLUMN_IS_HISTORICAL).map("isHistorical").type("char(1)").conversion(CHAR2BOOLEAN).notNull().add();
+            table.column(ISSUE_STATUS_COLUMN_IS_HISTORICAL).map("isHistorical").type("char(1)").conversion(CHAR2BOOLEAN)
+                    .notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(ISSUE_STATUS_PK_NAME).on(key).add();
@@ -222,18 +233,15 @@ public enum TableSpecs {
             table.map(IssueCommentImpl.class);
             Column idColumn = table.addAutoIdColumn();
 
-            table.column(ISSUE_COMMENT_COMMENT).type("CLOB").map("comment").conversion(ColumnConversion.CLOB2STRING).add();
+            table.column(ISSUE_COMMENT_COMMENT).type("CLOB").map("comment").conversion(ColumnConversion.CLOB2STRING)
+                    .add();
             table.column(ISSUE_COMMENT_ISSUE_ID).map("issueId").number().conversion(NUMBER2LONG).notNull().add();
-            Column userRefIdColumn = table.column(ISSUE_COMMENT_USER_ID).number().conversion(NUMBER2LONG).notNull().add();
+            Column userRefIdColumn = table.column(ISSUE_COMMENT_USER_ID).number().conversion(NUMBER2LONG).notNull()
+                    .add();
             table.primaryKey(ISSUE_COMMENT_PK_NAME).on(idColumn).add();
             table.addAuditColumns();
 
-            table
-                    .foreignKey(ISSUE_COMMENT_FK_TO_USER)
-                    .on(userRefIdColumn)
-                    .references(User.class)
-                    .map("user")
-                    .add();
+            table.foreignKey(ISSUE_COMMENT_FK_TO_USER).on(userRefIdColumn).references(User.class).map("user").add();
         }
     },
 
@@ -247,22 +255,48 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column(CREATION_RULE_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
-            table.column(CREATION_RULE_STATUS).map("active").type("char(1)").conversion(CHAR2BOOLEAN).installValue("'Y'").notNull().add().since(Version.version(10, 3));
+            table.column(CREATION_RULE_STATUS).map("active").type("char(1)").conversion(CHAR2BOOLEAN)
+                    .installValue("'Y'").notNull().add().since(Version.version(10, 3));
             table.column(CREATION_RULE_COMMENT).map("comment").type("clob").conversion(CLOB2STRING).add();
             table.column(CREATION_RULE_CONTENT).map("content").type("clob").conversion(CLOB2STRING).notNull().add();
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).varChar(NAME_LENGTH).notNull().add();
             table.column(CREATION_RULE_DUE_IN_VALUE).map("dueInValue").number().conversion(NUMBER2LONG).add();
             table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").number().conversion(NUMBER2ENUM).add();
             Column template = table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
-            Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
-            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).installValue("25").notNull().add().since(Version.version(10, 3));
-            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).installValue("25").notNull().add().since(Version.version(10, 3));
+            Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").number()
+                    .conversion(NUMBER2INSTANT).add();
+            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT)
+                    .installValue("25").notNull().add().since(Version.version(10, 3));
+            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).installValue("25")
+                    .notNull().add().since(Version.version(10, 3));
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
-            table.foreignKey(CREATION_RULE_FK_TO_REASON).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
-            UniqueConstraint previousConstraint = table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, obsoleteColumn).upTo(Version.version(10, 3)).add();
-            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn,template, obsoleteColumn).since(Version.version(10, 3)).previously(previousConstraint).add();
+            table.foreignKey(CREATION_RULE_FK_TO_REASON).map("reason").on(reasonRefIdColumn)
+                    .references(ISU_REASON.name()).add();
+            UniqueConstraint previousConstraint = table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, obsoleteColumn)
+                    .upTo(Version.version(10, 3)).add();
+            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, template, obsoleteColumn).since(Version.version(10, 3))
+                    .previously(previousConstraint).add();
+        }
+    },
+
+    ISU_CREATIONRULEEXCLGROUP {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<CreationRuleExclGroup> table = dataModel.addTable(name(), CreationRuleExclGroup.class)
+                    .since(Version.version(10, 7));
+            table.map(CreationRuleExclGroupImpl.class);
+            Column creationRule = table.column("CREATIONRULE").number().notNull().add();
+            Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
+            table.setJournalTableName(CREATION_RULE_EXCL_GROUP_JOURNAL_TABLE_NAME).since(Version.version(10, 7));
+            table.addAuditColumns();
+            table.foreignKey("FK_CRGP_CREATIONRULE").on(creationRule).references(TableSpecs.ISU_CREATIONRULE.name())
+                    .reverseMap("excludedGroupMappings").composition().map("creationRule").onDelete(DeleteRule.CASCADE)
+                    .add();
+            table.foreignKey("FK_CRGP_ENDDEVICEGROUP").on(endDeviceGroup).references(EndDeviceGroup.class)
+                    .map("endDeviceGroup").onDelete(DeleteRule.CASCADE).add();
+            table.primaryKey("PK_CREATIONRULEEXCLGROUP").on(creationRule, endDeviceGroup).add();
         }
     },
 
@@ -274,8 +308,10 @@ public enum TableSpecs {
 
             Column nameColumn = table.column(CREATION_RULE_PROPS_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
             Column ruleColumn = table.column(CREATION_RULE_PROPS_RULE).number().conversion(NUMBER2LONG).notNull().add();
-            Column oldValue = table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().upTo(Version.version(10, 5)).add();
-            table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(DESCRIPTION_LENGTH).notNull().since(Version.version(10, 6)).previously(oldValue).add();
+            Column oldValue = table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH)
+                    .notNull().upTo(Version.version(10, 5)).add();
+            table.column(CREATION_RULE_PROPS_VALUE).map("value").varChar(DESCRIPTION_LENGTH).notNull()
+                    .since(Version.version(10, 6)).previously(oldValue).add();
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PROPS_PK_NAME).on(nameColumn, ruleColumn).add();
@@ -289,7 +325,8 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<HistoricalIssue> table = dataModel.addTable(name(), HistoricalIssue.class);
             table.map(HistoricalIssueImpl.class);
-            Column idColumn = table.column(ISSUE_HIST_COLUMN_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
+            Column idColumn = table.column(ISSUE_HIST_COLUMN_ID).map("id").number().conversion(NUMBER2LONG).notNull()
+                    .add();
 
             TableBuilder.buildIssueTable(table, idColumn, ISSUE_HIST_PK_NAME,
                     // Foreign keys
@@ -299,7 +336,8 @@ public enum TableSpecs {
                     ISSUE_HIST_FK_TO_USAGEPOINT,
                     ISSUE_HIST_FK_TO_USER,
                     ISSUE_HIST_FK_TO_WORKGROUP,
-                    ISSUE_HIST_FK_TO_RULE);
+                    ISSUE_HIST_FK_TO_RULE,
+                    ISSUE_HIST_FK_TO_ISSUE_TYPE);
             table.addAuditColumns();
         }
     },
@@ -319,7 +357,8 @@ public enum TableSpecs {
                     OPEN_ISSUE_FK_TO_USAGEPOINT,
                     OPEN_ISSUE_FK_TO_USER,
                     OPEN_ISSUE_FK_TO_WORKGROUP,
-                    OPEN_ISSUE_FK_TO_RULE);
+                    OPEN_ISSUE_FK_TO_RULE,
+                    OPEN_ISSUE_FK_TO_ISSUE_TYPE);
             table.addAuditColumns();
         }
     },
@@ -339,7 +378,8 @@ public enum TableSpecs {
                     ISSUE_FK_TO_USAGEPOINT,
                     ISSUE_FK_TO_USER,
                     ISSUE_FK_TO_WORKGROUP,
-                    ISSUE_FK_TO_RULE);
+                    ISSUE_FK_TO_RULE,
+                    ISSUE_FK_TO_ISSUE_TYPE);
             table.addAuditColumns();
         }
     },
@@ -356,7 +396,8 @@ public enum TableSpecs {
             table.column(ASSIGNMENT_RULES_DESCRIPTION).map("description").varChar(400).add();
             table.column(ASSIGNMENT_RULES_TITLE).map("title").varChar(400).notNull().add();
             table.column(ASSIGNMENT_RULES_ENABLED).map("enabled").number().conversion(NUMBER2BOOLEAN).add();
-            table.column(ASSIGNMENT_RULES_RULE_DATA).map("ruleData").type("clob").conversion(CLOB2STRING).notNull().add();
+            table.column(ASSIGNMENT_RULES_RULE_DATA).map("ruleData").type("clob").conversion(CLOB2STRING).notNull()
+                    .add();
             table.addAuditColumns();
 
             table.primaryKey(ASSIGNMENT_RULES_PK).on(idColumn).add();
@@ -378,8 +419,10 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_TYPE_PK_NAME).on(idColumn).add();
-            table.foreignKey(RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE).map("issueType").on(typeRefIdColumn).references(IssueType.class).add();
-            table.foreignKey(RULE_ACTION_TYPE_FK_TO_REASON).map("issueReason").on(reasonRefIdColumn).references(IssueReason.class).add();
+            table.foreignKey(RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE).map("issueType").on(typeRefIdColumn)
+                    .references(IssueType.class).add();
+            table.foreignKey(RULE_ACTION_TYPE_FK_TO_REASON).map("issueReason").on(reasonRefIdColumn)
+                    .references(IssueReason.class).add();
         }
     },
 
@@ -396,9 +439,10 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_PK_NAME).on(idColumn).add();
-            table.foreignKey(RULE_ACTION_FK_TO_ACTION_TYPE).map("type").on(typeRefIdColumn).references(IssueActionType.class).add();
-            table.foreignKey(RULE_ACTION_FK_TO_RULE).on(ruleRefIdColumn).references(CreationRule.class)
-                    .map("rule").reverseMap("persistentActions").composition().onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey(RULE_ACTION_FK_TO_ACTION_TYPE).map("type").on(typeRefIdColumn)
+                    .references(IssueActionType.class).add();
+            table.foreignKey(RULE_ACTION_FK_TO_RULE).on(ruleRefIdColumn).references(CreationRule.class).map("rule")
+                    .reverseMap("persistentActions").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
 
@@ -409,7 +453,8 @@ public enum TableSpecs {
             table.map(CreationRuleActionPropertyImpl.class);
 
             Column nameColumn = table.column(RULE_ACTION_PROPS_NAME).map("name").varChar(NAME_LENGTH).notNull().add();
-            Column actionColumn = table.column(RULE_ACTION_PROPS_RULEACTION).number().conversion(NUMBER2LONG).notNull().add();
+            Column actionColumn = table.column(RULE_ACTION_PROPS_RULEACTION).number().conversion(NUMBER2LONG).notNull()
+                    .add();
             table.column(RULE_ACTION_PROPS_VALUE).map("value").varChar(SHORT_DESCRIPTION_LENGTH).notNull().add();
             table.addAuditColumns();
 
@@ -422,19 +467,22 @@ public enum TableSpecs {
     public abstract void addTo(DataModel dataModel);
 
     private static class TableBuilder {
-        private static final int EXPECTED_FK_KEYS_LENGTH = 7;
+        private static final int EXPECTED_FK_KEYS_LENGTH = 8;
 
         static void buildIssueTable(Table<?> table, Column idColumn, String pkKey, String... fkKeys) {
             table.column(ISSUE_COLUMN_DUE_DATE).map("dueDate").number().conversion(NUMBER2INSTANT).add();
             Column reasonRefIdColumn = table.column(ISSUE_COLUMN_REASON_ID).varChar(NAME_LENGTH).notNull().add();
             Column statusRefIdColumn = table.column(ISSUE_COLUMN_STATUS_ID).varChar(NAME_LENGTH).notNull().add();
             Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
-            Column usagePointRefIdColumn = table.column(ISSUE_COLUMN_USAGEPOINT_ID).number().conversion(NUMBER2LONG).since(version(10,5)).add();
-            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).upTo(Version.version(10, 3)).add();
+            Column usagePointRefIdColumn = table.column(ISSUE_COLUMN_USAGEPOINT_ID).number().conversion(NUMBER2LONG)
+                    .since(version(10, 5)).add();
+            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM)
+                    .upTo(Version.version(10, 3)).add();
             Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
-            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
+            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().upTo(Version.version(10, 7)).add();
+            Column ruleRefIdColumnNullable = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).previously(ruleRefIdColumn).add();
             Column urgencyColumn = table.column(ISSUE_COLUMN_URGENCY)
                     .map("priority.urgency")
                     .number()
@@ -443,36 +491,17 @@ public enum TableSpecs {
                     .installValue("25")
                     .add()
                     .since(Version.version(10, 3));
-            Column impactColumn = table.column(ISSUE_COLUMN_IMPACT)
-                    .map("priority.impact")
-                    .number()
-                    .conversion(NUMBER2INT)
-                    .notNull()
-                    .installValue("25")
-                    .add()
+            Column impactColumn = table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number()
+                    .conversion(NUMBER2INT).notNull().installValue("25").add().since(Version.version(10, 3));
+            table.column(ISSUE_COLUMN_PRIORITY).number().conversion(NUMBER2INT).notNull()
+                    .as(urgencyColumn.getName() + " + " + impactColumn.getName()).alias("priorityTotal").add()
                     .since(Version.version(10, 3));
-            table.column(ISSUE_COLUMN_PRIORITY)
-                    .number()
-                    .conversion(NUMBER2INT)
-                    .notNull()
-                    .as(urgencyColumn.getName() + " + " + impactColumn.getName())
-                    .alias("priorityTotal")
-                    .add()
-                    .since(Version.version(10, 3));
-            Column createdDateTimeColumn = table.column(ISSUE_CREATEDATETIME)
-                    .number()
-                    .notNull()
-                    .conversion(NUMBER2INSTANT)
-                    .map("createDateTime")
-                    .installValue(String.valueOf(Instant.EPOCH.toEpochMilli()))
-                    .add()
-                    .since(Version.version(10, 3));
-            table.column(ISSUE_SNOOZEDATETIME)
-                    .number()
-                    .conversion(NUMBER2INSTANT)
-                    .map("snoozeDateTime")
-                    .add()
+            Column createdDateTimeColumn = table.column(ISSUE_CREATEDATETIME).number().notNull()
+                    .conversion(NUMBER2INSTANT).map("createDateTime")
+                    .installValue(String.valueOf(Instant.EPOCH.toEpochMilli())).add().since(Version.version(10, 3));
+            table.column(ISSUE_SNOOZEDATETIME).number().conversion(NUMBER2INSTANT).map("snoozeDateTime").add()
                     .since(Version.version(10, 4));
+            Column typeRefIdColumn = table.column(ISSUE_COLUMN_TYPE).varChar(NAME_LENGTH).since(Version.version(10, 7)).add();
             table.partitionOn(createdDateTimeColumn);
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
@@ -482,10 +511,11 @@ public enum TableSpecs {
             table.foreignKey(fkKeysIter.next()).map("reason").on(reasonRefIdColumn).references(IssueReason.class).add();
             table.foreignKey(fkKeysIter.next()).map("status").on(statusRefIdColumn).references(IssueStatus.class).add();
             table.foreignKey(fkKeysIter.next()).map("device").on(deviceRefIdColumn).references(EndDevice.class).add();
-            table.foreignKey(fkKeysIter.next()).map("usagePoint").on(usagePointRefIdColumn).references(UsagePoint.class).since(version(10,5)).add();
+            table.foreignKey(fkKeysIter.next()).map("usagePoint").on(usagePointRefIdColumn).references(UsagePoint.class).since(version(10, 5)).add();
             table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).onDelete(DeleteRule.SETNULL).add();
             table.foreignKey(fkKeysIter.next()).map("workGroup").on(workGroupRefIdColumn).references(WorkGroup.class).onDelete(DeleteRule.SETNULL).add();
-            table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(CreationRule.class).add();
+            table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumnNullable).references(CreationRule.class).add();
+            table.foreignKey(fkKeysIter.next()).map("type").on(typeRefIdColumn).references(ISU_TYPE.name()).since(version(10,7)).add();
         }
     }
 }

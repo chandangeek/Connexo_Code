@@ -186,21 +186,32 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         var me = this,
             actionTypesStore = Ext.getStore('Dal.store.CreationRuleActions'),
             actionTypesStoreProxy = actionTypesStore.getProxy(),
-            rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState');
+            rule = Ext.getStore('Dal.store.Clipboard').get('alarmsCreationRuleState'),
+            issueReasonId;
 
+        actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Dal.model.Action'));
         me.setLoading();
-        actionTypesStoreProxy.setExtraParam('createdActions', _.map(rule.actions().getRange(), function (value) {
+        var listOfCreatedActionIds = [];
+        _.map(rule.actions().getRange(), function (value) {
             if (value.get('phase').uuid === newValue.phase) {
-                return value.getType().getId();
+                listOfCreatedActionIds.push(value.getType().getId());
             }
-        }));
+        });
+
+        if (listOfCreatedActionIds !== undefined && listOfCreatedActionIds.length !== 0 &&
+            (listOfCreatedActionIds[0] !== undefined)) {
+                actionTypesStoreProxy.setExtraParam('createdActions', listOfCreatedActionIds);
+        }
+
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
-        try {
-            actionTypesStoreProxy.setExtraParam('reason', rule.getReason().getId());
-        } catch (e) {}
+        if ( rule && (issueReasonId = rule.get('reason_id')) ){
+            actionTypesStoreProxy.extraParams['reason'] = issueReasonId;
+        }else{
+            delete actionTypesStoreProxy.extraParams['reason'];
+        }
         actionTypesStore.load(function () {
             me.down('#no-actions-displayfield').setVisible(!actionTypesStore.count());
             me.down('#actionType').setVisible(actionTypesStore.count());

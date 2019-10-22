@@ -25,10 +25,17 @@ Ext.define('Isu.controller.history.Administration', {
                     privileges: Isu.privileges.Issue.viewAdminDevice,
                     items: {
                         bulkaction: {
-                            title: Uni.I18n.translate('general.bulkAction','ISU','Bulk action'),
+                            title: Uni.I18n.translate('general.bulkAction', 'ISU', 'Bulk action'),
                             route: 'bulkaction',
                             privileges: Isu.privileges.Issue.closeOrAssing,
                             controller: 'Isu.controller.BulkChangeIssues'
+                        },
+                        devicegroup: {
+                            title: Uni.I18n.translate('general.addDeviceGroup', 'ISU', 'Add device group'),
+                            route: 'devicegroup',
+                            controller: 'Isu.controller.AddDeviceGroupFromIssues',
+                            privileges: Isu.privileges.Issue.closeOrAssing,
+                            action: 'showDeviceGroupWizard'
                         },
                         view: {
                             title: Uni.I18n.translate('general.issueDetails', 'ISU', 'Issue details'),
@@ -57,8 +64,8 @@ Ext.define('Isu.controller.history.Administration', {
                                         return this;
                                     }
                                 },
-                                setpriority:{
-                                    title: Uni.I18n.translate('issue.setpriority','ISU','Set priority'),
+                                setpriority: {
+                                    title: Uni.I18n.translate('issue.setpriority', 'ISU', 'Set priority'),
                                     route: 'setpriority',
                                     controller: 'Isu.controller.SetPriority',
                                     action: 'setPriority',
@@ -74,10 +81,17 @@ Ext.define('Isu.controller.history.Administration', {
                     controller: 'Isu.controller.Overview',
                     action: 'showIssuesOverview',
                     privileges: Isu.privileges.Issue.viewAdminDevice
-                }
+                },
+                newissuemanually: {
+                    title: Uni.I18n.translate('workspace.createNewManualIssue', 'ISU', 'Create issue'),
+                    route: 'newissuemanually',
+                    controller: 'Isu.controller.CreationManualRule',
+                    action: 'createNewManualIssue',
+                    privileges: Isu.privileges.Issue.createManualIssue
+                },
             }
         },
-        administration : {
+        administration: {
             title: Uni.I18n.translate('route.administration', 'ISU', 'Administration'),
             route: 'administration',
             disabled: true,
@@ -106,11 +120,17 @@ Ext.define('Isu.controller.history.Administration', {
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
                                     action: 'showEdit'
+                                },
+                                addexclgroups: {
+                                    title: Uni.I18n.translate('general.excludeDeviceGroups', 'ISU', 'Add device groups to exclude'),
+                                    route: 'addexclgroups',
+                                    controller: 'Isu.controller.CreationRuleGroupsEdit',
+                                    action: 'showEdit'
                                 }
                             }
                         },
                         edit: {
-                            title: Uni.I18n.translate('general.edit','ISU','Edit'),
+                            title: Uni.I18n.translate('general.edit', 'ISU', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Isu.controller.CreationRuleEdit',
                             action: 'showEdit',
@@ -128,6 +148,12 @@ Ext.define('Isu.controller.history.Administration', {
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
                                     action: 'showEdit'
+                                },
+                                addexclgroups: {
+                                    title: Uni.I18n.translate('general.excludeDeviceGroups', 'ISU', 'Add device groups to exclude'),
+                                    route: 'addexclgroups',
+                                    controller: 'Isu.controller.CreationRuleGroupsEdit',
+                                    action: 'showEdit'
                                 }
                             }
                         }
@@ -137,7 +163,7 @@ Ext.define('Isu.controller.history.Administration', {
         }
     },
 
-    init :function() {
+    init: function () {
         var router = this.getController('Uni.controller.history.Router');
         router.addConfig(this.routeConfig);
     }

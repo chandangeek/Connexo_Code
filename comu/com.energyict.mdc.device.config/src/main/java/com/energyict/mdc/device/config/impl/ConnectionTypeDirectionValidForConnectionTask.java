@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionType;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

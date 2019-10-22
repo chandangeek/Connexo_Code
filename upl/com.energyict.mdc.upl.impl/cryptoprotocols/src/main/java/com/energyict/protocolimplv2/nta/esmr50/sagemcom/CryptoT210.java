@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.nta.esmr50.sagemcom;
 
+import com.energyict.common.framework.CryptoDlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -13,11 +15,6 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.common.framework.CryptoDlmsSession;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50Properties;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50MessageExecutor;
@@ -26,6 +23,7 @@ import com.energyict.protocolimplv2.nta.esmr50.messages.CryptoESMR50MessageExecu
 import com.energyict.protocolimplv2.nta.esmr50.messages.CryptoESMR50Messaging;
 
 public class CryptoT210 extends T210 {
+
     private CryptoESMR50Messaging cryptoMessaging;
     private CryptoESMR50MessageExecutor cryptoMessageExecutor;
 
@@ -40,13 +38,13 @@ public class CryptoT210 extends T210 {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-13";
+        return "Crypto version: 2019-09-26";
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("Sagemcom T210 crypto protocol:");
-            super.init(offlineDevice,comChannel);
+        journal("Sagemcom T210 crypto protocol");
+        super.init(offlineDevice,comChannel);
     }
 
     @Override
@@ -54,7 +52,7 @@ public class CryptoT210 extends T210 {
         //Uses the HSM to encrypt requests and decrypt responses, we don't have the plain keys
         if (getDlmsSessionProperties().useCryptoServer()) {
             //Uses the cryptoserver to encrypt requests and decrypt responses
-            return  new CryptoDlmsSession(comChannel, getDlmsSessionProperties());
+            return new CryptoDlmsSession(comChannel, getDlmsSessionProperties());
         } else {
             //Normal session
             return super.newDlmsSession(comChannel);

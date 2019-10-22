@@ -80,6 +80,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             'deviceSetup device-communications-list uni-actioncolumn': {
                 run: this.communicationRun,
                 runNow: this.communicationRunNow,
+                runNowWithPriority: this.communicationRunPrio,
                 toggleActivation: this.communicationToggle
             },
             'deviceSetup #device-communications-panel #activate-all': {
@@ -89,7 +90,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 click: this.communicationDeactivateAll
             },
             'deviceSetup #deviceSetupPanel #refresh-btn': {
-                click: this.doRefresh
+                click: this.onRefreshAction
             }
         });
     },
@@ -242,6 +243,23 @@ Ext.define('Mdc.controller.setup.Devices', {
         });
     },
 
+    communicationRunPrio: function (record) {
+        var me = this,
+            widget = this.getDeviceCommunicationsList();
+
+        widget.setLoading(true);
+        record.runNowWithPriority(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.prio', 'MDC', 'Run with priority succeeded')
+            );
+            record.set('plannedDate', new Date());
+            me.updateDevice(me.doRefresh);
+            widget.setLoading(false);
+        }, {
+            device: _.pick(me.getDevice().getRecordData(), 'name', 'version', 'parent')
+        });
+    },
+
     showDeviceDetailsView: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -385,6 +403,12 @@ Ext.define('Mdc.controller.setup.Devices', {
         this.refreshConnections();
         this.refreshCommunications();
         this.refreshWhatsGoingOn();
+    },
+
+    onRefreshAction: function () {  // CXO-10446
+        var me = this,
+            router = this.getController('Uni.controller.history.Router');
+        me.showDeviceDetailsView(router.arguments.deviceId);
     },
 
     refreshWhatsGoingOn: function(){

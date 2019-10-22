@@ -15,7 +15,7 @@ Ext.define('Sam.view.datapurge.LogPreviewForm', {
             name: 'startDate',
             renderer: function (value) {
                 return value
-                    ? UUni.DateTime.formatDateTimeLong(value)
+                    ? Uni.DateTime.formatDateTimeLong(value)
                     : '';
             }
         },

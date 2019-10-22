@@ -68,7 +68,7 @@ public class AuditFilterTest {
 
     @Test
     public void testAuditFilterWithChangedOn() {
-        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
+        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, ApplicationType.MDC_APPLICATION_KEY, auditService);
         auditTrailFilter.setChangedOnFrom(CHANGED_ON_FROM);
         auditTrailFilter.setChangedOnTo(CHANGED_ON_TO);
         assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((domainContext IN [%s]) AND createTime >= ?  AND createTime <= ? )", CONTEXT));
@@ -76,21 +76,21 @@ public class AuditFilterTest {
 
     @Test
     public void testAuditFilterWithCategories() {
-        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
+        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, ApplicationType.MDC_APPLICATION_KEY, auditService);
         auditTrailFilter.setCategories(Collections.singletonList(CATEGORY));
         assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(domainContext IN [%s])", CONTEXT));
     }
 
     @Test
     public void testAuditFilterWithChangedBy() {
-        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
+        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, ApplicationType.MDC_APPLICATION_KEY, auditService);
         auditTrailFilter.setChangedBy(Collections.singletonList(USER));
         assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("((domainContext IN [%s]) AND (userName IN [%s]))", CONTEXT, USER));
     }
 
     @Test
     public void testZoneFilterWithNullZoneTypes() {
-        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, auditService);
+        AuditTrailFilter auditTrailFilter = new AuditTrailFilterImpl(threadPrincipalService, ApplicationType.MDC_APPLICATION_KEY, auditService);
         assertThat(auditTrailFilter.toCondition().toString()).isEqualTo(String.format("(domainContext IN [%s])", CONTEXT));
     }
 

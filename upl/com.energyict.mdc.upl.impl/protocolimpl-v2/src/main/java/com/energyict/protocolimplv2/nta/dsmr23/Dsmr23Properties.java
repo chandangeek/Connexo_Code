@@ -14,15 +14,11 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_BULK_REQU
 public class Dsmr23Properties extends DlmsProperties {
 
     public static final String OLD_MBUS_DISCOVERY = "OldMbusDiscovery";
-    public static final String FRAME_COUNTER_LIMIT = "FrameCounterLimit";
+
 
 
     public boolean getOldMbusDiscovery() {
         return parseBooleanProperty(OLD_MBUS_DISCOVERY, false);
-    }
-
-    public long getFrameCounterLimit() {
-        return parseBigDecimalProperty(FRAME_COUNTER_LIMIT, BigDecimal.ZERO);
     }
 
     public boolean replayAttackPreventionEnabled(){

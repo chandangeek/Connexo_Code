@@ -118,7 +118,8 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
                 field = me.down('[name="' + association.associatedName + '"]');
                 try {
                     associatedRecord = record[association.getterName].call(record);
-                } catch (e) {}
+                } catch (e) {
+                }
 
                 if (field && associatedRecord) {
                     field.setValue(associatedRecord.getId());
@@ -174,7 +175,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
                 boxLabel: record.get('title'),
                 name: 'phase',
                 inputValue: record.get('uuid'),
-                itemId: 'when-to-perform-radio-button-'+record.get('uuid'),
+                itemId: 'when-to-perform-radio-button-' + record.get('uuid'),
                 afterSubTpl: '<span style="display: inline-block; color: #686868; font-style: italic; margin-left: 19px; margin-top: 6px;">' + record.get('description') + '</span>'
             });
         });
@@ -186,22 +187,35 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
         var me = this,
             actionTypesStore = Ext.getStore('Isu.store.CreationRuleActions'),
             actionTypesStoreProxy = actionTypesStore.getProxy(),
-            rule = Ext.getStore('Isu.store.Clipboard').get('issuesCreationRuleState');
+            rule = Ext.getStore('Isu.store.Clipboard').get('issuesCreationRuleState'),
+            issueReasonId;
 
+        actionTypesStoreProxy.setExtraParam('createdActions', []);
         Ext.suspendLayouts();
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Isu.model.Action'));
         me.setLoading();
         actionTypesStoreProxy.setExtraParam('issueType', rule.getIssueType().getId());
-        actionTypesStoreProxy.setExtraParam('createdActions', _.map(rule.actions().getRange(), function (value) {
+
+        var listOfCreatedActionIds = [];
+        _.map(rule.actions().getRange(), function (value) {
             if (value.get('phase').uuid === newValue.phase) {
-                return value.getType().getId();
+                listOfCreatedActionIds.push(value.getType().getId());
             }
-        }));
+        });
+
+        if (listOfCreatedActionIds !== undefined && listOfCreatedActionIds.length !== 0) {
+            if (listOfCreatedActionIds[0] !== undefined) {
+                actionTypesStoreProxy.setExtraParam('createdActions', listOfCreatedActionIds);
+            }
+        }
+
         actionTypesStoreProxy.setExtraParam('phase', newValue.phase);
-        try {
-            actionTypesStoreProxy.setExtraParam('reason', rule.getReason().getId());
-        } catch (e) {}
+        if ( rule && (issueReasonId = rule.get('reason_id')) ){
+            actionTypesStoreProxy.extraParams['reason'] = issueReasonId;
+        }else{
+            delete actionTypesStoreProxy.extraParams['reason'];
+        }
         actionTypesStore.load(function () {
             me.down('#no-actions-displayfield').setVisible(!actionTypesStore.count());
             me.down('#actionType').setVisible(actionTypesStore.count());
@@ -211,7 +225,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
         Ext.resumeLayouts(true);
     },
 
-    onActionChange:  function (combo, newValue) {
+    onActionChange: function (combo, newValue) {
         var me = this,
             action = combo.findRecordByValue(newValue);
 

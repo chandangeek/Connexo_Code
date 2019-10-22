@@ -36,8 +36,12 @@ public enum MessageSeeds implements MessageSeed {
 
     INVALID_COORDINATES(10003, "invalidCoordinates", "All coordinates fields must contain valid values"),
     INVALID_END_DEVICE_STAGE_WITHOUT_MC(12208, Constants.INVALID_END_DEVICE_STAGE_WITHOUT_MC, "Meter linking error. Meter {0} cannot be linked to usage point {1} because this meter is in incorrect life cycle stage after the linking date {2}."),
-    METER_CANNOT_BE_UNLINKED(12210, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configration does not allow gaps, meter {0} cannot be unlinked from usage point {1} at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
-    METER_ACTIVATION_INVALID_REQUIREMENTS(12204, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "Meter linking error. The meters of the usage point do not provide the necessary reading types for purposes {0} of the new metrology configuration");
+    METER_CANNOT_BE_UNLINKED(12210, Constants.METER_CANNOT_BE_UNLINKED, "Meter unlinking error. Because the metrology configuration does not allow gaps, meter ''{0}'' cannot be unlinked from usage point ''{1}'' at {2}. This meter is required for the calculation of the active purposes of the metrology configuration."),
+    METER_ACTIVATION_INVALID_REQUIREMENTS(12204, Constants.METER_ACTIVATION_INVALID_REQUIREMENTS, "Meter linking error. The meters of the usage point do not provide the necessary reading types for purposes {0} of the new metrology configuration"),
+
+    UNABLE_TO_CHANGE_DEVICE_STATE_DUE_TO_TIME_NOT_AFTER_LAST_STATE_CHANGE(20000, Constants.UNABLE_TO_CHANGE_DEVICE_STATE_DUE_TO_TIME_NOT_AFTER_LAST_STATE_CHANGE,
+            "Unable to change device state to {0} (The transition date {2} should be after the last state change {3} for device (name={1}))"),
+    ;
 
     private final int number;
     private final String key;
@@ -104,6 +108,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String METER_CANNOT_BE_UNLINKED = "meter.cannot.be.unlinked";
         public static final String USAGE_POINT_INCORRECT_STAGE = "usage.point.incorrect.stage";
         public static final String METER_ACTIVATION_INVALID_REQUIREMENTS = "meter.activation.invalid.requirements";
+        public static final String UNABLE_TO_CHANGE_DEVICE_STATE_DUE_TO_TIME_NOT_AFTER_LAST_STATE_CHANGE = "unable.to.change.device.state.due.to.time.not.after.last.state.change.new";
     }
 
 }

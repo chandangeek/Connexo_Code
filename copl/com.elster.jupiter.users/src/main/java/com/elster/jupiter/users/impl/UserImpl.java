@@ -14,6 +14,7 @@ import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.WorkGroup;
 
 import com.google.common.collect.ImmutableList;

@@ -23,7 +23,9 @@ Ext.define('Tou.controller.Add', {
         'Tou.store.DeviceGroups',
         'Tou.store.DaysWeeksMonths',
         'Tou.store.AllowedCalendars',
-        'Tou.store.AllowedDeviceTypeOptions'
+        'Tou.store.AllowedDeviceTypeOptions',
+        'Tou.store.ComTasks',
+        'Tou.store.ConnectionStrategy'
     ],
 
     refs: [{
@@ -96,8 +98,7 @@ Ext.define('Tou.controller.Add', {
                 var activationOption,
                 activationDate;
                 activationOption = activateCalendarItem.getOptionValue();
-                if (activationOption)
-                    record.set('activationOption', activationOption);
+                if (activationOption) record.set('activationOption', activationOption);
                 if (activationOption == 'onDate' && activateCalendarItem.getDateValue())
                     record.set('activationDate', activateCalendarItem.getDateValue());
                 else if (record.data && record.data['activationDate'] !== undefined)
@@ -138,6 +139,48 @@ Ext.define('Tou.controller.Add', {
                 }
             }
         }
+
+        var sendCalendarComTaskField = form.down('[name=sendCalendarComTask]');
+        var sendCalendarComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
+
+        if (sendCalendarComTask) {
+            record.set('sendCalendarComTask', sendCalendarComTask.getData());
+        }
+
+        var sendCalendarConnectionStrategyField = form.down('[name=sendCalendarConnectionStrategy]');
+        var sendCalendarConnectionStrategy = sendCalendarConnectionStrategyField.store.getById(
+            sendCalendarConnectionStrategyField.value
+        );
+
+        if (sendCalendarConnectionStrategy) {
+            record.set('sendCalendarConnectionStrategy', sendCalendarConnectionStrategy.getData());
+        }
+
+        var activateCalendarItem = form.down('#activate-calendar');
+        if (activateCalendarItem.getOptionValue() === "immediately"
+        || activateCalendarItem.getOptionValue() === "onDate") {
+            var validationComTaskField = form.down('[name=validationComTask]');
+            var validationComTask = validationComTaskField.store.getById(
+                validationComTaskField.value
+            );
+
+            if (validationComTask) {
+                record.set('validationComTask', validationComTask.getData());
+            }
+
+            var validationConnectionStrategyField = form.down('[name=validationConnectionStrategy]');
+            var validationConnectionStrategy = validationConnectionStrategyField.store.getById(
+                validationConnectionStrategyField.value
+            );
+
+            if (validationConnectionStrategy) {
+                record.set('validationConnectionStrategy', validationConnectionStrategy.getData());
+            }
+        } else {
+            record.set('validationComTask', undefined);
+            record.set('validationConnectionStrategy', undefined);
+        }
+
         if (record && record.data && record.data["devices"] !== undefined)
             delete record.data["devices"];
         if (record && record.data && record.data["timeBoundary"] !== undefined)
@@ -149,6 +192,7 @@ Ext.define('Tou.controller.Add', {
         if (record && record.data && record.data["status"] !== undefined)
             delete record.data["status"];
     },
+
     addTouCampaign: function () {
         var me = this,
         page = me.getPage(),
@@ -156,9 +200,12 @@ Ext.define('Tou.controller.Add', {
         errorMessage = form.down('uni-form-error-message'),
         periodCombo = form.down('#period-combo'),
         periodCount = form.down('#period-number'),
-        baseForm = form.getForm();
+        baseForm = form.getForm(),
+        activateCalendarItem = form.down('#activate-calendar');
 
-        if (!form.isValid()) {
+        if (!form.isValid() || !activateCalendarItem.getOptionValue()) {
+            var activateCalendarError = form.down('#activateCalendarErrorMain');
+            activateCalendarItem.getOptionValue() && activateCalendarError ? activateCalendarError.hide() : activateCalendarError.show();
             errorMessage.show();
             return;
         }

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>search.rest</artifactId>
     <packaging>bundle</packaging>
@@ -91,13 +91,17 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>properties</artifactId>
     </dependency>
-
-    <!-- Testing -->
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>transaction</artifactId>
-      <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>security.thread</artifactId>
+    </dependency>
+
+    <!-- Testing -->
+
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>orm</artifactId>
@@ -128,6 +132,10 @@
       <artifactId>org.apache.servicemix.bundles.json</artifactId>
       <scope>test</scope>
     </dependency>
-
-  </dependencies>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>users</artifactId>
+      <scope>test</scope>
+    </dependency>
+    </dependencies>
 </project>

@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -29,10 +29,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence.MESSAGE_CONTEXT_OCCURRENCE_ID;
 import static junit.framework.TestCase.fail;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -46,13 +48,9 @@ import static org.mockito.Mockito.when;
 public class AuthenticationInInterceptorTest {
 
     @Mock
-    private TransactionService transactionService;
+    private WebServicesService webServicesService;
     @Mock
     private UserService userService;
-
-    private AuthorizationInInterceptor authorizationInInterceptor;
-    @Mock
-    private TransactionContext context;
     @Mock
     private HttpSession httpSession;
     @Mock
@@ -63,11 +61,14 @@ public class AuthenticationInInterceptorTest {
     private InboundEndPointConfiguration endPointConfiguration;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private EventService eventService;
 
+    private AuthorizationInInterceptor authorizationInInterceptor;
 
     @Before
     public void setUp() throws Exception {
-        authorizationInInterceptor = new AuthorizationInInterceptor(userService, transactionService, threadPrincipalService);
+        authorizationInInterceptor = new AuthorizationInInterceptor(userService, webServicesService, threadPrincipalService, eventService);
         Group developerGroup = mock(Group.class);
         when(developerGroup.getName()).thenReturn("Developer");
         when(userService.findGroup("Developer")).thenReturn(Optional.of(developerGroup));
@@ -80,13 +81,13 @@ public class AuthenticationInInterceptorTest {
                 .of(user));
         when(endPointConfiguration.getGroup()).thenReturn(Optional.of(developerGroup));
         authorizationInInterceptor.init(endPointConfiguration);
-        when(transactionService.getContext()).thenReturn(context);
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         when(message.get("HTTP.REQUEST")).thenReturn(httpServletRequest);
         when(httpServletRequest.getSession()).thenReturn(httpSession);
         when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
         when(message.get(AuthorizationPolicy.class)).thenReturn(authorizationPolicy);
         when(userService.findUser(anyString())).thenReturn(Optional.empty());
+        when(message.get(MESSAGE_CONTEXT_OCCURRENCE_ID)).thenReturn(1l);
     }
 
     @Test
@@ -114,9 +115,9 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1l, "User admin denied access: invalid credentials");
         }
-        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 
@@ -134,9 +135,9 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1l, "User admin denied access: not in role");
         }
-        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: not in role");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 
@@ -167,9 +168,9 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1l, "User admin denied access: invalid credentials");
         }
-        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 
@@ -187,8 +188,8 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(any(Long.class), any(Exception.class));
         }
-        verify(endPointConfiguration).log("Exception while logging in admin:", toBeThrown);
     }
 }

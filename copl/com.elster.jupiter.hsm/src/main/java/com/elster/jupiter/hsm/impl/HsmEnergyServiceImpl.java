@@ -9,6 +9,7 @@ import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.Message;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKey;
@@ -58,8 +59,11 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.X509KeyManager;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -76,6 +80,8 @@ import java.util.Map;
         service = {HsmEnergyService.class, HsmProtocolService.class},
         immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolService {
+
+    private static final Logger logger = LoggerFactory.getLogger(HsmEnergyServiceImpl.class);
 
     private static final int AES_KEY_LENGTH = 16;
 
@@ -113,7 +119,8 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
+    public HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException, HsmNotConfiguredException {
+        logger.debug("Import request:" + importKeyRequest);
         HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
         if (importKeyRequest.getHsmKeyType().isReversible()) {
             return new ReversibleKeyImporter().importKey(importKeyRequest, hsmConfiguration, hsmEncryptService);
@@ -617,6 +624,31 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         }
     }
 
+    @Override
+    public byte[] wrapServiceKey(byte[] preparedData, byte[] signature, String verifyKey) throws HsmBaseException {
+        ServiceKeyInjectionResponse serviceKeyInjectionResponse;
+
+        try {
+            serviceKeyInjectionResponse = Energy.serviceKeyInjection(preparedData, signature, new KeyLabel(verifyKey));
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("HSM Function serviceKeyInjection failed: " + e.getMessage());
+        }
+
+        if (serviceKeyInjectionResponse == null) {
+            throw new HsmBaseException("Incorrect signature, cannot write the service key");
+        }
+
+        String warning = serviceKeyInjectionResponse.getWarning();
+        if (warning != null) {
+            throw new HsmBaseException("Warning from the Cryptoserver because of time difference between prepare and inject: " + warning);
+        }
+
+        byte[] serviceKey = serviceKeyInjectionResponse.getServiceKey();
+        if (serviceKey == null) {
+            throw new HsmBaseException("Incorrect signature, cannot write the service key");
+        }
+        return serviceKey;
+    }
 
 
     private SecuritySuite getAtosSecuritySuite(int securitySuite) throws HsmBaseException {

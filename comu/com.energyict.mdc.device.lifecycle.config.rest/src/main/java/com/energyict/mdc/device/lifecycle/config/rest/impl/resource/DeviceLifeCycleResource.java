@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
@@ -13,12 +14,12 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.Constants;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleUpdater;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
@@ -93,7 +94,7 @@ public class DeviceLifeCycleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getDeviceLifeCycles(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
                 .map(deviceLifeCycleFactory::from).collect(Collectors.toList());
@@ -103,7 +104,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getDeviceLifeCycleById(@PathParam("id") Long id, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
@@ -112,7 +113,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/{id}/privileges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getDeviceLifeCycleDynamicPrivileges(@PathParam("id") Long id, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         List<IdWithNameInfo> privileges = deviceLifeCycle.isObsolete()
@@ -127,7 +128,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/stages")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public List<IdWithDisplayValueInfo> getStages() {
         return Arrays.stream(EndDeviceStage.values())
                 .map(stage -> new IdWithDisplayValueInfo<>(stage.getKey(), deviceLifeCycleConfigurationService.getStageDisplayName(stage)))
@@ -138,7 +139,7 @@ public class DeviceLifeCycleResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addDeviceLifeCycle(DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle newLifeCycle = deviceLifeCycleConfigurationService.newDefaultDeviceLifeCycle(deviceLifeCycleInfo.name);
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleFactory.from(newLifeCycle)).build();
@@ -148,12 +149,14 @@ public class DeviceLifeCycleResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response editDeviceLifeCycleById(@PathParam("id") Long id, DeviceLifeCycleInfo info) {
         info.id = id;
         DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
         DeviceLifeCycleUpdater deviceLifeCycleUpdater = deviceLifeCycle.startUpdate();
         deviceLifeCycleUpdater.setName(info.name).complete().save();
+        FiniteStateMachineUpdater finiteStateMachine = deviceLifeCycle.getFiniteStateMachine().startUpdate();
+        finiteStateMachine.setName(info.name).complete();
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
@@ -162,7 +165,7 @@ public class DeviceLifeCycleResource {
     @Path("/{id}/clone")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response cloneDeviceLifeCycle(@PathParam("id") Long id, DeviceLifeCycleInfo deviceLifeCycleInfo) {
         DeviceLifeCycle sourceDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
         DeviceLifeCycle clonedLifeCycle = deviceLifeCycleConfigurationService.cloneDeviceLifeCycle(sourceDeviceLifeCycle, deviceLifeCycleInfo.name);
@@ -173,7 +176,7 @@ public class DeviceLifeCycleResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response deleteDeviceLifeCycle(@PathParam("id") Long id, DeviceLifeCycleInfo info) {
         info.id = id;
         DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
@@ -187,7 +190,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/states")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getDeviceLifeCycleStateSummary(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCycleStateSummaryInfo> deviceLifeCycleStateSummary = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
                 .map(deviceLifeCycleFactory::from)
@@ -222,7 +225,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/privileges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getPrivilegesList(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCyclePrivilegeInfo> privileges = EnumSet.allOf(AuthorizedAction.Level.class)
                 .stream()
@@ -234,7 +237,7 @@ public class DeviceLifeCycleResource {
     @GET
     @Path("/eventtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getEventTypesList(@BeanParam JsonQueryParameters queryParams) {
         List<StateTransitionEventTypeInfo> eventTypes = finiteStateMachineService.getStateTransitionEventTypes(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "System")
                 .stream()

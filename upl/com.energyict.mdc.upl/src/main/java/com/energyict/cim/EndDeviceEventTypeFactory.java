@@ -7,8 +7,14 @@ package com.energyict.cim;
 /**
  * Factory containing static methods for the easy creation of different {@link EndDeviceEventType}s without knowing the exact code.
  *
- * @author sva
- * @since 4/06/13 - 15:42
+ * Codes for EndDeviceEventTypes are categorized in a manner that divides the enumerated code into 4 parts:
+ * EndDeviceEventType:= <EndDeviceType>.<EndDeviceDomain>.<EndDeviceSubdomain>.<EndDeviceEventOrAction>
+ *          where
+                    <EndDeviceType> = a numeric value from the EndDeviceType enumeration (see EndDeviceType section)
+                    <EndDeviceDomain> = a numeric value from the EndDeviceDomain enumeration (see  EndDeviceDomain section)
+                    <EndDeviceSubdomain> = a numeric value from the EndDeviceSubdomain enumeration (see EndDeviceSubdomain section)
+                    <EndDeviceEventOrAction> = a numeric value from the EndDeviceEventOrAction enumeration (see EndDeviceEventOrAction section)
+ *
  */
 public class EndDeviceEventTypeFactory {
 
@@ -17,7 +23,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getPowerDownEventType() {
-        return new EndDeviceEventType("0.26.38.47");
+        return new EndDeviceEventType("0.26.38.85");
     }
 
     public static EndDeviceEventType getPowerUpEventType() {
@@ -41,7 +47,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getConfigurationChangeEventType() {
-        return new EndDeviceEventType("0.7.31.13");
+        return new EndDeviceEventType("0.7.31.24");
     }
 
     public static EndDeviceEventType getRamMemoryErrorEventType() {
@@ -77,7 +83,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getMaximumDemandResetEventType() {
-        return new EndDeviceEventType("0.8.87.215");
+        return new EndDeviceEventType("0.8.0.215");
     }
 
     public static EndDeviceEventType getBillingActionEventType() {
@@ -113,15 +119,15 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getCoverOpenedEventType() {
-        return new EndDeviceEventType("0.12.29.39");
+        return new EndDeviceEventType("0.12.141.212");
     }
 
     public static EndDeviceEventType getTerminalOpenedEventType() {
-        return new EndDeviceEventType("0.12.141.39");
+        return new EndDeviceEventType("0.12.29.212");
     }
 
     public static EndDeviceEventType getReverseRunEventType() {
-        return new EndDeviceEventType("0.12.48.219");
+        return new EndDeviceEventType("0.12.6.219");
     }
 
     public static EndDeviceEventType getLoadProfileClearedEventType() {
@@ -137,11 +143,11 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getClockInvalidEventType() {
-        return new EndDeviceEventType("0.36.43.35");
+        return new EndDeviceEventType("0.36.114.35");
     }
 
     public static EndDeviceEventType getReplaceBatteryEventType() {
-        return new EndDeviceEventType("0.2.0.150");
+        return new EndDeviceEventType("0.2.0.85");
     }
 
     public static EndDeviceEventType getBatteryVoltageLowEventType() {
@@ -157,7 +163,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getAlarmRegisterClearedEventType() {
-        return new EndDeviceEventType("0.17.89.28");
+        return new EndDeviceEventType("0.17.285.28");
     }
 
     public static EndDeviceEventType getProgramMemoryErrorEventType() {
@@ -169,7 +175,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getWatchdogErrorEventType() {
-        return new EndDeviceEventType("0.11.3.79");
+        return new EndDeviceEventType("0.37.3.79");
     }
 
     public static EndDeviceEventType getMeasurementSystemErrorEventType() {
@@ -177,15 +183,15 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getFirmwareReadyForActivationEventType() {
-        return new EndDeviceEventType("0.11.31.25");
+        return new EndDeviceEventType("0.11.283.280");
     }
 
     public static EndDeviceEventType getFirmwareActivatedEventType() {
-        return new EndDeviceEventType("0.11.31.4");
+        return new EndDeviceEventType("0.11.283.4");
     }
 
     public static EndDeviceEventType getTerminalCoverClosedEventType() {
-        return new EndDeviceEventType("0.12.141.16");
+        return new EndDeviceEventType("0.12.29.16");
     }
 
     public static EndDeviceEventType getStrongDCFieldDetectedEventType() {
@@ -197,31 +203,31 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getMeterCoverClosedEventType() {
-        return new EndDeviceEventType("0.12.29.16");
+        return new EndDeviceEventType("0.12.141.16");
     }
 
     public static EndDeviceEventType getNTimesWrongPasswordEventType() {
-        return new EndDeviceEventType("0.12.24.7");
+        return new EndDeviceEventType("0.12.24.85");
     }
 
     public static EndDeviceEventType getManualDisconnectionEventType() {
-        return new EndDeviceEventType("0.31.0.68");
+        return new EndDeviceEventType("0.15.26.68");
     }
 
     public static EndDeviceEventType getManualConnectionEventType() {
-        return new EndDeviceEventType("0.31.0.42");
+        return new EndDeviceEventType("0.15.26.42");
     }
 
     public static EndDeviceEventType getRemoteDisconnectionEventType() {
-        return new EndDeviceEventType("0.31.0.68");
+        return new EndDeviceEventType("0.31.26.68");
     }
 
     public static EndDeviceEventType getRemoteConnectionEventType() {
-        return new EndDeviceEventType("0.31.0.42");
+        return new EndDeviceEventType("0.31.26.42");
     }
 
     public static EndDeviceEventType getLocalDisconnectionEventType() {
-        return new EndDeviceEventType("0.31.0.68");
+        return new EndDeviceEventType("0.15.26.68");
     }
 
     public static EndDeviceEventType getLimiterThresholdExceededEventType() {
@@ -705,7 +711,7 @@ public class EndDeviceEventTypeFactory {
     }
 
     public static EndDeviceEventType getReplayAttackEventType() {
-        return new EndDeviceEventType("0.12.1.257");
+        return new EndDeviceEventType("0.12.74.35");
     }
 
     public static EndDeviceEventType getCertificateAddedEventType() {
@@ -790,5 +796,529 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getMeterClockInvalidEventType() {
         return new EndDeviceEventType("3.36.117.35");
+    }
+
+    public static EndDeviceEventType getMetrologicalMaintenanceEventType() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE,EndDeviceDomain.METROLOGY,EndDeviceSubdomain.MAINTMODE,EndDeviceEventOrAction.ACTIVATED);
+    }
+
+    public static EndDeviceEventType getTechnicalMaintenanceEventType() {
+        return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE,EndDeviceDomain.FIRMWARE,EndDeviceSubdomain.MAINTMODE,EndDeviceEventOrAction.ACTIVATED);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterReadingsElectricityEventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.READINGS,EndDeviceEventOrAction.READ);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterReadingsGasEventType() {
+        return new EndDeviceEventType(EndDeviceType.GASMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.READINGS,EndDeviceEventOrAction.READ);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterIntervalElectricityEventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.INTERVAL ,EndDeviceEventOrAction.READ);
+    }
+
+    public static EndDeviceEventType getRetrieveEmeterIntervalGasEventType() {
+        return new EndDeviceEventType(EndDeviceType.GASMETER,EndDeviceDomain.COMMUNICATION,EndDeviceSubdomain.INTERVAL ,EndDeviceEventOrAction.READ);
+    }
+
+    public static EndDeviceEventType getShortVoltageSagL1EventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.POWER,EndDeviceSubdomain.PHASEAVOLTAGE ,EndDeviceEventOrAction.SAGSTOPPED);
+    }
+
+    public static EndDeviceEventType getShortVoltageSagL2EventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.POWER,EndDeviceSubdomain.PHASEBVOLTAGE ,EndDeviceEventOrAction.SAGSTOPPED);
+    }
+
+    public static EndDeviceEventType getShortVoltageSagL3EventType() {
+        return new EndDeviceEventType(EndDeviceType.ELECTRICMETER,EndDeviceDomain.POWER,EndDeviceSubdomain.PHASECVOLTAGE ,EndDeviceEventOrAction.SAGSTOPPED);
+    }
+
+    public static EndDeviceEventType getSagEventPhaseA() {
+        return new EndDeviceEventType("3.26.131.223");
+    }
+
+    public static EndDeviceEventType getSagEventPhaseB() {
+        return new EndDeviceEventType("3.26.132.223");
+    }
+
+    public static EndDeviceEventType getSagEventPhaseC() {
+        return new EndDeviceEventType("3.26.133.223");
+    }
+
+    public static EndDeviceEventType getSagEventPhaseAB() {
+        return new EndDeviceEventType("3.26.25.223");
+    }
+
+    public static EndDeviceEventType getSagEventPhaseABC() {
+        return new EndDeviceEventType("3.26.28.223");
+    }
+
+    public static EndDeviceEventType getSagEventPhaseAC() {
+        return new EndDeviceEventType("3.26.79.223");
+    }
+
+    public static EndDeviceEventType getSagEventPhaseBC() {
+        return new EndDeviceEventType("3.26.80.223");
+    }
+
+    public static EndDeviceEventType getSagEventCleared() {
+        return new EndDeviceEventType("3.17.43.28");
+    }
+
+    public static EndDeviceEventType getDeviceAccessedRead() {
+        return new EndDeviceEventType("0.0.202.46");
+    }
+
+    public static EndDeviceEventType getDeviceAccessedWrite() {
+        return new EndDeviceEventType("0.0.282.0");
+    }
+
+    public static EndDeviceEventType getProcedureInvoked() {
+        return new EndDeviceEventType("0.0.0.44");
+    }
+
+    public static EndDeviceEventType getTableWritten() {
+        return new EndDeviceEventType("0.21.110.24");
+    }
+
+    public static EndDeviceEventType getCommunicationTerminatedNormally() {
+        return new EndDeviceEventType("0.1.0.59");
+    }
+
+    public static EndDeviceEventType getCommunicationTerminatedAbnormally() {
+        return new EndDeviceEventType("0.1.0.85");
+    }
+
+    public static EndDeviceEventType getResetListPointers() {
+        return new EndDeviceEventType("0.21.63.214");
+    }
+
+    public static EndDeviceEventType getUpdateListPointers() {
+        return new EndDeviceEventType("0.21.63.24");
+    }
+
+    public static EndDeviceEventType getHistoryLogCleared() {
+        return new EndDeviceEventType("0.17.53.28");
+    }
+
+    public static EndDeviceEventType getHistoryLogPointer() {
+        return new EndDeviceEventType("0.17.53.24");
+    }
+
+    public static EndDeviceEventType getEventLogPointer() {
+        return new EndDeviceEventType("0.17.44.24");
+    }
+
+    public static EndDeviceEventType getSelfRead() {
+        return new EndDeviceEventType("0.21.231.58");
+    }
+
+    public static EndDeviceEventType getDaylightSavingTimeOn() {
+        return new EndDeviceEventType("0.36.56.76");
+    }
+
+    public static EndDeviceEventType getDaylightSavingTimeOff() {
+        return new EndDeviceEventType("0.36.56.66");
+    }
+
+    public static EndDeviceEventType getSeasonChange() {
+        return new EndDeviceEventType("0.36.228.24");
+    }
+
+    public static EndDeviceEventType getRateChange() {
+        return new EndDeviceEventType("0.7.86.24");
+    }
+
+    public static EndDeviceEventType getSpecialSchedule() {
+        return new EndDeviceEventType("0.20.95.4");
+    }
+
+    public static EndDeviceEventType getTierSwitch() {
+        return new EndDeviceEventType("0.20.113.24");
+    }
+
+    public static EndDeviceEventType getPendingTableActivation() {
+        return new EndDeviceEventType("0.21.110.4");
+    }
+
+    public static EndDeviceEventType getPendingTableClear() {
+        return new EndDeviceEventType("0.21.110.28");
+    }
+
+    public static EndDeviceEventType getMeteringModeStart() {
+        return new EndDeviceEventType("0.7.12.242");
+    }
+
+    public static EndDeviceEventType getMeteringModeStop() {
+        return new EndDeviceEventType("0.7.12.243");
+    }
+
+    public static EndDeviceEventType getTestModeStart() {
+        return new EndDeviceEventType("0.7.19.242");
+    }
+
+    public static EndDeviceEventType getTestModeStop() {
+        return new EndDeviceEventType("0.7.19.243");
+    }
+
+    public static EndDeviceEventType getMeterShopStart() {
+        return new EndDeviceEventType("0.7.11.242");
+    }
+
+    public static EndDeviceEventType getMeterShopStop() {
+        return new EndDeviceEventType("0.7.11.243");
+    }
+
+    public static EndDeviceEventType getConfigurationError() {
+        return new EndDeviceEventType("0.7.0.79");
+    }
+
+    public static EndDeviceEventType getSelfCheckError() {
+        return new EndDeviceEventType("0.11.100.79");
+    }
+
+    public static EndDeviceEventType getRAMFailure() {
+        return new EndDeviceEventType("0.18.85.85");
+    }
+
+    public static EndDeviceEventType getROMFailure() {
+        return new EndDeviceEventType("0.18.92.85");
+    }
+
+    public static EndDeviceEventType getNonVolatileMemoryFailure() {
+        return new EndDeviceEventType("0.18.72.85");
+    }
+
+    public static EndDeviceEventType getClockError() {
+        return new EndDeviceEventType("0.36.114.79");
+    }
+
+    public static EndDeviceEventType getLowLossPotential() {
+        return new EndDeviceEventType("0.26.38.47");
+    }
+
+    public static EndDeviceEventType getDemandOverload() {
+        return new EndDeviceEventType("0.8.261.139");
+    }
+
+    public static EndDeviceEventType getPowerFailure() {
+        return new EndDeviceEventType("0.26.25.85");
+    }
+
+    public static EndDeviceEventType getReverseRotation() {
+        return new EndDeviceEventType("0.26.78.219");
+    }
+
+    public static EndDeviceEventType getEnterExitTier() {
+        return new EndDeviceEventType("0.0.113.0");
+    }
+
+    public static EndDeviceEventType getCoverTemper() {
+        return new EndDeviceEventType("0.12.29.212");
+    }
+
+    public static EndDeviceEventType getExternalEvent() {
+        return new EndDeviceEventType("0.39.55.242");
+    }
+
+    public static EndDeviceEventType getPhaseAOff() {
+        return new EndDeviceEventType("0.26.126.85");
+    }
+
+    public static EndDeviceEventType getPhaseAOn() {
+        return new EndDeviceEventType("0.26.126.216");
+    }
+
+    public static EndDeviceEventType getPhaseBOff() {
+        return new EndDeviceEventType("0.26.134.85");
+    }
+
+    public static EndDeviceEventType getPhaseBOn() {
+        return new EndDeviceEventType("0.26.134.216");
+    }
+
+    public static EndDeviceEventType getPhaseCOff() {
+        return new EndDeviceEventType("0.26.135.85");
+    }
+
+    public static EndDeviceEventType getPhaseCOn() {
+        return new EndDeviceEventType("0.26.135.216");
+    }
+
+    public static EndDeviceEventType getRWP() {
+        return new EndDeviceEventType("0.26.0.46");
+    }
+
+    public static EndDeviceEventType getDeviceProgrammed() {
+        return new EndDeviceEventType("0.7.83.24");
+    }
+
+    public static EndDeviceEventType getRemoteFlashFailure() {
+        return new EndDeviceEventType("0.11.43.85");
+    }
+
+    public static EndDeviceEventType getServiceVoltageTest() {
+        return new EndDeviceEventType("0.26.38.44");
+    }
+
+    public static EndDeviceEventType getLowCurrentTest() {
+        return new EndDeviceEventType("0.26.6.44");
+    }
+
+    public static EndDeviceEventType getPowerFactor() {
+        return new EndDeviceEventType("0.26.27.0");
+    }
+
+    public static EndDeviceEventType getSecondHarmonicCurrentTest() {
+        return new EndDeviceEventType("0.0.6.44");
+    }
+
+    public static EndDeviceEventType getTotalHarmonicCurrent() {
+        return new EndDeviceEventType("0.26.6.69");
+    }
+
+    public static EndDeviceEventType getTotalHarmonicVoltage() {
+        return new EndDeviceEventType("0.26.38.69");
+    }
+
+    public static EndDeviceEventType getVoltageImbalance() {
+        return new EndDeviceEventType("0.26.38.98");
+    }
+
+    public static EndDeviceEventType getCurrentImbalance() {
+        return new EndDeviceEventType("0.26.6.98");
+    }
+
+    public static EndDeviceEventType getTotalDemandDistortion() {
+        return new EndDeviceEventType("0.8.0.69");
+    }
+
+    public static EndDeviceEventType getHighVoltageTest() {
+        return new EndDeviceEventType("3.26.79.248");
+    }
+
+    public static EndDeviceEventType getReversePowerTest() {
+        return new EndDeviceEventType("3.26.27.44");
+    }
+
+    public static EndDeviceEventType getTouProgrammed() {
+        return new EndDeviceEventType("0.20.121.58");
+    }
+
+    public static EndDeviceEventType getExternalAlert() {
+        return new EndDeviceEventType("0.39.55.242");
+    }
+
+    public static EndDeviceEventType getFirmwareVerificationFail() {
+        return new EndDeviceEventType("0.11.283.85");
+    }
+
+    public static EndDeviceEventType getUnexpectedConsumption() {
+        return new EndDeviceEventType("0.21.67.35");
+    }
+
+    public static EndDeviceEventType getPhaseReversal() {
+        return new EndDeviceEventType("0.26.78.219");
+    }
+
+    public static EndDeviceEventType getMissingNeutral() {
+        return new EndDeviceEventType("0.26.38.285");
+    }
+
+    public static EndDeviceEventType getNTimeDecryptFail() {
+        return new EndDeviceEventType("0.12.32.85");
+    }
+
+    public static EndDeviceEventType getDisconnectorReadyForReconn() {
+        return new EndDeviceEventType("0.15.26.11");
+    }
+
+    public static EndDeviceEventType getDisconnectReconnectFail() {
+        return new EndDeviceEventType("0.15.26.84");
+    }
+
+    public static EndDeviceEventType getLocalReconnection() {
+        return new EndDeviceEventType("0.15.26.42");
+    }
+
+    public static EndDeviceEventType getSupervision1Exceeded() {
+        return new EndDeviceEventType("0.15.287.93");
+    }
+
+    public static EndDeviceEventType getSupervision1Ok() {
+        return new EndDeviceEventType("0.15.287.73");
+    }
+
+    public static EndDeviceEventType getSupervision2Exceeded() {
+        return new EndDeviceEventType("0.15.288.93");
+    }
+
+    public static EndDeviceEventType getSupervision2Ok() {
+        return new EndDeviceEventType("0.15.288.73");
+    }
+
+    public static EndDeviceEventType getSupervision3Exceeded() {
+        return new EndDeviceEventType("0.15.289.93");
+    }
+
+    public static EndDeviceEventType getSupervision3Ok() {
+        return new EndDeviceEventType("0.15.289.73");
+    }
+
+    public static EndDeviceEventType getPhaseAsymmetry() {
+        return new EndDeviceEventType("0.26.25.98");
+    }
+
+    public static EndDeviceEventType getCommunicationTimeout() {
+        return new EndDeviceEventType("0.1.125.85");
+    }
+
+    public static EndDeviceEventType getModemInitializationFail() {
+        return new EndDeviceEventType("0.19.298.85");
+    }
+
+    public static EndDeviceEventType getSimCardFail() {
+        return new EndDeviceEventType("0.19.17.85");
+    }
+
+    public static EndDeviceEventType getSimCardOk() {
+        return new EndDeviceEventType("0.19.17.58");
+    }
+
+    public static EndDeviceEventType getGSM_GPRS_RegistrationFail() {
+        return new EndDeviceEventType("0.19.5.85");
+    }
+
+    public static EndDeviceEventType getPDPContextEstablished() {
+        return new EndDeviceEventType("0.19.90.29");
+    }
+
+    public static EndDeviceEventType getPDPContextDestroyed() {
+        return new EndDeviceEventType("0.19.90.59");
+    }
+
+    public static EndDeviceEventType getPDPContextFail() {
+        return new EndDeviceEventType("0.19.90.85");
+    }
+
+    public static EndDeviceEventType getModemSWReset() {
+        return new EndDeviceEventType("0.19.47.214");
+    }
+
+    public static EndDeviceEventType getModemHWReset() {
+        return new EndDeviceEventType("0.19.47.215");
+    }
+
+    public static EndDeviceEventType getGSMConnection() {
+        return new EndDeviceEventType("0.19.129.29");
+    }
+
+    public static EndDeviceEventType getGSMHangUp() {
+        return new EndDeviceEventType("0.19.129.68");
+    }
+
+    public static EndDeviceEventType getDiagnosticFailure() {
+        return new EndDeviceEventType("0.19.111.85");
+    }
+
+    public static EndDeviceEventType getUserInitializationFail() {
+        return new EndDeviceEventType("0.19.298.35");
+    }
+
+    public static EndDeviceEventType getAnswerNumberExceeded() {
+        return new EndDeviceEventType("0.19.261.93");
+    }
+
+    public static EndDeviceEventType getLocalCommunicationAttempt() {
+        return new EndDeviceEventType("0.1.65.2");
+    }
+
+    public static EndDeviceEventType getGlobalKey() {
+        return new EndDeviceEventType("0.12.32.15");
+    }
+
+    public static EndDeviceEventType getUndervoltageL1() {
+        return new EndDeviceEventType("0.26.131.223");
+    }
+
+    public static EndDeviceEventType getUndervoltageL2() {
+        return new EndDeviceEventType("0.26.132.223");
+    }
+
+    public static EndDeviceEventType getUndervoltageL3() {
+        return new EndDeviceEventType("0.26.133.223");
+    }
+
+    public static EndDeviceEventType getOvervoltageL1() {
+        return new EndDeviceEventType("0.26.131.248");
+    }
+
+    public static EndDeviceEventType getOvervoltageL2() {
+        return new EndDeviceEventType("0.26.132.248");
+    }
+
+    public static EndDeviceEventType getOvervoltageL3() {
+        return new EndDeviceEventType("0.26.133.248");
+    }
+
+    public static EndDeviceEventType getMissingVoltageL1() {
+        return new EndDeviceEventType("0.26.131.285");
+    }
+
+    public static EndDeviceEventType getMissingVoltageL2() {
+        return new EndDeviceEventType("0.26.132.285");
+    }
+
+    public static EndDeviceEventType getMissingVoltageL3() {
+        return new EndDeviceEventType("0.26.133.285");
+    }
+
+    public static EndDeviceEventType getNormalVoltageL1() {
+        return new EndDeviceEventType("0.26.131.37");
+    }
+
+    public static EndDeviceEventType getNormalVoltageL2() {
+        return new EndDeviceEventType("0.26.132.37");
+    }
+
+    public static EndDeviceEventType getNormalVoltageL3() {
+        return new EndDeviceEventType("0.26.133.37");
+    }
+
+    public static EndDeviceEventType getBadVoltageL1() {
+        return new EndDeviceEventType("0.26.131.40");
+    }
+
+    public static EndDeviceEventType getBadVoltageL2() {
+        return new EndDeviceEventType("0.26.132.40");
+    }
+
+    public static EndDeviceEventType getBadVoltageL3() {
+        return new EndDeviceEventType("0.26.133.40");
+    }
+
+    public static EndDeviceEventType getSignalQualityLow() {
+        return new EndDeviceEventType("0.19.0.150");
+    }
+
+    public static EndDeviceEventType getMeterAlarmEnd() {
+        return new EndDeviceEventType("0.11.46.279");
+    }
+
+    public static EndDeviceEventType getReversePower() {
+        return new EndDeviceEventType("0.12.48.219");
+    }
+
+    public static EndDeviceEventType getInputEvent() {
+        return new EndDeviceEventType("0.0.55.242");
+    }
+
+    public static EndDeviceEventType getChangeImpulse() {
+        return new EndDeviceEventType("0.7.31.13");
+    }
+
+    public static EndDeviceEventType getPulsAStored() {
+        return new EndDeviceEventType("0.20.31.58");
     }
 }

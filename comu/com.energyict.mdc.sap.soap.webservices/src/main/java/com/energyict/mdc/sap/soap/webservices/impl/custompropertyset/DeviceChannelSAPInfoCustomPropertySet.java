@@ -12,18 +12,21 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 
 import com.google.inject.Module;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<ChannelSpec, DeviceChannelSAPInfoDomainExtension> {
@@ -86,19 +89,27 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(
-                this.propertySpecService
-                        .bigDecimalSpec()
-                        .named(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), TranslationKeys.CPS_LOGICAL_REGISTER_NUMBER)
-                        .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .finish());
+        List<PropertySpec> properties = new ArrayList<>();
+        properties.add(this.propertySpecService
+                .stringSpec()
+                .named(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), TranslationKeys.CPS_LOGICAL_REGISTER_NUMBER)
+                .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION)
+                .fromThesaurus(thesaurus)
+                .finish());
+        properties.add(this.propertySpecService
+                .stringSpec()
+                .named(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), TranslationKeys.CPS_PROFILE_ID)
+                .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_PROFILE_IDENTIFIER_DESCRIPTION)
+                .fromThesaurus(thesaurus)
+                .finish());
+        return properties;
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ChannelSpec, DeviceChannelSAPInfoDomainExtension> {
         private final String TABLE_NAME = "SAP_CAS_DI2";
         private final String FK = "FK_SAP_CAS_DI2";
         private final String IDX = "IDX_SAP_CAS_DI2_LRN";
+        private final String IDX_P = "IDX_SAP_CAS_DI2_PROFILE_ID";
 
         @Override
         public String componentName() {
@@ -132,22 +143,33 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            return Collections.singletonList(
-                    table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.name())
-                            .number()
-                            .map(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName())
-                            .conversion(ColumnConversion.NUMBER2LONG)
-                            .notNull()
-                            .add());
+            return Collections.singletonList(table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.name())
+                    .number()
+                    .map(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName())
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .notNull()
+                    .add());
         }
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            Column lrnColumn = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
+            /*table.column("LOGICAL_REGISTER_NUMBER")
                     .number()
                     .map(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .upTo(Version.version(10,7))
+                    .add();*/
+            Column lrnColumnString = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .since(Version.version(10, 7))
                     .add();
-            table.index(IDX).on(lrnColumn).add();
+            Column profileColumn = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName())
+                    .since(Version.version(10, 7))
+                    .add();
+            table.index(IDX).on(lrnColumnString).add();
+            table.index(IDX_P).on(profileColumn).add();
         }
 
         @Override

@@ -88,7 +88,7 @@ final class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
 
     @Override
     public Optional<User> getOriginator() {
-        return this.userService.findUser(this.originatorName);
+        return this.userService.findUserIgnoreStatus(this.originatorName);
     }
 
     @Override

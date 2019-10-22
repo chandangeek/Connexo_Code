@@ -32,6 +32,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
         });
     },
 
+    firmwareCampaignId : null,
+
     showDevices: function (firmwareCampaignId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -39,6 +41,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             devicesStore = me.getStore('Fwc.firmwarecampaigns.store.Devices');
 
         devicesStore.getProxy().setUrl(firmwareCampaignId);
+        me.firmwareCampaignId = firmwareCampaignId;
+
         pageView.setLoading();
         me.getModel('Fwc.firmwarecampaigns.model.FirmwareCampaign').load(firmwareCampaignId, {
             success: function (record) {
@@ -46,7 +50,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
                     itemId: 'firmware-campaign-devices',
                     router: router,
                     deviceType: record.get('deviceType'),
-                    campaignIsOngoing: record.get('status').id === 'ONGOING'
+                    campaignIsOngoing: record.get('status').id === 'ONGOING',
+                    manuallyCancelled: record.get('manuallyCancelled')
                 }));
                 me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);
@@ -70,26 +75,26 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
 
     doCancelDeviceInFirmwareCampaign: function (record) {
         var me = this,
-            url = record.cancelUrl();
+            url = record.cancelUrl(me.firmwareCampaignId);
 
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                if (response && response.responseText) me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.cancelled', 'FWC', 'Firmware upload for device cancelled'));
             }
         });
     },
     doRetryDeviceInFirmwareCampaign: function (record) {
         var me = this,
-            url = record.retryUrl();
+            url = record.retryUrl(me.firmwareCampaignId);
 
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                if (response && response.responseText) me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.retry', 'FWC', 'Firmware upload for device rescheduled'));
             }
         });

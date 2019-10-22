@@ -4,11 +4,16 @@
 
 package com.elster.jupiter.issue.impl.service;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
+import com.elster.jupiter.issue.impl.actions.ProcessAction;
+import com.elster.jupiter.issue.impl.actions.MailIssueAction;
 import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
@@ -20,7 +25,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.UserService;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -50,6 +54,8 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
+    private volatile PropertyFactoriesProvider propertyFactoriesProvider;
+    private volatile BpmService bpmService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -58,7 +64,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Inject
-    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService, PropertySpecService propertySpecService, EndPointConfigurationService endPointConfigurationService) {
+    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService, PropertySpecService propertySpecService, EndPointConfigurationService endPointConfigurationService, PropertyFactoriesProvider propertyFactoriesProvider, BpmService bpmService) {
         setThesaurus(nlsService);
         setUserService(userService);
         setIssueService(issueService);
@@ -66,6 +72,8 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         setOrmService(ormService);
         setPropertySpecService(propertySpecService);
         setEndPointConfigurationService(endPointConfigurationService);
+        setPropertyFactoriesProvider(propertyFactoriesProvider);
+        setBpmService(bpmService);
         activate();
     }
 
@@ -83,6 +91,8 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
                 bind(IssueService.class).toInstance(issueService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(PropertyFactoriesProvider.class).toInstance(propertyFactoriesProvider);
+                bind(BpmService.class).toInstance(bpmService);
             }
         });
 
@@ -134,8 +144,18 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Reference
+    public void setPropertyFactoriesProvider(final PropertyFactoriesProvider propertyFactoriesProvider) {
+        this.propertyFactoriesProvider = propertyFactoriesProvider;
+    }
+
+    @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
+    }
+
+    @Reference
+    public void setBpmService(final BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     private void addDefaultActions() {
@@ -143,6 +163,9 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
             actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
             actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
             actionProviders.put(WebServiceNotificationAction.class.getName(), injector.getProvider(WebServiceNotificationAction.class));
+            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
+            actionProviders.put(ProcessAction.class.getName(), injector.getProvider(ProcessAction.class));
+            actionProviders.put(MailIssueAction.class.getName(), injector.getProvider(MailIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

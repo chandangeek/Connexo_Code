@@ -66,4 +66,23 @@ public class ElectricityUsagePointDetailsInfo extends BaseUsagePointDetailsInfo 
                 .withLoadLimit(loadLimit)
                 .withInterruptible(interruptible);
     }
+
+    @Override
+    public boolean isEqual(UsagePoint usagePoint, Clock clock){
+        return usagePoint.getDetail(clock.instant())
+                .map(upd -> {
+                    ElectricityDetail detail = (ElectricityDetail)upd;
+                    return isEqual(grounded, detail.isGrounded()) &&
+                            isEqual(nominalServiceVoltage, detail.getNominalServiceVoltage()) &&
+                            isEqual(phaseCode, detail.getPhaseCode()) &&
+                            isEqual(ratedCurrent, detail.getRatedCurrent()) &&
+                            isEqual(ratedPower, detail.getRatedPower()) &&
+                            isEqual(estimatedLoad, detail.getEstimatedLoad()) &&
+                            isEqual(limiter, detail.isLimiter()) &&
+                            isEqual(loadLimiterType, detail.getLoadLimiterType()) &&
+                            isEqual(loadLimit, detail.getLoadLimit()) &&
+                            isEqual(interruptible, detail.isInterruptible());
+                })
+                .orElseGet(() -> false);
+    }
 }

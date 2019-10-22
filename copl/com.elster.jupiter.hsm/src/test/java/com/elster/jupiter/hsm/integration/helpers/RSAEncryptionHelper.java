@@ -2,7 +2,6 @@ package com.elster.jupiter.hsm.integration.helpers;
 
 import com.elster.jupiter.hsm.integration.helpers.keys.AsymmetricKey;
 import com.elster.jupiter.hsm.integration.helpers.keys.HsmKeySpecs;
-import com.elster.jupiter.hsm.integration.helpers.keys.OurKeySpecs;
 import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 
@@ -69,9 +68,9 @@ public class RSAEncryptionHelper {
 
     @Test
     public void test() throws NoSuchPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
-        Message testMsg = OurKeySpecs.wrapperKey;
+        Message testMsg = new Message("PasswordPasswordPasswordPassword");
         System.out.println("Plain: " + testMsg);
-        AsymmetricKey asymmetricKey = HsmKeySpecs.asymmetricKeyHexSpec;
+        AsymmetricKey asymmetricKey = HsmKeySpecs.asymmetricKeyB64Spec;
         Message encryptedMsg = this.encrypt(testMsg, AsymmetricAlgorithm.RSA_15, asymmetricKey);
         System.out.println("Encrypted B64:" + encryptedMsg.toBase64());
         System.out.println("Encrypted HEX:" + encryptedMsg.toHex());

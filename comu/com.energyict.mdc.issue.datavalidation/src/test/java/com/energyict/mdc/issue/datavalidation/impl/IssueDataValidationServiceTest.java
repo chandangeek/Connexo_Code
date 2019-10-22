@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -45,11 +46,11 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
@@ -78,11 +79,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 
-import javax.management.AttributeList;
-
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -149,9 +147,9 @@ public class IssueDataValidationServiceTest {
         states.add(state2);
         when(fsm.getStates()).thenReturn(states);
         when(deviceTypeFinder.stream()).thenAnswer(invocationOnMock -> Stream.of(deviceType));
-        DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService = mock(DeviceLifeCycleConfigurationService.class);
+        MeteringTranslationService meteringTranslationService = mock(MeteringTranslationService.class);
         DeviceLifeCycleInDeviceTypeInfo[] deviceLifeCycleInDeviceTypes = { new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
-                .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)};
+                .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), meteringTranslationService)};
         DeviceLifeCycleInDeviceTypeInfo[] something;
         when(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues()).thenReturn(deviceLifeCycleInDeviceTypes);
         when(deviceConfigurationService.findDeviceType(1l)).thenReturn(Optional.of(deviceType));
@@ -273,7 +271,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getAssignee().getUser().getId()).isEqualTo(assignee.getId());
@@ -304,7 +302,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         IssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -342,7 +340,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getDevice()).isEqualTo(endDevice);
@@ -374,7 +372,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         IssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -673,7 +671,7 @@ public class IssueDataValidationServiceTest {
         Optional<HistoricalIssueDataValidation> historicalIssue = issueDataValidationService.findHistoricalIssue(openIssue.getId());
         assertThat(historicalIssue).isPresent();
         assertThat(historicalIssue.get().getId()).isEqualTo(openIssue.getId());
-        assertThat(historicalIssue.get().getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(historicalIssue.get().getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(historicalIssue.get().getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(historicalIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
         List<NotEstimatedBlock> notEstimatedBlocks = historicalIssue.get().getNotEstimatedBlocks();

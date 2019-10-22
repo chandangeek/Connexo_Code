@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.issue.devicelifecycle.rest.impl;
@@ -9,7 +9,9 @@ import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -42,10 +44,12 @@ public class IssueDeviceLifecycleApplication extends Application {
     private volatile IssueDeviceLifecycleService issueDeviceLifecycleService;
     private volatile IssueActionService issueActionService;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -79,6 +83,11 @@ public class IssueDeviceLifecycleApplication extends Application {
     }
 
     @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.DOMAIN);
@@ -100,6 +109,11 @@ public class IssueDeviceLifecycleApplication extends Application {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -118,10 +132,12 @@ public class IssueDeviceLifecycleApplication extends Application {
             bind(userService).to(UserService.class);
             bind(transactionService).to(TransactionService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(locationService).to(LocationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(deviceService).to(DeviceService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(DeviceLifecycleIssueInfoFactory.class).to(DeviceLifecycleIssueInfoFactory.class);

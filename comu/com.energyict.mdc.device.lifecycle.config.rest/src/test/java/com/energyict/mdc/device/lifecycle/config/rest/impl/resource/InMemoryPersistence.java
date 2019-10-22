@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -22,6 +23,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -198,6 +200,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(PartyService.class);
             this.injector.getInstance(MeteringDataModelService.class);
             this.injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            this.injector.getInstance(MeteringTranslationService.class);
             this.injector.getInstance(DeviceLifeCycleService.class);
             this.injector.getInstance(MeteringZoneService.class);
             ctx.commit();
@@ -290,6 +293,7 @@ public class InMemoryPersistence {
             bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
             bind(DataModel.class).toInstance(dataModel);
             bind(DeviceService.class).toInstance(deviceService);
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 }

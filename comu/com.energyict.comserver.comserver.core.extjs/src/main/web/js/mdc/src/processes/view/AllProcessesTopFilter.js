@@ -97,10 +97,37 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
                 displayField: 'name',
                 valueField: 'name',
                 store: 'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers'
-            }
+            },
+            {
+        		type: 'noui',
+        		itemId: 'processInstanceIdFilter',
+        		dataIndex: 'processInstanceId'
+        	},
+        	{
+        		type: 'noui',
+        		itemId: 'searchInAllProcessesFilter',
+        		dataIndex: 'searchInAllProcesses'
+        	}
         ];
 
         me.callParent(arguments);
+        me.initActions();
+    },
+    
+    initActions: function () {
+        var me = this,
+            applyButton = me.down('button[action=applyAll]'),
+            clearButton = me.down('button[action=clearAll]');
+
+        applyButton.on('click', me.allProcessesApplyFilters, me);
+        clearButton.on('click', me.clearFilters, me);
+    },
+    
+    allProcessesApplyFilters: function() {
+    	var me = this;
+    	me.clearFilter('processInstanceId');
+    	me.clearFilter('searchInAllProcesses');
+    	me.applyFilters();
     },
 
     comboSetFilterValue: function (value) {

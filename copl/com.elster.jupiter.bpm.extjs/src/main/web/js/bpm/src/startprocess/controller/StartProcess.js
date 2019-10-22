@@ -104,6 +104,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             propertyForm = processStartContent.down('property-form'),
             form = startProcessPanel.down('#start-process-form'),
             formErrorsPanel = form.down('#form-errors'),
+            router = me.getController('Uni.controller.history.Router'),
             businessObject = {};
 
         if (form.isValid()) {
@@ -126,21 +127,8 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             startProcessRecord.set('versionDB', me.processRecord.versionDB);
             startProcessRecord.set('processName', me.processRecord.name);
             startProcessRecord.set('processVersion', me.processRecord.version);
-            startProcessRecord.set('extraProperties', []);
-
-            if (startProcessPanel.properties.device) // null or undefined
-            {
-                var deviceId = startProcessPanel.properties.device.mRID;
-                if (deviceId)
-                {
-                    startProcessRecord.set('extraProperties', [
-                        {
-                            propertyName: 'deviceId',
-                            propertyValue: deviceId
-                        }
-                    ]);
-                }
-            }
+            //TODO: below unnecessary field, need to remove it
+            startProcessRecord.set('extraProperties', []); 
 
             startProcessRecord.save({
                 success: function () {

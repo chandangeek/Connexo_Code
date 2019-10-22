@@ -4,7 +4,11 @@
 
 package com.energyict.mdc.engine.impl;
 
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.HsmKey;
+import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.KeyAccessorTypeAdapter;
@@ -13,6 +17,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -66,14 +71,17 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
 
     @Override
     public Optional<Object> actualValue(KeyAccessorType keyAccessorType) {
-        SecurityAccessorType connexoSecurityAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
-        Optional<OfflineKeyAccessor> offlineKeyAccessor = toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
-                .stream()
-                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType
-                        .getName()))
-                .findFirst();
+        Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType);
         return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent())
-                ? extractUplValueOutOf(offlineKeyAccessor, offlineKeyAccessor.get().getActualValue().get())
+                ? extractUplValueOutOf(offlineKeyAccessor.get().getActualValue().get())
+                : Optional.empty();
+    }
+
+    @Override
+    public Optional<Object> actualValue(KeyAccessorType keyAccessorType, int deviceId) {
+        Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType, deviceId);
+        return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent())
+                ? extractUplValueOutOf(offlineKeyAccessor.get().getActualValue().get())
                 : Optional.empty();
     }
 
@@ -84,14 +92,16 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     }
 
     @Override
+    public String actualValueContent(KeyAccessorType keyAccessorType, int deviceId) {
+        Optional<Object> optional = actualValue(keyAccessorType, deviceId);
+        return convertSecurityValueToString(optional);
+    }
+
+    @Override
     public Optional<Object> passiveValue(KeyAccessorType keyAccessorType) {
-        SecurityAccessorType connexoSecurityAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
-        Optional<OfflineKeyAccessor> offlineKeyAccessor = toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
-                .stream()
-                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().equals(connexoSecurityAccessorType))
-                .findFirst();
+        Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType);
         return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getTempValue().isPresent())
-                ? extractUplValueOutOf(offlineKeyAccessor, offlineKeyAccessor.get().getTempValue().get())
+                ? extractUplValueOutOf(offlineKeyAccessor.get().getTempValue().get())
                 : Optional.empty();
     }
 
@@ -108,7 +118,20 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         return optional.isPresent() ? optional.get().toString() : ""; // Note that the 'toString() should work fine for symmetric keys/passwords
     }
 
-    private Optional<Object> extractUplValueOutOf(Optional<OfflineKeyAccessor> offlineKeyAccessor, Object value) {
+    @Override
+    public String getWrapperKeyActualValue(KeyAccessorType keyAccessorType) {
+        Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType);
+
+        if (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getWrappingKeyActualValue().isPresent()) {
+            Optional<Object> actualValue = extractUplValueOutOfWrappingKey(offlineKeyAccessor.get().getWrappingKeyActualValue().get());
+            return convertSecurityValueToString(actualValue);
+        }
+
+        return "";
+    }
+
+    //TODO: the format should be universal DatatypeConverter.printHexBinary to use universal parser
+    private Optional<Object> extractUplValueOutOf(Object value) {
         if (value instanceof PlaintextSymmetricKey) {
             return handlePlainTextSymmetricKey((PlaintextSymmetricKey) value);
         } else if (value instanceof PlaintextPassphrase) {
@@ -116,15 +139,16 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         } else if (value instanceof com.elster.jupiter.pki.CertificateWrapper) {
             return Optional.of(new CertificateWrapperAdapter((com.elster.jupiter.pki.CertificateWrapper) value, Optional.empty()));      //Return instance of CertificateWrapper as-is
         } else if (value instanceof HsmKey) {
-            return handleHsmKey((HsmKey) value);
+            return handleHsmKey((HsmKey) value, true);
         }
         return Optional.empty();
     }
 
-    private Optional<Object> handleHsmKey(HsmKey value) {
-        HsmKey hsmKey = value;
-        if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty()) {
-            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey()) + "," + DatatypeConverter.printHexBinary(hsmKey.getSmartMeterKey()));
+    private Optional<Object> extractUplValueOutOfWrappingKey(Object value) {
+        if (value instanceof PlaintextSymmetricKey) {
+            return handlePlainTextSymmetricKey((PlaintextSymmetricKey) value);
+        } else if (value instanceof HsmKey) {
+            return handleHsmKey((HsmKey) value, false);
         }
         return Optional.empty();
     }
@@ -149,6 +173,36 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         return properties.propertyNames()
                 .stream()
                 .filter(propertyName -> properties.getProperty(propertyName).equals(keyAccessorType))
+                .findFirst();
+    }
+
+    private Optional<Object> handleHsmKey(HsmKey hsmKey, boolean validateSmartMeterKey) {
+        if (hsmKey.getSmartMeterKey() == null && validateSmartMeterKey) {
+            throw new UnsupportedOperationException("Smart Meter key is null, maybe you forgot to generate a new passive key.");
+        }
+        if (hsmKey.getKey().length > 0 && !hsmKey.getLabel().isEmpty()) {
+            return Optional.of(hsmKey.getLabel() + ":" + DatatypeConverter.printHexBinary(hsmKey.getKey()) + "," + DatatypeConverter.printHexBinary(hsmKey.getSmartMeterKey()));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<OfflineKeyAccessor> getOfflineKeyAccessor(KeyAccessorType keyAccessorType) {
+        SecurityAccessorType connexoSecurityAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
+        return toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
+                .stream()
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType
+                        .getName()))
+                .findFirst();
+    }
+
+    private Optional<OfflineKeyAccessor> getOfflineKeyAccessor(KeyAccessorType keyAccessorType, int deviceId) {
+        SecurityAccessorType connexoSecurityAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
+        return toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
+                .stream()
+                .filter(keyAccessor ->
+                    keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType.getName()) &&
+                    keyAccessor.getDeviceId() == deviceId
+                )
                 .findFirst();
     }
 

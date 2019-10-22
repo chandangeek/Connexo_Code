@@ -18,8 +18,12 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.energyict.mdc.device.config.DeviceType;
+import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.impl.EventType;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 
@@ -28,6 +32,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseCampaign {
@@ -44,7 +49,13 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
         VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
-        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name");
+        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name"),
+        VALIDATION_COMTASK_ID("validationComTaskId", "VALIDATION_COMTASK_ID"),
+        CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "CALENDAR_UPLOAD_COMTASK_ID"),
+        VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
+        CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "CALENDAR_UPLOAD_CONSTRATEGY"),
+        MANUALLY_CANCELLED("manuallyCancelled", "MANUALLY_CANCELLED"),
+        ;
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -67,6 +78,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
     private final EventService eventService;
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
@@ -94,11 +106,17 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private long validationTimeout;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean withUniqueCalendarName;
+    private Long calendarUploadComTaskId;
+    private ConnectionStrategy calendarUploadConnectionStrategy;
+    private Long validationComTaskId;
+    private ConnectionStrategy validationConnectionStrategy;
+    private boolean manuallyCancelled;
 
     @Inject
     public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         super();
-        this.dataModel = timeOfUseCampaignService.getDataModel();
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
+        dataModel = timeOfUseCampaignService.getDataModel();
         thesaurus = dataModel.getInstance(Thesaurus.class);
         serviceCallService = dataModel.getInstance(ServiceCallService.class);
         eventService = dataModel.getInstance(EventService.class);
@@ -192,6 +210,52 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
+    public Optional<ConnectionStrategy> getCalendarUploadConnectionStrategy() {
+        return Optional.ofNullable(calendarUploadConnectionStrategy);
+    }
+
+    @Override
+    public Optional<ConnectionStrategy> getValidationConnectionStrategy() {
+        return Optional.ofNullable(validationConnectionStrategy);
+    }
+
+    public void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy) {
+        this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
+    }
+
+
+    public void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy) {
+        this.validationConnectionStrategy = validationConnectionStrategy;
+    }
+
+    @Override
+    public Long getCalendarUploadComTaskId() {
+        return calendarUploadComTaskId;
+    }
+
+    @Override
+    public Long getValidationComTaskId() {
+        return validationComTaskId;
+    }
+
+    public void setCalendarUploadComTaskId(Long calendarUploadComTaskId) {
+        this.calendarUploadComTaskId = calendarUploadComTaskId;
+    }
+
+    public void setValidationComTaskId(Long validationComTaskId) {
+        this.validationComTaskId = validationComTaskId;
+    }
+
+    @Override
+    public boolean isManuallyCancelled() {
+        return manuallyCancelled;
+    }
+
+    public void setManuallyCancelled(boolean manuallyCancelled) {
+        this.manuallyCancelled = manuallyCancelled;
+    }
+
+    @Override
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -209,12 +273,17 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
 
     @Override
     public void cancel() {
-        ServiceCall serviceCall = getServiceCall();
-        if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-            serviceCall.requestTransition(DefaultState.CANCELLED);
-            serviceCall.update(this);
-            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
+        if (isManuallyCancelled()) {
+            throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.CAMPAIGN_ALREADY_CANCELLED);
         }
+        ServiceCall serviceCall = getServiceCall();
+        setManuallyCancelled(true);
+        serviceCall.update(this);
+        serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
+        timeOfUseCampaignService
+                .streamDevicesInCampaigns()
+                .filter(Where.where("parentServiceCallId").isEqualTo(serviceCall.getId()))
+                .forEach(item -> item.cancel(true));
     }
 
     @Override
@@ -254,6 +323,11 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
         this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
+        this.setValidationComTaskId((Long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
+        this.setCalendarUploadComTaskId((Long) propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName()));
+        this.setValidationConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
+        this.setCalendarUploadConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
+        this.setManuallyCancelled((boolean) propertyValues.getProperty(FieldNames.MANUALLY_CANCELLED.javaName()));
     }
 
     @Override
@@ -269,10 +343,24 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
+        propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
+        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), this.getCalendarUploadComTaskId());
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent() ? this.getValidationConnectionStrategy().get() : null);
+        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getCalendarUploadConnectionStrategy().isPresent() ? this.getCalendarUploadConnectionStrategy()
+                .get() : null);
+        propertySetValues.setProperty(FieldNames.MANUALLY_CANCELLED.javaName(), this.isManuallyCancelled());
     }
 
     @Override
     public void validateDelete() {
         // nothing to validate
+    }
+
+    @Override
+    public ComWindow getComWindow() {
+        int SECONDS_IN_DAY = 86400;
+        return new ComWindow((((Number) (this.getUploadPeriodStart().getEpochSecond() % SECONDS_IN_DAY)).intValue()),
+                (((Number) (this.getUploadPeriodEnd().getEpochSecond() % SECONDS_IN_DAY)).intValue()));
+
     }
 }

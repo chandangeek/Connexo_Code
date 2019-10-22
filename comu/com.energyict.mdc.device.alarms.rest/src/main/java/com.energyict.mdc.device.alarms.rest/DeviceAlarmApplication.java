@@ -7,13 +7,16 @@ package com.energyict.mdc.device.alarms.rest;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleExclGroupInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
@@ -47,6 +50,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     public static final String APP_KEY = "MDC";
     public static final String DEVICE_ALARMS_REST_COMPONENT = "DAR";
 
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile TransactionService transactionService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile LogBookService logBookService;
@@ -76,6 +80,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
                 WorkGroupsResource.class,
                 ReasonResource.class,
                 MeterResource.class,
+                DeviceGroupResource.class,
                 DeviceAlarmPriorityResource.class,
                 TopAlarmsResource.class,
                 UserResource.class,
@@ -148,6 +153,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     }
 
     @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
@@ -189,6 +199,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(issueAssignmentService).to(IssueAssignmentService.class);
             bind(issueCreationService).to(IssueCreationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(userService).to(UserService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
@@ -199,6 +210,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(CreationRuleExclGroupInfoFactory.class).to(CreationRuleExclGroupInfoFactory.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }
     }

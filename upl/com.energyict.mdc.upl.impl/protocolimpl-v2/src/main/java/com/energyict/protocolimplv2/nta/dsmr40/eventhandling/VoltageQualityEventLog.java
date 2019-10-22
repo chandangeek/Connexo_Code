@@ -29,15 +29,15 @@ public class VoltageQualityEventLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case EVENT_SHORT_VOLTAGE_SAG_L1: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Short voltage sag L1"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SHORT_VOLTAGE_SAG_L1, eventId, "Short voltage sag L1"));
             }
             break;
             case EVENT_SHORT_VOLTAGE_SAG_L2: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Short voltage sag L2"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SHORT_VOLTAGE_SAG_L2, eventId, "Short voltage sag L2"));
             }
             break;
             case EVENT_SHORT_VOLTAGE_SAG_L3: {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Short voltage sag L3"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.SHORT_VOLTAGE_SAG_L3, eventId, "Short voltage sag L3"));
             }
             break;
             default:

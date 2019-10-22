@@ -20,6 +20,7 @@ public class DataValidationTaskInfo extends DataValidationTaskMinimalInfo {
     public String recurrence;
     public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Instant lastRun;
+    public Instant suspendUntilTime;
     public long version;
 
 }

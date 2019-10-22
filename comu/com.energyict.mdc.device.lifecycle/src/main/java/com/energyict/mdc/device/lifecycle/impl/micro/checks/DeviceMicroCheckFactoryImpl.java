@@ -4,9 +4,9 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.EnumMap;
@@ -65,6 +65,7 @@ public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
         addMicroCheckMapping(DefaultMicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID, SecurityPropertiesAreValid.class);
         addMicroCheckMapping(DefaultMicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE, SharedScheduledCommunicationTaskAvailable.class);
         addMicroCheckMapping(DefaultMicroCheck.SLAVE_DEVICE_HAS_GATEWAY, SlaveDeviceHasGateway.class);
+        addMicroCheckMapping(DefaultMicroCheck.AT_LEAST_ONE_COMMUNICATION_TASK_EXECUTED_SUCCESSFULLY, SuccessfulCommunicationTaskExecuted.class);
         addMicroCheckMapping(DefaultMicroCheck.AT_LEAST_ONE_ZONE_LINKED, ZonesLinkedToDevice.class);
     }
 

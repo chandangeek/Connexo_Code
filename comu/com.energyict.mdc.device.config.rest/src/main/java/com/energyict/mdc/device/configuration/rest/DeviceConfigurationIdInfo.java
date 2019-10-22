@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 /**
  * Created by bvn on 10/23/14.

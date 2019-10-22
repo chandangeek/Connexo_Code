@@ -17,7 +17,9 @@ Ext.define('Tou.controller.Overview', {
     stores: [
         'Tou.store.TouCampaigns',
         'Tou.store.DeviceTypes',
-        'Tou.store.DeviceGroups'
+        'Tou.store.DeviceGroups',
+        'Tou.store.ConnectionStrategy',
+        'Tou.store.ComTasks'
     ],
 
     refs: [{
@@ -96,7 +98,11 @@ Ext.define('Tou.controller.Overview', {
 
     doCancelCampaign: function (record) {
         var me = this,
-        store = this.getStore('Tou.store.TouCampaigns');
+        store = this.getStore('Tou.store.TouCampaigns'),
+        form = this.getPreview();
+
+        record.set('manuallyCancelled', true);
+
         Ext.Ajax.request({
             url: '/api/tou/toucampaigns/' + record.data.id + '/cancel',
             method: 'PUT',
@@ -105,6 +111,7 @@ Ext.define('Tou.controller.Overview', {
             },
             jsonData: record.data,
             success: function (transport) {
+                form.loadRecord(record);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('tou.campaigns.cancelled', 'TOU', 'Cancelling of the campaign has started and will continue in the background'));
             },
             failure: function (transport) {

@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessag
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
@@ -260,7 +261,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
                 return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
             }
-            case fullActivityCalendarAttributeName: {
+            case fullActivityCalendarAttributeName:
+            case specialDaysAttributeName: {
                 this.calendarExtractor.threadContext().setDevice(offlineDevice);
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
                 String activityCalendar = convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
@@ -276,19 +278,17 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case overThresholdDurationAttributeName:
                 return String.valueOf(((Duration) messageAttribute).getSeconds());
             case newEncryptionKeyAttributeName:
-            case newPasswordAttributeName:
             case newAuthenticationKeyAttributeName:
+                KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, (KeyAccessorType) messageAttribute);
+                return keyRenewalInfo.toJson();
+            case newPasswordAttributeName:
             case passwordAttributeName:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
-            case meterTimeAttributeName:
-                return String.valueOf(((Date) messageAttribute).getTime());
-            case specialDaysAttributeName:
-                return parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
             case loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
+            case meterTimeAttributeName:
             case fromDateAttributeName:
             case toDateAttributeName:
-                return String.valueOf(((Date) messageAttribute).getTime());
             case contactorActivationDateAttributeName:
             case activityCalendarActivationDateAttributeName:
             case emergencyProfileActivationDateAttributeName:
@@ -296,14 +296,14 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             case keyAccessorTypeAttributeName:
                 return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
-
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }
     }
 
     private String convertKeyAccessorType(KeyAccessorType messageAttribute, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        String[] values = new String[]{keyAccessorTypeExtractor.name(messageAttribute), this.keyAccessorTypeExtractor.passiveValueContent(messageAttribute)};
+        KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, messageAttribute);
+        String[] values = new String[]{keyAccessorTypeExtractor.name(messageAttribute), keyRenewalInfo.toJson()};
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             new ObjectOutputStream(out).writeObject(values);

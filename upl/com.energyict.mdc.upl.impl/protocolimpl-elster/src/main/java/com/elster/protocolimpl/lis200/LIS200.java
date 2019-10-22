@@ -1,5 +1,6 @@
 package com.elster.protocolimpl.lis200;
 
+import com.elster.protocolimpl.lis200.objects.LockObject.LockInfo;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -57,6 +58,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import static com.elster.protocolimpl.lis200.objects.LockObject.LockInfo.*;
 import static com.elster.utils.VersionInfo.getVersionMajor;
 import static com.elster.utils.VersionInfo.getVersionMinor;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
@@ -215,32 +217,33 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         this.suppressWakeupSequence = properties.getTypedProperty(SUPPRESS_WAKEUP_SEQUENCE, 0) != 0;
 
             /* check for lock to open... */
-        usedLock = LockObject.CustomerLock;
-        final String lockName = properties.getTypedProperty(USE_LOCK, "");
-        if (!lockName.isEmpty()) {
-            usedLock = null;
-            for (LockObject lock : getLockObjects()){
-                if (lockName.equalsIgnoreCase(lock.getName())) {
-                    usedLock = lock;
-                    break;
-                }
+        usedLock = null;
+        final String lockName = properties.getTypedProperty(USE_LOCK, "CustomerLock");
+        for (LockObject.LockInfo info : getLockObjectInfos())
+        {
+            if (lockName.equalsIgnoreCase(info.getName()))
+            {
+                usedLock = new LockObject(info);
+                break;
             }
-            if (usedLock == null) {
-                StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
-                boolean notFirst = false;
-                for (LockObject lock : getLockObjects()){
-                    if (notFirst) {
-                        msg.append(",");
-                    }
-                    msg.append("'");
-                    msg.append(lock.getName());
-                    msg.append("'");
-                    notFirst = true;
+        }
+        if (usedLock == null) {
+            StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
+            boolean first = true;
+            for (LockObject.LockInfo info : getLockObjectInfos())
+            {
+                if (!first)
+                {
+                    msg.append(",");
                 }
-                msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
+                msg.append("'");
+                msg.append(info.getName());
+                msg.append("'");
+                first = false;
+            }
+            msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
 
-                throw new InvalidPropertyException(msg.toString());
-            }
+            throw new InvalidPropertyException(msg.toString());
         }
 
         /* check which archive to readout... */
@@ -275,6 +278,8 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
                      TimeZone timeZone, Logger logger) throws IOException {
 
         setLogger(logger);
+
+        logger.info("LIS200.init - " + getClass().getSimpleName() + " V " + getProtocolVersion());
 
         int vma;
         int vmi;
@@ -518,9 +523,9 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         return archiveInstance;
     }
 
-    protected LockObject[] getLockObjects()
+    protected LockInfo[] getLockObjectInfos()
     {
-        return new LockObject[]{LockObject.ManufacturerLock, LockObject.SupplierLock, LockObject.CustomerLock};
+        return new LockInfo[]{ManufacturerLock, SupplierLock, CustomerLock};
     }
 
     /**

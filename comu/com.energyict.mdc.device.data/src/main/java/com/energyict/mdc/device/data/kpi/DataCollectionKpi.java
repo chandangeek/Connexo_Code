@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -97,7 +98,7 @@ public interface DataCollectionKpi extends HasId {
 
     /**
      * Gets the available {@link DataCollectionKpiScore}s that relate to
-     * the execution of {@link com.energyict.mdc.tasks.ComTask}s
+     * the execution of {@link ComTask}s
      * for the specified interval.
      *
      * @param interval The Interval

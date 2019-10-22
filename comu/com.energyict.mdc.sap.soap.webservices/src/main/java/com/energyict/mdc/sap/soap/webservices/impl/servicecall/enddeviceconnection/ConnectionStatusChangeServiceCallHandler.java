@@ -18,11 +18,7 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
 
     public static final String NAME = "ConnectionStatusChangeServiceCallHandler";
     public static final String VERSION = "v1.0";
-
-    @Override
-    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        return !newState.equals(DefaultState.CANCELLED) || oldState.equals(DefaultState.WAITING);
-    }
+    public static final String APPLICATION = "MDC";
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {

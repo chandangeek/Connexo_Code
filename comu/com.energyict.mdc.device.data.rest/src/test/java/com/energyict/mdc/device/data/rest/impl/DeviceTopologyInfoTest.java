@@ -5,9 +5,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.metering.MeteringTranslationService;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -54,7 +55,7 @@ public class DeviceTopologyInfoTest {
     @Mock
     private Clock clock;
     @Mock
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private MeteringTranslationService meteringTranslationService;
 
     @Before
     public void setup() {
@@ -92,7 +93,7 @@ public class DeviceTopologyInfoTest {
         when(deviceConfiguration.getName()).thenReturn(DEVICE_CONFIGURATION_NAME);
         when(device.getCreateTime()).thenReturn(initialTimestamp);
 
-        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), deviceLifeCycleConfigurationService);
+        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), meteringTranslationService);
 
         assertThat(info.id).isEqualTo(DEVICE_ID);
         assertThat(info.name).isEqualTo(DEVICE_NAME);

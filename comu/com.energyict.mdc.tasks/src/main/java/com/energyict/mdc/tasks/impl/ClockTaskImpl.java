@@ -8,8 +8,9 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
@@ -17,7 +18,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 /**
- * Implementation for a {@link com.energyict.mdc.tasks.ClockTask}.
+ * Implementation for a {@link ClockTask}.
  *
  * @author gna
  * @since 24/04/12 - 8:35
@@ -42,7 +43,7 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask, PersistenceAw
             return objectFieldName;
         }
     }
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ TaskServiceKeys.CAN_NOT_BE_EMPTY +"}")
     private ClockTaskType clockTaskType;
     private TimeDuration minimumClockDiff;
     private TimeDuration maximumClockDiff;

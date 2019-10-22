@@ -348,6 +348,10 @@ public enum TableSpecs {
                     .map("usagepointLifeCycle")
                     .since(version(10, 3))
                     .add();
+
+            table.audit(MTR_USAGEPOINT.name())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.domainContextId())
+                    .build();
         }
     },
     MTR_READINGTYPE {
@@ -433,7 +437,7 @@ public enum TableSpecs {
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
             table.audit(MTR_ENDDEVICE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .build();
         }
     },
@@ -463,7 +467,7 @@ public enum TableSpecs {
                     .map("state")
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_MTR_STATUS_ENDDEVICE")
                     .build();
         }
@@ -504,6 +508,7 @@ public enum TableSpecs {
                     .add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
+            table.setJournalTableName("MTR_METERACTIVATIONJRNL").since(version(10, 7));
             table.primaryKey("PK_MTR_METERACTIVATION").on(idColumn).add();
             table.foreignKey("FK_MTR_METERACTUSAGEPOINT")
                     .references(UsagePoint.class)
@@ -529,8 +534,13 @@ public enum TableSpecs {
                     .map("meterRole")
                     .on(meterRoleIdColumn)
                     .add();
-            table.audit(MTR_MULTIPLIERVALUE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
+                    .domainReferences("FK_MTR_METERACTUSAGEPOINT")
+                    .contextReferenceColumn("ID")
+                    .build();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_MTR_METERACTMETER")
                     .build();
         }
@@ -724,6 +734,11 @@ public enum TableSpecs {
                     .reverseMap("detail")
                     .composition()
                     .add();
+
+            table.audit(MTR_USAGEPOINTDETAIL.name())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES.domainContextId())
+                    .domainReferenceColumn("USAGEPOINTID")
+                    .build();
         }
     },
     MTR_USAGEPOINTSTATE {
@@ -865,6 +880,10 @@ public enum TableSpecs {
                     .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
+                    .domainReferences("FK_MTR_UPMTRCONFIG_UP")
+                    .build();
         }
     },
     MTR_MULTIPLIERTYPE {
@@ -931,7 +950,7 @@ public enum TableSpecs {
                     .on(meterIdColumn).add();
 
             table.audit(MTR_RT_METER_CONFIG.name())
-                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.domainContextId())
                     .domainReferences("FK_MTR_METER_CONFIG")
                     .build();
 
@@ -1726,7 +1745,11 @@ public enum TableSpecs {
             table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
             Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
-
+            table.addVersionCountColumn("VERSIONCOUNT", "number", "version").since(version(10, 7));
+            table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 7));
+            table.addModTimeColumn("MODTIME", "modTime").since(version(10, 7));
+            table.addUserNameColumn("USERNAME", "userName").since(version(10, 7));
+            table.setJournalTableName("MTR_EFFECTIVE_CONTRACT_JRNL").since(version(10, 7));
             table.primaryKey("PK_MTR_EFFECTIVE_CONTRACT").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
                     .on(effectiveConfColumn)
@@ -1740,6 +1763,11 @@ public enum TableSpecs {
                     .references(MetrologyContract.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.fieldName())
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
+                    .domainReferences("MTR_EF_CONTRACT_2_EF_CONF", "FK_MTR_UPMTRCONFIG_UP")
+                    .contextReferenceColumn(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name())
+                    .build();
         }
     },
     MTR_CHANNEL_CONTAINER {
@@ -1892,6 +1920,7 @@ public enum TableSpecs {
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
+            table.partitionOn(timestampColumn);
             table.column("COMMENTS").varChar(4000).map("comment").add();
             table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).add();
             table.foreignKey("FK_MTR_RQ_CHANNEL")
@@ -1998,6 +2027,10 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.domainContextId())
+                    .domainReferenceColumn("USAGE_POINT")
+                    .build();
         }
     },
     MTR_CALENDAR_ON_USAGEPOINT {

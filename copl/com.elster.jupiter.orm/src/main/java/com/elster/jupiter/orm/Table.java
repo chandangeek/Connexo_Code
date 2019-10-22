@@ -231,7 +231,9 @@ public interface Table<T> {
 
     boolean hasAudit();
 
-    TableAudit getTableAudit();
+    TableAudit getTableAudit(Object object);
+
+    Class<?> getApi();
 
     interface JournalTableVersionOptions {
         void since(Version version);

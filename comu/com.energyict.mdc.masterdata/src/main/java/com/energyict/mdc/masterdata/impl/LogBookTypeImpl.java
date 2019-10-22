@@ -10,11 +10,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.obis.ObisCode;
-
 import com.energyict.mdc.common.ValidObisCode;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;

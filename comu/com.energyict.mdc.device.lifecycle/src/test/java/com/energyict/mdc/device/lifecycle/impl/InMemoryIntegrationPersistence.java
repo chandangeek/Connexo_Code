@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -243,12 +244,16 @@ public class InMemoryIntegrationPersistence {
             this.injector.getInstance(MeteringZoneService.class);
             initializeCustomPropertySets();
             StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector
-                    .getInstance(EventService.class), this.injector.getInstance(BpmService.class), this.injector.getInstance(StateTransitionPropertiesProvider.class));
+                    .getInstance(EventService.class), this.injector.getInstance(BpmService.class), this.injector.getInstance(StateTransitionPropertiesProvider.class),
+                    this.injector.getInstance(FiniteStateMachineService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
             com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                     new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
                             this.injector.getInstance(FiniteStateMachineService.class),
-                            this.injector.getInstance(MeteringService.class));
+                            this.injector.getInstance(MeteringService.class),
+                            this.injector.getInstance(ThreadPrincipalService.class),
+                            this.injector.getInstance(NlsService.class),
+                            this.injector.getInstance(UserService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(meteringTopicHandler);
             StateTransitionChangeEventTopicHandler stateTransitionChangeEventTopicHandler =
                     new StateTransitionChangeEventTopicHandler(

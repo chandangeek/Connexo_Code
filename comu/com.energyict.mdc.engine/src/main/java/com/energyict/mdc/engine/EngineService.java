@@ -4,18 +4,19 @@
 
 package com.energyict.mdc.engine;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 /**
- * Provides services that relate to {@link com.energyict.mdc.device.data.Device}s.
+ * Provides services that relate to {@link Device}s.
  * <p>
  *
  * Date: 08/05/14
@@ -53,6 +54,12 @@ public interface EngineService {
      * @see DeactivationNotificationListener
      */
     void unregister(DeactivationNotificationListener deactivationNotificationListener);
+
+//    OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
+//
+//    ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder();
+//
+//    RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder();
 
     /**
      * A DeactivationNotificationListener gets notified when this EngineService

@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.tasks.ComTask;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -12,8 +15,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Models the validation constraints that a {@link com.energyict.mdc.tasks.ComTask}
- * can only be enabled once per {@link com.energyict.mdc.device.config.DeviceConfiguration}.
+ * Models the validation constraints that a {@link ComTask}
+ * can only be enabled once per {@link DeviceConfiguration}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-18 (09:49)

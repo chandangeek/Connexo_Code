@@ -138,7 +138,7 @@ public class UpgraderV10_4 implements Upgrader {
         Condition classNameCondition = buildCondition("className", Optional.of(WebServiceNotificationAction.class.getName()));
         Condition factoryCondition = buildCondition("factoryId", Optional.of(IssueDefaultActionsFactory.ID));
         if (issueActionService.getActionTypeQuery().select(classNameCondition.and(factoryCondition)).isEmpty()) {
-            issueActionService.createActionType(IssueDefaultActionsFactory.ID, WebServiceNotificationAction.class.getName(), type, CreationRuleActionPhase.CREATE);
+            issueActionService.createActionType(IssueDefaultActionsFactory.ID, WebServiceNotificationAction.class.getName(), type);
         }
     }
 

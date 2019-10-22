@@ -618,15 +618,18 @@ public class DataModelImpl implements DataModel {
     }
 
     public void createPartitions(Instant upTo, Logger logger) {
-        getTables().stream()
-                .filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
-                .forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
+        if (getSqlDialect().hasPartitioning()) {
+            getTables().stream()
+                    .filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
+                    .forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
+        }
     }
 
 
     @Override
     public DataDropper dataDropper(String tableName, Logger logger) {
-        return new DataDropperImpl(this, tableName, logger);
+        return getSqlDialect().hasPartitioning() ? new PartitionDataDropperImpl(this, tableName, logger):
+            new DataDropperImpl(this, tableName, logger);
     }
 
     @Override

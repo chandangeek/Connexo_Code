@@ -7,12 +7,14 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -36,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,13 +62,15 @@ public abstract class AbstractFirmwareCheckTest {
     @Mock
     protected DeviceType deviceType;
     @Mock
+    protected FirmwareCampaignManagementOptions firmwareCampaignManagementOptions;
+    @Mock
     protected FirmwareManagementOptions firmwareManagementOptions;
     @Mock
-    protected FirmwareVersion uploadedFirmware, activeMeterFirmware, activeCommunicationFirmware;
+    protected FirmwareVersion uploadedFirmware, activeMeterFirmware, activeCommunicationFirmware, activeAuxiliaryFirmware;
     @Mock
     protected DataModel dataModel;
     @Mock
-    protected ActivatedFirmwareVersion activatedMeterFirmware, activatedCommunicationFirmware;
+    protected ActivatedFirmwareVersion activatedMeterFirmware, activatedCommunicationFirmware, activatedAuxiliaryFirmware;
 
     protected AbstractFirmwareCheckTest(FirmwareCheckManagementOption checkOption, Class<? extends FirmwareCheck> checkClass) {
         this.checkOption = checkOption;
@@ -80,24 +85,33 @@ public abstract class AbstractFirmwareCheckTest {
         when(activatedMeterFirmware.getFirmwareVersion()).thenReturn(activeMeterFirmware);
         when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION)).thenReturn(Optional.of(activatedCommunicationFirmware));
         when(activatedCommunicationFirmware.getFirmwareVersion()).thenReturn(activeCommunicationFirmware);
+        when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.AUXILIARY)).thenReturn(Optional.of(activatedAuxiliaryFirmware));
+        when(activatedAuxiliaryFirmware.getFirmwareVersion()).thenReturn(activeAuxiliaryFirmware);
         when(uploadedFirmware.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.empty());
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.empty());
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.empty());
         when(uploadedFirmware.getRank()).thenReturn(10);
         when(activeMeterFirmware.getRank()).thenReturn(1);
         when(activeCommunicationFirmware.getRank()).thenReturn(2);
+        when(activeAuxiliaryFirmware.getRank()).thenReturn(3);
         when(uploadedFirmware.getDeviceType()).thenReturn(deviceType);
         when(uploadedFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(uploadedFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
         when(activeMeterFirmware.getDeviceType()).thenReturn(deviceType);
         when(activeMeterFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(activeMeterFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
         when(activeCommunicationFirmware.getDeviceType()).thenReturn(deviceType);
         when(activeCommunicationFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(activeCommunicationFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
+        when(activeAuxiliaryFirmware.getDeviceType()).thenReturn(deviceType);
+        when(activeAuxiliaryFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(activeAuxiliaryFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
+
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
         when(firmwareService.isFirmwareCheckActivated(deviceType, checkOption)).thenReturn(true);
         when(firmwareService.findFirmwareManagementOptions(deviceType)).thenReturn(Optional.of(firmwareManagementOptions));
         when(firmwareManagementOptions.isActivated(checkOption)).thenReturn(true);
         when(firmwareManagementOptions.getStatuses(checkOption)).thenReturn(EnumSet.of(FirmwareStatus.TEST, FirmwareStatus.FINAL));
+        when(firmwareCampaignManagementOptions.isActivated(checkOption)).thenReturn(true);
+        when(firmwareCampaignManagementOptions.getStatuses(checkOption)).thenReturn(EnumSet.of(FirmwareStatus.TEST, FirmwareStatus.FINAL));
         Injector injector = Guice.createInjector(getModule());
         firmwareCheck = injector.getInstance(checkClass);
     }
@@ -105,12 +119,12 @@ public abstract class AbstractFirmwareCheckTest {
     protected void expectError(String message) {
         expectedException.expect(FirmwareCheck.FirmwareCheckException.class);
         expectedException.expectMessage(message);
-        firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware);
+        firmwareCheck.execute(firmwareCampaignManagementOptions,firmwareManagementDeviceUtils, uploadedFirmware);
     }
 
     protected void expectSuccess() {
         try {
-            firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware);
+            firmwareCheck.execute(firmwareCampaignManagementOptions,firmwareManagementDeviceUtils, uploadedFirmware);
         } catch (Throwable throwable) {
             throw new AssertionError("Unexpected exception during call of firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware) : "
                     + System.lineSeparator()

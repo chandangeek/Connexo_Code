@@ -13,9 +13,9 @@ Ext.define('Mdc.privileges.TaskManagement', {
     ],
     singleton: true,
 
-    view: ['privilege.view.ViewTaskOverview'],
-
-    //manage: ['privilege.view.ManageTaskOverview'],
+    view: ['privilege.view.ViewTaskOverview', 'privilege.edit.AdministerTaskOverview'],
+    suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],
+    administrateTaskOverview: ['privilege.edit.AdministerTaskOverview'],
 
     all: function () {
         return Ext.Array.merge(Mdc.privileges.TaskManagement.view);
@@ -23,9 +23,5 @@ Ext.define('Mdc.privileges.TaskManagement', {
 
     canView: function () {
         return Uni.Auth.checkPrivileges(Mdc.privileges.TaskManagement.view);
-    },
-
-    //canManage: function () {
-    //     return Uni.Auth.checkPrivileges(Mdc.privileges.TaskManagement.manage);
-    //}
+    }
 });

@@ -31,6 +31,16 @@ public enum CipheringType {
         return INVALID;
     }
 
+
+    public static CipheringType fromDescription(String description) {
+        for (CipheringType cipheringType : values()) {
+            if (cipheringType.getDescription().equals(description)) {
+                return cipheringType;
+            }
+        }
+        return INVALID;
+    }
+
     public String getDescription() {
         return description;
     }

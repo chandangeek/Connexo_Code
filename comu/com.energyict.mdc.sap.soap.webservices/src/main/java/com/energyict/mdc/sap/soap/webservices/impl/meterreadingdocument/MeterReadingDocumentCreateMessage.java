@@ -7,7 +7,6 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -43,16 +42,7 @@ public class MeterReadingDocumentCreateMessage {
     }
 
     public boolean isValid() {
-        try {
-            if (id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null) {
-                BigDecimal deviceIdNumber = new BigDecimal(deviceId);
-                BigDecimal lrnNumber = new BigDecimal(lrn);
-                return true;
-            }
-            return false;
-        } catch (NumberFormatException ex) {
-            return false;
-        }
+        return id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null;
     }
 
     public boolean isReasonCodeSupported(boolean bulk) {

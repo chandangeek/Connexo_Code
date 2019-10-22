@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.bpm.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
@@ -96,6 +97,7 @@ import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorServ
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
 import com.energyict.mdc.upl.io.SerialComponentService;
 
 import com.google.common.collect.ImmutableMap;
@@ -213,7 +215,8 @@ public class InMemoryPersistence {
                 new AuditServiceModule(),
                 new FileImportModule(),
                 new MeteringZoneModule(),
-                new TaskIssueModule()
+                new TaskIssueModule(),
+                new TimeOfUseCampaignModule()
         );
     }
 
@@ -327,6 +330,7 @@ public class InMemoryPersistence {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 }

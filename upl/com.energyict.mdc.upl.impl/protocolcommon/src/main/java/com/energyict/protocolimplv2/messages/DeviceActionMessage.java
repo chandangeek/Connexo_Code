@@ -9,6 +9,8 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 
+import com.energyict.protocolimplv2.messages.enums.DaysOfMonth;
+import com.energyict.protocolimplv2.messages.enums.DaysOfWeek;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -435,9 +437,9 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpecWithDefaultValue(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation, "0.0.96.1.0.255"),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.attributeId, DeviceMessageConstants.attributeIdDefaultTranslation, BigDecimal.valueOf(2)),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.classId, DeviceMessageConstants.classIdDefaultTranslation, BigDecimal.valueOf(1)));
+                    this.stringSpec(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.attributeId, DeviceMessageConstants.attributeIdDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.classId, DeviceMessageConstants.classIdDefaultTranslation));
         }
     },
 
@@ -492,8 +494,37 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
                             .finish());
         }
     },
+    BillingDateConfiguration(8071, "Billing date configuration") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateTimeSpecBuilder(service, DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName, DeviceMessageConstants.billingDateConfigurationDefaultTranslation).finish());
+        }
+    },
 
-    ;
+    SetModemResetSchedule(8072, "Set modem reset schedule") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.booleanSpec(service, DeviceMessageConstants.enableModemResetSchedule, DeviceMessageConstants.enableModemResetScheduleDefaultTranslation),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.daysOfMonthSchedule, DeviceMessageConstants.daysOfMonthScheduleDefaultTranslation)
+                            .addValues(DaysOfMonth.getDaysOfMonthValues())
+                            .setDefaultValue(DaysOfMonth.DLMSEncodings.ALL_DAYS.getDescription())
+                            .finish(),
+                    this.stringSpecBuilder(service, DeviceMessageConstants.daysOfWeekSchedule, DeviceMessageConstants.daysOfWeekScheduleDefaultTranslation)
+                            .addValues(DaysOfWeek.getDaysOfWeek())
+                            .setDefaultValue(DaysOfWeek.ALL_DAYS)
+                            .finish(),
+                    this.bigDecimalSpecBuilder(service, DeviceMessageConstants.hour, DeviceMessageConstants.hourDefaultTranslation)
+                            .setDefaultValue(BigDecimal.valueOf(22))
+                            .finish()
+                    );
+
+        }
+    };
+
+
+
+
 
     public enum IPVersion {
         IPv4(0, "IPv4"),
@@ -598,7 +629,7 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    private PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .bigDecimalSpec()

@@ -5,20 +5,21 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.orm.QueryExecutor;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionFilterSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.time.Clock;
 
 /**
  * Builds the SQL query thats counts ComTasksExecutions
- * for a single {@link TaskStatus}, grouping them by the {@link com.energyict.mdc.scheduling.model.ComSchedule}.
+ * for a single {@link TaskStatus}, grouping them by the {@link ComSchedule}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-03 (13:41)

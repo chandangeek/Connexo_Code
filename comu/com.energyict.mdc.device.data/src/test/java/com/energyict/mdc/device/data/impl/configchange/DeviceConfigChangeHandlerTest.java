@@ -14,6 +14,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -27,16 +28,16 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -116,6 +117,9 @@ public class DeviceConfigChangeHandlerTest {
     private SearchableProperty deviceTypeProperty;
     @Mock
     private SearchableProperty deviceConfigProperty;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
+
 
     @Before
     public void setup() {
@@ -341,7 +345,7 @@ public class DeviceConfigChangeHandlerTest {
     }
 
     private DeviceConfigChangeHandler.ConfigChangeContext getConfigChangeContext() {
-        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService);
+        return new DeviceConfigChangeHandler.ConfigChangeContext(messageService, jsonService, searchService, thesaurus, deviceService, deviceDataModelService, deviceConfigurationService, deviceLifeCycleConfigurationService, eventService, meteringTranslationService);
     }
 
 

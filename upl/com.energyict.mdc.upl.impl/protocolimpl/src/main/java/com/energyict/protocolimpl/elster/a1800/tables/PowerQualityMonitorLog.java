@@ -105,7 +105,7 @@ public class PowerQualityMonitorLog extends AbstractTable {
         unreadEntries = ProtocolTools.getUnsignedIntFromBytes(unreadEntriesBytes);
         offset += 2;
 
-        for (int counter = 0; counter < getSequenceNumber(); counter++) {
+        for (int counter = 0; counter < getValidEntries(); counter++) {
 
             meterEventTypeByte = data[offset++];
             eiServerEventCode = mapMeterStatusToEiServerCode(meterEventTypeByte);
@@ -136,7 +136,7 @@ public class PowerQualityMonitorLog extends AbstractTable {
 
             MeterEvent meterEvent = new MeterEvent(cal.getTime(),
                     eiServerEventCode,
-                    ((meterEventTypeByte & 0xFF) == 0xFF) ? 255 : (meterEventTypeByte & 0x7F),
+                    ((meterEventTypeByte & 0xFF) == 0xFF) ? 255 : (meterEventTypeByte & 0x7F) + 1,
                     getDescription(meterEventTypeByte) + ((!isLongFormat()) ? "" : (", optional value" + ((value == 0xFFFFFFFF) ? " not supported" : (": " + value)))));
 
             meterEvents.add(meterEvent);
@@ -204,32 +204,33 @@ public class PowerQualityMonitorLog extends AbstractTable {
 
         int meterEventStatus = ((meterEventTypeByte & 0xFF)  & 0x80) >> 7;
         int meterEventType = (meterEventTypeByte & 0xFF)  & 0x7F;
+        meterEventType++;
 
         switch (meterEventType) {
             case 1:
-                return MeterEvent.OTHER;
+                return MeterEvent.SERVICE_VOLTAGE_TEST;
             case 2:
-                return MeterEvent.VOLTAGE_SAG;
+                return MeterEvent.SAG_PHASE_A_C;
             case 3:
-                return MeterEvent.VOLTAGE_SWELL;
+                return MeterEvent.HIGH_VOLTAGE_TEST;
             case 4:
-                return MeterEvent.REVERSE_RUN;
+                return MeterEvent.REVERSE_POWER_TEST;
             case 5:
-                return MeterEvent.OTHER;
+                return MeterEvent.LOW_CURRENT_TEST;
             case 6:
-                return (meterEventStatus == STATUS_FAILURE) ? MeterEvent.LIMITER_THRESHOLD_EXCEEDED : MeterEvent.LIMITER_THRESHOLD_OK;
+                return MeterEvent.POWER_FACTOR;
             case 7:
-                return MeterEvent.OTHER;
+                return MeterEvent.SECOND_HARMONIC_CURRENT_TEST;
             case 8:
-                return MeterEvent.OTHER;
+                return MeterEvent.TOTAL_HARMONIC_CURRENT;
             case 9:
-                return MeterEvent.OTHER;
+                return MeterEvent.TOTAL_HARMONIC_VOLTAGE;
             case 10:
-                return MeterEvent.OTHER;
+                return MeterEvent.VOLTAGE_IMBALANCE;
             case 11:
-                return MeterEvent.OTHER;
+                return MeterEvent.CURRENT_IMBALANCE;
             case 12:
-                return MeterEvent.OTHER;
+                return MeterEvent.TOTAL_DEMAND_DISTORTION;
             default:
                 return -1;
         }

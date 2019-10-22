@@ -114,7 +114,7 @@ public class TableImpl<T> implements Table<T> {
     private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
     private List<ColumnImpl> realColumns;
 
-    private TableAudit tableAudit;
+    private List<TableAudit> tableAuditList = new ArrayList<>();
     private boolean hasAudit = false;
 
     private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
@@ -380,7 +380,8 @@ public class TableImpl<T> implements Table<T> {
         return getDataMapper(api);
     }
 
-    Class<?> getApi() {
+    @Override
+    public Class<?> getApi() {
         return api;
     }
 
@@ -1066,7 +1067,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     Optional<Column> partitionColumn() {
-        return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
+        return partitionColumn;
     }
 
     @Override
@@ -1218,7 +1219,7 @@ public class TableImpl<T> implements Table<T> {
     public TableAudit add(TableAudit tableAudit) {
         this.activeBuilder = false;
         this.hasAudit = true;
-        this.tableAudit = tableAudit;
+        this.tableAuditList.add(tableAudit);
         return tableAudit;
     }
 
@@ -1228,8 +1229,24 @@ public class TableImpl<T> implements Table<T> {
     }
 
     @Override
-    public TableAudit getTableAudit() {
-        return tableAudit;
+    public TableAudit getTableAudit(Object object) {
+        // find first by ContextColumn
+        Optional<TableAudit> findByContext = tableAuditList.stream()
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0 && tableAudit.getContextPkValues(object).size()>0)
+                .findFirst();
+
+        if (findByContext.isPresent()){
+            return findByContext.get();
+        }
+
+        Optional<TableAudit> findOnlyByDomain = tableAuditList.stream()
+                .filter(tableAudit -> tableAudit.getDomainPkValues(object).size() >0)
+                .findFirst();
+
+        if (findOnlyByDomain.isPresent()){
+            return findOnlyByDomain.get();
+        }
+        return tableAuditList.get(0); //this is not correct, but should not happened
     }
 
     private class JournalTableVersionOptionsImpl implements JournalTableVersionOptions {

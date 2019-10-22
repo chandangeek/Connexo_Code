@@ -8,6 +8,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -23,9 +24,9 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -79,7 +80,7 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private MeteringTranslationService meteringTranslationService;
 
     private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
     private BeanService beanService = new DefaultBeanService();
@@ -353,7 +354,7 @@ public class StateNameSearchablePropertyTest {
     }
 
     private StateNameSearchableProperty getTestInstance() {
-        return new StateNameSearchableProperty(this.deviceLifeCycleConfigurationService, this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
+        return new StateNameSearchableProperty(this.meteringTranslationService, this.propertySpecService, this.thesaurus).init(this.domain, this.deviceTypeSearchableProperty);
     }
 
 }

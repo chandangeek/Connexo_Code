@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 
 import java.time.Instant;
@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +37,7 @@ public class DeviceInCampaignInfoFactoryTest {
     @BeforeClass
     public static void setUp() {
         when(timeOfUseItem.retry()).thenReturn(retrySC);
-        when(timeOfUseItem.cancel()).thenReturn(cancelSC);
+        when(timeOfUseItem.cancel(anyBoolean())).thenReturn(cancelSC);
         when(timeOfUseItem.getDevice()).thenReturn(device);
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn("TestDevice");
@@ -61,7 +62,7 @@ public class DeviceInCampaignInfoFactoryTest {
 
     @Test
     public void cancelTest() {
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.cancel());
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.cancel(false));
         assertEquals(deviceInCampaignInfo.device.name, "TestDevice");
         assertEquals(deviceInCampaignInfo.device.id, 1L);
         assertEquals(deviceInCampaignInfo.status, "Cancelled");

@@ -195,10 +195,10 @@ from &#13;
           from ddc_device ddd left join&#13;
           (&#13;
                   select case     &#13;
-                      when ((comport is not null) OR (exists (select * from DDC_CONNECTIONTASK ct where ct.comserver is not null and ct.id = cte.connectiontask and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp &lt;=utcDT.utcDT))) then 'Busy'&#13;
-                      when (((comport is null) and not exists (select * from DDC_CONNECTIONTASK ct where ct.comserver is not null and ct.id = cte.connectiontask) and cte.nextexecutiontimestamp &lt;=utcDT.utcDT)) then 'Pending'&#13;
-                      when ((lastSuccessfulCompletion is null) and (comport is null) and (cte.currentretrycount = 0) and (cte.nextExecutionTimestamp is not null) and (cte.nextExecutionTimestamp &gt; utcDT.utcDT)) then 'Never completed'&#13;
-                      when ((cte.nextexecutiontimestamp &gt;utcDT.utcDT) and (comport is null) and (cte.currentretrycount &gt; 0)) then 'Retrying'&#13;
+                      when ((cte.comport is not null) OR (exists (select * from DDC_CONNECTIONTASK ct where ct.comport is not null and ct.id = cte.connectiontask and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp &lt;=utcDT.utcDT))) then 'Busy'&#13;
+                      when (((cte.comport is null) and not exists (select * from DDC_CONNECTIONTASK ct where ct.comport is not null and ct.id = cte.connectiontask) and cte.nextexecutiontimestamp &lt;=utcDT.utcDT)) then 'Pending'&#13;
+                      when ((lastSuccessfulCompletion is null) and (cte.comport is null) and (cte.currentretrycount = 0) and (cte.nextExecutionTimestamp is not null) and (cte.nextExecutionTimestamp &gt; utcDT.utcDT)) then 'Never completed'&#13;
+                      when ((cte.nextexecutiontimestamp &gt;utcDT.utcDT) and (cte.comport is null) and (cte.currentretrycount &gt; 0)) then 'Retrying'&#13;
                       when ((cte.nextExecutionTimestamp is not null) and (cte.nextExecutionTimestamp &gt;utcDT.utcDT) and (cte.lastSuccessfulCompletion is not null) and (cte.lastExecutionFailed = 1) and (cte.currentretrycount = 0)) then 'Failed'&#13;
                       when ((cte.comport is null) and (cte.lastSuccessfulCompletion is not null) and (cte.nextexecutiontimestamp &gt;utcDT.utcDT) and (cte.lastExecutionFailed = 0)) then 'Waiting'&#13;
                       when (cte.nextExecutionTimestamp is null) then 'Inactive'&#13;
@@ -221,10 +221,10 @@ from &#13;
                     union all&#13;
                       &#13;
                      select case     &#13;
-                      when ((comport is not null) OR (exists (select * from DDC_CONNECTIONTASK ct where ct.comserver is not null and ct.id = cte.connectiontask and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp &lt;=utcDT.utcDT))) then 'Busy'&#13;
-                      when (((comport is null) and not exists (select * from DDC_CONNECTIONTASK ct where ct.comserver is not null and ct.id = cte.connectiontask) and cte.nextexecutiontimestamp &lt;=utcDT.utcDT)) then 'Pending'&#13;
-                      when ((lastSuccessfulCompletion is null) and (comport is null) and (cte.currentretrycount = 0) and (cte.nextExecutionTimestamp is not null) and (cte.nextExecutionTimestamp &gt; utcDT.utcDT)) then 'Never completed'&#13;
-                      when ((cte.nextexecutiontimestamp &gt;utcDT.utcDT) and (comport is null) and (cte.currentretrycount &gt; 0)) then 'Retrying'&#13;
+                      when ((cte.comport is not null) OR (exists (select * from DDC_CONNECTIONTASK ct where ct.comport is not null and ct.id = cte.connectiontask and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp &lt;=utcDT.utcDT))) then 'Busy'&#13;
+                      when (((cte.comport is null) and not exists (select * from DDC_CONNECTIONTASK ct where ct.comport is not null and ct.id = cte.connectiontask) and cte.nextexecutiontimestamp &lt;=utcDT.utcDT)) then 'Pending'&#13;
+                      when ((lastSuccessfulCompletion is null) and (cte.comport is null) and (cte.currentretrycount = 0) and (cte.nextExecutionTimestamp is not null) and (cte.nextExecutionTimestamp &gt; utcDT.utcDT)) then 'Never completed'&#13;
+                      when ((cte.nextexecutiontimestamp &gt;utcDT.utcDT) and (cte.comport is null) and (cte.currentretrycount &gt; 0)) then 'Retrying'&#13;
                       when ((cte.nextExecutionTimestamp is not null) and (cte.nextExecutionTimestamp &gt;utcDT.utcDT) and (cte.lastSuccessfulCompletion is not null) and (cte.lastExecutionFailed = 1) and (cte.currentretrycount = 0)) then 'Failed'&#13;
                       when ((cte.comport is null) and (cte.lastSuccessfulCompletion is not null) and (cte.nextexecutiontimestamp &gt;utcDT.utcDT) and (cte.lastExecutionFailed = 0)) then 'Waiting'&#13;
                       when (cte.nextExecutionTimestamp is null) then 'Inactive'&#13;
@@ -1328,18 +1328,18 @@ from &#13;
           ct.connectionstrategy AS Strategy,&#13;
           mdc_comportpool.name as PortPoolName,&#13;
           case &#13;
-            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and comport is not null) and  ct.comserver is null) &#13;
+            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and cte.comport is not null) and  ct.comport is null) &#13;
                   and (   (ct.discriminator = 1 and ct.status &gt; 0) or (ct.discriminator = 2 and (ct.status &gt; 0 or ct.nextExecutionTimestamp is null))) then 'Inactive'&#13;
-            when  (ct.nextexecutiontimestamp is not null and (exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and comport is not null) or ct.comserver is not null)) then 'Busy'&#13;
-            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and comport is not null) and ct.comserver is null) &#13;
+            when  (ct.nextexecutiontimestamp is not null and (exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and cte.comport is not null) or ct.comport is not null)) then 'Busy'&#13;
+            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and cte.comport is not null) and ct.comport is null) &#13;
                   and ct.status = 0 and ct.currentretrycount = 0 and ct.nextexecutiontimestamp &gt;utcDT and ct.lastsuccessfulcommunicationend is null then 'Never completed'&#13;
-            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and comport is not null) and ct.comserver is null) &#13;
+            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and cte.comport is not null) and ct.comport is null) &#13;
                   and ct.status = 0 and ct.currentretrycount &gt; 0 and ct.nextexecutiontimestamp &gt;utcDT then 'Retrying'          &#13;
-            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and comport is not null) and ct.comserver is null) &#13;
+            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and cte.comport is not null) and ct.comport is null) &#13;
                   and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 1 and ct.nextexecutiontimestamp &gt; utcDT and ct.lastsuccessfulcommunicationend is not null then 'Failed'      &#13;
-            when  (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and comport is not null) and ct.comserver is null) &#13;
+            when  (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and cte.comport is not null) and ct.comport is null) &#13;
                   and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.nextexecutiontimestamp &gt;utcDT and ct.lastsuccessfulcommunicationend is not null then 'Waiting'  &#13;
-            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and comport is not null) and ct.comserver is null) and ct.status = 0 and ct.nextexecutiontimestamp &lt;= utcDT then 'Pending'&#13;
+            when (not exists (select * from DDC_COMTASKEXEC cte where cte.connectiontask = ct.id and cte.obsolete_date is null and cte.comport is not null) and ct.comport is null) and ct.status = 0 and ct.nextexecutiontimestamp &lt;= utcDT then 'Pending'&#13;
            else ''&#13;
           end Status,  &#13;
           ns.FREQUENCYVALUE, ns.FREQUENCYUNIT, ns.OFFSETVALUE, ns.OFFSETUNIT&#13;
@@ -3694,12 +3694,13 @@ from &#13;
                           , MAX(idsvm2.RECORDTIME) OVER (PARTITION BY idsvm2.TIMESERIESID) AS LastReading&#13;
                           , NVL(to_char(FIRST_VALUE(idsvm2.SLOT1) OVER (PARTITION BY idsvm2.TIMESERIESID ORDER BY idsvm2.RECORDTIME DESC)), FIRST_VALUE(idsvm2.TEXTSLOT0) OVER (PARTITION BY idsvm2.TIMESERIESID ORDER BY idsvm2.RECORDTIME DESC)) AS LastValue      &#13;
                           , mc.MAINREADINGTYPEMRID&#13;
-                          , mmac.meterID&#13;
+                          , medev.amrid AS meterID&#13;
                       FROM Ids_Vault_Mtr_2 idsvm2&#13;
                             left join Mtr_Channel mc on idsvm2.Timeseriesid = mc.Timeseriesid&#13;
                             left join Mtr_Channel_Container mmcc on mc.channel_container = mmcc.id&#13;
                             left join Mtr_Meteractivation mmac on mmcc.meter_activation = mmac.id&#13;
-                    ) ld  on ld.MAINREADINGTYPEMRID = mmt.readingtype and dd.id = ld.meterID&#13;
+                            left join MTR_ENDDEVICE medev on medev.id = mmac.meterid&#13;
+      ) ld  on ld.MAINREADINGTYPEMRID = mmt.readingtype and dd.id = ld.meterID&#13;
           LEFT JOIN MDS_REGISTERTYPEINGROUP mrtg on mrtg.registertypeID = mmt.ID&#13;
           LEFT JOIN MDS_REGISTERGROUP mrg on mrg.ID = mrtg.registergroupID&#13;
                  ) res on devgr.ENDDEVICEID = res.DeviceID</viewSQL>
@@ -20244,7 +20245,7 @@ end</SQLClause>
         <SQLClause>Case 
 when LASTVALUE is null then '-'
 when INSTR(NAME, 'Wh') &gt; 0 then to_char(to_number(LASTVALUE), '999,999,999,999,999')  || ' Wh'
-else  to_char(LASTREADING)
+else  to_char(LASTVALUE)
 end</SQLClause>
         <originalFieldTemplateId>0</originalFieldTemplateId>
         <fieldUUID>b32a7ce8-7fda-463b-b57d-d540979b0d51</fieldUUID>

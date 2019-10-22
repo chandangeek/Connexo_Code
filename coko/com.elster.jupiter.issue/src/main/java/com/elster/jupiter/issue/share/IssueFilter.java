@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.share;
@@ -9,7 +9,10 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -31,11 +34,17 @@ public interface IssueFilter {
 
     void addDevice(EndDevice device);
 
+    void addLocation(Location location);
+
+    void addDeviceGroup(EndDeviceGroup deviceGroup);
+
     void addUsagePoint(UsagePoint usagePoint);
+
+    void addUsagePointGroup(UsagePointGroup usagePointGroup);
 
     void setIssueReason(IssueReason issueReason);
 
-    void setPriority(Priority priority);
+    void setPriority(String priority);
 
     void addStatus(IssueStatus status);
 
@@ -53,6 +62,16 @@ public interface IssueFilter {
 
     List<EndDevice> getDevices();
 
+    List<EndDeviceGroup> getDeviceGroups();
+
+    boolean getShowTopology();
+
+    void setShowTopology(boolean showTopology);
+
+    List<UsagePointGroup> getUsagePointGroups();
+
+    List<Location> getLocations();
+
     List<UsagePoint> getUsagePoints();
 
     List<IssueReason> getIssueReasons();
@@ -67,7 +86,7 @@ public interface IssueFilter {
 
     void addIssueType(IssueType issueType);
 
-    List<Priority> getPriorities();
+    String getPriorities();
 
     Long getStartCreateTime();
 

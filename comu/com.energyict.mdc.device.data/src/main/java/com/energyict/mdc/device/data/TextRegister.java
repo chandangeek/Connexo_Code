@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.device.data.Register;
 
 import aQute.bnd.annotation.ProviderType;
 

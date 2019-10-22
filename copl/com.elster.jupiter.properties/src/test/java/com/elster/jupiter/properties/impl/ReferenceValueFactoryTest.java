@@ -133,7 +133,7 @@ public class ReferenceValueFactoryTest {
     public void unsupportedPrimaryKeyType() {
         when(this.table.maps(DomainWithUnsupportedPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithUnsupportedPrimaryKey.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(DomainWithUnsupportedPrimaryKey.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(DomainWithUnsupportedPrimaryKey.class);
 
@@ -144,6 +144,7 @@ public class ReferenceValueFactoryTest {
     public void rawLongPrimaryKeyTypeIsSupported() {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
 
         // Business method
         this.getTestInstanceWithValidation(DomainWithRawLongPrimaryKey.class);
@@ -155,7 +156,7 @@ public class ReferenceValueFactoryTest {
     public void rawLongPrimaryKeyTypeIsSupportedOnInterface() {
         when(this.table.maps(HasRawLongId.class)).thenReturn(true);
         when(this.dataModel.mapper(HasRawLongId.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(HasRawLongId.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(HasRawLongId.class);
 
@@ -166,6 +167,7 @@ public class ReferenceValueFactoryTest {
     public void longPrimaryKeyTypeIsSupported() {
         when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithLongPrimaryKey.class); //CXO-9887
 
         // Business method
         this.getTestInstanceWithValidation(DomainWithLongPrimaryKey.class);
@@ -177,7 +179,7 @@ public class ReferenceValueFactoryTest {
     public void longPrimaryKeyTypeIsSupportedOnInterface() {
         when(this.table.maps(HasLongId.class)).thenReturn(true);
         when(this.dataModel.mapper(HasLongId.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(HasLongId.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(HasLongId.class);
 
@@ -189,7 +191,7 @@ public class ReferenceValueFactoryTest {
         setUpForeignKey();
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(DomainWithForeignPrimaryKey.class);
 
@@ -201,7 +203,7 @@ public class ReferenceValueFactoryTest {
         setUpForeignKey();
         when(this.table.maps(HasForeignKeyId.class)).thenReturn(true);
         when(this.dataModel.mapper(HasForeignKeyId.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(HasForeignKeyId.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(HasForeignKeyId.class);
 
@@ -212,7 +214,7 @@ public class ReferenceValueFactoryTest {
     public void intPrimaryKeyTypeIsSupported() {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(DomainWithIntPrimaryKey.class);
 
@@ -223,7 +225,7 @@ public class ReferenceValueFactoryTest {
     public void intPrimaryKeyTypeIsSupportedOnInterface() {
         when(this.table.maps(HasRawIntId.class)).thenReturn(true);
         when(this.dataModel.mapper(HasRawIntId.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(HasRawIntId.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(HasRawIntId.class);
 
@@ -234,7 +236,7 @@ public class ReferenceValueFactoryTest {
     public void integerPrimaryKeyTypeIsSupported() {
         when(this.table.maps(DomainWithIntegerPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntegerPrimaryKey.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(DomainWithIntegerPrimaryKey.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(DomainWithIntegerPrimaryKey.class);
 
@@ -245,7 +247,7 @@ public class ReferenceValueFactoryTest {
     public void integerPrimaryKeyTypeIsSupportedOnInterface() {
         when(this.table.maps(HasIntegerId.class)).thenReturn(true);
         when(this.dataModel.mapper(HasIntegerId.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(HasIntegerId.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(HasIntegerId.class);
 
@@ -256,7 +258,7 @@ public class ReferenceValueFactoryTest {
     public void stringPrimaryKeyTypeIsSupported() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(DomainWithStringPrimaryKey.class);
 
@@ -267,7 +269,7 @@ public class ReferenceValueFactoryTest {
     public void stringPrimaryKeyTypeIsSupportedOnInterface() {
         when(this.table.maps(HasStringId.class)).thenReturn(true);
         when(this.dataModel.mapper(HasStringId.class)).thenReturn(this.dataMapper);
-
+        when(table.getApi()).thenReturn(HasStringId.class); //CXO-9887
         // Business method
         this.getTestInstanceWithValidation(HasStringId.class);
 
@@ -278,6 +280,7 @@ public class ReferenceValueFactoryTest {
     public void fromStringValueForLongPrimaryKeyThatExists() {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
         DomainWithRawLongPrimaryKey persistentValue = new DomainWithRawLongPrimaryKey();
         persistentValue.id = 3L;
@@ -294,6 +297,7 @@ public class ReferenceValueFactoryTest {
     public void fromStringValueForLongPrimaryKeyThatDoesNotExist() {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
@@ -308,6 +312,7 @@ public class ReferenceValueFactoryTest {
         setUpForeignKey();
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = this.getTestInstance(DomainWithForeignPrimaryKey.class);
         DomainWithLongPrimaryKey referenceValue = new DomainWithLongPrimaryKey();
         referenceValue.id = 3L;
@@ -327,6 +332,7 @@ public class ReferenceValueFactoryTest {
         setUpForeignKey();
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = this.getTestInstance(DomainWithForeignPrimaryKey.class);
 
         // Business method
@@ -340,6 +346,7 @@ public class ReferenceValueFactoryTest {
     public void fromStringValueForIntegerPrimaryKeyThatExists() {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
         DomainWithIntPrimaryKey persistentValue = new DomainWithIntPrimaryKey();
         persistentValue.id = 3;
@@ -356,6 +363,7 @@ public class ReferenceValueFactoryTest {
     public void fromStringValueForIntegerPrimaryKeyThatDoesNotExist() {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
         // Business method
@@ -369,6 +377,7 @@ public class ReferenceValueFactoryTest {
     public void fromStringValueForStringPrimaryKeyThatExists() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
         DomainWithStringPrimaryKey persistentValue = new DomainWithStringPrimaryKey();
         persistentValue.id = "3";
@@ -385,6 +394,7 @@ public class ReferenceValueFactoryTest {
     public void fromStringValueForStringPrimaryKeyThatDoesNotExist() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
 
         // Business method
@@ -401,6 +411,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
@@ -420,6 +431,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(referencedValue.id);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = this.getTestInstance(DomainWithForeignPrimaryKey.class);
 
         // Business method
@@ -435,6 +447,7 @@ public class ReferenceValueFactoryTest {
         persistentValue.id = 3;
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
@@ -452,6 +465,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
 
         // Business method
@@ -465,6 +479,7 @@ public class ReferenceValueFactoryTest {
     public void valueFromDatabaseForLongPrimaryKeyThatExists() {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
         DomainWithRawLongPrimaryKey persistentValue = new DomainWithRawLongPrimaryKey();
         persistentValue.id = 3L;
@@ -481,6 +496,7 @@ public class ReferenceValueFactoryTest {
     public void valueFromDatabaseForLongPrimaryKeyThatDoesNotExist() {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
@@ -495,13 +511,13 @@ public class ReferenceValueFactoryTest {
         setUpForeignKey();
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); // CXO-9887
         DomainWithLongPrimaryKey referencedValue = new DomainWithLongPrimaryKey();
         referencedValue.id = 3L;
         DomainWithForeignPrimaryKey persistentValue = new DomainWithForeignPrimaryKey();
         persistentValue.reference = referencedValue;
         when(this.dataMapper.getOptional(3L)).thenReturn(Optional.of(persistentValue));
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = getTestInstance(DomainWithForeignPrimaryKey.class);
-
         // Business method
         DomainWithForeignPrimaryKey value = testInstance.valueFromDatabase(3L);
 
@@ -514,6 +530,7 @@ public class ReferenceValueFactoryTest {
         setUpForeignKey();
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); // CXO-9887
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = getTestInstance(DomainWithForeignPrimaryKey.class);
 
         // Business method
@@ -527,6 +544,7 @@ public class ReferenceValueFactoryTest {
     public void valueFromDatabaseForIntegerPrimaryKeyThatExists() {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
         DomainWithIntPrimaryKey persistentValue = new DomainWithIntPrimaryKey();
         persistentValue.id = 3;
@@ -543,6 +561,7 @@ public class ReferenceValueFactoryTest {
     public void valueFromDatabaseForIntegerPrimaryKeyThatDoesNotExist() {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
         // Business method
@@ -556,6 +575,7 @@ public class ReferenceValueFactoryTest {
     public void valueFromDatabaseForStringPrimaryKeyThatExists() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
         DomainWithStringPrimaryKey persistentValue = new DomainWithStringPrimaryKey();
         persistentValue.id = "3";
@@ -572,6 +592,7 @@ public class ReferenceValueFactoryTest {
     public void valueFromDatabaseForStringPrimaryKeyThatDoesNotExist() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); // CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
 
         // Business method
@@ -588,6 +609,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
@@ -607,6 +629,7 @@ public class ReferenceValueFactoryTest {
         when(table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(dataMapper);
         when(primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(referencedValue.id);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = getTestInstance(DomainWithForeignPrimaryKey.class);
 
         // Business method
@@ -623,6 +646,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
         // Business method
@@ -639,6 +663,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(persistentValue)).thenReturn(persistentValue.id);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
 
         // Business method
@@ -652,6 +677,7 @@ public class ReferenceValueFactoryTest {
     public void isValidForNonPersistentEntityWithLongPrimaryKey() {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class);
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
         DomainWithRawLongPrimaryKey value = new DomainWithRawLongPrimaryKey();
 
@@ -669,6 +695,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         // Business method
@@ -683,6 +710,7 @@ public class ReferenceValueFactoryTest {
         setUpForeignKey();
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = this.getTestInstance(DomainWithForeignPrimaryKey.class);
         DomainWithForeignPrimaryKey value = new DomainWithForeignPrimaryKey();
 
@@ -703,6 +731,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithForeignPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithForeignPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(referencedValue.id);
+        when(table.getApi()).thenReturn(DomainWithForeignPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithForeignPrimaryKey> testInstance = this.getTestInstance(DomainWithForeignPrimaryKey.class);
 
         // Business method
@@ -716,6 +745,7 @@ public class ReferenceValueFactoryTest {
     public void isValidForNonPersistentEntityWithIntegerPrimaryKey() {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
         DomainWithIntPrimaryKey value = new DomainWithIntPrimaryKey();
 
@@ -733,6 +763,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithIntPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithIntPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
+        when(table.getApi()).thenReturn(DomainWithIntPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithIntPrimaryKey> testInstance = this.getTestInstance(DomainWithIntPrimaryKey.class);
 
         // Business method
@@ -746,6 +777,7 @@ public class ReferenceValueFactoryTest {
     public void isValidForNonPersistentEntityWithStringPrimaryKey() {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
         DomainWithStringPrimaryKey value = new DomainWithStringPrimaryKey();
 
@@ -763,6 +795,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
 
         // Business method
@@ -779,6 +812,7 @@ public class ReferenceValueFactoryTest {
         when(this.table.maps(DomainWithStringPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithStringPrimaryKey.class)).thenReturn(this.dataMapper);
         when(this.primaryKeyColumn.getDatabaseValue(value)).thenReturn(value.id);
+        when(table.getApi()).thenReturn(DomainWithStringPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithStringPrimaryKey> testInstance = this.getTestInstance(DomainWithStringPrimaryKey.class);
         PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
@@ -793,6 +827,7 @@ public class ReferenceValueFactoryTest {
     public void nullsTreatment() {
         when(this.table.maps(DomainWithLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithLongPrimaryKey> testInstance = this.getTestInstance(DomainWithLongPrimaryKey.class);
 
         assertThat(testInstance.valueFromDatabase(null)).isNull();
@@ -806,6 +841,7 @@ public class ReferenceValueFactoryTest {
     public void nullsTreatmentForRawLong() {
         when(this.table.maps(DomainWithRawLongPrimaryKey.class)).thenReturn(true);
         when(this.dataModel.mapper(DomainWithRawLongPrimaryKey.class)).thenReturn(this.dataMapper);
+        when(table.getApi()).thenReturn(DomainWithRawLongPrimaryKey.class); //CXO-9887
         ReferenceValueFactory<DomainWithRawLongPrimaryKey> testInstance = this.getTestInstance(DomainWithRawLongPrimaryKey.class);
 
         assertThat(testInstance.valueFromDatabase(null)).isNull();

@@ -7,6 +7,7 @@ package com.energyict.mdc.issue.issue.datacollection.rest;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -17,9 +18,12 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -77,6 +81,14 @@ public abstract class IssueDataCollectionApplicationJerseyTest extends FelixRest
     PropertyValueInfoService propertyValueInfoService;
     @Mock
     TopologyService topologyService;
+    @Mock
+    IssueResourceHelper issueResourceHelper;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
+    @Mock
+    private volatile LocationService locationService;
+    @Mock
+    MeteringTranslationService meteringTranslationService;
 
     @Override
     protected Application getApplication() {
@@ -88,17 +100,20 @@ public abstract class IssueDataCollectionApplicationJerseyTest extends FelixRest
         when(issueService.getIssueActionService()).thenReturn(issueActionService);
         application.setIssueService(issueService);
         application.setIssueDataCollectionService(issueDataCollectionService);
+        application.setMeteringGroupsService(meteringGroupsService);
         application.setMeteringService(meteringService);
         application.setNlsService(nlsService);
         when(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setMeteringTranslationService(meteringTranslationService);
         application.setMessageService(messageService);
         application.setAppService(appService);
         application.setJsonService(jsonService);
         application.setCommunicationTaskService(communicationTaskService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setTopologyService(topologyService);
+        application.setLocationService(locationService);
         return application;
     }
 

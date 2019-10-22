@@ -8,6 +8,7 @@ import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -18,6 +19,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -25,18 +27,18 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,6 +76,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final TimeService timeService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final Thesaurus thesaurus;
+    private final MeteringTranslationService meteringTranslationService;
 
     private String type;
     private String reason;
@@ -84,7 +87,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private boolean active;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TaskService taskService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TaskService taskService, TimeService timeService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus, MeteringTranslationService meteringTranslationService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
@@ -94,6 +97,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         this.timeService = timeService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public IssueRuleBuilder withType(String type) {
@@ -155,16 +159,20 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         if (issueType.getPrefix().equals("ALM")) {
             IssueCreationService.CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
             actionBuilder.setPhase(CreationRuleActionPhase.fromString("CREATE"));
-            Optional<IssueActionType> actionType = issueService.getIssueActionService().findActionType(3);
-            //TODO figure out why 3 is not present
+            Condition condition = where("className").isEqualTo("com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction");
+            Optional<IssueActionType> actionType = issueService.getIssueActionService().getActionTypeQuery().select(condition, 1, 1).stream().findAny();
             actionType.ifPresent(issueActionType -> {
-                actionBuilder.setActionType(actionType.get());
-                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(issueType.getName()).getPropertySpecs()) {
-                    actionBuilder.addProperty(propertySpec.getName(), propertySpec
-                            .getValueFactory()
-                            .fromStringValue("{\"workgroupId\":2,\"comment\":\"\",\"userId\":-1}"));
-                    actionBuilder.complete();
-                    rule.update();
+                actionBuilder.setActionType(issueActionType);
+                Optional<IssueAction> issueAction = issueActionType.createIssueAction();
+                if (issueAction.isPresent()) {
+                    issueAction.get().setReasonKey(reason);
+                    for (PropertySpec propertySpec : issueAction.get().getPropertySpecs()) {
+                        actionBuilder.addProperty(propertySpec.getName(), propertySpec
+                                .getValueFactory()
+                                .fromStringValue("{\"workgroupId\":2,\"comment\":\"\",\"userId\":-1}"));
+                        actionBuilder.complete();
+                        rule.update();
+                    }
                 }
             });
         }
@@ -218,6 +226,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDataCollectionRuleTemplate.RADIOGROUP,
                     getIssueUrgencyIncreaseProps());
             properties.put(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
+            properties.put(BasicDataCollectionRuleTemplate.THRESHOLD, getRelativePeriodWithCount(DefaultRelativePeriodDefinition.TODAY));
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> deviceConfigurations = new ArrayList<>();
             deviceConfigurationService.findDeviceTypeByName("Elster A1800").get().getConfigurations()
@@ -253,7 +262,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("0:0:0"));
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount());
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount(DefaultRelativePeriodDefinition.LAST_7_DAYS));
         } else if (template.getName().equals(USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> metrologyConfigurations = new ArrayList<>();
             metrologyConfigurationService
@@ -378,8 +387,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return list;
     }
 
-    private HasIdAndName getRelativePeriodWithCount() {
-        RelativePeriod relativePeriod = timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days")
+    private HasIdAndName getRelativePeriodWithCount(DefaultRelativePeriodDefinition relativePeriodDefinition) {
+        RelativePeriod relativePeriod = timeService.findRelativePeriodByName(relativePeriodDefinition.getPeriodName()).isPresent() ? timeService.findRelativePeriodByName(relativePeriodDefinition.getPeriodName())
                 .get() : timeService.getAllRelativePeriod();
         int occurrenceCount = 1;
 
@@ -407,7 +416,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(deviceLifeCycleConfigurationService::getDisplayName)
+                .map(meteringTranslationService::getDisplayName)
                 .orElseGet(state::getName);
     }
 

@@ -1,9 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.ProtocolJournal;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -34,6 +35,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -193,6 +195,11 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     }
 
     @Override
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
+        return deviceProtocol.getFirmwareVersions(serialNumber);
+    }
+
+    @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return deviceProtocol.fetchLoadProfileConfiguration(loadProfilesToRead);
     }
@@ -298,6 +305,16 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     }
 
     @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal) {
+        this.deviceProtocol.setProtocolJournaling(protocolJournal);
+    }
+
+    @Override
+    public void journal(String message) {
+        this.deviceProtocol.journal(message);
+    }
+
+    @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
         deviceProtocol.setUPLProperties(adaptedProperties);
@@ -306,6 +323,11 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public boolean supportsCommunicationFirmwareVersion() {
         return deviceProtocol.supportsCommunicationFirmwareVersion();
+    }
+
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        return deviceProtocol.supportsAuxiliaryFirmwareVersion();
     }
 
     @Override

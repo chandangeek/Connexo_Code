@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -27,7 +28,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem {
+public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem {
 
     private final MeteringService meteringService;
     private final DataExportService dataExportService;

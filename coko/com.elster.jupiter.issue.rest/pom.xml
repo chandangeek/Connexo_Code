@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
     <artifactId>issue.rest</artifactId>
@@ -98,7 +98,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>com.elster.jupiter</groupId>
+    		<artifactId>search</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
@@ -162,6 +169,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

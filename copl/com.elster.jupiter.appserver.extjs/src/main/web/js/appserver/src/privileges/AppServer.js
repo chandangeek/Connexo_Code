@@ -14,11 +14,13 @@ Ext.define('Apr.privileges.AppServer', {
     ],
     singleton: true,
     view: ['privilege.administrate.appServer',
-        'privilege.view.appServer', 'privilege.view.ViewTaskOverview'],
+        'privilege.view.appServer', 'privilege.view.ViewTaskOverview', 'privilege.edit.AdministerTaskOverview'],
 
     admin: ['privilege.administrate.appServer'],
 
-    taskOverview: ['privilege.view.ViewTaskOverview'],
+    taskOverview: ['privilege.view.ViewTaskOverview', 'privilege.edit.AdministerTaskOverview'],
+    suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],
+    administrateTaskOverview: ['privilege.edit.AdministerTaskOverview'],
 
     all: function () {
         return Ext.Array.merge(Apr.privileges.AppServer.view);
@@ -29,4 +31,9 @@ Ext.define('Apr.privileges.AppServer', {
     canAdministrate: function() {
         return Uni.Auth.checkPrivileges(Apr.privileges.AppServer.admin);
     }
+    // ,
+    // canSuspendTask: function() {
+    //     return Uni.Auth.checkPrivileges(Apr.privileges.AppServer.suspendTaskOverview);
+    // },
+
 });

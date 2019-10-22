@@ -94,7 +94,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * @author fbo
@@ -174,7 +173,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
      */
     private String pAddress = null;
     private String pNodeId = PD_NODE_ID;
-    private String pSerialNumber = null;
     private String pPassword = null;
     /* Protocol timeout fail in msec */
     private int pTimeout = PD_TIMEOUT;
@@ -230,7 +228,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         return Arrays.asList(
                 UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, PropertyTranslationKeys.IEC1107_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, PropertyTranslationKeys.IEC1107_NODEID, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.IEC1107_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.IEC1107_TIMEOUT, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.IEC1107_RETRIES, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
@@ -259,25 +256,39 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             this.pNodeId = p.getTypedProperty(NODEID.getName());
         }
 
-        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
-            this.pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
-        }
-
         if (p.getTypedProperty(PASSWORD.getName()) != null) {
             this.pPassword = p.getTypedProperty(PASSWORD.getName());
         }
 
-        this.pTimeout = p.getTypedProperty(PK_TIMEOUT);
-        this.pRetries = p.getTypedProperty(PK_RETRIES);
-        this.pRoundTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
-        this.pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
-        this.pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(PK_TIMEOUT) != null) {
+            this.pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        }
+
+        if (p.getTypedProperty(PK_RETRIES) != null) {
+            this.pRetries = p.getTypedProperty(PK_RETRIES);
+        }
+
+        if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+            this.pRoundTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
+        }
+
+        if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
+            this.pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
+        }
+
+        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            this.pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        }
+
         this.pSecurityLevel = p.getTypedProperty(PK_SECURITYLEVEL, 3);
         if (this.pSecurityLevel != 0) {
             // Password is required when security level != 0
             this.passwordPropertySpec(true).validateValue(this.pPassword);
         }
-        this.pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+
+        if (p.getTypedProperty(PK_ECHO_CANCELING) != null) {
+            this.pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+        }
         this.scriptingEnabled = p.getTypedProperty(PK_SCRIPTING_ENABLED, 0);
         // tricky... If scripting is enabled, we know it is an RF meter. So set the forced delay default to 0!
         if (this.scriptingEnabled > 0) {
@@ -287,7 +298,10 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         if (p.getTypedProperty(PK_FORCED_DELAY) != null) {
             this.forcedDelay = p.getTypedProperty(PK_FORCED_DELAY);
         }
-        this.pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+
+        if (p.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
+            this.pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+        }
 
         this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
 
@@ -312,7 +326,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                     "A230 protocol init \n"
                             + " Address = " + this.pAddress + ","
                             + " Node Id = " + this.pNodeId + ","
-                            + " SerialNr = " + this.pSerialNumber + ","
                             + " Psswd = " + this.pPassword + ",\n"
                             + " Timeout = " + this.pTimeout + ","
                             + " Retries = " + this.pRetries + ","
@@ -449,7 +462,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2019-07-15 15:30:00 +0300 (Mon, 15 Jul 2019)$";
     }
 
     @Override

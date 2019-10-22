@@ -9,7 +9,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import java.sql.SQLException;
@@ -250,8 +250,8 @@ public class NextExecutionSpecsImplTest extends PersistenceTest {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TEMPORAL_EXPRESSION_IS_NOT_REGULAR + "}")
-    public void everyTwoWeeksTest() {
-        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(2, TimeDuration.TimeUnit.WEEKS));
+    public void everyTwoWeeksTest() {  // 1<= weeks <= 52
+        TemporalExpression temporalExpression = new TemporalExpression(new TimeDuration(53, TimeDuration.TimeUnit.WEEKS));
         SchedulingService service = PersistenceTest.inMemoryPersistence.getSchedulingService();
 
         // Business method

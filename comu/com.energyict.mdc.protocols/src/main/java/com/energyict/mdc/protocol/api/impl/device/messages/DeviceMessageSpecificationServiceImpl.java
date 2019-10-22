@@ -5,11 +5,11 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.adapters.ConnexoTranslationKeyAdapter;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageCategoryAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
@@ -174,6 +174,11 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     @Override
     public DeviceMessageCategory getFirmwareCategory() {
         return UPLDeviceMessageCategoryAdapter.adaptTo(DeviceMessageCategories.FIRMWARE.get(uplPropertySpecService, uplNlsService, converter));
+    }
+
+    @Override
+    public DeviceMessageCategory getSecurityCategory() {
+        return UPLDeviceMessageCategoryAdapter.adaptTo(DeviceMessageCategories.SECURITY.get(uplPropertySpecService, uplNlsService, converter));
     }
 
     @Override

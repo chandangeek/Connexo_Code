@@ -17,6 +17,7 @@ import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.SimpleFormattedData;
 import com.elster.jupiter.export.StructureMarker;
@@ -177,7 +178,8 @@ class DataExportTaskExecutor implements TaskExecutor {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
                         .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                        .forEach(IReadingTypeDataExportItem::update);
+                        .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                        .forEach(ReadingTypeDataExportItem::update);
                 context.commit();
             }
         }

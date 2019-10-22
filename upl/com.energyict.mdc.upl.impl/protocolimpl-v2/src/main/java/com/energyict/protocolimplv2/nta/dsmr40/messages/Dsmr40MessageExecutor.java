@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
+import com.energyict.dlms.aso.*;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -11,7 +12,6 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.Integer8;
@@ -29,23 +29,23 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
+import com.energyict.sercurity.*;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 
 /**
@@ -55,6 +55,10 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.white
 public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     protected static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
+    protected static final char CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON = 1;
+    protected static final char CONFIGURATION_OBJECT_FLAGS_DYNAMIC_MBUS_ADDRESS = 2;
+    protected static final char CONFIGURATION_OBJECT_FLAGS_P0_ENABLE = 3;
+    
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
     private Dsmr40MbusMessageExecutor mbusMessageExecutor;
@@ -78,6 +82,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         for (OfflineDeviceMessage pendingMessage : sortSecurityRelatedDeviceMessages(masterMessages)) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            getProtocol().journal("DSMR40 Message executor processing  " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(DeviceActionMessage.RESTORE_FACTORY_SETTINGS)) {
                     restoreFactorySettings();
@@ -101,7 +106,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     collectedMessage = writeCaptureDefinition(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_PERIOD)) {
                     collectedMessage = writeCapturePeriod(pendingMessage);
-                } else{
+                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP)) {
+                    changeConfigurationObjectFlag(CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON, true );
+                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP)) {
+                    changeConfigurationObjectFlag(CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON, false );
+                } else {
                     collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);  // These messages are not specific for Dsmr 4.0, but can be executed by the super (= Dsmr 2.3) messageExecutor
                 }
@@ -111,6 +120,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
+                getProtocol().journal(Level.SEVERE,"Error while executing message " + pendingMessage.getSpecification().getName()+": " + e.getLocalizedMessage());
             }
             if (collectedMessage != null) {
                 result.addCollectedMessage(collectedMessage);
@@ -122,24 +132,89 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         return result;
     }
 
+    private void changeConfigurationObjectFlag(int bit, boolean state) throws IOException {
+        getProtocol().journal("Setting configuration object " + OBISCODE_CONFIGURATION_OBJECT+" bit "+bit+" to "+state);
+
+        Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
+        Structure existingStructure;
+        BitString flags;
+        try {
+            existingStructure = (Structure) config.getValueAttr();
+            int flagsIndex = getConfigurationObjectFlagsIndex();
+
+            try {
+                flags = (BitString) existingStructure.getDataType(flagsIndex);
+                flags.set(bit, state);
+            } catch (ClassCastException e) {
+                throw new ProtocolException("Couldn't write configuration. Expected element "+flagsIndex+
+                        " of structure to be of type 'BitString', but was of type '" + existingStructure.getDataType(flagsIndex).getClass().getSimpleName() + "'.");
+            }
+
+            existingStructure.setDataType(flagsIndex, flags);
+
+            config.setValueAttr(existingStructure);
+        } catch (Exception e) {
+            getProtocol().journal(Level.SEVERE, "Couldn't write configuration: " +e.getLocalizedMessage());
+            throw new ProtocolException(e, "Couldn't write configuration.");
+        }
+
+    }
+
+    /**
+     * DSMR 4.x:
+            Value ::= structure {
+                GPRS_operation_mode enum
+                Flags bitstring (16)
+            }
+
+     */
+    protected int getConfigurationObjectFlagsIndex(){
+        return 1;
+    }
+
     protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new ProtocolException("This message is not yet supported in DSMR4.0");
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        renewKey(wrappedKey, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId());
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
     }
 
     protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new ProtocolException("This message is not yet supported in DSMR4.0");
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        byte[] oldKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
+
+        renewKey(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId());
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+
+        //Reset frame counter, only if a different key has been written
+        if (Arrays.equals(oldKey, newSymmetricKey)) {
+            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+            securityContext.setFrameCounter(1);
+            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+        };
     }
 
     @Override
     protected void activateWakeUp() throws IOException {
+        getProtocol().journal("Opening SMS wake-up window");
         getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(new Array());
     }
 
     @Override
     protected void deactivateWakeUp() throws IOException {
-        AXDRDateTime axdrDateTime = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000
-        OctetString time = new OctetString(axdrDateTime.getBEREncodedByteArray(), 0);
-        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(time, time);   //Closed window, no SMSes are allowed
+        AXDRDateTime axdrDateTimeStart = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000 00:00
+        AXDRDateTime axdrDateTimeEnd = convertUnixToDateTime(String.valueOf(946684900), getProtocol().getTimeZone());  //Jan 1st, 2000 00:01
+        OctetString startTime = new OctetString(axdrDateTimeStart.getBEREncodedByteArray(), 0);
+        OctetString endTime = new OctetString(axdrDateTimeEnd.getBEREncodedByteArray(), 0);
+        getProtocol().journal("Closing SMS wake-up window");
+        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(startTime, endTime);   //Closed window, no SMSes are allowed
     }
 
     protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -181,27 +256,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected void changeAuthenticationLevel(OfflineDeviceMessage pendingMessage, int type, boolean enable) throws IOException {
         int newAuthLevel = getIntegerAttribute(pendingMessage);
         if (newAuthLevel != -1) {
-            Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
-            Structure value;
-            BitString flags;
-            try {
-                value = (Structure) config.getValueAttr();
-                try {
-                    AbstractDataType dataType = value.getDataType(1);
-                    flags = (BitString) dataType;
-                } catch (IndexOutOfBoundsException e) {
-                    throw new ProtocolException("Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
-                } catch (ClassCastException e) {
-                    throw new ProtocolException("Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
-                }
-
-                flags.set(4 - type + newAuthLevel, enable);    //HLS5_P0 = bit9, HLS4_P0 = bit8, HLS3_P0 = bit7, HLS5_P3 = bit6, HLS4_P3 = bit5, HLS3_P3 = bit4
-                config.setValueAttr(value);
-            } catch (ClassCastException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to be of type 'Structure', but was of type '" + config.getValueAttr().getClass().getSimpleName() + "'.");
-            }
-        } else {
-            throw new ProtocolException("Message contained an invalid authenticationLevel.");
+            int bit = 4 - type + newAuthLevel;
+            changeConfigurationObjectFlag(bit, enable);
         }
     }
 
@@ -234,8 +290,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
+        getProtocol().journal("Writing null activation date - i.e. activate now");
         activityCalendarController.writeCalendarActivationTime(null);   //Activate now
     }
 
@@ -247,10 +306,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
         Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
         activationCal.setTimeInMillis(Long.parseLong(epoch));
+        getProtocol().journal("Writing calendar activation date:"+activationCal.getTime().toString());
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
     }
 
@@ -341,64 +403,84 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected CollectedMessage writeCaptureDefinition(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         String captureObjects = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.captureObjectListAttributeName);
-        //TODO This is just an attempt. Actual code must be adapted to current protocol. Actual code from Dsmr40Messaging in 8.11
-        String[] splitCaptureObjects = captureObjects.split(";");
-        List <String> capturedObjectDefinitions = Arrays.asList(splitCaptureObjects);
-        List <String> filteredCaptureObjects = new ArrayList<>();
-        for(String capturedObject : capturedObjectDefinitions){
-            filteredCaptureObjects.add( capturedObject.replace("{", "").replace("}", ""));
-        }
-        if (filteredCaptureObjects.isEmpty()) {
 
+        String[] splitCaptureObjects = captureObjects.split(";");
+        List <String> rawCapturedObjectDefinitions = Arrays.asList(splitCaptureObjects);
+        List <String> filteredCaptureObjects = new ArrayList<>();
+        for(String capturedObject : rawCapturedObjectDefinitions){
+            filteredCaptureObjects.add( normalizeDLMSObjectDefinition(capturedObject));
+        }
+        if (!filteredCaptureObjects.isEmpty()) {
             ProfileGeneric profileGeneric = null;
             try {
                 profileGeneric = getCosemObjectFactory().getProfileGeneric(ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE);
             } catch (NotInObjectListException e) {
-                e.printStackTrace();
+                getProtocol().journal(Level.SEVERE, e.getLocalizedMessage());
             }
+
             if (profileGeneric == null) {
-                getProtocol().getLogger().log(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " is null");
+                getProtocol().journal(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " not found in object list");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             }
-            if(capturedObjectDefinitions.isEmpty()){
-                getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            }
+
             Array capturedObjects = new Array();
-            for (String capturedObjectDefinition : capturedObjectDefinitions) {
+            for (String capturedObjectDefinition : filteredCaptureObjects) {
+                getProtocol().journal("Adding capture object: "+capturedObjectDefinition);
                 String[] definitionParts = capturedObjectDefinition.split(",");
                 try {
-                    int dlmsClassId = Integer.parseInt(definitionParts[0].substring(0, 1));
-                    ObisCode obisCode = ObisCode.fromString(definitionParts[1].replace('-', '.').replace(':', '.'));
+                    int dlmsClassId = Integer.parseInt(definitionParts[0]);
+                    ObisCode obisCode = ObisCode.fromString(definitionParts[1]);
                     int attribute = Integer.parseInt(definitionParts[2]);
-                    int dataIndex = Integer.parseInt(definitionParts[3].substring(0, 1));
+                    int dataIndex = Integer.parseInt(definitionParts[3]);
                     Structure definition = new Structure();
                     definition.addDataType(new Unsigned16(dlmsClassId));
                     definition.addDataType(OctetString.fromObisCode(obisCode));
                     definition.addDataType(new Integer8(attribute));
                     definition.addDataType(new Unsigned16(dataIndex));
                     capturedObjects.addDataType(definition);
+
                 } catch (Exception e) {
-                    getProtocol().getLogger().log(Level.SEVERE, e.getMessage());
+                    getProtocol().journal(Level.SEVERE, e.getMessage());
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 }
             }
+            getProtocol().journal("Setting definable profile capture objects");
             profileGeneric.setCaptureObjectsAttr(capturedObjects);
-            getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture objects.");
+            getProtocol().journal("Successfully set definable load profile capture objects.");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } else {
-            getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
+            getProtocol().journal("Parsed an empty list of objects - the list must be in format: {8,0-0:1.0.0.255,2,0};{1,0-0:96.10.2.255,2,0};{3,1-0:1.8.0.255,2,0}...");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         }
         return collectedMessage;
     }
 
+    private String normalizeDLMSObjectDefinition(String capturedObject) {
+        return capturedObject
+                .replace("{", "")
+                .replace("}", "")
+                .replace("\n", "")
+                .replace("\t", "")
+                .replace(" ", "")
+                .replace(":", ".")
+                .replace("-", ".");
+    }
+
     protected CollectedMessage writeCapturePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         ObisCode obisCode = ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE;
-        int period  =Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue());
-        getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
-        getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture period to " + period);
+        String messageAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue();
+        Duration duration = Duration.parse(messageAttribute);
+        int period  = (int) duration.getSeconds();
+        getProtocol().journal("Writing load profile capture period " + messageAttribute + " - parsed as "+period+" seconds");
+        try {
+            getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
+            getProtocol().journal("Successfully set definable load profile capture period to " + period);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        } catch (Exception ex){
+            getProtocol().journal(Level.SEVERE, "Cannot write load profile capture period to "+period+": "+ ex.getLocalizedMessage());
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        }
         return collectedMessage;
     }
 }

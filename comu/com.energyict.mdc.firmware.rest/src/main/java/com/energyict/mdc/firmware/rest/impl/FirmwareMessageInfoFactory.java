@@ -7,16 +7,16 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -27,9 +27,9 @@ import java.util.Map;
 
 public class FirmwareMessageInfoFactory {
 
-    static final String PROPERTY_KEY_FIRMWARE_VERSION = "FirmwareDeviceMessage.upgrade.userfile";
-    static final String PROPERTY_KEY_IMAGE_IDENTIFIER = "FirmwareDeviceMessage.image.identifier";
-    static final String PROPERTY_KEY_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+    public static final String PROPERTY_KEY_FIRMWARE_VERSION = "FirmwareDeviceMessage.upgrade.userfile";
+    public static final String PROPERTY_KEY_IMAGE_IDENTIFIER = "FirmwareDeviceMessage.image.identifier";
+    public static final String PROPERTY_KEY_RESUME = "FirmwareDeviceMessage.upgrade.resume";
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final FirmwareService firmwareService;

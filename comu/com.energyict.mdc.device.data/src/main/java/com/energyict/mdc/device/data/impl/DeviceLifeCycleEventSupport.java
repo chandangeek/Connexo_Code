@@ -9,11 +9,12 @@ import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.State;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.EnumSet;
@@ -48,6 +49,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 EventType.COMTASKEXECUTION_CREATED,
                 EventType.COMTASKEXECUTION_UPDATED,
                 EventType.COMTASKEXECUTION_DELETED,
+                EventType.COMTASKEXECUTION_COMPLETION,
                 EventType.CONNECTIONTASK_CREATED,
                 EventType.CONNECTIONTASK_UPDATED,
                 EventType.CONNECTIONTASK_DELETED,
@@ -96,7 +98,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             }
         },
 
-        COMTASKEXECUTION_CRUD(EnumSet.of(EventType.COMTASKEXECUTION_CREATED, EventType.COMTASKEXECUTION_UPDATED, EventType.COMTASKEXECUTION_DELETED)) {
+        COMTASKEXECUTION_CRUD(EnumSet.of(EventType.COMTASKEXECUTION_CREATED, EventType.COMTASKEXECUTION_UPDATED, EventType.COMTASKEXECUTION_DELETED, EventType.COMTASKEXECUTION_COMPLETION)) {
             @Override
             public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine) {
                 return this.extractFrom((ComTaskExecution) event.getSource(), finiteStateMachine);

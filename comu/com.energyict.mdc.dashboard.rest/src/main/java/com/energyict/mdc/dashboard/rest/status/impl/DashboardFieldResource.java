@@ -10,16 +10,16 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -88,9 +88,22 @@ public class DashboardFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", this.taskStatusClientSideValues());
     }
 
+    @GET @Transactional
+    @Path("/connectionstatuses")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Object getConnectionTaskStatusValues() {
+        return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", this.taskStatusesWithoutPrio());
+    }
+
     private List<String> taskStatusClientSideValues() {
         return Stream.of(TaskStatus.values()).map(TaskStatus::name).collect(Collectors.toList());
     }
+
+    private List<String> taskStatusesWithoutPrio() {
+        return TaskStatus.withoutPrio().stream().map(TaskStatus::name).collect(Collectors.toList());
+    }
+
     @GET @Transactional
     @Path("/comsessionsuccessindicators")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

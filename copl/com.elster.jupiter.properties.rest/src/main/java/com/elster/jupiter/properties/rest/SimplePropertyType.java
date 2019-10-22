@@ -31,6 +31,7 @@ public enum SimplePropertyType implements PropertyType {
     TIMESTAMP(Instant.class),
     LONG(Long.class),
     IDWITHNAME(HasIdAndName.class),
+    IDWITHNAMELIST(ListValueFactory.class),
     RELATIVEPERIOD(RelativePeriodFactory.class),
     SELECTIONGRID(ListValueFactory.class),
     LISTVALUE(ListValueFactory.class),
@@ -39,6 +40,9 @@ public enum SimplePropertyType implements PropertyType {
     QUANTITY(Quantity.class),
     LISTREADINGQUALITY(ListReadingQualityFactory.class),
     ASSIGN(String.class),
+    MAILTO(String.class),
+    ASSIGN_ISSUE_FORM(String.class),
+    CLOSE_ISSUE_FORM(String.class),
     ENDDEVICEEVENTTYPE(ListValueFactory.class),
     LIFECYCLESTATUSINDEVICETYPE(ListValueFactory.class),
     DEVICEGROUPTYPE(ListValueFactory.class),
@@ -47,6 +51,7 @@ public enum SimplePropertyType implements PropertyType {
     RELATIVEPERIODWITHCOUNT(ListValueFactory.class),
     BPM_PROCESS(HasIdAndName.class),
     WEB_SERVICES_ENDPOINT(HasIdAndName.class),
+    ENDPOINT_CONFIGURATION_LIST(ListValueFactory.class),
     RADIO_GROUP(HasIdAndName.class),
     TEMPORALAMOUNT(TemporalAmount.class),   //Property indicating a long period (See java.time.Period)
     DURATION(Duration.class),               //Property indicating a short duration (See java.time.Duration)
@@ -57,7 +62,12 @@ public enum SimplePropertyType implements PropertyType {
     INTEGER(Integer.class),
     LIFECYCLETRANSITION(ListValueFactory.class),
     TASK(ListValueFactory.class),
-    RECURRENCE(HasIdAndName.class);
+    RECURRENCE(HasIdAndName.class),
+    ENDDEVICEGROUPLIST(ListValueFactory.class),
+    SERVICE_CALL(HasIdAndName.class),
+    SERVICE_CALL_STATE(HasIdAndName.class),
+    CUSTOM_EVENT_TYPE(HasIdAndName.class),
+    EXCLUDED_COM_TASKS(ListValueFactory.class);
 
 
     private Class typeClass;
@@ -70,6 +80,7 @@ public enum SimplePropertyType implements PropertyType {
         if (valueFactory instanceof StringAreaFactory) {
             return TEXTAREA;
         }
+
         for (SimplePropertyType simplePropertyType : values()) {
             if (simplePropertyType.matches(valueFactory)) {
                 return simplePropertyType;

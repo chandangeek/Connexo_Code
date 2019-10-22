@@ -316,12 +316,14 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'button',
                                         ui: 'action',
+                                        itemId: 'interval-apply',
                                         action: 'apply',
                                         text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
                                         disabled: me.fromAndToValueRequired ? (me.defaultFromDate && me.defaultToDate ? false : true) : false
                                     },
                                     {
                                         xtype: 'button',
+                                        itemId: 'interval-clear',
                                         action: 'clear',
                                         text: Uni.I18n.translate('general.clear', 'UNI', 'Clear')
                                     }
@@ -440,10 +442,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
                 fromDate = tokens[0],
                 toDate = tokens[1];
 
-            if (fromDate) {
+            if (fromDate && !isNaN(fromDate)) {
                 me.setFromDateValue(new Date(parseInt(fromDate)));
             }
-            if (toDate) {
+            if (toDate && !isNaN(toDate)) {
                 me.setToDateValue(new Date(parseInt(toDate)));
             }
         }

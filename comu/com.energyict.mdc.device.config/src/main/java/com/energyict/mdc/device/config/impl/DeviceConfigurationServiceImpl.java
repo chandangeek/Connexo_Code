@@ -17,6 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
@@ -42,6 +43,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -56,52 +58,52 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.Constants;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceTypePurpose;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
-import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LockService;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
@@ -178,6 +180,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -208,7 +211,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                           DataVaultService dataVaultService,
                                           UpgradeService upgradeService,
                                           DeviceMessageSpecificationService deviceMessageSpecificationService,
-                                          SecurityManagementService securityManagementService) {
+                                          SecurityManagementService securityManagementService,
+                                          MeteringTranslationService meteringTranslationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -233,6 +237,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setCustomPropertySetService(customPropertySetService);
         this.setDataVaultService(dataVaultService);
         this.setSecurityManagementService(securityManagementService);
+        this.setMeteringTranslationService(meteringTranslationService);
         setUpgradeService(upgradeService);
         this.activate();
     }
@@ -343,8 +348,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<ChannelSpec> findAndLockChannelSpecById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper(ChannelSpec.class).lock(id));
+    }
+
+    @Override
     public Optional<RegisterSpec> findRegisterSpec(long id) {
         return this.getDataModel().mapper((RegisterSpec.class)).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<RegisterSpec> findAndLockRegisterSpecById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper((RegisterSpec.class)).lock(id));
     }
 
     @Override
@@ -690,6 +705,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
+                bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             }
         };
     }
@@ -697,7 +713,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
-
         upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceConfigurationService.COMPONENTNAME),
                 dataModel,
                 Installer.class,
@@ -708,6 +723,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         .put(Version.version(10, 4, 1), UpgraderV10_4_1.class)
                         .put(Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class)
                         .put(Version.version(10, 6), V10_6SimpleUpgrader.class)
+                        .put(Version.version(10, 7), V10_7SimpleUpgrader.class)
                         .build());
         initPrivileges();
     }
@@ -773,6 +789,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -1104,7 +1125,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .find().stream()
                 .sorted(Comparator.comparing(DeviceType::getId))
                 .forEach(deviceType -> deviceLifeCycleInDeviceTypes.add(new DeviceLifeCycleInDeviceTypeInfo(deviceType, deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream()
-                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()), deviceLifeCycleConfigurationService)));
+                        .sorted(Comparator.comparing(State::getId)).collect(Collectors.toList()),  meteringTranslationService)));
     }
 
 }

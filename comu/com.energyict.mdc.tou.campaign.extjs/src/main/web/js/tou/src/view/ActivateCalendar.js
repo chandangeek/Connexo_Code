@@ -48,6 +48,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                 required: true,
                 vertical: true,
                 allowBlank : true,
+                padding: '0 0 10 0',
                 defaults: {
                     name: me.groupName,
                     submitValue: false
@@ -58,27 +59,30 @@ Ext.define('Tou.view.ActivateCalendar', {
                         boxLabel: me.getOptionText('withoutActivation'),
                         name: me.groupName,
                         inputValue: 'withoutActivation',
-                        checked: false
+                        checked: false,
+                        margin: '5 0 5 0'
                     }, {
                         itemId: 'Immediately',
                         id: 'immediatelyRg',
                         boxLabel: me.getOptionText('immediately'),
                         name: me.groupName,
                         inputValue: 'immediately',
-                        checked: false
+                        checked: false,
+                        margin: '5 0 5 0'
                     }, {
                         itemId: 'ByDate',
                         id: 'onDateRg',
                         name: me.groupName,
                         boxLabel: me.getOptionText('onDate'),
                         inputValue: 'onDate',
-                        margin: '7 0 0 0'
+                        margin: '5 0 5 0'
                     }
                 ],
                 listeners: {
                     change: function (field, newValue) {
                         var timeoutFld = Ext.getCmp('tou-period-values');
                         var uploadFileDateContainer = me.down('#uploadFileDateContainer');
+                        me.up('form').down('#activateCalendarErrorMain').hide();
                         if (newValue[me.groupName] == 'withoutActivation' || newValue[me.groupName] == 'immediately') {
                             uploadFileDateContainer.disable();
                             uploadFileDateContainer.setValue(null);
@@ -92,12 +96,15 @@ Ext.define('Tou.view.ActivateCalendar', {
                         } else {
                             timeoutFld.hide();
                         }
-
+                        me.fireEvent('change', field, newValue);
                     }
                 }
             }, {
                 xtype: 'container',
                 height: '100%',
+                style: {
+                    margin: '0 0 -20 0'
+                },
                 layout: {
                     type: 'vbox',
                     pack: 'end'
@@ -169,6 +176,10 @@ Ext.define('Tou.view.ActivateCalendar', {
         }
 
         me.callParent(arguments);
+        // if (me.listeners && me.listeners.change) {
+        //     debugger;
+        //     me.down('#uploadRadioGroup').addListener("change", me.listeners.change, me.listeners.scope);
+        // }
     }
 
 });

@@ -6,8 +6,8 @@ package com.energyict.mdc.engine.impl.core.devices;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -22,6 +22,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+
 import org.eclipse.jetty.util.ConcurrentHashSet;
 
 import java.text.MessageFormat;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -244,6 +246,13 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
     @Override
     public void free(DeviceCommandExecutionToken unusedToken) {
         this.doExecute(new FreeUnusedTokenDeviceCommand(), unusedToken);
+    }
+
+    @Override
+    public synchronized void freeSilently(DeviceCommandExecutionToken unusedToken) {
+        this.workQueue.executeIfExpectedToken(new FreeUnusedTokenDeviceCommand(), unusedToken)
+                .map(command -> new Worker(command, this.comServerDAO))
+                .ifPresent(this.executorService::submit);
     }
 
     @Override
@@ -687,6 +696,10 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             } else {
                 throw new NoResourcesAcquiredException();
             }
+        }
+
+        private Optional<DeviceCommand> executeIfExpectedToken(DeviceCommand command, DeviceCommandExecutionToken token) {
+            return Optional.ofNullable(command).filter(c -> this.expected.remove(token));
         }
 
         public int getCapacity() {

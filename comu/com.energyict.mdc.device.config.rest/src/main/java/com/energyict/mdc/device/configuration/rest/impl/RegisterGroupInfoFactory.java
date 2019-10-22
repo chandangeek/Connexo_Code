@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
 import javax.inject.Inject;

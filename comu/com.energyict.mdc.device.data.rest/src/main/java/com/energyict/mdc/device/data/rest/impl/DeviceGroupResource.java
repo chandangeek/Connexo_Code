@@ -39,19 +39,19 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.BulkDeviceMessageQueueMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.google.common.collect.Range;
 
@@ -170,6 +170,28 @@ public class DeviceGroupResource {
             condition = condition.and(where("name").isEqualTo(filter.getString("name")));
         }
         return condition;
+    }
+    
+    @GET
+    @Transactional
+    @Path("/filtered")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_DEVICE_GROUP,
+            Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL })
+    public PagedInfoList getDeviceGroupsFiltered(@QueryParam("type") String typeName,
+            @QueryParam("exclude") String excludedIdsList, @BeanParam JsonQueryFilter filter,
+            @BeanParam JsonQueryParameters queryParameters) {
+        Query<EndDeviceGroup> query = getDeviceGroupQueryByType(typeName);
+        Condition condition = buildCondition(filter);
+        if (excludedIdsList != null && !excludedIdsList.trim().isEmpty()) {
+            final String[] excludedIds = excludedIdsList.split(",");
+            condition = condition.and(where("id").in(Arrays.asList(excludedIds)).not());
+        }
+        Order order = Order.ascending("upper(name)");
+        List<EndDeviceGroup> endDeviceGroups = query.select(condition, order);
+        List<DeviceGroupInfo> deviceGroupInfos = deviceGroupInfoFactory.from(endDeviceGroups);
+        return PagedInfoList.fromCompleteList("devicegroups", deviceGroupInfos, queryParameters);
     }
 
     @GET
@@ -412,9 +434,9 @@ public class DeviceGroupResource {
         if (deviceMessageInfo.properties != null) {
             try {
                 for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
-                    Object propertyValue = propertyValueInfoService.findPropertyValue(propertySpec, deviceMessageInfo.properties);
-                    if (propertyValue != null) {
-                        properties.put(propertySpec.getName(), propertyValue);
+                    Object marshalPropertyValue = propertyValueInfoService.findPropertyValue(propertySpec, deviceMessageInfo.properties);
+                    if (marshalPropertyValue != null) {
+                        properties.put(propertySpec.getName(), propertySpec.getValueFactory().toStringValue(marshalPropertyValue));  // Lau
                     }
                 }
             } catch (LocalizedFieldValidationException e) {

@@ -48,38 +48,44 @@ Ext.define('Itk.controller.Main', {
             taskIssue = null,
             items = [];
 
-            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.workspace','ITK','Workspace'),
-                glyph: 'workspace',
-                portal: 'workspace',
-                index: 30
-            }));
+            if ( Isu.privileges.Issue.canViewIssue() ){
+                Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                    text: Uni.I18n.translate('general.workspace','ITK','Workspace'),
+                    glyph: 'workspace',
+                    portal: 'workspace',
+                    index: 30
+                }));
 
 
 
-                items.push({
-                    text: Uni.I18n.translate('general.issues','ITK','Issues'),
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['task']})
+                    items.push({
+                        text: Uni.I18n.translate('general.issues','ITK','Issues'),
+                        privileges: Isu.privileges.Issue.viewIssue,
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['task']})
+                    });
+                    items.push({
+                        text: Uni.I18n.translate('task.myOpenIssues','ITK','My open issues'),
+                        itemId: 'datavalidation-my-open-issues',
+                        privileges: Isu.privileges.Issue.viewIssue,
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['task'], myopenissues: true, status: ['status.open', 'status.in.progress']})
+                    });
+                    items.push({
+                        text: Uni.I18n.translate('task.myWorkgroupsIssues', 'ITK', 'My workgroups issues'),
+                        itemId: 'datavalidation-my-workgroup-issues',
+                        privileges: Isu.privileges.Issue.viewIssue,
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['task'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
+                    });
+                taskIssue = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.task.issues','ITK','Task issues'),
+                    portal: 'workspace',
+                    route: 'task',
+                    privileges: Isu.privileges.Issue.viewIssue,
+                    items:  items
                 });
-                items.push({
-                    text: Uni.I18n.translate('task.myOpenIssues','ITK','My open issues'),
-                    itemId: 'datavalidation-my-open-issues',
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['task'], myopenissues: true, status: ['status.open', 'status.in.progress']})
-                });
-                items.push({
-                    text: Uni.I18n.translate('task.myWorkgroupsIssues', 'ITK', 'My workgroups issues'),
-                    itemId: 'datavalidation-my-workgroup-issues',
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['task'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
-                });
-            taskIssue = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.task.issues','ITK','Task issues'),
-                portal: 'workspace',
-                route: 'task',
-                items:  items
-            });
 
-        if (taskIssue !== null) {
-            Uni.store.PortalItems.add(taskIssue);
+            if (taskIssue !== null) {
+                Uni.store.PortalItems.add(taskIssue);
+            }
         }
     }
 });

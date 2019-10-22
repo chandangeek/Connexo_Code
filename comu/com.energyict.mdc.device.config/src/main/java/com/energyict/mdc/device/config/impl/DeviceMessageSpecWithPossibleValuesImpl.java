@@ -10,11 +10,12 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.device.config.DeviceMessageFile;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
 import java.util.Comparator;
 import java.util.List;
@@ -89,7 +90,9 @@ class DeviceMessageSpecWithPossibleValuesImpl implements DeviceMessageSpec {
                             .specForValuesOf(propertySpec.getValueFactory())
                             .named(propertySpec.getName(), propertySpec.getDisplayName())
                             .describedAs(propertySpec.getDescription())
-                            .addValues(deviceType.getSecurityAccessorTypes().stream()
+                            .addValues(
+                                    deviceType.getDeviceSecurityAccessorType().stream()
+                                            .map(DeviceSecurityAccessorType::getSecurityAccessor)
                                     .sorted(Comparator.comparing(SecurityAccessorType::getName))
                                     .collect(Collectors.toList()));
             if (propertySpec.isRequired()) {
@@ -123,7 +126,7 @@ class DeviceMessageSpecWithPossibleValuesImpl implements DeviceMessageSpec {
     }
 
     private boolean relatesToDeviceMessageFile(ValueFactory valueFactory) {
-        return com.energyict.mdc.protocol.api.DeviceMessageFile.class.isAssignableFrom(valueFactory.getValueType());
+        return com.energyict.mdc.common.protocol.DeviceMessageFile.class.isAssignableFrom(valueFactory.getValueType());
     }
 
 }

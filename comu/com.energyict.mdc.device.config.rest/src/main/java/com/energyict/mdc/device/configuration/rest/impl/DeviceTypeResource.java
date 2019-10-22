@@ -14,6 +14,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -28,32 +29,32 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceTypePurpose;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageFile;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.exceptions.DeviceIconTooBigException;
 import com.energyict.mdc.device.config.exceptions.DeviceMessageFileTooBigException;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
@@ -120,6 +121,7 @@ public class DeviceTypeResource {
     private final RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory;
     private final RegisterTypeInfoFactory registerTypeInfoFactory;
     private final IssueService issueService;
+    private final MeteringTranslationService meteringTranslationService;
 
     private static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
     private static final String DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE = "DeviceLifecycleIssueCreationRuleTemplate";
@@ -140,7 +142,8 @@ public class DeviceTypeResource {
             Thesaurus thesaurus,
             RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory,
             RegisterTypeInfoFactory registerTypeInfoFactory,
-            Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider, IssueService issueService) {
+            Provider<SecurityAccessorTypeOnDeviceTypeResource> keyFunctionTypeResourceProvider, IssueService issueService,
+            MeteringTranslationService meteringTranslationService) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -158,12 +161,13 @@ public class DeviceTypeResource {
         this.registerTypeInfoFactory = registerTypeInfoFactory;
         this.keyFunctionTypeResourceProvider = keyFunctionTypeResourceProvider;
         this.issueService = issueService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getAllDeviceTypes(@BeanParam JsonQueryParameters queryParameters) {
         Finder<DeviceType> deviceTypeFinder = deviceConfigurationService.findAllDeviceTypes();
         List<DeviceType> allDeviceTypes = deviceTypeFinder.from(queryParameters).find();
@@ -175,7 +179,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceType(@PathParam("id") long id, DeviceTypeInfo info) {
         info.id = id;
 
@@ -188,7 +192,7 @@ public class DeviceTypeResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
         Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional
@@ -218,7 +222,7 @@ public class DeviceTypeResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response createDeviceIcon(@PathParam("id") long deviceTypeId,
                                      @FormDataParam("deviceIconField") InputStream fileInputStream,
                                      @FormDataParam("deviceIconField") FormDataContentDisposition contentDispositionHeader,
@@ -234,7 +238,7 @@ public class DeviceTypeResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response removeDeviceIcon(@PathParam("id") long deviceTypeId, VersionInfo<String> versionInfo) {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeId, versionInfo.version, versionInfo.id);
         deviceType.removeDeviceIcon();
@@ -246,7 +250,7 @@ public class DeviceTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
         deviceTypeInfo.id = id;
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
@@ -267,7 +271,7 @@ public class DeviceTypeResource {
                 DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
                 List<DeviceLifeCycleStateInfo> deviceLifeCycleStateInfoList = mappingEx.getMissingStates()
                         .stream()
-                        .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
+                        .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state, meteringTranslationService))
                         .collect(Collectors.toList());
                 ChangeDeviceLifeCycleInfo info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
                         .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
@@ -304,7 +308,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/capabilities")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getDeviceTypeCapabilites(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<IdWithNameInfo> capabilities =
@@ -319,7 +323,7 @@ public class DeviceTypeResource {
     @Path("/{id}/devicelifecycle")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateDeviceLifeCycleForDeviceType(@PathParam("id") long id, ChangeDeviceLifeCycleInfo info) {
         if (info.targetDeviceLifeCycle.id == 0) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "deviceLifeCycleId");
@@ -369,7 +373,7 @@ public class DeviceTypeResource {
         } catch (IncompatibleDeviceLifeCycleChangeException mappingEx) {
             List<DeviceLifeCycleStateInfo> deviceLifeCycleStateInfoList = mappingEx.getMissingStates()
                     .stream()
-                    .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state))
+                    .map(state -> new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, state, meteringTranslationService))
                     .collect(Collectors.toList());
             info = getChangeDeviceLifeCycleFailInfo(thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE)
                     .format(targetDeviceLifeCycle.getName()), deviceLifeCycleStateInfoList, oldDeviceLifeCycle, targetDeviceLifeCycle);
@@ -382,7 +386,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public DeviceTypeInfo findDeviceType(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes(), registerTypeInfoFactory, resourceHelper.imageIdentifierExpectedAtFirmwareUpload(deviceType));
@@ -392,7 +396,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id,
                                                              @BeanParam JsonQueryFilter filter,
                                                              @BeanParam JsonQueryParameters queryParameters) {
@@ -407,7 +411,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/custompropertysets/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public DeviceTypeCustomPropertySetInfo getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id,
                                                                                @PathParam("cpsId") long cpsId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -420,7 +424,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/custompropertysets/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response editDeviceCustomAttributes(@PathParam("id") long id,
                                               @PathParam("cpsId") long cpsId,
                                               DeviceTypeCustomPropertySetInfo info) {
@@ -435,7 +439,7 @@ public class DeviceTypeResource {
     @Path("/{id}/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         infos.forEach(deviceTypeCustomPropertySetInfo ->
@@ -449,7 +453,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{deviceTypeId}/custompropertysets/{customPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         deviceType.removeCustomPropertySet(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId, Device.class,DeviceType.class));
@@ -465,7 +469,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         final List<LogBookType> logbookTypes = new ArrayList<>();
@@ -494,7 +498,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/logbooktypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response addLogBookTypesForDeviceType(@PathParam("id") long id, List<Long> ids) {
         if (ids.isEmpty()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_ID_FOR_ADDING);
@@ -517,7 +521,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/logbooktypes/{lbid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid, LogBookTypeInfo info) {
         info.parent.id = id;
         LogBookType logBookType = resourceHelper.lockDeviceTypeLogBookOrThrowException(info);
@@ -560,7 +564,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getRegisterTypesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter availableFilter) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Boolean available = availableFilter.getBoolean("available");
@@ -609,7 +613,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/registertypes/{registerTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public RegisterTypeOnDeviceTypeInfo getRegisterForDeviceType(@PathParam("id") long deviceTypeId,
                                                                  @PathParam("registerTypeId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -626,7 +630,7 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes/{registerTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response changeRegisterTypeOnDeviceTypeCustomPropertySet(@PathParam("id") long deviceTypeId,
                                                                     @PathParam("registerTypeId") long registerTypeId,
                                                                     RegisterTypeOnDeviceTypeInfo registerTypeOnDeviceTypeInfo) {
@@ -641,7 +645,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/registertypes/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getRegisterCustomPropertySets() {
         return Response.ok(DeviceTypeCustomPropertySetInfo
                 .from(resourceHelper.findAllCustomPropertySetsByDomain(RegisterSpec.class)))
@@ -653,7 +657,7 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public List<RegisterTypeOnDeviceTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         linkRegisterTypeToDeviceType(deviceType, rmId);
@@ -666,7 +670,7 @@ public class DeviceTypeResource {
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId, RegisterTypeInfo info) {
         RegisterType registerType = resourceHelper.lockDeviceTypeRegisterTypeOrThrowException(info);
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -677,7 +681,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/files")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.VIEW_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.VIEW_DEVICE_TYPE)
     public Response getFiles(@PathParam("id") long id) {
         List<DeviceMessageFileInfo> files = resourceHelper.findDeviceTypeByIdOrThrowException(id)
                 .getDeviceMessageFiles()
@@ -694,7 +698,7 @@ public class DeviceTypeResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteFile(@PathParam("id") long id, @PathParam("fileId") long fileId, DeviceMessageFileInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         DeviceMessageFile file = deviceType.getDeviceMessageFiles()
@@ -711,7 +715,7 @@ public class DeviceTypeResource {
     @Path("/{id}/files/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({MediaType.TEXT_PLAIN})
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response uploadFile(@PathParam("id") long deviceTypeId, @FormDataParam("uploadField") InputStream fileInputStream,
                                @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader,
                                @FormDataParam("fileName") String fileName) {
@@ -724,7 +728,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/timeofuse")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendars(@PathParam("id") long id) {
         List<AllowedCalendarInfo> infos;
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -741,7 +745,7 @@ public class DeviceTypeResource {
     @Path("/{id}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response removeCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, AllowedCalendarInfo allowedCalendarInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<AllowedCalendar> allowedCalendar =
@@ -762,7 +766,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
         if (milliseconds <= 0) {
             return Response.ok(calendarService.findCalendar(calendarId)
@@ -781,7 +785,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/unusedcalendars")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response getUnusedCalendars(@PathParam("id") long id) {
         Set<Calendar> usedCalendars;
         List<CalendarInfo> infos;
@@ -808,7 +812,7 @@ public class DeviceTypeResource {
     @Path("/{id}/unusedcalendars")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response addCalendar(@PathParam("id") long id, List<CalendarInfo> calendarInfos) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         calendarInfos.stream()
@@ -821,7 +825,7 @@ public class DeviceTypeResource {
     @Transactional
     @Path("/{id}/timeofuseoptions/{dummyid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response getTimeOfUseManagementOptions(@PathParam("id") long id) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         TimeOfUseOptionsInfo timeOfUseOptionsInfo = getTimeOfUseOptions(deviceType);
@@ -834,7 +838,7 @@ public class DeviceTypeResource {
     @Path("/{id}/timeofuseoptions/{dummyid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response changeTimeOfUseOptions(@PathParam("id") long id, @PathParam("dummyid") long dummyID, TimeOfUseOptionsInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<TimeOfUseOptions> timeOfUseOptions = resourceHelper.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, info.version);
@@ -864,7 +868,7 @@ public class DeviceTypeResource {
     @GET
     @Path("/{id}/connectionFunctions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response getConnectionFunctions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         List<ConnectionFunctionInfo> infos;
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);

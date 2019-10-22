@@ -22,31 +22,42 @@ import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.device.config.DeleteEventType;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceTypePurpose;
+import com.energyict.mdc.common.device.config.DeviceUsageType;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageFile;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceTypePurpose;
-import com.energyict.mdc.device.config.DeviceUsageType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
@@ -54,15 +65,6 @@ import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDevice
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 
@@ -86,6 +88,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
@@ -339,17 +342,30 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public List<SecurityAccessorType> getSecurityAccessorTypes() {
+    public List<DeviceSecurityAccessorType> getDeviceSecurityAccessorType() {
         return securityAccessorTypes.stream()
-                .map(SecurityAccessorTypeOnDeviceTypeImpl::getSecurityAccessorType)
+                .map(SecurityAccessorTypeOnDeviceTypeImpl::getDeviceSecurityAccessorType)
                 .collect(Collectors.toList());
     }
 
+    public Optional<SecurityAccessorType> getWrappingSecurityAccessorType(SecurityAccessorType securityAccessorType){
+        List<Optional<SecurityAccessorType>> collect = getDeviceSecurityAccessorType().stream().filter(f -> f.getSecurityAccessor().equals(securityAccessorType)).map(f -> f.getWrappingSecurityAccessor()).collect(Collectors.toList());
+        if (collect.size() == 1) {
+            return collect.get(0);
+        }
+        if (collect.size() == 0) {
+            throw new SecurityAccessorTypeCanNotBeFoundException(getThesaurus(), securityAccessorType.getName());
+        }
+        else {
+            throw new SecurityAccessorTypeMultipleFoundException(getThesaurus(), securityAccessorType.getName());
+        }
+    }
+
     @Override
-    public boolean addSecurityAccessorTypes(SecurityAccessorType... securityAccessorTypesToAdd) {
-        Set<SecurityAccessorType> toAdd = Arrays.stream(securityAccessorTypesToAdd).collect(Collectors.toSet());
+    public boolean addDeviceSecurityAccessorType(DeviceSecurityAccessorType... securityAccessorTypesToAdd) {
+        Set<DeviceSecurityAccessorType> toAdd = Arrays.stream(securityAccessorTypesToAdd).collect(Collectors.toSet());
         securityAccessorTypes.stream()
-                .map(SecurityAccessorTypeOnDeviceTypeImpl::getSecurityAccessorType)
+                .map(SecurityAccessorTypeOnDeviceTypeImpl::getDeviceSecurityAccessorType)
                 .forEach(toAdd::remove);
         if (toAdd.isEmpty()) {
             return false;
@@ -365,14 +381,42 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType) {
-        return securityAccessorTypes.stream()
-                .filter(securityAccessorTypeOnDeviceType ->
-                        securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
-                .peek(this::validateSecurityAccessorTypeRemoval)
-                .findAny()
-                .map(securityAccessorTypes::remove)
-                .orElse(false);
+    public void setWrappingSecurityAccessor(DeviceSecurityAccessorType toUpdateDeviceSecurityAccessorType, Optional<SecurityAccessorType> wrappingSecurityAccessor){
+        // We do not treat if we find many but that should not be the case
+        Optional<SecurityAccessorTypeOnDeviceTypeImpl> first = securityAccessorTypes.stream().filter(f -> f.getDeviceSecurityAccessorType().equals(toUpdateDeviceSecurityAccessorType)).findFirst();
+        if (!first.isPresent()) {
+            throw new SecurityAccessorTypeCanNotBeFoundException(getThesaurus(), toUpdateDeviceSecurityAccessorType.getSecurityAccessor().getName());
+        }
+        first.get().setWrappingSecurityAccessor(wrappingSecurityAccessor);
+    }
+
+    @Override
+    public boolean removeDeviceSecurityAccessorType(DeviceSecurityAccessorType securityAccessorType) {
+        Stream<SecurityAccessorType> securityAccessorTypeStream = securityAccessorTypes.stream()
+                .map(f -> f.getDeviceSecurityAccessorType().getWrappingSecurityAccessor())
+                .filter(f -> f.isPresent())
+                .map(f -> f.get())
+                .filter(f -> f.getId() == securityAccessorType.getSecurityAccessor().getId());
+        long inUseAsWrapper = securityAccessorTypeStream
+                .count();
+        if (inUseAsWrapper > 0) {
+            throw new SecurityAccessorTypeWrapperInUseException(getThesaurus(), securityAccessorTypeStream.findAny().get().getName());
+        }
+
+        SecurityAccessorTypeOnDeviceType toBeRemoved = null;
+        for (SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType: securityAccessorTypes) {
+            if (securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().equals(securityAccessorType)) {
+                toBeRemoved = securityAccessorTypeOnDeviceType;
+                break;
+            }
+        }
+
+        if (toBeRemoved != null) {
+            validateSecurityAccessorTypeRemoval(toBeRemoved);
+            securityAccessorTypes.remove(toBeRemoved);
+        }
+
+        return toBeRemoved != null;
     }
 
     private void validateSecurityAccessorTypeRemoval(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
@@ -681,6 +725,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void update() {
         super.save();
         this.deviceProtocolPluggableClassChanged = false;
+    }
+
+    @Override
+    public List<SecurityAccessorType> getSecurityAccessorTypes() {
+        List<DeviceSecurityAccessorType> deviceSecurityAccessorType = getDeviceSecurityAccessorType();
+        return deviceSecurityAccessorType.stream().map(DeviceSecurityAccessorType::getSecurityAccessor).collect(Collectors.toList());
     }
 
     private void addSingleLoadProfileType(LoadProfileType loadProfileType) {
@@ -1588,6 +1638,13 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void save() {
         update();
+    }
+
+    @Override
+    public List<SecurityAccessorTypeOnDeviceType> getSecurityAccessors() {
+        return securityAccessorTypes
+                .stream()
+                .collect(Collectors.toList());
     }
 
 }

@@ -10,18 +10,19 @@ import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -72,6 +73,8 @@ public class DeviceActivationDeactivationImporterFactoryTest {
     private Logger logger;
     @Mock
     private Clock clock;
+    @Mock
+    MeteringTranslationService meteringTranslationService;
 
     @Before
     public void beforeTest() {
@@ -84,13 +87,14 @@ public class DeviceActivationDeactivationImporterFactoryTest {
         context.setDeviceLifeCycleService(deviceLifeCycleService);
         context.setFiniteStateMachineService(finiteStateMachineService);
         context.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        context.setMeteringTranslationService(meteringTranslationService);
         context.setClock(clock);
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
     }
 
     private void setupTranslations() {
-        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+        when(this.meteringTranslationService.getDisplayName(any(DefaultState.class)))
                 .thenAnswer(invocationOnMock -> {
                     DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
                     return state.getDefaultFormat();

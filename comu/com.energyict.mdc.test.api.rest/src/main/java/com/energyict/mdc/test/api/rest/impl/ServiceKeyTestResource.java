@@ -6,12 +6,9 @@ package com.energyict.mdc.test.api.rest.impl;
 
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;

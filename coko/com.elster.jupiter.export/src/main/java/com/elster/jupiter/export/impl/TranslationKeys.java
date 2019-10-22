@@ -14,10 +14,10 @@ public enum TranslationKeys implements TranslationKey {
     STANDARD_DATA_SELECTOR_FACTORY(StandardDataSelectorFactory.class.getName(), DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR),
     SUBSCRIBER_NAME(Installer.SUBSCRIBER_NAME, DataExportServiceImpl.SUBSCRIBER_DISPLAY_NAME),
 
-    NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED("dataexport.dataSourcesSuccessfullyExported", "{0} data source(s) successfully exported"),
+    NUMBER_OF_DATASOURCES_SELECTED("dataexport.dataSourcesSelected", "{0} data source(s) selected"),
     NUMBER_OF_DATASOURCES_SKIPPED("dataexport.dataSourcesSkipped", "{0} data source(s) skipped"),
-    NUMBER_OF_DEVICES_WITH_EVENTS_SUCCESSFULLY_EXPORTED("dataexport.devicesWithEventsSuccessfullyExported", "{0} device(s) with events successfully exported"),
-    NUMBER_OF_EVENTS_EXPORTED("dataexport.eventsSuccessfullyExported", "{0} event(s) successfully exported")
+    NUMBER_OF_DEVICES_WITH_EVENTS_SELECTED("dataexport.devicesWithEventsSelected", "{0} device(s) with events selected"),
+    NUMBER_OF_EVENTS_SELECTED("dataexport.eventsSelected", "{0} event(s) selected")
    ;
 
     private String key;

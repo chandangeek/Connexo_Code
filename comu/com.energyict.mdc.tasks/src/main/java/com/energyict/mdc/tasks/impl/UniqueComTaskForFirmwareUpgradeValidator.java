@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
@@ -33,7 +34,7 @@ public class UniqueComTaskForFirmwareUpgradeValidator implements ConstraintValid
         if (areThereMultipleComTasksWithFirmware(comTask)) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.
-                    buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}").
+                    buildConstraintViolationWithTemplate("{" + TaskServiceKeys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}").
                     addPropertyNode("name").
                     addConstraintViolation();
             return false;

@@ -45,62 +45,77 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
     },
 
     initComponent: function () {
-        var me = this,
-            combo;
+        var me = this;
+
         me.initConfig(me.config);
         me.store = Ext.data.StoreManager.lookup(me.getStore());
         me.store = me.prepareLoading(me.store);
-        me.store.load({
-            callback: function (record, operation, success) {
-                me.removeAll();
-                if (success && me.store.count() > 0) {
-                    combo = Ext.create('Ext.form.ComboBox', {
-                        queryMode: 'local',
-                        name: me.config.name,
-                        store: me.store,
-                        allowBlank: me.config.allowBlank,
-                        width: me.config.width - me.getLabelWidth(),
-                        displayField: me.config.displayField,
-                        valueField: me.config.valueField,
-                        emptyText: me.config.emptyText,
-                        required: me.config.required,
-                        forceSelection: me.config.forceSelection,
-                        editable: me.config.editable,
-                        msgTarget: me.config.msgTarget,
-                        listeners: me.config.listeners
-                    });
-                    Ext.Array.each(me.myEvents, function(event) {
-                        combo.on(event.event, event.func, event.scope);
-                    });
-                    me.add(combo);
-                } else {
-                    me.add({
-                        xtype: 'displayfield',
-                        itemId: 'noObjectsFoundField',
-                        fieldLabel: '',
-                        value: me.getNoObjectsText(),
-                        fieldStyle: {
-                            color: '#EB5642',
-                            'margin-top': '6px'
-                        },
-                        validate: function () {
-                            return me.config.allowBlank;
-                        },
-                        style: {
-                            'margin-top': '0px !important'
-                        }
-                    });
-                    //me.style = {
-                    //    margin: '0 0 100px 0'
-                    //};
-                }
 
-            }
-        });
+        if(me.store.isStore && me.store.count()>0){
+            var task = new Ext.util.DelayedTask(function(){
+                me.storeLoaded(true);
+            });
+            task.delay(100);
+        }
+        else {
+
+            me.store.load({
+                callback: function (record, operation, success) {
+                    me.storeLoaded(success);
+                }
+            });
+        }
 
         me.callParent(arguments)
     },
 
+    storeLoaded: function (success) {
+        var me = this,
+            combo;
+        me.removeAll();
+        if (success && me.store.count() > 0) {
+            combo = Ext.create('Ext.form.ComboBox', {
+                queryMode: 'local',
+                name: me.config.name,
+                store: me.store,
+                allowBlank: me.config.allowBlank,
+                width: me.config.width - me.getLabelWidth(),
+                displayField: me.config.displayField,
+                valueField: me.config.valueField,
+                emptyText: me.config.emptyText,
+                required: me.config.required,
+                forceSelection: me.config.forceSelection,
+                editable: me.config.editable,
+                msgTarget: me.config.msgTarget,
+                listeners: me.config.listeners
+            });
+            Ext.Array.each(me.myEvents, function(event) {
+                combo.on(event.event, event.func, event.scope);
+            });
+            me.add(combo);
+        } else {
+            me.add({
+                xtype: 'displayfield',
+                itemId: 'noObjectsFoundField',
+                fieldLabel: '',
+                value: me.getNoObjectsText(),
+                fieldStyle: {
+                    color: '#EB5642',
+                    'margin-top': '6px'
+                },
+                validate: function () {
+                    return me.config.allowBlank;
+                },
+                style: {
+                    'margin-top': '0px !important'
+                }
+            });
+            //me.style = {
+            //    margin: '0 0 100px 0'
+            //};
+        }
+
+    },
 
     onComboEvent: function(event, func, scope) {
         var me = this;

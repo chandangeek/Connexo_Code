@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -30,6 +31,7 @@ import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -45,8 +47,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
     public static final ObisCode ACTIVITY_CALENDAR_NAME = ObisCode.fromString("0.0.13.0.0.2");
-    public static final ObisCode CORE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode MODULE_FIRMWARE = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode CORE_FIRMWARE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_METER_CORE;
+    public static final ObisCode MODULE_FIRMWARE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_COMMS_MODULE;
     public static final ObisCode CORE_FIRMWARE_SIGNATURE = ObisCode.fromString("1.0.0.2.8.255");
     public static final ObisCode MODULE_FIRMWARE_SIGNATURE = ObisCode.fromString("1.1.0.2.8.255");
     public static final ObisCode DISCONNECT_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
@@ -56,6 +58,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode ISKRA_MBUS_ENCRYPTION_STATUS = ObisCode.fromString("0.0.97.98.1.255");
     public static final ObisCode GSM_SIGNAL_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
     public static final ObisCode MbusClientObisCode = ObisCode.fromString("0.x.24.1.0.255");
+
+    public static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
+    public static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
+    public static final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
+
     // Mbus Registers
     public static final ObisCode MbusEncryptionStatus = ObisCode.fromString("0.x.24.50.0.255");
     public static final ObisCode MbusDisconnectMode = ObisCode.fromString("0.x.24.4.128.255");
@@ -110,27 +117,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             RegisterValue rv = null;
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
-                    ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterUnitAttribute()));
-                    if (su.getUnitCode() != 0) {
-                        Date eventTime = null;   //Optional capture time attribute
-                        DLMSAttribute registerCaptureTime = this.composedRegisterMap.get(register).getRegisterCaptureTime();
-                        if (registerCaptureTime != null) {
-                            AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
-                            eventTime = attribute.getOctetString().getDateTime(protocol.getDlmsSession().getTimeZone()).getValue().getTime();
-                        }
-                        ComposedRegister composedRegister = this.composedRegisterMap.get(register);
-                        DLMSAttribute attr = composedRegister.getRegisterValueAttribute();
-                        AbstractDataType abstractDataType = registerComposedCosemObject.getAttribute(attr);
-                        if (abstractDataType.isOctetString()){
-                            String text = abstractDataType.getOctetString().stringValue();
-                            rv = new RegisterValue(register, null, eventTime, null, null, new Date(), 0, text );
-                        } else {
-                            rv = getRegisterValueForComposedRegister(register, eventTime, abstractDataType, su.getEisUnit() );
-
-                        }
-                    } else {
-                        this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
-                    }
+                    rv = readComposedRegister(registerComposedCosemObject, register);
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
                 }
@@ -158,45 +145,82 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return collectedRegisters;
     }
 
-    /** Handle any special composed register
+
+    /**
+     * Will try to read-out the scaler & unit from a register.
      *
-     * @param register - composed register to be handled
-     * @return - true = was able to handle it
-     *          - false = was not able to handle it;
+     * Will check if the received unit has a valid DLMS code > 0. Default will be "undefined" = 255.
      */
-    protected RegisterValue handleComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
-        ScalerUnit su = readUnit(registerComposedCosemObject, register);
-        if (su.getUnitCode() != 0) {
-            Date eventTime = null;   //Optional capture time attribute
-            DLMSAttribute registerCaptureTime = this.composedRegisterMap.get(register).getRegisterCaptureTime();
-            if (registerCaptureTime != null) {
-                eventTime = readEventTime(registerComposedCosemObject, registerCaptureTime);
-            }
-            return new RegisterValue(register,
-                    new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                            su.getEisUnit()), eventTime);
-        } else {
-            this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit "+su.toString()+". (it's handled as a composed register).");
-            return new RegisterValue(register,
-                    new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
-                            null), null);
-        }
-
-    }
-
-    protected Date readEventTime(ComposedCosemObject registerComposedCosemObject, DLMSAttribute registerCaptureTime) throws IOException {
-        AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
-        return attribute.getOctetString().getDateTime(protocol.getDlmsSession().getTimeZone()).getValue().getTime();
-    }
-
-    protected ScalerUnit readUnit(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
-        DLMSAttribute unitAttribute = this.composedRegisterMap.get(register).getRegisterUnitAttribute();
+    private Unit readComposedRegisterUnit(ComposedCosemObject registerComposedCosemObject, ComposedRegister composedRegister, OfflineRegister register) throws IOException {
+        DLMSAttribute unitAttribute = composedRegister.getRegisterUnitAttribute();
         if (unitAttribute!=null) {
-            return new ScalerUnit(registerComposedCosemObject.getAttribute(unitAttribute));
-        } else {
-            protocol.getLogger().finest(" - register "+register.getObisCode()+" does now have an unit code specified in the protocol implementation, set to default");
-            return new ScalerUnit(0, Unit.get(0) );
+            AbstractDataType unitAttributeValue = registerComposedCosemObject.getAttribute(unitAttribute);
+            if (unitAttributeValue.isStructure()) {
+                ScalerUnit su = new ScalerUnit(unitAttributeValue.getStructure());
+                if (su.getUnitCode()!=0) {
+                    return su.getEisUnit();
+                } else {
+                    this.protocol.journal(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a valid Unit (it is zero)");
+                }
+            } else {
+                this.protocol.journal(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a valid Unit, is not a Structure: "+unitAttributeValue.toString());
+            }
         }
+
+        return Unit.getUndefined();
+    }
+
+    /**
+     * Will try to read-out the event time from a composed register.
+     *
+     * The read-out value needs to be a proper OctetString, else everything will be default to null (current time)
+     */
+    private Date readComposedRegisterEventTime(ComposedCosemObject registerComposedCosemObject, ComposedRegister composedRegister, OfflineRegister register) throws IOException {
+
+        DLMSAttribute registerCaptureTime = composedRegister.getRegisterCaptureTime();
+        if (registerCaptureTime != null) {
+            TimeZone protocolTimeZone = protocol.getDlmsSession().getTimeZone();
+            AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
+            if (attribute!=null){
+                if (attribute.isOctetString()){
+                    DateTime dateTime = attribute.getOctetString().getDateTime(protocolTimeZone);
+                    return dateTime.getValue().getTime();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Will read a "composed" register, which holds more information than a simple value.
+     * This is valid for Extended Register or Demand Registers, etc.
+     * The register value will have:
+     *      - a value
+     *      - an unit (optional)
+     *      - an time-stamp (optional)
+     *
+     * @param registerComposedCosemObject
+     * @param register
+     * @return
+     * @throws IOException
+     */
+    protected RegisterValue readComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
+        ComposedRegister composedRegister = this.composedRegisterMap.get(register);
+
+        Unit eisUnit = readComposedRegisterUnit(registerComposedCosemObject, composedRegister,  register);
+
+        Date eventTime = readComposedRegisterEventTime(registerComposedCosemObject, composedRegister, register);
+
+        DLMSAttribute attributeValue = composedRegister.getRegisterValueAttribute();
+        AbstractDataType abstractDataType = registerComposedCosemObject.getAttribute(attributeValue);
+
+        if (abstractDataType.isOctetString()){
+            String text = abstractDataType.getOctetString().stringValue();
+            return new RegisterValue (register, null, eventTime, null, null, new Date(), 0, text );
+        }
+
+        return getRegisterValueForComposedRegister(register, eventTime, abstractDataType, eisUnit);
     }
 
     /**
@@ -207,10 +231,26 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      *
      */
     protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        Unit actualUnit;
+        actualUnit = unit;
+        if (isElectricityMilliWatts(offlineRegister.getObisCode())){
+            actualUnit = Unit.get(unit.getDlmsCode(), -3);
+        }
         return  new RegisterValue(offlineRegister,
-                new Quantity(attributeValue.toBigDecimal(), unit),
+                new Quantity(attributeValue.toBigDecimal(), actualUnit),
                 captureTime // eventTime
         );
+    }
+
+    /**
+     * Some meter have custom obis-codes mapped to mW instead of kW
+     * @param obisCode
+     * @return
+     */
+    static public boolean isElectricityMilliWatts(ObisCode obisCode){
+        return ((   obisCode.getA() == 1 )
+                && (obisCode.getB() == 128)
+                && (obisCode.getD() == 8 ));
     }
 
     /**
@@ -229,7 +269,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             if (protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                protocol.getLogger().severe("Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                protocol.journal(Level.SEVERE,"Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;
@@ -334,7 +374,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else {
-                            protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
+                            protocol.journal(Level.WARNING, "Register with ObisCode " + rObisCode + " is not supported by the protocol and will not be ignor.");
                         }
                     }
                 }

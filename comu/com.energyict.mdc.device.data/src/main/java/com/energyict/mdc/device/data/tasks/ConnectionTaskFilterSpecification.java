@@ -7,11 +7,14 @@ package com.energyict.mdc.device.data.tasks;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -20,7 +23,7 @@ import java.util.Set;
 
 /**
  * Models the filtering that can be applied by client code to count
- * or find {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
+ * or find {@link ConnectionTask}s
  * by a number of criteria that can be mixed.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -84,7 +87,7 @@ public class ConnectionTaskFilterSpecification {
     public boolean useLastComSession = false;
 
     /**
-     * The {@link EndDeviceGroup}s that contain the {@link com.energyict.mdc.device.data.Device}s
+     * The {@link EndDeviceGroup}s that contain the {@link Device}s
      * to which the matching {@link ConnectionTask}s should be linked
      * or an empty set if the filter should not take this into account.
      */

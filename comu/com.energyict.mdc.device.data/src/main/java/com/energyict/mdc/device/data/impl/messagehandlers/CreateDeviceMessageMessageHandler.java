@@ -9,17 +9,17 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.DeviceMessageQueueMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -52,7 +52,8 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                     if (queueMessage.properties.containsKey(propertySpec.getName())) {
                         Object value = queueMessage.properties.get(propertySpec.getName());
                         try {
-                            deviceMessageBuilder.addProperty(propertySpec.getName(), value);
+                            Object marshalPropertyValue = propertySpec.getValueFactory().fromStringValue(String.valueOf(value));
+                            deviceMessageBuilder.addProperty(propertySpec.getName(), marshalPropertyValue);
                             LOGGER.info(String.format("Set property '%s' on device command '%s' to value '%s'", propertySpec.getName(), queueMessage.deviceMessageId, value));
                         } catch (Exception e) {
                             LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s", propertySpec.getName(), queueMessage.deviceMessageId, value, e.getMessage()));

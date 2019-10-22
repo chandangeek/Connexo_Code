@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import java.util.List;
@@ -62,7 +63,7 @@ public class MeterConfigParser {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    public MeterInfo asMeterInfo(Meter meter) throws FaultMessage {
+    public MeterInfo asMeterInfo(Meter meter) {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
@@ -70,14 +71,13 @@ public class MeterConfigParser {
     }
 
     public MeterInfo asMeterInfo(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions,
-            OperationEnum operationEnum) throws FaultMessage {
+                                 OperationEnum operationEnum) throws FaultMessage {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
 
         switch (operationEnum) {
             case CREATE:
                 meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
-                meterInfo.setShipmentDate(extractShipmentDate(meter));
                 meterInfo.setDeviceType(extractDeviceTypeName(meter));
                 meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
                 break;
@@ -97,10 +97,11 @@ public class MeterConfigParser {
                             .get();
                 }
                 break;
-        default:
-            break;
+            default:
+                break;
 
         }
+        meterInfo.setShipmentDate(extractShipmentDate(meter));
         meterInfo.setBatch(extractBatch(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
@@ -109,7 +110,7 @@ public class MeterConfigParser {
         meterInfo.setElectronicAddress(meter.getElectronicAddress());
         meterInfo.setCustomAttributeSets(extractCustomPropertySets(meter));
         meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
-		meterInfo.setSecurityInfo(extractSecurityInfo(meter));
+        meterInfo.setSecurityInfo(extractSecurityInfo(meter));
         return meterInfo;
     }
 
@@ -144,33 +145,33 @@ public class MeterConfigParser {
         return info;
     }
 
-	private SecurityInfo extractSecurityInfo(Meter meter) throws FaultMessage {
-		final SecurityInfo securityInfo = new SecurityInfo();
-		securityInfo.setSecurityKeys(new ArrayList<>());
-		securityInfo.setDeviceStatuses(new ArrayList<>());
-		if (meter.getSecurityKeys() != null) {
-			final SecurityKeys securityKeys = meter.getSecurityKeys();
-			if (securityKeys.getAllowedDeviceStatuses() != null) {
-				securityInfo.setDeviceStatusesElementPresent(true);
-				securityInfo.setDeviceStatuses(securityKeys.getAllowedDeviceStatuses().getAllowedDeviceStatus());
-			} else {
-				securityInfo.setDeviceStatusesElementPresent(false);
-			}
-			List<SecurityKeyInfo> infos = new ArrayList<>();
-			for (SecurityKey key : securityKeys.getSecurityKey()) {
-				SecurityKeyInfo info = new SecurityKeyInfo();
-				info.setSecurityAccessorName(extractSecurityAccessorName(key, meter));
-				info.setSecurityAccessorKey(extractSecurityAccessorKey(key, meter));
-				if (key.getWrapKeyInfo() != null) {
-					info.setPublicKeyLabel(extractPublicKeyLabel(key, meter));
-					info.setSymmetricKey(extractSymmetricKey(key, meter));
-				}
-				infos.add(info);
-			}
-			securityInfo.setSecurityKeys(infos);
-		}
-		return securityInfo;
-	}
+    private SecurityInfo extractSecurityInfo(Meter meter) throws FaultMessage {
+        final SecurityInfo securityInfo = new SecurityInfo();
+        securityInfo.setSecurityKeys(new ArrayList<>());
+        securityInfo.setDeviceStatuses(new ArrayList<>());
+        if (meter.getSecurityKeys() != null) {
+            final SecurityKeys securityKeys = meter.getSecurityKeys();
+            if (securityKeys.getAllowedDeviceStatuses() != null) {
+                securityInfo.setDeviceStatusesElementPresent(true);
+                securityInfo.setDeviceStatuses(securityKeys.getAllowedDeviceStatuses().getAllowedDeviceStatus());
+            } else {
+                securityInfo.setDeviceStatusesElementPresent(false);
+            }
+            List<SecurityKeyInfo> infos = new ArrayList<>();
+            for (SecurityKey key : securityKeys.getSecurityKey()) {
+                SecurityKeyInfo info = new SecurityKeyInfo();
+                info.setSecurityAccessorName(extractSecurityAccessorName(key, meter));
+                info.setSecurityAccessorKey(extractSecurityAccessorKey(key, meter));
+                if (key.getWrapKeyInfo() != null) {
+                    info.setPublicKeyLabel(extractPublicKeyLabel(key, meter));
+                    info.setSymmetricKey(extractSymmetricKey(key, meter));
+                }
+                infos.add(info);
+            }
+            securityInfo.setSecurityKeys(infos);
+        }
+        return securityInfo;
+    }
 
     private String extractSecurityAccessorName(SecurityKey key, Meter meter) throws FaultMessage {
         return Optional.ofNullable(key.getSecurityAccessorName())
@@ -273,7 +274,7 @@ public class MeterConfigParser {
     public String extractDeviceNameForCreate(Meter meter) throws FaultMessage {
         return Stream.of(extractName(meter.getNames()), extractSerialNumber(meter), extractMrid(meter))
                 .flatMap(Functions.asStream())
-				.findFirst()
+                .findFirst()
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter),
                         MessageSeeds.DEVICE_IDENTIFIER_MISSING));
     }
@@ -301,7 +302,7 @@ public class MeterConfigParser {
 
     public Instant extractShipmentDate(Meter meter) throws FaultMessage {
         return Optional.ofNullable(meter.getLifecycle())
-		.map(LifecycleDate::getReceivedDate)
+                .map(LifecycleDate::getReceivedDate)
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter),
                         MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.lifecycle.receivedDate"));
     }
@@ -313,7 +314,7 @@ public class MeterConfigParser {
 
     public Optional<String> extractConfigurationReason(Meter meter) throws FaultMessage {
         return extractConfigurationEvent(meter)
-		.map(ConfigurationEvent::getReason)
+                .map(ConfigurationEvent::getReason)
                 .filter(value -> !Checks.is(value).emptyOrOnlyWhiteSpace());
     }
 
@@ -323,38 +324,39 @@ public class MeterConfigParser {
 
     public List<Zone> extractDeviceZones(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions) throws FaultMessage {
         Optional<String> comFuncReference = extractEndDeviceFunctionRef(meter);
-        if(!comFuncReference.isPresent()){
-            return new ArrayList<>();
-        }
-        SimpleEndDeviceFunction endDeviceFunction = endDeviceFunctions
-                .stream()
-                .filter(endDeviceFunc -> comFuncReference.isPresent() && comFuncReference.get().equals(endDeviceFunc.getMRID()))
-                .findAny()
-                .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
-                        "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
-
-        if(endDeviceFunction.getZones() !=  null) {
-            endDeviceFunction.getZones().getZone()
+        if (comFuncReference.isPresent()) {
+            SimpleEndDeviceFunction endDeviceFunction = endDeviceFunctions
                     .stream()
+                    .filter(endDeviceFunc -> comFuncReference.get().equals(endDeviceFunc.getMRID()))
                     .findAny()
-                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.EMPTY_LIST,
-                            "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].Zones"));
+                    .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND,
+                            "MeterConfig.Meter.SimpleEndDeviceFunction", "MeterConfig.SimpleEndDeviceFunction"));
 
-            if(endDeviceFunction.getZones().getZone().size() != endDeviceFunction.getZones().getZone().stream().map(Zone::getZoneType).distinct().count())
-               throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES).get();
+            if (endDeviceFunction.getZones() != null) {
+                endDeviceFunction.getZones().getZone()
+                        .stream()
+                        .findAny()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.EMPTY_LIST,
+                                "MeterConfig.SimpleEndDeviceFunction[" + endDeviceFunctions.indexOf(endDeviceFunction) + "].Zones"));
 
-            if(endDeviceFunction.getZones().getZone().stream().filter(zone->zone.getZoneName() == null || zone.getZoneName().isEmpty()).findAny().isPresent())
-                throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
-                        "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneName").get();
+                if (endDeviceFunction.getZones().getZone().size() != endDeviceFunction.getZones().getZone().stream().map(Zone::getZoneType).distinct().count()) {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES).get();
+                }
 
-            if(endDeviceFunction.getZones().getZone().stream().filter(zone->zone.getZoneType() == null || zone.getZoneType().isEmpty()).findAny().isPresent())
-                throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
-                        "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneType").get();
+                if (endDeviceFunction.getZones().getZone().stream().anyMatch(zone -> zone.getZoneName() == null || zone.getZoneName().isEmpty())) {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
+                            "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneName").get();
+                }
 
-            return endDeviceFunction.getZones().getZone();
+                if (endDeviceFunction.getZones().getZone().stream().anyMatch(zone -> zone.getZoneType() == null || zone.getZoneType().isEmpty())) {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter), MessageSeeds.ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY,
+                            "MeterConfig.Meter.SimpleEndDeviceFunction.Zones.Zone.zoneType").get();
+                }
+
+                return endDeviceFunction.getZones().getZone();
+            }
         }
-
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     private Optional<EndDeviceInfo> extractEndDeviceInfo(Meter meter) {
@@ -373,7 +375,7 @@ public class MeterConfigParser {
     }
 
     private String extractCpsAttributeName(String meterName, int customPropertySetIndex, Attribute attribute,
-            int attributeIndex) throws FaultMessage {
+                                           int attributeIndex) throws FaultMessage {
         return Optional.ofNullable(attribute.getName()).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace())
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meterName,
                         MessageSeeds.MISSING_ELEMENT, METER_CONFIG_CUSTOM_ATTRIBUTE_SET_PREFIX + customPropertySetIndex
@@ -381,7 +383,7 @@ public class MeterConfigParser {
     }
 
     private String extractCpsAttributeValue(String meterName, int customPropertySetIndex, Attribute attribute,
-            int attributeIndex) throws FaultMessage {
+                                            int attributeIndex) throws FaultMessage {
         return Optional.ofNullable(attribute.getValue()).filter(value -> !Checks.is(value).emptyOrOnlyWhiteSpace())
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meterName,
                         MessageSeeds.MISSING_ELEMENT, METER_CONFIG_CUSTOM_ATTRIBUTE_SET_PREFIX + customPropertySetIndex

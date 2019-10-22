@@ -17,18 +17,20 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.devicelifecycle.FailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
@@ -66,9 +68,13 @@ public abstract class DeviceLifecycleIssueApplicationTest extends FelixRestAppli
     @Mock
     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
+    MeteringTranslationService meteringTranslationService;
+    @Mock
     JsonService jsonService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    LocationService locationService;
 
 
     @Override
@@ -84,6 +90,8 @@ public abstract class DeviceLifecycleIssueApplicationTest extends FelixRestAppli
         when(nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setMeteringTranslationService(meteringTranslationService);
+        application.setLocationService(locationService);
         return application;
     }
 

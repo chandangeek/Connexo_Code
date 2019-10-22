@@ -12,7 +12,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
-        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
+        'Fwc.firmwarecampaigns.view.FirmvareVersionsOptions',
+        'Fwc.firmwarecampaigns.store.ComTasksForValidate',
+        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -22,7 +25,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     defaults: {
         labelWidth: 260,
-        width: 600,
+        width: 800,
         msgTarget: 'under'
     },
     initComponent: function () {
@@ -42,25 +45,46 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.name', 'FWC', 'Name'),
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+                width: 600
             },
             {
-                xtype: 'combobox',
-                itemId: 'firmware-campaign-device-type',
-                name: 'deviceType',
+                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.deviceType', 'FWC', 'Device type'),
+                itemId: 'firmware-campaign-device-type-field-container',
                 required: true,
                 allowBlank: false,
-                store: 'Fwc.store.DeviceTypes',
-                forceSelection: true,
-                queryMode: 'local',
-                displayField: 'localizedValue',
-                valueField: 'id',
-                listeners: {
-                    change: {
-                        fn: Ext.bind(me.onDeviceTypeChange, me)
+                layout: 'hbox',
+                width: 650,
+                items:
+                [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'firmware-campaign-device-type',
+                        name: 'deviceType',
+                        required: true,
+                        allowBlank: false,
+                        store: 'Fwc.store.DeviceTypes',
+                        forceSelection: true,
+                        queryMode: 'local',
+                        displayField: 'localizedValue',
+                        valueField: 'id',
+                        width: 325,
+                        listeners: {
+                            change: {
+                                fn: Ext.bind(me.onDeviceTypeChange, me)
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'no-device-type',
+                        hidden: true,
+                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceType', 'FWC', 'No device type defined yet.') + '</div>',
+                        htmlEncode: false,
+                        width: 235
                     }
-                }
+                ]
             },
             {
                 xtype: 'fieldcontainer',
@@ -80,11 +104,20 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         allowBlank: false,
                         queryMode: 'local',
                         displayField: 'name',
-                        valueField: 'id',
+                        valueField: 'name',
                         width: 325
                     },
                     {
                         xtype: 'displayfield',
+                        itemId: 'no-device-group',
+                        hidden: true,
+                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'EST', 'No device group defined yet.') + '</div>',
+                        htmlEncode: false,
+                        width: 235
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'device-group-info',
                         margin: '0 0 0 10',
                         htmlEncode: false,
                         value: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qwidth="400" data-qtitle="' +
@@ -101,7 +134,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'timeInHoursAndMinutes',
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'FWC', 'Time boundary start'),
-                name: 'timeBoundaryStart',
+                name: 'timeBoundaryStartTimeInSec',
                 itemId: 'timeBoundaryStart',
                 required: true,
                 allowBlank: false
@@ -109,10 +142,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'timeInHoursAndMinutes',
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'FWC', 'Time boundary end'),
-                name: 'timeBoundaryEnd',
+                name: 'timeBoundaryEndTimeInSec',
                 itemId: 'timeBoundaryEnd',
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -127,7 +161,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         fn: Ext.bind(me.onManagementOptionChange, me)
                     }
                 },
-                width: 1000
+                width: 800
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -185,6 +219,145 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 width: 1000
             },
             {
+                xtype: 'combobox',
+                itemId: 'fwc-campaign-allowed-comtask',
+                name: 'calendarUploadComTask',
+                store: 'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
+                fieldLabel: Uni.I18n.translate(
+                    'general.calendarUploadComTask',
+                    'FWC',
+                    'Firmware upload communication task'
+                ),
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.calendarUploadComTask.empty',
+                    'FWC',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                margin: '30 0 10 0',
+                hidden: true,
+                width: 650,
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                itemId: 'fwc-campaign-send-connection-strategy-container',
+                hidden: true,
+                fieldLabel: Uni.I18n.translate(
+                    'general.connectionMethodStrategy',
+                    'FWC',
+                    'Connection method strategy'
+                ),
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'fwc-campaign-send-connection-strategy',
+                        name: 'calendarUploadConnectionStrategy',
+                        store: 'Fwc.firmwarecampaigns.store.ConnectionStrategy',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        margin: '0 10 0 0',
+                        valueField: 'id',
+                        listeners: {
+                            change: function (checkBox, value) {
+                                if (this.originalValue !== value) {
+                                    me.down('#fwc-campaign-send-connection-strategy-reset').enable();
+                                } else {
+                                    me.down('#fwc-campaign-send-connection-strategy-reset').disable();
+
+                                }
+                            }
+                        }
+                    },
+                    {
+                        xtype: 'uni-default-button',
+                        itemId: 'fwc-campaign-send-connection-strategy-reset',
+                        handler: function() {
+                            this.down('[name=calendarUploadConnectionStrategy]').reset();
+                            me.down('#fwc-campaign-send-connection-strategy-reset').disable();
+                        },
+                        scope: me,
+                        margin: '0 0 0 10',
+                        hidden: false,
+                        disabled: true
+                    }
+                ]
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'fwc-campaign-validation-comtask',
+                name: 'validationComTask',
+                store: 'Fwc.firmwarecampaigns.store.ComTasksForValidate',
+                fieldLabel: Uni.I18n.translate(
+                    'general.validationComTask',
+                    'FWC',
+                    'Validation communication task'
+                ),
+                hidden: true,
+                disabled: true,
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.comTask.empty',
+                    'FWC',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                width: 650,
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                itemId: 'fwc-campaign-validation-strategy-container',
+                hidden: true,
+                disabled: true,
+                fieldLabel: Uni.I18n.translate(
+                    'general.connectionMethodStrategy',
+                    'FWC',
+                    'Connection method strategy'
+                ),
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'fwc-campaign-validation-connection-strategy',
+                        name: 'validationConnectionStrategy',
+                        store: 'Fwc.firmwarecampaigns.store.ConnectionStrategy',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        margin: '0 10 0 0',
+                        valueField: 'id'
+                    },
+                    {
+                        xtype: 'uni-default-button',
+                        itemId: 'fwc-campaign-validation-connection-strategy-reset',
+                        handler: function() {
+                            this.down('[name=validationConnectionStrategy]').reset();
+                        },
+                        scope: me,
+                        margin: '0 0 0 10',
+                        hidden: false
+                    }
+                ]
+            },
+            {
+                xtype: 'firmware-version-options',
+                itemId: 'firmware-version-options',
+                hidden: true,
+                isDisabled: me.campaignRecordBeingEdited,
+                defaults: {
+                    width: 1000,
+                    labelWidth: 260
+                },
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -211,6 +384,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         ];
 
         me.callParent(arguments);
+
+        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
+           item.setTooltip('Restore to default empty value');
+        })
     },
 
     onDeviceTypeChange: function (combo, newValue) {
@@ -233,9 +410,29 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.setLoading();
             }
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
+            var firmvareVersionsView = me.down('#firmware-version-options');
+            var firmvareVersionsStore = firmvareVersionsView.store;
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
+            me.updateComTasksComponents(newValue);
         }
+    },
+
+    updateComTasksComponents: function(deviceTypeId){
+        var me = this;
+        var record = me.getRecord();
+        var sendComtaskField = me.down("[name=calendarUploadComTask]");
+        me.down('#fwc-campaign-send-connection-strategy-container').show();
+        sendComtaskField.show();
+        sendComtaskField.getStore().getProxy().setUrl(deviceTypeId);
+        sendComtaskField.getStore().load(function(){
+            sendComtaskField.setValue(record.get('calendarUploadComTask') && record.get('calendarUploadComTask').id);
+        });
+        var validationComTask = me.down("[name=validationComTask]");
+        validationComTask.getStore().getProxy().setUrl(deviceTypeId);
+        validationComTask.getStore().load(function(){
+             validationComTask.setValue(record.get('validationComTask') && record.get('validationComTask').id);
+        });
     },
 
     updateFirmwareType: function (deviceTypeId, callback) {
@@ -264,6 +461,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         firmwareManagementOptions.getProxy().extraParams = {};
         firmwareManagementOptions.load(1, {
             success: function (record) {
+                var firmvareVersionsView = me.down('#firmware-version-options');
+                var firmvareVersionsStore = firmvareVersionsView.store;
+                firmvareVersionsStore.loadRawData([record.data.checkOptions]);
+                firmvareVersionsView.fillChecksAccordingStore();
+                firmvareVersionsView.show();
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
                     showDescription: true,
                     showOnlyLabelForSingleItem: true,
@@ -284,6 +486,21 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             if (!me.skipLoadingIndication) {
                 me.setLoading();
             }
+            if (newValue.managementOption === "activate" || newValue.managementOption === "activateOnDate"){
+                me.down('[name=validationComTask]').show();
+
+                me.down('#fwc-campaign-validation-strategy-container').show();
+                if (!me.campaignRecordBeingEdited) {
+                    me.down('[name=validationComTask]').setDisabled(false);
+                    me.down('#fwc-campaign-validation-strategy-container').setDisabled(false);
+                }
+            }else{
+                me.down('[name=validationComTask]').hide();
+                me.down('[name=validationComTask]').setDisabled(true);
+                me.down('#fwc-campaign-validation-strategy-container').hide();
+                me.down('#fwc-campaign-validation-strategy-container').setDisabled(true);
+            }
+
             firmwareManagementOption.load(newValue.managementOption, {
                 success: function (record) {
                     me.down('#property-form').loadRecord(record);
@@ -314,20 +531,38 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     loadRecord: function (record) {
         var me = this;
+        var calendarUploadComTask = record.get('calendarUploadComTask');
+        var validationComTask = record.get('validationComTask');
+        var calendarUploadConnectionStrategy = record.get('calendarUploadConnectionStrategy');
+        var validationConnectionStrategy = record.get('validationConnectionStrategy');
+
 
         me.callParent(arguments);
         me.down('property-form').loadRecord(record);
+
+        me.getForm().setValues({
+            calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
+            validationComTask: validationComTask && validationComTask.id,
+            calendarUploadConnectionStrategy: calendarUploadConnectionStrategy
+                ? calendarUploadConnectionStrategy.id
+                : me.defaultConnectionStrategy,
+            validationConnectionStrategy: validationConnectionStrategy
+                ? validationConnectionStrategy.id
+                : me.defaultConnectionStrategy
+        })
     },
 
     updateRecord: function () {
         var me = this,
-            propertyForm = me.down('property-form');
+            propertyForm = me.down('property-form'),
+            firmwareVersionsOptions = me.down('#firmware-version-options');
 
         me.callParent(arguments);
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
-            me.getRecord().propertiesStore = propertyForm.getRecord().properties();
+            var properties = propertyForm.getRecord().properties();
+            me.getRecord().propertiesStore = properties;
         }
     },
 
@@ -367,6 +602,15 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     periodNumber.setValue(validationTimeout.count);
                 }
 
+                me.down('#fwc-campaign-allowed-comtask').setDisabled(true);
+                me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
+
+                var firmvareVersionsView = me.down('#firmware-version-options');
+                var firmvareVersionsStore = firmvareVersionsView.store;
+                firmvareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
+                firmvareVersionsView.fillChecksAccordingStore();
+                firmvareVersionsView.show();
+                firmvareVersionsView.disable();
             },
             setProperties = function() {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());

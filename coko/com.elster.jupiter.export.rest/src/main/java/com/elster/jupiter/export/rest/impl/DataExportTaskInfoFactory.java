@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -95,8 +96,7 @@ public class DataExportTaskInfoFactory {
                         propertyValueInfoService.getPropertyInfos(
                                 dataExportTask.getDataFormatterPropertySpecs(),
                                 dataExportTask.getProperties()));
-        String selector = dataExportTask.getDataSelectorFactory().getName();
-        SelectorType selectorType = SelectorType.forSelector(selector);
+        SelectorType selectorType = dataExportTask.getDataSelectorFactory().getSelectorType();
         info.dataSelector =
                 new SelectorInfo(
                         dataExportTask.getDataSelectorFactory().getName(),
@@ -146,8 +146,7 @@ public class DataExportTaskInfoFactory {
                         propertyValueInfoService.getPropertyInfos(
                                 dataExportTask.getDataFormatterPropertySpecs(),
                                 dataExportTask.getProperties()));
-        String selector = dataExportTask.getDataSelectorFactory().getName();
-        SelectorType selectorType = SelectorType.forSelector(selector);
+        SelectorType selectorType = dataExportTask.getDataSelectorFactory().getSelectorType();
         info.dataSelector =
                 new SelectorInfo(
                         dataExportTask.getDataSelectorFactory().getName(),
@@ -179,6 +178,9 @@ public class DataExportTaskInfoFactory {
         if (nextExecution != null) {
             info.nextRun = nextExecution;
         }
+
+        info.suspendUntilExport = dataExportTask.getSuspendUntil();
+
         dataExportTask.getLastRun().ifPresent(lastRun -> info.lastRun = lastRun);
         info.version = dataExportTask.getVersion();
         return info;

@@ -14,8 +14,9 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 
@@ -29,7 +30,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
         DEVICE("device", "device"),
         DEVICE_MESSAGE("deviceMessage", "device_message_id"),
-        ;
+        STEP_OF_UPDATE("stepOfUpdate", "step_of_update");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -57,6 +58,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     private Reference<Device> device = Reference.empty();
     private long parentServiceCallId;
     private Reference<DeviceMessage> deviceMessage = Reference.empty();
+    private long stepOfUpdate;
 
 
     @Inject
@@ -83,8 +85,13 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public ServiceCall cancel() {
+    public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
+            if (!initFromCampaign) {
+                throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
+            }
+        }
         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }
@@ -94,6 +101,9 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public ServiceCall retry() {
         ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get().isManuallyCancelled()) {
+            throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.CAMPAIGN_WITH_DEVICE_CANCELLED);
+        }
         if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
             serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
             serviceCall.requestTransition(DefaultState.PENDING);
@@ -104,6 +114,11 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public long getParentServiceCallId() {
         return parentServiceCallId;
+    }
+
+    @Override
+    public long getStepOfUpdate() {
+        return stepOfUpdate;
     }
 
     public void setParentServiceCallId(long parentServiceCallId) {
@@ -118,6 +133,9 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         this.deviceMessage.set(deviceMessage);
     }
 
+    public void setStepOfUpdate(long stepOfUpdate) {
+        this.stepOfUpdate = stepOfUpdate;
+    }
 
     @Override
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
@@ -125,6 +143,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         this.setDevice((Device) propertyValues.getProperty(FieldNames.DEVICE.javaName()));
         this.setParentServiceCallId((long) propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()));
         this.setDeviceMessage((DeviceMessage) propertyValues.getProperty(FieldNames.DEVICE_MESSAGE.javaName()));
+        this.setStepOfUpdate((long) propertyValues.getProperty(FieldNames.STEP_OF_UPDATE.javaName()));
     }
 
     @Override
@@ -132,6 +151,11 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         propertySetValues.setProperty(FieldNames.DEVICE.javaName(), this.getDevice());
         propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
         propertySetValues.setProperty(FieldNames.DEVICE_MESSAGE.javaName(), this.getDeviceMessage().orElse(null));
+        propertySetValues.setProperty(FieldNames.STEP_OF_UPDATE.javaName(), this.getStepOfUpdate());
+    }
+
+    public void update() {
+        getServiceCall().update(this);
     }
 
     @Override

@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.demo.impl.builders.configuration;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import java.util.TimeZone;
 import java.util.function.Consumer;

@@ -21,6 +21,18 @@ Ext.define('Tou.view.DetailForm', {
     router: null,
     isPreview: false,
     stores: ['Tou.store.DeviceTypes'],
+
+    loadRecord: function(record) {
+        var me = this;
+        var activationOption = record.get('activationOption');
+        var showValidation = activationOption === 'immediately' || activationOption === 'onDate';
+
+        me.callParent(arguments);
+
+        me.down('[name="validationComTask"]').setVisible(showValidation);
+        me.down('[name="validationConnectionStrategy"]').setVisible(showValidation);
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -155,6 +167,13 @@ Ext.define('Tou.view.DetailForm', {
                             return res;
                         }
                     }, {
+                        itemId: 'firmware-service-call-field',
+                        fieldLabel: Uni.I18n.translate('general.firmwareServiceCall', 'FWC', 'Service call'),
+                        name: 'serviceCall',
+                        renderer: function (value) {
+                            return value ?  '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id})+ '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
+                        }
+                    }, {
                         itemId: 'unique-calendar-name-field',
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate(
@@ -168,6 +187,72 @@ Ext.define('Tou.view.DetailForm', {
                                 : Uni.I18n.translate('general.no', 'TOU', 'No');
                         },
                         name: 'withUniqueCalendarName',
+                    }, {
+                        itemId: 'tou-campaign-allowed-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.sendCalendarComTask',
+                            'TOU',
+                            'Calendar upload communication task'
+                        ),
+                        name: 'sendCalendarComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'tou-campaign-send-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.connectionMethodStrategy',
+                            'TOU',
+                            'Connection method strategy'
+                        ),
+                        name: 'sendCalendarConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'tou-campaign-validation-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.validationComTask',
+                            'TOU',
+                            'Validation communication task'
+                        ),
+                        hidden: true,
+                        name: 'validationComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'tou-campaign-validation-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.connectionMethodStrategy',
+                            'TOU',
+                            'Connection method strategy'
+                        ),
+                        hidden: true,
+                        name: 'validationConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
                     }
                 ]
             }, {
@@ -235,6 +320,14 @@ Ext.define('Tou.view.DetailForm', {
                         name: 'finishedOn',
                         renderer: function (value) {
                             return value ? '<span>' + Uni.DateTime.formatDateTimeShort(value) + '</span>' : '-'
+                        }
+                    },
+                    {
+                        itemId: 'manuallyCancelled-field',
+                        fieldLabel: Uni.I18n.translate('general.manuallyCancelled', 'TOU', 'Manually cancelled'),
+                        name: 'manuallyCancelled',
+                        renderer: function (value) {
+                            return value ? 'Yes' : 'No'
                         }
                     }
                 ]

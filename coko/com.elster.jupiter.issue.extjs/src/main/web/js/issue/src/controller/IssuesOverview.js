@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Isu.controller.IssuesOverview', {
@@ -11,11 +11,15 @@ Ext.define('Isu.controller.IssuesOverview', {
 
     models: [
         'Isu.model.IssuesFilter',
+        'Isu.model.IssueUsagePoints',
         'Isu.model.IssueAssignee',
         'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueReason',
         'Isu.model.Device',
-        'Uni.component.sort.model.Sort'
+        'Isu.model.IssueUsagePoints',
+        'Uni.component.sort.model.Sort',
+        'Isu.model.Location',
+        'Isu.model.DeviceGroup'
     ],
 
     stores: [
@@ -25,10 +29,13 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.store.IssueAssignees',
         'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.IssueReasons',
+        'Isu.store.IssueUsagePoints',
         'Isu.store.Devices',
+        'Isu.store.Locations',
         'Isu.store.IssueGrouping',
         'Isu.store.Groups',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Isu.store.DeviceGroups'
     ],
 
     views: [
@@ -67,11 +74,18 @@ Ext.define('Isu.controller.IssuesOverview', {
         {
             ref: 'previewActionMenu',
             selector: '#issues-preview issues-action-menu'
-        }
+        },
     ],
+
+    extendedBy: null,
 
     init: function () {
         var me = this;
+
+        if (typeof extendedBy == 'undefined') {
+            me.getIsuStoreIssueGroupingStore().add({id: 'location', value: Uni.I18n.translate('general.location', 'ISU', 'Location')});
+        }
+
         this.control({
             '#issues-overview #issues-overview-action-menu': {
                 click: this.chooseAction
@@ -93,8 +107,23 @@ Ext.define('Isu.controller.IssuesOverview', {
             },
             '#issues-overview #issues-preview #filter-display-button': {
                 click: this.setFilterItem
+            },
+            '#create-group-from-issues-button': {
+                click: this.createGroupFromIssuesAction
             }
         });
+    },
+
+    createGroupFromIssuesAction: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            appName = Uni.util.Application.getAppName();
+
+        if (appName === 'MultiSense') {
+            router.getRoute(router.currentRoute + '/devicegroup').forward(router.arguments, Uni.util.QueryString.getQueryStringValues(false));
+        } else if (appName === 'MdmApp') {
+            router.getRoute(router.currentRoute + '/usagepointgroup').forward(router.arguments, Uni.util.QueryString.getQueryStringValues(false));
+        }
     },
 
     showOverview: function () {
@@ -155,8 +184,7 @@ Ext.define('Isu.controller.IssuesOverview', {
             previewActionMenu = me.getPreviewActionMenu();
         if (Ext.String.startsWith(preview.itemId, 'alarm')) {
             var subEl = new Ext.get('alarm-status-field-sub-tpl');
-        }
-        else {
+        } else {
             var subEl = new Ext.get('issue-status-field-sub-tpl');
         }
         subEl.setHTML(record.get('statusDetail'));
@@ -195,7 +223,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                         me.getApplication().fireEvent('acknowledge', response.data.actions[0].message);
                         me.getIssuesGrid().getStore().load();
                     } else {
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('administration.issue.apply.action.failed.title', 'ISU', 'Couldn\'t perform your action'), model.get('name')+ responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('administration.issue.apply.action.failed.title', 'ISU', 'Couldn\'t perform your action'), model.get('name') + responseText.data.actions[0].message, responseText.data.actions[0].errorCode);
                     }
                 }
             }
@@ -306,11 +334,11 @@ Ext.define('Isu.controller.IssuesOverview', {
             groupStore = groupGrid.getStore(),
             afterLoad = function () {
                 if (!Ext.isEmpty(groupGrid.getStore().getRange())) {
-                    if ( Ext.isEmpty(queryString.groupingValue) && !Ext.isEmpty(queryString[queryString.groupingType]) ) {
+                    if (Ext.isEmpty(queryString.groupingValue) && !Ext.isEmpty(queryString[queryString.groupingType])) {
                         queryString.groupingValue = queryString[queryString.groupingType];
                     }
                     var groupingRecord = groupStore.getById(queryString.groupingValue);
-                    if ( Ext.isEmpty(groupingRecord) && !Ext.isEmpty(queryString[queryString.groupingType]) ) {
+                    if (Ext.isEmpty(groupingRecord) && !Ext.isEmpty(queryString[queryString.groupingType])) {
                         queryString.groupingValue = queryString[queryString.groupingType];
                         groupingRecord = groupStore.getById(queryString.groupingValue);
                     }

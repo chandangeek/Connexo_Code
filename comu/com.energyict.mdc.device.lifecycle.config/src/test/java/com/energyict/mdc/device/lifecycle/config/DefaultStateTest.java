@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 
 import java.util.Arrays;
 import java.util.HashSet;

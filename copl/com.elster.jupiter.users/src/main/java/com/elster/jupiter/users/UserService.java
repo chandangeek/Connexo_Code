@@ -4,11 +4,13 @@
 
 package com.elster.jupiter.users;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
+
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.orm.DataModel;
 
 import java.security.KeyStore;
 import java.util.List;
@@ -42,6 +44,8 @@ public interface UserService {
 
     Optional<User> findUser(String authenticationName);
 
+    Optional<User> findUserIgnoreStatus(String authenticationName);
+
     Optional<User> findUser(String authenticationName, String userDirectoryName);
 
     Optional<Resource> findResource(String name);
@@ -51,6 +55,8 @@ public interface UserService {
     Optional<Group> getGroup(long id);
 
     Optional<Group> findAndLockGroupByIdAndVersion(long id, long version);
+
+    DataModel getDataModel();
     /**
      * @return the group with specified name
      */
@@ -173,4 +179,6 @@ public interface UserService {
     Optional<KeyStore> getTrustedKeyStoreForUserDirectory(LdapUserDirectory userDirectory);
 
     Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char [] password);
+
+    String[] userAdminPrivileges();
 }

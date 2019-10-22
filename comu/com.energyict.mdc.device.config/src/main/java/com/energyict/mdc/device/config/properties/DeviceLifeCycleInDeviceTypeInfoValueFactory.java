@@ -1,14 +1,15 @@
 package com.energyict.mdc.device.config.properties;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
@@ -30,10 +31,12 @@ public class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
-    public DeviceLifeCycleInDeviceTypeInfoValueFactory(DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleInDeviceTypeInfoValueFactory(DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MeteringTranslationService meteringTranslationService) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class DeviceLifeCycleInDeviceTypeInfoValueFactory implements ValueFactory
                 .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
                 .flatMap(Collection::stream)
                 .filter(stateValue -> stateIds.contains(stateValue.getId())).collect(Collectors.toList());
-        return new DeviceLifeCycleInDeviceTypeInfo(deviceType, states, deviceLifeCycleConfigurationService);
+        return new DeviceLifeCycleInDeviceTypeInfo(deviceType, states, meteringTranslationService);
     }
 
     @Override

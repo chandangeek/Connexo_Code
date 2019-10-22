@@ -14,25 +14,25 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.PartialConnectionTaskBuilder;
+import com.energyict.mdc.common.device.config.PartialConnectionTaskProperty;
+import com.energyict.mdc.common.device.config.ServerPartialConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.TypedProperties;
-
 import com.energyict.mdc.upl.UnmodifiableTypedProperties;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -52,7 +52,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.
+ * Provides an implementation for the {@link PartialConnectionTask} interface.
  *
  * @author sva
  * @since 21/01/13 - 16:44
@@ -133,7 +133,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     public void validateDelete() {
         if (getConfiguration().getComTaskEnablements()
                 .stream()
-                .filter(ComTaskEnablement::hasPartialConnectionTask)
+                .filter(comTaskEnablement -> comTaskEnablement.hasPartialConnectionTask())
                 .map(comTaskEnablement -> comTaskEnablement.getPartialConnectionTask().get())
                 .filter(partialConnectionTask -> partialConnectionTask.getId() == getId())
                 .findAny()

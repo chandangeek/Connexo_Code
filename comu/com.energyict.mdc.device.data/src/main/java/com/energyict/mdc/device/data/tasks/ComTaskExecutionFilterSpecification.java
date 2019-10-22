@@ -7,12 +7,16 @@ package com.energyict.mdc.device.data.tasks;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,8 +79,8 @@ public class ComTaskExecutionFilterSpecification {
     public Interval lastSessionEnd = null;
 
     /**
-     * The {@link com.elster.jupiter.metering.groups.EndDeviceGroup}s that contain the {@link com.energyict.mdc.device.data.Device}s
-     * to which the matching {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s should be linked
+     * The {@link com.elster.jupiter.metering.groups.EndDeviceGroup}s that contain the {@link Device}s
+     * to which the matching {@link ComTaskExecution}s should be linked
      * or an empty set if the filter should not take this into account.
      */
     public Set<EndDeviceGroup> deviceGroups = new HashSet<>();
@@ -86,7 +90,7 @@ public class ComTaskExecutionFilterSpecification {
      * Comtasks of devices in such states will be excluded from the result
      * Default value: exclude comtasks of "In stock" and "Decommissioned" devices
      */
-    public Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
+    public Set<String> restrictedDeviceStates = new HashSet<>();
 
     /**
      * The device(name) you want to filter on
@@ -110,7 +114,7 @@ public class ComTaskExecutionFilterSpecification {
      * Comtasks of devices in such stages will be excluded from the result
      * Default value: exclude comtasks of "Pre-operational" and "Post-operational" devices
      */
-    public Set<String> restrictedDeviceStages = new HashSet<>(Arrays.asList(EndDeviceStage.PRE_OPERATIONAL.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey()));
+    public Set<String> restrictedDeviceStages = new HashSet<>();
 
 
     public boolean showSlaveComTaskExecutions;

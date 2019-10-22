@@ -7,11 +7,11 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import java.sql.SQLException;
 

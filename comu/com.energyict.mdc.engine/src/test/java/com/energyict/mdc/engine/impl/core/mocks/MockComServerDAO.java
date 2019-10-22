@@ -9,14 +9,21 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -25,20 +32,37 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -59,7 +83,7 @@ public class MockComServerDAO implements ComServerDAO {
     private List<MockOnlineComServer> comServers = new ArrayList<>();
     private List<MockOnlineComServer> comServerClones = new ArrayList<>();
     private int comServerRefreshCount = 0;
-    private Map<ConnectionTask, ComServer> connectionTaskLocking = new HashMap<>();
+    private Map<ConnectionTask, ComPort> connectionTaskLocking = new HashMap<>();
     private Map<ComTaskExecution, ComPort> comTaskExecutionLocking = new HashMap<>();
 
     public MockOnlineComServer addEmptyComServer() {
@@ -226,8 +250,18 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public List<ComJob> findExecutableOutboundComTasks(com.energyict.mdc.engine.config.OutboundComPort comPort) {
+    public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
+        return null;
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date) {
+        return null;
     }
 
     @Override
@@ -271,10 +305,10 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public synchronized ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        ComServer alreadyLockingComServer = this.connectionTaskLocking.get(connectionTask);
-        if (alreadyLockingComServer == null || !comServer.equals(alreadyLockingComServer)) {
-            this.connectionTaskLocking.put(connectionTask, comServer);
+    public synchronized ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
+        ComPort alreadyLockingComPort = connectionTaskLocking.get(connectionTask);
+        if (alreadyLockingComPort == null || !comPort.equals(alreadyLockingComPort)) {
+            connectionTaskLocking.put(connectionTask, comPort);
             return connectionTask;
         } else {
             return null;
@@ -282,10 +316,10 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public synchronized boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
-        ComServer alreadyLockingComServer = this.connectionTaskLocking.get(connectionTask);
-        if (alreadyLockingComServer == null || !comServer.equals(alreadyLockingComServer)) {
-            this.connectionTaskLocking.put(connectionTask, comServer);
+    public synchronized boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
+        ComPort alreadyLockingComPort = connectionTaskLocking.get(connectionTask);
+        if (alreadyLockingComPort == null || !comPort.equals(alreadyLockingComPort)) {
+            connectionTaskLocking.put(connectionTask, comPort);
             return true;
         } else {
             return false;
@@ -294,14 +328,14 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void unlock(OutboundConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
+        connectionTaskLocking.remove(connectionTask);
     }
 
     @Override
     public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
         ComPort alreadyLockingComPort = this.comTaskExecutionLocking.get(comTaskExecution);
         if (alreadyLockingComPort == null || !comPort.equals(alreadyLockingComPort)) {
-            this.comTaskExecutionLocking.put(comTaskExecution, comPort);
+            comTaskExecutionLocking.put(comTaskExecution, comPort);
             return true;
         } else {
             return false;
@@ -309,47 +343,63 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void unlock(ComTaskExecution comTaskExecution) {
-        this.comTaskExecutionLocking.remove(comTaskExecution);
+    public boolean attemptLock(PriorityComTaskExecutionLink priorityComTaskExecutionLink, ComPort comPort) {
+        return attemptLock(priorityComTaskExecutionLink.getComTaskExecution(), comPort);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
-        this.connectionTaskLocking.put(connectionTask, comServer);
+    public void unlock(ComTaskExecution comTaskExecution) {
+        comTaskExecutionLocking.remove(comTaskExecution);
+    }
+
+    @Override
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort) {
+        connectionTaskLocking.put(connectionTask, comPort);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
+        connectionTaskLocking.remove(connectionTask);
+        return connectionTask;
+    }
+
+    @Override
+    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
+        connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
 
     @Override
     public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
-        this.connectionTaskLocking.remove(connectionTask);
+        connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
 
     @Override
     public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
-        this.comTaskExecutionLocking.put(comTaskExecution, comPort);
+        comTaskExecutionLocking.put(comTaskExecution, comPort);
     }
 
     @Override
     public void executionCompleted(ComTaskExecution comTaskExecution) {
-        this.comTaskExecutionLocking.remove(comTaskExecution);
+        comTaskExecutionLocking.remove(comTaskExecution);
     }
 
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
-        this.comTaskExecutionLocking.remove(comTaskExecution);
+        comTaskExecutionLocking.remove(comTaskExecution);
+    }
+
+    @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        comTaskExecutionLocking.remove(comTaskExecution);
     }
 
     @Override
     public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            this.executionCompleted(comTaskExecution);
+            executionCompleted(comTaskExecution);
         }
     }
 
@@ -361,24 +411,24 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            this.executionFailed(comTaskExecution);
+            executionFailed(comTaskExecution);
         }
     }
 
     @Override
-    public void releaseInterruptedTasks(ComServer comServer) {
-        this.comTaskExecutionLocking.clear();
+    public void releaseInterruptedTasks(ComPort comPort) {
+        comTaskExecutionLocking.clear();
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks(ComServer comServer) {
-        this.comTaskExecutionLocking.clear();
+    public TimeDuration releaseTimedOutTasks(ComPort comPort) {
+        comTaskExecutionLocking.clear();
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
 
     @Override
     public void releaseTasksFor(ComPort comPort) {
-        this.comTaskExecutionLocking.clear();
+        comTaskExecutionLocking.clear();
     }
 
 //    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {
@@ -479,6 +529,11 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
         return true;
+    }
+
+    @Override
+    public boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionLinkIds) {
+        return false;
     }
 
     @Override
@@ -620,5 +675,10 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public User getComServerUser() {
         return null;
+    }
+
+    @Override
+    public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
+        return Collections.emptyList();
     }
 }

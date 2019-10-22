@@ -6,23 +6,23 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
@@ -30,6 +30,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
@@ -70,14 +71,59 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         this.firmwareMessages = new ArrayList<>();
     }
 
-    public FirmwareManagementDeviceUtils initFor(Device device) {
+    public FirmwareManagementDeviceUtils initFor(Device device, boolean onlyLastMessagePerFirmwareType) {
         this.device = device;
         initFirmwareComTaskExecution();
-        initFirmwareMessages();
+        if (onlyLastMessagePerFirmwareType) {
+            // only firmware upgrade, no revoked messages and only one message for each firmware type
+            initFirmwareMessagesUnique();
+        } else {
+            // Firmware history, all messages for each firmware type
+            initFirmwareMessages();
+        }
         return this;
     }
 
     private void initFirmwareMessages() {
+        Map<FirmwareType, List<DeviceMessage>> uploadMessages = new HashMap<>();
+        Map<String, DeviceMessage> activationMessages = new HashMap<>();
+        this.device.getMessages().stream().filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
+                && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
+            if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
+
+                gatherAllUploadMessages(uploadMessages, candidate);
+            } else {
+                activationMessages.put(candidate.getTrackingId(), candidate);
+            }
+        });
+        for (List<DeviceMessage> messages : uploadMessages.values()) {
+            this.firmwareMessages.addAll(messages);
+        }
+        this.firmwareMessages.addAll(this.firmwareMessages.stream()
+                .map(message -> activationMessages.get(String.valueOf(message.getId())))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+    }
+
+    private void initFirmwareComTaskExecution() {
+        firmwareComTaskExecution = taskService.findFirmwareComTask()
+                .flatMap(ct -> this.device.getComTaskExecutions().stream().filter(cte -> cte.executesComTask(ct)).findFirst())
+                .orElse(null);
+    }
+
+    private void gatherAllUploadMessages(Map<FirmwareType, List<DeviceMessage>> uploadMessages, DeviceMessage candidate) {
+        Optional<FirmwareVersion> version = getFirmwareVersionFromMessage(candidate);
+        if (version.isPresent()) {
+            FirmwareType key = version.get().getFirmwareType();
+            if (uploadMessages.containsKey(key)) {
+                uploadMessages.get(key).add(candidate);
+            } else {
+                uploadMessages.put(key, new ArrayList<>(Arrays.asList(candidate)));
+            }
+        }
+    }
+
+    private void initFirmwareMessagesUnique() {
         Map<FirmwareType, DeviceMessage> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
         // only firmware upgrade, no revoked messages and only one message for each firmware type
@@ -94,12 +140,6 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
                 .map(message -> activationMessages.get(String.valueOf(message.getId())))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
-    }
-
-    private void initFirmwareComTaskExecution() {
-        firmwareComTaskExecution = taskService.findFirmwareComTask()
-                .flatMap(ct -> this.device.getComTaskExecutions().stream().filter(cte -> cte.executesComTask(ct)).findFirst())
-                .orElse(null);
     }
 
     private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage> uploadMessages, DeviceMessage candidate) {
@@ -153,7 +193,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
                 .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
                 .filter(deviceMessageAttribute -> {
-                    if(deviceMessageAttribute.getSpecification() != null) {
+                    if (deviceMessageAttribute.getSpecification() != null) {
                         return deviceMessageAttribute.getSpecification().getValueFactory().getValueType().equals(Date.class);
                     }
                     return false;

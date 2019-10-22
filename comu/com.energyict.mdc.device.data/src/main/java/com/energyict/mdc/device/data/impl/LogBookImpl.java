@@ -10,11 +10,12 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
-import com.energyict.mdc.masterdata.LogBookType;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
@@ -25,6 +26,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class LogBookImpl implements ServerLogBookForConfigChange {
 
@@ -151,6 +153,7 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
             Instant logBookLastReading = this.logBook.lastEventOccurrence;
             if (lastReading != null && (logBookLastReading == null || lastReading.isAfter(logBookLastReading))) {
                 this.logBook.lastEventOccurrence = lastReading;
+                warnIfInFuture(lastReading, "last reading");
             }
             return this;
         }
@@ -160,6 +163,7 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
             Instant logBookCreateTime = this.logBook.latestEventAddition;
             if (createTime != null && (logBookCreateTime == null || createTime.isAfter(logBookCreateTime))) {
                 this.logBook.latestEventAddition = createTime;
+                warnIfInFuture(createTime, "creation");
             }
             return this;
 
@@ -168,12 +172,19 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
         @Override
         public LogBook.LogBookUpdater setLastReading(Instant createTime) {
             this.logBook.latestEventAddition = createTime;
+            warnIfInFuture(createTime, "creation");
             return this;
         }
 
         @Override
         public void update() {
             this.logBook.update();
+        }
+
+        private void warnIfInFuture(Instant createTime, String parameterName) {
+            if (createTime.isAfter(Instant.now())) {
+                Logger.getLogger(getClass().getName()).warning("received logbook " + parameterName + " date in future: " + createTime);
+            }
         }
     }
 

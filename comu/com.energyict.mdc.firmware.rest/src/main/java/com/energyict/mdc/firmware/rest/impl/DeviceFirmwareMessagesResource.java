@@ -13,28 +13,29 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -147,9 +148,12 @@ public class DeviceFirmwareMessagesResource {
         ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         if (firmwareVersion.getFirmwareType() != FirmwareType.CA_CONFIG_IMAGE) {
             FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+            FirmwareCheckManagementOptions checkOptions = firmwareService.findFirmwareManagementOptions(device.getDeviceType())
+                    .map(FirmwareCheckManagementOptions.class::cast)
+                    .orElse(FirmwareCheckManagementOptions.EMPTY);
             firmwareService.getFirmwareChecks().forEach(check -> {
                 try {
-                    check.execute(utils, firmwareVersion);
+                    check.execute(checkOptions, utils, firmwareVersion);
                 } catch (FirmwareCheck.FirmwareCheckException e) {
                     confirmationInfo.errors.add(new ErrorInfo(check.getKey(), check.getTitle(thesaurus), e.getLocalizedMessage()));
                 }
@@ -247,7 +251,10 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private void cancelOldFirmwareUpdates(FirmwareManagementDeviceUtils helper, Map<String, Object> convertedProperties, DeviceMessageSpec firmwareMessageSpec) {
-        Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class)).findAny();
+        Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
+                .findAny();
         if (firmwareVersionPropertySpec.isPresent()) {
             FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertySpec.get().getName());
             if (requestedFirmwareVersion != null) {
@@ -277,6 +284,8 @@ public class DeviceFirmwareMessagesResource {
         upgradeMessage.revoke();
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
         rescheduleFirmwareUpgradeTask(device);
+        firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
+                .ifPresent(deviceInFirmwareCampaign -> deviceInFirmwareCampaign.cancel(false));
         return Response.ok().build();
     }
 
@@ -354,7 +363,8 @@ public class DeviceFirmwareMessagesResource {
     private boolean isDeviceFirmwareUpgradeAllowed(FirmwareManagementDeviceUtils helper) {
         Optional<ComTaskExecution> firmwareUpgradeExecution = helper.getFirmwareComTaskExecution();
         return helper.getPendingFirmwareMessages().stream()
-                .filter(message -> !firmwareUpgradeExecution.isPresent() || firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
+                .filter(message -> !firmwareUpgradeExecution.isPresent() || firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null || !message.getReleaseDate()
+                        .isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
                 .count() == 0 && !helper.firmwareUploadTaskIsBusy();
     }
 

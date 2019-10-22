@@ -24,7 +24,6 @@ import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -66,6 +65,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
 
@@ -185,9 +186,9 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
             activateDlmsEncryption(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
-            changeKey(pendingMessage, 0);
+            changeKey(pendingMessage, newEncryptionKeyAttributeName, 0);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
-            changeKey(pendingMessage, 2);
+            changeKey(pendingMessage, newAuthenticationKeyAttributeName, 2);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD)) {
             changeHlsSecret(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SET_TIME)) {
@@ -311,19 +312,9 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void changeKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(pendingMessage.getDeviceMessageAttributes().get(0).getValue(), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
-        Array globalKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        globalKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(globalKeyArray);
+    private void changeKey(OfflineDeviceMessage pendingMessage, String attributeName, int type) throws IOException {
+        byte[] wrappedKey = getWrappedKey(pendingMessage, attributeName);
+        renewKey(wrappedKey, type);
     }
 
     private void activateDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.issue.datacollection.rest;
@@ -12,7 +12,10 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -61,6 +64,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile IssueActionService issueActionService;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
@@ -72,6 +76,8 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile TopologyService topologyService;
     private volatile BpmService bpmService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     public IssueDataCollectionApplication() {
     }
@@ -109,6 +115,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     }
 
     @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
     public void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
         this.issueDataCollectionService = issueDataCollectionService;
     }
@@ -116,6 +127,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
     }
 
     @Reference
@@ -154,6 +170,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference
@@ -210,6 +231,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(locationService).to(LocationService.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);
@@ -220,11 +242,13 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(jsonService).to(JsonService.class);
             bind(DataCollectionIssueInfoFactory.class).to(DataCollectionIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
         }
     }
 }

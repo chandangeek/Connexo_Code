@@ -6,9 +6,9 @@ package com.energyict.mdc.engine.impl.cache;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 
 import com.google.common.collect.ImmutableList;
 

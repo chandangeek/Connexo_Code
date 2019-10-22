@@ -6,6 +6,7 @@ package com.elster.jupiter.bootstrap.oracle.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.DataSourceSetupException;
+import com.elster.jupiter.bootstrap.InvalidPasswordException;
 import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
@@ -40,6 +41,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -190,11 +193,14 @@ public final class BootstrapServiceImpl implements BootstrapService {
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new PropertyNotFoundException(JDBC_PASSWORD);
+            //Logger.getAnonymousLogger().log(Level.SEVERE, exception, () -> "Bootstrap service initialization: encryption failed");
+            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
+            throw new PropertyNotFoundException(KEY_FILE);
         }
 
         if (list.size() != 2) {
-            throw new PropertyNotFoundException(JDBC_PASSWORD);
+            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
+            throw new PropertyNotFoundException(KEY_FILE);
         } else {
             try {
                 byte[] aesEncryptionKey = list.get(0).getBytes("UTF-8");
@@ -214,7 +220,9 @@ public final class BootstrapServiceImpl implements BootstrapService {
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException |
                     InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
                     | BadPaddingException e) {
-                throw new PropertyNotFoundException(JDBC_PASSWORD);
+                InvalidPasswordException exception = new InvalidPasswordException();
+                Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
+                throw exception;
             }
         }
         return decryptedPassword;

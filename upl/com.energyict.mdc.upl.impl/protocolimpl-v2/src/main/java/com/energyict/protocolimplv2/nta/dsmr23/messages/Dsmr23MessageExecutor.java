@@ -15,10 +15,8 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer64Unsigned;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
@@ -35,9 +33,7 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
@@ -71,8 +67,10 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.sercurity.KeyRenewalInfo;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.DatatypeConverter;
@@ -82,6 +80,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -132,7 +131,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
 public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
-    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.x.24.1.0.255");
     public static final int REMOTE_DISCONNECT = 1;
     public static final int REMOTE_RECONNECT = 2;
 
@@ -158,6 +157,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
+            getProtocol().journal("DSMR23 Message executor processing " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
                     doDisconnect();
@@ -197,16 +197,21 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
                     fullActivityCalendarWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
-                    String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
-                    writeSpecialDays(specialDayArrayBEREncodedBytes);
+                    String calendarWithSpecialDays = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
+                    String[] calendarParts = calendarWithSpecialDays.split(AbstractDlmsMessaging.SEPARATOR);
+                    if (calendarParts.length > 0) {
+                        writeSpecialDays(calendarParts[0]);
+                    } else {
+                        getProtocol().journal("No content to write special days.");
+                    }
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                     changeAuthLevel(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
-                    changeAuthenticationOrEncryptionKey(pendingMessage, 0);
+                    changeEncryptionKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
-                    changeAuthenticationOrEncryptionKey(pendingMessage, 2);
+                    changeAuthenticationKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
                     changeHLSSecretUsingServiceKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
@@ -276,6 +281,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                 }
+                getProtocol().journal(Level.SEVERE,"Error while executing message " + pendingMessage.getSpecification().getName()+": " + e.getLocalizedMessage());
             }
             result.addCollectedMessage(collectedMessage);
         }
@@ -305,11 +311,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void resetAlarmRegister() throws IOException {
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(0));
+        getCosemObjectFactory().getData(Dsmr23RegisterFactory.ALARM_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
     private void resetErrorRegister() throws IOException {
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.97.0.255")).setValueAttr(new Integer64Unsigned(-1L));
+        getCosemObjectFactory().getData(Dsmr23RegisterFactory.ERROR_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
     private void setTime(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -324,10 +330,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     private void mbusCommission(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
-        int primaryAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
+        int mBusPhysicalAddress = getMBusPhysicalAddress(installChannel);
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (installChannel));
+        getProtocol().journal("Installing slave on channel " + installChannel + " using M-Bus Client obis code "+mbusClientObisCode+" and physical address "+mBusPhysicalAddress);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
-        mbusClient.installSlave(primaryAddress);
+        mbusClient.installSlave(mBusPhysicalAddress);
     }
 
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -341,7 +348,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), 9);
         String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
         mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
@@ -354,7 +361,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(installChannel).getObisCode();
+
+        getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
+
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, 9);
         mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
         mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties()
                 .getFixMbusHexShortId()));
@@ -481,9 +492,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
             String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
             String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getValue();
-            String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", "fromDate", "toDate", loadProfileContent);
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
+            SimpleDateFormat formatter = AbstractMessageConverter.dateTimeFormatWithTimeZone;
+            String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", formatter.format(fromDate), formatter.format(toDate), loadProfileContent);
 
             LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(fullLoadProfileContent);
 
@@ -527,15 +539,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void changeAuthenticationOrEncryptionKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
-        Array globalKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getAuthenticationKey()));
-        globalKeyArray.addDataType(keyData);
+    private void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        byte[] wrappedKey = getWrappedKey(pendingMessage, newEncryptionKeyAttributeName);
+        renewKey(wrappedKey, 0);
+    }
 
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(globalKeyArray);
+    private void changeAuthenticationKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        byte[] wrappedKey = getWrappedKey(pendingMessage, newAuthenticationKeyAttributeName);
+        renewKey(wrappedKey, 2);
     }
 
     private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -552,34 +563,20 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             throw DataParseException.generalParseException(e);
         }
         String keyAccessorName = values[0];
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(values[1], "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(values[1]);
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
 
         Optional<String> securityAttribute = this.keyAccessorTypeExtractor.correspondingSecurityAttribute(
                 keyAccessorName,
                 getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()
         );
         if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())) {
-            renewKey(newSymmetricKey, masterKey, 2);
+            renewKey(wrappedKey, 2);
         } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())) {
-            renewKey(newSymmetricKey, masterKey, 0);
+            renewKey(wrappedKey, 0);
         } else {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
         }
-    }
-
-    private void renewKey(byte[] newSymmetricKey, byte[] masterKey, int type) throws IOException {
-        Array globalKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-
-        byte[] key = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
-        keyData.addDataType(OctetString.fromByteArray(key));
-        globalKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(globalKeyArray);
     }
 
     private void globalMeterReset() throws IOException {
@@ -624,10 +621,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void activateWakeUp() throws IOException {   //Enable the wake up via SMS
+        getProtocol().journal("Activating wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(4);
     }
 
     protected void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
+        getProtocol().journal("Disabling wake-up via SMS");
         getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 
@@ -706,10 +705,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
                 .getValue(); // Will return empty string if the MessageAttribute could not be found
 
+        getProtocol().journal("Using firmware file: "+path);
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (isResume(pendingMessage)) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
             if (lastTransferredBlockNumber > 0) {
+                getProtocol().journal("Resuming transfer from block: "+lastTransferredBlockNumber);
                 it.setStartIndex(lastTransferredBlockNumber - 1);
             }
         }
@@ -721,25 +722,30 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         it.setDelayBeforeSendingBlocks(5000);
 
         try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
-            if (imageIdentifier.isEmpty()) {
-                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, ImageTransfer.DEFAULT_IMAGE_NAME, false);
-            } else {
-                it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, false);
+            String actualIdentifier = ImageTransfer.DEFAULT_IMAGE_NAME;
+            if (!imageIdentifier.isEmpty()) {
+                actualIdentifier = imageIdentifier;
             }
+            getProtocol().journal("Starting block transfer of image file using identifier "+actualIdentifier);
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), false, actualIdentifier, false);
+            getProtocol().journal("Block transfer finished");
         }
 
         if (activationDate.isEmpty()) {
             try {
+                getProtocol().journal("Activating immediately");
                 it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
                 it.imageActivation();
             } catch (DataAccessResultException e) {
                 if (isTemporaryFailure(e)) {
-                    getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                    getProtocol().journal("Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
                 } else {
+                    getProtocol().journal(Level.WARNING, e.getLocalizedMessage());
                     throw e;
                 }
             }
         } else {
+            getProtocol().journal("Setting future activation date: "+activationDate);
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
             Array dateArray = convertActivationDateEpochToDateTimeArray(activationDate);
             sas.writeExecutionTime(dateArray);
@@ -812,26 +818,49 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
-        activityCalendar(calendarName, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
-        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+        String[] calendarParts = activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR);
+        if (calendarParts.length>0) {
+            getProtocol().journal("Sending calendar name:" + calendarName);
+            activityCalendar(calendarName, calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping calendar because it's empty");
+        }
+
+        if (calendarParts.length>1) {
+            getProtocol().journal("Sending special days");
+            writeSpecialDays(calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping special days part because it's empty");
+        }
+
     }
 
     protected void fullActivityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+        getProtocol().journal("Processing full calendar with activation date message");
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
-        activityCalendarWithActivationDate(calendarName, epoch, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
-        writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
+        String[] calendarParts = activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR);
+        if (calendarParts.length>0) {
+            getProtocol().journal("Sending calendar name:" + calendarName + ", activation date=" + epoch);
+            activityCalendarWithActivationDate(calendarName, epoch, calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping calendar because it's empty");
+        }
+
+        if (calendarParts.length>1) {
+            getProtocol().journal("Sending special days");
+            writeSpecialDays(calendarParts[0]);
+        } else {
+            getProtocol().journal("Skipping special days part because it's empty");
+        }
     }
 
-    private void writeSpecialDays(String specialDayArrayBEREncodedBytes) throws IOException {
-        Array sdArray = AXDRDecoder.decode(ProtocolTools.getBytesFromHexString(specialDayArrayBEREncodedBytes, ""), Array.class);
-        SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-        if (sdArray.nrOfDataTypes() != 0) {
-            sdt.writeSpecialDays(sdArray);
-        }
+    private void writeSpecialDays(String calendarXml) throws IOException {
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+        activityCalendarController.parseContent(calendarXml);
+        activityCalendarController.writeSpecialDaysTable();
     }
 
     protected void activityCalendarWithActivationDate(String calendarName, String epoch, String activityCalendarContents) throws IOException {
@@ -841,10 +870,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
         ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
         Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
         activationCal.setTimeInMillis(Long.parseLong(epoch));
+        getProtocol().journal("Writing calendar activation date:"+activationCal.getTime().toString());
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
     }
 
@@ -941,7 +973,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         int physicalAddress;
         if (installChannel == 0) {
             physicalAddress = (byte) this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();
-            this.getProtocol().getLogger().log(Level.INFO, "Channel: " + physicalAddress + " will be used as MBUS install channel.");
+            this.getProtocol().journal("Channel: " + physicalAddress + " will be used as MBUS install channel.");
         } else {
             physicalAddress = installChannel;
         }

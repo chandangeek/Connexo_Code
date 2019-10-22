@@ -14,6 +14,7 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -29,6 +30,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
@@ -37,41 +39,44 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
-import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.InvalidSearchDomain;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
 import com.energyict.mdc.device.data.kpi.rest.impl.RegisteredDevicesKpiInfo;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpi;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.TypedProperties;
 
@@ -108,6 +113,7 @@ public class ResourceHelper {
     private final DeviceConfigurationService deviceConfigurationService;
     private final LoadProfileService loadProfileService;
     private final CommunicationTaskService communicationTaskService;
+    private final PriorityComTaskService priorityComTaskService;
     private final MeteringGroupsService meteringGroupsService;
     private final ConnectionTaskService connectionTaskService;
     private final DeviceMessageService deviceMessageService;
@@ -122,19 +128,21 @@ public class ResourceHelper {
     private final MultiElementDeviceService multiElementDeviceService;
     private final Clock clock;
     private final Thesaurus thesaurus;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ValidationService validationService;
     private final MeteringService meteringService;
     private final SearchService searchService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
     public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
                           DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService,
+                          PriorityComTaskService priorityComTaskService,
                           MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService,
                           ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, RegisteredDevicesKpiService registeredDevicesKpiService, EstimationService estimationService,
                           MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
-                          TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-                          MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, SearchService searchService) {
+                          TopologyService topologyService, NlsService nlsService,
+                          MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, SearchService searchService,
+                          MeteringTranslationService meteringTranslationService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -142,6 +150,7 @@ public class ResourceHelper {
         this.deviceConfigurationService = deviceConfigurationService;
         this.loadProfileService = loadProfileService;
         this.communicationTaskService = communicationTaskService;
+        this.priorityComTaskService = priorityComTaskService;
         this.meteringGroupsService = meteringGroupsService;
         this.connectionTaskService = connectionTaskService;
         this.deviceMessageService = deviceMessageService;
@@ -160,8 +169,8 @@ public class ResourceHelper {
 
         this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST));
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.searchService = searchService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public Long getCurrentDeviceConfigurationVersion(long id) {
@@ -1229,7 +1238,7 @@ public class ResourceHelper {
         }
         return slaves
                 .stream()
-                .map(slave -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), deviceLifeCycleConfigurationService))
+                .map(slave -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), meteringTranslationService))
                 .collect(Collectors.toList());
 
     }
@@ -1303,5 +1312,18 @@ public class ResourceHelper {
             throw new UnderlyingIOException(e);
         }
         return input;
+    }
+
+    public PriorityComTaskExecutionLink getLockedPriorityComTaskExecution(ComTaskExecution cte) {
+        Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(cte);
+        return priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(cte));
+    }
+
+    public List<DeviceMessage> getDeviceMessages(DeviceMessageQueryFilter deviceMessageQueryFilter, JsonQueryParameters queryParameters) {
+        return deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .sorted("RELEASEDATE", false)
+                .from(queryParameters)
+                .stream()
+                .collect(Collectors.toList());
     }
 }

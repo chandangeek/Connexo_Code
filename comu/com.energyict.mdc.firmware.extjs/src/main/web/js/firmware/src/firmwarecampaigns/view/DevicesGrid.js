@@ -15,6 +15,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
     overflowY: 'auto',
     maxHeight: 430,
     campaignIsOngoing: null,
+    manuallyCancelled: null,
     viewConfig: {
         markDirty:false
     },
@@ -25,10 +26,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'FWC', 'Name'),
-                dataIndex: 'deviceName',
+                dataIndex: 'device',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value}) +'">' + value + '</a>' : '';
+                    return value && value.name ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value.name}) +'">' + value.name + '</a>' : '';
                 }
             },
             {
@@ -37,27 +38,26 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 flex: 1,
                 renderer: function (value, metaData) {
                     var iconCls = '';
-
                     metaData.tdCls = 'firmware-campaign-status';
                     switch (value.id) {
-                        case 'failed':
-                            iconCls = 'icon-cancel-circle';
-                            break;
-                        case 'success':
-                            iconCls = 'icon-checkmark-circle';
-                            break;
-                        case 'ongoing':
-                            iconCls = 'icon-spinner3';
-                            break;
-                        case 'pending':
-                            iconCls = 'icon-forward2';
-                            break;
-                        case 'configurationError':
-                            iconCls = 'icon-notification';
-                            break;
-                        case 'cancelled':
-                            iconCls = 'icon-blocked';
-                            break;
+                            case 'FAILED':
+                                iconCls = 'icon-cancel-circle';
+                                break;
+                            case 'SUCCESSFUL':
+                                iconCls = 'icon-checkmark-circle';
+                                break;
+                            case 'ONGOING':
+                                iconCls = 'icon-spinner3';
+                                break;
+                            case 'PENDING':
+                                iconCls = 'icon-forward2';
+                                break;
+                            case 'REJECTED':
+                                iconCls = 'icon-notification';
+                                break;
+                            case 'CANCELLED':
+                                iconCls = 'icon-blocked';
+                                break;
                     }
                     return value ? '<span class="' + iconCls + '"></span>' + value.name : '-';
                 }
@@ -83,16 +83,14 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    if (!me.campaignIsOngoing) {
+                    if (me.manuallyCancelled) {
                         return true;
                     }
                     switch (record.get('status').id) { // current device status
-                        case 'pending':
-                        case 'ongoing':
-                            return false; // because the device can be skipped
-                        case 'cancelled':
-                        case 'failed':
-                        case 'configurationError':
+                        case 'PENDING':
+                        case 'CANCELLED':
+                        case 'FAILED':
+                        case 'REJECTED':
                             return false; // because the device can be retried
                         default:
                             return true;
@@ -100,7 +98,8 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 },
                 menu: {
                     xtype: 'firmware-campaigns-device-action-menu',
-                    itemId: 'firmware-campaigns-device-action-menu'
+                    itemId: 'firmware-campaigns-device-action-menu',
+                    manuallyCancelled: me.manuallyCancelled
                 }
             }
         ];

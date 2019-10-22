@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.audit.ApplicationType;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditService;
@@ -36,7 +37,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -261,7 +262,7 @@ public class DeviceHistoryResource {
     }
 
     private AuditTrailFilter getDeviceAuditTrailFilter(JsonQueryFilter filter, String name) {
-        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter();
+        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter(ApplicationType.MDC_APPLICATION_KEY);
         if (filter.hasProperty("changedOnFrom")) {
             auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
         }

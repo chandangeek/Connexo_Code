@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,7 +21,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -56,6 +57,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     //for OSGI
     public DataValidationIssueCreationRuleTemplate() {
@@ -63,7 +65,8 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
 
     @Inject
     public DataValidationIssueCreationRuleTemplate(IssueDataValidationService issueDataValidationIssueService, IssueService issueService,
-                                                   NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+                                                   NlsService nlsService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                                   MeteringTranslationService meteringTranslationService) {
         this();
         setIssueDataValidationService(issueDataValidationIssueService);
         setIssueService(issueService);
@@ -71,6 +74,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setMeteringTranslationService(meteringTranslationService);
     }
 
     @Override
@@ -143,6 +147,11 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         DeviceConfigurationInfo[] possibleValues =
@@ -154,7 +163,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                         .toArray(DeviceConfigurationInfo[]::new);
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(propertySpecService
-                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService))
+                .specForValuesOf(new DeviceLifeCycleInDeviceTypeInfoValueFactory(deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService))
                 .named(DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, TranslationKeys.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()

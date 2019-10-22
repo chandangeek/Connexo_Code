@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 
 /**
  * Provides factory services to create the appropriate

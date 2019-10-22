@@ -8,11 +8,11 @@ import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.impl.servicecall.CommandHelper;
 import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
 import com.elster.jupiter.kore.api.impl.servicecall.EndDeviceCommandInfo;
-import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.security.Privileges;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.JsonQueryParameters;
@@ -124,13 +124,29 @@ public class EndDeviceResource {
                 intervalBlockInfo.readingType = readingType.getMRID();
                 intervalBlockInfo.intervalReadings = meter.getReadings(range, readingType)
                         .stream()
-                        .map(reading -> meterReadingsFactory.asInfo(null, reading.getTimeStamp(), reading.getValue()))
+                        .map(reading -> {
+                            if (reading.getValue() != null) {
+                                return meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue());
+                            }
+                            else if (reading instanceof ReadingRecord){
+                                return meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), ((ReadingRecord)reading).getText());
+                            }
+                            return meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue());
+                        })
                         .collect(Collectors.toList());
                 readings.intervalBlocks.add(intervalBlockInfo);
             } else {
                 readings.readings.addAll(meter.getReadings(range, readingType)
                         .stream()
-                        .map(reading -> meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue()))
+                        .map(reading -> {
+                                    if (reading.getValue() != null) {
+                                        return meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue());
+                                    }
+                                    else if (reading instanceof ReadingRecord){
+                                        return meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), ((ReadingRecord)reading).getText());
+                                    }
+                                    return meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue());
+                        })
                         .collect(Collectors.toList()));
             }
         }

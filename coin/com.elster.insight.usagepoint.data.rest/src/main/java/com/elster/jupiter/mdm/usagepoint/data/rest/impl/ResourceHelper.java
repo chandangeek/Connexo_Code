@@ -327,6 +327,7 @@ public class ResourceHelper {
 
     public void performMeterActivations(UsagePointInfo info, UsagePoint usagePoint) {
         UsagePointMeterActivator linker = usagePoint.linkMeters();
+        List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
         if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
             info.meterActivations
                     .stream()
@@ -340,7 +341,15 @@ public class ResourceHelper {
                             linker.clear(meterRole);
                         } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name)
                                 .emptyOrOnlyWhiteSpace()) {
-                            replaceOrActivateMeter(linker, activationTime, meterActivation.meter.name, meterRole);
+                             Optional<MeterActivation> existingMeterActivation = meterActivations.stream()
+                                    .filter(ma ->
+                                            ma.getMeterRole().equals(Optional.of(meterRole))
+                                                    && ma.getMeter().isPresent() && ma.getMeter().get().getName().equals(meterActivation.meter.name)
+                                                    && ma.getStart().equals(activationTime))
+                                    .findFirst();
+                            if (!existingMeterActivation.isPresent()){
+                                replaceOrActivateMeter(linker, activationTime, meterActivation.meter.name, meterRole);
+                            }
                         }
                     });
         } else {
@@ -381,12 +390,13 @@ public class ResourceHelper {
                     .findAny()
                     .ifPresent(meterActivation -> {
                         DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
-                        throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(
-                                thesaurus,
-                                meterActivation.getMeter().get().getName(),
-                                usagePoint.getName(),
-                                dateTimeFormatter.format(LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault())));
+                            throw new UsagePointMeterActivationException.MeterCannotBeUnlinked(
+                                    thesaurus,
+                                    meterActivation.getMeter().get().getName(),
+                                    usagePoint.getName(),
+                                    dateTimeFormatter.format(LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault())));
                     });
+
         }
     }
 

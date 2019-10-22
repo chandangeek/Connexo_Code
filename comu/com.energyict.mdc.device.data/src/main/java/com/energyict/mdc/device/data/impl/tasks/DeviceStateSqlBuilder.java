@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 
 import java.time.Instant;
 import java.util.EnumSet;

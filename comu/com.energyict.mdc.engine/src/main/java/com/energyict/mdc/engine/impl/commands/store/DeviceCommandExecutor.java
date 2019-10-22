@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 
 import java.util.List;
@@ -107,6 +107,8 @@ public interface DeviceCommandExecutor extends ServerProcess {
      *                                      was not returned by this DeviceCommandExecutor
      */
     void free(DeviceCommandExecutionToken unusedToken);
+
+    void freeSilently(DeviceCommandExecutionToken unusedToken);
 
     int getCapacity();
 

@@ -133,6 +133,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new GenericRead(protocolLink, getObjectReference(obisCode, classId), snAttr);
     }
 
+    public TableRead getTableRead(ObisCode obisCode) throws NotInObjectListException {
+        return new TableRead(protocolLink, getObjectReference(obisCode));
+    }
+
     public SMTPSetup getSMTPSetup(ObisCode obisCode) throws NotInObjectListException {
         return new SMTPSetup(protocolLink, getObjectReference(obisCode));
     }
@@ -317,6 +321,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws NotInObjectListException {
         return new PrivacyEnhancingDataAggregation(protocolLink, getObjectReference(obisCode));
+    }
+
+    public CommunicationPortProtection getCommunicationPortProtection(ObisCode obisCode) throws NotInObjectListException {
+        return new CommunicationPortProtection(protocolLink, getObjectReference(obisCode));
     }
 
     public Data getData(int baseObject) throws NotInObjectListException {

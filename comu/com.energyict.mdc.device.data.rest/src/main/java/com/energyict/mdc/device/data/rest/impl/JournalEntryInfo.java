@@ -5,8 +5,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonInstantAdapter;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
-import com.energyict.mdc.engine.config.ComServer;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;

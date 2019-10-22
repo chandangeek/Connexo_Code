@@ -28,4 +28,5 @@ public class MeterReadingData extends AbstractExportData<MeterReading> {
     public ReadingTypeDataExportItem getItem() {
         return item;
     }
+
 }

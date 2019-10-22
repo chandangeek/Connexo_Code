@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.tasks;
 
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.data.QueueMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.HashMap;
 import java.util.Map;

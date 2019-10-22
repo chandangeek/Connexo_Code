@@ -7,6 +7,7 @@ Ext.define('Mdc.model.ComPortPool', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string', useNull: true},
+        {name: 'pctHighPrioTasks', type: 'int', defaultValue: 0},
         'description',
         'active',
         'obsoleteFlag',
@@ -17,6 +18,7 @@ Ext.define('Mdc.model.ComPortPool', {
         'outboundComPorts',
         'inboundComPorts',
         'properties',
+        'maxPriorityConnections',
         {
             name: 'comportslink',
             persist: false,

@@ -7,18 +7,15 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
-
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.upl.TypedProperties;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
+import com.energyict.mdc.common.device.data.Device;
 
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -37,6 +34,8 @@ import ch.iec.tc57._2011.meterconfigmessage.ObjectFactory;
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
@@ -64,7 +63,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     protected static final String DEVICE_CONFIG_ID = "123";
     protected static final String DEVICE_CONFIGURATION_NAME = "Default";
     protected static final float MULTIPLIER = 1.23456789f;
-    protected static final String STATE_NAME = "I'm okay. And you?";
+    protected static final String STATE_NAME = DefaultState.IN_STOCK.getKey();
     protected static final String REPLY_ADDRESS = "replyAddress";
     protected static final String NON_VERSIONED_CPS_ID = "my cps id";
     protected static final String VERSIONED_CPS_ID = "my versioned cps id";
@@ -104,6 +103,12 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     private CIMLifecycleDates lifecycleDates;
     @Mock
     protected MeterConfig meterConfig;
+    @Mock
+    protected WebServiceContext webServiceContext;
+    @Mock
+    protected MessageContext messageContext;
+    @Mock
+    protected WebServiceCallOccurrence webServiceCallOccurrence;
 
     protected void mockDeviceType() {
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);
@@ -155,6 +160,7 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
         when(batch.getName()).thenReturn(BATCH);
         when(device.getMultiplier()).thenReturn(BigDecimal.valueOf(MULTIPLIER));
         when(device.getState()).thenReturn(state);
+        when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         mockDeviceConfiguration();
         mockLifeCycleDates();
         mockMeterConfigFactoryWithDefaultMeter();

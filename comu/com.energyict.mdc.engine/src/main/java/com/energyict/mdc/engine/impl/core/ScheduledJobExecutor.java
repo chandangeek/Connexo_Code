@@ -7,7 +7,9 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
@@ -15,6 +17,8 @@ import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Executes {@link ScheduledJob}s in a transactional
@@ -36,6 +40,7 @@ abstract class ScheduledJobExecutor {
     private final TransactionService transactionService;
     private final ComServer.LogLevel logLevel;
     private final DeviceCommandExecutor deviceCommandExecutor;
+    private ScheduledJob currentJob;
 
     ScheduledJobExecutor(TransactionService transactionService, ComServer.LogLevel logLevel, DeviceCommandExecutor deviceCommandExecutor) {
         this.transactionService = transactionService;
@@ -50,11 +55,14 @@ abstract class ScheduledJobExecutor {
      */
     void acquireTokenAndPerformSingleJob(ScheduledJob scheduledJob) {
         try {
-            List<DeviceCommandExecutionToken> deviceCommandExecutionTokens = this.deviceCommandExecutor.acquireTokens(1);
+            currentJob = scheduledJob;
+            List<DeviceCommandExecutionToken> deviceCommandExecutionTokens = deviceCommandExecutor.acquireTokens(1);
             updateTokens(scheduledJob, deviceCommandExecutionTokens);
-            this.execute(scheduledJob);
+            execute(scheduledJob);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } finally {
+            this.currentJob = null;
         }
     }
 
@@ -69,6 +77,17 @@ abstract class ScheduledJobExecutor {
             }
         }
     }
+
+    private Consumer<ScheduledJob> rescheduleJob = job -> job.reschedule();
+    private Consumer<ScheduledJob> rescheduleJobToNextComWindow = job -> job.rescheduleToNextComWindow();
+    private BiConsumer<ScheduledJob, Consumer> clearAcquiredJobResources = (job, fun) -> {
+        try {
+            fun.accept(job);
+        } catch (Throwable t) {
+            logIfDebuggingIsEnabled(t);
+            job.releaseTokenSilently();
+        }
+    };
 
     public void execute(final ScheduledJob job) {
         /* Essential to design:
@@ -100,12 +119,12 @@ abstract class ScheduledJobExecutor {
                 } catch (Throwable t) {
                     logIfDebuggingIsEnabled(t);
                 } finally {
-                    job.reschedule();
+                    clearAcquiredJobResources.accept(job, rescheduleJob);
                 }
             }
             break;
             case JOB_OUTSIDE_COM_WINDOW: {
-                job.rescheduleToNextComWindow();
+                clearAcquiredJobResources.accept(job, rescheduleJobToNextComWindow);
             }
             break;
             case ATTEMPT_LOCK_FAILED:   // intentional fall through
@@ -121,6 +140,22 @@ abstract class ScheduledJobExecutor {
             if (!(isConnectionSetupException(t) || isConnectionCommunicationException(t))) {
                 t.printStackTrace(System.err);
             }
+        }
+    }
+
+    public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+        return this.currentJob != null && this.currentJob.containsOneOf(comTaskExecutions);
+    }
+
+    public boolean isConnectedTo(OutboundConnectionTask connectionTask) {
+        return this.currentJob != null && this.currentJob.isConnectedTo(connectionTask);
+    }
+
+    public int getNumberOfTasks() {
+        if (this.currentJob == null) {
+            return 0;
+        } else {
+            return ((ScheduledComTaskExecutionGroup) this.currentJob).getComTaskExecutions().size();
         }
     }
 

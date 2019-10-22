@@ -11,32 +11,41 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -53,22 +62,18 @@ import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailur
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -173,6 +178,16 @@ public class ScheduledJobImplTest {
     private ThreadPrincipalService threadprincipalService;
     @Mock
     private JobExecution.ServiceProvider serviceProvider;
+    @Mock
+    private FirmwareService firmwareService;
+    @Mock
+    private FirmwareCampaignService firmwareCampaignService;
+    @Mock
+    private TimeOfUseCampaignService timeOfUseCampaignService;
+    @Mock
+    private TimeOfUseCampaign timeOfUseCampaign;
+    @Mock
+    private FirmwareCampaign firmwareCampaign;
 
     private Clock clock = Clock.systemDefaultZone();
     private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
@@ -193,6 +208,11 @@ public class ScheduledJobImplTest {
                 thenReturn(comSessionBuilder);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(comSessionBuilder.addComTaskExecutionSession(Matchers.<ComTaskExecution>any(), any(ComTask.class), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
+        when(timeOfUseCampaignService.getCampaignOn(any())).thenReturn(Optional.of(timeOfUseCampaign));
+        when(firmwareCampaignService.getCampaignOn(any())).thenReturn(Optional.of(firmwareCampaign));
+        when(this.firmwareService.getFirmwareCampaignService()).thenReturn(this.firmwareCampaignService);
+        when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.serviceProvider.touService()).thenReturn(this.timeOfUseCampaignService);
     }
 
     @Before
@@ -230,7 +250,7 @@ public class ScheduledJobImplTest {
         ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask(mockProtocolDialectConfigurationProperties);
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(mockProtocolDialectConfigurationProperties);
-        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comPort);
         ComTask comTask = createMockComTask();
 
         ServerComTaskExecution scheduledComTask = createMockServerScheduledComTask(device, connectionTask, comTask);
@@ -271,7 +291,7 @@ public class ScheduledJobImplTest {
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = this.createMockProtocolDialectConfigurationProperties();
         ScheduledConnectionTask connectionTask = createMockOutboundConnectionTask(protocolDialectConfigurationProperties);
         when(connectionTask.getDevice()).thenReturn(device);
-        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
+        doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comPort);
 
         ComTask comTask = createMockComTask();
         ServerComTaskExecution comTask1 = createMockServerScheduledComTask(device, connectionTask, comTask);
@@ -386,13 +406,13 @@ public class ScheduledJobImplTest {
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenReturn(mock(ComSession.class));
-        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(connectionTask, comPort)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
         job.add(scheduledComTask);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutorImpl(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser, mock(MultiThreadedScheduledJobCallBack.class));
         final CountDownLatch startLatch = new CountDownLatch(1);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -449,7 +469,7 @@ public class ScheduledJobImplTest {
 
     private ComServerDAOImpl getMockedComServerDAO() {
         ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
-        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComServer.class));
+        doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComPort.class));
         return comServerDAO;
     }
 
@@ -475,12 +495,12 @@ public class ScheduledJobImplTest {
         ComServerDAOImpl comServerDAO = getMockedComServerDAO();
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
-        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(connectionTask, comPort)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final ScheduledComTaskExecutionGroup job = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, serviceProvider);
 
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutorImpl(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser, mock(MultiThreadedScheduledJobCallBack.class));
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -532,19 +552,22 @@ public class ScheduledJobImplTest {
         when(connectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         Device device = this.createMockDevice();
+        OfflineDevice offlineDevice = this.createMockOfflineDevice();
         when(connectionTask.getDevice()).thenReturn(device);
         doThrow(ConnectionException.class).when(connectionTask).connect(eq(comPort), anyList());    //Simulate a connection failure
         CountDownLatch deviceCommandExecutionStartedLatch = new CountDownLatch(1);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, deviceCommandExecutionStartedLatch);
         ComTaskExecution scheduledComTask = this.createMockServerScheduledComTask(device, connectionTask, this.createMockComTask());
         ComServerDAOImpl comServerDAO = getMockedComServerDAO();
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollectionOf(Long.class))).thenReturn(true);
-        when(comServerDAO.attemptLock(connectionTask, comServer)).thenReturn(connectionTask);
+        when(comServerDAO.attemptLock(connectionTask, comPort)).thenReturn(connectionTask);
         when(comServerDAO.attemptLock(any(ComTaskExecution.class), any(ComPort.class))).thenReturn(true);
         when(comServerDAO.createComSession(any(ComSessionBuilder.class), any(Instant.class), any(ComSession.SuccessIndicator.class))).thenCallRealMethod();
         final AlwaysFailComTaskExecutionJob job = new AlwaysFailComTaskExecutionJob(comPort, comServerDAO, deviceCommandExecutor, connectionTask, this.serviceProvider);
-        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser);
+        job.add(scheduledComTask);
+        final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutorImpl(job, transactionService, ComServer.LogLevel.TRACE, deviceCommandExecutor, threadprincipalService, comServerUser, mock(MultiThreadedScheduledJobCallBack.class));
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
@@ -678,6 +701,11 @@ public class ScheduledJobImplTest {
         @Override
         public void free(DeviceCommandExecutionToken unusedToken) {
             this.actualExecutor.free(unusedToken);
+        }
+
+        @Override
+        public void freeSilently(DeviceCommandExecutionToken unusedToken) {
+            this.actualExecutor.freeSilently(unusedToken);
         }
 
         @Override

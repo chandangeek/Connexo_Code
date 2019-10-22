@@ -8,21 +8,22 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -104,7 +105,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     /**
      * Contains all {@link OfflineRegister rtuRegisters} which are owned by this {@link OfflineDevice} or a slave which has the
-     * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave() rtuType.isLogicalSlave} checked.
+     * {@link DeviceType#isLogicalSlave() rtuType.isLogicalSlave} checked.
      */
     private List<OfflineRegister> allOfflineRegisters = Collections.emptyList();
 
@@ -159,6 +160,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     private void goOffline(OfflineDeviceContext context) {
+        List<SecurityAccessor> slaveSecurityAccessors = new ArrayList<>();
+
         setLocation(device.getLocation().map(Object::toString).orElse(""));
         setUsagePoint(device.getUsagePoint().map(Object::toString).orElse(""));
         setId(this.device.getId());
@@ -169,11 +172,14 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
             setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass().get());
         }
+
         if (context.needsSlaveDevices()) {
             List<Device> downstreamDevices = getPhysicalConnectedDevices(this.device);
-            List<Device> downStreamEndDevices = new ArrayList<>(downstreamDevices.size());
-            downStreamEndDevices.addAll(downstreamDevices.stream().collect(Collectors.toList()));
-            setSlaveDevices(convertToOfflineRtus(downStreamEndDevices));
+            setSlaveDevices(convertToOfflineRtus(downstreamDevices));
+
+            for (final Device device : downstreamDevices) {
+                slaveSecurityAccessors.addAll( device.getSecurityAccessors() );
+            }
         }
         if (context.needsMasterLoadProfiles()) {
             setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles(), serviceProvider.topologyService()));
@@ -188,7 +194,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         if (context.needsRegisters()) {
             setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
-        setAllKeyAccessors(convertToOfflineKeyAccessors(this.device.getSecurityAccessors()));
+
+        List<SecurityAccessor> allSecurityAccessors = new ArrayList<>(slaveSecurityAccessors);
+        allSecurityAccessors.addAll( this.device.getSecurityAccessors() );
+
+        setAllKeyAccessors(convertToOfflineKeyAccessors( allSecurityAccessors ));
         setSecurityPropertySetAttributeToKeyAccessorTypeMapping(this.device);
         if (context.needsPendingMessages()) {
             try {
@@ -198,7 +208,6 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
                 List<DeviceMessage> reallyPending = new ArrayList<>();
                 List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
                 pendingMessages
-                        .stream()
                         .forEach(deviceMessage -> {
                             if (validator.isStillValid(deviceMessage)) {
                                 reallyPending.add(deviceMessage);
@@ -278,7 +287,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     /**
      * Create a <CODE>List</CODE> of all the <CODE>LoadProfiles</CODE> a <CODE>Device</CODE> has,
      * including the physically connected devices which have the
-     * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave()} flag checked.
+     * {@link DeviceType#isLogicalSlave()} flag checked.
      *
      * @param device the <CODE>Device</CODE> to collect the <CODE>LoadProfiles</CODE> from
      * @return a List of <CODE>LoadProfiles</CODE>
@@ -301,7 +310,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     /**
      * Converts the given {@link Device}s to {@link OfflineDevice}s if they have the option
-     * {@link com.energyict.mdc.device.config.DeviceType#isLogicalSlave()} checked.
+     * {@link DeviceType#isLogicalSlave()} checked.
      *
      * @param downstreamRtus The rtus to go offline
      * @return a list of OfflineDevice
@@ -343,9 +352,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     private List<OfflineKeyAccessor> convertToOfflineKeyAccessors(final List<SecurityAccessor> securityAccessors) {
-        List<OfflineKeyAccessor> offlineKeyAccesssors = new ArrayList<>(securityAccessors.size());
-        offlineKeyAccesssors.addAll(securityAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
-        return offlineKeyAccesssors;
+        List<OfflineKeyAccessor> offlineKeyAccessors = new ArrayList<>(securityAccessors.size());
+        offlineKeyAccessors.addAll(securityAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
+        return offlineKeyAccessors;
     }
 
     @Override
@@ -643,13 +652,13 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     private void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(Device device) {
         securityPropertySetAttributeToKeyAccessorTypeMapping = new HashMap<>();
-        device.getDeviceConfiguration().getSecurityPropertySets().stream().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
+        device.getDeviceConfiguration().getSecurityPropertySets().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
 
     }
 
     private void addSecurityPropertySetAttributeToKeyAccessorTypeMappings(SecurityPropertySet securityPropertySet) {
         TypedProperties mappings = TypedProperties.empty();
-        securityPropertySet.getConfigurationSecurityProperties().stream().forEach(each -> mappings.setProperty(each.getName(), each.getSecurityAccessorType().getName()));
+        securityPropertySet.getConfigurationSecurityProperties().forEach(each -> mappings.setProperty(each.getName(), each.getSecurityAccessorType().getName()));
         securityPropertySetAttributeToKeyAccessorTypeMapping.put(securityPropertySet.getName(), mappings);
     }
 

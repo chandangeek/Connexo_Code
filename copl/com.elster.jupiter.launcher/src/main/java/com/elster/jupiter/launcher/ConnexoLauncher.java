@@ -70,10 +70,10 @@ public class ConnexoLauncher {
         startFramework(configMap, installDir);
         if (install) {
             stopFramework();
+            System.exit(0);
         } else {
             registerShutdownHook();
         }
-
     }
 
     private static void stopFramework() {

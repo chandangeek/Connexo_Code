@@ -13,6 +13,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.impl.TableSpecs;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
@@ -21,14 +22,14 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionChangeRequest;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedActionRequestFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests.AuthorizedTransitionActionComplexEditRequest;
@@ -90,6 +91,8 @@ public class AuthorizedActionRequestFactoryIT {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceLifeCycleService deviceLifeCycleService;
+    @Mock
+    private MeteringTranslationService meteringTranslationService;
 
     @BeforeClass
     public static void initialize() {
@@ -158,7 +161,7 @@ public class AuthorizedActionRequestFactoryIT {
                         new ConcurrentModificationExceptionFactory(this.thesaurus),
                         this.nlsService);
         microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(deviceLifeCycleService, thesaurus);
-        authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, deviceLifeCycleConfigurationService, microActionAndCheckInfoFactory);
+        authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, deviceLifeCycleConfigurationService, microActionAndCheckInfoFactory,meteringTranslationService);
     }
 
     @Transactional

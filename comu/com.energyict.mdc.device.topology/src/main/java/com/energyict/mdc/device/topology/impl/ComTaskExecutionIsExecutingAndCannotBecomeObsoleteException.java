@@ -7,8 +7,8 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made to make a
@@ -19,11 +19,11 @@ import com.energyict.mdc.engine.config.ComServer;
  */
 public class ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException extends LocalizedException {
 
-    public ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(ComTaskExecution comTaskExecution, ComServer comServer, Thesaurus thesaurus, MessageSeed messageSeed) {
-        super(thesaurus, messageSeed, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comServer.getName());
+    public ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(ComTaskExecution comTaskExecution, ComPort comPort, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comPort.getName());
         this.set("comTask", comTaskExecution.getId());
         this.set("device", comTaskExecution.getDevice());
-        this.set("comServerName", comServer.getName());
+        this.set("comPort", comPort.getName());
     }
 
 }

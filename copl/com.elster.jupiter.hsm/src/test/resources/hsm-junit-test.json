@@ -25,6 +25,9 @@
       "port": 9000,
       "moduleId": 0,
       "secure": false,
+      "state": {
+        "stateValue": 0
+      },
       "protocol": "KS"
     }
   ],

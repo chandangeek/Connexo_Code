@@ -68,9 +68,15 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                                      }else{
                                           me.down('#firmware-min-communication-version-common').hide();
                                      }
+                                     if (Ext.Array.filter(me.supportedTypes, function(item){ return item.data.id === "auxiliary"}).length){
+                                          me.down('#firmware-min-auxiliary-version-common').show();
+                                     }else{
+                                          me.down('#firmware-min-auxiliary-version-common').hide();
+                                     }
                                 }else{
                                      me.down('#firmware-min-meter-version-common').show();
                                      me.down('#firmware-min-communication-version-common').show();
+                                     me.down('#firmware-min-auxiliary-version-common').show();
                                 }
                                 me.down('#text-imageIdentifier').show();
                                 me.down('#text-firmware-version').setFieldLabel(
@@ -78,6 +84,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                             } else {
                                 me.down('#firmware-min-meter-version-common').hide();
                                 me.down('#firmware-min-communication-version-common').hide();
+                                me.down('#firmware-min-auxiliary-version-common').hide();
                                 me.down('#text-imageIdentifier').hide();
                                 me.down('#text-firmware-version').setFieldLabel(
                                     Uni.I18n.translate('general.versionImageIdentifier', 'FWC', 'Version/Image identifier'));
@@ -117,7 +124,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                 flex: 1,
                 itemId: 'firmware-min-meter-version-common',
                 hidden : true,
-                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
+                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimum meter firmware version'),
                 required: false,
                 items: [
                         {
@@ -161,14 +168,14 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                 flex: 1,
                 itemId: 'firmware-min-communication-version-common',
                 hidden : true,
-                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version communication firmware'),
+                fieldLabel: Uni.I18n.translate('general.minCommVersion', 'FWC', 'Minimum communication firmware version'),
                 required: false,
                 items: [
                         {
                             xtype: 'combobox',
                             itemId: 'firmware-min-communication-version',
                             allowBlank: false,
-                            store: 'Fwc.store.CommunicationFirmwareDepependencies',
+                            store: 'Fwc.store.CommunicationFirmwareDependencies',
                             displayField: 'name',
                             valueField: 'id',
                             hiddenName: 'communicationFirmwareDependency',
@@ -197,6 +204,49 @@ Ext.define('Fwc.view.firmware.FormAdd', {
 
                         }
                        ]
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                flex: 1,
+                itemId: 'firmware-min-auxiliary-version-common',
+                hidden : true,
+                fieldLabel: Uni.I18n.translate('general.minAuxiliaryVersion', 'FWC', 'Minimum auxiliary firmware version'),
+                required: false,
+                items: [
+                        {
+                            xtype: 'combobox',
+                            itemId: 'firmware-min-auxiliary-version',
+                            allowBlank: false,
+                            store: 'Fwc.store.AuxiliaryFirmwareDependencies',
+                            displayField: 'name',
+                            valueField: 'id',
+                            hiddenName: 'auxiliaryFirmwareDependency',
+                            queryMode: 'local',
+                            listeners: {
+                                change: function (combobox) {
+                                    if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-auxiliary-version-default-button');
+                                    if (combobox.getValue()) {
+                                        this.resetButton.setDisabled(false);
+                                    } else {
+                                        this.resetButton.setDisabled(true);
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'uni-default-button',
+                            itemId: 'firmware-min-auxiliary-version-default-button',
+                            hidden: false,
+                            disabled: true,
+                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            margin: '0 30',
+                            handler: function () {
+                                this.previousSibling('#firmware-min-auxiliary-version').reset();
+                            }
+
+                        }
+                       ]
             }
         ];
 
@@ -221,8 +271,9 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                  }
             });
         }
-        setMinLevelComboBoxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDepependencies', 'meter');
-        setMinLevelComboBoxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDepependencies', 'communication');
+        setMinLevelComboBoxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDependencies', 'meter');
+        setMinLevelComboBoxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDependencies', 'communication');
+        setMinLevelComboBoxStore('firmware-min-auxiliary-version', 'Fwc.store.AuxiliaryFirmwareDependencies', 'auxiliary');
 
         me.callParent(arguments);
     },

@@ -5,8 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
 
 import java.util.Optional;
 

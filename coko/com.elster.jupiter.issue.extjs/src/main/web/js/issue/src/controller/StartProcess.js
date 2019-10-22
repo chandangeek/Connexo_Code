@@ -24,7 +24,7 @@ Ext.define('Isu.controller.StartProcess', {
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             fromDetails = router.queryParams.details === 'true',
-            queryParamsForBackUrl = fromDetails ? router.queryParams : null,
+            queryParamsForBackUrl = router.queryParams,
             issueModel = 'Idc.model.Issue',
             issueType = 'datacollectionissue' ;
 
@@ -39,6 +39,16 @@ Ext.define('Isu.controller.StartProcess', {
         {
             issueModel = 'Itk.model.Issue';
             issueType = 'taskissue';
+        }
+        else if (router.queryParams.issueType === "servicecall")
+        {
+            issueModel = 'Isc.model.Issue';
+            issueType = 'servicecallissue';
+        }
+        else if (router.queryParams.issueType === "webservice")
+        {
+            issueModel = 'Iws.model.Issue';
+            issueType = 'webserviceissue';
         }
 
         Ext.ModelManager.getModel(issueModel).load(issueId, {

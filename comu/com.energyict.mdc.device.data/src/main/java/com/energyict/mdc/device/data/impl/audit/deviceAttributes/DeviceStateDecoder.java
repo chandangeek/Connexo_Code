@@ -12,8 +12,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.util.Comparator;
 import java.util.List;
@@ -69,7 +69,7 @@ public class DeviceStateDecoder {
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(s -> decoder.getDeviceLifeCycleConfigurationService().getDisplayName(s))
+                .map(s -> decoder.getMeteringTranslationService().getDisplayName(s))
                 .orElseGet(state::getName);
     }
 

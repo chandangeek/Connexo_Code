@@ -6,9 +6,9 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -56,9 +56,11 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl<PrimaryKeyCons
     
     @Override
     void appendDdlTrailer(StringBuilder builder) {
-        getTable().partitionColumn()
-        	.filter( column -> getColumns().contains(column))
-        	.ifPresent( column -> builder.append(" USING INDEX LOCAL "));
+        if (getTable().getDataModel().getSqlDialect().hasPartitioning()) {
+            getTable().partitionColumn()
+                    .filter(column -> getColumns().contains(column))
+                    .ifPresent(column -> builder.append(" USING INDEX LOCAL "));
+        }
     }
 
     void setPredecessor(PrimaryKeyConstraint predecessor) {

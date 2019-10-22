@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by cisac on 10/31/2016.
@@ -34,9 +35,11 @@ public class AM540LogBookFactory extends AM130LogBookFactory {
         if (logBookObisCode.equals(SECURITY_LOG)) {
             meterEvents = new AM540SecurityEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
         } else {
-            return super.parseEvents(dataContainer, logBookObisCode);
+            //map the meter events in order to change the device type of the code to the correct device type from protocol
+            return super.parseEvents(dataContainer, logBookObisCode).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList());
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+        //map the meter events in order to change the device type of the code to the correct device type from protocol
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList());
     }
 
 }

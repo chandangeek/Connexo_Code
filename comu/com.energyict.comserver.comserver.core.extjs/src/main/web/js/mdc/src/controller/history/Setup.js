@@ -381,6 +381,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+                        autoclosureexclusions: {
+                            title: Uni.I18n.translate('devicemenu.exclusionsFromAutoclosure', 'MDC', 'Exclusions from autoclosure'),
+                            route: 'autoclosureexclusions',
+                            controller: 'Mdc.controller.setup.AutoclosureExclusions',
+                            privileges: [ Mdc.privileges.Device.viewDevice, Mdc.privileges.CreationRule.viewCreationRule ],
+                            action: 'showAutoclosureExclusions',
+                        },
                         changedeviceconfiguration: {
                             title: Uni.I18n.translate('devicemenu.changedeviceconfiguration', 'MDC', 'Change device configuration'),
                             route: 'changedeviceconfiguration',
@@ -1316,6 +1323,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'regdevices',
                             controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                             action: 'showRegisteredDevicesOnGateway'
+                        },
+                        newissuemanually: {
+                                title: Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue'),
+                                route: 'newissuemanually',
+                                controller: 'Isu.controller.CreationManualRule',
+                                action: 'createNewManualIssue',
+                                privileges: Isu.privileges.Issue.createManualIssue
                         }
                     }
                 }
@@ -1352,7 +1366,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('tsk.general.addTask', 'MDC', 'Add task'),
                             route: 'add',
                             privileges: function () {
-                                return Apr.TaskManagementApp.canAdministrate();
+                                return Apr.TaskManagementApp.canAdministrate() && Uni.Auth.hasPrivilege('privilege.edit.AdministerTaskOverview');
                             },
                             haveDependenciesLoaded: function () {
                                 return Apr.TaskManagementApp.dependenciesLoaded();
@@ -2179,7 +2193,23 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 privileges: Mdc.privileges.SecurityAccessor.admin,
                                                 controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
                                                 action: 'showAddSecurityAccessorToDeviceType'
+                                            },
+                                            edit: {
+                                                title: Uni.I18n.translate('securityaccessors.editKeyRenewal', 'MDC', 'Edit key renewal'),
+                                                route: '{securityAccessorId}/configurekeyrenewal',
+                                                privileges: Mdc.privileges.SecurityAccessor.admin,
+                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                                action: 'configurekeyrenewal',
+                                                callback: function (route) {
+                                                    this.getApplication().on('configurekeyrenewal', function (record) {
+                                                        route.setTitle(Uni.I18n.translate('general.editKeyRenewal', 'MDC', "Edit key renewal for '{0}'", record.get('name'), false));
+                                                        return true;
+                                                    }, {single: true});
+
+                                                    return this;
+                                                }
                                             }
+
                                         }
                                     }
                                 }
@@ -2552,6 +2582,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 privileges: Mdc.privileges.Communication.admin,
                                                 controller: 'Mdc.controller.setup.Comtasks',
                                                 action: 'showCommunicationTaskCommandCategoriesAdd'
+                                            }
+                                        }
+                                    },
+                                    privileges: {
+                                        title: Uni.I18n.translate('comtask.message.privileges', 'MDC', 'Privileges'),
+                                        route: 'privileges',
+                                        privileges: Mdc.privileges.Communication.view,
+                                        controller: 'Mdc.controller.setup.Comtasks',
+                                        action: 'showCommunicationTaskPrivileges',
+                                        items: {
+                                            add: {
+                                                title: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                                route: 'add',
+                                                privileges: Mdc.privileges.Communication.admin,
+                                                controller: 'Mdc.controller.setup.Comtasks',
+                                                action: 'showCommunicationTaskPrivilegesAdd'
                                             }
                                         }
                                     }
@@ -2981,9 +3027,9 @@ Ext.define('Mdc.controller.history.Setup', {
                     audit: {
                         title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
                         route: 'audit',
-                        controller: 'Mdc.audit.controller.Audit',
+                        controller: 'Cfg.audit.controller.Audit',
                         action: 'showOverview',
-                        privileges: Cfg.privileges.Validation.viewAuditLog
+                        privileges: Cfg.privileges.Audit.viewAuditLog
                     }
                 }
             }

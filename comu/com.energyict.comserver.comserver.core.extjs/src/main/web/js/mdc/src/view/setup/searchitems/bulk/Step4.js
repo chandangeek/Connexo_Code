@@ -63,16 +63,31 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         }
     ],
     showMessage: function (message) {
-        this.down('#messageField').setValue(Ext.String.htmlEncode(message.body));
-        this.down('#displayTitle').setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
+        var me = this;
+        var messageField = me.down('#messageField');
+        var displayTitle = me.down('#displayTitle');
+        if (messageField && displayTitle) {
+            messageField.setValue(Ext.String.htmlEncode(message.body));
+            displayTitle.setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
+        } else if (message){
+            var widget = {
+                html: '<h3>' + Ext.String.htmlEncode(message.title) + '</h3><br>' + Ext.String.htmlEncode(message.body)
+            };
+            Ext.suspendLayouts();
+            me.removeAll();
+            me.add(widget);
+            Ext.resumeLayouts();
+        }
+
     },
 
     isRemove: function () {
-        this.down('#strategyform') && this.down('#strategyform').hide();
+//        this.down('#strategyform').hide();
+        if(this.down('#strategyform')) this.down('#strategyform').hide();
     },
 
     showStrategyForm: function () {
-        this.down('#strategyform') && this.down('#strategyform').show();
+        this.down('#strategyform').show();
     },
 
 
@@ -102,9 +117,6 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
 
     showStartProcessConfirmation: function (title, text, additionalText, type) {
         var widget, bodyText = Ext.String.htmlEncode(text);
-        console.log('title=',title);
-        console.log('tetxt=',text);
-        console.log('additionalText=',additionalText);
         if (additionalText) bodyText += '<br>' + additionalText;
         type = type ? type : 'confirmation';
         widget = {

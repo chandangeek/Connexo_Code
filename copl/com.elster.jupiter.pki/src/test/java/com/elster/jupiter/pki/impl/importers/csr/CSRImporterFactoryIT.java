@@ -111,20 +111,6 @@ public class CSRImporterFactoryIT {
 
     @Test
     @Transactional
-    public void testRequiredPropertySpecs() {
-        List<PropertySpec> propertySpecs = csrImporterFactory.getPropertySpecs();
-        propertySpecs.stream()
-                .filter(propertySpec -> !propertySpec.getName().contains("export"))
-                .forEach(propertySpec -> assertThat(propertySpec.isRequired()).isTrue());
-        assertThat(getPropertySpec(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES).isRequired()).isTrue();
-        propertySpecs.stream()
-                .filter(propertySpec -> propertySpec.getName().contains("export")
-                        && !propertySpec.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()))
-                .forEach(propertySpec -> assertThat(propertySpec.isRequired()).isFalse());
-    }
-
-    @Test
-    @Transactional
     public void testTimeoutDefaultValue() {
         assertThat(getPropertySpec(CSRImporterTranslatedProperty.TIMEOUT).getPossibleValues().getDefault())
                 .isEqualTo(TimeDuration.seconds(30));
@@ -353,7 +339,9 @@ public class CSRImporterFactoryIT {
                 .setScheduleExpression(Never.NEVER)
                 .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.minutes(1))
                 .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(sa)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()).withValue(false)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER.getPropertyKey()).withValue(false)
+                .addProperty(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()).withValue("{}")
                 .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
                 .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
                 .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
@@ -396,19 +384,20 @@ public class CSRImporterFactoryIT {
                 .setScheduleExpression(Never.NEVER)
                 .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.seconds(1))
                 .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(sa)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(true)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()).withValue(true)
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(sa)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_HOSTNAME.getPropertyKey()).withValue("Hostname")
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey()).withValue(2222L)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_USER.getPropertyKey()).withValue("User")
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_PASSWORD.getPropertyKey()).withValue("Password")
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER.getPropertyKey()).withValue(true)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_SFTP_HOSTNAME.getPropertyKey()).withValue("Hostname")
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_SFTP_PORT.getPropertyKey()).withValue(2222L)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_SFTP_USER.getPropertyKey()).withValue("User")
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_SFTP_PASSWORD.getPropertyKey()).withValue("Password")
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_FILE_NAME.getPropertyKey()).withValue("Exported")
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_FILE_EXTENSION.getPropertyKey()).withValue("zip")
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey()).withValue("Resource")
                 .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
                 .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
                 .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
-
+                .addProperty(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()).withValue("{}")
                 .create();
     }
 
@@ -426,7 +415,7 @@ public class CSRImporterFactoryIT {
                 .setActiveInUI(false)
                 .setScheduleExpression(Never.NEVER)
                 .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.years(0))
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false);
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()).withValue(false);
 
         exceptionRule.expect(LocalizedFieldValidationException.class);
         exceptionRule.expectMessage("properties." + CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey() + ": Positive value is required.");
@@ -447,33 +436,11 @@ public class CSRImporterFactoryIT {
                 .setActiveInUI(false)
                 .setScheduleExpression(Never.NEVER)
                 .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.months(1))
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey()).withValue(-2L)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false);
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_SFTP_PORT.getPropertyKey()).withValue(-2L)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()).withValue(false);
 
         exceptionRule.expect(LocalizedFieldValidationException.class);
-        exceptionRule.expectMessage("properties." + CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey() + ": Positive value is required.");
-        builder.create();
-    }
-
-    @Test
-    @Transactional
-    public void testExportPropertyIsRequiredForExport() {
-        ImportScheduleBuilder builder = pkiInMemoryPersistence.getFileImportService().newBuilder()
-                .setName("Importer")
-                .setPathMatcher("")
-                .setImportDirectory(FileSystems.getDefault().getPath("import"))
-                .setFailureDirectory(FileSystems.getDefault().getPath("failure"))
-                .setSuccessDirectory(FileSystems.getDefault().getPath("success"))
-                .setProcessingDirectory(FileSystems.getDefault().getPath("inProgress"))
-                .setImporterName(CSRImporterFactory.NAME)
-                .setActiveInUI(false)
-                .setScheduleExpression(Never.NEVER)
-                .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.minutes(2))
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey()).withValue(2222L)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(true);
-
-        exceptionRule.expect(LocalizedFieldValidationException.class);
-        exceptionRule.expectMessage("properties." + CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey() + ": This field is required.");
+        exceptionRule.expectMessage("properties." + CSRImporterTranslatedProperty.EXPORT_SFTP_PORT.getPropertyKey() + ": Positive value is required.");
         builder.create();
     }
 
