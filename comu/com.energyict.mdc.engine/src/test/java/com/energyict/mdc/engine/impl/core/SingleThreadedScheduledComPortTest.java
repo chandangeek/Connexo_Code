@@ -681,7 +681,7 @@ public class SingleThreadedScheduledComPortTest {
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
-        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getName()).thenReturn("SingleThreadedScheduledComPortTest#" + name);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
@@ -861,6 +861,11 @@ public class SingleThreadedScheduledComPortTest {
         @Override
         public void free(DeviceCommandExecutionToken unusedToken) {
             this.actualExecutor.free(unusedToken);
+        }
+
+        @Override
+        public void freeSilently(DeviceCommandExecutionToken unusedToken) {
+            this.actualExecutor.freeSilently(unusedToken);
         }
 
         @Override

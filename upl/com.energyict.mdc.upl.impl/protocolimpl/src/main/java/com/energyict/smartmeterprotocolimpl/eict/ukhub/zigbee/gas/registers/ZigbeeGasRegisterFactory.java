@@ -8,7 +8,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.ActivePassive;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -106,9 +106,9 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
                 return new RegisterValue(register, quantity);
             } else if (dataType.isOctetString()) {
                 if (obisCode.equals(ObisCodeProvider.cotManagement)) {
-                    DateTime dateTime = ((OctetString) dataType).getDateTime(getZigbeeGas().getTimeZone());
-                    if (dateTime != null) {
-                        return new RegisterValue(register, new Quantity(dateTime.getValue().getTimeInMillis(), Unit.getUndefined()), dateTime.getValue().getTime());
+                    DateTimeOctetString dateTimeOctetString = ((OctetString) dataType).getDateTime(getZigbeeGas().getTimeZone());
+                    if (dateTimeOctetString != null) {
+                        return new RegisterValue(register, new Quantity(dateTimeOctetString.getValue().getTimeInMillis(), Unit.getUndefined()), dateTimeOctetString.getValue().getTime());
                     }
                 }
                 return new RegisterValue(register, ((OctetString) dataType).stringValue());

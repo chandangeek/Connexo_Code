@@ -44,7 +44,7 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
 
     me.content = {
         ui: 'large',
-        title: Uni.I18n.translate('general.log', 'WSS', 'Log'),
+        title: Uni.I18n.translate('general.logs', 'WSS', "Log '{0}'",Uni.DateTime.formatDateTimeShort(me.time), false),
         tools: [
           {
               xtype: 'uni-button-action',

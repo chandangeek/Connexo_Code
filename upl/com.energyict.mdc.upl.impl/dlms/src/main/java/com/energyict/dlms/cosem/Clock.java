@@ -15,7 +15,7 @@ import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.attributes.ClockAttributes;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
@@ -348,8 +348,8 @@ public class Clock extends AbstractCosemObject {
         return AXDRDecoder.decode(getResponseData(ClockAttributes.TIME));
     }
 
-    public void setTimeAttr(DateTime dateTime) throws IOException {
-        write(ClockAttributes.TIME, dateTime.getBEREncodedByteArray());
+    public void setTimeAttr(DateTimeOctetString dateTimeOctetString) throws IOException {
+        write(ClockAttributes.TIME, dateTimeOctetString.getBEREncodedByteArray());
     }
 
     /**
