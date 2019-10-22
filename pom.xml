@@ -35,6 +35,9 @@
     </scm>
 
     <properties>
+        <sencha.workspace>${project.basedir}/src/main/web/${js.dir}</sencha.workspace>
+        <sencha.src.dir>${project.basedir}/src/main/web/${js.dir}/src</sencha.src.dir>
+        <sencha.build.dir>${project.basedir}/src/main/web/${js.dir}/build</sencha.build.dir>
         <source.version>1.8</source.version>
         <target.version>1.8</target.version>
         <include.source>false</include.source>
@@ -183,6 +186,14 @@
                 <version>4.12</version>
                 <scope>test</scope>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.carrotsearch/junit-benchmarks -->
+            <dependency>
+                <groupId>com.carrotsearch</groupId>
+                <artifactId>junit-benchmarks</artifactId>
+                <version>0.2.1</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
@@ -292,11 +303,6 @@
                     <version>1.3</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.6</version>
-                </plugin>
-                <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>3.0.2</version>
@@ -375,6 +381,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
+<!--                    <failOnWarning>true</failOnWarning>-->
                     <instructions>
                         <Bundle-Vendor>Elster</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
@@ -432,22 +439,6 @@
                         <projectnature>bndtools.core.bndnature</projectnature>
                     </additionalProjectnatures>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <java.util.logging.config.file>../copl/com.elster.jupiter.parent/junit-logging.properties</java.util.logging.config.file>
-                    </systemPropertyVariables>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -579,7 +570,7 @@
                             <excludeDefaultDirectories>false</excludeDefaultDirectories>
                             <filesets>
                                 <fileset>
-                                    <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                    <directory>${sencha.build.dir}</directory>
                                     <followSymlinks>false</followSymlinks>
                                 </fileset>
                             </filesets>
@@ -612,12 +603,14 @@
                                 <configuration>
                                     <resources>
                                         <resource>
-                                            <directory>${basedir}/src/main/web</directory>
+                                            <directory>${sencha.workspace}</directory>
+                                            <targetPath>${js.dir}</targetPath>
                                             <includes>
                                                 <include>**/*</include>
                                             </includes>
                                         </resource>
-                                        <!-- This is needed while some js files are directly pointed from html files and needs to have same path as in sencha-compile-->
+                                        <!-- This is needed while some js files are directly pointed from html (and some app.js) files and needs to have same path as in sencha-compile
+                                        (for modules that append sencha-dev profile and are actually compiling the app, e.g: loaderjs,unifyingjs...)-->
                                         <resource>
                                             <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
                                             <targetPath>${js.dir}</targetPath>
@@ -653,7 +646,7 @@
                             <excludeDefaultDirectories>false</excludeDefaultDirectories>
                             <filesets>
                                 <fileset>
-                                    <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                    <directory>${sencha.build.dir}</directory>
                                     <followSymlinks>false</followSymlinks>
                                 </fileset>
                             </filesets>
@@ -669,7 +662,7 @@
                                     <goal>verify</goal>
                                 </goals>
                                 <configuration>
-                                    <scanFolders>${project.basedir}/src/main/web</scanFolders>
+                                    <scanFolders>${sencha.src.dir}</scanFolders>
                                     <applicationFiles>app.json</applicationFiles>
                                     <packageFiles>package.json</packageFiles>
                                     <packages>com.elster.*,com.energyict.*,uni-theme-skyline</packages>
@@ -707,11 +700,11 @@
                                         <echo>Sencha build</echo>
                                         <echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
                                         <echo>Using Ext lib in ${sencha.ext.dir}</echo>
-                                        <property name="build.dir" value="${project.basedir}/src/main/web/${js.dir}/build"/>
+                                        <property name="build.dir" value="${sencha.build.dir}"/>
                                         <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
                                         <property name="cmd.dir" value="${sencha.cmd.dir}"/>
                                         <property name="ext.dir" value="${sencha.ext.dir}"/>
-                                        <ant antfile="build.xml" target="build" dir="./src/main/web/${js.dir}"/>
+                                        <ant antfile="build.xml" target="build" dir="${sencha.workspace}"/>
                                     </target>
                                 </configuration>
                             </execution>
@@ -725,7 +718,7 @@
                                     <target unless="skipSencha" if="package.name">
                                         <property name="cmd.dir" value="${sencha.cmd.dir}"/>
                                         <property name="package.file"
-                                                  value="${project.basedir}/src/main/web/${js.dir}/build/${package.name}/${package.name}.pkg"/>
+                                                  value="${sencha.build.dir}/${package.name}/${package.name}.pkg"/>
                                         <available file="${package.file}" property="package.present"/>
                                         <taskdef resource="com/sencha/ant/antlib.xml" classpath="${cmd.dir}/sencha.jar"
                                                  loaderref="senchaloader"/>
@@ -753,7 +746,7 @@
                                 <configuration>
                                     <resources>
                                         <resource>
-                                            <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                            <directory>${sencha.build.dir}</directory>
                                             <targetPath>${js.dir}</targetPath>
                                             <includes>
                                                 <include>**/*</include>

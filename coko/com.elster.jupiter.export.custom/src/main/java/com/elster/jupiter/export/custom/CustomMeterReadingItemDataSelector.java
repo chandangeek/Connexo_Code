@@ -66,7 +66,10 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     private final TransactionService transactionService;
 
     private int exportCount;
+    private int updateCount;
     private Logger logger;
+
+    private Range<Instant> currentExportInterval;
 
     @Inject
     CustomMeterReadingItemDataSelector(Clock clock,
@@ -86,17 +89,21 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return exportCount;
     }
 
+    public int getUpdateCount() {
+        return updateCount;
+    }
+
     Clock getClock() {
         return clock;
     }
 
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        Range<Instant> exportInterval = adjustedExportPeriod(occurrence, item);
+        this.currentExportInterval = adjustedExportPeriod(occurrence, item);
 
-        warnIfExportPeriodCoversFuture(occurrence, exportInterval);
+        warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
-        List<BaseReading> readings = getReadings(item, exportInterval);
+        List<BaseReading> readings = getReadings(item, currentExportInterval);
 
         String itemDescription = item.getDescription();
 
@@ -105,9 +112,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             readings = filterReadings(readings);
 
             List<Instant> instants = new ArrayList<>();
-            Instant instant = truncateToDays(exportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
+            Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
 
-            while (!instant.isAfter(exportInterval.upperEndpoint())) {
+            while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
                 instants.add(instant);
                 instant = instant.plus(1, ChronoUnit.HOURS);
             }
@@ -131,11 +138,11 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarker(exportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
 
@@ -278,8 +285,15 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             Map<Instant, DataValidationStatus> validationStatuses = new HashMap<>();
             readings.stream().forEach(r -> validationStatuses.put(r.getTimeStamp(), new SimpleDataValidationStatusImpl(r.getTimeStamp(), ValidationResult.ACTUAL)));
+            updateCount++;
             return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarkerForUpdate()));
         }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
+            context.commit();
+        }
+
         return Optional.empty();
     }
 
@@ -295,11 +309,11 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             DataExportRunParameters runParameters = (occurrence).getTask().getRunParameters(adhocTime.get()).get();
             baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
             base.add(baseRange);
-            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+            base.remove(currentExportInterval);
         } else {
             baseRange = determineBaseUpdateInterval(occurrence, item);
             base.add(baseRange);
-            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+            base.remove(currentExportInterval);
         }
         return base.asRanges().stream().findFirst().orElse(baseRange);
     }

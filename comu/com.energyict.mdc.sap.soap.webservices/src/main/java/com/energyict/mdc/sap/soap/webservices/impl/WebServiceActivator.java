@@ -113,6 +113,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -125,6 +126,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
         immediate = true)
 public class WebServiceActivator implements MessageSeedProvider, TranslationKeyProvider {
     private static final Logger LOGGER = Logger.getLogger(WebServiceActivator.class.getName());
+    private static final String DEVICE_TYPES_MAPPING = "com.elster.jupiter.sap.device.types.mapping";
+    private static final String DEFAULT_DEVICE_TYPES_MAPPING = "MTREAHW0MV:A1860;MTREAHW0LV:AS3500";
 
     public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
@@ -170,6 +173,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
@@ -198,6 +202,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private Map<String, String> deviceTypesMap;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -231,6 +236,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return Optional.ofNullable(exportTaskUpdatedDataEndpointName);
     }
 
+    public Map<String, String> getDeviceTypesMap() {
+        return deviceTypesMap;
+    }
+
     public WebServiceActivator() {
         // for OSGI purposes
     }
@@ -248,7 +257,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                TaskService taskService, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService,
                                MeteringGroupsService meteringGroupsService, DataExportService dataExportService,
                                TimeService timeService,
-                               MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor) {
+                               MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
+                               DeviceAlarmService deviceAlarmService,
+                               IssueService issueService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -277,6 +288,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         setDataExportService(dataExportService);
         setTimeService(timeService);
         setMeasurementTaskAssignmentChangeProcessor(measurementTaskAssignmentChangeProcessor);
+        setDeviceAlarmService(deviceAlarmService);
+        setIssueService(issueService);
         activate(bundleContext);
     }
 
@@ -314,6 +327,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 bind(DataExportService.class).toInstance(dataExportService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(MeasurementTaskAssignmentChangeProcessor.class).toInstance(measurementTaskAssignmentChangeProcessor);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(NlsService.class).toInstance(nlsService);
+                bind(WebServiceActivator.class).toInstance(WebServiceActivator.this);
             }
         };
     }
@@ -348,6 +364,20 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_UPDATE_WINDOW));
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
+
+        loadDeviceTypesMap();
+    }
+
+    private void loadDeviceTypesMap() {
+        try {
+            String strMap = Optional.ofNullable(getPropertyValue(bundleContext, DEVICE_TYPES_MAPPING)).orElse(DEFAULT_DEVICE_TYPES_MAPPING);
+            deviceTypesMap = Arrays.stream(strMap.split(";"))
+                    .map(s -> s.split(":"))
+                    .collect(Collectors.toMap(e -> e[0], e -> e[1]));
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, MessageSeeds.ERROR_LOADING_PROPERTY.getDefaultFormat(DEVICE_TYPES_MAPPING, ex.getLocalizedMessage()));
+            deviceTypesMap = Collections.emptyMap();
+        }
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {
@@ -560,7 +590,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     public void removeMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
-            MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
+        MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
     }
 
     @Reference
@@ -575,6 +605,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
     }
