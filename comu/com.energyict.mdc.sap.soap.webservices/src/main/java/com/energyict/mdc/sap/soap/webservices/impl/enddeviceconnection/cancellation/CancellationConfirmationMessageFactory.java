@@ -54,6 +54,14 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
+    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, String message, int number, Instant now) {
+        SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
+        confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), now));
+        confirmMsg.setLog(objectFactory.createLog());
+        confirmMsg.getLog().getItem().add(createLogItem(message, number));
+        return confirmMsg;
+    }
+
     private SmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq createBodyMessage(String mrId) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq confirmationMessage = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq();
         UtilitiesConnectionStatusChangeRequestID valueId = objectFactory.createUtilitiesConnectionStatusChangeRequestID();
@@ -83,6 +91,18 @@ public class CancellationConfirmationMessageFactory {
         return log;
     }
 
+    private LogItem createLogItem(String message, int number) {
+        LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
+        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
+
+        LogItem logItem = objectFactory.createLogItem();
+        logItem.setTypeID(String.valueOf(number));
+        logItem.setCategoryCode(logItemCategoryCode);
+        logItem.setNote(message);
+
+        return logItem;
+    }
+
     private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
@@ -94,7 +114,6 @@ public class CancellationConfirmationMessageFactory {
 
         return logItem;
     }
-
 
     private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
 

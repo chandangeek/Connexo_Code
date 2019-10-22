@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.util.exception.BaseException;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCancellationConfirmation;
@@ -84,21 +85,21 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     void handleMessage(StatusChangeRequestCancellationRequestMessage message) {
-        if (message.isValid()) {
+        CompletableFuture.runAsync(() -> {
             try {
-                CompletableFuture.runAsync(() -> {
+                if (message.isValid()) {
                     CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
                     sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), document, clock.instant()));
-                }).get();
-            } catch (ExecutionException e) {
-                throw new RuntimeException(e.getCause());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                } else {
+                    sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+                }
+            } catch (BaseException be) {
+                sendProcessError(message, be.getMessageSeed().getDefaultFormat(), be.getMessageSeed().getNumber());
+            } catch (Exception e) {
+                sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
             }
-        } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-        }
+        });
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {
@@ -156,8 +157,13 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+        log(LogLevel.SEVERE, thesaurus.getSimpleFormat(messageSeed).format());
         sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, clock.instant()));
+    }
+
+    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg, int number) {
+        log(LogLevel.SEVERE, msg);
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, msg, number, clock.instant()));
     }
 
     private void sendMessage(SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmationMessage) {

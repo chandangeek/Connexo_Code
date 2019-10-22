@@ -18,6 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     INTERVAL_INVALID(5, "wrongInterval", "Invalid interval [{0},{1})."),
     NO_WEB_SERVICE_ENDPOINTS(6, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
     ERROR_LOADING_PROPERTY(7, "ErrorLoadingProperty", "Error while loading property ''{0}'': ''{1}''."),
+    UNEXPECTED_EXCEPTION(8, "UnexpectedException", "Exception occurred while processing request : ''{0}''."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
