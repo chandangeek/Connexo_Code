@@ -18,6 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     INTERVAL_INVALID(5, "wrongInterval", "Invalid interval [{0},{1})."),
     NO_WEB_SERVICE_ENDPOINTS(6, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
     ERROR_LOADING_PROPERTY(7, "ErrorLoadingProperty", "Error while loading property ''{0}'': ''{1}''."),
+    UNEXPECTED_EXCEPTION(8, "UnexpectedException", "Exception occurred while processing request : ''{0}''."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -71,6 +72,10 @@ public enum MessageSeeds implements MessageSeed {
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST(5002, "ErrorCancellingStatusChangeRequest", "Error while cancelling status change request: ''{0}''."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_LOG(5003, "ErrorCancellingStatusChangeRequestLog", "''{0}'' of ''{1}'' status change requests per device are cancelled. ''{2}'' status change requests aren''t cancelled."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS(5004, "ErrorCancellingStatusChangeRequestNoRequests", "No status change requests are found to cancel with id ''{0}'' and category code ''{1}''."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed", "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid message format."),

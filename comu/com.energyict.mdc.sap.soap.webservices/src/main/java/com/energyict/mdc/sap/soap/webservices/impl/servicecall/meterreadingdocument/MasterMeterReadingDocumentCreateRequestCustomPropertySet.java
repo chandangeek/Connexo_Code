@@ -122,8 +122,8 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_UUID)
-                        .describedAs(TranslationKeys.REQUEST_UUID)
+                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
+                        .describedAs(TranslationKeys.REQUEST_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService

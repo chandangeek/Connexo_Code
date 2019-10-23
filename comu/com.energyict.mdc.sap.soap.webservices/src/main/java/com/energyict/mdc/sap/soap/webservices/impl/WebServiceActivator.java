@@ -56,7 +56,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecr
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateBulkEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateEndpoint;
@@ -78,6 +80,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultCustomPropertySet;
@@ -93,6 +97,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 import com.google.common.collect.ImmutableMap;
@@ -154,6 +159,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final Map<AdditionalProperties, Integer> SAP_PROPERTIES = new HashMap<>();
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<StatusChangeRequestBulkCreateConfirmation> STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<StatusChangeRequestCancellationConfirmation> STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentRequestConfirmation> METER_READING_DOCUMENT_REQUEST_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentBulkRequestConfirmation> METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentResult> METER_READING_DOCUMENT_RESULTS = new CopyOnWriteArrayList<>();
@@ -182,9 +189,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
     // Update SAP export task
-    private static final String UPDATE_SAP_EXPORT_TASK_PROPERTY = "com.elster.jupiter.sap.updatesapexporttaskinterval";
     private static final String UPDATE_SAP_EXPORT_TASK_NAME = "Update SAP export group task";
-    private static final int UPDATE_SAP_EXPORT_TASK_SCHEDULE = 7; // Every 7 days
     private static final int UPDATE_SAP_EXPORT_TASK_RETRY_DELAY = 60;
 
     // Search data sources by SAP id's
@@ -418,6 +423,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         createOrUpdateSearchDataSourceTask();
         createOrUpdateCheckConfirmationTimeoutTask();
         createOrUpdateCheckScheduledRequestTask();
+        createOrUpdateCheckStatusChangeCancellationTask();
     }
 
     private void loadDeviceTypesMap() {
@@ -438,17 +444,23 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     private void createOrUpdateUpdateSapExportTask() {
-        Optional<String> property = Optional.ofNullable(getPropertyValue(bundleContext, UPDATE_SAP_EXPORT_TASK_PROPERTY));
-        int frequency = UPDATE_SAP_EXPORT_TASK_SCHEDULE;
-        if (property.isPresent()) {
-            frequency = Integer.parseInt(property.get());
-        }
+        Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.UPDATE_SAP_EXPORT_TASK_PROPERTY);
 
         createOrUpdateActionTask(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DESTINATION,
                 UPDATE_SAP_EXPORT_TASK_RETRY_DELAY,
                 TranslationKeys.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME,
                 UPDATE_SAP_EXPORT_TASK_NAME,
                 PeriodicalScheduleExpression.every(frequency).days().at(0, 20, 0).build().encoded());
+    }
+
+    private void createOrUpdateCheckStatusChangeCancellationTask() {
+        Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.CHECK_STATUS_CHANGE_FREQUENCY);
+
+        createOrUpdateActionTask(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DESTINATION,
+                CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_RETRY_DELAY,
+                TranslationKeys.CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER_NAME,
+                CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME,
+                PeriodicalScheduleExpression.every(frequency).minutes().at(0).build().encoded());
     }
 
     private void createOrUpdateSearchDataSourceTask() {
@@ -555,6 +567,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MasterMeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MeterRegisterChangeRequestDomainExtension.class.getName(),
                 new MeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterConnectionStatusChangeDomainExtension.class.getName(),
+                new MasterConnectionStatusChangeCustomPropertySet(thesaurus, propertySpecService));
+
         return customPropertySetsMap;
     }
 
@@ -562,6 +577,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(StatusChangeRequestCreateEndpoint.class),
                 InboundServices.SAP_STATUS_CHANGE_REQUEST_CREATE.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(StatusChangeRequestCancellationEndpoint.class),
+                InboundServices.SAP_STATUS_CHANGE_REQUEST_CANCELLATION.getName());
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeterReadingDocumentCreateEndpoint.class),
                 InboundServices.SAP_METER_READING_CREATE_REQUEST.getName());
@@ -613,6 +631,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeterRegisterBulkChangeRequestEndpoint.class),
                 InboundServices.SAP_METER_REGISTER_BULK_CHANGE_REQUEST.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(StatusChangeRequestBulkCreateEndpoint.class),
+                InboundServices.SAP_STATUS_CHANGE_REQUEST_BULK_CREATE.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -638,6 +659,24 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeStatusChangeRequestCreateConfirmation(StatusChangeRequestCreateConfirmation statusChangeRequestCreateConfirmation) {
         STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.remove(statusChangeRequestCreateConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addStatusChangeRequestBulkCreateConfirmation(StatusChangeRequestBulkCreateConfirmation statusChangeRequestBulkCreateConfirmation) {
+        STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.add(statusChangeRequestBulkCreateConfirmation);
+    }
+
+    public void removeStatusChangeRequestBulkCreateConfirmation(StatusChangeRequestBulkCreateConfirmation statusChangeRequestBulkCreateConfirmation) {
+        STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.remove(statusChangeRequestBulkCreateConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addStatusChangeRequestCancellationConfirmation(StatusChangeRequestCancellationConfirmation statusChangeRequestCancellationConfirmation) {
+        STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS.add(statusChangeRequestCancellationConfirmation);
+    }
+
+    public void removeStatusChangeRequestCancellationConfirmation(StatusChangeRequestCancellationConfirmation statusChangeRequestCancellationConfirmation) {
+        STATUS_CHANGE_REQUEST_CANCELLATION_CONFIRMATIONS.remove(statusChangeRequestCancellationConfirmation);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

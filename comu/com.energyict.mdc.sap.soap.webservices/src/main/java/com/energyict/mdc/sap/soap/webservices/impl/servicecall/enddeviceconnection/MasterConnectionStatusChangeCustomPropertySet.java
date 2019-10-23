@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
+package com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
 import com.google.inject.Module;
@@ -27,24 +26,25 @@ import java.util.Set;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
-public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> {
-    public static final String MODEL_NAME = "UD3";
+public class MasterConnectionStatusChangeCustomPropertySet implements CustomPropertySet<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
+    public static final String MODEL_NAME = "C02";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    public MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet() {
+    public MasterConnectionStatusChangeCustomPropertySet() {
+        // for OSGI purpose
     }
 
     @Inject
-    public MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public MasterConnectionStatusChangeCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
     public String getName() {
-        return thesaurus.getFormat(TranslationKeys.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS).format();
+        return thesaurus.getFormat(TranslationKeys.MASTER_CONNECTION_STATUS_CHANGE_CPS).format();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, MasterConnectionStatusChangeDomainExtension> getPersistenceSupport() {
         return new CustomPropertyPersistenceSupport();
     }
 
@@ -85,25 +85,18 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish(),
-                this.propertySpecService
-                        .booleanSpec()
-                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
+                        .named(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish()
 
         );
     }
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> {
-        private final String TABLE_NAME = "SAP_UD3_MASTER_RCR_SC_CPS";
-        private final String FK = "FK_SAP_UD3_MASTER_RCR_SC_CPS";
+    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
+        private final String TABLE_NAME = "SAP_C02_MASTER_CR_SC_CPS";
+        private final String FK = "FK_SAP_C02_MASTER_CR_SC_CPS";
 
         @Override
         public String componentName() {
@@ -117,7 +110,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
 
         @Override
         public String domainFieldName() {
-            return MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DOMAIN.javaName();
+            return MasterConnectionStatusChangeDomainExtension.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -126,8 +119,8 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
         }
 
         @Override
-        public Class<MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> persistenceClass() {
-            return MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class;
+        public Class<MasterConnectionStatusChangeDomainExtension> persistenceClass() {
+            return MasterConnectionStatusChangeDomainExtension.class;
         }
 
         @Override
@@ -142,13 +135,9 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+            table.column(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
-                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .add();
-            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.databaseName())
-                    .bool()
-                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName())
+                    .map(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
                     .add();
         }
