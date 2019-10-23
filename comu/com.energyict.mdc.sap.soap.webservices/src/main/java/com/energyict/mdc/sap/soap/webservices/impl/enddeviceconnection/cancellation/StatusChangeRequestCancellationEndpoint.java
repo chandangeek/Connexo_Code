@@ -18,6 +18,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCancellationConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangePersistenceSupport;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg;
@@ -25,12 +26,12 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscan
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
 
 import javax.inject.Inject;
+import java.security.Principal;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import java.util.concurrent.Executors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -85,21 +86,25 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     void handleMessage(StatusChangeRequestCancellationRequestMessage message) {
+        Principal principal = threadPrincipalService.getPrincipal();
         CompletableFuture.runAsync(() -> {
-            try {
-                if (message.isValid()) {
-                    CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
+            threadPrincipalService.set(principal);
+            transactionService.run(() -> {
+                try {
+                    if (message.isValid()) {
+                        CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
-                    sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), document, clock.instant()));
-                } else {
-                    sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+                        sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), document, clock.instant()));
+                    } else {
+                        sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+                    }
+                } catch (BaseException be) {
+                    sendProcessError(message, be.getMessageSeed().getDefaultFormat(), be.getMessageSeed().getNumber());
+                } catch (Exception e) {
+                    sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
                 }
-            } catch (BaseException be) {
-                sendProcessError(message, be.getMessageSeed().getDefaultFormat(), be.getMessageSeed().getNumber());
-            } catch (Exception e) {
-                sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
-            }
-        });
+            });
+        }, Executors.newSingleThreadExecutor());
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {
@@ -112,7 +117,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         int cancelledRequests = 0;
         int notCancelledRequests = 0;
         ServiceCall parent = extension.get().getServiceCall();
-        List<ServiceCall> serviceCalls = parent.findChildren().find();
+        List<ServiceCall> serviceCalls = ServiceCallHelper.findChildren(parent);
         if (!parent.getState().isOpen()) {
             // send already processed message
             return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
