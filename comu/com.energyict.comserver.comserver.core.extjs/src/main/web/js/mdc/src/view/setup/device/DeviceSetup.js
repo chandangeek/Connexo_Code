@@ -60,6 +60,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             pressed: !!flag,
             privileges: Mdc.privileges.Device.flagDevice,
             enableToggle: true,
+            itemId: 'device-favorite-flag',
             toggleHandler: function (button, state) {
                 button.setIconCls(state ? 'icon-star-full' : 'icon-star-empty');
                 button.setTooltip(state

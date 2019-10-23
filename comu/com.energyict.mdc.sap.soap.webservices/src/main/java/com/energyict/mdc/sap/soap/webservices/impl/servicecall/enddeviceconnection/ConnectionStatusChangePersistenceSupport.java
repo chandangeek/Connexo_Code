@@ -85,6 +85,18 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
                 .conversion(ColumnConversion.NUMBER2INSTANT)
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName())
                 .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.BULK.databaseName())
+                .bool()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName())
+                .installValue("'N'")
+                .since(Version.version(10, 7, 1))
+                .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.databaseName())
+                .bool()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
+                .installValue("'N'")
+                .since(Version.version(10, 7, 1))
+                .add();
     }
 
     @Override

@@ -135,6 +135,9 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         } else if (interval.isPresent() && interval.get().equals(TimeDuration.years(1))) {
             readingTypeCodeBuilder.period(MacroPeriod.YEARLY);
             readingTypeCodeBuilder.period(TimeAttribute.NOTAPPLICABLE);
+        } else if (interval.isPresent() && interval.get().equals(TimeDuration.hours(1))) {
+            readingTypeCodeBuilder.period(MacroPeriod.HOURLY);
+            readingTypeCodeBuilder.period(TimeAttribute.NOTAPPLICABLE);
         } else {
             readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval.orElse(null)));
             readingTypeCodeBuilder.period(MacroPeriod.NOTAPPLICABLE);

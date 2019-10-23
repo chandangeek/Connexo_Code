@@ -30,18 +30,23 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
@@ -223,9 +228,10 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
             String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
             String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getValue();
-            String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", "fromDate", "toDate", loadProfileContent);
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
+            SimpleDateFormat formatter = AbstractMessageConverter.dateTimeFormatWithTimeZone;
+            String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", formatter.format(fromDate), formatter.format(toDate), loadProfileContent);
 
             LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(fullLoadProfileContent);
 

@@ -442,10 +442,10 @@ Ext.define('Uni.grid.filtertop.Interval', {
                 fromDate = tokens[0],
                 toDate = tokens[1];
 
-            if (fromDate) {
+            if (fromDate && !isNaN(fromDate)) {
                 me.setFromDateValue(new Date(parseInt(fromDate)));
             }
-            if (toDate) {
+            if (toDate && !isNaN(toDate)) {
                 me.setToDateValue(new Date(parseInt(toDate)));
             }
         }

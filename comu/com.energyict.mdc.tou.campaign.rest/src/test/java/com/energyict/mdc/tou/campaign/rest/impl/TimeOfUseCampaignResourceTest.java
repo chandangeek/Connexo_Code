@@ -43,6 +43,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -210,7 +211,7 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(serviceCallService.lockServiceCall(1)).thenReturn(Optional.of(serviceCall));
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
         when(timeOfUseCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
-        when(timeOfUseItem.cancel()).thenReturn(serviceCall);
+        when(timeOfUseItem.cancel(anyBoolean())).thenReturn(serviceCall);
         IdWithNameInfo idWithNameInfo = new IdWithNameInfo();
         idWithNameInfo.id = 1L;
         Response response = target("toucampaigns/cancelDevice").request().put(Entity.json(idWithNameInfo));

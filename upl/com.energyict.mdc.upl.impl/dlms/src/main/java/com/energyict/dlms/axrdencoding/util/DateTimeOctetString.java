@@ -57,7 +57,7 @@ import java.util.TimeZone;
  *
  */
 
-public class DateTime extends AbstractDataType {
+public class DateTimeOctetString extends AbstractDataType {
 
 	private static final int	BYTE_SIZE					= 8;
 	private static final int	H_PER_SEC					= 10;
@@ -76,35 +76,35 @@ public class DateTime extends AbstractDataType {
     private int status;
     private short deviation;
 
-    public DateTime( ) {
+    public DateTimeOctetString( ) {
     }
 
-    public DateTime(TimeZone timeZone) {
+    public DateTimeOctetString(TimeZone timeZone) {
     	dateTime = Calendar.getInstance(timeZone);
     }
 
-    public DateTime(Calendar dateTime) {
+    public DateTimeOctetString(Calendar dateTime) {
     	this.dateTime = dateTime;
     }
 
-    public DateTime(Date date) {
+    public DateTimeOctetString(Date date) {
     	dateTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     	dateTime.setTime(date);
     }
 
-    public DateTime(OctetString octetString) throws IOException {
+    public DateTimeOctetString(OctetString octetString) throws IOException {
     	this(octetString.getBEREncodedByteArray());
     }
 
-    public DateTime(OctetString octetString, TimeZone tz) {
+    public DateTimeOctetString(OctetString octetString, TimeZone tz) {
     	this(octetString.getBEREncodedByteArray(),0,tz);
     }
 
-    public DateTime(byte[] berEncodedData) {
+    public DateTimeOctetString(byte[] berEncodedData) {
     	this(berEncodedData,0,TimeZone.getTimeZone("GMT"));
     }
 
-    public DateTime(byte[] berEncodedData, int offset, TimeZone zone) {
+    public DateTimeOctetString(byte[] berEncodedData, int offset, TimeZone zone) {
         int ptr = offset;
 
         // !! add type check here !!

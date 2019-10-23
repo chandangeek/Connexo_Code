@@ -61,6 +61,14 @@ Ext.define('Mdc.controller.Search', {
         {
             ref: 'resultsGrid',
             selector: 'uni-view-search-overview uni-view-search-results'
+        },
+        {
+            ref: 'loadButton',
+            selector: 'uni-view-search-overview #load-button'
+        },
+        {
+            ref: 'saveSearchButton',
+            selector: 'uni-view-search-overview button[action=saveSearchWindow]'
         }
     ],
 

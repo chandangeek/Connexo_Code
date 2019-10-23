@@ -11,7 +11,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
     requires:[
         'Dsh.store.filter.Devices',
         'Dsh.store.filter.DeviceGroup',
-        'Dsh.store.filter.CurrentState',
+        'Dsh.store.filter.ConnectionStatuses',
         'Dsh.store.filter.LatestStatus',
         'Dsh.store.filter.LatestResult',
         'Dsh.store.filter.CommPortPool',
@@ -62,7 +62,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
                 multiSelect: true,
                 displayField: 'localizedValue',
                 valueField: 'taskStatus',
-                store: 'Dsh.store.filter.CurrentState',
+                store: 'Dsh.store.filter.ConnectionStatuses',
                 itemId: 'current-state-filter'
             },
             {

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,7 +61,7 @@ public class UtilitiesDeviceBulkCreateConfirmationTest extends AbstractOutboundW
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
         when(requestSender.withRelatedAttributes(any(SetMultimap.class))).thenReturn(requestSender);
-        when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
+        when(outboundMessage.getBulkConfirmationMessage()).thenReturn(Optional.of(confirmationMessage));
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
         when(confirmationMessage.getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage()).thenReturn(utilCreateConfMsgs);
         when(utilCreateConfMsg.getUtilitiesDevice().getID().getValue()).thenReturn("UtilDeviceID");

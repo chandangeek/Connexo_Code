@@ -9,7 +9,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.ActivePassive;
 import com.energyict.dlms.cosem.ChangeOfTenancyOrSupplierManagement;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -234,7 +234,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             log(Level.FINEST, "Writing new activation time");
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            standingChargeActivePassive.writeActivationDate(new DateTime(cal));
+            standingChargeActivePassive.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
             standingChargeActivePassive.activate();
@@ -271,7 +271,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             log(Level.FINEST, "Writing new activation time");
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            currencyActivePassive.writeActivationDate(new DateTime(cal));
+            currencyActivePassive.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
             currencyActivePassive.activate();
@@ -375,7 +375,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             log(Level.FINEST, "Writing new activation time");
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            conversionFactor.writeActivationDate(new DateTime(cal));
+            conversionFactor.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
             conversionFactor.activate();
@@ -410,7 +410,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             log(Level.FINEST, "Writing new activation time");
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            calorificValueObject.writeActivationDate(new DateTime(cal));
+            calorificValueObject.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
             calorificValueObject.activate();

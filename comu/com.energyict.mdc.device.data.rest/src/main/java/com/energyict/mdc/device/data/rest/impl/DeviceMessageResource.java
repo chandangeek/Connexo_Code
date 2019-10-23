@@ -17,7 +17,6 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
-import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilterImpl;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;

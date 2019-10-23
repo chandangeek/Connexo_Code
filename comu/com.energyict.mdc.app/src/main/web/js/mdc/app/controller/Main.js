@@ -85,7 +85,8 @@ Ext.define('MdcApp.controller.Main', {
         Cfg.privileges.Audit.all(),
         Tou.privileges.TouCampaign.all(),
         Itk.privileges.Task.all(),
-        Wss.privileges.Webservices.all()
+        Wss.privileges.Webservices.all(),
+        Mdc.privileges.TaskManagement.all()
     ),
     controllers: [
         'Sam.controller.Main',

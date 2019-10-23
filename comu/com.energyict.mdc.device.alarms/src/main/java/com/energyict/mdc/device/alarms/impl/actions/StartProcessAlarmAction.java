@@ -177,7 +177,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
         final PropertySpec processCombobox = propertyFactoriesProvider
-                .getFactory(PropertyType.PROCESS_COMBOBOX)
+                .getFactory(PropertyType.ALARM_PROCESS_COMBOBOX)
                 .getElement(PROCESSES_COMBOBOX, TranslationKeys.ACTION_START_ALARM_PROCESS, TranslationKeys.ACTION_START_ALARM_PROCESS);
 
         final PropertySpec assigneeElementsGroup = propertyFactoriesProvider

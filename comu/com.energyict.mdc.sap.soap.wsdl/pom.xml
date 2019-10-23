@@ -328,6 +328,74 @@
                             </packageName>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>SmartMeterConnectionStatusChangeRequestBulkCreate</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>SmartMeterConnectionStatusChangeRequestBulkCreateConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>SmartMeterConnectionStatusCancellationRequest</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>SmartMeterConnectionStatusChangeRequestCancellationConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation
+                            </packageName>
+                        </configuration>
+                    </execution>
                     <!--[SAP] Outbound web service to send events to SAP -->
                     <execution>
                         <id>OutboundWebServiceToSendEventsToSAP</id>
