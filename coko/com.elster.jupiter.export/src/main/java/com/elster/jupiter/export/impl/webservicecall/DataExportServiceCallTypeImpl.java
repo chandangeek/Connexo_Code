@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl.webservicecall;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
@@ -28,11 +29,14 @@ import java.security.Principal;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
     private static final String NAME = TranslationKeys.SERVICE_CALL_TYPE_NAME.getDefaultFormat();
     private static final String VERSION = "1.0";
+    private static final String CHILD_NAME = TranslationKeys.SERVICE_CALL_TYPE_CHILD_NAME.getDefaultFormat();
+    private static final String CHILD_VERSION = "1.0";
     private static final String APPLICATION = null;
 
     private final DataModel dataModel;
@@ -68,6 +72,19 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         });
     }
 
+    public ServiceCallType findOrCreateChild() {
+        return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
+            RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
+
+            return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
+                    .handler(WebServiceDataExportServiceCallHandler.NAME)
+                    .logLevel(LogLevel.FINEST)
+                    .customPropertySet(registeredCustomPropertySet)
+                    .create();
+        });
+    }
+
     @Override
     public ServiceCall startServiceCall(String uuid, long timeout) {
         if (transactionService.isInTransaction()) {
@@ -90,6 +107,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data){
+
     }
 
     private ServiceCall startServiceCallInTransaction(String uuid, long timeout) {

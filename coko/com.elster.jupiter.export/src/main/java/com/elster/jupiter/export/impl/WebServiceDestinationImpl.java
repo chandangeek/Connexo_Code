@@ -193,7 +193,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     }
 
     private <T extends ExportData> ServiceCallStatus callService(DataExportWebService service, EndPointConfiguration endPoint, List<ExportData> data, boolean waitForServiceCall) {
-        Optional<ServiceCall> serviceCall = service.call(endPoint, data.stream());
+        Optional<ServiceCall> serviceCall = Optional.empty();
+        List<ServiceCall> srvCallList = service.call(endPoint, data.stream());
         if (waitForServiceCall && serviceCall.isPresent()) {
             ServiceCallStatus status;
             do {

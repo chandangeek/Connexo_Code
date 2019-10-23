@@ -41,6 +41,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -75,8 +77,16 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     @Inject
     public UtilitiesTimeSeriesBulkCreateRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
-                                                        SAPCustomPropertySets sapCustomPropertySets) {
-        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets);
+                                                        SAPCustomPropertySets sapCustomPropertySets,
+                                                        BundleContext bundleContext) {
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, bundleContext);
+    }
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        String tmpStr = bundleContext.getProperty(PROPERTY_MSG_SIZE);
+        NUMBER_OF_READINGS_PER_MSG = Integer.valueOf(tmpStr);
+        System.out.println("2 NUMBER_OF_READINGS_PER_MSG = "+NUMBER_OF_READINGS_PER_MSG);
     }
 
     @Override

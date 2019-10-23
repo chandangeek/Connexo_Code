@@ -4,9 +4,11 @@
 
 package com.elster.jupiter.export.webservicecall;
 
+import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public interface DataExportServiceCallType {
     /**
@@ -26,6 +28,8 @@ public interface DataExportServiceCallType {
      * @return A new service call.
      */
     ServiceCall startServiceCallAsync(String uuid, long timeout);
+
+    void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data);
 
     /**
      * @param uuid UUID identifying the service call.

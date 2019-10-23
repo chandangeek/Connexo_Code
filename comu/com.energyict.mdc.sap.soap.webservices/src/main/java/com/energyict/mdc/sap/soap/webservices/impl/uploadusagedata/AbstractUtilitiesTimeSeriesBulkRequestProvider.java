@@ -32,6 +32,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -54,8 +55,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
 
-    private int NUMBER_OF_READINGS_PER_MSG = 150;//Some default value
-
+    protected int NUMBER_OF_READINGS_PER_MSG;//Some default value
+    protected final String PROPERTY_MSG_SIZE = "msg.size.property";
 
     AbstractUtilitiesTimeSeriesBulkRequestProvider() {
         // for OSGi
@@ -65,12 +66,15 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         // for tests
     AbstractUtilitiesTimeSeriesBulkRequestProvider(PropertySpecService propertySpecService,
                                                    DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
-                                                   SAPCustomPropertySets sapCustomPropertySets) {
+                                                   SAPCustomPropertySets sapCustomPropertySets,
+                                                   BundleContext bundleContext) {
         setPropertySpecService(propertySpecService);
         setDataExportServiceCallType(dataExportServiceCallType);
         setThesaurus(thesaurus);
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
+        String NUMBER_OF_READINGS_PER_MSG = bundleContext.getProperty(PROPERTY_MSG_SIZE);
+        System.out.println("NUMBER_OF_READINGS_PER_MSG = "+NUMBER_OF_READINGS_PER_MSG);
     }
 
     void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -116,7 +120,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     }
 
     @Override
-    public Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data){//
+    public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data){//
     /*{
           return  sendPartOfData(endPointConfiguration, data);
     }*/
@@ -130,7 +134,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
 
         MeterReadingData readingDataTmp = readingDataList.get(0);
-
+        /* Test data */
         readingDataList.add(readingDataTmp);
         readingDataList.add(readingDataTmp);
         readingDataList.add(readingDataTmp);
@@ -197,7 +201,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
 
         }
 
-        return Optional.of(srvCallList.get(0));
+        return srvCallList;
     }
 
 
@@ -218,6 +222,12 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
                 Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
                         .filter(timeout -> !timeout.isEmpty())
                         .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
+
+
+                data.map(data->{
+                    serviceCall.get().newChildCall();
+                }
+
                 return serviceCall;
             }
             return Optional.empty();
