@@ -79,7 +79,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return this;
         }
 
-        public Builder withSingleStatus(String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
+        public Builder withSingleStatus(String messageId, String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
             UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
             UtilitiesConnectionStatusChangeResultCode resultCode =
                     OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
@@ -95,7 +95,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
 
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage()
                     .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
-                    .filter(s -> deviceID.equals(s.getID().getValue()))
+                    .filter(s -> messageId.equals(s.getID().getValue()))
                     .forEach(c -> c.getDeviceConnectionStatus().add(deviceConnectionStatus));
 
             return this;

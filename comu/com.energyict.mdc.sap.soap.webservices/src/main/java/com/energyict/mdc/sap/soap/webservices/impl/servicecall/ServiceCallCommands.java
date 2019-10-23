@@ -483,7 +483,7 @@ public class ServiceCallCommands {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
-                            .withSingleStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
