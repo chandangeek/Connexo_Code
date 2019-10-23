@@ -90,6 +90,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 import com.google.common.collect.ImmutableMap;
@@ -180,6 +183,24 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final String UPDATE_SAP_EXPORT_TASK_NAME = "Update SAP export group task";
     private static final int UPDATE_SAP_EXPORT_TASK_SCHEDULE = 7; // Every 7 days
     private static final int UPDATE_SAP_EXPORT_TASK_RETRY_DELAY = 60;
+
+    // Search data sources by SAP id's
+    private static final String REGISTER_SEARCH_INTERVAL_PROPERTY = "com.elster.jupiter.sap.registersearchinterval";
+    private static final String SEARCH_DATA_SOURCE_TASK_NAME = "SearchDataSourceTask";
+    private static final String SEARCH_DATA_SOURCE_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
+    private static final int SEARCH_DATA_SOURCE_TASK_RETRY_DELAY = 60;
+
+    // Check SAP confirmation timeout
+    private static final String CHECK_CONFIRMATION_TIMEOUT_FREQUENCY_PROPERTY = "com.elster.jupiter.sap.checkconfirmationtimeoutfrequency";
+    private static final String CHECK_CONFIRMATION_TIMEOUT_TASK_NAME = "CheckConfirmationTimeoutTask";
+    private static final String CHECK_CONFIRMATION_TIMEOUT_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
+    private static final int CHECK_CONFIRMATION_TIMEOUT_TASK_RETRY_DELAY = 60;
+
+    // Check scheduled SAP requests
+    private static final String CHECK_SCHEDULED_REQUEST_FREQUENCY_PROPERTY = "com.elster.jupiter.sap.checkscheduledrequestsfrequency";
+    private static final String CHECK_SCHEDULED_REQUEST_TASK_NAME = "CheckScheduledRequestTask";
+    private static final String CHECK_SCHEDULED_REQUEST_TASK_SCHEDULE = "0 0/60 * 1/1 * ? *";
+    private static final int CHECK_SCHEDULED_REQUEST_TASK_RETRY_DELAY = 60;
 
     private static String exportTaskName;
     private static String exportTaskDeviceGroupName;
@@ -376,6 +397,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
         createOrUpdateUpdateSapExportTask();
+        createOrUpdateSearchDataSourceTask();
+        createOrUpdateCheckConfirmationTimeoutTask();
+        createOrUpdateCheckScheduledRequestTask();
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {
@@ -384,47 +408,75 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     private void createOrUpdateUpdateSapExportTask() {
+        Optional<String> property = Optional.ofNullable(getPropertyValue(bundleContext, UPDATE_SAP_EXPORT_TASK_PROPERTY));
+        int frequency = UPDATE_SAP_EXPORT_TASK_SCHEDULE;
+        if (property.isPresent()) {
+            frequency = Integer.parseInt(property.get());
+        }
+
+        createOrUpdateActionTask(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DESTINATION,
+                UPDATE_SAP_EXPORT_TASK_RETRY_DELAY,
+                TranslationKeys.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME,
+                UPDATE_SAP_EXPORT_TASK_NAME,
+                PeriodicalScheduleExpression.every(frequency).days().at(0, 20, 0).build().encoded());
+    }
+
+    private void createOrUpdateSearchDataSourceTask() {
+        String property = bundleContext.getProperty(REGISTER_SEARCH_INTERVAL_PROPERTY);
+        createOrUpdateActionTask(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DESTINATION,
+                SEARCH_DATA_SOURCE_TASK_RETRY_DELAY,
+                TranslationKeys.SEARCH_DATA_SOURCE_SUBSCRIBER_NAME,
+                SEARCH_DATA_SOURCE_TASK_NAME,
+                property == null ? SEARCH_DATA_SOURCE_TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *");
+    }
+
+    private void createOrUpdateCheckConfirmationTimeoutTask() {
+        String property = bundleContext.getProperty(CHECK_CONFIRMATION_TIMEOUT_FREQUENCY_PROPERTY);
+        createOrUpdateActionTask(CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_DESTINATION,
+                CHECK_CONFIRMATION_TIMEOUT_TASK_RETRY_DELAY,
+                TranslationKeys.CHECK_CONFIRMATION_TIMEOUT_SUBSCRIBER_NAME,
+                CHECK_CONFIRMATION_TIMEOUT_TASK_NAME,
+                property == null ? CHECK_CONFIRMATION_TIMEOUT_TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *");
+    }
+
+    private void createOrUpdateCheckScheduledRequestTask() {
+        String property = bundleContext.getProperty(CHECK_SCHEDULED_REQUEST_FREQUENCY_PROPERTY);
+        createOrUpdateActionTask(CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_DESTINATION,
+                CHECK_SCHEDULED_REQUEST_TASK_RETRY_DELAY,
+                TranslationKeys.CHECK_SCHEDULED_REQUEST_SUBSCRIBER_NAME,
+                CHECK_SCHEDULED_REQUEST_TASK_NAME,
+                property == null ? CHECK_SCHEDULED_REQUEST_TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *");
+    }
+
+    private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
+                                          TranslationKey subscriberSpecName, String taskName, String taskSchedule) {
         threadPrincipalService.set(() -> "Activator");
         try (TransactionContext context = transactionService.getContext()) {
-            Optional<String> property = Optional.ofNullable(getPropertyValue(bundleContext, UPDATE_SAP_EXPORT_TASK_PROPERTY));
-            int frequency = UPDATE_SAP_EXPORT_TASK_SCHEDULE;
-            if (property.isPresent()) {
-                frequency = Integer.parseInt(property.get());
-            }
-
-            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(UPDATE_SAP_EXPORT_TASK_NAME);
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(taskName);
             if (taskOptional.isPresent()) {
                 RecurrentTask task = taskOptional.get();
-                task.setScheduleExpression(PeriodicalScheduleExpression.every(frequency).days().at(0, 20, 0).build());
+                task.setScheduleExpressionString(taskSchedule);
                 task.save();
             } else {
-                createActionTask(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DESTINATION,
-                        UPDATE_SAP_EXPORT_TASK_RETRY_DELAY,
-                        TranslationKeys.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME,
-                        UPDATE_SAP_EXPORT_TASK_NAME,
-                        UPDATE_SAP_EXPORT_TASK_SCHEDULE);
+                DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                        .get()
+                        .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+                destination.activate();
+                destination.subscribe(subscriberSpecName, WebServiceActivator.COMPONENT_NAME, Layer.DOMAIN);
+
+                taskService.newBuilder()
+                        .setApplication(WebServiceActivator.APPLICATION_NAME)
+                        .setName(taskName)
+                        .setScheduleExpressionString(taskSchedule)
+                        .setDestination(destination)
+                        .setPayLoad("payload")
+                        .scheduleImmediately(true)
+                        .build();
             }
             context.commit();
         } catch (Exception e) {
             LOGGER.severe(e.getMessage());
         }
-    }
-
-    private void createActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, int days) {
-        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
-                .get()
-                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
-        destination.activate();
-        destination.subscribe(subscriberSpecName, WebServiceActivator.COMPONENT_NAME, Layer.DOMAIN);
-
-        taskService.newBuilder()
-                .setApplication(WebServiceActivator.APPLICATION_NAME)
-                .setName(taskName)
-                .setScheduleExpression(PeriodicalScheduleExpression.every(days).days().at(0, 20, 0).build())
-                .setDestination(destination)
-                .setPayLoad("payload")
-                .scheduleImmediately(true)
-                .build();
     }
 
     @Deactivate
@@ -655,7 +707,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     public void removeMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
-            MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
+        MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

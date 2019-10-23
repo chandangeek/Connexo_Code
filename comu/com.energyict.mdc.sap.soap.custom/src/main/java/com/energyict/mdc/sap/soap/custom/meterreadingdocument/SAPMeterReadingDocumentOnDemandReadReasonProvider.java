@@ -13,6 +13,7 @@ import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 
@@ -42,6 +43,9 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     private static List<String> codes;
     private static int dateShift = SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE;
 
+    private volatile DeviceService deviceService;
+    private volatile SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper;
+
     @Activate
     public void activate(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_ONDEMAND);
@@ -55,11 +59,15 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                 .ifPresent(property->dateShift = Integer.valueOf(property));
     }
 
-    private volatile DeviceService deviceService;
 
     @Reference
     public final void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setSapMeterReadingComTaskExecutionHelper(SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper) {
+        this.sapMeterReadingComTaskExecutionHelper = sapMeterReadingComTaskExecutionHelper;
     }
 
     @Override
@@ -94,7 +102,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     @Override
     public void process(SAPMeterReadingDocumentCollectionData collectionData) {
-        if (collectionData.isPastCase() || hasCommunicationConnection(collectionData.getServiceCall(),
+        if (hasCommunicationConnection(collectionData.getServiceCall(),
                 collectionData.getDeviceName(), collectionData.isRegular(), collectionData.getScheduledReadingDate())) {
             collectionData.calculate();
         }
@@ -137,7 +145,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
             serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
             return false;
         } else if (comTaskExecution.getStatus().equals(TaskStatus.Busy)) {
-            serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
+            sapMeterReadingComTaskExecutionHelper.setComTaskExecutionId(serviceCall, comTaskExecution.getId());
             return false;
         }
         return true;
@@ -149,8 +157,8 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                     "' is inactive on device '" + comTaskExecution.getDevice().getName() + "'");
             serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
         } else {
+            sapMeterReadingComTaskExecutionHelper.setComTaskExecutionId(serviceCall, comTaskExecution.getId());
             comTaskExecution.runNow();
-            serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
         }
         return false;
     }

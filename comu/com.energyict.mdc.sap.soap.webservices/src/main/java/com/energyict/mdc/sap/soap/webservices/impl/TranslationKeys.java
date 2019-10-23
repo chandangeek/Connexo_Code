@@ -73,6 +73,7 @@ public enum TranslationKeys implements TranslationKey {
     CANCELLED_BY_SAP("cancelledBySap", "Cancelled by SAP"),
     CANCELLED_BY_SAP_DESCRIPTION("cancelledBySapDescription", "The property is used to distinguish service call cancelled manually in Connexo / by SAP"),
     TIME_ZONE("timeZone", "Time zone"),
+    COM_TASK_EXECUTION_ID("comTaskExecutionId", "Communication task execution id"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
