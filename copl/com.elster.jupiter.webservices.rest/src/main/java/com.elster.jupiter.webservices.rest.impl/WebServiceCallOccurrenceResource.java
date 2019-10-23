@@ -32,6 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -166,6 +167,24 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
             return new RelatedAttributeInfo(obj.getId(),
                                         obj.getValue()+" ("+webServiceCallOccurrenceService.translateAttributeType(obj.getKey())+")");
         }).collect(toList());
+
+        return Response.ok().entity(listInfo).build();
+    }
+
+    @GET
+    @Path("/relatedattributes/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
+    public Response getRelatedAttributeById(@BeanParam JsonQueryParameters params,
+                                            @PathParam("id") long id) {
+
+        Optional<WebServiceCallRelatedAttribute> relatedObject = webServiceCallOccurrenceService.getRelatedObjectById(id);
+
+        RelatedAttributeInfo info = new RelatedAttributeInfo(relatedObject.get().getId(),
+                relatedObject.get().getValue() +" ("+webServiceCallOccurrenceService.translateAttributeType(relatedObject.get().getKey())+")");
+        /* Extjs parse response as list of elements. So here send list with one element */
+        List<RelatedAttributeInfo> listInfo = new ArrayList<>();
+        listInfo.add(info);
 
         return Response.ok().entity(listInfo).build();
     }

@@ -158,11 +158,18 @@ public abstract class BaseResource {
         if (filter.hasProperty("wsRelatedObjectId")) {
             long objectId = -1;
             String objectIdStr = null;
-
+            /* wsRelatedObjectId value from FE can be received as number for example 123 or string as "123".
+             * It is some ExtJS specific */
             try {
                 objectId = filter.getInteger("wsRelatedObjectId");
             } catch (NullPointerException e) {
                 objectIdStr = filter.getString("wsRelatedObjectId");
+                try {
+                    objectId = Long.parseLong(objectIdStr);
+                    objectIdStr = null;
+                }catch(NumberFormatException ex){
+                    objectId = -1;
+                }
             }
 
             if (objectId != -1) {
