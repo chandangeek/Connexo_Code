@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS.a1800;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.*;
@@ -108,8 +108,8 @@ public class ProfileDataReader {
                 }
 
                 AbstractDataType structureElement = structure.getDataType(CAPTURED_OBJECTS_DATE_FIELD_INDEX);
-                DateTime dateTime = new DateTime(structureElement.getOctetString(), a1800.getTimeZone());
-                calendar.setTime(dateTime.getValue().getTime());
+                DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(structureElement.getOctetString(), a1800.getTimeZone());
+                calendar.setTime(dateTimeOctetString.getValue().getTime());
                 lastReceivedRecord = calendar.getTime();
                 if (lastReceivedRecord.before(lastReading)) {
                     break;
@@ -154,8 +154,8 @@ public class ProfileDataReader {
             AbstractDataType adt = a1800.getTransparantObjectAccessFactory().readObjectAttributeEntry(AS1253.LOG_PROFILE, TransparantObjectAccessFactory.ATTRIBUTE_VALUE, fromEntry > nrOfLogEntriesInUse ? nrOfLogEntriesInUse : fromEntry, offset);
             Array array = adt.getArray();
             for (AbstractDataType arrayElement : array.getAllDataTypes()) {
-                DateTime dateTime = new DateTime(arrayElement.getStructure().getDataType(0).getOctetString(), a1800.getTimeZone());
-                Date date = dateTime.getValue().getTime();
+                DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(arrayElement.getStructure().getDataType(0).getOctetString(), a1800.getTimeZone());
+                Date date = dateTimeOctetString.getValue().getTime();
 /*			
             Example: 
 			OctetString=$07$DB$01$03$00$10$0E$39$00$00$00$00

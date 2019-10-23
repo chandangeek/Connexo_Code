@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -171,6 +172,11 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                         .stringSpec()
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.javaName(), TranslationKeys.CONNECTION_METHOD)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.RESPONSE_STATUS.javaName(), TranslationKeys.RESPONSE_STATUS)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -258,6 +264,11 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.databaseName())
                     .varChar()
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.javaName())
+                    .add();
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.RESPONSE_STATUS.databaseName())
+                    .varChar()
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.RESPONSE_STATUS.javaName())
+                    .since(Version.version(10, 7))
                     .add();
         }
 

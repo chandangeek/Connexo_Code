@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateConfirmationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOutService;
@@ -15,6 +16,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirma
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,6 +34,8 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
     private UtilitiesDeviceERPSmartMeterCreateConfirmationCOut port;
     @Mock
     private UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage;
+    @Mock
+    private UtilitiesDeviceCreateConfirmationMessage outboundMessage;
 
     private UtilitiesDeviceCreateConfirmationProvider provider;
 
@@ -43,6 +47,7 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(outboundMessage.getConfirmationMessage()).thenReturn(Optional.of(confirmationMessage));
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
 
@@ -54,7 +59,7 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
         properties.put("epcId", 1l);
 
         provider.addRequestConfirmationPort(port, properties);
-        provider.call(confirmationMessage);
+        provider.call(outboundMessage);
 
         verify(provider).using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut");
         verify(requestSender).send(confirmationMessage);
@@ -67,7 +72,7 @@ public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebse
         expectedException.expect(LocalizedException.class);
         expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterCreateConfirmation_C_Out'.");
 
-        provider.call(confirmationMessage);
+        provider.call(outboundMessage);
     }
 
     @Test

@@ -15,7 +15,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
@@ -372,15 +372,15 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     final void forceSetTime() throws IOException {
-        DateTime dateTime = new DateTime(getTimeZone());
-        transparantObjectAccessFactory.writeObjectAttribute(getClockObisCode(), 2, dateTime);
+        DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(getTimeZone());
+        transparantObjectAccessFactory.writeObjectAttribute(getClockObisCode(), 2, dateTimeOctetString);
     }
 
     @Override
     public void setTime() throws IOException {
         if (correctTime > 0) {
-            DateTime dateTime = new DateTime(getTimeZone());
-            transparantObjectAccessFactory.writeObjectAttribute(getClockObisCode(), 2, dateTime);
+            DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(getTimeZone());
+            transparantObjectAccessFactory.writeObjectAttribute(getClockObisCode(), 2, dateTimeOctetString);
             if (correctWaveflowTime > 0) {
                 parameterFactory.writeTimeDateRTC(new Date());
             }

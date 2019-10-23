@@ -32,6 +32,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         REGISTER_GROUPS("registerGroups", "REGISTER_GROUPS"),
         SCHEDULE_STRATEGY("scheduleStrategy", "SCHEDULE_STRATEGY"),
         CONNECTION_METHOD("connectionMethod", "CONNECTION_METHOD"),
+        RESPONSE_STATUS("responseStatus", "RESPONSE_STATUS")
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -48,6 +49,23 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
 
         public String databaseName() {
             return databaseName;
+        }
+    }
+
+    public enum ResponseStatus {
+        NOT_SENT("Not sent"),
+        NOT_CONFIRMED("Sent / not confirmed"),
+        CONFIRMED("Confirmed")
+        ;
+
+        ResponseStatus(String name) {
+            this.name = name;
+        }
+
+        private final String name;
+
+        public String getName() {
+            return name;
         }
     }
 
@@ -72,6 +90,8 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
     private String scheduleStrategy;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String connectionMethod;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String responseStatus;
 
     public ParentGetMeterReadingsDomainExtension() {
         super();
@@ -157,6 +177,14 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         this.connectionMethod = connectionMethod;
     }
 
+    public String getResponseStatus() {
+        return responseStatus;
+    }
+
+    public void setResponseStatus(String responseStatus) {
+        this.responseStatus = responseStatus;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -170,6 +198,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         this.setRegisterGroups((String) propertyValues.getProperty(FieldNames.REGISTER_GROUPS.javaName()));
         this.setScheduleStrategy((String) propertyValues.getProperty(FieldNames.SCHEDULE_STRATEGY.javaName()));
         this.setConnectionMethod((String) propertyValues.getProperty(FieldNames.CONNECTION_METHOD.javaName()));
+        this.setResponseStatus((String) propertyValues.getProperty(FieldNames.RESPONSE_STATUS.javaName()));
     }
 
     @Override
@@ -184,6 +213,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         propertySetValues.setProperty(FieldNames.REGISTER_GROUPS.javaName(), this.getRegisterGroups());
         propertySetValues.setProperty(FieldNames.SCHEDULE_STRATEGY.javaName(), this.getScheduleStrategy());
         propertySetValues.setProperty(FieldNames.CONNECTION_METHOD.javaName(), this.getConnectionMethod());
+        propertySetValues.setProperty(FieldNames.RESPONSE_STATUS.javaName(), this.getResponseStatus());
     }
 
     @Override

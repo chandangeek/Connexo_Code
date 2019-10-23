@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Date;
@@ -28,7 +28,7 @@ public class DateTimeFixer {
     }
 
     private static Date getDateFromOctetString(OctetString timeStamp, TimeZone timeZone) {
-        return new DateTime(timeStamp, timeZone).getValue().getTime();
+        return new DateTimeOctetString(timeStamp, timeZone).getValue().getTime();
     }
 
     private static long getDiff(Date time) {

@@ -3,7 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.attributes.ActivePassiveAttributes;
 import com.energyict.dlms.cosem.methods.SupplierIdMethods;
 
@@ -20,7 +20,7 @@ public class ActivePassive extends AbstractCosemObject {
     private AbstractDataType passiveValue;
     private ScalerUnit passiveScalerUnit;
 
-    private DateTime activationDate;
+    private DateTimeOctetString activationDate;
 
     /**
      * Creates a new instance of AbstractCosemObject
@@ -67,7 +67,7 @@ public class ActivePassive extends AbstractCosemObject {
 
     /**
      * Write the value to the device. <b>Note:</b> it may not be allowed to set it directly, you can try it
-     * with the {@link #writePassiveValue(com.energyict.dlms.axrdencoding.AbstractDataType)} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.util.DateTime)}
+     * with the {@link #writePassiveValue(com.energyict.dlms.axrdencoding.AbstractDataType)} and {@link #writeActivationDate(DateTimeOctetString)}
      *
      * @param value the value to write
      * @throws java.io.IOException if for some reason you could not write the attribute
@@ -104,7 +104,7 @@ public class ActivePassive extends AbstractCosemObject {
 
     /**
      * Write the ScalerUnit to the device. <b>Note:</b> it may not be allowed to set it directly, you can try it
-     * with the {@link #writePassiveScalerUnit(com.energyict.dlms.ScalerUnit)} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.util.DateTime)}
+     * with the {@link #writePassiveScalerUnit(com.energyict.dlms.ScalerUnit)} and {@link #writeActivationDate(DateTimeOctetString)}
      *
      * @param scalerUnit the ScalerUnit to write
      * @throws java.io.IOException if for some reason you could not write the attribute
@@ -191,8 +191,8 @@ public class ActivePassive extends AbstractCosemObject {
      * @return the ActivationDate
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
-    public DateTime readActivationDate() throws IOException {
-        this.activationDate = new DateTime(getResponseData(ActivePassiveAttributes.ACTIVATION_TIME));
+    public DateTimeOctetString readActivationDate() throws IOException {
+        this.activationDate = new DateTimeOctetString(getResponseData(ActivePassiveAttributes.ACTIVATION_TIME));
         return this.activationDate;
     }
 
@@ -202,7 +202,7 @@ public class ActivePassive extends AbstractCosemObject {
      * @return the 'cached' ActivationDate attribute
      * @throws java.io.IOException if for some reason the attribute could not be read from the device
      */
-    public DateTime getActivationDate() throws IOException {
+    public DateTimeOctetString getActivationDate() throws IOException {
         if (this.activationDate == null) {
             readActivationDate();
         }
@@ -215,7 +215,7 @@ public class ActivePassive extends AbstractCosemObject {
      * @param activationDate the activationDate to write
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
-    public void writeActivationDate(final DateTime activationDate) throws IOException {
+    public void writeActivationDate(final DateTimeOctetString activationDate) throws IOException {
         write(ActivePassiveAttributes.ACTIVATION_TIME, activationDate.getBEREncodedByteArray());
         this.activationDate = activationDate;
     }

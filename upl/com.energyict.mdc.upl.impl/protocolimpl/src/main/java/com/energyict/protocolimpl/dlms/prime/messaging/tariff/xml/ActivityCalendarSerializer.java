@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -346,8 +346,8 @@ public class ActivityCalendarSerializer {
     }
 
     private String getTimeStampFromOctetString(OctetString date) throws IOException {
-        final DateTime dateTime = new DateTime(date.getBEREncodedByteArray(), 0, timeZone);
-        return getTimeStampFromDate(dateTime.getValue().getTime());
+        final DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(date.getBEREncodedByteArray(), 0, timeZone);
+        return getTimeStampFromDate(dateTimeOctetString.getValue().getTime());
     }
 
     private String getTimeStampFromDate(Date date) {
