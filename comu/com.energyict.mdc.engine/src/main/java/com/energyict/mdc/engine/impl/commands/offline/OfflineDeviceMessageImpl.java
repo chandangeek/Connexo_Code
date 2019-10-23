@@ -19,9 +19,12 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.protocolimplv2.messages.DeviceMessageSpecImpl;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,6 +57,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private Instant creationDate;
     private Device device;
     private String preparedContext;
+    private DeviceIdentifier deviceIdentifier;
     private MessageIdentifier messageIdentifier;
 
     /**
@@ -107,11 +111,14 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
+    @XmlTransient
+    @JsonIgnore
     public DeviceProtocol getDeviceProtocol() {
         return deviceProtocol;
     }
 
     @Override
+    @XmlElement(type = DeviceMessageSpecImpl.class)
     public DeviceMessageSpec getSpecification() {
         return specification;
     }
@@ -123,7 +130,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     @Override
     public MessageIdentifier getMessageIdentifier() {
         if (messageIdentifier == null && this.identificationService != null)
-            messageIdentifier = this.identificationService.createMessageIdentifierForAlreadyKnownMessage(deviceMessage);
+            messageIdentifier = this.identificationService.createMessageIdentifierForAlreadyKnownMessage(deviceMessage.getId(), deviceMessage.getDeviceIdentifier());
         return messageIdentifier;
     }
 
@@ -168,8 +175,11 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
+    @XmlTransient
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        if (identificationService != null)
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        return deviceIdentifier;
     }
 
     @Override

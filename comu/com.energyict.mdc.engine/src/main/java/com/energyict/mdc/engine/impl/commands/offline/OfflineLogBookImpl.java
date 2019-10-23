@@ -36,6 +36,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      */
     private LogBook logBook;
     private Device device;
+    private DeviceIdentifier deviceIdentifier;
     private IdentificationService identificationService;
     private LogBookIdentifier logBookIdentifier;
 
@@ -136,10 +137,9 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     @Override
     @XmlTransient
     public DeviceIdentifier getDeviceIdentifier() {
-        if (identificationService != null) {
-            return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
-        }
-        return null;
+        if (identificationService != null)
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        return deviceIdentifier;
     }
 
     @Override

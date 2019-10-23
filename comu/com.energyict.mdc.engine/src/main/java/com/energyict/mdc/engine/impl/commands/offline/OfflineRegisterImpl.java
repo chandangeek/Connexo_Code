@@ -208,10 +208,10 @@ public class OfflineRegisterImpl implements OfflineRegister {
     }
 
     @Override
+    @XmlTransient
     public DeviceIdentifier getDeviceIdentifier() {
-        if (deviceIdentifier == null) {
+        if (identificationService != null)
             deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
-        }
         return deviceIdentifier;
     }
 

@@ -782,10 +782,10 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         }
 
         @Override
-        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
+        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(long id, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(deviceMessage))
+                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(id, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 

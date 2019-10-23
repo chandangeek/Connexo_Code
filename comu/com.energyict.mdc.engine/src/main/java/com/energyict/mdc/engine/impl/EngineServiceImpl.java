@@ -814,10 +814,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
+        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(long id, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(deviceMessage))
+                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(id, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 

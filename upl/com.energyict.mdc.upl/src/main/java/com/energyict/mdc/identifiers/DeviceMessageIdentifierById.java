@@ -5,6 +5,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -32,11 +34,6 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     public DeviceMessageIdentifierById(long messageId, DeviceIdentifier deviceIdentifier) {
         this.messageId = messageId;
         this.deviceIdentifier = deviceIdentifier;
-    }
-
-    public DeviceMessageIdentifierById(DeviceMessage deviceMessage) {
-        this.messageId = deviceMessage.getMessageId();
-        this.deviceIdentifier = deviceMessage.getDeviceIdentifier();
     }
 
     @Override
@@ -72,6 +69,14 @@ public class DeviceMessageIdentifierById implements MessageIdentifier {
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }

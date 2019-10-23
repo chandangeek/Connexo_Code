@@ -124,8 +124,8 @@ public class IdentificationServiceImpl implements IdentificationService {
     }
 
     @Override
-    public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
-        return new DeviceMessageIdentifierById(deviceMessage);
+    public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(long id, DeviceIdentifier deviceIdentifier) {
+        return new DeviceMessageIdentifierById(id, deviceIdentifier);
     }
 
 }

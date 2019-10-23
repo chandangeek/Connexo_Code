@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.offline;
 
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
 import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 
@@ -43,7 +45,10 @@ public class DeviceMessageInformationWrapper {
         this.protocolInformation = protocolInformation;
     }
 
-    @XmlAttribute
+    @XmlElements( {
+            @XmlElement(type = DeviceMessageIdentifierById.class),
+            @XmlElement(type = DeviceMessageIdentifierByDeviceAndProtocolInfoParts.class),
+    })
     public MessageIdentifier getMessageIdentifier() {
         return messageIdentifier;
     }

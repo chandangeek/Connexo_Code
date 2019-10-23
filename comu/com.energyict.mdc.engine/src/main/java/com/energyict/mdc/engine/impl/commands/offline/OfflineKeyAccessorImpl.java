@@ -24,8 +24,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     private Optional<T> actualValue;
     private Optional<T> tempValue;
     private int deviceId;
-
     private String deviceMRID;
+    private DeviceIdentifier deviceIdentifier;
     private Optional<T> wrappingKeyActualValue;
 
     public OfflineKeyAccessorImpl(SecurityAccessor securityAccessor, IdentificationService identificationService) {
@@ -54,7 +54,9 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        if (identificationService != null)
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        return deviceIdentifier;
     }
 
     public void setDeviceId(int deviceId) {

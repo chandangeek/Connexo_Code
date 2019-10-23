@@ -43,6 +43,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     private TopologyService topologyService;
     private Map<Device, List<Device>> deviceTopologies;
     private IdentificationService identificationService;
+    private DeviceIdentifier deviceIdentifier;
     private LoadProfileIdentifier loadProfileIdentifier;
 
     /**
@@ -300,10 +301,9 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     @Override
     @XmlTransient
     public DeviceIdentifier getDeviceIdentifier() {
-        if (identificationService != null) {
-            return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
-        }
-        return null;
+        if (identificationService != null)
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        return deviceIdentifier;
     }
 
     @XmlElements( {

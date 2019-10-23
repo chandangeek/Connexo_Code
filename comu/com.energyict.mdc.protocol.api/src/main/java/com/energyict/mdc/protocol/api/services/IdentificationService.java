@@ -65,6 +65,6 @@ public interface IdentificationService {
 
     LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier);
 
-    MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage);
+    MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(long id, DeviceIdentifier deviceIdentifier);
 
 }

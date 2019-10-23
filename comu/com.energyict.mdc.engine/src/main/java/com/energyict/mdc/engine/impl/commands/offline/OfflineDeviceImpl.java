@@ -96,7 +96,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     /**
      * Contains all Offline Slave devices.
      */
-    private List<OfflineDevice> slaveDevices = Collections.emptyList();
+    private List<OfflineDevice> slaveDevices = new ArrayList<>();
 
     /**
      * Contains the {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}.
@@ -117,23 +117,23 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * Contains all {@link OfflineRegister rtuRegisters} which are owned by this {@link OfflineDevice} or a slave which has the
      * {@link DeviceType#isLogicalSlave() rtuType.isLogicalSlave} checked.
      */
-    private List<OfflineRegister> allOfflineRegisters = Collections.emptyList();
+    private List<OfflineRegister> allOfflineRegisters = new ArrayList<>();
 
     /**
      * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}.
      */
-    private List<OfflineDeviceMessage> pendingDeviceMessages = Collections.emptyList();
+    private List<OfflineDeviceMessage> pendingDeviceMessages = new ArrayList<>();
 
     /**
      * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}
      * that have become invalid since their creation.
      */
-    private List<OfflineDeviceMessage> pendingInvalidDeviceMessages = Collections.emptyList();
+    private List<OfflineDeviceMessage> pendingInvalidDeviceMessages = new ArrayList<>();
 
     /**
      * Contains all {@link DeviceMessageStatus#SENT sent} {@link OfflineDeviceMessage}.
      */
-    private List<OfflineDeviceMessage> sentDeviceMessages = Collections.emptyList();
+    private List<OfflineDeviceMessage> sentDeviceMessages = new ArrayList<>();
 
     /**
      * The used DeviceProtocolPluggableClass.
@@ -145,7 +145,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      */
     private DeviceProtocolCache deviceProtocolCache;
 
-    private List<OfflineCalendar> calendars = Collections.emptyList();
+    private List<OfflineCalendar> calendars = new ArrayList<>();
 
     private Map<Device, List<Device>> deviceTopologies = new HashMap<>();
 
@@ -154,7 +154,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private String location = "";
     private String usagePoint = "";
     private MacException macException;
-    private List<OfflineKeyAccessor> keyAccessors = Collections.emptyList();
+    private List<OfflineKeyAccessor> keyAccessors = new ArrayList<>();
     private HashMap<String, TypedProperties> securityPropertySetAttributeToKeyAccessorTypeMapping;
     private String mRid;
     private TimeZone timeZone;
@@ -496,17 +496,20 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     @Override
     @XmlAttribute
+    @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllPendingDeviceMessages() {
         return this.pendingDeviceMessages;
     }
 
     @Override
+    @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllInvalidPendingDeviceMessages() {
         return Collections.unmodifiableList(this.pendingInvalidDeviceMessages);
     }
 
     @Override
     @XmlAttribute
+    @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllSentDeviceMessages() {
         return this.sentDeviceMessages;
     }

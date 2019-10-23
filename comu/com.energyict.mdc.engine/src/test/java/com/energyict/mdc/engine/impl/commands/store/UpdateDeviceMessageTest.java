@@ -41,7 +41,7 @@ public class UpdateDeviceMessageTest {
 
     @Test
     public void testToJournalMessageDescriptionOnInfoLogLevel() throws Exception {
-        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage);
+        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage.getId(), deviceMessage.getDeviceIdentifier());
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");
@@ -57,7 +57,7 @@ public class UpdateDeviceMessageTest {
     @Test
     public void testToJournalMessageDescriptionOnDebugLogLevel() throws Exception {
         Instant sentDate = Instant.now();
-        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage);
+        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage.getId(), deviceMessage.getDeviceIdentifier());
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");

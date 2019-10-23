@@ -6,7 +6,8 @@ Export-Package: com.energyict.dlms,\
                com.energyict.mdc.protocols.tasks,\
                com.energyict.mdc.channels.ip.*,\
                com.energyict.mdc.channels.serial.*,\
-               com.energyict.protocolimplv2.security
+               com.energyict.protocolimplv2.security,\
+               com.energyict.protocolimplv2.messages
 Import-Package: !test.wsdl.import2.types,\
     !org.apache.bsf,\
     !org.apache.commons.httpclient.*,\
