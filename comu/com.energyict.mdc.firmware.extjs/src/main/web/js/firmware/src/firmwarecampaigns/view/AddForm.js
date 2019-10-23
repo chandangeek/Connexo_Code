@@ -262,17 +262,29 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id'
+                        valueField: 'id',
+                        listeners: {
+                            change: function (checkBox, value) {
+                                if (this.originalValue !== value) {
+                                    me.down('#fwc-campaign-send-connection-strategy-reset').enable();
+                                } else {
+                                    me.down('#fwc-campaign-send-connection-strategy-reset').disable();
+
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-send-connection-strategy-reset',
                         handler: function() {
                             this.down('[name=calendarUploadConnectionStrategy]').reset();
+                            me.down('#fwc-campaign-send-connection-strategy-reset').disable();
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },

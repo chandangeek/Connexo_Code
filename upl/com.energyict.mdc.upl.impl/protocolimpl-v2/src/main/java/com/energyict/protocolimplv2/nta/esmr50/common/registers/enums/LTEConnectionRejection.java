@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.nta.esmr50.common.registers.enums;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 
 import java.util.TimeZone;
 
@@ -14,7 +14,7 @@ public class LTEConnectionRejection {
     private int last_reject_cause;
     private long last_rejected_mcc;
     private long last_rejected_mnc;
-    private DateTime timestamp_last_rejection;
+    private DateTimeOctetString timestamp_last_rejection;
 
     private boolean decoded;
 
@@ -52,7 +52,7 @@ public class LTEConnectionRejection {
         return last_rejected_mnc;
     }
 
-    public DateTime getTimestamp_last_rejection() {
+    public DateTimeOctetString getTimestamp_last_rejection() {
         return timestamp_last_rejection;
     }
 

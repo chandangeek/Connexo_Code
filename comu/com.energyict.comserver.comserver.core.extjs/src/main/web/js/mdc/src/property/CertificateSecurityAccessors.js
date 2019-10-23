@@ -31,7 +31,7 @@ Ext.define('Mdc.property.CertificateSecurityAccessors', {
             store: me.store,
             minChars: 0,
             displayField: 'name',
-            valueField: 'id',
+            valueField: 'name',
             width: me.width,
             readOnly: me.isReadOnly,
             blankText: me.blankText,

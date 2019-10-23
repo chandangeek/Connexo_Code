@@ -103,6 +103,11 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
                         .stringSpec()
                         .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_TYPE.javaName(), TranslationKeys.DEVICE_TYPE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MATERIAL_ID.javaName(), TranslationKeys.MATERIAL_ID)
+                        .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish(),
                 this.propertySpecService
@@ -187,6 +192,10 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_TYPE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_TYPE.javaName())
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MATERIAL_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MATERIAL_ID.javaName())
                     .notNull()
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.SHIPMENT_DATE.databaseName())
