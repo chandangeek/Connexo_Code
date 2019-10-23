@@ -6,9 +6,6 @@ package com.energyict.mdc.sap.soap.custom.eventhandlers;
 
 import com.elster.jupiter.util.streams.Predicates;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -29,7 +26,6 @@ public class SAPDeviceEventType {
         SAP_PROCESS_WORKFLOW_TRIGGER,
         REMARKS
     }
-    private static final List<String> BOOLEAN_VALUES = ImmutableList.of("true", "false");
     private static final String NO_EVENT_CODE = "0.0.0.0";
     private final String eventCode;
     private final String deviceEventCode;
