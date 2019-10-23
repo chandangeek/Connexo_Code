@@ -22,6 +22,7 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
 
         // provided
         REQUEST_ID("requestID", "REQUEST_ID"),
+        BULK("bulk", "BULK");
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -46,6 +47,7 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String requestID;
+    private boolean bulk;
 
     public String getRequestID() {
         return requestID;
@@ -55,15 +57,25 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
         this.requestID = requestID;
     }
 
+    public boolean isBulk() {
+        return bulk;
+    }
+
+    public void setBulk(boolean bulk) {
+        this.bulk = bulk;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setRequestID((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
+        this.setBulk((boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestID());
+        propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
     }
 
     @Override

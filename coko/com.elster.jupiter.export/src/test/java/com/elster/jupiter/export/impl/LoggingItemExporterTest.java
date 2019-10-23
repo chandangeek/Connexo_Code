@@ -35,22 +35,22 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRule;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LoggingItemExporterTest {
 
     @Rule
     public TestRule southOfDownUnder = Using.timeZoneOfMcMurdo();
     @Rule
     public TestRule statesSide = Using.locale("en", "US");
-    @Rule
-    public TestRule mockito = new MockitoJUnitRule(this);
 
     private LoggingItemExporter loggingItemExporter;
     private Logger logger;

@@ -3,7 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.attributes.ChangeOfSupplierManagementAttributes;
 import com.energyict.dlms.cosem.attributes.ChangeOfTenantManagementAttributes;
 import com.energyict.dlms.cosem.methods.ChangeOfSupplierManagementMethods;
@@ -18,13 +18,13 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
 
     public static final byte[] LN = new byte[]{0, (byte) 128, (byte) 128, 1, 0, (byte) 255};
 
-    private DateTime value;
+    private DateTimeOctetString value;
     private ScalerUnit scalerUnit;
 
-    private DateTime passiveValue;
+    private DateTimeOctetString passiveValue;
     private ScalerUnit passiveScalerUnit;
 
-    private DateTime activationDate;
+    private DateTimeOctetString activationDate;
 
     /**
      * Creates a new instance of AbstractCosemObject
@@ -55,8 +55,8 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @return the value
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
-    public DateTime readValue() throws IOException {
-        this.value = new DateTime(getResponseData(ChangeOfTenantManagementAttributes.VALUE));
+    public DateTimeOctetString readValue() throws IOException {
+        this.value = new DateTimeOctetString(getResponseData(ChangeOfTenantManagementAttributes.VALUE));
         return this.value;
     }
 
@@ -66,7 +66,7 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @return the 'cached' value attribute
      * @throws java.io.IOException if for some reason the attribute could not be read from the device
      */
-    public DateTime getValue() throws IOException {
+    public DateTimeOctetString getValue() throws IOException {
         if (this.value == null) {
             readValue();
         }
@@ -75,12 +75,12 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
 
     /**
      * Write the value to the device. <b>Note:</b> it may not be allowed to set it directly, you can try it
-     * with the {@link #writePassiveValue} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.util.DateTime)}
+     * with the {@link #writePassiveValue} and {@link #writeActivationDate(DateTimeOctetString)}
      *
      * @param value the value to write
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
-    public void writeValue(final DateTime value) throws IOException {
+    public void writeValue(final DateTimeOctetString value) throws IOException {
         write(ChangeOfSupplierManagementAttributes.VALUE, value.getBEREncodedByteArray());
         this.value = value;
     }
@@ -112,7 +112,7 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
 
     /**
      * Write the ScalerUnit to the device. <b>Note:</b> it may not be allowed to set it directly, you can try it
-     * with the {@link #writePassiveScalerUnit(com.energyict.dlms.ScalerUnit)} and {@link #writeActivationDate(com.energyict.dlms.axrdencoding.util.DateTime)}
+     * with the {@link #writePassiveScalerUnit(com.energyict.dlms.ScalerUnit)} and {@link #writeActivationDate(DateTimeOctetString)}
      *
      * @param scalerUnit the ScalerUnit to write
      * @throws java.io.IOException if for some reason you could not write the attribute
@@ -129,8 +129,8 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @return the PASSIVE value
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
-    public DateTime readPassiveValue() throws IOException {
-        this.passiveValue =new DateTime(getResponseData(ChangeOfSupplierManagementAttributes.PASSIVE_VALUE));
+    public DateTimeOctetString readPassiveValue() throws IOException {
+        this.passiveValue =new DateTimeOctetString(getResponseData(ChangeOfSupplierManagementAttributes.PASSIVE_VALUE));
         return passiveValue;
     }
 
@@ -140,7 +140,7 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @return the 'cached' PASSIVE value attribute
      * @throws java.io.IOException if for some reason the attribute could not be read from the device
      */
-    public DateTime getPassiveValue() throws IOException {
+    public DateTimeOctetString getPassiveValue() throws IOException {
         if (this.passiveValue == null) {
             readPassiveValue();
         }
@@ -153,7 +153,7 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @param passiveValue the passiveValue to write
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
-    public void writePassiveValue(final DateTime passiveValue) throws IOException {
+    public void writePassiveValue(final DateTimeOctetString passiveValue) throws IOException {
         write(ChangeOfSupplierManagementAttributes.PASSIVE_VALUE, passiveValue.getBEREncodedByteArray());
         this.passiveValue = passiveValue;
     }
@@ -199,8 +199,8 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @return the ActivationDate
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
-    public DateTime readActivationDate() throws IOException {
-        this.activationDate = new DateTime(getResponseData(ChangeOfSupplierManagementAttributes.ACTIVATION_TIME));
+    public DateTimeOctetString readActivationDate() throws IOException {
+        this.activationDate = new DateTimeOctetString(getResponseData(ChangeOfSupplierManagementAttributes.ACTIVATION_TIME));
         return this.activationDate;
     }
 
@@ -210,7 +210,7 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @return the 'cached' ActivationDate attribute
      * @throws java.io.IOException if for some reason the attribute could not be read from the device
      */
-    public DateTime getActivationDate() throws IOException {
+    public DateTimeOctetString getActivationDate() throws IOException {
         if (this.activationDate == null) {
             readActivationDate();
         }
@@ -223,7 +223,7 @@ public class ChangeOfSupplierManagement extends AbstractCosemObject {
      * @param activationDate the activationDate to write
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
-    public void writeActivationDate(final DateTime activationDate) throws IOException {
+    public void writeActivationDate(final DateTimeOctetString activationDate) throws IOException {
         write(ChangeOfSupplierManagementAttributes.ACTIVATION_TIME, activationDate.getBEREncodedByteArray());
         this.activationDate = activationDate;
     }

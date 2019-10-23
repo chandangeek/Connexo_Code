@@ -10,7 +10,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.ActivePassive;
 import com.energyict.dlms.cosem.ChangeOfTenancyOrSupplierManagement;
 import com.energyict.dlms.cosem.CosemObjectFactory;
@@ -255,7 +255,7 @@ public class AS300PMessageExecutor extends MessageParser {
             log(Level.FINEST, "Writing new activation time");
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            standingChargeActivePassive.writeActivationDate(new DateTime(cal));
+            standingChargeActivePassive.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
             standingChargeActivePassive.activate();
@@ -292,7 +292,7 @@ public class AS300PMessageExecutor extends MessageParser {
             log(Level.FINEST, "Writing new activation time");
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            currencyActivePassive.writeActivationDate(new DateTime(cal));
+            currencyActivePassive.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
             currencyActivePassive.activate();
@@ -445,7 +445,7 @@ public class AS300PMessageExecutor extends MessageParser {
             log(Level.FINEST, "Writing new activation time");
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            engineerMenuPINActivePassive.writeActivationDate(new DateTime(cal));
+            engineerMenuPINActivePassive.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
             engineerMenuPINActivePassive.activate();

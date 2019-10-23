@@ -617,6 +617,22 @@ Ext.define('Isu.controller.IssueDetail', {
                 });
 
                 Ext.getStore('Isc.store.Logs').loadData(data);
+                panel.bindStore(Ext.getStore('Isc.store.Logs'), true);
+                panel.addDocked({
+                xtype: 'toolbar',
+                itemId: 'components-list-top-toolbar',
+                items: [
+                    '->',
+                    {
+                        xtype: 'exporterbutton',
+                        itemId: 'components-exporter-button',
+                        ui: 'icon',
+                        iconCls: 'icon-file-download',
+                        text: '',
+                        component: 'servicecall-issue-detail-log'
+                    }
+                ]
+            })
             }
 
             detailsForm && detailsForm.loadRecord(rec);
@@ -644,6 +660,22 @@ Ext.define('Isu.controller.IssueDetail', {
                     }, log))
                 });
                 Ext.getStore('Iws.store.Logs').loadData(data);
+                panel.bindStore(Ext.getStore('Iws.store.Logs'), true);
+                panel.addDocked({
+                xtype: 'toolbar',
+                itemId: 'components-list-top-toolbar',
+                items: [
+                    '->',
+                    {
+                        xtype: 'exporterbutton',
+                        itemId: 'components-exporter-button',
+                        ui: 'icon',
+                        iconCls: 'icon-file-download',
+                        text: '',
+                        component: 'webservice-issue-detail-log'
+                    }
+                ]
+            })
             }
 
             detailsForm && detailsForm.loadRecord(rec);

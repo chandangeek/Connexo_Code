@@ -23,7 +23,7 @@ import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
@@ -143,7 +143,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     @Override
     public void setTime() throws IOException {
         final Calendar newTimeToSet = Calendar.getInstance(getTimeZone());
-        getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
+        getCosemObjectFactory().getClock().setTimeAttr(new DateTimeOctetString(newTimeToSet));
     }
 
     @Override

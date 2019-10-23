@@ -82,12 +82,16 @@ public class MasterUtilitiesDeviceCreateRequestCallHandler implements ServiceCal
     }
 
     private void sendResultMessage(ServiceCall serviceCall) {
+        MasterUtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MasterUtilitiesDeviceCreateRequestCustomPropertySet()).get();
         UtilitiesDeviceCreateConfirmationMessage resultMessage = UtilitiesDeviceCreateConfirmationMessage
                 .builder()
-                .from(serviceCall, findChildren(serviceCall), clock.instant())
+                .from(serviceCall, findChildren(serviceCall), clock.instant(), extension.isBulk())
                 .build();
-
-        WebServiceActivator.UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION.forEach(sender -> sender.call(resultMessage));
+        if (extension.isBulk()) {
+            WebServiceActivator.UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION.forEach(sender -> sender.call(resultMessage));
+        } else {
+            WebServiceActivator.UTILITIES_DEVICE_CREATE_CONFIRMATION.forEach(sender -> sender.call(resultMessage));
+        }
     }
 
     private void resultTransition(ServiceCall parent) {

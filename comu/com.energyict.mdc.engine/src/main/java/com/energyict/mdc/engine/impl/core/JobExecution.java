@@ -285,6 +285,10 @@ public abstract class JobExecution implements ScheduledJob {
         this.getDeviceCommandExecutor().free(this.getToken());
     }
 
+    public void releaseTokenSilently() {
+        this.getDeviceCommandExecutor().freeSilently(this.getToken());
+    }
+
     public ExecutionContext getExecutionContext() {
         return executionContext;
     }
