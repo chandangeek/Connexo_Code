@@ -3,8 +3,8 @@
  */
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
+import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -24,7 +24,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioCustomPropertySet;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioDomainExtension;
@@ -50,6 +49,8 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
+import static com.elster.jupiter.cbo.MetricMultiplier.MEGA;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATT;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
@@ -60,12 +61,11 @@ import static java.util.stream.Collectors.groupingBy;
 public class CustomMeterReadingsEventHandler implements TopicHandler {
     static final String NAME = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.CustomMeterReadingsEventHandler";
 
-    private static final String POWER_FACTOR_EVENET_CODE = "15000";
-    private static final String MAX_DEMAND_EVENET_CODE = "15001";
-    private static final String CT_RATIO_EVENET_CODE = "15002";
-
     private static final Logger LOGGER = Logger.getLogger(CustomMeterReadingsEventHandler.class.getName());
-    private volatile DeviceConfigurationService deviceConfigurationService;
+    private static final String POWER_FACTOR_EVENET_CODE = "powerFactor";
+    private static final String MAX_DEMAND_EVENET_CODE = "maxDemand";
+    private static final String CT_RATIO_EVENET_CODE = "ctRatio";
+
     private volatile DeviceService deviceService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EventService eventService;
@@ -81,12 +81,11 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
 
     @Inject
     public CustomMeterReadingsEventHandler(EventService eventService, MeteringService meteringService,
-                                           DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
-                                           CustomPropertySetService customPropertySetService, NlsService nlsService) {
+                                           DeviceService deviceService, CustomPropertySetService customPropertySetService,
+                                           NlsService nlsService) {
         this();
         setEventService(eventService);
         setMeteringService(meteringService);
-        setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
         setNlsService(nlsService);
@@ -169,7 +168,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                         Pair<String, String> pfReadingTypes = CustomPropertySets.getPowerFactorEventReadingTypes().get(deviceTypeName);
                         if (entry.getKey().getLast().equals(pfReadingTypes.getFirst())) {
                             for (ReadingInfo reading : entry.getValue()) {
-                                Optional<ReadingInfo> reactiveReading = readings.getOrDefault(Pair.of(device, pfReadingTypes.getLast()), new ArrayList<>())
+                                Optional<ReadingInfo> reactiveReading = readings.getOrDefault(Pair.of(device.getMeter(), pfReadingTypes.getLast()), new ArrayList<>())
                                         .stream().filter(r -> r.getReading().getTimeStamp().equals(reading.getReading().getTimeStamp())).findFirst();
                                 if (reactiveReading.isPresent()) {
                                     double value = reading.getReading().getValue().doubleValue();
@@ -181,7 +180,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                                     } else {
                                         if (powerFactorEvent(value, reactiveValue, pfCpsValues.getFirst().doubleValue(), pfCpsValues.getLast().doubleValue())) {
                                             // generate event
-                                            sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), POWER_FACTOR_EVENET_CODE);
+                                            sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), POWER_FACTOR_EVENET_CODE, EndDeviceDomain.POWER);
                                         }
                                     }
                                 } else {
@@ -198,15 +197,10 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                         String mdReadingType = CustomPropertySets.getMaxDemandEventReadingTypes().get(deviceTypeName);
                         if (entry.getKey().getLast().equals(mdReadingType)) {
                             for (ReadingInfo reading : entry.getValue()) {
-                                ReadingTypeUnit readingTypeUnit = reading.getReadingType().getUnit();
-                                if (readingTypeUnit.equals(WATT)) {
-                                    if (maxDemandEvent(reading.getReading().getValue(), reading.getReadingType(),
-                                            mdCpsValues.getFirst().doubleValue(), mdCpsValues.getLast())) {
-                                        // generate event
-                                        sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), MAX_DEMAND_EVENET_CODE);
-                                    }
-                                } else {
-                                    MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, reading.getReadingType().getMRID());
+                                if (maxDemandEvent(reading.getReading().getValue().doubleValue(), reading.getReadingType().getMultiplier(),
+                                        mdCpsValues.getFirst().doubleValue(), mdCpsValues.getLast())) {
+                                    // generate event
+                                    sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), MAX_DEMAND_EVENET_CODE, EndDeviceDomain.DEMAND);
                                 }
                             }
                         }
@@ -220,7 +214,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                             for (ReadingInfo reading : entry.getValue()) {
                                 if (ctRatioEvent(reading.getReading().getValue().doubleValue(), ctCpsValue.doubleValue())) {
                                     // generate event
-                                    sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), CT_RATIO_EVENET_CODE);
+                                    sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), CT_RATIO_EVENET_CODE, EndDeviceDomain.NA);
                                 }
                             }
                         }
@@ -241,7 +235,8 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                 return false;
             }
             if ((rType.equals(readingType) && !readingTypeRef.get().getUnit().equals(WATTHOUR)) ||
-                    (rType.equals(reactiveReadingType) && !readingTypeRef.get().getUnit().equals(VOLTAMPEREREACTIVEHOUR))) {
+                    (rType.equals(reactiveReadingType) && !readingTypeRef.get().getUnit().equals(VOLTAMPEREREACTIVEHOUR)) ||
+                    (!readingTypeRef.get().getMultiplier().equals(KILO))) {
                 MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, readingType);
                 return false;
             }
@@ -265,7 +260,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
             MessageSeeds.READING_TYPE_NOT_FOUND.log(LOGGER, thesaurus, readingType);
             return false;
         }
-        if (!readingTypeRef.get().getUnit().equals(WATT)) {
+        if (!readingTypeRef.get().getUnit().equals(WATT) || (!readingTypeRef.get().getMultiplier().equals(KILO) && !readingTypeRef.get().getMultiplier().equals(MEGA))) {
             MessageSeeds.UNEXPECTED_UNIT_ON_READING_TYPE.log(LOGGER, thesaurus, readingType);
             return false;
         }
@@ -277,8 +272,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         return EventType.READINGS_CREATED.topic();
     }
 
-    public boolean powerFactorEvent(double realPower, double reactivePower, double setpointThreshold,
-                                    double hysteresisPercentage) {
+    public boolean powerFactorEvent(double realPower, double reactivePower, double setpointThreshold, double hysteresisPercentage) {
         double powerFactor = realPower / Math.sqrt(Math.pow(realPower, 2) + Math.pow(reactivePower, 2));
         double deltaPercentage = Math.abs(setpointThreshold) * hysteresisPercentage / 100;
         if (powerFactor <= setpointThreshold - deltaPercentage || powerFactor > setpointThreshold + deltaPercentage) {
@@ -287,13 +281,13 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         return false;
     }
 
-    public boolean maxDemandEvent(BigDecimal readingValue, ReadingType readingType, double connectedLoad, String unit) {
-        double value = MetricMultiplier.quantity(readingValue, readingType.getMultiplier(), readingType.getUnit()).getValue().doubleValue();
-        // convert to WATT
-        if (unit.equals(Units.kW.getValue())) {
+    public boolean maxDemandEvent(double value, MetricMultiplier valueUnit, double connectedLoad, String unit) {
+        // convert both values to kilo if needed
+        if (valueUnit.equals(MEGA)) {
+            value = value * 1000;
+        }
+        if (unit.equals(Units.MW.getValue())) {
             connectedLoad = connectedLoad * 1000;
-        } else if (unit.equals(Units.MW.getValue())) {
-            connectedLoad = connectedLoad * 1000000;
         }
         return value > connectedLoad;
     }
@@ -311,9 +305,14 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
 
     }
 
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
+    public Object getValue(CustomPropertySet customPropertySet, Device device, String propertyName) {
+        CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(customPropertySet, device);
+        return values.getProperty(propertyName);
+    }
+
+    public void sendEvent(Meter meter, Instant date, String code, EndDeviceDomain domain) {
+        CalculatedEventRecordImpl eventRecord = new CalculatedEventRecordImpl(meter, code, date, domain);
+        eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), eventRecord);
     }
 
     @Reference
@@ -339,27 +338,5 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
-    }
-
-    public Object getValue(CustomPropertySet customPropertySet, Device device, String propertyName) {
-        CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(customPropertySet, device);
-        return values.getProperty(propertyName);
-    }
-
-    public Pair<String, String> getReadingTypesForPowerFactorEvent(DeviceType deviceType) {
-        return CustomPropertySets.getPowerFactorEventReadingTypes().get(deviceType.getName());
-    }
-
-    public String getReadingTypeForMaxDemandEvent(DeviceType deviceType) {
-        return CustomPropertySets.getMaxDemandEventReadingTypes().get(deviceType.getName());
-    }
-
-    public String getReadingTypeForCTRatioEvent(DeviceType deviceType) {
-        return CustomPropertySets.getCTRatioEventReadingTypes().get(deviceType.getName());
-    }
-
-    public void sendEvent(Meter meter, Instant date, String code) {
-        CalculatedEventRecordImpl eventRecord = new CalculatedEventRecordImpl(meter, code, date);
-        eventService.postEvent(EventType.END_DEVICE_EVENT_CREATED.topic(), eventRecord);
     }
 }

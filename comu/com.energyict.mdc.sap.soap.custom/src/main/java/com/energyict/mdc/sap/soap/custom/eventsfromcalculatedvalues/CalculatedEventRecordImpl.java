@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
+import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
-    //    private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
+    private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
     private final Reference<EndDevice> endDevice = ValueReference.absent();
     private String code;
     private Instant createdDateTime;
@@ -29,7 +30,8 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     private Map<String, String> properties = new HashMap<>();
 
-    CalculatedEventRecordImpl(Meter meter, String code, Instant createdDateTime) {
+    CalculatedEventRecordImpl(Meter meter, String code, Instant createdDateTime, EndDeviceDomain domain) {
+        this.eventType.set(new CustomEndDeviceEventTypeImpl(code, domain));
         this.endDevice.set(meter);
         this.code = code;
         this.createdDateTime = createdDateTime;
@@ -62,7 +64,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public EndDeviceEventType getEventType() {
-        return null;
+        return eventType.get();
     }
 
     @Override
@@ -227,7 +229,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getEventTypeCode() {
-        return null;
+        return eventType.get().getMRID();
     }
 
     @Override

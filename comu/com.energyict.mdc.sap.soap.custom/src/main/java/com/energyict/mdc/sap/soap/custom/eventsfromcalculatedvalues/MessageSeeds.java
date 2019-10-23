@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
 import com.elster.jupiter.export.DataExportService;
@@ -81,4 +80,3 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PERCENTAGE_VALUE_NOT_VALID = "PercentageValueNotValid";
     }
 }
-
