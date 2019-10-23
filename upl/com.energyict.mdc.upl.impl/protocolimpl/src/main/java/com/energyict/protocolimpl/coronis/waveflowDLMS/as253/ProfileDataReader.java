@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS.as253;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.*;
@@ -97,8 +97,8 @@ public class ProfileDataReader {
             AbstractDataType structureElement = structure.getDataType(CAPTURED_OBJECTS_DATE_FIELD_INDEX);
             if (!structureElement.isNullData()) {
                 // set the interval timestamp if it has a value
-                DateTime dateTime = new DateTime(structureElement.getOctetString(), as253.getTimeZone());
-                calendar.setTime(dateTime.getValue().getTime());
+                DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(structureElement.getOctetString(), as253.getTimeZone());
+                calendar.setTime(dateTimeOctetString.getValue().getTime());
                 ParseUtils.roundUp2nearestInterval(calendar, as253.getProfileInterval());
                 protocolStatus = structure.getDataType(CAPTURED_OBJECTS_STATUSBITS_FIELD_INDEX).intValue();
             }
@@ -129,8 +129,8 @@ public class ProfileDataReader {
         AbstractDataType adt = as253.getTransparantObjectAccessFactory().readObjectAttributeRange(AS1253.LOG_PROFILE, TransparantObjectAccessFactory.ATTRIBUTE_VALUE, lastReading);
         Array array = adt.getArray();
         for (AbstractDataType arrayElement : array.getAllDataTypes()) {
-            DateTime dateTime = new DateTime(arrayElement.getStructure().getDataType(0).getOctetString(), as253.getTimeZone());
-            Date date = dateTime.getValue().getTime();
+            DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(arrayElement.getStructure().getDataType(0).getOctetString(), as253.getTimeZone());
+            Date date = dateTimeOctetString.getValue().getTime();
             int eventCode = arrayElement.getStructure().getDataType(1).intValue();
             if (as253.isOldFirmware()) {
                 eventCode = reverseCode(eventCode);

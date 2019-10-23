@@ -17,7 +17,7 @@ package com.energyict.protocolimplv2.nta.esmr50.common.registers.enums;
  (6) CDMA,
  (7) ... (255) reserved
  */
-public enum GSMDiagnosticPSStatus {
+public enum GSMDiagnosticPSStatusVersion1 {
     Inactive(0, "Inactive"),
     GPRS(1, "GPRS"),
     EDGE(2, "EDGE"),
@@ -30,7 +30,7 @@ public enum GSMDiagnosticPSStatus {
     private int id;
 
     public static String getDescriptionForId(int id) {
-        for (GSMDiagnosticPSStatus item : values()) {
+        for (GSMDiagnosticPSStatusVersion1 item : values()) {
             if (item.getId() == id) {
                 return item.getDescription();
             }
@@ -38,7 +38,7 @@ public enum GSMDiagnosticPSStatus {
         return "Reserved ["+id+"]";
     }
 
-    GSMDiagnosticPSStatus(int id, String description) {
+    GSMDiagnosticPSStatusVersion1(int id, String description) {
         this.id = id;
         this.description = description;
     }

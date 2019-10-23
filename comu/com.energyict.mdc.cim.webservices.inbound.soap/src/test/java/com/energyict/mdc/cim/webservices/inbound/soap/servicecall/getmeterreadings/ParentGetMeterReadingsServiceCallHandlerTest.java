@@ -105,6 +105,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         parentDomainExtension.setTimePeriodStart(startDate);
         parentDomainExtension.setTimePeriodEnd(endDate);
         parentDomainExtension.setReadingTypes(MIN15_MRID);
+        parentDomainExtension.setResponseStatus(ParentGetMeterReadingsDomainExtension.ResponseStatus.NOT_SENT.getName());
         when(serviceCall.getExtensionFor(any(ParentGetMeterReadingsCustomPropertySet.class)))
                 .thenReturn(Optional.of(parentDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(parentDomainExtension));

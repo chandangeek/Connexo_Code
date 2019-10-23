@@ -42,10 +42,11 @@ public class IssueSnoozeHandler implements TaskExecutor {
     }
 
     private void toggleSnoozed() {
-        Optional<IssueStatus> snoozedIssueStaus = issueService.findStatus(IssueStatus.SNOOZED);
+        Optional<IssueStatus> snoozedIssueStatus = issueService.findStatus(IssueStatus.SNOOZED);
         IssueFilter issueFilter = issueService.newIssueFilter();
-        if (snoozedIssueStaus.isPresent()) {
-            issueFilter.addStatus(snoozedIssueStaus.get());
+        if (snoozedIssueStatus.isPresent()) {
+            issueFilter.addStatus(snoozedIssueStatus.get());
+            issueFilter.addUntilSnoozeDateTime(Instant.now(clock));
             issueService.findIssues(issueFilter).find()
                     .forEach(this::handleExpired);
             issueService.findAlarms(issueFilter).find()
@@ -59,11 +60,8 @@ public class IssueSnoozeHandler implements TaskExecutor {
     }
 
     private void handleExpired(Issue issue) {
-        if (issue.getSnoozeDateTime().isPresent() &&
-                issue.getSnoozeDateTime().get().isBefore(Instant.now(clock))) {
-            issue.clearSnooze();
-            issue.update();
-            MessageSeeds.ISSUE_SNOOZE_PERIOD_EXPIRED.log(LOG, thesaurus, issue.getTitle());
-        }
+        issue.clearSnooze();
+        issue.update();
+        MessageSeeds.ISSUE_SNOOZE_PERIOD_EXPIRED.log(LOG, thesaurus, issue.getTitle());
     }
 }

@@ -4,7 +4,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -52,12 +52,12 @@ public class DeviceTypeAssignment {
         final Structure structure = new Structure();
         structure.addDataType(new Unsigned32(deviceTypeId));
         if(startDate != null) {
-            structure.addDataType(new DateTime(startDate));
+            structure.addDataType(new DateTimeOctetString(startDate));
         }else{
             structure.addDataType(new NullData());
         }
         if(endDate != null) {
-            structure.addDataType(new DateTime(endDate));
+            structure.addDataType(new DateTimeOctetString(endDate));
         }else{
             structure.addDataType(new NullData());
         }

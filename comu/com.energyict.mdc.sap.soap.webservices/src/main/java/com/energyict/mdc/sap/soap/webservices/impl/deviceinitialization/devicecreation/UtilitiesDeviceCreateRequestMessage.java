@@ -4,9 +4,8 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrBlkCrteReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +15,7 @@ public class UtilitiesDeviceCreateRequestMessage {
 
     private String requestID;
     private List<UtilitiesDeviceCreateMessage> utilitiesDeviceCreateMessages = new ArrayList<>();
+    private boolean bulk;
 
     private UtilitiesDeviceCreateRequestMessage() {
     }
@@ -26,6 +26,10 @@ public class UtilitiesDeviceCreateRequestMessage {
 
     public List<UtilitiesDeviceCreateMessage> getUtilitiesDeviceCreateMessages() {
         return utilitiesDeviceCreateMessages;
+    }
+
+    public boolean isBulk() {
+        return bulk;
     }
 
     static UtilitiesDeviceCreateRequestMessage.Builder builder() {
@@ -41,7 +45,22 @@ public class UtilitiesDeviceCreateRequestMessage {
         private Builder() {
         }
 
+        public UtilitiesDeviceCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrCrteReqMsg requestMessage) {
+            bulk = false;
+            Optional.ofNullable(requestMessage.getMessageHeader())
+                    .ifPresent(messageHeader -> {
+                        setRequestID(getRequestID(messageHeader));
+                    });
+
+            utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
+                    .builder()
+                    .from(requestMessage.getUtilitiesDevice())
+                    .build());
+            return this;
+        }
+
         public UtilitiesDeviceCreateRequestMessage.Builder from(UtilsDvceERPSmrtMtrBlkCrteReqMsg requestMessage) {
+            bulk = true;
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setRequestID(getRequestID(messageHeader));
@@ -64,9 +83,16 @@ public class UtilitiesDeviceCreateRequestMessage {
             UtilitiesDeviceCreateRequestMessage.this.requestID = requestID;
         }
 
-        private String getRequestID(BusinessDocumentMessageHeader header) {
+        private String getRequestID(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getID())
-                    .map(BusinessDocumentMessageID::getValue)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getRequestID(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
