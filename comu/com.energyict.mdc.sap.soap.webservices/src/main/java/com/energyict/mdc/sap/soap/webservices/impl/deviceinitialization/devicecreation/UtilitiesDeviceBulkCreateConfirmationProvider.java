@@ -58,7 +58,7 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutbo
     @Override
     public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
         using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
-                .send(msg.getConfirmationMessage());
+                .send(msg.getBulkConfirmationMessage().get());
     }
 
     @Override

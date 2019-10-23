@@ -286,6 +286,7 @@ public class ServiceCallCommands {
         parentGetMeterReadingsDomainExtension.setRegisterGroups(getSemicolonSeparatedStringFromSet(syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index)));
         parentGetMeterReadingsDomainExtension.setConnectionMethod(connectionMethod);
         parentGetMeterReadingsDomainExtension.setScheduleStrategy(scheduleStrategy.getName());
+        parentGetMeterReadingsDomainExtension.setResponseStatus(ParentGetMeterReadingsDomainExtension.ResponseStatus.NOT_SENT.getName());
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")

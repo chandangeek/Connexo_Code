@@ -950,6 +950,12 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             }
 
         }
+
+        // filter by SNOOZEDATETIME
+        if (filter.getUntilSnoozeDateTime().isPresent()){
+            condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
+        }
+
         return condition;
     }
 

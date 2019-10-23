@@ -5,27 +5,25 @@
 package com.elster.jupiter.issue.impl;
 
 import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
 import com.google.common.collect.ImmutableList;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class IssueFilterImpl implements IssueFilter {
     private String issueId;
@@ -46,6 +44,7 @@ public class IssueFilterImpl implements IssueFilter {
     private Long startCreateTime;
     private Long endCreateTime;
     private boolean showTopology = false;
+    private Optional<Instant> untilSnoozeDateTime = Optional.empty();
 
 
     @Override
@@ -210,6 +209,16 @@ public class IssueFilterImpl implements IssueFilter {
     @Override
     public void addDueDate(long startTime, long endTime) {
         this.dueDates.add(new DueDateRange(startTime, endTime));
+    }
+
+    @Override
+    public void addUntilSnoozeDateTime(Instant instant) {
+        this.untilSnoozeDateTime = Optional.of(instant);
+    }
+
+    @Override
+    public Optional<Instant> getUntilSnoozeDateTime() {
+        return this.untilSnoozeDateTime;
     }
 
     @Override
