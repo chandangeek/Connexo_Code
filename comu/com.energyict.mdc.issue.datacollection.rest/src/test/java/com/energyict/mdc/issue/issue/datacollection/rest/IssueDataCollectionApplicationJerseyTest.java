@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -86,6 +87,8 @@ public abstract class IssueDataCollectionApplicationJerseyTest extends FelixRest
     MeteringGroupsService meteringGroupsService;
     @Mock
     private volatile LocationService locationService;
+    @Mock
+    MeteringTranslationService meteringTranslationService;
 
     @Override
     protected Application getApplication() {
@@ -103,6 +106,7 @@ public abstract class IssueDataCollectionApplicationJerseyTest extends FelixRest
         when(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setMeteringTranslationService(meteringTranslationService);
         application.setMessageService(messageService);
         application.setAppService(appService);
         application.setJsonService(jsonService);

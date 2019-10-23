@@ -1,7 +1,7 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -144,7 +144,7 @@ public class UTF8String extends AbstractDataType {
         return -1;
     }
 
-    public DateTime getDateTime(TimeZone tz) {
+    public DateTimeOctetString getDateTime(TimeZone tz) {
         return null;
     }
 

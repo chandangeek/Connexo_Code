@@ -253,7 +253,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class,
-                Version.version(10, 6), UpgraderV10_6.class
+                Version.version(10, 6), UpgraderV10_6.class,
+                Version.version(10, 7), UpgraderV10_7.class
         ));
         this.installed = true;
         this.registerAllCustomPropertySets();

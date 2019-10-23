@@ -88,7 +88,13 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_UUID)
+                        .named(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish(),
@@ -100,6 +106,7 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
 
         );
     }
+
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterUtilitiesDeviceCreateRequestDomainExtension> {
         private final String TABLE_NAME = "SAP_UD5_MASTER_CR_SC_CPS";
         private final String FK = "FK_SAP_UD5_MASTER_CR_SC_CPS";
@@ -149,6 +156,10 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
                     .varChar(NAME_LENGTH)
                     .map(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName())
                     .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.databaseName())
+                    .bool()
+                    .map(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName())
                     .add();
         }
 

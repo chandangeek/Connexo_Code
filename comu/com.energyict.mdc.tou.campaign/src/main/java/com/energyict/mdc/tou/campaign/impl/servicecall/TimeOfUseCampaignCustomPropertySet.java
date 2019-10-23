@@ -162,6 +162,11 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .stringSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .booleanSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName(), TranslationKeys.MANUALLY_CANCELLED)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }

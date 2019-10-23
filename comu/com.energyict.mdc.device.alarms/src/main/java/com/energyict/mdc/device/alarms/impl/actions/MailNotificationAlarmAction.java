@@ -17,10 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.mail.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -52,14 +49,10 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
     private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
     private static final String MAIL_FROM_PROPERTY = "mail.from";
 
-
     private String smtpHost;
-    private int port = 25;
-    private Address from;
     private String user;
     private String password;
     private String fromAddress;
-
     @Inject
     public MailNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, com.energyict.mdc.dynamic.PropertySpecService propertySpecService, DeviceAlarmService deviceAlarmService)
     {
@@ -85,37 +78,37 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         this.issue = issue;
         return this;
     }
-
-    private void sendMail(Issue issue) {
+    public void sendMail(Issue issue) {
         Transport transport = null;
-        String receivers = getRecipientFromParameters(properties);
-        Properties prop = getMailProperties();
-        Session session = Session.getInstance(prop, null);
-        MimeMessage message = new MimeMessage(session);
+        String recipients = getRecipientFromParameters(properties);
 
-        String[] receiverList = receivers.split(";");
-        InternetAddress[] receiverAddress = new InternetAddress[receiverList.length];
-        int index = 0;
-        String content= getContent(issue);
+        Properties properties = getMailProperties();
+        Session mailConnection = Session.getInstance(properties, null);
+        Message msg = new MimeMessage(mailConnection);
+
+        Address address = null;
+        MessagingException rootException = null;
+        String[] recipientList = recipients.split(";");
+        InternetAddress[] recipientAddress = new InternetAddress[recipientList.length];
+        int counter = 0;
+        String mailContent = getContent(issue);
         try {
-            for (String recipient : receiverList) {
-                receiverAddress[index] = new InternetAddress(recipient.trim());
-                index++;
+            for (String recipient : recipientList) {
+                recipientAddress[counter] = new InternetAddress(recipient.trim());
+                counter++;
             }
-            MessagingException rootException = null;
-
-            message.setContent(content, "text/plain");
-            from=new InternetAddress(fromAddress);
-            message.setFrom(from);
-            message.setRecipients(MimeMessage.RecipientType.TO, receiverAddress);
-            message.setSubject(issue.getIssueId() + " " + issue.getTitle());
+            address = new InternetAddress(fromAddress);
+            msg.setContent(mailContent, "text/plain");
+            msg.setFrom(address);
+            msg.setRecipients(Message.RecipientType.TO, recipientAddress);
+            msg.setSubject(issue.getIssueId() + "-" + issue.getTitle());
             try {
                 if (user != null && !user.isEmpty() && password != null && !password.isEmpty()) {
-                    transport = session.getTransport("smtp");
+                    transport = mailConnection.getTransport("smtp");
                     transport.connect(smtpHost, user, password);
-                    transport.sendMessage(message, message.getAllRecipients());
+                    transport.sendMessage(msg, msg.getAllRecipients());
                 } else
-                    Transport.send(message, message.getAllRecipients());
+                    Transport.send(msg, msg.getAllRecipients());
             } catch (MessagingException e) {
                 rootException = e;
                 throw new RuntimeException(e);
@@ -132,15 +125,28 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
                     }
                 }
             }
-        }
-        catch (AddressException e) {
-
+        } catch (AddressException e) {
             e.printStackTrace();
-
         } catch (MessagingException e) {
             e.printStackTrace();
         }
+
     }
+
+    public Properties getMailProperties() {
+        Properties props = new Properties();
+        BundleContext bundleContext = ((DeviceAlarmServiceImpl)deviceAlarmService).getBundleContext().get();
+        user = bundleContext.getProperty(MAIL_USER_PROPERTY);
+        password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
+        smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
+        props.put("mail.smtp.host", smtpHost);
+        props.put("mail.smtp.port", bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY));
+        props.setProperty("mail.smtp.user", user);
+        props.setProperty("mail.smtp.password", password);
+        return props;
+    }
+
     @SuppressWarnings("unchecked")
     private String getRecipientFromParameters(Map<String, Object> properties) {
         Object value = properties.get(TO);
@@ -186,19 +192,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
                         .finish());
     }
 
-    public Properties getMailProperties() {
-        Properties props = new Properties();
-        BundleContext bundleContext = ((DeviceAlarmServiceImpl)deviceAlarmService).getBundleContext().get();
-        user = bundleContext.getProperty(MAIL_USER_PROPERTY);
-        password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
-        fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
-        smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
-        port= Integer.parseInt(bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY));
-        props.put("mail.smtp.host", smtpHost);
-        props.put("mail.smtp.port",port );
-        props.put("mail.user", user);
-        return props;
-    }
+
 
     private MailTo getDefaultValues(Issue issue) {
         if(issue!=null)

@@ -15,6 +15,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Devices', {
     router: null,
     deviceType: null,
     campaignIsOngoing: null,
+    manuallyCancelled: null,
 
     initComponent: function () {
         var me = this;
@@ -51,7 +52,8 @@ Ext.define('Fwc.firmwarecampaigns.view.Devices', {
                             xtype: 'firmware-campaign-devices-grid',
                             itemId: 'firmware-campaign-devices-grid',
                             router: me.router,
-                            campaignIsOngoing: me.campaignIsOngoing
+                            campaignIsOngoing: me.campaignIsOngoing,
+                            manuallyCancelled: me.manuallyCancelled
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

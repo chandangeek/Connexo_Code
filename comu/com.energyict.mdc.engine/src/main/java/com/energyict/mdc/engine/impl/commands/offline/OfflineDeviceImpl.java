@@ -160,6 +160,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     private void goOffline(OfflineDeviceContext context) {
+        List<SecurityAccessor> slaveSecurityAccessors = new ArrayList<>();
+
         setLocation(device.getLocation().map(Object::toString).orElse(""));
         setUsagePoint(device.getUsagePoint().map(Object::toString).orElse(""));
         setId(this.device.getId());
@@ -170,11 +172,14 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
             setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass().get());
         }
+
         if (context.needsSlaveDevices()) {
             List<Device> downstreamDevices = getPhysicalConnectedDevices(this.device);
-            List<Device> downStreamEndDevices = new ArrayList<>(downstreamDevices.size());
-            downStreamEndDevices.addAll(downstreamDevices.stream().collect(Collectors.toList()));
-            setSlaveDevices(convertToOfflineRtus(downStreamEndDevices));
+            setSlaveDevices(convertToOfflineRtus(downstreamDevices));
+
+            for (final Device device : downstreamDevices) {
+                slaveSecurityAccessors.addAll( device.getSecurityAccessors() );
+            }
         }
         if (context.needsMasterLoadProfiles()) {
             setMasterLoadProfiles(convertToOfflineLoadProfiles(this.device.getLoadProfiles(), serviceProvider.topologyService()));
@@ -189,7 +194,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         if (context.needsRegisters()) {
             setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
-        setAllKeyAccessors(convertToOfflineKeyAccessors(this.device.getSecurityAccessors()));
+
+        List<SecurityAccessor> allSecurityAccessors = new ArrayList<>(slaveSecurityAccessors);
+        allSecurityAccessors.addAll( this.device.getSecurityAccessors() );
+
+        setAllKeyAccessors(convertToOfflineKeyAccessors( allSecurityAccessors ));
         setSecurityPropertySetAttributeToKeyAccessorTypeMapping(this.device);
         if (context.needsPendingMessages()) {
             try {
@@ -199,7 +208,6 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
                 List<DeviceMessage> reallyPending = new ArrayList<>();
                 List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
                 pendingMessages
-                        .stream()
                         .forEach(deviceMessage -> {
                             if (validator.isStillValid(deviceMessage)) {
                                 reallyPending.add(deviceMessage);
@@ -344,9 +352,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     private List<OfflineKeyAccessor> convertToOfflineKeyAccessors(final List<SecurityAccessor> securityAccessors) {
-        List<OfflineKeyAccessor> offlineKeyAccesssors = new ArrayList<>(securityAccessors.size());
-        offlineKeyAccesssors.addAll(securityAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
-        return offlineKeyAccesssors;
+        List<OfflineKeyAccessor> offlineKeyAccessors = new ArrayList<>(securityAccessors.size());
+        offlineKeyAccessors.addAll(securityAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
+        return offlineKeyAccessors;
     }
 
     @Override
@@ -644,13 +652,13 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     private void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(Device device) {
         securityPropertySetAttributeToKeyAccessorTypeMapping = new HashMap<>();
-        device.getDeviceConfiguration().getSecurityPropertySets().stream().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
+        device.getDeviceConfiguration().getSecurityPropertySets().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
 
     }
 
     private void addSecurityPropertySetAttributeToKeyAccessorTypeMappings(SecurityPropertySet securityPropertySet) {
         TypedProperties mappings = TypedProperties.empty();
-        securityPropertySet.getConfigurationSecurityProperties().stream().forEach(each -> mappings.setProperty(each.getName(), each.getSecurityAccessorType().getName()));
+        securityPropertySet.getConfigurationSecurityProperties().forEach(each -> mappings.setProperty(each.getName(), each.getSecurityAccessorType().getName()));
         securityPropertySetAttributeToKeyAccessorTypeMapping.put(securityPropertySet.getName(), mappings);
     }
 

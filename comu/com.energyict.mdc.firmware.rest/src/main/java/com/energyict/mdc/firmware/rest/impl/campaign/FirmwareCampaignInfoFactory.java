@@ -143,6 +143,7 @@ public class FirmwareCampaignInfoFactory {
                         .findAny()
                         .ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
         info.serviceCall = new IdWithNameInfo(campaignsServiceCall.getId(), campaignsServiceCall.getNumber());
+        info.manuallyCancelled = campaign.isManuallyCancelled();
         return info;
     }
 

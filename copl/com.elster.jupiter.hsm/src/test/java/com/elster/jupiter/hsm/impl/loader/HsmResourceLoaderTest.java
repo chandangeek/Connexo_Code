@@ -44,11 +44,23 @@ public class HsmResourceLoaderTest {
     }
 
     @Test
-    public void testReLoading() throws HsmBaseException {
+    public void testReLoadingOnChangeTimestamp() throws HsmBaseException {
         reloader = new HsmResourceLoader<>(mockedLoader1);
         Mockito.when(mockedLoader1.timeStamp()).thenReturn(1L);
         reloader.load();
         Mockito.when(mockedLoader1.timeStamp()).thenReturn(2L);
+        reloader.load();
+        Mockito.verify(mockedLoader1, Mockito.times(1)).load();
+        Mockito.verify(mockedLoader1, Mockito.times(1)).reload();
+    }
+
+    @Test
+    public void testReLoadingOnChangeChangeResource() throws HsmBaseException {
+        reloader = new HsmResourceLoader<>(mockedLoader1);
+        Mockito.when(mockedLoader1.timeStamp()).thenReturn(1L);
+        reloader.load();
+        Mockito.when(mockedLoader1.timeStamp()).thenReturn(1L);
+        Mockito.when(mockedLoader1.changed()).thenReturn(true);
         reloader.load();
         Mockito.verify(mockedLoader1, Mockito.times(1)).load();
         Mockito.verify(mockedLoader1, Mockito.times(1)).reload();

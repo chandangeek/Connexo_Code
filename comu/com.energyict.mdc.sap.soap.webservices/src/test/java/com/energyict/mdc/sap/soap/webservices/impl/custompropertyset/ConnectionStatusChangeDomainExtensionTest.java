@@ -25,6 +25,8 @@ public class ConnectionStatusChangeDomainExtensionTest {
     private String reasonCode = "01";
     private String url = "http://localhost:8080/test";
     private Instant nowDate = Instant.now();
+    private boolean bulk = true;
+    private boolean cancelledBySap = true;
 
     private CustomPropertySetValues cpsValues;
     private ConnectionStatusChangeDomainExtension domainExtension;
@@ -45,6 +47,8 @@ public class ConnectionStatusChangeDomainExtensionTest {
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName(), categoryCode);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName(), reasonCode);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName(), nowDate);
+        cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName(), bulk);
+        cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), cancelledBySap);
 
         domainExtension.copyFrom(serviceCall, cpsValues);
 
@@ -53,6 +57,8 @@ public class ConnectionStatusChangeDomainExtensionTest {
         assertThat(domainExtension.getCategoryCode()).isSameAs(categoryCode);
         assertThat(domainExtension.getReasonCode()).isSameAs(reasonCode);
         assertThat(domainExtension.getProcessDate()).isSameAs(nowDate);
+        assertThat(domainExtension.isBulk()).isSameAs(bulk);
+        assertThat(domainExtension.isCancelledBySap()).isSameAs(cancelledBySap);
     }
 
     @Test
@@ -62,6 +68,8 @@ public class ConnectionStatusChangeDomainExtensionTest {
         domainExtension.setCategoryCode(categoryCode);
         domainExtension.setReasonCode(reasonCode);
         domainExtension.setProcessDate(nowDate);
+        domainExtension.setBulk(bulk);
+        domainExtension.setCancelledBySap(cancelledBySap);
 
         domainExtension.copyTo(cpsValues);
 
@@ -75,6 +83,10 @@ public class ConnectionStatusChangeDomainExtensionTest {
                 .isSameAs(reasonCode);
         assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName()))
                 .isSameAs(nowDate);
+        assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName()))
+                .isSameAs(bulk);
+        assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName()))
+                .isSameAs(cancelledBySap);
     }
 
     @Test

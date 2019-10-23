@@ -11,8 +11,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
@@ -34,7 +36,7 @@ public enum TranslationKeys implements TranslationKey {
     DATA_SOURCE("dataSource", "Data source"),
     FUTURE_CASE("futureCase", "Future case"),
     PROCESSING_DATE("processingDate", "Processing date"),
-    REQUEST_UUID("requestID", "Request ID"),
+    REQUEST_ID("requestID", "Request ID"),
     UUID("UUID", "UUID"),
     REFERENCE_ID("referenceID", "Reference ID"),
     ATTEMPT_NUMBER("attemptNumber", "Attempt number"),
@@ -69,6 +71,7 @@ public enum TranslationKeys implements TranslationKey {
     MANUFACTURER("manufacturer", "Manufacturer"),
     MODEL_NUMBER("modelNumber", "Model number"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
+    MATERIAL_ID("materialId", "Material id"),
     NEXT_READING_ATTEMPT_DATE("nextReadingAttemptDate", "Next reading attempt date"),
     READING_ATTEMPT("readingAttempt", "Reading attempt"),
     CANCELLED_BY_SAP("cancelledBySap", "Cancelled by SAP"),
@@ -81,6 +84,7 @@ public enum TranslationKeys implements TranslationKey {
     CHECK_CONFIRMATION_TIMEOUT_SUBSCRIBER_NAME(CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_SUBSCRIBER, CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_DISPLAYNAME),
     CHECK_SCHEDULED_REQUEST_SUBSCRIBER_NAME(CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_SUBSCRIBER, CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_DISPLAYNAME),
     UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER, UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DISPLAYNAME),
+    CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER_NAME(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER, CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME),
 
     // CPS
     CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.connection.status.change",
@@ -95,11 +99,13 @@ public enum TranslationKeys implements TranslationKey {
             UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName()),
     UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.utilities.device.register.create.request",
             UtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
+    MASTER_CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.master.connection.status.change",
+            MasterConnectionStatusChangeCustomPropertySet.class.getSimpleName()),
 
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
     AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
-    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one LRN was set on the device"),
+    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one Logical Register Number was set on the device"),
     ;
 
     private final String key;

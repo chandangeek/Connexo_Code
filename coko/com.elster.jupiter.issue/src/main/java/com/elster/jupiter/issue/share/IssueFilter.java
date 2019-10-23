@@ -18,6 +18,7 @@ import com.elster.jupiter.users.WorkGroup;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +52,10 @@ public interface IssueFilter {
     void addAssignee(User assignee);
 
     void addWorkGroupAssignee(WorkGroup workGroup);
+
+    void addUntilSnoozeDateTime(Instant endTime);
+
+    Optional<Instant> getUntilSnoozeDateTime();
 
     List<User> getAssignees();
 

@@ -16,7 +16,7 @@ import java.util.TimeZone;
 /**
  * @author gna
  * @since 03/02/2009
- * This is the copy of the DateTime class.
+ * This is the copy of the DateTimeOctetString class.
  * The blue book describes the dateTime as an OctetString(size(12)). The 12 indicates that the length is fixed an does not have to be encode.
  *
  * <pre>

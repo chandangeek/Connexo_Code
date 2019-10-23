@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 
 import com.energyict.cbo.BaseUnit;
@@ -10,7 +11,6 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -249,8 +249,8 @@ public class PrimeRegisters {
             AbstractDataType valueAttr = cof.getData(obisCode).getValueAttr();
             long epoch;
             if (valueAttr.isOctetString()) {
-                DateTime dateTime = valueAttr.getOctetString().getDateTime(this.session.getTimeZone());
-                epoch = dateTime.getValue().getTime().getTime();
+                DateTimeOctetString dateTimeOctetString = valueAttr.getOctetString().getDateTime(this.session.getTimeZone());
+                epoch = dateTimeOctetString.getValue().getTime().getTime();
             } else {
                 epoch = valueAttr.longValue();
             }
