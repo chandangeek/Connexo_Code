@@ -108,7 +108,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
             BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
             id.setValue(extension.getRequestID());
-            header.setID(id);
+            header.setReferenceID(id);
 
             return header;
         }
