@@ -24,15 +24,15 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         return confirmationMessage;
     }
 
-    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id) {
-        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id);
+    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, MeasurementTaskAssignmentChangeRequestMessage message) {
+        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, message);
     }
 
     public class Builder {
 
-        private Builder(Instant now, String id) {
+        private Builder(Instant now, MeasurementTaskAssignmentChangeRequestMessage message) {
             confirmationMessage = OBJECT_FACTORY.createUtilsTmeSersERPMsmtTskAssgmtChgConfMsg();
-            confirmationMessage.setMessageHeader(createHeader(now, id));
+            confirmationMessage.setMessageHeader(createHeader(now, message.getId(), message.getUuid()));
         }
 
         public MeasurementTaskAssignmentChangeConfirmationMessage.Builder create() {
@@ -49,7 +49,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             return MeasurementTaskAssignmentChangeConfirmationMessage.this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(Instant now, String id) {
+        private BusinessDocumentMessageHeader createHeader(Instant now, String id, String uuid) {
             BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
             messageID.setValue(id);
 
@@ -57,7 +57,10 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             messageHeader.setReferenceID(messageID);
             com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UUID newUUID = OBJECT_FACTORY.createUUID();
             newUUID.setValue(UUID.randomUUID().toString());
+            com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UUID referenceUUID = OBJECT_FACTORY.createUUID();
+            referenceUUID.setValue(uuid);
             messageHeader.setUUID(newUUID);
+            messageHeader.setReferenceUUID(referenceUUID);
             messageHeader.setCreationDateTime(now);
             return messageHeader;
         }

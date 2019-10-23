@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrBlkCrteReqMsg;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class UtilitiesDeviceCreateRequestMessage {
 
     private String requestID;
+    private String uuid;
     private List<UtilitiesDeviceCreateMessage> utilitiesDeviceCreateMessages = new ArrayList<>();
 
     private UtilitiesDeviceCreateRequestMessage() {
@@ -22,6 +24,10 @@ public class UtilitiesDeviceCreateRequestMessage {
 
     public String getRequestID() {
         return requestID;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public List<UtilitiesDeviceCreateMessage> getUtilitiesDeviceCreateMessages() {
@@ -45,6 +51,7 @@ public class UtilitiesDeviceCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setRequestID(getRequestID(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
 
             requestMessage.getUtilitiesDeviceERPSmartMeterCreateRequestMessage()
@@ -64,9 +71,20 @@ public class UtilitiesDeviceCreateRequestMessage {
             UtilitiesDeviceCreateRequestMessage.this.requestID = requestID;
         }
 
+        private void setUuid(String uuid) {
+            UtilitiesDeviceCreateRequestMessage.this.uuid = uuid;
+        }
+
         private String getRequestID(BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getID())
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

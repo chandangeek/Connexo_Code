@@ -97,10 +97,10 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     }
 
     @Override
-    public void call(List<String> deviceIds) {
+    public void call(List<String> deviceIds, String uuid) {
         Instant createTime = clock.instant();
         UtilsDvceERPSmrtMtrRegedBulkNotifMsg notificationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegedBulkNotifMsg();
-        notificationMessage.setMessageHeader(createMessageHeader(createTime));
+        notificationMessage.setMessageHeader(createMessageHeader(createTime, uuid));
 
         SetMultimap<String, String> values = HashMultimap.create();
 
@@ -114,11 +114,12 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
                 .send(notificationMessage);
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(Instant now, String referenceUuid) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
         return header;
     }

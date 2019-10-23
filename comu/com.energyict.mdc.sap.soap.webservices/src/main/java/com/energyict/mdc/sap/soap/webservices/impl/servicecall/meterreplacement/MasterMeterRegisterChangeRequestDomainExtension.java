@@ -22,6 +22,7 @@ public class MasterMeterRegisterChangeRequestDomainExtension extends AbstractPer
 
         // provided
         REQUEST_ID("requestId", "REQUEST_ID"),
+        UUID("uuid", "UUID"),
         BULK("bulk", "BULK");
         ;
 
@@ -47,6 +48,8 @@ public class MasterMeterRegisterChangeRequestDomainExtension extends AbstractPer
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String requestId;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String uuid;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean bulk;
@@ -57,6 +60,14 @@ public class MasterMeterRegisterChangeRequestDomainExtension extends AbstractPer
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public boolean isBulk() {
@@ -72,12 +83,14 @@ public class MasterMeterRegisterChangeRequestDomainExtension extends AbstractPer
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setRequestId((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
+        this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestId());
+        propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
     }
 

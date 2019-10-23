@@ -35,6 +35,7 @@ public enum TranslationKeys implements TranslationKey {
     FUTURE_CASE("futureCase", "Future case"),
     PROCESSING_DATE("processingDate", "Processing date"),
     REQUEST_UUID("requestID", "Request ID"),
+    UUID("UUID", "UUID"),
     REFERENCE_ID("referenceID", "Reference ID"),
     ATTEMPT_NUMBER("attemptNumber", "Attempt number"),
     ACTUAL_READING_DATE("actualReadingDate", "Actual reading date"),

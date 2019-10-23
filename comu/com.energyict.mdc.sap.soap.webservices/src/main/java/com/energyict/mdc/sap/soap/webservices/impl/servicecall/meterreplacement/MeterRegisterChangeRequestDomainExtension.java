@@ -26,6 +26,7 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         // provided
         DEVICE_ID("deviceId", "DEVICE_ID"),
         REQUEST_ID("requestId", "REQUEST_ID"),
+        UUID("uuid", "UUID"),
         LRN("lrn", "LRN"),
         END_DATE("endDate", "END_DATE"),
         TIME_ZONE("timeZone", "TIME_ZONE"),
@@ -61,6 +62,8 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String requestId;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String uuid;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -84,6 +87,14 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getDeviceId() {
@@ -148,6 +159,7 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         this.serviceCall.set(serviceCall);
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
         this.setRequestId((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
+        this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
         this.setTimeZone((String) propertyValues.getProperty(FieldNames.TIME_ZONE.javaName()));
@@ -159,6 +171,7 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
         propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestId());
+        propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
         propertySetValues.setProperty(FieldNames.TIME_ZONE.javaName(), this.getTimeZone());

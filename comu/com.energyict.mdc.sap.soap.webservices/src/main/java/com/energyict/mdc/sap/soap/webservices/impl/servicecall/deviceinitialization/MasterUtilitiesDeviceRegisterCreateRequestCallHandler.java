@@ -106,9 +106,9 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
             List<String> deviceIds = findIdsOfActiveDevicesWithLRN(children);
             if (!deviceIds.isEmpty()) {
                 if (extension.isBulk()) {
-                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.forEach(sender -> sender.call(deviceIds));
+                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.forEach(sender -> sender.call(deviceIds, extension.getUuid()));
                 } else {
-                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0)));
+                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0), extension.getUuid()));
                 }
             }
         }catch(Exception ex){

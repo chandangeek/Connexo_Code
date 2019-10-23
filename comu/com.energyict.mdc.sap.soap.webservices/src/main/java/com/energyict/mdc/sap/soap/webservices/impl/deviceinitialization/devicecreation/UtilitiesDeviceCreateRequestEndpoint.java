@@ -94,7 +94,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
                 return;
             }
 
-            UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = createConfirmationMessage(getRequestId(msg), sapDeviceId);
+            UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = createConfirmationMessage(getRequestId(msg), getUuid(msg), sapDeviceId);
             sendMessage(confirmMsg);
         } else {
             sendProcessError(msg, MessageSeeds.INVALID_MESSAGE_FORMAT);
@@ -105,7 +105,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(args));
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(getRequestId(msg), clock.instant()));
+        confirmMsg.setMessageHeader(createMessageHeader(getRequestId(msg), getUuid(msg), clock.instant()));
         confirmMsg.setUtilitiesDevice(createUtilitiesDevice(getDeviceId(msg)));
         confirmMsg.setLog(createFailedLog(messageSeed, args));
 
@@ -125,21 +125,22 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
                 .findAny().isPresent();
     }
 
-    private UtilsDvceERPSmrtMtrCrteConfMsg createConfirmationMessage(String requestId, String sapDeviceId) {
+    private UtilsDvceERPSmrtMtrCrteConfMsg createConfirmationMessage(String requestId, String uuid, String sapDeviceId) {
         Instant now = clock.instant();
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestId, now));
+        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, now));
         confirmMsg.setUtilitiesDevice(createUtilitiesDevice(sapDeviceId));
         confirmMsg.setLog(createSuccessfulLog());
         return confirmMsg;
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setReferenceID(createID(requestId));
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
         return header;
     }
@@ -214,6 +215,14 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
         return Optional.ofNullable(msg.getMessageHeader())
                 .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader::getID)
                 .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getUuid(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
+        return Optional.ofNullable(msg.getMessageHeader())
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader::getUUID)
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UUID::getValue)
                 .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                 .orElse(null);
     }

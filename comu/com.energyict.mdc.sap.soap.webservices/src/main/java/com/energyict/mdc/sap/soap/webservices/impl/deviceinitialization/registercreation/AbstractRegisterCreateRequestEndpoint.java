@@ -85,6 +85,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension masterUtilitiesDeviceRegisterCreateRequestDomainExtension =
                 new MasterUtilitiesDeviceRegisterCreateRequestDomainExtension();
         masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+        masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setUuid(requestMessage.getUuid());
         masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()

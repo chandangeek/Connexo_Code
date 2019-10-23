@@ -11,5 +11,5 @@ public interface UtilitiesDeviceRegisteredNotification {
      * Invoked when the SAP utilities device is registered
      * @param deviceId
      */
-    void call(String deviceId);
+    void call(String deviceId, String uuid);
 }

@@ -65,7 +65,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
         properties.put("epcId", 1l);
 
         provider.addRequestConfirmationPort(port, properties);
-        provider.call(deviceIds);
+        provider.call(deviceIds, "123");
 
         SetMultimap<String,String> values = HashMultimap.create();
 
@@ -86,7 +86,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
         expectedException.expect(LocalizedException.class);
         expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out'.");
 
-        provider.call(deviceIds);
+        provider.call(deviceIds, "123");
     }
 
     @Test

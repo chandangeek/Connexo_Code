@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateResultCustomPropertySet",
@@ -135,6 +137,11 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.javaName(), TranslationKeys.CONFIRMATION_TIME)
                         .describedAs(TranslationKeys.CONFIRMATION_TIME)
@@ -199,6 +206,11 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
                     .notNull()
+                    .add();
+            table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.UUID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.databaseName())
                     .number()

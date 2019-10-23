@@ -110,6 +110,7 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
         MasterUtilitiesDeviceCreateRequestDomainExtension masterUtilitiesDeviceCreateRequestDomainExtension =
                 new MasterUtilitiesDeviceCreateRequestDomainExtension();
         masterUtilitiesDeviceCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+        masterUtilitiesDeviceCreateRequestDomainExtension.setUuid(requestMessage.getUuid());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin(APPLICATION_NAME)

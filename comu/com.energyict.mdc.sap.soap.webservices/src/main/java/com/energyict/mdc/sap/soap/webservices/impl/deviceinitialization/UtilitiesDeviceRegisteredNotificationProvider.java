@@ -162,8 +162,8 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     @Override
-    public void call(String sapDeviceId) {
-        UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
+    public void call(String sapDeviceId, String uuid) {
+        UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId, uuid);
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
         using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
@@ -172,16 +172,16 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
-        UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
+        UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId, null);
         using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .toEndpoints(endPointConfigurations)
                 .send(notificationMessage);
     }
 
-    private UtilsDvceERPSmrtMtrRegedNotifMsg createNotificationMessage(String sapDeviceId) {
+    private UtilsDvceERPSmrtMtrRegedNotifMsg createNotificationMessage(String sapDeviceId, String referenceUuid) {
         Instant createTime = clock.instant();
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifMsg();
-        notificationMessage.setMessageHeader(createMessageHeader(createTime));
+        notificationMessage.setMessageHeader(createMessageHeader(createTime, referenceUuid));
         notificationMessage.setUtilitiesDevice(createBody(sapDeviceId));
 
         return notificationMessage;
@@ -208,11 +208,12 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         return endPointConfigurationService.streamEndPointConfigurations().filter(where("id").in(endPointConfigurationIds)).select();
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(Instant now, String referenceUuid) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
         return header;
     }
