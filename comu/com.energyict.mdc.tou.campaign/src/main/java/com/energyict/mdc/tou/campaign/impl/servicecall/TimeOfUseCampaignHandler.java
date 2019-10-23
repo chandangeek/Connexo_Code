@@ -151,7 +151,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         Optional<TimeOfUseCampaignItem> optionalTimeOfUseCampaignItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice());
         if (optionalTimeOfUseCampaignItem.isPresent()) {
-            TimeOfUseItemDomainExtension timeOfUseCampaignItem = optionalTimeOfUseCampaignItem.get().getServiceCall().getExtension(TimeOfUseItemDomainExtension.class).get();
+            TimeOfUseItemDomainExtension timeOfUseCampaignItem = (TimeOfUseItemDomainExtension) optionalTimeOfUseCampaignItem.get();
             TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignItem.getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
             if (timeOfUseCampaignItem.getStepOfUpdate() == 0) {
                 if (isForCalendar(comTaskExecution)) {
@@ -163,7 +163,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                 .map(DeviceMessage::getStatus)
                                 .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
                                 .isPresent()) {
-                            ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
+                            ServiceCall serviceCall = timeOfUseCampaignItem.getServiceCall();
                             if (!timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
                                 serviceCallService.lockServiceCall(serviceCall.getId());
                                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
