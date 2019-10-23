@@ -15,7 +15,6 @@ import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
-import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ComTaskCountInfo;
@@ -88,15 +87,8 @@ public class DeviceConnectionTaskInfoFactory {
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {
-                final TaskStatus taskStatus = scheduledConnectionTask.getTaskStatus();
-                TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(taskStatus);
-                if(taskStatus.name().equalsIgnoreCase(TaskStatus.OnHold.name()) && scheduledConnectionTask.getStatus().
-                        equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)) {
-                    info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),"Active");
-                } else {
-                    info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),
-                            thesaurus.getFormat(taskStatusTranslationKey).format());
-                }
+                TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
+                info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
             }
             info.connectionStrategyInfo=new ConnectionStrategyInfo();
             info.connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
