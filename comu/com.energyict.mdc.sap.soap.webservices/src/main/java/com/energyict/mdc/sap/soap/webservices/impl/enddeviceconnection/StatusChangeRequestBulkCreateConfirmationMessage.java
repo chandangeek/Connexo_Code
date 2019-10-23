@@ -26,7 +26,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesDeviceID;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -159,7 +158,6 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
         }
 
         private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBodies(StatusChangeRequestBulkCreateMessage message) {
-            List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> list = new ArrayList<>();
             return message.getRequests().stream()
                     .map(m -> {
                         SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
