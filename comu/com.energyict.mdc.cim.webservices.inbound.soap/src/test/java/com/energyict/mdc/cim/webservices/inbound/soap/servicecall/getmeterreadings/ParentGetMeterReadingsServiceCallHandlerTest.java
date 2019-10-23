@@ -282,6 +282,8 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         when(meterReadings.getMeterReading()).thenReturn(mrList);
         when(mrList.isEmpty()).thenReturn(false);
         when(sendMeterReadingsProvider.call(any(), any(), any())).thenReturn(true);
+        when(subParentServiceCall_1.getState()).thenReturn(DefaultState.SUCCESSFUL);
+        when(subParentServiceCall_2.getState()).thenReturn(DefaultState.SUCCESSFUL);
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.PAUSED, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), any(), any());
