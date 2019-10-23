@@ -31,7 +31,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
     private Map<String, String> properties = new HashMap<>();
 
     CalculatedEventRecordImpl(Meter meter, String code, Instant createdDateTime, EndDeviceDomain domain) {
-        this.eventType.set(new CustomEndDeviceEventTypeImpl(code, domain));
+        this.eventType.set(new CalculatedEndDeviceEventTypeImpl(code, domain));
         this.endDevice.set(meter);
         this.code = code;
         this.createdDateTime = createdDateTime;

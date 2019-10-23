@@ -9,12 +9,12 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 
-public final class CustomEndDeviceEventTypeImpl implements EndDeviceEventType {
+public final class CalculatedEndDeviceEventTypeImpl implements EndDeviceEventType {
 
     private String name;
     private EndDeviceDomain domain;
 
-    CustomEndDeviceEventTypeImpl(String name, EndDeviceDomain domain) {
+    CalculatedEndDeviceEventTypeImpl(String name, EndDeviceDomain domain) {
         this.name = name;
         this.domain = domain;
     }
