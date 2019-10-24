@@ -356,6 +356,7 @@ public class ServiceCallCommands {
         MasterMeterReadingDocumentCreateRequestDomainExtension meterReadingDocumentDomainExtension =
                 new MasterMeterReadingDocumentCreateRequestDomainExtension();
         meterReadingDocumentDomainExtension.setRequestID(requestMessage.getId());
+        meterReadingDocumentDomainExtension.setUuid(requestMessage.getUuid());
         meterReadingDocumentDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()

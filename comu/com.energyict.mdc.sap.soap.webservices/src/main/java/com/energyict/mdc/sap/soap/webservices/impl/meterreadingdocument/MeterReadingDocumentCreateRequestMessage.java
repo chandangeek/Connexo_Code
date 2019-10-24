@@ -75,6 +75,7 @@ public class MeterReadingDocumentCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setId(getId(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
             requestMessage.getSmartMeterMeterReadingDocumentERPCreateRequestMessage()
                     .forEach(message ->

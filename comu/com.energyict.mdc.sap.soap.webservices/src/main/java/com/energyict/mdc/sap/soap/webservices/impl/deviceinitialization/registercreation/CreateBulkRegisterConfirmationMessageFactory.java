@@ -45,7 +45,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
 
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
 
-        bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
+        bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
         switch (parent.getState()) {
             case CANCELLED:
                 bulkConfirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()),

@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public class StatusChangeRequestCancellationRequestMessage {
     private String requestId;
+    private String uuid;
     private String categoryCode;
 
     private StatusChangeRequestCancellationRequestMessage() {
@@ -18,6 +19,10 @@ public class StatusChangeRequestCancellationRequestMessage {
 
     public String getRequestId() {
         return requestId;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public String getCategoryCode() {
@@ -39,6 +44,7 @@ public class StatusChangeRequestCancellationRequestMessage {
 
         public StatusChangeRequestCancellationRequestMessage.Builder from(SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg requestMessage) {
             setRequestID(getRequestID(requestMessage));
+            setUuid(getUuid(requestMessage));
             setCategoryCode(getCategoryCode(requestMessage));
             return this;
         }
@@ -51,6 +57,10 @@ public class StatusChangeRequestCancellationRequestMessage {
             StatusChangeRequestCancellationRequestMessage.this.requestId = requestID;
         }
 
+        private void setUuid(String uuid) {
+            StatusChangeRequestCancellationRequestMessage.this.uuid = uuid;
+        }
+
         private void setCategoryCode(String categoryCode) {
             StatusChangeRequestCancellationRequestMessage.this.categoryCode = categoryCode;
         }
@@ -59,6 +69,14 @@ public class StatusChangeRequestCancellationRequestMessage {
             return Optional.ofNullable(msg.getUtilitiesConnectionStatusChangeRequest())
                     .map(m -> m.getID())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UtilitiesConnectionStatusChangeRequestID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg msg) {
+            return Optional.ofNullable(msg.getMessageHeader())
+                    .map(m -> m.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

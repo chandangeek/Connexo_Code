@@ -24,6 +24,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesConnectionStatusChangeRequestID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesConnectionStatusChangeResultCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UUID;
 
 import java.time.Instant;
 import java.util.List;
@@ -64,14 +65,14 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
         }
 
         public Builder from(StatusChangeRequestBulkCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getId(), now));
+            confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(message));
             confirmationMessage.setLog(createLog(exceptionID, PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
 
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(now));
+            confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message);
             msg.setLog(createLog(exceptionID, PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
@@ -105,26 +106,17 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             header.setCreationDateTime(now);
             MasterConnectionStatusChangeDomainExtension extension = parent.getExtension(MasterConnectionStatusChangeDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
-            id.setValue(extension.getRequestID());
-            header.setReferenceID(id);
+            header.setReferenceID(createID(extension.getRequestID()));
+            header.setReferenceUUID(createUUID(extension.getUuid()));
 
             return header;
         }
 
-        private BusinessDocumentMessageHeader createHeader(String parentId, Instant now) {
+        private BusinessDocumentMessageHeader createHeader(String parentId, String referenceUuid, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             header.setCreationDateTime(now);
-            BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
-            id.setValue(parentId);
-            header.setID(id);
-
-            return header;
-        }
-
-        private BusinessDocumentMessageHeader createHeader(Instant now) {
-            BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-            header.setCreationDateTime(now);
+            header.setReferenceID(createID(parentId));
+            header.setReferenceUUID(createUUID(referenceUuid));
 
             return header;
         }
@@ -216,6 +208,17 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return log;
         }
 
+        private BusinessDocumentMessageID createID(String id) {
+            BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
+            messageID.setValue(id);
+            return messageID;
+        }
+
+        private UUID createUUID(String uuid) {
+            UUID messageUUID = OBJECT_FACTORY.createUUID();
+            messageUUID.setValue(uuid);
+            return messageUUID;
+        }
         public StatusChangeRequestBulkCreateConfirmationMessage build() {
             return StatusChangeRequestBulkCreateConfirmationMessage.this;
         }

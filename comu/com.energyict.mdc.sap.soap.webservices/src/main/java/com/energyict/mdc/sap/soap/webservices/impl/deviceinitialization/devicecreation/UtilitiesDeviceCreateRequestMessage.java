@@ -108,7 +108,7 @@ public class UtilitiesDeviceCreateRequestMessage {
                     .orElse(null);
         }
 
-        private String getUuid(BusinessDocumentMessageHeader header) {
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getUUID())
                     .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
