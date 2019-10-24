@@ -170,8 +170,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
 
         // Asserts
         verify(this.endDevice).getLifecycleDates();
-        verify(this.lifecycleDates, never()).setRemovedDate(expectedRemovedDate);
-        verify(this.endDevice, never()).update();
+        verify(this.lifecycleDates).setRemovedDate(expectedRemovedDate);
+        verify(this.endDevice).update();
     }
 
     @Test
