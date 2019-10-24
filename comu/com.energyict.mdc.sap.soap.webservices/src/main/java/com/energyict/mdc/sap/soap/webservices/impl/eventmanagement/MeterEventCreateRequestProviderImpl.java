@@ -28,7 +28,8 @@ import java.util.Map;
 @Component(name = MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT,
         service = {MeterEventCreateRequestProvider.class, OutboundSoapEndPointProvider.class}, immediate = true,
         property = {"name=" + MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT})
-public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPointProvider<UtilitiesSmartMeterEventERPBulkCreateRequestCOut> implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPointProvider<UtilitiesSmartMeterEventERPBulkCreateRequestCOut>
+        implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public MeterEventCreateRequestProviderImpl() {
         // for OSGI purposes

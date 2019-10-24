@@ -7,7 +7,7 @@ package com.energyict.mdc.sap.soap.custom.export;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
-    CUSTOM_DATA_SELECTOR_FACTORY(CustomDataSelectorFactory.CUSTOM_READINGTYPE_DATA_SELECTOR_KEY_NAME, CustomDataSelectorFactory.CUSTOM_READINGTYPE_DATA_SELECTOR),
+    CUSTOM_DATA_SELECTOR_FACTORY(CustomDataSelectorFactory.CUSTOM_READING_DATA_SELECTOR_KEY, CustomDataSelectorFactory.CUSTOM_READING_DATA_SELECTOR_NAME),
     NUMBER_OF_DATASOURCES_SELECTED("dataexport.dataSourcesSelected", "{0} data source(s) selected"),
     NUMBER_OF_DATASOURCES_SKIPPED("dataexport.dataSourcesSkipped", "{0} data source(s) skipped"),
     ;
