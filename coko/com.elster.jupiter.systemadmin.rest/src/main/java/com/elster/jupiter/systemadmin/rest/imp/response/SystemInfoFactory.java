@@ -27,7 +27,7 @@ public class SystemInfoFactory {
         info.jvm = System.getProperty("java.vm.name") + "(build " + System.getProperty("java.vm.version") + ", " + System.getProperty("java.vm.info" ) + ")";
         info.javaHome = System.getProperty("java.home");
         info.javaClassPath = System.getProperty("java.class.path");
-        info.osName = System.getProperty("os.name");
+        info.osName = getOSName();
         info.osArch = System.getProperty("os.arch");
         info.timeZone = System.getProperty("user.timezone");
         info.numberOfProcessors = Runtime.getRuntime().availableProcessors();
@@ -45,5 +45,13 @@ public class SystemInfoFactory {
 
     private String getPropertyOrDefault(String property, String defaultValue) {
         return property != null ? property : defaultValue;
+    }
+
+    private String getOSName() {
+       String osName = System.getProperty("os.name");
+       if(osName.equalsIgnoreCase("Windows XP")){
+           osName = OSInfo.getOs() +" "+OSInfo.getOs().getVersion();
+       }
+       return osName;
     }
 }
