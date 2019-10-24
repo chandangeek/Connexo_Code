@@ -397,7 +397,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
         @Override
         public void publish(LogRecord record) {
-            //This warning message was hidden because Сonnexo does not use migration files and flyway sent warning messages to each bundle
+            //This warning message was hidden because Сonnexo does not use migration files and flyway sends warning messages per each bundle
             if(!(record.getLevel().getLocalizedName().equals("WARNING") && record.getMessage().equals("Unable to resolve location classpath:db/migration"))){
                 forwardingTarget.log(record);
             }
