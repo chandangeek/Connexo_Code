@@ -27,6 +27,8 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 
+import org.joda.time.DateTimeConstants;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
@@ -263,7 +265,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected void reschedule() {
         try {
-            Thread.sleep(Math.abs(getSleepDurationInMs()));
+            int seconds = this.schedulingInterpollDelay.getSeconds();
+            Thread.sleep(seconds * DateTimeConstants.MILLIS_PER_SECOND);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
