@@ -25,6 +25,7 @@ Ext.define('Isu.privileges.Issue', {
     notify: ['privilege.action.issue'],
     action: ['privilege.action.issue'],
     adminDevice: ['privilege.comment.issue','privilege.close.issue','privilege.assign.issue','privilege.action.issue'],
+    viewIssue: ['privilege.view.issue'],
     viewAdminDevice: ['privilege.view.issue', 'privilege.comment.issue', 'privilege.close.issue', 'privilege.assign.issue', 'privilege.action.issue', 'privilege.add.issue'],
     viewAdminProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     viewProcesses: ['privilege.view.bpm'],
@@ -91,6 +92,9 @@ Ext.define('Isu.privileges.Issue', {
     },
     canCreateManualIssue: function() {
         return Uni.Auth.checkPrivileges(Isu.privileges.Issue.createManualIssue);
+    },
+    canViewIssue: function() {
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.viewIssue);
     }
 
 });

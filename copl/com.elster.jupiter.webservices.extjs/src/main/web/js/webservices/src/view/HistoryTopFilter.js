@@ -35,14 +35,15 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 text: Uni.I18n.translate('importService.history.finished', 'WSS', 'Finished between')
             },
             {
-                type: Boolean(me.endpoint) ? undefined : 'combobox',
+                type: Boolean(me.endpoint) ? 'noui' : 'combobox',
                 dataIndex: 'webServiceEndPoint',
                 itemId: 'history-topfilter-webServiceEndPoint',
                 emptyText: Uni.I18n.translate('general.webServiceEndpoint', 'WSS', 'Web service endpoint'),
                 displayField: 'name',
                 valueField: 'id',
                 store: endpointStore,
-                value: me.endpoint ? me.endpoint.getId() : undefined
+                value: me.endpoint ? me.endpoint.getId() : undefined,
+                valueToNumber: true
             },
             {
                 type: 'combobox',
@@ -76,6 +77,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 store: 'Wss.store.RelatedAttributeStore',
                 queryMode: 'remote',
                 queryParam: 'like',
+                setFilterValue: me.comboSetFilterValue,
                 queryCaching: false,
                 minChars: 0,
                 loadStore: false,
@@ -83,12 +85,39 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
-                        }
+                        },
+                    blur: {
+                        fn: me.onAssigneeBlur
                     }
+                }
             },
         ];
 
         me.callParent(arguments);
+    },
+
+    onAssigneeBlur: function (field) {
+        if (field.getRawValue()) {
+            field.setValue(field.lastSelection);
+        }
+    },
+
+    comboSetFilterValue: function(value) {
+        var combo = this,
+        store = combo.getStore();
+
+        combo.value = value;
+        combo.setHiddenValue(value);
+
+        store.model.load(value, {
+            success: function (record) {
+                combo.setValue(record);
+                //combo.value = [record];
+                store.loadData([record], false);
+                store.lastOptions = {};
+                store.fireEvent('load', store, [record], true)
+            }
+        });
     },
 
     comboLimitNotification: function (combo) {
@@ -111,6 +140,4 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 picker.un('refresh', fn);
             }, combo, {single: true});
      }
-
-
 });

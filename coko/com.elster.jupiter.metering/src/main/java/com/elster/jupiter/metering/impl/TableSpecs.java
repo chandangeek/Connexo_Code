@@ -350,7 +350,7 @@ public enum TableSpecs {
                     .add();
 
             table.audit(MTR_USAGEPOINT.name())
-                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.domainContextId())
                     .build();
         }
     },
@@ -437,7 +437,7 @@ public enum TableSpecs {
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
             table.audit(MTR_ENDDEVICE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .build();
         }
     },
@@ -467,7 +467,7 @@ public enum TableSpecs {
                     .map("state")
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_MTR_STATUS_ENDDEVICE")
                     .build();
         }
@@ -535,12 +535,12 @@ public enum TableSpecs {
                     .on(meterRoleIdColumn)
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
                     .domainReferences("FK_MTR_METERACTUSAGEPOINT")
                     .contextReferenceColumn("ID")
                     .build();
             table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_MTR_METERACTMETER")
                     .build();
         }
@@ -736,7 +736,7 @@ public enum TableSpecs {
                     .add();
 
             table.audit(MTR_USAGEPOINTDETAIL.name())
-                    .domainContext(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES.domainContextId())
                     .domainReferenceColumn("USAGEPOINTID")
                     .build();
         }
@@ -881,7 +881,7 @@ public enum TableSpecs {
                     .map("metrologyConfiguration")
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
                     .domainReferences("FK_MTR_UPMTRCONFIG_UP")
                     .build();
         }
@@ -950,7 +950,7 @@ public enum TableSpecs {
                     .on(meterIdColumn).add();
 
             table.audit(MTR_RT_METER_CONFIG.name())
-                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.domainContextId())
                     .domainReferences("FK_MTR_METER_CONFIG")
                     .build();
 
@@ -1764,7 +1764,7 @@ public enum TableSpecs {
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.fieldName())
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
                     .domainReferences("MTR_EF_CONTRACT_2_EF_CONF", "FK_MTR_UPMTRCONFIG_UP")
                     .contextReferenceColumn(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name())
                     .build();
@@ -2028,7 +2028,7 @@ public enum TableSpecs {
                     .map("state")
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.domainContextId())
                     .domainReferenceColumn("USAGE_POINT")
                     .build();
         }

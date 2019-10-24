@@ -27,6 +27,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         DEVICE_ID("deviceId", "DEVICE_ID"),
         SERIAL_ID("serialId", "SERIAL_ID"),
         DEVICE_TYPE("deviceType", "DEVICE_TYPE"),
+        MATERIAL_ID("materialId", "MATERIAL_ID"),
         SHIPMENT_DATE("shipmentDate", "SHIPMENT_DATE"),
         MANUFACTURER("manufacturer", "MANUFACTURER"),
         MODEL_NUMBER("modelNumber", "MODEL_NUMBER"),
@@ -63,9 +64,12 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String serialId;
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceType;
+
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String materialId;
 
     private Instant shipmentDate;
 
@@ -95,6 +99,14 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public String getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(String materialId) {
+        this.materialId = materialId;
     }
 
     public String getDeviceType() {
@@ -156,6 +168,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
         this.setSerialId((String) propertyValues.getProperty(FieldNames.SERIAL_ID.javaName()));
         this.setDeviceType((String) propertyValues.getProperty(FieldNames.DEVICE_TYPE.javaName()));
+        this.setMaterialId((String) propertyValues.getProperty(FieldNames.MATERIAL_ID.javaName()));
         this.setShipmentDate((Instant) propertyValues.getProperty(FieldNames.SHIPMENT_DATE.javaName()));
         this.setManufacturer((String) propertyValues.getProperty(FieldNames.MANUFACTURER.javaName()));
         this.setModelNumber((String) propertyValues.getProperty(FieldNames.MODEL_NUMBER.javaName()));
@@ -168,6 +181,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
         propertySetValues.setProperty(FieldNames.SERIAL_ID.javaName(), this.getSerialId());
         propertySetValues.setProperty(FieldNames.DEVICE_TYPE.javaName(), this.getDeviceType());
+        propertySetValues.setProperty(FieldNames.MATERIAL_ID.javaName(), this.getMaterialId());
         propertySetValues.setProperty(FieldNames.SHIPMENT_DATE.javaName(), this.getShipmentDate());
         propertySetValues.setProperty(FieldNames.MANUFACTURER.javaName(), this.getManufacturer());
         propertySetValues.setProperty(FieldNames.MODEL_NUMBER.javaName(), this.getModelNumber());

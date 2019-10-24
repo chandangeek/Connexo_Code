@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
@@ -27,6 +28,9 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(Device device);
 
+    Optional<String> getSapDeviceId(EndDevice endDevice);
+
+    @Deprecated
     Optional<String> getSapDeviceId(String deviceName);
 
     void setSapDeviceId(Device device, String sapDeviceId);
@@ -59,6 +63,8 @@ public interface SAPCustomPropertySets {
     void setLocation(Device device, String locationId);
 
     void setPod(Device device, String podId);
+
+    Set<Pair<Long, ChannelSpec>> getChannelInfosAfterDate(String lrn, String profileId, Instant date);
 
     /**
      * This method returns map containing as key <Device id, Channel spec> info and as value list of ranges where LRN is defined and overlaps interval.

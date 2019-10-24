@@ -119,7 +119,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     private ServiceCall doStartServiceCall(String uuid, long timeout) {
-        WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension();
+        WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);
         ServiceCallType serviceCallType = findOrCreate();

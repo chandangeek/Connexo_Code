@@ -15,7 +15,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 
@@ -54,35 +56,20 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
                         .ifPresent(this::resultTransition));
     }
 
-    private List<ServiceCall> findAllChilds(ServiceCall serviceCall) {
-        return serviceCall.findChildren().stream().collect(Collectors.toList());
-    }
-
-    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
-    }
-
-    private boolean isLastChild(List<ServiceCall> serviceCalls) {
-        return serviceCalls.stream()
-                .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED) ||
-                        sc.getState().equals(DefaultState.FAILED) ||
-                        sc.getState().equals(DefaultState.SUCCESSFUL));
-    }
-
     private void resultTransition(ServiceCall parent) {
-        List<ServiceCall> childs = findAllChilds(parent);
-        if (isLastChild(childs)) {
-            if (hasAllChildrenInState(childs, DefaultState.SUCCESSFUL)) {
+        List<ServiceCall> childs = ServiceCallHelper.findChildren(parent);
+        if (ServiceCallHelper.isLastChild(childs)) {
+            if (ServiceCallHelper.hasAllChildrenInState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.SUCCESSFUL);
-            } else if (hasAllChildrenInState(childs, DefaultState.CANCELLED)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(childs, DefaultState.CANCELLED)) {
                 sendResponseMessage(parent, DefaultState.CANCELLED);
-            } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
+            } else if (ServiceCallHelper.hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
+                sendResponseMessage(parent, DefaultState.FAILED);
+            } else if (parent.canTransitionTo(DefaultState.ONGOING)) {
+                //  it handles fail case but when parent is in WAITING state for example.
+                //  sendResponseMessage transfers parent to ONGOING and after that transfers to FAILED state
                 sendResponseMessage(parent, DefaultState.FAILED);
             }
         }
@@ -90,26 +77,44 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
 
     private void sendResponseMessage(ServiceCall parent, DefaultState finalState) {
         try (TransactionContext context = transactionService.getContext()) {
-            if (parent.canTransitionTo(DefaultState.ONGOING)) {
-                parent.requestTransition(DefaultState.ONGOING);
-            }
+            parent.transitionWithLockIfPossible(DefaultState.ONGOING);
 
             ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
             parent.log(LogLevel.INFO, "Sending confirmation for disconnection order number: " + extension.getId());
 
-            StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
-                    .builder(sapCustomPropertySets)
-                    .from(parent, findAllChilds(parent), clock.instant())
-                    .build();
+            if (extension.isCancelledBySap() && finalState.equals(DefaultState.CANCELLED)) {
+                parent.transitionWithLockIfPossible(finalState);
+            } else {
+                if (extension.isBulk()) {
+                    StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
+                            .builder(sapCustomPropertySets)
+                            .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                            .build();
 
-            WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
-                        if (sender.call(responseMessage, parent)) {
-                            parent.requestTransition(finalState);
-                        } else {
-                            parent.requestTransition(DefaultState.FAILED);
-                        }
-                    }
-            );
+                    WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> {
+                                if (sender.call(responseMessage, parent)) {
+                                    parent.requestTransition(finalState);
+                                } else {
+                                    parent.requestTransition(DefaultState.FAILED);
+                                }
+                            }
+                    );
+                } else {
+                    StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
+                            .builder(sapCustomPropertySets)
+                            .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                            .build();
+
+                    WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
+                                if (sender.call(responseMessage, parent)) {
+                                    parent.requestTransition(finalState);
+                                } else {
+                                    parent.requestTransition(DefaultState.FAILED);
+                                }
+                            }
+                    );
+                }
+            }
             context.commit();
         }
     }

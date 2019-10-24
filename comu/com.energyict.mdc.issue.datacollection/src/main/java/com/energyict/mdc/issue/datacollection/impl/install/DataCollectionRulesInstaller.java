@@ -14,8 +14,6 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.osgi.BundleWaiter;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 import com.google.common.collect.ImmutableMap;
@@ -25,6 +23,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,16 +38,14 @@ import static com.elster.jupiter.orm.Version.version;
         property = {"name=" + DataCollectionRulesInstaller.COMPONENT_NAME},
         immediate = true
 )
-public class DataCollectionRulesInstaller implements TranslationKeyProvider, MessageSeedProvider, FullInstaller, BundleWaiter.Startable  {
+public class DataCollectionRulesInstaller implements TranslationKeyProvider, MessageSeedProvider, FullInstaller {
 
     public static final String COMPONENT_NAME = "ID1";
 
     private volatile OrmService ormService;
     private volatile IssueService issueService;
-    private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile UpgradeService upgradeService;
     private volatile TimeService timeService;
-    private volatile BundleContext bundleContext;
 
     // This will be BasicDataCollectionRuleTemplate
     private volatile CreationRuleTemplate creationRuleTemplate;
@@ -58,9 +56,8 @@ public class DataCollectionRulesInstaller implements TranslationKeyProvider, Mes
     }
 
     @Inject
-    public DataCollectionRulesInstaller(DataCollectionRulesUpgrader idependentDataCollectionRulesUpgrader, BundleContext bundleContext) {
+    public DataCollectionRulesInstaller(DataCollectionRulesUpgrader idependentDataCollectionRulesUpgrader) {
         this.dataCollectionRulesUpgrader = idependentDataCollectionRulesUpgrader;
-        this.bundleContext = bundleContext;
     }
 
     @Override
@@ -69,18 +66,21 @@ public class DataCollectionRulesInstaller implements TranslationKeyProvider, Mes
     }
 
     @Activate
-    public void activate(BundleContext context) {
-        this.bundleContext = context;
-        //BundleWaiter.wait(this, bundleContext, "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate");
+    public void activate(final BundleContext bundleContext) {
+
+        // In order to perform upgrade of datacollection rules we need to have IssueService with BasicDataCollectionRuleTemplate
+        // service already injected via @Reference, but sometimes due to the class loading system this just not happen when upgrade
+        // is about to start, in order to avoid these situation we'll inject BasicDataCollectionRuleTemplate here.
+        // We are sure that BasicDataCollectionRuleTemplate is always loaded in this service.
+        issueService.addCreationRuleTemplate(creationRuleTemplate);
 
         DataModel dataModel = upgradeService.newNonOrmDataModel();
+
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(OrmService.class).toInstance(ormService);
-                bind(BundleContext.class).toInstance(bundleContext);
                 bind(IssueService.class).toInstance(issueService);
-                bind(IssueDataCollectionService.class).toInstance(issueDataCollectionService);
                 bind(TimeService.class).toInstance(timeService);
             }
         });
@@ -105,12 +105,7 @@ public class DataCollectionRulesInstaller implements TranslationKeyProvider, Mes
         this.issueService = issueService;
     }
 
-    @Reference
-    public void setIssueDataCollectionService(final IssueDataCollectionService issueDataCollectionService) {
-        this.issueDataCollectionService = issueDataCollectionService;
-    }
-
-    @Reference(target = "(name=BasicDataCollectionRuleTemplate)")
+    @Reference(target = "(name=BasicDataCollectionRuleTemplate)", cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.STATIC)
     public void setCreationRuleTemplate(final CreationRuleTemplate creationRuleTemplate) {
         this.creationRuleTemplate = creationRuleTemplate;
     }
@@ -143,10 +138,5 @@ public class DataCollectionRulesInstaller implements TranslationKeyProvider, Mes
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
-    }
-
-    @Override
-    public void start(BundleContext context) {
-        context.registerService(DataCollectionRulesInstaller.class, this, null);
     }
 }

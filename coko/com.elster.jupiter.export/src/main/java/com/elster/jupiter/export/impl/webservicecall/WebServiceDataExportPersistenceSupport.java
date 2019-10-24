@@ -5,11 +5,14 @@
 package com.elster.jupiter.export.impl.webservicecall;
 
 import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -24,6 +27,12 @@ public class WebServiceDataExportPersistenceSupport implements PersistenceSuppor
     private static final String FK_NAME = COMPONENT_NAME + "_FK_WEB_SC_CPS_SC";
     private static final String UK_NAME = COMPONENT_NAME + "_UK_WEB_SC_CPS_UUID";
     private static final String TABLE_NAME = COMPONENT_NAME + "_WEB_SERVICE_CALL_CPS";
+
+    private final DataExportServiceImpl dataExportService;
+
+    public WebServiceDataExportPersistenceSupport(DataExportServiceImpl dataExportService) {
+        this.dataExportService = dataExportService;
+    }
 
     @Override
     public String componentName() {
@@ -52,7 +61,13 @@ public class WebServiceDataExportPersistenceSupport implements PersistenceSuppor
 
     @Override
     public Optional<Module> module() {
-        return Optional.empty();
+        return Optional.of(new AbstractModule() {
+            @Override
+            public void configure() {
+                bind(DataExportServiceImpl.class).toInstance(dataExportService);
+                bind(DataExportService.class).toInstance(dataExportService);
+            }
+        });
     }
 
     @Override

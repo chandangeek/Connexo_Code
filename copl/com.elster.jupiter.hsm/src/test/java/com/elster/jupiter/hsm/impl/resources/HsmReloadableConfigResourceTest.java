@@ -2,62 +2,53 @@ package com.elster.jupiter.hsm.impl.resources;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
-
 import java.io.File;
 
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+
 @RunWith(MockitoJUnitRunner.class)
 public class HsmReloadableConfigResourceTest {
 
     @Mock
-    public File file;
+    File f1;
 
-    private HsmReloadableConfigResource hsmConfigLoader;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    File f2;
 
-    @Test
-    public void testNullResource() throws HsmBaseException {
-        expectedException.expect(HsmBaseException.class);
-        hsmConfigLoader = new HsmReloadableConfigResource(null);
+
+    @Test(expected = HsmBaseException.class)
+    public void testNullFile() throws HsmBaseException {
+        HsmReloadableConfigResource.getInstance(null);
+    }
+
+    @Test(expected = HsmBaseException.class)
+    public void testNotExstingFile() throws HsmBaseException {
+        Mockito.when(f1.exists()).thenReturn(false);
+        HsmReloadableConfigResource.getInstance(f1);
     }
 
     @Test
-    public void testNonExistingFile() throws HsmBaseException {
-        expectedException.expect(HsmBaseException.class);
-        hsmConfigLoader = new HsmReloadableConfigResource(new File("nonExistingFile"));
+    public void testSingleton() throws HsmBaseException {
+        Mockito.when(f1.exists()).thenReturn(true);
+        Mockito.when(f2.exists()).thenReturn(true);
+        HsmReloadableConfigResource instance = HsmReloadableConfigResource.getInstance(f1);
+        Assert.assertEquals(false,instance.changed());
+        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f1));
+        Assert.assertEquals(false,instance.changed());
+        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f2));
+        Assert.assertEquals(true, instance.changed());
+        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f2));
+        Assert.assertEquals(false, instance.changed());
+        Assert.assertEquals(instance, HsmReloadableConfigResource.getInstance(f1));
+        Assert.assertEquals(true, instance.changed());
     }
-
-    @Test
-    public void testTimeStamp() throws HsmBaseException {
-        Mockito.when(file.exists()).thenReturn(true);
-        long timeStamp = 1L;
-        Mockito.when(file.lastModified()).thenReturn(timeStamp);
-        hsmConfigLoader = new HsmReloadableConfigResource(file);
-        Assert.assertTrue(timeStamp == hsmConfigLoader.timeStamp());
-    }
-
-// This is commented while needs mocking of (HsmConfigurationPropFileImpl) constructor or refactoring of the constructor while it does stuff and should not
-//    @Test
-//    public void test() throws HsmBaseException {
-//        Mockito.when(file.exists()).thenReturn(true);
-//        long timeStamp = 1L;
-//        Mockito.when(file.lastModified()).thenReturn(timeStamp);
-//        HsmReloadableConfigResource hsmRefreshableConfigResourceBuilder = new HsmReloadableConfigResource(file);
-//        Assert.assertEquals(hsmRefreshableConfigResourceBuilder.load(), hsmRefreshableConfigResourceBuilder.load());
-//        Assert.assertEquals(hsmRefreshableConfigResourceBuilder.load(), hsmRefreshableConfigResourceBuilder.reload());
-//        Assert.assertEquals(hsmRefreshableConfigResourceBuilder.reload(), hsmRefreshableConfigResourceBuilder.reload());
-//    }
-
-
 
 }
+

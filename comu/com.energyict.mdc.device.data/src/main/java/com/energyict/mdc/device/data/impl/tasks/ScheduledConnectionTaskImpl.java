@@ -316,7 +316,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     protected void doExecutionCompleted(List<String> updatedFields) {
         super.doExecutionCompleted(updatedFields);
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(getConnectionStrategy())) {
-            this.schedule(this.calculateNextPlannedExecutionTimestamp());
+            this.schedule(this.calculateNextPlannedExecutionTimestamp(), PostingMode.NOW);
             updatedFields.add(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName());
             updatedFields.add(ConnectionTaskFields.PRIORITY.fieldName());
         } else {

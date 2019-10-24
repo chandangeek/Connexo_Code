@@ -75,7 +75,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             layout: 'hbox',
             flex: 1,
             itemId: 'firmware-min-meter-version-common',
-            fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
+            fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimum meter firmware version'),
             items: [
                        {    xtype: 'combobox',
                             itemId: 'firmware-min-meter-version',
@@ -148,7 +148,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                 layout: 'hbox',
                 flex: 1,
                 itemId: 'firmware-min-communication-version-common',
-                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version communication firmware'),
+                fieldLabel: Uni.I18n.translate('general.minCommVersion', 'FWC', 'Minimum communication firmware version'),
                 items: [
                         {
                             xtype: 'combobox',
@@ -222,7 +222,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             layout: 'hbox',
             flex: 1,
             itemId: 'firmware-min-auxiliary-version-common',
-            fieldLabel: Uni.I18n.translate('general.minAuxiliaryVersion', 'FWC', 'Minimal version auxiliary firmware'),
+            fieldLabel: Uni.I18n.translate('general.minAuxiliaryVersion', 'FWC', 'Minimum auxiliary firmware version'),
             items: [
                        {    xtype: 'combobox',
                             itemId: 'firmware-min-auxiliary-version',

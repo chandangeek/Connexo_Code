@@ -21,6 +21,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestServiceCallHandler;
@@ -115,7 +118,13 @@ public enum ServiceCallTypes {
             MeterRegisterChangeRequest.VERSION,
             MeterRegisterChangeRequest.APPLICATION,
             MeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
-            MeterRegisterChangeRequestDomainExtension.class.getName())
+            MeterRegisterChangeRequestDomainExtension.class.getName()),
+    MASTER_CONNECTION_STATUS_CHANGE(
+            MasterConnectionStatusChangeServiceCallHandler.NAME,
+            MasterConnectionStatusChangeServiceCallHandler.VERSION,
+            MasterConnectionStatusChangeServiceCallHandler.APPLICATION,
+            MasterConnectionStatusChangeCustomPropertySet.class.getSimpleName(),
+            MasterConnectionStatusChangeDomainExtension.class.getName())
     ;
 
     private final String typeName;

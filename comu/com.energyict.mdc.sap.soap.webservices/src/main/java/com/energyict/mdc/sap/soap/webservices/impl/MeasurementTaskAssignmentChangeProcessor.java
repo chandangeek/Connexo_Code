@@ -118,6 +118,29 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         }
 
         if (!lrns.isEmpty()) {
+            // unset profile id after the end date of the range
+            lrns.entrySet().stream().forEach(entry -> {
+                Instant endDate = Instant.EPOCH;
+                boolean unset = true;
+                for (Range<Instant> range : entry.getValue().asRanges()) {
+                    if (range.hasUpperBound()) {
+                        if (range.upperEndpoint().isAfter(endDate)) {
+                            endDate = range.upperEndpoint();
+                        }
+                    } else {
+                        unset = false;
+                        break;
+                    }
+                }
+                if (unset) {
+                    sapCustomPropertySets.getChannelInfosAfterDate(entry.getKey(), profileId, endDate).stream()
+                            .forEach(csi -> {
+                                unsetProfileId(csi.getFirst(), csi.getLast(), entry.getKey(), profileId);
+                            });
+                }
+
+            });
+
             // set profile id
             Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> profileIntervals = findChannelInfos(lrns);
             for (Map.Entry<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> entry : profileIntervals.entrySet()) {
@@ -192,6 +215,54 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         return channelInfos;
     }
 
+    private void unsetProfileId(Long deviceId, ChannelSpec channelSpec, String lrn, String profileId) {
+        Optional<Device> device = deviceService.findDeviceById(deviceId);
+        if (device.isPresent()) {
+            Optional<CustomPropertySet> customPropertySet = device.get().getDeviceType()
+                    .getLoadProfileTypeCustomPropertySet(channelSpec.getLoadProfileSpec().getLoadProfileType())
+                    .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                    .filter(cps -> cps.getId().equals(DeviceChannelSAPInfoCustomPropertySet.CPS_ID));
+            if (customPropertySet.isPresent()) {
+                String lrnPropertyName = DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName();
+                String profileIdPropertyName = DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName();
+                List<CustomPropertySetValues> valuesList = customPropertySetService.getAllVersionedValuesFor(customPropertySet.get(), channelSpec, deviceId);
+                if (!valuesList.isEmpty()) {
+                    Range<Instant> leftRange = valuesList.get(0).getEffectiveRange();
+                    CustomPropertySetValues oldValues = valuesList.get(0);
+                    Optional<String> lrnValue = Optional.ofNullable((String) oldValues.getProperty(lrnPropertyName));
+                    Optional<String> profileIdValue = Optional.ofNullable((String) oldValues.getProperty(profileIdPropertyName));
+                    if (lrnValue.isPresent() && lrnValue.get().equals(lrn) && profileIdValue.isPresent() &&
+                            profileIdValue.get().equals(profileId)) {
+                        oldValues.setProperty(profileIdPropertyName, null);
+                        customPropertySetService.setValuesVersionFor(customPropertySet.get(),
+                                channelSpec, oldValues, oldValues.getEffectiveRange(), deviceId);
+                    }
+
+                    for (int i = 1; i < valuesList.size(); i++) {
+                        oldValues = valuesList.get(i);
+                        lrnValue = Optional.ofNullable((String) oldValues.getProperty(lrnPropertyName));
+                        profileIdValue = Optional.ofNullable((String) oldValues.getProperty(profileIdPropertyName));
+                        Optional<String> previousLrnValue = Optional.ofNullable((String) valuesList.get(i - 1).getProperty(lrnPropertyName));
+                        Optional<String> previousProfileIdValue = Optional.ofNullable((String) valuesList.get(i - 1).getProperty(profileIdPropertyName));
+                        if (lrnValue.isPresent() && lrnValue.get().equals(lrn) &&
+                                (!profileIdValue.isPresent() || profileIdValue.get().equals(profileId))) {
+                            oldValues.setProperty(profileIdPropertyName, null);
+                            Range range = oldValues.getEffectiveRange();
+                            if (previousLrnValue.isPresent() && previousLrnValue.get().equals(lrn) && !previousProfileIdValue.isPresent()) {
+                                range = Ranges.closedOpen(leftRange.lowerEndpoint(), oldValues.getEffectiveRange().upperEndpoint());
+                            }
+                            customPropertySetService.setValuesVersionFor(customPropertySet.get(),
+                                    channelSpec, oldValues, range, deviceId);
+                            leftRange = range;
+                        } else {
+                            leftRange = oldValues.getEffectiveRange();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void setProfileId(String profileId, Long deviceId, ChannelSpec channelSpec,
                               Range<Instant> profileInterval, Range<Instant> lrnInterval) {
         Optional<Device> device = deviceService.findDeviceById(deviceId);
@@ -205,16 +276,20 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 if (!channelSpecForProfileId.isPresent()) {
                     CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
                             channelSpec, lrnInterval.hasLowerBound() ? lrnInterval.lowerEndpoint() : Instant.EPOCH, deviceId);
-                    if (!profileId.equals(oldValues.getProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()))) {
-                        Range tailRange = lrnInterval.hasUpperBound() ? Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint()) : Range.atLeast(profileInterval.upperEndpoint());
-                        if (tailRange != null && !tailRange.isEmpty()) {
-                            customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                    channelSpec, oldValues, tailRange, deviceId);
+                    Range tailRange = lrnInterval.hasUpperBound() ? Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint()) :
+                            Range.atLeast(profileInterval.upperEndpoint());
+                    if (tailRange != null && !tailRange.isEmpty()) {
+                        String profileIdPropertyName = DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName();
+                        Optional<String> profileIdOld = Optional.ofNullable((String) oldValues.getProperty(profileIdPropertyName));
+                        if (profileIdOld.isPresent() && profileIdOld.get().equals(profileId)) {
+                            oldValues.setProperty(profileIdPropertyName, null);
                         }
-                        oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
                         customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                channelSpec, oldValues, profileInterval, deviceId);
+                                channelSpec, oldValues, tailRange, deviceId);
                     }
+                    oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
+                    customPropertySetService.setValuesVersionFor(customPropertySet.get(),
+                            channelSpec, oldValues, profileInterval, deviceId);
                 } else {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.PROFILE_ID_IS_ALREADY_SET, profileId, channelSpecForProfileId.get().getReadingType().getFullAliasName());
                 }
@@ -311,25 +386,25 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     }
 
     private EndPointConfiguration getEndPointConfiguration(String name) {
-            Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfiguration(name);
-            if (endPointConfig.isPresent()) {
-                return endPointConfig.get();
-            }
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINT_BY_NAME_NOT_FOUND, name);
+        Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfiguration(name);
+        if (endPointConfig.isPresent()) {
+            return endPointConfig.get();
+        }
+        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINT_BY_NAME_NOT_FOUND, name);
     }
 
     private EndPointConfiguration getEndPointConfiguration(List<String> webservices) {
-            for (String webservice : webservices) {
-                Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfigurationsForWebService(webservice)
-                        .stream()
-                        .filter(EndPointConfiguration::isActive)
-                        .findFirst();
-                if (endPointConfig.isPresent()) {
-                    return endPointConfig.get();
-                }
+        for (String webservice : webservices) {
+            Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfigurationsForWebService(webservice)
+                    .stream()
+                    .filter(EndPointConfiguration::isActive)
+                    .findFirst();
+            if (endPointConfig.isPresent()) {
+                return endPointConfig.get();
             }
+        }
 
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINTS_NOT_FOUND, webservices.toString().join(","));
+        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINTS_NOT_FOUND, webservices.toString().join(","));
     }
 
     private int getNumberOfReadingTypes(ExportTask exportTask) {

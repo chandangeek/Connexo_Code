@@ -20,7 +20,10 @@ public enum TranslationKeys implements TranslationKey {
     ERROR_MESSAGE("errorMessage", "Error message"),
 
     DEVICE_NAME("deviceName", "Device name"),
-    READING_TYPE_MR_ID("readingTypeMRID", "Reading type MRID");
+    READING_TYPE_MR_ID("readingTypeMRID", "Reading type MRID"),
+    SECONDS("seconds", "second(s)"),
+    MINUTES("minutes", "minute(s)")
+    ;
 
     private String key;
     private String defaultFormat;

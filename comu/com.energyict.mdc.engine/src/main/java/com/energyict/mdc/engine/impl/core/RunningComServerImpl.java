@@ -440,13 +440,14 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     protected void shutdownNestedServerProcesses(boolean immediate) {
-        this.shutdownComServerDAO(immediate);
-        this.shutdownEventMechanism(immediate);
-        this.shutdownTimeOutMonitor(immediate);
-        this.shutdownCleanupProcess(immediate);
-        this.shutdownOutboundComPorts(immediate);
-        this.shutdownInboundComPorts(immediate);
-        this.shutdownDeviceCommandExecutor(immediate);
+        shutdownComServerDAO(immediate);
+        shutdownEventMechanism(immediate);
+        shutdownTimeOutMonitor(immediate);
+        shutdownCleanupProcess(immediate);
+        shutdownOutboundComPorts(immediate);
+        shutdownInboundComPorts(immediate);
+        shutdownPriorityScheduler(immediate);
+        shutdownDeviceCommandExecutor(immediate);
     }
 
     private void shutdownComServerDAO(boolean immediate) {
@@ -529,6 +530,16 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                 comPortListener.shutdownImmediate();
             } else {
                 comPortListener.shutdown();
+            }
+        }
+    }
+
+    private void shutdownPriorityScheduler(boolean immediate) {
+        if (highPriorityTaskScheduler != null) {
+            if (immediate) {
+                highPriorityTaskScheduler.shutdownImmediate();
+            } else {
+                highPriorityTaskScheduler.shutdown();
             }
         }
     }

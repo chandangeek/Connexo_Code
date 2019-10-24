@@ -5,7 +5,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -107,7 +107,7 @@ public class GProfileBuilder {
 
                 if(dc.getRoot().getStructure(i) != null){
                     if(dc.getRoot().getStructure(i).isOctetString(0)){	// it is a date
-                        cal = new DateTime(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
+                        cal = new DateTimeOctetString(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(0).getArray()), getGasDevice().getTimeZone()).getValue();
                     } else {
                         if(cal != null){
                             cal.add(Calendar.SECOND, capturePeriod);
