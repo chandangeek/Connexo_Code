@@ -86,6 +86,7 @@ public class StatusChangeRequestBulkCreateMessage {
 
         private StatusChangeRequestCreateMessage getRequestMessage(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg msg) {
             return StatusChangeRequestCreateMessage.builder().from(getId(msg.getUtilitiesConnectionStatusChangeRequest()),
+                    getUuid(msg),
                     getCategoryCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     getUtilitiesServiceDisconnectionReasonCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     msg.getUtilitiesConnectionStatusChangeRequest() != null ? msg.getUtilitiesConnectionStatusChangeRequest().getPlannedProcessingDateTime() : null,
@@ -106,6 +107,14 @@ public class StatusChangeRequestBulkCreateMessage {
         }
 
         private String getUuid(SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg changeRequest) {
+            return Optional.ofNullable(changeRequest.getMessageHeader())
+                    .map(m -> m.getUUID())
+                    .map(UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg changeRequest) {
             return Optional.ofNullable(changeRequest.getMessageHeader())
                     .map(m -> m.getUUID())
                     .map(UUID::getValue)

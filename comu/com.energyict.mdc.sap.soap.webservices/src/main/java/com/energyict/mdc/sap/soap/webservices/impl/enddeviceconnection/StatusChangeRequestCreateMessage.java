@@ -76,8 +76,9 @@ public class StatusChangeRequestCreateMessage {
         private Builder() {
         }
 
-        public Builder from(String id, String categoryCode, String utilitiesServiceDisconnectionReasonCode, Instant plannedProcessingDateTime, Map<String, String> deviceConnectionStatus, boolean bulk) {
+        public Builder from(String id, String uuid, String categoryCode, String utilitiesServiceDisconnectionReasonCode, Instant plannedProcessingDateTime, Map<String, String> deviceConnectionStatus, boolean bulk) {
             StatusChangeRequestCreateMessage.this.id = id;
+            StatusChangeRequestCreateMessage.this.uuid = uuid;
             StatusChangeRequestCreateMessage.this.categoryCode = categoryCode;
             StatusChangeRequestCreateMessage.this.utilitiesServiceDisconnectionReasonCode = utilitiesServiceDisconnectionReasonCode;
             StatusChangeRequestCreateMessage.this.plannedProcessingDateTime = plannedProcessingDateTime;
