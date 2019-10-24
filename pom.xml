@@ -589,7 +589,7 @@
                         </executions>
                         <configuration>
                             <excludeDefaultDirectories>false</excludeDefaultDirectories>
-                            <filesets>
+                            <filesets combine.children="append">
                                 <fileset>
                                     <directory>${sencha.build.dir}</directory>
                                     <followSymlinks>false</followSymlinks>
@@ -664,7 +664,7 @@
                         </executions>
                         <configuration>
                             <excludeDefaultDirectories>false</excludeDefaultDirectories>
-                            <filesets>
+                            <filesets combine.children="append">
                                 <fileset>
                                     <directory>${sencha.build.dir}</directory>
                                     <followSymlinks>false</followSymlinks>
@@ -855,7 +855,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-clean-plugin</artifactId>
                         <configuration>
-                            <filesets>
+                            <filesets combine.children="append">
                                 <fileset>
                                     <directory>${felix.load.folder}</directory>
                                     <includes>

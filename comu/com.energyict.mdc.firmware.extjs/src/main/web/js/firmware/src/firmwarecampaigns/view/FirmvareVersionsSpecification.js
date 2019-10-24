@@ -90,7 +90,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification', {
                                         }
                                         field.show();
 
-                                        result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type.");
+                                        result =  Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type");
 
                                         var me  = this;
                                     }
@@ -136,7 +136,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification', {
                                                 masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
                                             })
                                             if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
-                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.masterFirmwareMainOption', 'FWC', 'Master has the latest firmware (meter, communication and auxiliary)') + '</div>';
+                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (meter, communication and auxiliary)') + '</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
                                                 result += ('<div style="margin:0 0 10px 30px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
                                             }
