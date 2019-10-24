@@ -78,7 +78,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
 
     private static final Logger LOGGER = Logger.getLogger(OfflineEngine.class.getName());
 
-    OfflineFrame mainFrame;
+    private static OfflineFrame mainFrame;
 
     public OfflineEngine() {
     }
@@ -142,7 +142,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
             //After that, start the backend on the main thread
             mainFrame.startOfflineExecuter();
         } else {
-            System.exit(0);
+            OfflineEngine.exitSystem(0);
         }
     }
 
@@ -187,8 +187,14 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     }
 
     @Deactivate
-    public void stop() {
+    public void deactivate() {
         mainFrame.doClose();
+    }
+
+    @Deactivate
+    public static void exitSystem(int exitCode) {
+        mainFrame.doClose();
+        Runtime.getRuntime().halt(exitCode);
     }
 
     @Override

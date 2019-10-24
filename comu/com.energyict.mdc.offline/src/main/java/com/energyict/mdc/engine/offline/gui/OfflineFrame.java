@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.offline.MdwIcons;
+import com.energyict.mdc.engine.offline.OfflineEngine;
 import com.energyict.mdc.engine.offline.OfflineExecuter;
 import com.energyict.mdc.engine.offline.core.OfflinePropertiesProvider;
 import com.energyict.mdc.engine.offline.core.OfflineWorker;
@@ -138,7 +139,6 @@ public class OfflineFrame extends JFrame {
             getOfflineWorker().getOfflineExecuter().getRunningComServer().shutdownImmediate();
         }
         this.dispose();
-        System.exit(0);
     }
 
     public void startWaitCursor() {
@@ -160,7 +160,7 @@ public class OfflineFrame extends JFrame {
         setTitle(TranslatorProvider.instance.get().getTranslator().getTranslation("commserveroffline") + " " + version);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
-                doClose();
+                OfflineEngine.exitSystem(0);
             }
         });
 

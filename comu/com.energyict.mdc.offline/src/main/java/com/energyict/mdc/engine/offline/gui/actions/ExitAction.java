@@ -6,6 +6,7 @@
 
 package com.energyict.mdc.engine.offline.gui.actions;
 
+import com.energyict.mdc.engine.offline.OfflineEngine;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.gui.OfflineFrame;
 
@@ -29,6 +30,6 @@ public class ExitAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent event) {
         OfflineFrame mainFrame = ((OfflineFrame) getValue(ActionKeys.MAIN_FRAME));
-        mainFrame.doClose();
+        OfflineEngine.exitSystem(0);
     }
 }
