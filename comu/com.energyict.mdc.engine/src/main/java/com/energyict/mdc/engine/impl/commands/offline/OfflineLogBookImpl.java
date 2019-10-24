@@ -6,10 +6,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LogBook;
-import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
-import com.energyict.mdc.identifiers.LogBookIdentifierById;
-import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -135,7 +132,14 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     }
 
     @Override
-    @XmlTransient
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
         if (identificationService != null)
             deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());

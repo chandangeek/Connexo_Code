@@ -10,8 +10,7 @@ import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.core.remote.TemporalAmountXmlAdapter;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
@@ -299,7 +298,14 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     }
 
     @Override
-    @XmlTransient
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
         if (identificationService != null)
             deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
