@@ -436,7 +436,7 @@ public class DeviceGroupResource {
                 for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
                     Object marshalPropertyValue = propertyValueInfoService.findPropertyValue(propertySpec, deviceMessageInfo.properties);
                     if (marshalPropertyValue != null) {
-                        properties.put(propertySpec.getName(), propertySpec.getValueFactory().toStringValue(marshalPropertyValue));  // Lau
+                        properties.put(propertySpec.getName(), propertySpec.getValueFactory().toStringValue(marshalPropertyValue));
                     }
                 }
             } catch (LocalizedFieldValidationException e) {
