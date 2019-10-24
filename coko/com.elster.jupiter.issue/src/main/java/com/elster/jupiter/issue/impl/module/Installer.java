@@ -6,16 +6,15 @@ package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
-import com.elster.jupiter.issue.impl.actions.ProcessAction;
 import com.elster.jupiter.issue.impl.actions.MailIssueAction;
+import com.elster.jupiter.issue.impl.actions.ProcessAction;
 import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
+import com.elster.jupiter.issue.impl.database.PrivilegesProviderV10_7;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.impl.database.PrivilegesProviderV10_7;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -182,7 +181,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, WebServiceNotificationAction.class.getName(), type);
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, ProcessAction.class.getName(), type);
-        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), issueService.findIssueType(IssueService.MANUAL_ISSUE_TYPE).get());
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), type);
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, MailIssueAction.class.getName(), type);
     }
 
