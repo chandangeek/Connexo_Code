@@ -106,7 +106,6 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(FirmwareCampaignInfoFactory.class).to(FirmwareCampaignInfoFactory.class);
             bind(DeviceInFirmwareCampaignInfoFactory.class).to(DeviceInFirmwareCampaignInfoFactory.class);
             bind(FirmwareVersionInfoFactory.class).to(FirmwareVersionInfoFactory.class);
-            bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
@@ -146,7 +145,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(FirmwareStatusTranslationKeys.values()));
-        keys.add(MessageSeeds.Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY);
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 

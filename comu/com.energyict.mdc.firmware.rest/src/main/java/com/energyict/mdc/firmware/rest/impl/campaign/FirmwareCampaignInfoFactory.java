@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.rest.impl.campaign;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -35,6 +36,7 @@ import com.energyict.mdc.firmware.rest.impl.IdWithLocalizedValue;
 import com.energyict.mdc.firmware.rest.impl.ManagementOptionInfo;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
+import com.energyict.mdc.firmware.rest.impl.TranslationKeys;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -114,6 +116,19 @@ public class FirmwareCampaignInfoFactory {
         if (firmwareMessageSpec.isPresent()) {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
+            info.properties.forEach(pr->{
+                switch (pr.name){
+                    case "Resume":
+                        pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_RESUME.getKey(),pr.name);
+                        break;
+                    case "Firmware file":
+                        pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_FILE.getKey(),pr.name);
+                        break;
+                    case "Image identifier":
+                        pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getKey(),pr.name);
+                        break;
+                }
+            });
         }
         Optional<FirmwareCampaignManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignCheckManagementOptions(campaign);
         info.checkOptions = new EnumMap<>(FirmwareCheckManagementOption.class);
