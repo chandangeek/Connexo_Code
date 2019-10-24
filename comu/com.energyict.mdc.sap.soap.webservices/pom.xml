@@ -176,6 +176,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -221,11 +225,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>validation</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
