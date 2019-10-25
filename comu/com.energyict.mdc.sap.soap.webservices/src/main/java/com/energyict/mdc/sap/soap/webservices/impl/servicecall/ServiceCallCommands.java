@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.servicecall;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
@@ -26,6 +27,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateMessage;
@@ -33,6 +36,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterRea
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateConfirmationRequestMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
@@ -86,6 +90,40 @@ public class ServiceCallCommands {
             }
         } else {
             sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message);
+        }
+    }
+
+    public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message, ServiceCall parent) {
+        if (message.isValid()) {
+            if (!hasConnectionStatusChangeServiceCall(message.getId())) {
+                getServiceCallType(ServiceCallTypes.CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
+                    createChildServiceCall(serviceCallType, message, parent);
+                });
+            } else {
+                sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, message);
+            }
+        } else {
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message);
+        }
+    }
+
+    public void createServiceCallAndTransition(StatusChangeRequestBulkCreateMessage messages) {
+        if (messages.isValid()) {
+            getServiceCallType(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
+                MasterConnectionStatusChangeDomainExtension extension =
+                        new MasterConnectionStatusChangeDomainExtension();
+                extension.setRequestID(messages.getId());
+                ServiceCall serviceCall = serviceCallType.newServiceCall()
+                        .origin(APPLICATION_NAME)
+                        .extendedWith(extension)
+                        .create();
+
+                serviceCall.requestTransition(DefaultState.PENDING);
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                messages.getRequests().forEach(m -> createServiceCallAndTransition(m, serviceCall));
+            });
+        } else {
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages);
         }
     }
 
@@ -179,6 +217,10 @@ public class ServiceCallCommands {
     private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message) {
         serviceCall.log(LogLevel.INFO, "Handling breaker operations for device with SAP id " + deviceId);
         Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
+        if (device.isPresent() && !device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
+            sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, message, deviceId);
+            return;
+        }
         Optional<EndDevice> endDevice = device.isPresent()
                 ? meteringService.findEndDeviceByMRID(device.get().getmRID())
                 : Optional.empty();
@@ -249,6 +291,8 @@ public class ServiceCallCommands {
         connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
+        connectionStatusChangeDomainExtension.setBulk(message.isBulk());
+        connectionStatusChangeDomainExtension.setCancelledBySap(false);
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin(APPLICATION_NAME)
@@ -267,6 +311,36 @@ public class ServiceCallCommands {
             serviceCall.requestTransition(DefaultState.WAITING);
         } else {
             serviceCall.requestTransition(DefaultState.FAILED);
+        }
+    }
+
+    private void createChildServiceCall(ServiceCallType serviceCallType, StatusChangeRequestCreateMessage message, ServiceCall parent) {
+        ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
+                new ConnectionStatusChangeDomainExtension();
+        connectionStatusChangeDomainExtension.setId(message.getId());
+        connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
+        connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
+        connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
+        connectionStatusChangeDomainExtension.setBulk(message.isBulk());
+        connectionStatusChangeDomainExtension.setCancelledBySap(false);
+
+        ServiceCall serviceCall = parent.newChildCall(serviceCallType)
+                .origin(APPLICATION_NAME)
+                .extendedWith(connectionStatusChangeDomainExtension)
+                .create();
+
+        serviceCall.requestTransition(DefaultState.PENDING);
+        serviceCall.requestTransition(DefaultState.ONGOING);
+
+        message.getDeviceConnectionStatus()
+                .forEach((key, value) -> sendCommand(serviceCall, key, message));
+
+        List<ServiceCall> children = findChildren(serviceCall);
+
+        if (children.size() > 0 && !hasAllChildrenInState(children, DefaultState.FAILED)) {
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+        } else {
+            serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
         }
     }
 
@@ -336,9 +410,14 @@ public class ServiceCallCommands {
                 .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
     }
 
-    private void sendMessage(StatusChangeRequestCreateConfirmationMessage statusChangeRequestCreateConfirmationMessage) {
+    private void sendMessage(StatusChangeRequestCreateConfirmationMessage message) {
         WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS
-                .forEach(service -> service.call(statusChangeRequestCreateConfirmationMessage));
+                .forEach(service -> service.call(message));
+    }
+
+    private void sendMessage(StatusChangeRequestBulkCreateConfirmationMessage message) {
+        WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS
+                .forEach(service -> service.call(message));
     }
 
     private void sendMessage(MeterReadingDocumentRequestConfirmationMessage confirmationMessage, boolean bulk) {
@@ -352,8 +431,24 @@ public class ServiceCallCommands {
     }
 
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
-        StatusChangeRequestCreateConfirmationMessage confirmationMessage =
-                StatusChangeRequestCreateConfirmationMessage.builder()
+        if (message.isBulk()) {
+            StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
+                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
+                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
+                            .build();
+            sendMessage(confirmationMessage);
+        } else {
+            StatusChangeRequestCreateConfirmationMessage confirmationMessage =
+                    StatusChangeRequestCreateConfirmationMessage.builder()
+                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
+                            .build();
+            sendMessage(confirmationMessage);
+        }
+    }
+
+    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage message) {
+        StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
+                StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                         .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
@@ -368,21 +463,37 @@ public class ServiceCallCommands {
     }
 
     private void sendProcessError(String exceptionCode, String exceptionInfo, StatusChangeRequestCreateMessage message) {
-        StatusChangeRequestCreateConfirmationMessage confirmationMessage =
-                StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, exceptionCode, exceptionInfo, clock.instant())
-                        .build();
-        sendMessage(confirmationMessage);
+        if (message.isBulk()) {
+            StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
+                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
+                            .from(message, exceptionCode, exceptionInfo, clock.instant())
+                            .build();
+            sendMessage(confirmationMessage);
+        } else {
+            StatusChangeRequestCreateConfirmationMessage confirmationMessage =
+                    StatusChangeRequestCreateConfirmationMessage.builder()
+                            .from(message, exceptionCode, exceptionInfo, clock.instant())
+                            .build();
+            sendMessage(confirmationMessage);
+        }
     }
 
-    private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message,
-                                            String deviceId) {
-        StatusChangeRequestCreateConfirmationMessage confirmationMessage =
-                StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
-                        .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
-                        .build();
-        sendMessage(confirmationMessage);
+    private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message, String deviceId) {
+        if (message.isBulk()) {
+            StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
+                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
+                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .build();
+            sendMessage(confirmationMessage);
+        } else {
+            StatusChangeRequestCreateConfirmationMessage confirmationMessage =
+                    StatusChangeRequestCreateConfirmationMessage.builder()
+                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
+                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .build();
+            sendMessage(confirmationMessage);
+        }
     }
 
     public ServiceCallType getServiceCallTypeOrThrowException(ServiceCallTypes serviceCallType) {

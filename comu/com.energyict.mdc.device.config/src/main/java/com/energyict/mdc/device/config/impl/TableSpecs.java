@@ -1051,6 +1051,7 @@ public enum TableSpecs {
                     .references(SecurityAccessorType.class)
                     .on(wrappingSecAccTypeColumn)
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.WRAPPINGSECACCTYPE.fieldName())
+                    .since(version(10,7))
                     .add();
         }
     },

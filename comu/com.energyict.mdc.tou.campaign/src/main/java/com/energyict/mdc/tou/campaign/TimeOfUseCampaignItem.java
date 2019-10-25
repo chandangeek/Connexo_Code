@@ -20,9 +20,9 @@ public interface TimeOfUseCampaignItem {
 
     ServiceCall getServiceCall();
 
-    ServiceCall retry();
+    ServiceCall cancel(boolean initFromCampaign);
 
-    ServiceCall cancel();
+    ServiceCall retry();
 
     long getParentServiceCallId();
 

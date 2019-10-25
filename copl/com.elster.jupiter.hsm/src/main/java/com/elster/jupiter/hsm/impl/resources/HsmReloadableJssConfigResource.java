@@ -15,16 +15,29 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Objects;
 
-public class HsmReloadableJssConfigResource implements HsmReloadableResource<RawConfiguration> {
+public class HsmReloadableJssConfigResource extends AbstractFileResource<RawConfiguration> {
 
     private static final Logger logger = LoggerFactory.getLogger(HsmReloadableJssConfigResource.class);
+    private static HsmReloadableJssConfigResource INSTANCE;
 
-    private final File jssJsonFile;
     private boolean jssStarted = false;
 
-    public HsmReloadableJssConfigResource(File jssJsonFile) {
-        this.jssJsonFile = jssJsonFile;
+
+    private HsmReloadableJssConfigResource(File f) throws HsmBaseException {
+        super(f);
+    }
+
+    public static HsmReloadableJssConfigResource getInstance(File jssFile) throws HsmBaseException {
+        if (INSTANCE == null) {
+            INSTANCE = new HsmReloadableJssConfigResource(jssFile);
+        }
+        INSTANCE.setFile(jssFile);
+
+        return INSTANCE;
     }
 
     @Override
@@ -36,13 +49,8 @@ public class HsmReloadableJssConfigResource implements HsmReloadableResource<Raw
     @Override
     public RawConfiguration reload() throws HsmBaseException {
         logger.debug("JSS reload called");
-        shutdown();
+        close();
         return start();
-    }
-
-    @Override
-    public Long timeStamp() {
-        return jssJsonFile.lastModified();
     }
 
     private void setupContext() {
@@ -82,7 +90,7 @@ public class HsmReloadableJssConfigResource implements HsmReloadableResource<Raw
 
     private RawConfiguration start() throws HsmBaseException {
         logger.debug("Starting JSS ...");
-        RawConfiguration rawConfiguration = new HsmJssConfigLoader().load(jssJsonFile);
+        RawConfiguration rawConfiguration = new HsmJssConfigLoader().load(super.getFile());
         setupContext();
         JSSRuntimeControl.initialize();
         JSSRuntimeControl.newConfiguration(rawConfiguration);
@@ -91,9 +99,10 @@ public class HsmReloadableJssConfigResource implements HsmReloadableResource<Raw
         return rawConfiguration;
     }
 
-    private void shutdown() {
+    @Override
+    public void close() {
         logger.debug("Stopping JSS ...");
-        if (jssStarted = true) {
+        if (jssStarted == true) {
             JSSRuntimeControl.shutdown();
             jssStarted = false;
             logger.debug("JSS stopped");
@@ -101,22 +110,5 @@ public class HsmReloadableJssConfigResource implements HsmReloadableResource<Raw
 
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof HsmReloadableJssConfigResource)) {
-            return false;
-        }
 
-        HsmReloadableJssConfigResource that = (HsmReloadableJssConfigResource) o;
-
-        return jssJsonFile.equals(that.jssJsonFile);
-    }
-
-    @Override
-    public int hashCode() {
-        return jssJsonFile.hashCode();
-    }
 }

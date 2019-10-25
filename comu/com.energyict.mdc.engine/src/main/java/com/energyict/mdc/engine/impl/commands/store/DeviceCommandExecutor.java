@@ -108,6 +108,8 @@ public interface DeviceCommandExecutor extends ServerProcess {
      */
     void free(DeviceCommandExecutionToken unusedToken);
 
+    void freeSilently(DeviceCommandExecutionToken unusedToken);
+
     int getCapacity();
 
     int getCurrentSize();

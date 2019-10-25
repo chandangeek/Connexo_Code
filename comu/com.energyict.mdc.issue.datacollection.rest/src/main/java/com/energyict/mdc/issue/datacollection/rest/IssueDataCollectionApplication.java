@@ -14,6 +14,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -76,6 +77,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile BpmService bpmService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     public IssueDataCollectionApplication() {
     }
@@ -171,6 +173,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     }
 
     @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
     }
@@ -241,6 +248,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
         }
     }
 }

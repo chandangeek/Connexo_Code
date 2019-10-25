@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 
@@ -26,6 +27,8 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
         REASON_CODE("reasonCode", "reason_code"),
         PROCESS_DATE("processDate", "process_date"),
 
+        BULK("bulk", "BULK"),
+        CANCELLED_BY_SAP("cancelledBySap", "CANCELLED_BY_SAP"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -54,6 +57,8 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String reasonCode;
     private Instant processDate;
+    private boolean bulk;
+    private boolean cancelledBySap;
 
     public String getId() {
         return id;
@@ -87,6 +92,22 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
         this.processDate = processDate;
     }
 
+    public boolean isBulk() {
+        return bulk;
+    }
+
+    public void setBulk(boolean bulk) {
+        this.bulk = bulk;
+    }
+
+    public boolean isCancelledBySap() {
+        return cancelledBySap;
+    }
+
+    public void setCancelledBySap(boolean cancelledBySap) {
+        this.cancelledBySap = cancelledBySap;
+    }
+
     public ConnectionStatusChangeDomainExtension() {
         super();
     }
@@ -98,6 +119,8 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
         this.setCategoryCode((String) propertyValues.getProperty(FieldNames.CATEGORY_CODE.javaName()));
         this.setReasonCode((String) propertyValues.getProperty(FieldNames.REASON_CODE.javaName()));
         this.setProcessDate((Instant) propertyValues.getProperty(FieldNames.PROCESS_DATE.javaName()));
+        this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
+        this.setCancelledBySap((Boolean) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
     }
 
     @Override
@@ -106,10 +129,16 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
         propertySetValues.setProperty(FieldNames.CATEGORY_CODE.javaName(), this.getCategoryCode());
         propertySetValues.setProperty(FieldNames.REASON_CODE.javaName(), this.getReasonCode());
         propertySetValues.setProperty(FieldNames.PROCESS_DATE.javaName(), this.getProcessDate());
+        propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
+        propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.isCancelledBySap());
     }
 
     @Override
     public void validateDelete() {
         // nothing to validate
+    }
+
+    public ServiceCall getServiceCall(){
+        return serviceCall.get();
     }
 }

@@ -64,7 +64,7 @@ public class ConnectionStatusChangePersistenceSupportTest {
         Table table = mock(Table.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS));
         persistenceSupport.addCustomPropertyColumnsTo(table, null);
 
-        verify(table, times(4)).column(anyString());
+        verify(table, times(6)).column(anyString());
     }
 
     @Test

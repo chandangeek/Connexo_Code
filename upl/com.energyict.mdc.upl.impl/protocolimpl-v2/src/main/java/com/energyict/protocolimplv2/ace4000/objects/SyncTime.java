@@ -70,6 +70,6 @@ public class SyncTime extends AbstractActarisObject {
 	}
 
 	protected void parse(Element mdElement) {
-        //Results are parsed in the DateTime class
+        //Results are parsed in the DateTimeOctetString class
 	}
 }

@@ -22,7 +22,7 @@ Ext.define('Tou.view.AddForm', {
 
     defaults: {
         labelWidth: 260,
-        width: 800,
+        width: 600,
         msgTarget: 'under'
     },
 
@@ -128,6 +128,22 @@ Ext.define('Tou.view.AddForm', {
                     change: me.onActiveCalendarChange,
                     scope: me
                 }
+            }, {
+                xtype: 'fieldcontainer',
+                name:'assign',
+                hidden: true,
+                itemId: 'activateCalendarErrorMain',
+                fieldLabel: ' ',
+                layout: 'vbox',
+                width: 600,
+                items:
+                    [{
+                        xtype: 'component',
+                        itemId: 'activateCalendarError',
+                        cls: 'x-form-invalid-under',
+                        margin: '-12 0 0 0',
+                        html: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
+                    }]
             }, {
                 xtype: 'displayfield',
                 itemId: 'tou-update-type-disp',

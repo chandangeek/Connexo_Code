@@ -37,8 +37,9 @@ public class TouUiInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-       HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
-       registration = context.registerService(HttpResource.class, resource, null);
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        //HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "c:\\git10.7\\connexo\\comu\\com.energyict.mdc.tou.campaign.extjs\\src\\main\\web\\js\\tou", new FileResolver());
+        registration = context.registerService(HttpResource.class, resource, null);
     }
 
     @Deactivate

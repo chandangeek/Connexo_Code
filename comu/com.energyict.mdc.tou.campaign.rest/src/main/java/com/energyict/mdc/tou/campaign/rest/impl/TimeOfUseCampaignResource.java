@@ -165,7 +165,7 @@ public class TimeOfUseCampaignResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.TOU_ITEM_WITH_DEVICE_ISNT_FOUND, device.getName()));
         ServiceCall serviceCall = timeOfUseItem.getServiceCall();
         serviceCallService.lockServiceCall(serviceCall.getId());
-        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.cancel());
+        DeviceInCampaignInfo deviceInCampaignInfo = deviceInCampaignInfoFactory.create(device, timeOfUseItem.cancel(false));
         return Response.ok(deviceInCampaignInfo).build();
     }
 

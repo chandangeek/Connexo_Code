@@ -62,13 +62,13 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutbo
     public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
         SetMultimap<String, String> values = HashMultimap.create();
 
-        msg.getConfirmationMessage().getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage().forEach(message->{
+        msg.getBulkConfirmationMessage().get().getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage().forEach(message->{
             values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                     message.getUtilitiesDevice().getID().getValue());
         });
         using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
                 .withRelatedAttributes(values)
-                .send(msg.getConfirmationMessage());
+                .send(msg.getBulkConfirmationMessage().get());
     }
 
     @Override

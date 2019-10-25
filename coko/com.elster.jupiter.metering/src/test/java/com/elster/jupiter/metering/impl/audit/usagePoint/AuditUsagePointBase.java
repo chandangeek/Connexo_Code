@@ -91,7 +91,7 @@ public class AuditUsagePointBase {
             inMemoryBootstrapModule.getOrmService().getDataModel(customPropertySet.getPersistenceSupport().componentName())
                     .ifPresent(dataModel -> dataModel.getTable(customPropertySet.getPersistenceSupport().tableName())
                             .audit("")
-                            .domainContext(AuditDomainContextType.USAGEPOINT_CUSTOM_ATTRIBUTES.ordinal())
+                            .domainContext(AuditDomainContextType.USAGEPOINT_CUSTOM_ATTRIBUTES.domainContextId())
                             .domainReferences(customPropertySet.getPersistenceSupport().domainForeignKeyName())
                             .contextReferenceColumn(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                             .build());

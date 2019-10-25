@@ -48,7 +48,8 @@ Ext.define('Tou.controller.Devices', {
                         router: router,
                         deviceType: record.get('deviceType'),
                         campaignIsOngoing: record.get('status') === 'Ongoing',
-                        returnLink: router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl()
+                        returnLink: router.getRoute('workspace/toucampaigns/toucampaign/devices').buildUrl(),
+                        manuallyCancelled: record.get('manuallyCancelled')
                     }));
                 me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadTouCampaign', record);

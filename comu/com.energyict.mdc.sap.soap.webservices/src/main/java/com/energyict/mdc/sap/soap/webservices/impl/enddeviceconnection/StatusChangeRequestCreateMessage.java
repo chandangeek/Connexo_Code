@@ -26,6 +26,7 @@ public class StatusChangeRequestCreateMessage {
     private String id;
     private String categoryCode;
     private String utilitiesServiceDisconnectionReasonCode;
+    private boolean bulk;
 
     private StatusChangeRequestCreateMessage() {
     }
@@ -50,6 +51,10 @@ public class StatusChangeRequestCreateMessage {
         return utilitiesServiceDisconnectionReasonCode;
     }
 
+    public boolean isBulk() {
+        return bulk;
+    }
+
     public boolean isValid() {
         return id != null && categoryCode != null && plannedProcessingDateTime != null &&
                !deviceConnectionStatus.isEmpty();
@@ -64,6 +69,16 @@ public class StatusChangeRequestCreateMessage {
         private Builder() {
         }
 
+        public Builder from(String id, String categoryCode, String utilitiesServiceDisconnectionReasonCode, Instant plannedProcessingDateTime, Map<String, String> deviceConnectionStatus, boolean bulk) {
+            StatusChangeRequestCreateMessage.this.id = id;
+            StatusChangeRequestCreateMessage.this.categoryCode = categoryCode;
+            StatusChangeRequestCreateMessage.this.utilitiesServiceDisconnectionReasonCode = utilitiesServiceDisconnectionReasonCode;
+            StatusChangeRequestCreateMessage.this.plannedProcessingDateTime = plannedProcessingDateTime;
+            StatusChangeRequestCreateMessage.this.deviceConnectionStatus = deviceConnectionStatus;
+            StatusChangeRequestCreateMessage.this.bulk = bulk;
+            return this;
+        }
+
         public Builder from(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg requestMessage) {
             Optional.ofNullable(requestMessage.getUtilitiesConnectionStatusChangeRequest())
                     .ifPresent(statusChangeRequest -> {
@@ -73,6 +88,7 @@ public class StatusChangeRequestCreateMessage {
                         setPlannedProcessingDateTime(statusChangeRequest.getPlannedProcessingDateTime());
                         setDeviceConnectionStatus(getDeviceConnectionStatus(statusChangeRequest));
                     });
+            StatusChangeRequestCreateMessage.this.bulk = false;
             return this;
         }
 

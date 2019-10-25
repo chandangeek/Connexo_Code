@@ -178,7 +178,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
         }
         EventType eventType = found.get();
         LocalEvent localEvent = eventType.create(source);
-        LOGGER.info("Publish Event: " + topic  + " (should publish: " + eventType.shouldPublish() + ")");
+//        LOGGER.info("Publish Event: " + topic  + " (should publish: " + eventType.shouldPublish() + ")");
         publisher.publish(localEvent); // synchronous call, may throw an exception to prevent transaction commit should be prior to further propagating the event.
         if (eventType.shouldPublish()) {
             localEvent.publish((int) delay);

@@ -8,6 +8,7 @@ Ext.define('Tou.view.DeviceActionMenu', {
     requires: [
         'Tou.privileges.TouCampaign'
     ],
+    manuallyCancelled: null,
 
     initComponent: function () {
         this.items = [{
@@ -29,11 +30,12 @@ Ext.define('Tou.view.DeviceActionMenu', {
 
     listeners: {
         beforeshow: function (menu) {
-            var currentDeviceStatus = menu.record.get('status'),
-            cancelAllowed = currentDeviceStatus === 'Pending' || currentDeviceStatus === 'Ongoing',
-            retryAllowed = currentDeviceStatus === 'Cancelled' || currentDeviceStatus === 'Failed' || currentDeviceStatus === 'Configuration error',
-            cancelMenuItem = menu.down('#tou-device-action-cancel'),
-            retryMenuItem = menu.down('#tou-device-action-retry');
+            var me = this,
+                currentDeviceStatus = menu.record.get('status'),
+                cancelAllowed = currentDeviceStatus === 'Pending',
+                retryAllowed = currentDeviceStatus === 'Cancelled' || currentDeviceStatus === 'Failed' || currentDeviceStatus === 'Configuration error' || me.manuallyCancelled,
+                cancelMenuItem = menu.down('#tou-device-action-cancel'),
+                retryMenuItem = menu.down('#tou-device-action-retry');
 
             cancelMenuItem.setVisible(cancelAllowed);
             retryMenuItem.setVisible(retryAllowed);

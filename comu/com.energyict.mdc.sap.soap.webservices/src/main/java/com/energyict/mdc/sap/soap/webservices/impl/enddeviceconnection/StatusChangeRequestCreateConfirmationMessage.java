@@ -148,8 +148,8 @@ public class StatusChangeRequestCreateConfirmationMessage {
             UtilitiesDeviceID deviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
             serviceCall.getTargetObject().ifPresent(id -> {
                 if (id instanceof Device) {
-                    sapCustomPropertySets.ifPresent(cps -> cps.getSapDeviceId(((Device) id).getName())
-                            .ifPresent(sapId -> deviceID.setValue(sapId)));
+                    sapCustomPropertySets.ifPresent(cps -> cps.getSapDeviceId((Device) id)
+                            .ifPresent(deviceID::setValue));
                     deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
                 }
             });
