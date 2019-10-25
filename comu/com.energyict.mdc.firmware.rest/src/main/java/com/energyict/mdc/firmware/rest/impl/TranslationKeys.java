@@ -17,6 +17,7 @@ public enum TranslationKeys implements TranslationKey {
     FIRMWARE_IMAGE_IDENTIFIER("general.imageIdentifier","Image identifier"),
     FIRMWARE_RESUME("FirmwareDeviceMessage.upgrade.resume","Resume"),
     FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY ("FirmwareActionCheckVersionNow", "Check firmware version/image now"),
+    FIRMWARE_ACTIVATION_DATE("device.firmware.history.ActivationDate","Activation date"),
     ;
 
     private final String key;
