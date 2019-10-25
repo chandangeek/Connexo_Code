@@ -40,6 +40,7 @@ public class WebSocketEventPublisherFactoryImpl extends WebSocketEventPublisherF
     }
 
 
+    @Override
     public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener) {
         return new WebSocketEventPublisher(this.comServer, new ServiceProvider(), this.eventPublisher, closeEventListener);
     }
