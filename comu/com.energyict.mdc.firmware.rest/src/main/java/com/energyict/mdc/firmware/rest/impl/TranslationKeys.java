@@ -9,7 +9,12 @@ import com.energyict.mdc.common.device.config.ConnectionStrategy;
 
 public enum TranslationKeys implements TranslationKey {
     STATUS_COMPLETED("completed", "Completed"),
+    STATUS_ONGOIND("firmwareManagementDeviceStatus.ongoing", "Ongoing"),
+    STATUS_CANCELED("firmwareManagementDeviceStatus.cancelled", "Cancelled"),
     STATUS_CONFIGURATION_ERROR("configurationError", "Configuration error"),
+    STATUS_FAILED("firmwareManagementDeviceStatus.failed", "Failed"),
+    STATUS_SUCCESSFUL("firmwareManagementDeviceStatus.successful", "Successful"),
+    STATUS_PENDING("firmwareManagementDeviceStatus.pending","Pending"),
     FIRMWARE_COMTASK_NAME("firmwareComTaskName","Firmware management"),
     MINIMIZE_CONNECTIONS(ConnectionStrategy.MINIMIZE_CONNECTIONS.name(), "Minimize connections"),
     AS_SOON_AS_POSSIBLE(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name(), "As soon as possible"),
