@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.Z3;
 
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -41,7 +42,6 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
@@ -212,8 +212,8 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
     @Override
     public void setTime() throws IOException {
-        DateTime dateTime = new DateTime(Calendar.getInstance(getTimeZone()));
-        getClock().setTimeAttr(dateTime);
+        DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(Calendar.getInstance(getTimeZone()));
+        getClock().setTimeAttr(dateTimeOctetString);
     }
 
     @Override

@@ -27,7 +27,7 @@ Ext.define('Fwc.devicefirmware.view.LogPreviewForm', {
                 name: 'errorDetails'
             },
             {
-                fieldLabel: Uni.I18n.translate('deviceFirmware.log.details', 'FWC', 'Details'),
+                fieldLabel: Uni.I18n.translate('general.details', 'FWC', 'Details'),
                 name: 'details'
             },
             {

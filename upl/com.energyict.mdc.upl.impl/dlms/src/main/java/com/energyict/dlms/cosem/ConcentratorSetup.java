@@ -9,7 +9,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.attributes.ConcentratorSetupAttributes;
 import com.energyict.dlms.cosem.methods.ConcentratorSetupMethods;
 import com.energyict.obis.ObisCode;
@@ -112,8 +112,8 @@ public final class ConcentratorSetup extends AbstractCosemObject {
 		private static final DeviceTypeAssignment fromStructure(final Structure structure) throws IOException {
 			if (structure.nrOfDataTypes() == 3) {
 				final Unsigned32 deviceTypeId = structure.getDataType(0, Unsigned32.class);
-				final DateTime startTime = new DateTime(structure.getDataType(1, OctetString.class));
-				final DateTime endTime = new DateTime(structure.getDataType(2, OctetString.class));
+				final DateTimeOctetString startTime = new DateTimeOctetString(structure.getDataType(1, OctetString.class));
+				final DateTimeOctetString endTime = new DateTimeOctetString(structure.getDataType(2, OctetString.class));
 
 				return new DeviceTypeAssignment(deviceTypeId.getValue(), startTime.getValue(), endTime.getValue());
 			} else {

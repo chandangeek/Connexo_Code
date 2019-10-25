@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
@@ -279,7 +279,7 @@ public class ObisCodeMapper {
 
                 adt = abstractDLMS.getTransparantObjectAccessFactory().readObjectAttribute(obisCode, ATTRIBUTE_CAPTURETIME);
 
-                DateTime eventTime = new DateTime(adt.getOctetString(), abstractDLMS.getTimeZone());
+                DateTimeOctetString eventTime = new DateTimeOctetString(adt.getOctetString(), abstractDLMS.getTimeZone());
 
                 return new RegisterValue(obisCode, new Quantity(value, unit), eventTime.getValue().getTime());
             }

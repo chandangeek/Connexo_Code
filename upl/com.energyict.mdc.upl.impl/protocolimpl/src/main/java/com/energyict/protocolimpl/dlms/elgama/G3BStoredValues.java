@@ -7,7 +7,7 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -126,8 +126,8 @@ class G3BStoredValues implements StoredValues {
                 if (hasATimeStamp()) {
                     OctetString octetString = getEventTimeStamp(baseObisCode, billingPoint).getOctetString();
                     if (isValidOctetString(octetString)) {
-                        DateTime dateTime = octetString.getDateTime(getTimeZone());
-                        historicalRegister.setEventTime(dateTime.getValue().getTime());
+                        DateTimeOctetString dateTimeOctetString = octetString.getDateTime(getTimeZone());
+                        historicalRegister.setEventTime(dateTimeOctetString.getValue().getTime());
                     }
                 }
 

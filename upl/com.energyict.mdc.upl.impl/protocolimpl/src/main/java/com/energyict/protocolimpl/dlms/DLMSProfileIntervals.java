@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
@@ -214,11 +214,11 @@ public class DLMSProfileIntervals extends Array {
      */
     protected Number getValueFromDataType(AbstractDataType dataType, TimeZone tz) {
         if ((dataType instanceof OctetString) && (dataType.getOctetString() != null)) {
-            final DateTime dateTime = dataType.getOctetString().getDateTime(tz);
-            if (dateTime == null) {
+            final DateTimeOctetString dateTimeOctetString = dataType.getOctetString().getDateTime(tz);
+            if (dateTimeOctetString == null) {
                 return dataType.intValue();
             } else {
-                return dateTime.getValue().getTimeInMillis() / 1000;
+                return dateTimeOctetString.getValue().getTimeInMillis() / 1000;
             }
         }
         return dataType.longValue();     //To avoid negative int values

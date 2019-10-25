@@ -129,6 +129,9 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
                 for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, this.properties);
                     if (propertyValue != null || !hasInheritedPropertyValue(partialConnectionTask, propertySpec)) {
+                        if (propertyValue instanceof String) {
+                            propertyValue = ((String) propertyValue).trim();
+                        }
                         connectionTask.setProperty(propertySpec.getName(), propertyValue);
                     } else {
                         connectionTask.removeProperty(propertySpec.getName());//it means that we really want to use inherited value

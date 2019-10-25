@@ -9,7 +9,7 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -180,15 +180,15 @@ public class OctetString extends AbstractDataType {
 	 * @return
 	 * @throws IOException
 	 */
-	public DateTime getDateTime(TimeZone tz) {
+	public DateTimeOctetString getDateTime(TimeZone tz) {
 		try {
 			if ((getBEREncodedByteArray() == null) || (getBEREncodedByteArray().length != 14)) {
 				throw new ProtocolException("AXDRDateTime is expecting an OctetString with a data length of 12.");
 			}
 			if (tz == null) {
-				return new DateTime(this);
+				return new DateTimeOctetString(this);
 			} else {
-				return new DateTime(this, tz);
+				return new DateTimeOctetString(this, tz);
 			}
 		} catch (IOException e) {
 			return null;

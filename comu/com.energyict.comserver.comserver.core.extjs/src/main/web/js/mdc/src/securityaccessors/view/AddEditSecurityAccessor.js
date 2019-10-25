@@ -278,11 +278,11 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     xtype: 'textfield',
                     name: 'keySize',
                     itemId: 'mdc-security-accessor-key-size',
-                    fieldLabel: Uni.I18n.translate('general.keySizes', 'MDC', 'Key size'),
+                    fieldLabel: Uni.I18n.translate('general.keySizes', 'MDC', 'Size (bytes)'),
                     hidden: true,
                     required: true,
                     allowBlank: false,
-                    emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Input key size ...')
+                    emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Input size ...')
                 },
                 {
                     xtype: 'checkboxfield',

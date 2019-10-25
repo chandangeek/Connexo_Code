@@ -81,7 +81,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     protected final NlsService nlsService;
     ESMR50Cache esmr50Cache;
     private Esmr50LogBookFactory esmr50LogBookFactory;
-    ESMR50RegisterFactory registerFactory;
+    protected ESMR50RegisterFactory registerFactory;
     private ESMR50Messaging esmr50Messaging;
     private ESMR50MessageExecutor esmr50MessageExecutor;
     protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
