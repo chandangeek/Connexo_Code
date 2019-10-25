@@ -88,9 +88,8 @@ public class DeviceConnectionTaskInfoFactory {
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {
-                final TaskStatus taskStatus = scheduledConnectionTask.getTaskStatus();
-                TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(taskStatus);
-                if(taskStatus.name().equalsIgnoreCase(TaskStatus.OnHold.name()) && scheduledConnectionTask.getStatus().
+                TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
+                if(scheduledConnectionTask.getTaskStatus().equals(TaskStatus.OnHold) && scheduledConnectionTask.getStatus().
                         equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)) {
                     info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),"Active");
                 } else {
