@@ -192,7 +192,6 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         builder.add(assigneeElementsGroup);
         builder.add(closeIssueForm);
 
-
         return builder.build();
     }
 
@@ -205,4 +204,8 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         return "";
     }
 
+    @Override
+    public boolean isApplicable(Issue issue) {
+        return issue == null;
+    }
 }
