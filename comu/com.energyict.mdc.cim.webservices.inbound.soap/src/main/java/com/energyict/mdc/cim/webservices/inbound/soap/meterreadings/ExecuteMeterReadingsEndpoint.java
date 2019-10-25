@@ -338,7 +338,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     continue;
                 }
             }
-            //
+
             Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
             //if we have index in ReadingExistedLoadProfilesMap/ReadingExistedRegisterGroupsMap, there is Load profile/Register groups case.
             //we should find comTaskExecution by Load profile type/Register groups.
@@ -389,6 +389,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                             .orElse(createComTaskExecutionForRegisterGroup(device, loadProfileName));
                     if (comTaskExecution != null) {
                         comTaskExecutions.add(comTaskExecution);
+                    }else{
+                        noComTaskExecutionRegisterGroupList.add(loadProfileName);
                     }
                 }
         );
