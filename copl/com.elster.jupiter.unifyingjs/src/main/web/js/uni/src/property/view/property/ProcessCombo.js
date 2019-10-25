@@ -74,7 +74,11 @@ Ext.define('Uni.property.view.property.ProcessCombo', {
     },
 
     getValue: function () {
-        return this.getField().getValue();
+        if (this.getField()) {
+            return this.getField().getValue();
+        } else {
+            return null;
+        }
     },
 
     getField: function () {
