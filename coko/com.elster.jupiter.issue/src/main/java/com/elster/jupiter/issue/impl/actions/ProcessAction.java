@@ -164,11 +164,11 @@ public class ProcessAction extends AbstractIssueAction {
 
         final PropertySpec assigneeElementsGroup = propertyFactoriesProvider
                 .getFactory(PropertyType.ASSIGN_ISSUE_FORM)
-                .getElement(ASSIGN_ISSUE_FORM, TranslationKeys.ACTION_ASSIGN_ISSUE, TranslationKeys.ACTION_ASSIGN_ISSUE, issueType, issueReason);
+                .getElement(ASSIGN_ISSUE_FORM, TranslationKeys.ACTION_ASSIGN_ISSUE, TranslationKeys.ACTION_ASSIGN_ISSUE);
 
         final PropertySpec closeIssueForm = propertyFactoriesProvider
                 .getFactory(PropertyType.CLOSE_ISSUE_FORM)
-                .getElement(CLOSE_ISSUE_FORM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE, issueType, issueReason);
+                .getElement(CLOSE_ISSUE_FORM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE);
 
         builder.add(processCombobox);
         builder.add(assigneeElementsGroup);

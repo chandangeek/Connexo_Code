@@ -204,4 +204,9 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         }
         return "";
     }
+
+    @Override
+    public boolean isApplicable(Issue issue) {
+        return issue == null;
+    }
 }

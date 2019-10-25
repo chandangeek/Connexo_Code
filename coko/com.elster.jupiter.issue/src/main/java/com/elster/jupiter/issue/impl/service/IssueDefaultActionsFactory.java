@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.actions.MailIssueAction;
 import com.elster.jupiter.issue.impl.actions.ProcessAction;
@@ -159,6 +160,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
 
     private void addDefaultActions() {
         try {
+            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
             actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
             actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
             actionProviders.put(WebServiceNotificationAction.class.getName(), injector.getProvider(WebServiceNotificationAction.class));
