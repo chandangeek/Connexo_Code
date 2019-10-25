@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS.as1253;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.*;
@@ -98,8 +98,8 @@ public class ProfileDataReader {
             AbstractDataType structureElement = structure.getDataType(CAPTURED_OBJECTS_DATE_FIELD_INDEX);
             if (!structureElement.isNullData()) {
                 // set the interval timestamp if it has a value
-                DateTime dateTime = new DateTime(structureElement.getOctetString(), as1253.getTimeZone());
-                calendar.setTime(dateTime.getValue().getTime());
+                DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(structureElement.getOctetString(), as1253.getTimeZone());
+                calendar.setTime(dateTimeOctetString.getValue().getTime());
                 ParseUtils.roundUp2nearestInterval(calendar, as1253.getProfileInterval());
                 protocolStatus = structure.getDataType(CAPTURED_OBJECTS_STATUSBITS_FIELD_INDEX).intValue();
             }
@@ -132,8 +132,8 @@ public class ProfileDataReader {
 
         Array array = adt.getArray();
         for (AbstractDataType arrayElement : array.getAllDataTypes()) {
-            DateTime dateTime = new DateTime(arrayElement.getStructure().getDataType(0).getOctetString(), as1253.getTimeZone());
-            Date date = dateTime.getValue().getTime();
+            DateTimeOctetString dateTimeOctetString = new DateTimeOctetString(arrayElement.getStructure().getDataType(0).getOctetString(), as1253.getTimeZone());
+            Date date = dateTimeOctetString.getValue().getTime();
             int eventCode = arrayElement.getStructure().getDataType(1).intValue();
             if (as1253.isOldFirmware()) {
                 eventCode = reverseCode(eventCode);

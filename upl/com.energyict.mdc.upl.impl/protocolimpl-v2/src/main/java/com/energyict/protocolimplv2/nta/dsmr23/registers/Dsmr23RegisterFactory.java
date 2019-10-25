@@ -8,7 +8,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -183,8 +183,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
             if (attribute!=null){
                 if (attribute.isOctetString()){
-                    DateTime dateTime = attribute.getOctetString().getDateTime(protocolTimeZone);
-                    return dateTime.getValue().getTime();
+                    DateTimeOctetString dateTimeOctetString = attribute.getOctetString().getDateTime(protocolTimeZone);
+                    return dateTimeOctetString.getValue().getTime();
                 }
             }
         }

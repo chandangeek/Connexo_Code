@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 /**
@@ -63,6 +64,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private String userName;
     @SuppressWarnings("unused")
     private boolean systemManaged;
+
+    private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
 
@@ -149,9 +152,14 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             cancellableConnection = connection.unwrap(OracleConnection.class);
             cancellableConnections.add(cancellableConnection);
             AQMessage aqMessage = null;
+            continueRunning.set(true);
             try {
-                while (aqMessage == null) {
+                while (aqMessage == null && continueRunning.get()) {
                     aqMessage = dequeueMessage(cancellableConnection);
+                }
+                if (aqMessage == null) {
+                    LOGGER.info("subscriber [" + getName() + "] was cancelled");
+                    return null;
                 }
                 return new MessageImpl(aqMessage);
             } catch (SQLTimeoutException e) {
@@ -159,11 +167,11 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                       The connection has been canceled.
                       We'll ignore this exception, since we have a way to recover from it (i.e. stop waiting as requested).
                  */
-                LOGGER.warning("SQLTimeoutException: " + e.getMessage());
+                LOGGER.warning("SQLTimeoutException for subscriber [" + getName() + "] : " + e.getMessage());
             }
         } finally {
-            if (cancellableConnection != null) {
-                cancellableConnections.remove(cancellableConnection);
+                if (cancellableConnection != null) {
+                    cancellableConnections.remove(cancellableConnection);
             }
         }
         return null;
@@ -179,14 +187,17 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     @Override
     public void cancel() {
-        synchronized (cancellableConnections) {
-            for (OracleConnection cancellableConnection : new ArrayList<>(cancellableConnections)) {
-                try {
-                    cancellableConnection.cancel();
-                    cancellableConnections.remove(cancellableConnection);
-                } catch (SQLException e) {
-                    throw new UnderlyingSQLFailedException(e);
-                }
+        continueRunning.set(false);
+        if (cancellableConnections.isEmpty()) {
+            LOGGER.info("no DB connection found for subscriber [" + getName() + "] !");
+        }
+        for (OracleConnection cancellableConnection : new ArrayList<>(cancellableConnections)) {
+            try {
+                LOGGER.info("cancel called for subscriber [" + getName() + "]");
+                cancellableConnection.cancel();
+                cancellableConnections.remove(cancellableConnection);
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
             }
         }
     }

@@ -19,15 +19,16 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -153,7 +154,7 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         assertThat(possibleValues.isExhaustive()).isTrue();
         assertThat(possibleValues.isEditable()).isTrue();
         assertThat(possibleValues.getAllValues()).containsOnly(file2, file3);
-        assertThat(possibleValues.getDefault()).isEqualTo(file2);
+        assertThat(possibleValues.getDefault()).isNull();
     }
 
     @Test
@@ -207,7 +208,7 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         assertThat(possibleValues.isExhaustive()).isTrue();
         assertThat(possibleValues.isEditable()).isTrue();
         assertThat(possibleValues.getAllValues()).containsOnly(securityAccessorType1, securityAccessorType2, securityAccessorType3);
-        assertThat(possibleValues.getDefault()).isEqualTo(securityAccessorType1);
+        assertThat(possibleValues.getDefault()).isNull();
     }
 
     private DeviceMessageSpecWithPossibleValuesImpl getTestInstance() {

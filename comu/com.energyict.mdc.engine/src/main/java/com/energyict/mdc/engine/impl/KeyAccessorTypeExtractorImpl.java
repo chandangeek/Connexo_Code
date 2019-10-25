@@ -78,8 +78,22 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     }
 
     @Override
+    public Optional<Object> actualValue(KeyAccessorType keyAccessorType, int deviceId) {
+        Optional<OfflineKeyAccessor> offlineKeyAccessor = getOfflineKeyAccessor(keyAccessorType, deviceId);
+        return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent())
+                ? extractUplValueOutOf(offlineKeyAccessor.get().getActualValue().get())
+                : Optional.empty();
+    }
+
+    @Override
     public String actualValueContent(KeyAccessorType keyAccessorType) {
         Optional<Object> optional = actualValue(keyAccessorType);
+        return convertSecurityValueToString(optional);
+    }
+
+    @Override
+    public String actualValueContent(KeyAccessorType keyAccessorType, int deviceId) {
+        Optional<Object> optional = actualValue(keyAccessorType, deviceId);
         return convertSecurityValueToString(optional);
     }
 
@@ -178,6 +192,17 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
                 .stream()
                 .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType
                         .getName()))
+                .findFirst();
+    }
+
+    private Optional<OfflineKeyAccessor> getOfflineKeyAccessor(KeyAccessorType keyAccessorType, int deviceId) {
+        SecurityAccessorType connexoSecurityAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
+        return toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
+                .stream()
+                .filter(keyAccessor ->
+                    keyAccessor.getSecurityAccessorType().getName().equals(connexoSecurityAccessorType.getName()) &&
+                    keyAccessor.getDeviceId() == deviceId
+                )
                 .findFirst();
     }
 

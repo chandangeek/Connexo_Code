@@ -931,7 +931,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.doExecutionFailed();
         }
         updateForScheduling(true);
-        getBehavior().comTaskFailed();
     }
 
     protected void doExecutionAttemptFailed() {
@@ -1004,6 +1003,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
             this.doReschedule(rescheduleDate);
         }
+        getBehavior().comTaskFailed();
     }
 
     @Override

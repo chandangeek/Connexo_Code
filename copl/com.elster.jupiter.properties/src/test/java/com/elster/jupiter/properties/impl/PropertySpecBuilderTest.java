@@ -9,11 +9,12 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -148,7 +149,7 @@ public class PropertySpecBuilderTest {
         assertThat(propertySpec.getName()).isEqualTo(specName);
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
-        assertThat(possibleValues.getDefault()).isEqualTo(otherValue1);
+        assertThat(possibleValues.getDefault()).isNull();
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.isExhaustive()).isFalse();
     }
@@ -172,7 +173,7 @@ public class PropertySpecBuilderTest {
         assertThat(propertySpec.getName()).isEqualTo(specName);
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues).isNotNull();
-        assertThat(possibleValues.getDefault()).isEqualTo(otherValue1);
+        assertThat(possibleValues.getDefault()).isNull();
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
         assertThat(possibleValues.isExhaustive()).isFalse();
     }

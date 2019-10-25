@@ -192,4 +192,9 @@ public class ProcessAction extends AbstractIssueAction {
     public String getDisplayName() {
         return getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION).format();
     }
+
+    @Override
+    public boolean isApplicable(Issue issue) {
+        return issue == null;
+    }
 }

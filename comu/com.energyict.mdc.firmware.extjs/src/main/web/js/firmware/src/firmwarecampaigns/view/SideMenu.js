@@ -14,7 +14,7 @@ Ext.define('Fwc.firmwarecampaigns.view.SideMenu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('firmware.campaigns.details', 'FWC', 'Details'),
+                text: Uni.I18n.translate('general.details', 'FWC', 'Details'),
                 itemId: 'firmware-campaign-link',
                 href: me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl()
             },

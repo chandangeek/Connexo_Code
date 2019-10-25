@@ -561,12 +561,14 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         for (Map<Long, ComTaskExecution> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
             if (!deviceComTaskExecutionMap.isEmpty()) {
                 ComTaskExecution comTaskExecution = deviceComTaskExecutionMap.get(device.getId());
-                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
-                    isOk = true;
-                } else {
-                    syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
-                            connectionMethod, comTaskExecution.getComTask().getName(), device.getName()));
-                    deviceComTaskExecutionMap.remove(device.getId());
+                if(comTaskExecution != null) {
+                    if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
+                        isOk = true;
+                    } else {
+                        syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
+                                connectionMethod, comTaskExecution.getComTask().getName(), device.getName()));
+                        deviceComTaskExecutionMap.remove(device.getId());
+                    }
                 }
             }
         }
