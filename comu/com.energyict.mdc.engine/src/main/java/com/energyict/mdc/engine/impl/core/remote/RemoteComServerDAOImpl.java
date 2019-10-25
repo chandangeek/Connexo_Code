@@ -777,7 +777,8 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_IDENTIFIER, messageIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_STATUS, newDeviceMessageStatus);
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.SENT_DATE, Date.from(sentDate));
+        if (sentDate != null)
+            queryParameters.put(RemoteComServerQueryJSonPropertyNames.SENT_DATE, Date.from(sentDate));
         if (protocolInformation != null) {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION, protocolInformation);
         }

@@ -5,10 +5,13 @@ import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.util.Optional;
 
 public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements OfflineKeyAccessor {
@@ -24,8 +27,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     private Optional<T> actualValue;
     private Optional<T> tempValue;
     private int deviceId;
-
     private String deviceMRID;
+    private DeviceIdentifier deviceIdentifier;
     private Optional<T> wrappingKeyActualValue;
 
     public OfflineKeyAccessorImpl(SecurityAccessor securityAccessor, IdentificationService identificationService) {
@@ -53,8 +56,18 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
 
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        if (identificationService != null)
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        return deviceIdentifier;
     }
 
     public void setDeviceId(int deviceId) {

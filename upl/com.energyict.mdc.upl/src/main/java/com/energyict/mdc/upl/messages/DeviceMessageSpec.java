@@ -2,7 +2,9 @@ package com.energyict.mdc.upl.messages;
 
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +26,10 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (17:02)
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public interface DeviceMessageSpec {
 
     /**
@@ -73,5 +79,12 @@ public interface DeviceMessageSpec {
                     .filter(each -> each.getName().equals(name))
                     .findAny();
     }
+
+    @XmlElement(name = "type")
+    default String getXmlType() {
+        return getClass().getName();
+    }
+
+    default void setXmlType(String ignore) {}
 
 }

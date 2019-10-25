@@ -8,7 +8,12 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
+import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 
 
@@ -19,18 +24,25 @@ import java.util.List;
  * @since 2016-12-01 (13:06)
  */
 public class DeviceMessageSpecImpl implements DeviceMessageSpec {
-    private final long id;
-    private final TranslationKey translationKey;
-    private final DeviceMessageCategorySupplier categoryFactory;
-    private final List<PropertySpec> propertySpecs;
 
-    private final PropertySpecService propertySpecService;
-    private final NlsService nlsService;
-    private final Converter converter;
+    private long id;
+    private String name;
+    private TranslationKey nameTranslationKey;
+    private DeviceMessageCategorySupplier categoryFactory;
+    private List<PropertySpec> propertySpecs;
+
+    private PropertySpecService propertySpecService;
+    private NlsService nlsService;
+    private Converter converter;
+
+    private DeviceMessageCategory category;
+
+    public DeviceMessageSpecImpl() {
+    }
 
     public DeviceMessageSpecImpl(long id, TranslationKey translationKey, DeviceMessageCategorySupplier categoryFactory, List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         this.id = id;
-        this.translationKey = translationKey;
+        this.nameTranslationKey = translationKey;
         this.categoryFactory = categoryFactory;
         this.propertySpecs = propertySpecs;
         this.propertySpecService = propertySpecService;
@@ -39,26 +51,34 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
-        return this.nlsService
-                .getThesaurus(Thesaurus.ID.toString())
-                .getFormat(this.getNameTranslationKey())
-                .format();
+        if (this.nlsService != null)
+            name = this.nlsService
+                    .getThesaurus(Thesaurus.ID.toString())
+                    .getFormat(this.getNameTranslationKey())
+                    .format();
+        return name;
     }
 
     @Override
+    @XmlAttribute
     public long getId() {
         return this.id;
     }
 
     @Override
+    @XmlElement(type = TranslationKeyImpl.class)
     public TranslationKey getNameTranslationKey() {
-        return translationKey;
+        return nameTranslationKey;
     }
 
     @Override
+    @XmlElement(type=DeviceMessageCategoryImpl.class)
     public DeviceMessageCategory getCategory() {
-        return categoryFactory.get(this.propertySpecService, this.nlsService, this.converter);
+        if (propertySpecService != null)
+            category = categoryFactory.get(this.propertySpecService, this.nlsService, this.converter);
+        return category;
     }
 
     @Override

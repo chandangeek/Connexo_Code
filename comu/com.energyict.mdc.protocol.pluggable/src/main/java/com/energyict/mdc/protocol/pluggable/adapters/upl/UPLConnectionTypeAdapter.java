@@ -7,6 +7,8 @@ import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.common.protocol.ConnectionProperty;
 import com.energyict.mdc.common.protocol.ConnectionProvider;
 import com.energyict.mdc.ports.ComPortType;
@@ -60,8 +62,8 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.common.protoc
     @XmlElements({
             @XmlElement(type = OutboundTcpIpConnectionType.class),
             @XmlElement(type = OutboundUdpConnectionType.class),
-            @XmlElement(type = RxTxSerialConnectionType.class),
-            @XmlElement(type = SioSerialConnectionType.class)
+            @XmlElement(type = RxTxOpticalConnectionType.class),
+            @XmlElement(type = SioOpticalConnectionType.class),
     })
     public ConnectionType getUplConnectionType() {
         return uplConnectionType;

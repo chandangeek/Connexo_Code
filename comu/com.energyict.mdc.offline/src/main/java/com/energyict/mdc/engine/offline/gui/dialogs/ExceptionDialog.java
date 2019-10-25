@@ -6,6 +6,7 @@
 package com.energyict.mdc.engine.offline.gui.dialogs;
 
 import com.energyict.mdc.engine.offline.DefaultFormatProvider;
+import com.energyict.mdc.engine.offline.OfflineEngine;
 import com.energyict.mdc.engine.offline.UserEnvironment;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.core.Utils;
@@ -175,7 +176,7 @@ public class ExceptionDialog extends JDialog implements Thread.UncaughtException
         } catch (Throwable t) {
             t.printStackTrace();
             System.err.flush();
-            System.exit(2);
+            OfflineEngine.exitSystem(2);
         }
     }
 
@@ -271,7 +272,7 @@ public class ExceptionDialog extends JDialog implements Thread.UncaughtException
         exitButton.setMnemonic(KeyEvent.VK_E);
         exitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                System.exit(1);   // Exit with 1: an error occurred
+                OfflineEngine.exitSystem(1);   // Exit with 1: an error occurred
             }
         });
 

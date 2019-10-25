@@ -633,13 +633,13 @@ public enum QueryMethod {
                 JSONObject jsonObject = new JSONObject(parameters);
                 MessageIdentifier messageIdentifier = parser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.MESSAGE_IDENTIFIER);
                 DeviceMessageStatus newMessageStatus = DeviceMessageStatus.valueOf((String) parameters.get(RemoteComServerQueryJSonPropertyNames.MESSAGE_STATUS));
-                Instant instantDate = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.SENT_DATE);
+                Instant sentDate = null;
+                if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.SENT_DATE))
+                    sentDate = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.SENT_DATE);
                 String protocolInformation = null;
-                if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION)) {
+                if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION))
                     protocolInformation = (String) parameters.get(RemoteComServerQueryJSonPropertyNames.MESSAGE_INFORMATION);
-                }
-
-                this.updateDeviceMessageInformation(serviceProvider, messageIdentifier, newMessageStatus, instantDate, protocolInformation);
+                this.updateDeviceMessageInformation(serviceProvider, messageIdentifier, newMessageStatus, sentDate, protocolInformation);
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
