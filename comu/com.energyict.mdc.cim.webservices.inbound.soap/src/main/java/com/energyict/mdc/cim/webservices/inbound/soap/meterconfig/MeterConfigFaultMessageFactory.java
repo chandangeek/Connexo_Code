@@ -33,7 +33,13 @@ public class MeterConfigFaultMessageFactory {
     }
 
     public Supplier<FaultMessage> meterConfigFaultMessageSupplier(String meterName, MessageSeeds messageSeed, Object... args) {
-        return () -> meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(meterName, messageSeed, args));
+        return () -> meterConfigFaultMessage(messageSeed.translate(thesaurus,args), replyTypeFactory.failureReplyType(meterName, messageSeed, args));
+    }
+
+    private FaultMessage meterConfigFaultMessage(String message, ReplyType replyType) {  // CONM-842
+        MeterConfigFaultMessageType faultMessageType = meterConfigMessageObjectFactory.createMeterConfigFaultMessageType();
+        faultMessageType.setReply(replyType);
+        return new FaultMessage(message, faultMessageType);
     }
 
     FaultMessage meterConfigFaultMessage(String meterName, MessageSeeds messageSeed, String message, String errorCode) {

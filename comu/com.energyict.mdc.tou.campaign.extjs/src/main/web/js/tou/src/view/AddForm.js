@@ -121,6 +121,8 @@ Ext.define('Tou.view.AddForm', {
                 id: 'tou-activate-calendar',
                 name: 'activation',
                 fieldLabel: Uni.I18n.translate('general.activateCalendar', 'TOU', 'Activate calendar'),
+                layout: 'hbox',
+                width: 800,
                 required: true,
                 allowBlank: false,
                 hidden: true,

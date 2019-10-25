@@ -105,6 +105,7 @@ public class WebServiceNotificationAlarmAction extends AbstractIssueAction {
                 final Optional<String> assignIssueComment = assignIssueForm.get().getComment();
                 if (user.isPresent() && workGroup.isPresent()) {
                     issue.assignTo(user.get().getId(), workGroup.get().getId());
+                    issue.update();
                 }
                 assignIssueComment.map(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
             }

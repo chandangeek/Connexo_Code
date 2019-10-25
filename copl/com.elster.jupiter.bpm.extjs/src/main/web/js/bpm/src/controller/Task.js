@@ -130,7 +130,8 @@ Ext.define('Bpm.controller.Task', {
                             urlString = null,
                             usagePointVariable = me.findProcessVariable(nodeRecord, "usagePointId"),
                             deviceVariable = me.findProcessVariable(nodeRecord, "deviceId"),
-                            issueVariable = me.findProcessVariable(nodeRecord, "issueId");
+                            issueVariable = me.findProcessVariable(nodeRecord, "issueId"),
+                            alarmVariable = me.findProcessVariable(nodeRecord, "alarmId")
 
                         if (usagePointVariable) {
                             variable = usagePointVariable;
@@ -140,8 +141,14 @@ Ext.define('Bpm.controller.Task', {
                             variable = deviceVariable;
                             urlString = '/api/jsr/search/com.energyict.mdc.common.device.data.Device';
                         }
-                        if (issueVariable){
-                             taskRecord.set(issueVariable.variableName, issueVariable.value);
+                        if (issueVariable ){
+                             variable = issueVariable;
+                        }
+                        if (alarmVariable ){
+                             variable = alarmVariable;
+                        }
+                        if (issueVariable || alarmVariable){
+                             taskRecord.set(variable.variableName, variable.value);
                              me.createTaskView(taskId, taskRecord);
                         } else if (variable) {
                                 Ext.Ajax.request({
@@ -598,4 +605,3 @@ Ext.define('Bpm.controller.Task', {
         });
     }
 });
-

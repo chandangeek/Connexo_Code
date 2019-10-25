@@ -152,10 +152,10 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         Optional<TimeOfUseCampaignItem> optionalTimeOfUseCampaignItem = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice());
         if (optionalTimeOfUseCampaignItem.isPresent()) {
             TimeOfUseItemDomainExtension timeOfUseCampaignItem = (TimeOfUseItemDomainExtension) optionalTimeOfUseCampaignItem.get();
+            TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignItem.getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
             if (timeOfUseCampaignItem.getStepOfUpdate() == 0) {
                 if (isForCalendar(comTaskExecution)) {
                     boolean planning = true;
-                    TimeOfUseCampaign timeOfUseCampaign = timeOfUseCampaignItem.getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
                     Device device = comTaskExecution.getDevice();
                     if (plannedCalendarIsOnCampaign(device, timeOfUseCampaign)) {
                         if (device.calendars().getPlannedPassive()
@@ -163,7 +163,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                 .map(DeviceMessage::getStatus)
                                 .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
                                 .isPresent()) {
-                            ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
+                            ServiceCall serviceCall = timeOfUseCampaignItem.getServiceCall();
                             if (!timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
                                 serviceCallService.lockServiceCall(serviceCall.getId());
                                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -190,7 +190,6 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             } else if (timeOfUseCampaignItem.getStepOfUpdate() == 1) {
                 if (comTaskExecution.getComTask().getProtocolTasks().stream()
                         .anyMatch(StatusInformationTask.class::isInstance)) {
-                    TimeOfUseCampaign timeOfUseCampaign = optionalTimeOfUseCampaignItem.get().getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
                     Instant calendarsTimeUpload = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(comTaskExecution.getDevice()).get()
                             .getServiceCall().getLastModificationTime();
                     if (calendarsTimeUpload.plusMillis(timeOfUseCampaign.getValidationTimeout()).isBefore(clock.instant())) {
@@ -248,11 +247,11 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                                 .map(DeviceMessage::getStatus)
                                 .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CANCELED))
                                 .isPresent()) {
-                            timeOfUseItem.cancel();
+                            timeOfUseItem.cancel(false);
                             planning = false;
                         }
                     } else {
-                        timeOfUseItem.cancel();
+                        timeOfUseItem.cancel(false);
                         planning = false;
                     }
                     if (planning) {

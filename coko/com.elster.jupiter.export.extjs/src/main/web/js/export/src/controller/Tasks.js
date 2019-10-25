@@ -907,7 +907,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.resumeLayouts(true);
     },
 
-    showAddExportTask: function () {
+    showAddExportTask: function(){
         var me = this,
             view = Ext.create('Dxp.view.tasks.Add'),
             dataSelectorCombo = view.down('#data-selector-combo'),
@@ -2456,7 +2456,14 @@ Ext.define('Dxp.controller.Tasks', {
                         me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                     }
                     if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.saved', 'DES', 'Export task saved'));
+                        var suspendUntilExportVar = record.get('suspendUntilExport');
+                        if (startOnDate < suspendUntilExportVar)
+                        {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.suspended', 'DES', 'Export task saved, but task is already suspended'));
+                        }
+                        else {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.saved', 'DES', 'Export task saved'));
+                        }
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addExportTask.successMsg', 'DES', 'Export task added'));
                     }

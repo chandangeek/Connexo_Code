@@ -704,6 +704,11 @@ public class ScheduledJobImplTest {
         }
 
         @Override
+        public void freeSilently(DeviceCommandExecutionToken unusedToken) {
+            this.actualExecutor.freeSilently(unusedToken);
+        }
+
+        @Override
         public ComServer.LogLevel getLogLevel() {
             return null;
         }

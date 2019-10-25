@@ -77,8 +77,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()
-                .filter(EndPointConfiguration::isActive)
-                .findAny().isPresent();
+                .anyMatch(EndPointConfiguration::isActive);
     }
 
     private void createServiceCall(ServiceCallType serviceCallType, UtilitiesDeviceRegisterCreateRequestMessage requestMessage) {

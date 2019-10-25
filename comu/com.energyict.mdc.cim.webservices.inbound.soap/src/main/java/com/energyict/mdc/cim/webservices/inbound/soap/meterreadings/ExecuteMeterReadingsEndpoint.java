@@ -179,7 +179,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                             .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading(), syncReplyIssue))
                             .build();
                     return createMeterReadingsResponseMessageType(meterReadings, syncReplyIssue.getResultErrorTypes(),
-                            getMeterReadingsRequestMessage.getHeader().getCorrelationID() ,syncReplyIssue);
+                            getMeterReadingsRequestMessage.getHeader().getCorrelationID(), syncReplyIssue);
                 }
                 // -UsagePoint
                 List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
@@ -303,11 +303,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue);
         }
         if (isRegularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillDevicesComTaskExecutions(devices, true, syncReplyIssue);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, true, syncReplyIssue, index);
         }
 
         if (isIrregularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillDevicesComTaskExecutions(devices, false, syncReplyIssue);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, false, syncReplyIssue, index);
         }
     }
 
@@ -324,24 +324,21 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         });
     }
 
-    private void fillDevicesComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue) {
+    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index) {
         for (Device originDevice : devices) {
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
-            final Class<?> clazz;
             if (isRegular) {
                 if (syncReplyIssue.getDeviceRegularComTaskExecutionMap().containsKey(device.getId())) {
                     continue;
                 }
-                clazz = LoadProfilesTask.class;
             } else {
                 if (syncReplyIssue.getDeviceIrregularComTaskExecutionMap().containsKey(device.getId())) {
                     continue;
                 }
-                clazz = RegistersTask.class;
             }
-            ComTaskExecution comTaskExecution = getComTaskExecution(device.getComTaskExecutions(), clazz)
-                    .orElse(createComTaskExecution(device, clazz));
+            ComTaskExecution comTaskExecution = getComTaskExecution(device.getComTaskExecutions(), isRegular, syncReplyIssue, index)
+                    .orElse(createComTaskExecution(device, isRegular, syncReplyIssue, index));
             if (comTaskExecution != null) {
                 if (isRegular) {
                     syncReplyIssue.addDeviceRegularComTaskExecution(device.getId(), comTaskExecution);
@@ -352,7 +349,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private ComTaskExecution createComTaskExecution(Device device, Class<?> clazz) {
+    private ComTaskExecution createComTaskExecution(Device device, boolean isRegular, SyncReplyIssue syncReplyIssue, int index) {
         Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
         for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
             Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
@@ -360,14 +357,41 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     .findFirst();
             comTaskExecutions.add(existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)));
         }
-        return getComTaskExecution(comTaskExecutions, clazz).orElse(null);
+        return getComTaskExecution(comTaskExecutions, isRegular, syncReplyIssue, index).orElse(null);
     }
 
-    private Optional<ComTaskExecution> getComTaskExecution(Collection<ComTaskExecution> comTaskExecutions, Class<?> clazz) {
+    private Optional<ComTaskExecution> getComTaskExecution(Collection<ComTaskExecution> comTaskExecutions, boolean isRegular, SyncReplyIssue syncReplyIssue, int index) {
+        //if we have index in ReadingExistedLoadProfilesMap/ReadingExistedRegisterGroupsMap, there is Load profile/Register groups case.
+        //we should get comTaskExecution by Load profile type/Register groups.
+        if(syncReplyIssue.getReadingExistedLoadProfilesMap().containsKey(index)||
+                syncReplyIssue.getReadingExistedRegisterGroupsMap().containsKey(index)){
+            return comTaskExecutions.stream()
+                    .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
+                    .filter(comTaskExecution ->!comTaskExecution.isOnHold())
+                    .filter(comTaskExecution -> {
+                        if (isRegular) {
+                            return comTaskExecution.getProtocolTasks().stream()
+                                    .filter(protocolTask -> protocolTask instanceof LoadProfilesTask)
+                                    .anyMatch(protocolTask-> ((LoadProfilesTask) protocolTask).getLoadProfileTypes().stream()
+                                            .anyMatch(loadProfile->syncReplyIssue.getReadingExistedLoadProfilesMap().get(index).contains(loadProfile.getName())));
+                        } else {
+                            return comTaskExecution.getProtocolTasks().stream()
+                                    .filter(protocolTask -> protocolTask instanceof RegistersTask)
+                                    .anyMatch(protocolTask-> ((RegistersTask) protocolTask).getRegisterGroups().stream()
+                                            .anyMatch(registerGroup->syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index).contains(registerGroup.getName())));
+                        }
+
+                    })
+                    .findAny();
+        }
+
         return comTaskExecutions.stream()
                 .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
+                .filter(comTaskExecution ->!comTaskExecution.isOnHold())
                 .filter(comTaskExecution -> comTaskExecution.getProtocolTasks().stream()
-                        .anyMatch(protocolTask -> clazz.isInstance(protocolTask)))
+                        .anyMatch(protocolTask -> isRegular
+                                ? protocolTask instanceof LoadProfilesTask
+                                : protocolTask instanceof RegistersTask))
                 .findAny();
     }
 
@@ -537,12 +561,14 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         for (Map<Long, ComTaskExecution> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
             if (!deviceComTaskExecutionMap.isEmpty()) {
                 ComTaskExecution comTaskExecution = deviceComTaskExecutionMap.get(device.getId());
-                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
-                    isOk = true;
-                } else {
-                    syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
-                            connectionMethod, comTaskExecution.getComTask().getName(), device.getName()));
-                    deviceComTaskExecutionMap.remove(device.getId());
+                if(comTaskExecution != null) {
+                    if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
+                        isOk = true;
+                    } else {
+                        syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
+                                connectionMethod, comTaskExecution.getComTask().getName(), device.getName()));
+                        deviceComTaskExecutionMap.remove(device.getId());
+                    }
                 }
             }
         }

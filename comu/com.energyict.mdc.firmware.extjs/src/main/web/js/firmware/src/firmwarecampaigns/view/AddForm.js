@@ -111,7 +111,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         xtype: 'displayfield',
                         itemId: 'no-device-group',
                         hidden: true,
-                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'EST', 'No device group defined yet.') + '</div>',
+                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'FWC', 'No device group defined yet.') + '</div>',
                         htmlEncode: false,
                         width: 235
                     },
@@ -232,7 +232,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 allowBlank: false,
                 forceSelection: true,
                 emptyText: Uni.I18n.translate(
-                    'general.calendarUploadComTask.empty',
+                    'general.comTask.empty',
                     'FWC',
                     'Select communication task ...'
                 ),
@@ -262,17 +262,29 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id'
+                        valueField: 'id',
+                        listeners: {
+                            change: function (checkBox, value) {
+                                if (this.originalValue !== value) {
+                                    me.down('#fwc-campaign-send-connection-strategy-reset').enable();
+                                } else {
+                                    me.down('#fwc-campaign-send-connection-strategy-reset').disable();
+
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-send-connection-strategy-reset',
                         handler: function() {
                             this.down('[name=calendarUploadConnectionStrategy]').reset();
+                            me.down('#fwc-campaign-send-connection-strategy-reset').disable();
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },

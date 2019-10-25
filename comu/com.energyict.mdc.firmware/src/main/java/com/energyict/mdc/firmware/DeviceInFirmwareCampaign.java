@@ -22,7 +22,7 @@ public interface DeviceInFirmwareCampaign {
 
     ServiceCall getServiceCall();
 
-    ServiceCall cancel();
+    ServiceCall cancel(boolean initFromCampaign);
 
     ServiceCall retry();
 
@@ -33,6 +33,8 @@ public interface DeviceInFirmwareCampaign {
     Instant getFinishedOn();
 
     long getId();
+
+    boolean doesDeviceAlreadyHaveTheSameVersion();
 
     void delete();
 }

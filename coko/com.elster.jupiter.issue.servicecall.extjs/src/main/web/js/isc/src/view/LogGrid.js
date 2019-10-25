@@ -5,7 +5,6 @@
 Ext.define('Isc.view.LogGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.servicecall-issue-log-grid',
-    store: null,
     ui: 'medium',
     requires: [ 'Uni.DateTime', 'Ext.ux.exporter.ExporterButton' ],
     maxHeight: 364,
@@ -38,24 +37,6 @@ Ext.define('Isc.view.LogGrid', {
                     return value ? Ext.String.htmlEncode(value) : '';
                 }
             } 
-        ];
-
-        me.dockedItems = [
-            {
-                xtype: 'toolbar',
-                itemId: 'components-list-top-toolbar',
-                items: [
-                    '->',
-                    {
-                        xtype: 'exporterbutton',
-                        itemId: 'components-exporter-button',
-                        ui: 'icon',
-                        iconCls: 'icon-file-download',
-                        text: '',
-                        component: me
-                    }
-                ]
-            }
         ];
 
         me.callParent(arguments);

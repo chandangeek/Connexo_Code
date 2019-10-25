@@ -164,7 +164,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
 
 
                                         if (currentFirmwareCheck && currentFirmwareCheck.activated){
-                                            result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type.");
+                                            result =  Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type");
                                         }
 
                                         var me  = this;
@@ -211,7 +211,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                                 masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
                                             })
                                             if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
-                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.masterFirmwareCampaignMainOption', 'FWC', 'Master has the latest firmware (meter, communication and auxiliary)') + '</div>';
+                                                result += '<div style="margin:10 0px">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (meter, communication and auxiliary)') + '</div>';
                                                 var tpl = Ext.create('FirmwareOptionsXTemplate');
                                                 result += ('<div style="margin:0 0 10px 30px">' + tpl.apply(masterFirmwareOptionTemplate) + '</div>');
                                             }
@@ -274,7 +274,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 xtype: 'displayfield',
                                 name: 'name',
                                 itemId: 'security-accessor',
-                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.securityAccessor', 'FWC', 'Security accessor')
+                                fieldLabel: Uni.I18n.translate('general.securityAccessor.edit', 'FWC', 'Security accessor')
                             },
                             {
                                 xtype: 'displayfield',

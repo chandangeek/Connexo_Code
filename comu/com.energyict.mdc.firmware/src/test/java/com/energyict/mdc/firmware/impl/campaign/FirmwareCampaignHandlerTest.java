@@ -31,12 +31,14 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
+import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -46,6 +48,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -59,6 +62,8 @@ public class FirmwareCampaignHandlerTest {
     private FirmwareServiceImpl firmwareService;
     @Mock
     private Clock clock;
+    @Mock
+    private FirmwareVersion firmwareVersion;
 
     private FirmwareCampaignServiceImpl firmwareCampaignService = mock(FirmwareCampaignServiceImpl.class);
     private ServiceCallService serviceCallService = mock(ServiceCallService.class);
@@ -74,7 +79,6 @@ public class FirmwareCampaignHandlerTest {
     private DeviceInFirmwareCampaign firmwareItem = mock(DeviceInFirmwareCampaign.class);
     private FirmwareCampaign firmwareCampaign = createMockCampaign();
     private FirmwareCampaign firmwareCampaign2 = createMockCampaign();
-    private FirmwareCampaignItemDomainExtension firmwareItemDomainExtension = mock(FirmwareCampaignItemDomainExtension.class);
 
     private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
     private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
@@ -85,17 +89,21 @@ public class FirmwareCampaignHandlerTest {
 
     @Before
     public void setUp() {
+        when(firmwareVersion.getId()).thenReturn(2L);
+        when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
+        when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
+        when(firmwareCampaign2.getFirmwareVersion()).thenReturn(firmwareVersion);
         when(firmwareService.getFirmwareCampaignService()).thenReturn(firmwareCampaignService);
         when(firmwareComTaskExecution.isFirmware()).thenReturn(true);
         when(firmwareCampaignService.getCampaignOn(firmwareComTaskExecution)).thenReturn(Optional.of(firmwareCampaign));
         when(firmwareCampaignService.getCampaignOn(verificationComTaskExecution)).thenReturn(Optional.of(firmwareCampaign2));
-        when(serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class)).thenReturn(Optional.of(firmwareItemDomainExtension));
+        when(firmwareCampaignService.getFirmwareService()).thenReturn(firmwareService);
+        when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochMilli(0));
         when(firmwareCampaignService.findActiveFirmwareItemByDevice(any())).thenReturn(Optional.of(firmwareItem));
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(event.getType()).thenReturn(eventType);
-        when(firmwareItem.cancel()).thenReturn(serviceCall);
+        when(firmwareItem.cancel(anyBoolean())).thenReturn(serviceCall);
         when(firmwareItem.getServiceCall()).thenReturn(serviceCall);
-        when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochMilli(0));
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(firmwareItem), QueryStream.class);
         when(firmwareCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
         firmwareCampaignHandler = new FirmwareCampaignHandler(firmwareService, clock, serviceCallService, thesaurus, threadPrincipalService, transactionService);
@@ -105,6 +113,7 @@ public class FirmwareCampaignHandlerTest {
     public void testFirmwareTaskStarted() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.PENDING);
+        when(serviceCall.canTransitionTo(DefaultState.ONGOING)).thenReturn(true);
         when(firmwareComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(FIRMWARE_COMTASKEXECUTION_STARTED);
         when(event.getSource()).thenReturn(firmwareComTaskExecution);
@@ -142,7 +151,8 @@ public class FirmwareCampaignHandlerTest {
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
-        when(firmwareItemDomainExtension.deviceAlreadyHasTheSameVersion()).thenReturn(true);
+        when(firmwareItem.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(true);
+        when(firmwareItem.getDevice()).thenReturn(device);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
@@ -155,7 +165,7 @@ public class FirmwareCampaignHandlerTest {
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
-        when(firmwareItemDomainExtension.deviceAlreadyHasTheSameVersion()).thenReturn(false);
+        when(firmwareItem.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(false);
         firmwareCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
@@ -203,7 +213,7 @@ public class FirmwareCampaignHandlerTest {
         return comTaskExecution;
     }
 
-    private static FirmwareCampaign createMockCampaign() {
+    private FirmwareCampaign createMockCampaign() {
         FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
@@ -212,17 +222,13 @@ public class FirmwareCampaignHandlerTest {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("TestDeviceType");
-        FirmwareVersion firmwareVersion = mock(FirmwareVersion.class);
         ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE;
-        when(firmwareVersion.getId()).thenReturn(2L);
-        when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(firmwareCampaign.getName()).thenReturn("TestCampaign");
         when(firmwareCampaign.getDeviceType()).thenReturn(deviceType);
         when(firmwareCampaign.getDeviceGroup()).thenReturn("TestGroup");
         when(firmwareCampaign.getUploadPeriodStart()).thenReturn(Instant.ofEpochSecond(100));
         when(firmwareCampaign.getUploadPeriodEnd()).thenReturn(Instant.ofEpochSecond(200));
         when(firmwareCampaign.getFirmwareManagementOption()).thenReturn(protocolSupportedFirmwareOptions);
-        when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
         when(firmwareCampaign.getActivationDate()).thenReturn(Instant.ofEpochSecond(100));
         when(firmwareCampaign.getValidationTimeout()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         when(firmwareCampaign.getId()).thenReturn(3L);
@@ -243,8 +249,11 @@ public class FirmwareCampaignHandlerTest {
         when(deviceMessage.getReleaseDate()).thenReturn(Instant.ofEpochSecond(3600));
         when(firmware.getId()).thenReturn(2L);
         when(device.getMessages()).thenReturn(Collections.singletonList(deviceMessage));
-        when(firmwareItemDomainExtension.getDeviceMessage()).thenReturn(Optional.of(deviceMessage));
         when(firmwareItem.getDeviceMessage()).thenReturn(Optional.of(deviceMessage));
+        DeviceMessageAttribute deviceMessageAttribute = mock(DeviceMessageAttribute.class);
+        when(deviceMessageAttribute.getValue()).thenReturn(firmwareVersion);
+        List attr = Collections.singletonList(deviceMessageAttribute);
+        when(deviceMessage.getAttributes()).thenReturn(attr);
         return device;
     }
 }
