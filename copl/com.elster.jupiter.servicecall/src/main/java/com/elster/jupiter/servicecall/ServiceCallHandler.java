@@ -11,6 +11,7 @@ import aQute.bnd.annotation.ConsumerType;
  */
 @ConsumerType
 public interface ServiceCallHandler {
+
     ServiceCallHandler DUMMY = (serviceCall, oldState, newState) -> {
         // does nothing
     };

@@ -27,7 +27,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, Stream<? extends ExportData> data);
 
     void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data);
 

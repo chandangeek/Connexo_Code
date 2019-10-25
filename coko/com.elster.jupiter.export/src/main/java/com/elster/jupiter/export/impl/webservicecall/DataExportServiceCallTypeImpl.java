@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
@@ -19,10 +20,14 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.NoTransitionException;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
+
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
@@ -72,35 +77,37 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         });
     }
 
-    public ServiceCallType findOrCreateChild() {
+    public ServiceCallType findOrCreateChildType() {
+
         return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
 
+            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
             return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
-                    .handler(WebServiceDataExportServiceCallHandler.NAME)
+                    .handler(ServiceCallHandler.DUMMY.getDisplayName())
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(registeredCustomPropertySet)
                     .create();
         });
     }
 
-    @Override
+    @Override//??? This method is used only in TEST????????????
     public ServiceCall startServiceCall(String uuid, long timeout) {
         if (transactionService.isInTransaction()) {
-            return doStartServiceCall(uuid, timeout);
+            return doStartServiceCall(uuid, timeout, null);
         } else {
-            return startServiceCallInTransaction(uuid, timeout);
+            return startServiceCallInTransaction(uuid, timeout, null);
         }
     }
 
     @Override
-    public ServiceCall startServiceCallAsync(String uuid, long timeout) {
+    public ServiceCall startServiceCallAsync(String uuid, long timeout, Stream<? extends ExportData> data) {
         Principal principal = threadPrincipalService.getPrincipal();
         try {
             return CompletableFuture.supplyAsync(() -> {
                 threadPrincipalService.set(principal);
-                return startServiceCallInTransaction(uuid, timeout);
+                return startServiceCallInTransaction(uuid, timeout, data);
             }).get();
         } catch (ExecutionException e) {
             throw new RuntimeException(e.getCause());
@@ -111,14 +118,35 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
     @Override
     public void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data){
+        data.map(MeterReadingData.class::isInstance)
+                .map(MeterReadingData.class::cast).forEach(datareading->createChild(parent, datareading));
+    }
+
+
+    private void createChild(ServiceCall parent, MeterReadingData reading){
+
+        String deviceName = reading.getItem().getDomainObject().getName();
+        String readingTypeMrID = reading.getItem().getReadingType().getMRID();
+
+        WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
+        childSrvCallProperties.setDeviceName(deviceName);
+        childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
+
+        ServiceCallType srvCallChildType = findOrCreateChildType();
+
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(srvCallChildType)
+                .extendedWith(childSrvCallProperties);
+
+        serviceCallBuilder.create();
 
     }
 
-    private ServiceCall startServiceCallInTransaction(String uuid, long timeout) {
-        return transactionService.execute(() -> doStartServiceCall(uuid, timeout));
+
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Stream<? extends ExportData> data) {
+        return transactionService.execute(() -> doStartServiceCall(uuid, timeout, data));
     }
 
-    private ServiceCall doStartServiceCall(String uuid, long timeout) {
+    private ServiceCall doStartServiceCall(String uuid, long timeout, Stream<? extends ExportData> data) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);
@@ -129,6 +157,9 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                 .create();
         serviceCall.requestTransition(DefaultState.PENDING);
         serviceCall.requestTransition(DefaultState.ONGOING);
+
+        createChildServiceCalls(serviceCall, data);
+
         return serviceCall;
     }
 

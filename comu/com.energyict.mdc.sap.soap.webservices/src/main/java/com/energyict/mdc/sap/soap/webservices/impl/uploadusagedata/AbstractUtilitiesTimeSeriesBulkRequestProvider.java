@@ -221,12 +221,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
                 }
                 Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
                         .filter(timeout -> !timeout.isEmpty())
-                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
-
-
-                data.map(data->{
-                    serviceCall.get().newChildCall();
-                }
+                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), data));
 
                 return serviceCall;
             }
