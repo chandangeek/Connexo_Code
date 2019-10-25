@@ -1,0 +1,150 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.sap.soap.webservices.impl.eventmanagement;
+
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractInboundWebserviceTest;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.Log;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.LogItem;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UUID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilsSmrtMtrEvtERPBulkCrteConfMsg;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+
+public class MeterEventCreateRequestConfirmationReceiverTest extends AbstractInboundWebserviceTest {
+    private static final String REF_UUID = java.util.UUID.randomUUID().toString();
+    private UtilsSmrtMtrEvtERPBulkCrteConfMsg message;
+    private MeterEventCreateRequestConfirmationReceiver service;
+
+    @Before
+    public void setUp() {
+        message = new UtilsSmrtMtrEvtERPBulkCrteConfMsg();
+        BusinessDocumentMessageHeader header = new BusinessDocumentMessageHeader();
+        UUID uuid = new UUID();
+        uuid.setValue(REF_UUID);
+        header.setReferenceUUID(uuid);
+        message.setMessageHeader(header);
+
+        service = getInstance(MeterEventCreateRequestConfirmationReceiver.class);
+    }
+
+    @Test
+    public void testApplication() {
+        assertThat(service.getApplication()).isEqualTo("MultiSense");
+    }
+
+    @Test
+    public void testPassedConfirmation() {
+        Log log = new Log();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
+        message.setLog(log);
+
+        service.utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(message);
+
+        verify(webServicesService).passOccurrence(webServiceCallOccurrence.getId());
+        verify(webServiceCallOccurrence).log(LogLevel.INFO, "Confirmed smart meter event creation request with UUID " + REF_UUID + ".");
+    }
+
+    @Test
+    public void testFailedConfirmationNoError() {
+        Log log = new Log();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        message.setLog(log);
+
+        assertThrowsException(() -> service.utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(message),
+                SAPWebServiceException.class,
+                "Failed to confirm smart meter event creation request with UUID " + REF_UUID + ": No message provided.");
+    }
+
+    @Test
+    public void testFailedConfirmationNoUUID() {
+        Log log = new Log();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        message.setLog(log);
+        message.getMessageHeader().setReferenceUUID(null);
+
+        assertThrowsException(() -> service.utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(message),
+                SAPWebServiceException.class,
+                "Failed to confirm smart meter event creation request with UUID null: No message provided.");
+    }
+
+    @Test
+    public void testFailedConfirmationWithError() {
+        Log log = new Log();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        message.setLog(log);
+
+        LogItem logItem = new LogItem();
+        logItem.setNote("Custom error.");
+        log.getItem().add(logItem);
+
+        assertThrowsException(() -> service.utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(message),
+                SAPWebServiceException.class,
+                "Failed to confirm smart meter event creation request with UUID " + REF_UUID + ": Custom error.");
+    }
+
+    @Test
+    public void testFailedConfirmationWithSeveralErrors() {
+        Log log = new Log();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        message.setLog(log);
+
+        LogItem logItem = new LogItem();
+        logItem.setNote("Custom info.");
+        logItem.setSeverityCode(SeverityCode.INFORMATION.getCode());
+        log.getItem().add(logItem);
+
+        logItem = new LogItem();
+        logItem.setNote("Custom warning.");
+        logItem.setSeverityCode(SeverityCode.WARNING.getCode());
+        log.getItem().add(logItem);
+
+        logItem = new LogItem();
+        logItem.setNote("Custom error.");
+        logItem.setSeverityCode(SeverityCode.ERROR.getCode());
+        log.getItem().add(logItem);
+
+        logItem = new LogItem();
+        logItem.setNote("Custom abort error.");
+        logItem.setSeverityCode(SeverityCode.ABORT.getCode());
+        log.getItem().add(logItem);
+
+        assertThrowsException(() -> service.utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(message),
+                SAPWebServiceException.class,
+                "Failed to confirm smart meter event creation request with UUID " + REF_UUID + ": Custom abort error.");
+    }
+
+    @Test
+    public void testFailedConfirmationWithSeveralIncompleteErrors() {
+        Log log = new Log();
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        message.setLog(log);
+
+        LogItem logItem = new LogItem();
+        logItem.setNote("Custom error 1.");
+        log.getItem().add(logItem);
+
+        logItem = new LogItem();
+        logItem.setSeverityCode(SeverityCode.ERROR.getCode());
+        log.getItem().add(logItem);
+
+        logItem = new LogItem();
+        logItem.setNote("Custom error 2.");
+        logItem.setSeverityCode(SeverityCode.ERROR.getCode());
+        log.getItem().add(logItem);
+
+        assertThrowsException(() -> service.utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(message),
+                SAPWebServiceException.class,
+                "Failed to confirm smart meter event creation request with UUID " + REF_UUID + ": Custom error 2.");
+    }
+}

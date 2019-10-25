@@ -140,7 +140,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
             } catch (NumberFormatException e) {
                 return item2;
             }
-            return i1 < i2 ? item2 : item1;
+            return i1 < i2 ? item2 : i2 < i1 ? item1 : item1.getNote() == null ? item2 : item1;
         }
     }
 

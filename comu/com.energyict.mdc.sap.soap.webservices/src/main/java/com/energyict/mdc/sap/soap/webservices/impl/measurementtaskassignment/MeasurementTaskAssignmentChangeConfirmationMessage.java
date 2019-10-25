@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment;
 
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.Log;

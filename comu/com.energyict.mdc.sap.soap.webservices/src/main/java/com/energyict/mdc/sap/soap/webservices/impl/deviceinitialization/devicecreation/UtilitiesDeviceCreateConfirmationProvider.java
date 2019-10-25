@@ -55,7 +55,7 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesDeviceERPSmartMeterCreateConfirmationCOut> getService() {
         return UtilitiesDeviceERPSmartMeterCreateConfirmationCOut.class;
     }
 
