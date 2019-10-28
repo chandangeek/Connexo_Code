@@ -88,6 +88,18 @@ public class PowerFactorDomainExtension extends AbstractPersistentDomainExtensio
         return device.get();
     }
 
+    public BigDecimal getSetpointThreshold() {
+        return setpointThreshold;
+    }
+
+    public BigDecimal getHysteresisPercentage() {
+        return hysteresisPercentage;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
     @Override
     public void validateDelete() {
     }

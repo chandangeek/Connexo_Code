@@ -83,8 +83,19 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
         return device.get();
     }
 
+    public BigDecimal getConnectedLoad() {
+        return connectedLoad;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
     @Override
     public void validateDelete() {
     }
 }
-

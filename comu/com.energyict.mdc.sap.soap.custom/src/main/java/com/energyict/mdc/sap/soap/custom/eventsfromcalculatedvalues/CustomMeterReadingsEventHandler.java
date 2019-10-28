@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +63,9 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     static final String NAME = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.CustomMeterReadingsEventHandler";
 
     private static final Logger LOGGER = Logger.getLogger(CustomMeterReadingsEventHandler.class.getName());
-    private static final String POWER_FACTOR_EVENET_CODE = "powerFactor";
-    private static final String MAX_DEMAND_EVENET_CODE = "maxDemand";
-    private static final String CT_RATIO_EVENET_CODE = "ctRatio";
+    protected static final String POWER_FACTOR_EVENET_CODE = "powerFactor";
+    protected static final String MAX_DEMAND_EVENET_CODE = "maxDemand";
+    protected static final String CT_RATIO_EVENET_CODE = "ctRatio";
 
     private volatile DeviceService deviceService;
     private volatile CustomPropertySetService customPropertySetService;
@@ -176,7 +177,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                                     if (value == 0 && reactiveValue == 0) {
                                         MessageSeeds.POWER_FACTOR_VALUES_ARE_NULL.log(LOGGER, thesaurus, deviceName,
                                                 reading.getReadingType().getMRID() + ";" + reactiveReading.get().getReadingType().getMRID(),
-                                                dateFormatter.format(reading.getReading().getTimeStamp()));
+                                                dateFormatter.format(Date.from(reading.getReading().getTimeStamp())));
                                     } else {
                                         if (powerFactorEvent(value, reactiveValue, pfCpsValues.getFirst().doubleValue(), pfCpsValues.getLast().doubleValue())) {
                                             // generate event
@@ -185,7 +186,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                                     }
                                 } else {
                                     MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, deviceName,
-                                            reading.getReadingType().getMRID(), dateFormatter.format(reading.getReading().getTimeStamp()));
+                                            reading.getReadingType().getMRID(), dateFormatter.format(Date.from(reading.getReading().getTimeStamp())));
                                 }
                             }
                         }

@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
+
 public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRatioDomainExtension> {
     public static final String CPS_ID = CTRatioCustomPropertySet.class.getName();
     static final String MODEL_NAME = "CR1";
@@ -108,7 +109,7 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
         );
     }
 
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, CTRatioDomainExtension> {
+    protected class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, CTRatioDomainExtension> {
         private final String TABLE_NAME = "SAP_CAS_ECV_CR1";
         private final String FK = "FK_SAP_CAS_ECV_CR1";
 

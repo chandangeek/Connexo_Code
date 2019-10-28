@@ -70,6 +70,14 @@ public class CTRatioDomainExtension extends AbstractPersistentDomainExtension im
         this.flag = flag;
     }
 
+    public BigDecimal getCtRatio() {
+        return ctRatio;
+    }
+
+    public boolean isFlag() {
+        return flag;
+    }
+
     public Device getDevice() {
         return device.get();
     }

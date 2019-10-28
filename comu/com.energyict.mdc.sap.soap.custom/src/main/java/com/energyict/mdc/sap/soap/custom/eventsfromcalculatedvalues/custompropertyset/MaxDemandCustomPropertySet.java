@@ -121,7 +121,7 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
         );
     }
 
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, MaxDemandDomainExtension> {
+    protected class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, MaxDemandDomainExtension> {
         private final String TABLE_NAME = "SAP_CAS_ECV_MD1";
         private final String FK = "FK_SAP_CAS_ECV_MD1";
 

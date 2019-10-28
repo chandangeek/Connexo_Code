@@ -117,7 +117,7 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
         );
     }
 
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, PowerFactorDomainExtension> {
+    protected class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, PowerFactorDomainExtension> {
         private final String TABLE_NAME = "SAP_CAS_ECV_PF1";
         private final String FK = "FK_SAP_CAS_ECV_PF1";
 
