@@ -58,7 +58,7 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
                                 return Stream.empty();
                             }
                         })
-                        .sorted(Comparator.naturalOrder())
+                        .sorted(Comparator.reverseOrder())
                         .collect(Collectors.joining(", "))
                         .toLowerCase();
                 if (!conflictingTypes.isEmpty()) {
