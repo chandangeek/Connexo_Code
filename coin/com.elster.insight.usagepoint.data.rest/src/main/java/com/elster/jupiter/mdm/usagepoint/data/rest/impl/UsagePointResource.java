@@ -453,7 +453,8 @@ public class UsagePointResource {
                 .filter(state -> thesaurus.getString(state.getName(), state.getName()).equals(thesaurus.getString(usagePoint.getState().getName(), usagePoint.getState().getName())))
                 .findAny()
                 .isPresent()) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(changeUsagePointLifeCycleInfo).build();
+
+             throw exceptionFactory.newException(MessageSeeds.NO_STATE_FOR_LIFECYCLE,changeUsagePointLifeCycleInfo.usagePointName,changeUsagePointLifeCycleInfo.usagePointState);
         }
 
         usagePoint.setLifeCycle(newLifeCycle);
