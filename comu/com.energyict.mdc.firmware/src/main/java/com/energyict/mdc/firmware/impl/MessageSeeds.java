@@ -33,15 +33,13 @@ public enum MessageSeeds implements MessageSeed {
     TARGET_FIRMWARE_STATUS_NOT_ACCEPTED(22, "TargetFirmwareStatusNotAccepted", "Target firmware isn''t in the allowed status.", Level.WARNING),
     DEVICE_FIRMWARE_NOT_READOUT(23, "DeviceFirmwareNotReadout", "Firmware hasn''t been read out after the last upload.", Level.WARNING),
     MASTER_FIRMWARE_NOT_READOUT(24, "MasterFirmwareNotReadout", "Firmware on the master hasn''t been read out after the last upload.", Level.WARNING),
-    METER_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(25, "MeterFirmwareRankBelowMinimumSupported", "Meter firmware is below the minimum level.", Level.WARNING),
-    COMMUNICATION_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(26, "CommFirmwareRankBelowMinimumSupported", "Communication firmware is below the minimum level.", Level.WARNING),
     UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(27, "UploadedFirmwareRankBelowCurrent", "Target firmware version rank is lower than the current firmware rank.", Level.WARNING),
     MASTER_FIRMWARE_NOT_LATEST(28, "MasterFirmwareNotLatest", "Firmware types on the master don''t have the highest level (among firmware types with the acceptable status).", Level.WARNING),
     DEVICE_HAS_GHOST_FIRMWARE(29, "DeviceHasGhostFirmware", "There is firmware with \"Ghost\" status on the device.", Level.WARNING),
     MASTER_HAS_GHOST_FIRMWARE(30, "MasterHasGhostFirmware", "There is firmware with \"Ghost\" status on the master device.", Level.WARNING),
     WRONG_FIRMWARE_TYPE_FOR_AUX_FW_DEPENDENCY(31, "WrongFirmwareTypeForAuxFWDependency", "{0} ''{1}'' can''t be selected as a minimal auxiliary firmware for ''{2}''.", Level.SEVERE),
     WRONG_RANK_FOR_AUX_FW_DEPENDENCY(32, "WrongRankForAuxFWDependency", "Firmware ''{0}'' can''t have dependency on minimal auxiliary firmware ''{1}'' with a higher rank.", Level.SEVERE),
-    AUXILIARY_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED(33, "AuxFirmwareRankBelowMinimumSupported", "Auxiliary firmware is below the minimum level.", Level.WARNING),
+    FIRMWARES_BELOW_MINIMUM_LEVEL(34, "FirmwaresBelowMinimumLevel", "Firmwares of the following types are below the minimum level: {0}.", Level.WARNING),
 
 
     DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1001, "DevicesWerentAddedBecausePartOtherCampaign", "''{0}'' devices weren''t added to the campaign because they are a part of another ongoing campaign.", Level.INFO),
