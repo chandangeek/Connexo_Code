@@ -126,19 +126,14 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUEST_UUID.javaName(), TranslationKeys.REQUEST_ID)
-                        .describedAs(TranslationKeys.REQUEST_ID)
+                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUEST_UUID.javaName(), TranslationKeys.UUID)
+                        .describedAs(TranslationKeys.UUID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
                         .describedAs(TranslationKeys.REFERENCE_ID)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -206,11 +201,6 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
                     .notNull()
-                    .add();
-            table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.UUID.databaseName())
-                    .varChar(NAME_LENGTH)
-                    .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.UUID.javaName())
-                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.databaseName())
                     .number()

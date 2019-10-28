@@ -112,13 +112,9 @@ public class MeterReadingDocumentCreateResultMessage {
             UUID uuid = OBJECT_FACTORY.createUUID();
             uuid.setValue(extension.getRequestUUID());
 
-            UUID referenceUuid = OBJECT_FACTORY.createUUID();
-            referenceUuid.setValue(extension.getUuid());
-
             BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             messageHeader.setReferenceID(id);
             messageHeader.setUUID(uuid);
-            messageHeader.setReferenceUUID(referenceUuid);
             messageHeader.setCreationDateTime(now);
 
             return messageHeader;
@@ -133,14 +129,9 @@ public class MeterReadingDocumentCreateResultMessage {
                     BULK_OBJECT_FACTORY.createUUID();
             uuid.setValue(extension.getRequestUUID());
 
-            com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UUID referenceUuid =
-                    BULK_OBJECT_FACTORY.createUUID();
-            referenceUuid.setValue(extension.getUuid());
-
             com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageHeader messageHeader = BULK_OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             messageHeader.setReferenceID(id);
             messageHeader.setUUID(uuid);
-            messageHeader.setReferenceUUID(referenceUuid);
             messageHeader.setCreationDateTime(now);
             return messageHeader;
         }
