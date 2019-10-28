@@ -127,6 +127,9 @@ public class FirmwareCampaignInfoFactory {
                     case "Image identifier":
                         pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getKey(),pr.name);
                         break;
+                    case "Activation date":
+                        pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getKey(),pr.name);
+                        break;
                 }
             });
         }
