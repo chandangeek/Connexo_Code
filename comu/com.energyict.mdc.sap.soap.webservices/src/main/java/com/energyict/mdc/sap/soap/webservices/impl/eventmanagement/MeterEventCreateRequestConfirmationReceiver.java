@@ -14,7 +14,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UUID;
@@ -29,7 +28,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @Component(name = MeterEventCreateRequestConfirmationReceiver.NAME,
@@ -79,17 +77,8 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
     private static Optional<String> findReferenceUuid(UtilsSmrtMtrEvtERPBulkCrteConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsSmrtMtrEvtERPBulkCrteConfMsg::getMessageHeader)
-                .flatMap(MeterEventCreateRequestConfirmationReceiver::findReferenceUuid);
-    }
-
-    private static Optional<String> findReferenceUuid(BusinessDocumentMessageHeader header) {
-        return Stream.<Supplier<Optional<String>>>of(
-                () -> Optional.ofNullable(header.getReferenceID()).map(BusinessDocumentMessageID::getValue),
-                () -> Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue))
-                .map(Supplier::get)
-                .filter(Optional::isPresent)
-                .findFirst()
-                .map(Optional::get);
+                .map(BusinessDocumentMessageHeader::getReferenceUUID)
+                .map(UUID::getValue);
     }
 
     private static boolean isConfirmed(UtilsSmrtMtrEvtERPBulkCrteConfMsg confirmation) {
