@@ -95,7 +95,7 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
                         .finish(),
                 propertySpecService
                         .stringSpec()
-                        .named(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .named(MasterConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
@@ -146,9 +146,9 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
                     .map(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
                     .add();
-            table.column(ConnectionStatusChangeDomainExtension.FieldNames.UUID.databaseName())
+            table.column(MasterConnectionStatusChangeDomainExtension.FieldNames.UUID.databaseName())
                     .varChar(NAME_LENGTH)
-                    .map(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName())
+                    .map(MasterConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName())
                     .since(Version.version(10, 7, 1))
                     .add();
         }
