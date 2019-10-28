@@ -181,7 +181,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         setUsagePoint(device.getUsagePoint().map(Object::toString).orElse(""));
         setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
-        setmRid(this.device.getmRID());
+        setmRID(this.device.getmRID());
         addProperties(this.device.getDeviceProtocolProperties());
 
         if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
@@ -704,7 +704,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         this.securityPropertySetAttributeToKeyAccessorTypeMapping = securityPropertySetAttributeToKeyAccessorTypeMapping;
     }
 
-    private void setSecurityPropertySetAttributeToKeyAccessorType(Device device) {
+    private void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(Device device) {
         securityPropertySetAttributeToKeyAccessorTypeMapping = new HashMap<>();
         device.getDeviceConfiguration().getSecurityPropertySets().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
 

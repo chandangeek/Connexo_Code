@@ -377,6 +377,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.offline</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.pluggable</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
