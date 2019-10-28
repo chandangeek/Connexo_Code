@@ -103,7 +103,6 @@ public class MeterConfigParser {
                 break;
 
         }
-        meterInfo.setShipmentDate(extractShipmentDate(meter));
         meterInfo.setBatch(extractBatch(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));
         meterInfo.setModelNumber(extractModelNumber(meter).orElse(null));
