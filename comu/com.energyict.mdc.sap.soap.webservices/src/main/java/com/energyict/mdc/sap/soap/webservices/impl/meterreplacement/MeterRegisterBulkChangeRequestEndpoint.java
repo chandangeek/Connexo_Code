@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterBulkChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -44,17 +45,19 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
     private final Clock clock;
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final OrmService ormService;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     MeterRegisterBulkChangeRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
                                            Thesaurus thesaurus, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
-                                           OrmService ormService) {
+                                           OrmService ormService, WebServiceActivator webServiceActivator) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.ormService = ormService;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -71,7 +74,8 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
             }
 
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(MeterRegisterBulkChangeRequestMessage.builder()
+                    .ifPresent(requestMessage -> createServiceCallAndTransition(MeterRegisterBulkChangeRequestMessage
+                            .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
                             .from(requestMessage)
                             .build()));
             return null;

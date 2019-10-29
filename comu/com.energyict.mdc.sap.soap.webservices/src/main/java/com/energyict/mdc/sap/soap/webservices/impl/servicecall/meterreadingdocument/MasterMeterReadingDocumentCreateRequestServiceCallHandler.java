@@ -47,6 +47,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile WebServiceActivator webServiceActivator;
 
     private Map<Long, List<ServiceCall>> immediately = new HashMap<>();
     private Map<Long, List<ServiceCall>> scheduled = new HashMap<>();
@@ -145,7 +146,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
                 MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = parentServiceCall
                         .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-                BigDecimal attempts = new BigDecimal(WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+                BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
                 BigDecimal currentAttempt = masterExtension.getAttemptNumber();
                 if (currentAttempt.compareTo(attempts) == -1) {
                     if (!parentServiceCall.getState().equals(DefaultState.PAUSED)) {
@@ -177,6 +178,11 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    @Reference
+    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {

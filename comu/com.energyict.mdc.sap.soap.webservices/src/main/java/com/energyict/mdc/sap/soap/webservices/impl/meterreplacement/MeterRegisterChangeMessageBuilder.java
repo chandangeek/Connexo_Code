@@ -5,8 +5,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
@@ -18,14 +16,16 @@ import java.util.Optional;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 public class MeterRegisterChangeMessageBuilder {
+    private final Integer meterReplacementAddInterval;
 
     private MeterRegisterChangeMessage message = new MeterRegisterChangeMessage();
 
-    private MeterRegisterChangeMessageBuilder() {
+    private MeterRegisterChangeMessageBuilder(Integer meterReplacementAddInterval) {
+        this.meterReplacementAddInterval = meterReplacementAddInterval;
     }
 
-    public static MeterRegisterChangeMessageBuilder builder() {
-        return new MeterRegisterChangeMessageBuilder();
+    public static MeterRegisterChangeMessageBuilder builder(Integer meterReplacementAddInterval) {
+        return new MeterRegisterChangeMessageBuilder(meterReplacementAddInterval);
     }
 
     public MeterRegisterChangeMessageBuilder from(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
@@ -96,7 +96,7 @@ public class MeterRegisterChangeMessageBuilder {
     private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
         Optional<UtilsDvceERPSmrtMtrRegChgReqReg> register = requestMessage.getUtilitiesDevice().getRegister().stream().findFirst();
         if (register.isPresent()) {
-            return register.get().getEndDate().plus(WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL), MINUTES);
+            return register.get().getEndDate().plus(meterReplacementAddInterval, MINUTES);
         } else {
             return null;
         }

@@ -37,6 +37,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile ServiceCallService serviceCallService;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -46,21 +47,21 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
                 break;
             case ONGOING:
-                serviceCallService.lockServiceCall(serviceCall.getId()).ifPresent(lockedServiceCall ->{
-                    if(lockedServiceCall.getState().equals(DefaultState.ONGOING)) {
+                serviceCallService.lockServiceCall(serviceCall.getId()).ifPresent(lockedServiceCall -> {
+                    if (lockedServiceCall.getState().equals(DefaultState.ONGOING)) {
                         processServiceCall(lockedServiceCall);
                     }
                 });
 
                 break;
             case CANCELLED:
-                    MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall
-                            .getExtension(MeterReadingDocumentCreateRequestDomainExtension.class)
-                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-                    if(extension.getCancelledBySap() == null) {
-                        extension.setCancelledBySap(false);
-                        serviceCall.update(extension);
-                    }
+                MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall
+                        .getExtension(MeterReadingDocumentCreateRequestDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                if (extension.getCancelledBySap() == null) {
+                    extension.setCancelledBySap(false);
+                    serviceCall.update(extension);
+                }
                 break;
             default:
                 // No specific action required for these states
@@ -82,7 +83,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                         .findFirst()
                         .ifPresent(readingType -> extension.setDataSource(readingType.getMRID()));
             } else {
-                serviceCall.log(LogLevel.WARNING,"The channel/register isn't found.");
+                serviceCall.log(LogLevel.WARNING, "The channel/register isn't found.");
                 serviceCall.update(extension);
                 serviceCall.requestTransition(DefaultState.PAUSED);
                 return;
@@ -90,8 +91,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
             WebServiceActivator.findReadingReasonProvider(extension.getReadingReasonCode()).ifPresent(provider -> {
                 Instant plannedReadingCollectionDate = provider.hasCollectionInterval()
-                        ? extension.getScheduledReadingDate().plusSeconds(WebServiceActivator.SAP_PROPERTIES
-                        .get(AdditionalProperties.READING_COLLECTION_INTERVAL) * 60)
+                        ? extension.getScheduledReadingDate().plusSeconds(webServiceActivator.getSapProperty(AdditionalProperties.READING_COLLECTION_INTERVAL) * 60)
                         : extension.getScheduledReadingDate();
 
                 boolean futureCase = clock.instant().isBefore(plannedReadingCollectionDate);
@@ -104,7 +104,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
-            serviceCall.log(LogLevel.WARNING,"The device isn't found or the device is not in operational stage.");
+            serviceCall.log(LogLevel.WARNING, "The device isn't found or the device is not in operational stage.");
             serviceCall.requestTransition(DefaultState.PAUSED);
         }
     }
@@ -122,6 +122,11 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }
 
