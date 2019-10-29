@@ -58,7 +58,9 @@ Ext.define('Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle', {
                 view.down('#change-usage-point-life-cycle-combo').getStore().load({
                     callback: function () {
                         view.down('#change-usage-point-life-cycle-combo').getStore().filterBy(function (rec) {
-                            return rec.get('id') != usagePoint.get('lifeCycle').id;
+                            var isNotCurrentLifeCycle = rec.get('id') != usagePoint.get('lifeCycle').id;
+                            var hasCurrentUsagePointState = rec.raw && rec.raw.states && rec.raw.states.map(x => x.name ).includes(usagePoint.get('state').name);
+                            return isNotCurrentLifeCycle && hasCurrentUsagePointState;
                         });
                         view.setLoading(false);
                     }
@@ -80,30 +82,36 @@ Ext.define('Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle', {
         lifeCycleCombo.clearInvalid();
         wizard.down('#form-errors').hide();
         wizard.setLoading();
-        Ext.Ajax.request({
-            url: '/api/udr/usagepoints/{id}/usagepointlifecycle'.replace('{id}', router.arguments.usagePointId),
-            method: 'PUT',
-            backUrl: cancelBtn.href,
-            jsonData: lifeCycleCombo.getDisplayValue(),
-            callback: function (options, success, response) {
-                wizard.setLoading(false);
-                if (response.status === 409) {
-                    return
+        if(lifeCycleCombo.getDisplayValue()){
+            Ext.Ajax.request({
+                url: '/api/udr/usagepoints/{id}/usagepointlifecycle'.replace('{id}', router.arguments.usagePointId),
+                method: 'PUT',
+                backUrl: cancelBtn.href,
+                jsonData: lifeCycleCombo.getDisplayValue(),
+                callback: function (options, success, response) {
+                    wizard.setLoading(false);
+                    if (response.status === 409) {
+                        return
+                    }
+                    var result = Ext.decode(response.responseText, true);
+                    if (lifeCycleCombo.getValue()) {
+                        nextBtn.hide();
+                        backBtn.hide();
+                        cancelBtn.hide();
+                        finishBtn.show();
+                        wizard.getLayout().setActiveItem(1);
+                        me.getNavigation().moveToStep(2);
+                        wizard.down('change-usage-point-life-cycle-step2').setResultMessage(result, success);
+                    } else {
+                        lifeCycleCombo.markInvalid(result.errors[0].msg);
+                        wizard.down('#form-errors').show();
+                    }
                 }
-                var result = Ext.decode(response.responseText, true);
-                if (lifeCycleCombo.getValue()) {
-                    nextBtn.hide();
-                    backBtn.hide();
-                    cancelBtn.hide();
-                    finishBtn.show();
-                    wizard.getLayout().setActiveItem(1);
-                    me.getNavigation().moveToStep(2);
-                    wizard.down('change-usage-point-life-cycle-step2').setResultMessage(result, success);
-                } else {
-                    lifeCycleCombo.markInvalid(result.errors[0].msg);
-                    wizard.down('#form-errors').show();
-                }
-            }
-        });
+            });
+        }else{
+            wizard.setLoading(false);
+            lifeCycleCombo.markInvalid(Uni.I18n.translate('general.noValue', 'IMT', 'No value present'));
+            wizard.down('#form-errors').show();
+        }
     }
 });
