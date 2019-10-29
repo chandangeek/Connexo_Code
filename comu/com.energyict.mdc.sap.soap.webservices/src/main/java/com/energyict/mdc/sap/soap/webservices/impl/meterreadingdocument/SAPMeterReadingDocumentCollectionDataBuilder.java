@@ -89,14 +89,12 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
         long currentAttempt = domainExtension.getReadingAttempt() + 1;
         domainExtension.setReadingAttempt(currentAttempt);
 
-        closestReadingRecord.ifPresent(record -> {
-            domainExtension.setReading(record.getValue());
-            domainExtension.setActualReadingDate(record.getTimeStamp());
+        if(closestReadingRecord.isPresent() && closestReadingRecord.get().getValue() != null) {
+            domainExtension.setReading(closestReadingRecord.get().getValue());
+            domainExtension.setActualReadingDate(closestReadingRecord.get().getTimeStamp());
             serviceCall.update(domainExtension);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
-        });
-
-        if (!closestReadingRecord.isPresent()) {
+        }else {
             serviceCall.log(LogLevel.WARNING, "The reading isn't found.");
             long attempts = WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.CHECK_SCHEDULED_READING_ATTEMPTS);
 
