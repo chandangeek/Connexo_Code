@@ -267,7 +267,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.manuallyCancelled', 'FWC', 'Manually cancelled'),
                         name: 'manuallyCancelled',
                         renderer: function (value) {
-                            return value ? 'Yes' : 'No';
+                            return value ? Uni.I18n.translate('general.yes', 'FWC', 'Yes') : Uni.I18n.translate('general.no', 'FWC', 'No');
                         }
                     }
                 ]
