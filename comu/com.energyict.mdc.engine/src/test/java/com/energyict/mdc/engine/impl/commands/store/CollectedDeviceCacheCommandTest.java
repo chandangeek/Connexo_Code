@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
@@ -34,6 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -89,8 +91,7 @@ public class CollectedDeviceCacheCommandTest {
         deviceCacheCommand.execute(comServerDAO);
 
         // Asserts
-        verify(existingCache).setCacheObject(protocolCache);
-        verify(existingCache).update();
+        verify(comServerDAO).createOrUpdateDeviceCache(eq(deviceIdentifier), any(DeviceProtocolCacheXmlWrapper.class));
     }
 
     @Test
@@ -103,7 +104,7 @@ public class CollectedDeviceCacheCommandTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: device having id 654}");
+        assertThat(journalMessage).contains("Collected device cache {deviceIdentifier: id 654}");
     }
 
     private DeviceIdentifier getMockedDeviceIdentifier() {

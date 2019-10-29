@@ -57,7 +57,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -133,8 +135,11 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         ).dataLoggerSlaveDevice();
 
         this.loadProfileType = createLoadProfileType();
-        when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(), "testmruID")).thenAnswer(invocationOnMock -> new DeviceIdentifierForAlreadyKnownDevice(((Device) invocationOnMock.getArguments()[0]).getId(), ((Device) invocationOnMock.getArguments()[0]).getmRID() ));
-        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(any(), any(ObisCode.class))).thenAnswer(
+        when(this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Long.class), any(String.class))).thenAnswer(
+                invocationOnMock -> new DeviceIdentifierForAlreadyKnownDevice(
+                        (long) invocationOnMock.getArguments()[0], "testMRID")
+        );
+        when(this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(any(LoadProfile.class), any(ObisCode.class))).thenAnswer(
                 invocationOnMock -> new LoadProfileIdentifierByObisCodeAndDevice(
                         (LoadProfile) invocationOnMock.getArguments()[0], ObisCode.fromString("1.0.99.1.0.255"))
         );
@@ -142,6 +147,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.serviceProvider.loadProfileService()).thenReturn(this.loadProfileService);
+        when(this.serviceProvider.mdcReadingTypeUtilService()).thenReturn(getMdcReadingTypeUtilService());
     }
 
     protected LoadProfileService getLoadProfileService() {
@@ -1238,7 +1244,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     CollectedLoadProfile enhanceCollectedLoadProfile(LoadProfile loadProfile, CollectedLoadProfile collectedLoadProfile) {
         LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
         when(collectedLoadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileIdentifier);
-        when(loadProfileIdentifier.getDeviceIdentifier()).thenReturn(new DeviceIdentifierForAlreadyKnownDevice(loadProfile.getDevice().getId(), loadProfile.getDevice().getmRID()));
+        doReturn(new DeviceIdentifierForAlreadyKnownDevice(loadProfile.getDevice().getId(), loadProfile.getDevice().getmRID())).when(loadProfileIdentifier).getDeviceIdentifier();
         when(this.loadProfileService.findByIdentifier(loadProfileIdentifier)).thenReturn(Optional.of(loadProfile));
         return collectedLoadProfile;
     }

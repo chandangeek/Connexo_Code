@@ -4,8 +4,10 @@
 
 package com.energyict.mdc.engine.impl.web;
 
+import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
@@ -16,16 +18,20 @@ import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
+import com.energyict.mdc.upl.TypedProperties;
 import org.eclipse.jetty.server.Server;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -86,9 +92,21 @@ public class EmbeddedJettyServerTest {
         }
     }
 
+    private ServletBasedInboundComPort createComPortMock() {
+        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        InboundComPortPool portPool = mock(InboundComPortPool.class);
+        InboundDeviceProtocolPluggableClass pluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(EmbeddedJettyServer.MAX_IDLE_TIME, EmbeddedJettyServer.MAX_IDLE_TIME_DEFAULT_VALUE);
+        when(comPort.getComPortPool()).thenReturn(portPool);
+        when(((InboundComPortPool) portPool).getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(pluggableClass.getProperties(Mockito.any(List.class))).thenReturn(typedProperties);
+        return comPort;
+    }
+
     @Test
     public void testInboundStartWithValidContextPath () {
-        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        ServletBasedInboundComPort comPort = createComPortMock();
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("/embeddedJettyTest");
         this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
@@ -102,7 +120,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testInboundStartWithNullContextPath () {
-        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        ServletBasedInboundComPort comPort = createComPortMock();
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn(null);    // Note that business actually validates that the context path of a com port is not null
         this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
@@ -116,7 +134,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testInboundStartWithEmptyContextPath () {
-        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        ServletBasedInboundComPort comPort = createComPortMock();
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("");    // Note that business actually validates that the context path of a com port is not empty
         this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
@@ -130,7 +148,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testInboundStartWithContextPathWithoutLeadingSlash () {
-        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        ServletBasedInboundComPort comPort = createComPortMock();
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("embeddedJettyTest");
         this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
@@ -152,7 +170,7 @@ public class EmbeddedJettyServerTest {
             e.printStackTrace(System.err);
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
-        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        ServletBasedInboundComPort comPort = createComPortMock();
         when(comPort.getPortNumber()).thenReturn(PORT_NUMBER);
         when(comPort.getContextPath()).thenReturn("/embeddedJettyTest");
         this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
@@ -166,7 +184,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testInboundShutdown () {
-        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        ServletBasedInboundComPort comPort = createComPortMock();
         this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
         this.embeddedJettyServer.start();
 
@@ -179,7 +197,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testInboundShutdownImmediate () {
-        ServletBasedInboundComPort comPort = mock(ServletBasedInboundComPort.class);
+        ServletBasedInboundComPort comPort = createComPortMock();
         this.embeddedJettyServer = EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), this.inboundCommunicationHandlerServiceProvider);
         this.embeddedJettyServer.start();
 

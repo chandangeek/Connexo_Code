@@ -126,8 +126,8 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
         this.jetty.setHandler(handler);
     }
 
-    private static final String MAX_IDLE_TIME = "maxIdleTime";
-    private static final BigDecimal MAX_IDLE_TIME_DEFAULT_VALUE = BigDecimal.valueOf(200000);
+    public static final String MAX_IDLE_TIME = "maxIdleTime";
+    public static final BigDecimal MAX_IDLE_TIME_DEFAULT_VALUE = BigDecimal.valueOf(200000);
 
     /**
      * Get the maxIdleTime property that is defined on the discovery protocol of the ComPort pool.

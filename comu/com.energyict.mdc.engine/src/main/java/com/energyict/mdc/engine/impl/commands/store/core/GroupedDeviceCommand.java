@@ -83,6 +83,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLSmartMeterProto
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 import java.util.ArrayList;
@@ -191,17 +192,22 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         }
     }
 
+    private boolean isEngineOffline() {
+        Bundle bundle = FrameworkUtil.getBundle(EngineService.class);
+        if (bundle != null) {
+            String serverType = bundle.getBundleContext().getProperty(SERVER_TYPE_PROPERTY_NAME);
+            return serverType != null && serverType.equalsIgnoreCase("offline");
+        }
+        return false;
+    }
+
     /**
      * Used only for com sever mobile for creating the actual device protocol
      * DON'T USE THIS METHOD FOR ANOTHER PURPOSE!!
      */
     private void createDeviceProtocolForMobileInstance() {
-
-        String property = FrameworkUtil.getBundle(EngineService.class).getBundleContext().getProperty("com.elster.jupiter.server.type");
-
-        if (property != null && property.equalsIgnoreCase("offline")) {
+        if (isEngineOffline()) {
             Object protocol = this.getServiceProvider().protocolPluggableService().createProtocol(offlineDevice.getDeviceProtocolPluggableClass().getJavaClassName());
-
             if (protocol instanceof DeviceProtocol) {
                 deviceProtocol = (DeviceProtocol) protocol;
             } else if (protocol instanceof com.energyict.mdc.upl.DeviceProtocol) {

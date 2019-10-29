@@ -212,6 +212,7 @@ public class InboundCommunicationHandlerTest {
         when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.serviceProvider.engineService()).thenReturn(this.engineService);
         when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(this.engineService.isOnlineMode()).thenReturn(true);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(this.serviceProvider.transactionService()).thenReturn(this.transactionService);
         when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
