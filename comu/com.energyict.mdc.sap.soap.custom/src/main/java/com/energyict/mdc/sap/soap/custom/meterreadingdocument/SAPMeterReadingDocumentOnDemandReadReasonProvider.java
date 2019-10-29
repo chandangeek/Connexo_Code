@@ -111,9 +111,15 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     private boolean hasCommunicationConnection(ServiceCall serviceCall, String deviceName, boolean isRegular,
                                                Instant scheduledReadingDate) {
         ComTaskExecution comTaskExecution = findLastTaskExecution(deviceName, isRegular);
-        return hasLastTaskExecutionTimestamp(comTaskExecution, scheduledReadingDate)
-                ? checkTaskStatus(serviceCall, comTaskExecution)
-                : runTask(serviceCall, comTaskExecution);
+        if(comTaskExecution != null) {
+            return hasLastTaskExecutionTimestamp(comTaskExecution, scheduledReadingDate)
+                    ? checkTaskStatus(serviceCall, comTaskExecution)
+                    : runTask(serviceCall, comTaskExecution);
+        }else{
+            serviceCall.log(LogLevel.SEVERE, "A comtask to execute the device messages could not be located");
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+            return false;
+        }
     }
 
     private ComTaskExecution findLastTaskExecution(String deviceName, boolean isRegular) {
@@ -130,7 +136,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                                 : protocolTask instanceof RegistersTask))
                 .min(Comparator.nullsLast((e1, e2) -> e2.getLastSuccessfulCompletionTimestamp()
                         .compareTo(e1.getLastSuccessfulCompletionTimestamp())))
-                .orElseThrow(() -> new IllegalStateException("A comtask to execute the device messages could not be located"));
+                .orElse(null);
     }
 
     private boolean hasLastTaskExecutionTimestamp(ComTaskExecution comTaskExecution, Instant scheduledReadingDate) {
@@ -142,7 +148,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
         if (comTaskExecution.isOnHold()) {
             serviceCall.log(LogLevel.SEVERE, "The communication task '" + comTaskExecution.getComTask().getName() +
                     "' is inactive on device '" + comTaskExecution.getDevice().getName() + "'");
-            serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
             return false;
         } else if (comTaskExecution.getStatus().equals(TaskStatus.Busy)) {
             sapMeterReadingComTaskExecutionHelper.setComTaskExecutionId(serviceCall, comTaskExecution.getId());
@@ -155,7 +161,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
         if (comTaskExecution.isOnHold()) {
             serviceCall.log(LogLevel.SEVERE, "The communication task '" + comTaskExecution.getComTask().getName() +
                     "' is inactive on device '" + comTaskExecution.getDevice().getName() + "'");
-            serviceCall.transitionWithLockIfPossible(DefaultState.FAILED);
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
             sapMeterReadingComTaskExecutionHelper.setComTaskExecutionId(serviceCall, comTaskExecution.getId());
             comTaskExecution.runNow();
