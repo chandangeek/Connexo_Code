@@ -39,6 +39,7 @@ public enum TranslationKeys implements TranslationKey {
     REQUEST_ID("requestID", "Request ID"),
     UUID("UUID", "UUID"),
     REFERENCE_ID("referenceID", "Reference ID"),
+    REFERENCE_UUID("referenceUUID", "Reference UUID"),
     ATTEMPT_NUMBER("attemptNumber", "Attempt number"),
     ACTUAL_READING_DATE("actualReadingDate", "Actual reading date"),
     READING("reading", "Reading"),

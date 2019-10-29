@@ -137,6 +137,12 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
+                        .describedAs(TranslationKeys.REFERENCE_UUID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.javaName(), TranslationKeys.CONFIRMATION_TIME)
                         .describedAs(TranslationKeys.CONFIRMATION_TIME)
@@ -201,6 +207,11 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
                     .notNull()
+                    .add();
+            table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.databaseName())
                     .number()
