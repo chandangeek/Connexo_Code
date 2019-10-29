@@ -28,7 +28,7 @@ public class MeterEventCreateRequestProviderTest extends AbstractOutboundWebserv
 
     @Before
     public void setUp() {
-        service = getInstance(MeterEventCreateRequestProviderImpl.class);
+        service = getProviderInstance(MeterEventCreateRequestProviderImpl.class);
     }
 
     @Test

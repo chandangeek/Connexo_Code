@@ -35,7 +35,7 @@ public class MeterEventCreateRequestConfirmationReceiverTest extends AbstractInb
         header.setReferenceUUID(uuid);
         message.setMessageHeader(header);
 
-        service = getInstance(MeterEventCreateRequestConfirmationReceiver.class);
+        service = getProviderInstance(MeterEventCreateRequestConfirmationReceiver.class);
     }
 
     @Test

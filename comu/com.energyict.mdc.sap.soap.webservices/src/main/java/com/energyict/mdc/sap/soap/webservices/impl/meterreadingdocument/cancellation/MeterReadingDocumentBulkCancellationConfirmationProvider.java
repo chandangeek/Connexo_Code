@@ -49,7 +49,7 @@ public class MeterReadingDocumentBulkCancellationConfirmationProvider extends Ab
     }
 
     @Override
-    public Class getService() {
+    public Class<SmartMeterMeterReadingDocumentERPBulkCancellationConfirmationCOut> getService() {
         return SmartMeterMeterReadingDocumentERPBulkCancellationConfirmationCOut.class;
     }
 

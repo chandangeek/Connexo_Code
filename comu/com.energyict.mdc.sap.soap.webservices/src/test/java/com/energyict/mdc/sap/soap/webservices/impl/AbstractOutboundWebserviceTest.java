@@ -85,7 +85,7 @@ public abstract class AbstractOutboundWebserviceTest<S> {
         };
     }
 
-    protected <T extends AbstractOutboundEndPointProvider<S> & OutboundSoapEndPointProvider> T getInstance(Class<T> providerClass, Module... modules) {
+    protected <T extends AbstractOutboundEndPointProvider<S> & OutboundSoapEndPointProvider> T getProviderInstance(Class<T> providerClass, Module... modules) {
         Injector injector = Guice.createInjector(Stream.concat(Stream.of(getModule()), Arrays.stream(modules)).toArray(Module[]::new));
         T provider = injector.getInstance(providerClass);
         AbstractEndPointInitializer initializer = injector.getInstance(AbstractEndPointInitializer.class);
