@@ -43,6 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -166,9 +167,16 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private void stopLaunched() {
-        executors.values().forEach(this::shutDownServiceWithCancelling);
+        int nbOfExecutors = executors.size();
+        LOGGER.info("#message services: " + nbOfExecutors + " #message service threads: " + futures.size());
+        AtomicInteger i = new AtomicInteger(0);
+        executors.values().forEach(messageHandlerLauncherPojo -> {
+            LOGGER.info("stopping message service " + i.incrementAndGet() + "/" + nbOfExecutors);
+            shutDownServiceWithCancelling(messageHandlerLauncherPojo);
+        });
         executors.clear();
         futures.clear();
+        LOGGER.info("message services stopped");
     }
 
     private void destroyThreadGroup(ThreadGroup toClean) {
