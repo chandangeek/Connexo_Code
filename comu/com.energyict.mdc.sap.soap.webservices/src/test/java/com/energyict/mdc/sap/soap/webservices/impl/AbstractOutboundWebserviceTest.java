@@ -1,16 +1,17 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
+
 package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
@@ -24,29 +25,28 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 import javax.validation.MessageInterpolator;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.handler.MessageContext;
-import java.lang.reflect.Field;
+import javax.xml.ws.BindingProvider;
+import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 @RunWith(MockitoJUnitRunner.class)
-public abstract class AbstractInboundWebserviceTest {
+public abstract class AbstractOutboundWebserviceTest<S> {
     @Mock
     protected ThreadPrincipalService threadPrincipalService;
     @Mock
@@ -58,11 +58,8 @@ public abstract class AbstractInboundWebserviceTest {
     @Mock
     protected EventService eventService;
     @Mock
-    protected WebServiceContext webServiceContext;
-    @Mock
-    protected MessageContext messageContext;
-    @Mock
-    protected InboundEndPointConfiguration endPointConfiguration;
+    protected OutboundEndPointConfiguration outboundEndPointConfiguration;
+    protected S endpoint;
     @Mock
     protected WebServiceCallOccurrence webServiceCallOccurrence;
 
@@ -84,45 +81,53 @@ public abstract class AbstractInboundWebserviceTest {
                 bind(WebServicesService.class).toInstance(webServicesService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(EventService.class).toInstance(eventService);
-                bind(WebServiceContext.class).toInstance(webServiceContext);
-                bind(InboundEndPointConfiguration.class).toInstance(endPointConfiguration);
             }
         };
     }
 
-    protected <T extends InboundSoapEndPointProvider> T getInstance(Class<T> providerClass, Module... modules) {
+    protected <T extends AbstractOutboundEndPointProvider<S> & OutboundSoapEndPointProvider> T getInstance(Class<T> providerClass, Module... modules) {
         Injector injector = Guice.createInjector(Stream.concat(Stream.of(getModule()), Arrays.stream(modules)).toArray(Module[]::new));
         T provider = injector.getInstance(providerClass);
         AbstractEndPointInitializer initializer = injector.getInstance(AbstractEndPointInitializer.class);
-        Object webService = provider.get();
-        initializer.initializeInboundEndPoint(webService, endPointConfiguration);
-        when(webServiceContext.getMessageContext()).thenReturn(messageContext);
-        inject(AbstractInboundEndPoint.class, webService, "webServiceContext", webServiceContext);
+        initializer.initializeOutboundEndPointProvider(provider);
+        Map<String, Object> properties = new HashMap<>(2, 1);
+        properties.put(AbstractOutboundEndPointProvider.ENDPOINT_CONFIGURATION_ID_PROPERTY, outboundEndPointConfiguration.getId());
+        properties.put(AbstractOutboundEndPointProvider.URL_PROPERTY, outboundEndPointConfiguration.getUrl());
+        endpoint = (S) mock(provider.getService(), withSettings().extraInterfaces(BindingProvider.class));
+        injectObjectWithProperties(AbstractOutboundEndPointProvider.class, provider, "doAddEndpoint", endpoint, properties);
 
+        String name = getName(provider);
+        when(outboundEndPointConfiguration.isActive()).thenReturn(true);
+        when(outboundEndPointConfiguration.getWebServiceName()).thenReturn(name);
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(name)).thenReturn(Collections.singletonList(outboundEndPointConfiguration));
+        when(webServicesService.startOccurrence(eq(outboundEndPointConfiguration), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        when(webServicesService.startOccurrence(eq(outboundEndPointConfiguration), anyString(), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
         long occurrenceId = webServiceCallOccurrence.getId();
-        when(messageContext.get(WebServiceCallOccurrence.MESSAGE_CONTEXT_OCCURRENCE_ID)).thenReturn(occurrenceId);
         when(webServicesService.getOngoingOccurrence(occurrenceId)).thenReturn(webServiceCallOccurrence);
-        when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.empty());
-        when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.empty());
         return provider;
     }
 
-    private static void inject(Class<?> clazz, Object instance, String fieldName, Object value) {
+    private String getName(AbstractOutboundEndPointProvider<?> provider) {
+        return spy(AbstractOutboundEndPointProvider.class, provider, "getName", String.class);
+    }
+
+    private static void injectObjectWithProperties(Class<?> clazz, Object instance, String methodName, Object argument, Map<?, ?> propertyMap) {
         try {
-            Field field = clazz.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(instance, value);
+            Method method = clazz.getDeclaredMethod(methodName, Object.class, Map.class);
+            method.setAccessible(true);
+            method.invoke(instance, argument, propertyMap);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected void assertThrowsException(ThrowableAssert.ThrowingCallable callable, Class<? extends Exception> exceptionClass, String message) {
-        assertThatThrownBy(callable)
-                .isInstanceOf(exceptionClass)
-                .hasMessage(message);
-        ArgumentCaptor<? extends Exception> captor = ArgumentCaptor.forClass(exceptionClass);
-        verify(webServicesService).failOccurrence(eq(webServiceCallOccurrence.getId()), captor.capture());
-        assertThat(captor.getValue().getLocalizedMessage()).isEqualTo(message);
+    private static <T> T spy(Class<?> clazz, Object instance, String methodName, Class<T> resultClass) {
+        try {
+            Method method = clazz.getDeclaredMethod(methodName);
+            method.setAccessible(true);
+            return resultClass.cast(method.invoke(instance));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
