@@ -13,17 +13,18 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.DeviceValidation;
 import com.energyict.mdc.common.device.data.InvalidLastCheckedException;
 import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
@@ -292,18 +293,18 @@ public class DeviceValidationResource {
 
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
-        ExistAndValidated existAndValidatedR = collectRegisterData(device, deviceValidationStatusInfo, end);
-        ExistAndValidated existAndValidatedL = collectLoadProfileData(device, deviceValidationStatusInfo, end);
+        DataPresentAndValidated existAndValidatedR = collectRegisterData(device, deviceValidationStatusInfo, end);
+        DataPresentAndValidated existAndValidatedL = collectLoadProfileData(device, deviceValidationStatusInfo, end);
 
-        deviceValidationStatusInfo.allDataValidated = existAndValidatedR.isAllDataValidated && existAndValidatedL.isAllDataValidated ||
-                !existAndValidatedR.isDataExist && existAndValidatedL.isAllDataValidated ||
-                !existAndValidatedL.isDataExist && existAndValidatedR.isAllDataValidated;
+        deviceValidationStatusInfo.allDataValidated = existAndValidatedR.allDataValidated && existAndValidatedL.allDataValidated ||
+                !existAndValidatedR.dataPresent && existAndValidatedL.allDataValidated ||
+                !existAndValidatedL.dataPresent && existAndValidatedR.allDataValidated;
         deviceValidationStatusInfo.device = DeviceInfo.from(device);
 
         return deviceValidationStatusInfo;
     }
 
-    private ExistAndValidated collectLoadProfileData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
+    private DataPresentAndValidated collectLoadProfileData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
         ZonedDateTime loadProfileStart = end.minusMonths(1);
         Range<Instant> loadProfileInterval = Range.openClosed(loadProfileStart.toInstant(), end.toInstant());
 
@@ -313,22 +314,23 @@ public class DeviceValidationResource {
                 .collect(Collectors.toList());
 
         deviceValidationStatusInfo.loadProfileSuspectCount = statuses.stream()
-                .flatMap(d -> d.getBulkReadingQualities().stream())
+                .flatMap(d -> Stream.concat(d.getReadingQualities().stream(), d.getBulkReadingQualities().stream()))
                 .filter(r -> r.getType().isSuspect())
                 .count();
-        ExistAndValidated result = new ExistAndValidated();
+        DataPresentAndValidated result = new DataPresentAndValidated();
         if (statuses.isEmpty()) {
-            result.isDataExist = device.getLoadProfiles().stream().flatMap(l -> l.getChannels().stream())
-                    .anyMatch(c -> c.getChannelData(loadProfileInterval).isEmpty());
+            result.dataPresent = device.getLoadProfiles().stream().flatMap(l -> l.getChannels().stream())
+                    .map(Channel::getLastDateTime).filter(Optional::isPresent)
+                    .map(Optional::get).anyMatch(loadProfileInterval::contains);
         } else {
-            result.isDataExist = true;
-            result.isAllDataValidated = statuses.stream()
+            result.dataPresent = true;
+            result.allDataValidated = statuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
         }
         return result;
     }
 
-    private ExistAndValidated collectRegisterData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
+    private DataPresentAndValidated collectRegisterData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
         ZonedDateTime registerStart = end.minusYears(1);
         Range<Instant> registerRange = Range.openClosed(registerStart.toInstant(), end.toInstant());
 
@@ -337,15 +339,17 @@ public class DeviceValidationResource {
                 .collect(Collectors.toList());
 
         deviceValidationStatusInfo.registerSuspectCount = statuses.stream()
-                .flatMap(d -> d.getReadingQualities().stream())
-                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
+                .flatMap(d -> Stream.concat(d.getReadingQualities().stream(), d.getBulkReadingQualities().stream()))
+                .filter(r -> r.getType().isSuspect())
                 .count();
-        ExistAndValidated result = new ExistAndValidated();
+        DataPresentAndValidated result = new DataPresentAndValidated();
         if (statuses.isEmpty()) {
-            result.isDataExist = device.getRegisters().stream().anyMatch(register -> !register.getReadings(Interval.of(registerRange)).isEmpty());
+            result.dataPresent = device.getRegisters().stream()
+                    .map(Register::getLastReadingDate).filter(Optional::isPresent)
+                    .map(Optional::get).anyMatch( readingDate -> registerRange.contains((Instant) readingDate));
         } else {
-            result.isDataExist = true;
-            result.isAllDataValidated = statuses.stream()
+            result.dataPresent = true;
+            result.allDataValidated = statuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
         }
         return result;
@@ -434,8 +438,8 @@ public class DeviceValidationResource {
         return result;
     }
 
-    private static class ExistAndValidated {
-        boolean isDataExist;
-        boolean isAllDataValidated;
+    private static class DataPresentAndValidated {
+        boolean dataPresent;
+        boolean allDataValidated;
     }
 }
