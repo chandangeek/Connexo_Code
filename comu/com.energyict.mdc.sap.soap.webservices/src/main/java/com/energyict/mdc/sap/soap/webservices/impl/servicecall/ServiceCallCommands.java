@@ -109,20 +109,32 @@ public class ServiceCallCommands {
 
     public void createServiceCallAndTransition(StatusChangeRequestBulkCreateMessage messages) {
         if (messages.isValid()) {
-            getServiceCallType(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
-                MasterConnectionStatusChangeDomainExtension extension =
-                        new MasterConnectionStatusChangeDomainExtension();
-                extension.setRequestID(messages.getId());
-                extension.setUuid(messages.getUuid());
-                ServiceCall serviceCall = serviceCallType.newServiceCall()
-                        .origin(APPLICATION_NAME)
-                        .extendedWith(extension)
-                        .create();
+            if (!hasMasterConnectionStatusChangeServiceCall(messages.getId())) {
+                getServiceCallType(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
+                    MasterConnectionStatusChangeDomainExtension extension =
+                            new MasterConnectionStatusChangeDomainExtension();
+                    extension.setRequestID(messages.getId());
+                    extension.setUuid(messages.getUuid());
+                    ServiceCall serviceCall = serviceCallType.newServiceCall()
+                            .origin(APPLICATION_NAME)
+                            .extendedWith(extension)
+                            .create();
 
-                serviceCall.requestTransition(DefaultState.PENDING);
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                messages.getRequests().forEach(m -> createServiceCallAndTransition(m, serviceCall));
-            });
+                    serviceCall.requestTransition(DefaultState.PENDING);
+                    serviceCall.requestTransition(DefaultState.ONGOING);
+                    messages.getRequests().forEach(m -> createServiceCallAndTransition(m, serviceCall));
+
+                    List<ServiceCall> children = findChildren(serviceCall);
+
+                    if (children.size() > 0 && !hasAllChildrenInState(children, DefaultState.FAILED)) {
+                        serviceCall.requestTransition(DefaultState.WAITING);
+                    } else {
+                        serviceCall.requestTransition(DefaultState.FAILED);
+                    }
+                });
+            } else {
+                sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages);
+            }
         } else {
             sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages);
         }
@@ -403,6 +415,15 @@ public class ServiceCallCommands {
                 .filter(Objects::nonNull)
                 .map(Optional::get)
                 .anyMatch(domainExtension -> domainExtension.getId().equals(id));
+    }
+
+    private boolean hasMasterConnectionStatusChangeServiceCall(String id) {
+        return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
+                .filter(Objects::nonNull)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
     }
 
     private boolean hasMeterReadingRequestServiceCall(String id) {
