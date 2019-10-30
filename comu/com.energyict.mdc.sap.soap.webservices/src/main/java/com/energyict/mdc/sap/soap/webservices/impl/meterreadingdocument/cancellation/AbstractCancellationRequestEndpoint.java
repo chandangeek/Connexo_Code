@@ -69,7 +69,7 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
 
             MeterReadingDocumentCancellationConfirmationMessage confirmationMessage =
                     MeterReadingDocumentCancellationConfirmationMessage.builder()
-                            .from(message.getRequestID(), documents, clock.instant(), message.isBulk())
+                            .from(message.getRequestID(), message.getUuid(), documents, clock.instant(), message.isBulk())
                             .build();
             sendMessage(confirmationMessage, message.isBulk());
         } else {

@@ -108,6 +108,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         MasterMeterRegisterChangeRequestDomainExtension masterMeterRegisterChangeRequestDomainExtension =
                 new MasterMeterRegisterChangeRequestDomainExtension();
         masterMeterRegisterChangeRequestDomainExtension.setRequestId(requestMessage.getId());
+        masterMeterRegisterChangeRequestDomainExtension.setUuid(requestMessage.getUuid());
         masterMeterRegisterChangeRequestDomainExtension.setBulk(false);
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
@@ -154,6 +155,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
 
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
         childDomainExtension.setRequestId(message.getId());
+        childDomainExtension.setUuid(message.getUuid());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setEndDate(message.getEndDate());

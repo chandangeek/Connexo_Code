@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class MasterConnectionStatusChangeCustomPropertySet implements CustomPropertySet<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
@@ -90,8 +92,12 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
                         .named(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(MasterConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
                         .finish()
-
         );
     }
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
@@ -139,6 +145,11 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
                     .varChar()
                     .map(MasterConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
+                    .add();
+            table.column(MasterConnectionStatusChangeDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MasterConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
         }
 

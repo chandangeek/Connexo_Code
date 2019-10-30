@@ -46,7 +46,7 @@ public class CreateRegisterConfirmationMessageFactory {
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
+        confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
 
         SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension subExtension = deviceServiceCall.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
@@ -88,7 +88,7 @@ public class CreateRegisterConfirmationMessageFactory {
 
     public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        confirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), now));
+        confirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
         confirmationMessage.setLog(objectFactory.createLog());
         confirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
         return confirmationMessage;
@@ -116,12 +116,13 @@ public class CreateRegisterConfirmationMessageFactory {
                 }).collect(Collectors.joining("; "));
     }
 
-    private BusinessDocumentMessageHeader createHeader(String requestId, Instant now) {
+    private BusinessDocumentMessageHeader createHeader(String requestId, String referenceUuid, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         String uuid = UUID.randomUUID().toString();
 
         header.setReferenceID(createID(requestId));
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
 
         return header;

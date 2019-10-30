@@ -13,6 +13,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.UUID;
 
 import java.time.Instant;
 
@@ -61,6 +62,9 @@ public class CreateMessageFactory {
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         messageHeader.setReferenceID(messageID);
+        UUID uuid = OBJECT_FACTORY.createUUID();
+        uuid.setValue(requestMessage.getUuid());
+        messageHeader.setReferenceUUID(uuid);
         messageHeader.setCreationDateTime(now);
 
         return messageHeader;

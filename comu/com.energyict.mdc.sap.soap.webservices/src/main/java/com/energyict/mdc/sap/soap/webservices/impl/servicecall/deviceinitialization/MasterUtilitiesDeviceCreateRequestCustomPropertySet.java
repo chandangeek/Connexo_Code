@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MasterUtilitiesDeviceCreateRequestDomainExtension> {
@@ -95,6 +97,11 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
                         .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
                         .finish()
 
         );
@@ -144,6 +151,11 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
             table.column(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .add();
+            table.column(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
