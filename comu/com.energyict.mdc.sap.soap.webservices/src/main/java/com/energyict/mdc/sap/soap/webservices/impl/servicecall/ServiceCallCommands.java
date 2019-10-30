@@ -114,6 +114,7 @@ public class ServiceCallCommands {
                     MasterConnectionStatusChangeDomainExtension extension =
                             new MasterConnectionStatusChangeDomainExtension();
                     extension.setRequestID(messages.getId());
+                    extension.setUuid(messages.getUuid());
                     ServiceCall serviceCall = serviceCallType.newServiceCall()
                             .origin(APPLICATION_NAME)
                             .extendedWith(extension)
@@ -300,6 +301,7 @@ public class ServiceCallCommands {
         ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
+        connectionStatusChangeDomainExtension.setUuid(message.getUuid());
         connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
@@ -330,6 +332,7 @@ public class ServiceCallCommands {
         ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
+        connectionStatusChangeDomainExtension.setUuid(message.getUuid());
         connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
@@ -368,6 +371,7 @@ public class ServiceCallCommands {
         MasterMeterReadingDocumentCreateRequestDomainExtension meterReadingDocumentDomainExtension =
                 new MasterMeterReadingDocumentCreateRequestDomainExtension();
         meterReadingDocumentDomainExtension.setRequestID(requestMessage.getId());
+        meterReadingDocumentDomainExtension.setUuid(requestMessage.getUuid());
         meterReadingDocumentDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()

@@ -45,7 +45,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
 
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
 
-        bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
+        bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
         switch (parent.getState()) {
             case CANCELLED:
                 bulkConfirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()),
@@ -72,18 +72,19 @@ public class CreateBulkRegisterConfirmationMessageFactory {
 
     public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), now));
+        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
         bulkConfirmationMessage.setLog(objectFactory.createLog());
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
         return bulkConfirmationMessage;
     }
 
-    private BusinessDocumentMessageHeader createHeader(String requestId, Instant now) {
+    private BusinessDocumentMessageHeader createHeader(String requestId, String referenceUuid, Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         String uuid = UUID.randomUUID().toString();
 
         header.setReferenceID(createID(requestId));
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
 
         return header;

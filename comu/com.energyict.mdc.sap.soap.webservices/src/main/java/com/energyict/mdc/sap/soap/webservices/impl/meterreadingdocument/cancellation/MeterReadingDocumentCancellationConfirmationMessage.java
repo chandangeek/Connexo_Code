@@ -33,11 +33,11 @@ public class MeterReadingDocumentCancellationConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(String requestId, List<CancelledMeterReadingDocument> documents, Instant now, boolean isBulk) {
+        public Builder from(String requestId, String uuid, List<CancelledMeterReadingDocument> documents, Instant now, boolean isBulk) {
             if (isBulk) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestId, documents, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestId, uuid, documents, now);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestId, documents.get(0), now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestId, uuid, documents.get(0), now);
             }
             return this;
         }

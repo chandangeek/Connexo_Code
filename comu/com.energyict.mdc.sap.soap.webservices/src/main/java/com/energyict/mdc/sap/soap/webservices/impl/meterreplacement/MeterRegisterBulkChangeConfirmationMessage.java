@@ -50,7 +50,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
             MasterMeterRegisterChangeRequestDomainExtension extension = parent.getExtensionFor(new MasterMeterRegisterChangeRequestCustomPropertySet()).get();
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
                 confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
@@ -68,7 +68,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
 
         public Builder from(MeterRegisterBulkChangeRequestMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestId(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestId(), message.getUuid(), now));
 
             confirmationMessage.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat(null)));
             return this;
@@ -118,12 +118,13 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return header;
         }
 
-        private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
+        private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
             header.setReferenceID(createID(requestId));
             header.setUUID(createUUID(uuid));
+            header.setReferenceUUID(createUUID(referenceUuid));
             header.setCreationDateTime(now);
             return header;
         }

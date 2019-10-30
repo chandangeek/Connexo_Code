@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers;
@@ -19,6 +20,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class MeasurementTaskAssignmentChangeRequestMessage {
 
     private String id;
+    private String uuid;
     private String profileId;
     private List<MeasurementTaskAssignmentChangeRequestRole> roles;
 
@@ -27,6 +29,10 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
 
     public String getId() {
         return id;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public String getProfileId() {
@@ -63,6 +69,7 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(header -> {
                         setId(getId(header));
+                        setUuid(getUuid(header));
                     });
 
             Optional.ofNullable(requestMessage.getUtilitiesTimeSeries())
@@ -79,6 +86,11 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
 
         public Builder setId(String id) {
             MeasurementTaskAssignmentChangeRequestMessage.this.id = id;
+            return this;
+        }
+
+        public Builder setUuid(String uuid) {
+            MeasurementTaskAssignmentChangeRequestMessage.this.uuid = uuid;
             return this;
         }
 
@@ -99,6 +111,13 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
         private String getId(BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getID())
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
