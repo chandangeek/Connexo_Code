@@ -10,9 +10,9 @@ Ext.define('Apr.model.Task', {
         {
             name: 'queueStatusString',
             convert: function (value, record) {
-                if(record.get('queueStatus')==='Busy'){
+                if(record.get('queueStatus')==='Busy' && record.get('queueStatusDate')){
                     return Uni.I18n.translate('general.busySince','APR','Busy since {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('queueStatusDate'))),false);
-                } else if (record.get('queueStatus')==='Planned'){
+                } else if (record.get('queueStatus')==='Planned' && record.get('queueStatusDate')){
                     return Uni.I18n.translate('general.plannedOn','APR','Planned on {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('queueStatusDate'))),false);
                 } else {
                     return Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
