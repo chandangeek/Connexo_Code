@@ -16,6 +16,7 @@ public enum ProtocolExceptionMessageSeeds implements MessageSeed {
 
     NUMERIC_PARAMETER_EXPECTED("numericParameterExpected", "The parameter {0} is expected to be numeric but got {1}"),
     UNEXPECTED_RESPONSE("unexpected.response", "Received an unexpected response from the meter: {0}"),
+    UNEXPECTED_PROPERTY_VALUE("unexpected.propertyValue", "Unexpected value '{1}' for property '{0}', expected'{2}'"),
     UNSUPPORTED_URL_CONTENT_TYPE("unsupportedURLContentType", "Unsupported URL content type: {0}"),
     UNSUPPORTED_VERSION("unsupportedVersion", "Version {0} is not supported for {1}"),
     NOT_CONFIGURED_FOR_INBOUND_COMMUNICATION("deviceNotConfiguredForInboundCommunication", "Device ''{0}'' is not configured for inbound communication"),
