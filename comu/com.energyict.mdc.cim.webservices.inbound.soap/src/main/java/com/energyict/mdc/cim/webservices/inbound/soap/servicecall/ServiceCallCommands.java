@@ -453,7 +453,7 @@ public class ServiceCallCommands {
 
     private void fillComTaskExecutions(Set<ComTaskExecution> existedComTaskExecutions, com.elster.jupiter.metering.Meter meter,
                                        Set<ReadingType> combinedReadingTypes, SyncReplyIssue syncReplyIssue, boolean isRegular) {
-        ComTaskExecution comTaskExecution;
+        Set<ComTaskExecution> comTaskExecution;
         if (isRegular) {
             comTaskExecution = syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(Long.parseLong(meter.getAmrId()));
         } else {
@@ -461,14 +461,7 @@ public class ServiceCallCommands {
         }
 
         if (comTaskExecution != null) {
-            existedComTaskExecutions.add(comTaskExecution);
-        } else {
-            String readingTypes = combinedReadingTypes.stream()
-                    .filter(readingType -> readingType.isRegular() == isRegular)
-                    .map(rt -> rt.getName())
-                    .collect(Collectors.joining(";"));
-            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_READING_TYPES, null,
-                    meter.getName(), readingTypes));
+            existedComTaskExecutions.addAll(comTaskExecution);
         }
     }
 

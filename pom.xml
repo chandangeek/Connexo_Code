@@ -296,6 +296,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>3.0.0-M3</version>
+                    <configuration>
+                        <parallel>classes</parallel>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -337,7 +340,6 @@
                     <artifactId>license-maven-plugin</artifactId>
                     <version>1.20</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.jvnet.jax-ws-commons</groupId>
                     <artifactId>jaxws-maven-plugin</artifactId>
@@ -377,16 +379,16 @@
                     <artifactId>npm-version-maven-plugin</artifactId>
                     <version>1.1</version>
                 </plugin>
-                <!-- This is commented due to errors in JS files
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>js-unifying-i18n-maven-plugin</artifactId>
-                    <version>1.0</version>
+                    <version>1.1</version>
                     <configuration>
                         <jsSourceFolder>${project.basedir}/src/main/web/${js.dir}/src</jsSourceFolder>
                         <propertyFile>${project.basedir}/src/main/resources/i18n.properties</propertyFile>
+                        <errorReportFile>${project.basedir}/src/main/resources/i18n.report</errorReportFile>
                     </configuration>
-                </plugin-->
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
