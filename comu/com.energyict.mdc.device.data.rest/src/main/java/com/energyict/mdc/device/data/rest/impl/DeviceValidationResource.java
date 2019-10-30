@@ -318,9 +318,6 @@ public class DeviceValidationResource {
                 .count();
         ExistAndValidated result = new ExistAndValidated();
         if (statuses.isEmpty()) {
-            deviceValidationStatusInfo.allDataValidated &= device.getRegisters().stream()
-                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-
             result.isDataExist = device.getLoadProfiles().stream().flatMap(l -> l.getChannels().stream())
                     .anyMatch(c -> c.getChannelData(loadProfileInterval).isEmpty());
         } else {
