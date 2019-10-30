@@ -13,6 +13,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.DefaultState;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -28,6 +30,8 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
@@ -38,14 +42,15 @@ import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
@@ -185,9 +190,21 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public Optional<String> getSapDeviceId(Device device) {
-        return getCPSDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))
+                .findAny()
+                .flatMap(DeviceSAPInfoDomainExtension::getDeviceIdentifier);
+    }
+
+    @Override
+    public Optional<String> getSapDeviceId(EndDevice endDevice) {
+        Subquery deviceSubquery = getDataModel(DeviceDataServices.COMPONENT_NAME)
+                .query(Device.class)
+                .asSubquery(Where.where("meter").isEqualTo(endDevice), "id");
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .filter(ListOperator.IN.contains(deviceSubquery, DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()))
                 .findAny()
                 .flatMap(DeviceSAPInfoDomainExtension::getDeviceIdentifier);
     }
@@ -212,7 +229,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public Optional<Device> getDevice(String sapDeviceId) {
-        return getCPSDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
                 .join(Device.class)
                 .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName()).isEqualTo(sapDeviceId))
@@ -302,19 +319,19 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         Condition notThisChannelSpec = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channelSpec);
         Condition notThisDevice = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isNotEqual(deviceId);
         Condition thisDevice = notThisDevice.not();
-        return (getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId)
                         .and(notThisDevice.or(thisDevice.and(notThisChannelSpec))))
-                .filter(whereOverlapped).map(s -> s.getChannelSpec()).findAny());
+                .filter(whereOverlapped).map(DeviceChannelSAPInfoDomainExtension::getChannelSpec).findAny();
     }
 
     @Override
     public Set<Pair<Long, ChannelSpec>> getChannelInfosAfterDate(String lrn, String profileId, Instant date) {
         Condition intervalAfterDateCondition = getIntervalAfterDateCondition(date);
-        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
@@ -327,7 +344,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     @Override
     public Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval) {
         Condition whereOverlapped = getOverlappedCondition(interval);
-        Stream<DeviceChannelSAPInfoDomainExtension> stream = getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        Stream<DeviceChannelSAPInfoDomainExtension> stream = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
@@ -336,7 +353,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
         Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
         stream.forEach(e -> {
-            Range range = e.getRange();
+            Range<Instant> range = e.getRange();
             Optional<Range<Instant>> cutRange = cutRange(range);
             if (cutRange.isPresent()) {
                 Optional<Device> device = deviceService.findDeviceById(e.getDeviceId());
@@ -439,8 +456,6 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                     customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
                 }
             }
-
-
         } else {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, endDate);
         }
@@ -462,7 +477,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid) {
-        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isNotNull())
@@ -523,7 +538,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public Set<ReadingType> findReadingTypesForProfileId(String profileId) {
-        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
@@ -533,7 +548,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Optional<Pair<Long, ReadingType>> getChannelIdentification(String lrn, Instant when) {
-        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
@@ -544,7 +559,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Optional<Pair<Long, ReadingType>> getRegisterIdentification(String lrn, Instant when) {
-        return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .join(RegisterSpec.class)
                 .join(ReadingType.class)
@@ -555,7 +570,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Optional<Pair<Object, RegisteredCustomPropertySet>> getChannelCps(long deviceId, String lrn, Instant when) {
-        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
@@ -567,7 +582,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Optional<Pair<Object, RegisteredCustomPropertySet>> getRegisterCps(long deviceId, String lrn, Instant when) {
-        return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .join(RegisterSpec.class)
                 .join(ReadingType.class)
@@ -621,7 +636,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Map<String, RangeSet<Instant>> getProfileId(Device device, ChannelSpec channelSpec, Range<Instant> range) {
-        Stream<DeviceChannelSAPInfoDomainExtension> extensions = getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        Stream<DeviceChannelSAPInfoDomainExtension> extensions = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(channelSpec))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
@@ -641,7 +656,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Map<String, RangeSet<Instant>> getLrn(Device device, ChannelSpec channelSpec, Range<Instant> range) {
-        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(channelSpec))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
@@ -652,7 +667,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Map<String, RangeSet<Instant>> getLrn(Device device, RegisterSpec registerSpec, Range<Instant> range) {
-        return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(registerSpec))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
@@ -672,7 +687,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         );
     }
 
-    private DataModel getCPSDataModel(String modelName) {
+    private DataModel getDataModel(String modelName) {
         return ormService.getDataModel(modelName)
                 .orElseThrow(() -> new IllegalStateException(DataModel.class.getSimpleName() + ' ' + modelName + " isn't found."));
     }
@@ -692,7 +707,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private boolean isAnyRegisterLrn(long deviceId) {
-        return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
@@ -702,7 +717,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
 
     private boolean isAnyChannelLrn(long deviceId) {
-        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())

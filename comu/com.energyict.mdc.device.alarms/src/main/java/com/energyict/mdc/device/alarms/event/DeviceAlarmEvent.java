@@ -153,7 +153,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         } else if (getMatchingEventOccurenceCount(inputTriggeringEventTypeList, Collections.singletonList(this.getEventTypeMrid())) == 0) {
             return false;
         }
-        return getTotalOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes)) >= eventCountThreshold;
+        return getTotalOccurrenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes)) >= eventCountThreshold;
     }
 
     public boolean logOnSameAlarm(String raiseEventProps) {
@@ -233,7 +233,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private int getTotalOccurenceCount(List<EndDeviceEventRecord> loggedEvents, List<String> triggeringEvents, List<String> deviceCodes) {
+    private int getTotalOccurrenceCount(List<EndDeviceEventRecord> loggedEvents, List<String> triggeringEvents, List<String> deviceCodes) {
         return getMatchingEventOccurenceCount(triggeringEvents, loggedEvents.stream()
                 .map(EndDeviceEventRecord::getEventTypeCode)
                 .filter(eventTypeMrid -> !eventTypeMrid.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode()))

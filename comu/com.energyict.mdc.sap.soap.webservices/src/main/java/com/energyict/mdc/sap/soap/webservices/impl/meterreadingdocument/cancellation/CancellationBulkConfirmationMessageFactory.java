@@ -61,7 +61,6 @@ public class CancellationBulkConfirmationMessageFactory {
     }
 
     private SmrtMtrMtrRdngDocERPCanclnConfMsg createChildMessage(CancelledMeterReadingDocument document, Instant now) {
-
         SmrtMtrMtrRdngDocERPCanclnConfMsg confirmationMessage = objectFactory.createSmrtMtrMtrRdngDocERPCanclnConfMsg();
         confirmationMessage.setMessageHeader(createChildHeader(now));
         MeterReadingDocumentID valueId = objectFactory.createMeterReadingDocumentID();

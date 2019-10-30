@@ -57,13 +57,13 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     }
 
     private void resultTransition(ServiceCall parent) {
-        List<ServiceCall> childs = ServiceCallHelper.findChildren(parent);
-        if (ServiceCallHelper.isLastChild(childs)) {
-            if (ServiceCallHelper.hasAllChildrenInState(childs, DefaultState.SUCCESSFUL)) {
+        List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
+        if (ServiceCallHelper.isLastChild(children)) {
+            if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.SUCCESSFUL);
-            } else if (ServiceCallHelper.hasAllChildrenInState(childs, DefaultState.CANCELLED)) {
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
                 sendResponseMessage(parent, DefaultState.CANCELLED);
-            } else if (ServiceCallHelper.hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 sendResponseMessage(parent, DefaultState.FAILED);
@@ -77,39 +77,40 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
 
     private void sendResponseMessage(ServiceCall parent, DefaultState finalState) {
         try (TransactionContext context = transactionService.getContext()) {
-            parent.transitionWithLockIfPossible(DefaultState.ONGOING);
+            ServiceCall parentLocked = serviceCallService.lockServiceCall(parent.getId()).orElseThrow(() -> new IllegalStateException("Unable to lock service call"));
+            parentLocked.requestTransition(DefaultState.ONGOING);
 
-            ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
-            parent.log(LogLevel.INFO, "Sending confirmation for disconnection order number: " + extension.getId());
+            ConnectionStatusChangeDomainExtension extension = parentLocked.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
+            parentLocked.log(LogLevel.INFO, "Sending confirmation for disconnection order number: " + extension.getId());
 
             if (extension.isCancelledBySap() && finalState.equals(DefaultState.CANCELLED)) {
-                parent.transitionWithLockIfPossible(finalState);
+                parentLocked.requestTransition(finalState);
             } else {
                 if (extension.isBulk()) {
                     StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
                             .builder(sapCustomPropertySets)
-                            .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                            .from(parentLocked, ServiceCallHelper.findChildren(parentLocked), clock.instant())
                             .build();
 
                     WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> {
-                                if (sender.call(responseMessage, parent)) {
-                                    parent.requestTransition(finalState);
+                                if (sender.call(responseMessage, parentLocked)) {
+                                    parentLocked.requestTransition(finalState);
                                 } else {
-                                    parent.requestTransition(DefaultState.FAILED);
+                                    parentLocked.requestTransition(DefaultState.FAILED);
                                 }
                             }
                     );
                 } else {
                     StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                             .builder(sapCustomPropertySets)
-                            .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                            .from(parentLocked, ServiceCallHelper.findChildren(parentLocked), clock.instant())
                             .build();
 
                     WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
-                                if (sender.call(responseMessage, parent)) {
-                                    parent.requestTransition(finalState);
+                                if (sender.call(responseMessage, parentLocked)) {
+                                    parentLocked.requestTransition(finalState);
                                 } else {
-                                    parent.requestTransition(DefaultState.FAILED);
+                                    parentLocked.requestTransition(DefaultState.FAILED);
                                 }
                             }
                     );

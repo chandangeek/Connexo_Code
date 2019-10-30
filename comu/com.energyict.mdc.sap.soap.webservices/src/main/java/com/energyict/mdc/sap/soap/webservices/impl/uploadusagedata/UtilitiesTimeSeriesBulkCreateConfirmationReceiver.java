@@ -8,10 +8,11 @@ import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.BusinessDocumentMessageHeader;
@@ -39,7 +40,7 @@ import java.util.stream.Stream;
         property = {"name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME})
 public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn, ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateConfirmation_C_In";
-    private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
+    private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
@@ -139,7 +140,7 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
             } catch (NumberFormatException e) {
                 return item2;
             }
-            return i1 < i2 ? item2 : item1;
+            return i1 < i2 ? item2 : i2 < i1 ? item1 : item1.getNote() == null ? item2 : item1;
         }
     }
 

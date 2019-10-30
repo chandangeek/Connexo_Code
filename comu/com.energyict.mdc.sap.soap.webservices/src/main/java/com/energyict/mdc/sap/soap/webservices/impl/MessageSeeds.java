@@ -96,7 +96,12 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_PROCESSING_MTA_REQUEST(7009, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
     ERROR_PROCESSING_METER_REPLACEMENT_REQUEST(7010, "ErrorProcessingMeterReplacementRequest", "Error while processing meter replacement request: ''{0}''."),
 
-    //Micro checks
+    // Smart meter events
+    EVENT_CONFIRMED(8000, "EventConfirmed", "Confirmed smart meter event creation request with UUID {0}.", Level.INFO),
+    EVENT_FAILED_TO_CONFIRM(8001, "EventFailedToConfirm", "Failed to confirm smart meter event creation request with UUID {0}: {1}"),
+    EVENT_NO_ERROR_MESSAGE_PROVIDED(8002, "EventNoErrorMessageProvided", "No message provided."),
+
+    // Micro checks
     AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "No LRN has been set on the device.");
 
     private final int number;

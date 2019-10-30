@@ -44,7 +44,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
     private final ObjectFactory objectFactory = new ObjectFactory();
 
-    private volatile  Clock clock;
+    private volatile Clock clock;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
@@ -82,7 +82,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> getService() {
         return UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut.class;
     }
 

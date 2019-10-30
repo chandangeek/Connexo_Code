@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.BusinessDocumentMessageHeader;
@@ -39,7 +40,7 @@ import java.util.stream.Stream;
         property = {"name=" + UtilitiesTimeSeriesBulkChangeConfirmationReceiver.NAME})
 public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationCIn, ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeConfirmation_C_In";
-    private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
+    private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
@@ -139,7 +140,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
             } catch (NumberFormatException e) {
                 return item2;
             }
-            return i1 < i2 ? item2 : item1;
+            return i1 < i2 ? item2 : i2 < i1 ? item1 : item1.getNote() == null ? item2 : item1;
         }
     }
 
