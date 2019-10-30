@@ -320,8 +320,10 @@ public class DeviceValidationResource {
         DataPresentAndValidated result = new DataPresentAndValidated();
         if (statuses.isEmpty()) {
             result.dataPresent = device.getLoadProfiles().stream().flatMap(l -> l.getChannels().stream())
-                    .map(Channel::getLastDateTime).filter(Optional::isPresent)
-                    .map(Optional::get).anyMatch(loadProfileInterval::contains);
+                    .map(Channel::getLastDateTime)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .anyMatch(dateTime -> dateTime.isAfter(loadProfileStart.toInstant()));
         } else {
             result.dataPresent = true;
             result.allDataValidated = statuses.stream()
@@ -345,8 +347,11 @@ public class DeviceValidationResource {
         DataPresentAndValidated result = new DataPresentAndValidated();
         if (statuses.isEmpty()) {
             result.dataPresent = device.getRegisters().stream()
-                    .map(Register::getLastReadingDate).filter(Optional::isPresent)
-                    .map(Optional::get).anyMatch( readingDate -> registerRange.contains((Instant) readingDate));
+                    .map(Register::getLastReadingDate)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(Instant.class::cast) // compilation fails without this line
+                    .anyMatch(readingDate -> readingDate.isAfter(registerStart.toInstant()));
         } else {
             result.dataPresent = true;
             result.allDataValidated = statuses.stream()
