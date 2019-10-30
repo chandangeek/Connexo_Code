@@ -13,5 +13,5 @@ public interface UtilitiesDeviceRegisteredBulkNotification {
      * Invoked when the SAP utilities device (bulk) is registered
      * @param deviceIds
      */
-    void call(List<String> deviceIds, String uuid);
+    void call(List<String> deviceIds);
 }

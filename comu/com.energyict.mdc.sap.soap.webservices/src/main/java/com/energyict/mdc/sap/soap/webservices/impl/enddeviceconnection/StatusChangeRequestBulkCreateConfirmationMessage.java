@@ -59,7 +59,10 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
 
         public Builder from(ServiceCall subParent, List<ServiceCall> children, Instant now) {
             ServiceCall parent = subParent.getParent().orElseThrow(() -> new IllegalStateException("Unable to get parent for service call"));
-            confirmationMessage.setMessageHeader(createHeader(parent, now));
+            MasterConnectionStatusChangeDomainExtension extension = parent.getExtension(MasterConnectionStatusChangeDomainExtension.class)
+                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+            confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(subParent, children));
             return this;
         }
@@ -99,17 +102,6 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     .forEach(c -> c.getDeviceConnectionStatus().add(deviceConnectionStatus));
 
             return this;
-        }
-
-        private BusinessDocumentMessageHeader createHeader(ServiceCall parent, Instant now) {
-            BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-            header.setCreationDateTime(now);
-            MasterConnectionStatusChangeDomainExtension extension = parent.getExtension(MasterConnectionStatusChangeDomainExtension.class)
-                    .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            header.setReferenceID(createID(extension.getRequestID()));
-            header.setReferenceUUID(createUUID(extension.getUuid()));
-
-            return header;
         }
 
         private BusinessDocumentMessageHeader createHeader(String parentId, String referenceUuid, Instant now) {

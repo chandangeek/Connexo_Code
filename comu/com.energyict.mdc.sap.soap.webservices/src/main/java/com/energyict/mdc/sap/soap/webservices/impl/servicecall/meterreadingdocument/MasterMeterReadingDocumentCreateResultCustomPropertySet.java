@@ -139,7 +139,6 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                 this.propertySpecService
                         .stringSpec()
                         .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
-                        .describedAs(TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
