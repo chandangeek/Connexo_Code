@@ -177,7 +177,6 @@ class DataExportTaskExecutor implements TaskExecutor {
         if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
-                        .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                         .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();
