@@ -62,13 +62,13 @@ public abstract class EventFilterBaseIT {
 
     public void setup(int regCount, int msgCount) throws Exception {
         registrationLatch = new CountDownLatch(regCount);
-        WebSocketEventPublisherFactory.setInstance(new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, runningComServer, connectionTaskService, communicationTaskService, deviceService,engineConfigurationService, identificationService, EventPublisherImpl.getInstance(), serviceProvider));
+        WebSocketEventPublisherFactory webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, runningComServer, connectionTaskService, communicationTaskService, deviceService,engineConfigurationService, identificationService, EventPublisherImpl.getInstance(), serviceProvider);
 
         // Start the EventServlet in a jetty context
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(EVENT_REGISTRATION_URL);
         messagesReceivedLatch = new CountDownLatch(msgCount);
         webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
-        this.factory = new DefaultEmbeddedWebServerFactory(WebSocketEventPublisherFactory.getInstance());
+        this.factory = new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory);
         webServer = this.factory.findOrCreateEventWebServer(comServer, new EventAPIStatisticsImpl());
         webServer.start();
         connectClient(EVENT_REGISTRATION_URL, webSocket, TimeUnit.SECONDS.toMillis(5));

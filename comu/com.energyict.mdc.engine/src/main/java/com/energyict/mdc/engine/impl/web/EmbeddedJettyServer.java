@@ -179,9 +179,9 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param eventRegistrationUri The URI on which the servlet should be listening
      * @param eventAPIStatistics The EventAPIStatistics
      */
-    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, WebSocketEventPublisherFactory webSocketEventPublisherFactory, EventAPIStatistics eventAPIStatistics, ServiceProvider serviceProvider) {
+    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, EventAPIStatistics eventAPIStatistics, ServiceProvider serviceProvider) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new EventMechanismShutdownFailureLogger(eventRegistrationUri));
-        server.addEventMechanism(eventRegistrationUri, webSocketEventPublisherFactory, eventAPIStatistics, serviceProvider);
+        server.addEventMechanism(eventRegistrationUri, eventAPIStatistics, serviceProvider);
         return server;
     }
 

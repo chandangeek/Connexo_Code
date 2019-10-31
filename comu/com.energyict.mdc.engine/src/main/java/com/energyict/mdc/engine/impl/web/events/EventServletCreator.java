@@ -26,21 +26,18 @@ public class EventServletCreator implements WebSocketCreator, WebSocketCloseEven
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest servletUpgradeRequest, ServletUpgradeResponse servletUpgradeResponse) {
-        WebSocketEventPublisher newEventPublisher = webSocketEventPublisherFactory.newWebSocketEventPublisher(this);
+        WebSocketEventPublisher newEventPublisher = webSocketEventPublisherFactory.newWebSocketEventPublisher(this.statistics);
         eventPublishers.add(newEventPublisher);
         return newEventPublisher;
     }
 
-    private void cleanUpClosedPublishers() {
+    @Override
+    public void cleanUpClosedPublishers() {
         for (Iterator<WebSocketEventPublisher> it = this.eventPublishers.iterator(); it.hasNext(); ) {
             WebSocketEventPublisher eventPublisher = it.next();
             if (eventPublisher.isClosed()) {
                 it.remove();
             }
         }
-
-    @Override
-    public void closedFrom(WebSocketEventPublisher webSocketEventPublisher) {
-        eventPublishers.remove(webSocketEventPublisher);
     }
 }

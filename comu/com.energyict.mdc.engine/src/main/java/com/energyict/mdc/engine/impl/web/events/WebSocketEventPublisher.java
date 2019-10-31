@@ -49,8 +49,9 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
         this.eventAPIStatistics = eventAPIStatistics;
         this.parser = new RequestParser(comServer, serviceProvider);
         this.closeEventListener = new WebSocketCloseEventListener() {
+
             @Override
-            public void closedFrom(WebSocketEventPublisher webSocketEventPublisher) {
+            public void cleanUpClosedPublishers() {
 
             }
         };
@@ -164,7 +165,7 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     public void onWebSocketClose(int statusCode, String reason) {
         this.session = null;
         this.eventPublisher.unregisterAllInterests(this);
-        this.closeEventListener.closedFrom(this);
+        this.closeEventListener.cleanUpClosedPublishers();
         setClosed(true);
     }
 
