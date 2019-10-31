@@ -56,6 +56,7 @@ public class UtilitiesDeviceCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setRequestID(getRequestID(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
 
             utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
@@ -111,6 +112,13 @@ public class UtilitiesDeviceCreateRequestMessage {
         private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getUUID())
                     .map(UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
