@@ -36,7 +36,7 @@ public class CreateConfirmationMessageFactory {
         MasterUtilitiesDeviceCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), now));
+        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), now));
 
         if (serviceCall.getState().equals(DefaultState.CANCELLED)) {
             confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
@@ -54,7 +54,7 @@ public class CreateConfirmationMessageFactory {
 
     public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Instant now) {
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), now));
+        confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), now));
         confirmMsg.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat(null)));
         return confirmMsg;
     }
@@ -65,12 +65,13 @@ public class CreateConfirmationMessageFactory {
         confirmationMessage.setUtilitiesDevice(createUtilitiesDevice(extension.getDeviceId()));
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setReferenceID(createID(requestId));
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
         return header;
     }

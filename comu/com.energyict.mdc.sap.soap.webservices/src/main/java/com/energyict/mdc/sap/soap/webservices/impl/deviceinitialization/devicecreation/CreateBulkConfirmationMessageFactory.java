@@ -37,7 +37,7 @@ public class CreateBulkConfirmationMessageFactory {
         MasterUtilitiesDeviceCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
-        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), now));
+        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), now));
 
         switch (parent.getState()) {
             case CANCELLED:
@@ -64,7 +64,7 @@ public class CreateBulkConfirmationMessageFactory {
 
     public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Instant now) {
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
-        confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), now));
+        confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), now));
 
         confirmationMessage.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat(null)));
         return confirmationMessage;
@@ -110,12 +110,13 @@ public class CreateBulkConfirmationMessageFactory {
         return header;
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setReferenceID(createID(requestId));
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
         return header;
     }
