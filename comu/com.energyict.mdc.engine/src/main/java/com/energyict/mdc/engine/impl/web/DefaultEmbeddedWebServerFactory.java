@@ -45,7 +45,7 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
     public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer, EventAPIStatistics eventAPIStatistics) {
         try {
             URI eventRegistrationUri = new URI(comServer.getEventRegistrationUriIfSupported());
-            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, eventAPIStatistics);
+            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, webSocketEventPublisherFactory, eventAPIStatistics);
         }
         catch (UnsupportedOperationException e) {
             // Event registration is not supported

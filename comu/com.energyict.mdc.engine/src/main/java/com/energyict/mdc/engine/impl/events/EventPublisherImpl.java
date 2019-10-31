@@ -218,4 +218,8 @@ public class EventPublisherImpl implements EventPublisher {
         soleInstance = eventPublisher;
     }
 
+    public static synchronized EventPublisher getInstance () {
+        return soleInstance;
+    }
+
 }
