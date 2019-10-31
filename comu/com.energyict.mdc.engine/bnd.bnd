@@ -30,5 +30,5 @@ Import-Package: !com.sun.jdi.*,\
     !sun.security.util,\
     *
 Export-Package: com.energyict.mdc.engine.*
-Embed-Dependency: artifactId=javax.servlet-api,groupId=javassist|org.eclipse.jetty|org.eclipse.jetty.websocket
+Embed-Dependency: groupId=javassist|log4j|org.json
 Embed-Transitive: true

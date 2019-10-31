@@ -179,13 +179,13 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param eventRegistrationUri The URI on which the servlet should be listening
      * @param eventAPIStatistics The EventAPIStatistics
      */
-    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider, EventAPIStatistics eventAPIStatistics) {
+    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, WebSocketEventPublisherFactory webSocketEventPublisherFactory, EventAPIStatistics eventAPIStatistics, ServiceProvider serviceProvider) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new EventMechanismShutdownFailureLogger(eventRegistrationUri));
-        server.addEventMechanism(eventRegistrationUri, serviceProvider, eventAPIStatistics);
+        server.addEventMechanism(eventRegistrationUri, webSocketEventPublisherFactory, eventAPIStatistics, serviceProvider);
         return server;
     }
 
-    public void addEventMechanism(URI eventRegistrationUri, ServiceProvider serviceProvider, EventAPIStatistics eventAPIStatistics) {
+    public void addEventMechanism (URI eventRegistrationUri, EventAPIStatistics eventAPIStatistics, ServiceProvider serviceProvider) {
         this.jetty = new Server(getPortNumber(eventRegistrationUri, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER));
         ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
         this.jetty.setHandler(handlerCollection);

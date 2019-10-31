@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.web.events;
 
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+
+import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
@@ -12,7 +14,7 @@ import java.util.List;
 /**
  * Created by H216758 on 5/30/2017.
  */
-public class EventServletCreator implements WebSocketCreator {
+public class EventServletCreator implements WebSocketCreator, WebSocketCloseEventListener {
     private EventAPIStatistics statistics;
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
     private List<WebSocketEventPublisher> eventPublishers = new ArrayList<>();
@@ -24,10 +26,8 @@ public class EventServletCreator implements WebSocketCreator {
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest servletUpgradeRequest, ServletUpgradeResponse servletUpgradeResponse) {
-        WebSocketEventPublisher newEventPublisher = webSocketEventPublisherFactory.newWebSocketEventPublisher(statistics);
+        WebSocketEventPublisher newEventPublisher = webSocketEventPublisherFactory.newWebSocketEventPublisher(this);
         eventPublishers.add(newEventPublisher);
-        cleanUpClosedPublishers();
-
         return newEventPublisher;
     }
 
@@ -38,5 +38,9 @@ public class EventServletCreator implements WebSocketCreator {
                 it.remove();
             }
         }
+
+    @Override
+    public void closedFrom(WebSocketEventPublisher webSocketEventPublisher) {
+        eventPublishers.remove(webSocketEventPublisher);
     }
 }
