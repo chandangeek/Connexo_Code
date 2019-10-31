@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.ConnectionEvent;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.FilteringEventReceiverFactory;
+import com.energyict.mdc.engine.impl.events.FilteringEventReceiverFactoryImpl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.when;
  * @since 2012-11-05 (14:54)
  */
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
+
 public class TextBasedEventFilterIntegrationTest extends EventFilterBaseIT {
 
     @Mock
@@ -187,7 +188,7 @@ public class TextBasedEventFilterIntegrationTest extends EventFilterBaseIT {
         private OutboundComPortPool comPortPool;
 
         private EventGenerator() {
-            super(runningComServer, filteringEventReceiverFactory);
+            super(runningComServer, new FilteringEventReceiverFactoryImpl());
             this.device = mock(Device.class);
             this.connectionTask = mock(OutboundConnectionTask.class);
             this.comPort = mock(OutboundComPort.class);

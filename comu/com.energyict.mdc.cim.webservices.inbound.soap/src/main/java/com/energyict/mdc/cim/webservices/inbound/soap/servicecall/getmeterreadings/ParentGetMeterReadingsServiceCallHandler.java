@@ -169,10 +169,16 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         if (!sendResponse(serviceCall, meterReadings, false)) {
             return;
         }
-        if (ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), PARTIAL_SUCCESS)) {
-            serviceCall.requestTransition(PARTIAL_SUCCESS);
-        } else {
+
+        if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
             serviceCall.requestTransition(SUCCESSFUL);
+        }else if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), CANCELLED))  {
+            serviceCall.requestTransition(CANCELLED);
+        }else if (ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), PARTIAL_SUCCESS) ||
+                ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)){
+            serviceCall.requestTransition(PARTIAL_SUCCESS);
+        }else{
+            serviceCall.requestTransition(FAILED);
         }
 
         serviceCall.log(LogLevel.FINE,

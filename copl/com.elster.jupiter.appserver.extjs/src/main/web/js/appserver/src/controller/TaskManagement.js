@@ -425,6 +425,7 @@ Ext.define('Apr.controller.TaskManagement', {
             grid.getSelectionModel().select(selection); // select current item selected, again.
             // This will force refresh of details, needed for "Suspended" detail
         }
+        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('suspendExportTask.successMsg', 'APR', 'Export task suspended'));
     },
 
    setQueueAndPriority: function (record) {

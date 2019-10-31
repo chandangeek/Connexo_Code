@@ -111,7 +111,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         xtype: 'displayfield',
                         itemId: 'no-device-group',
                         hidden: true,
-                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'EST', 'No device group defined yet.') + '</div>',
+                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'FWC', 'No device group defined yet.') + '</div>',
                         htmlEncode: false,
                         width: 235
                     },
@@ -232,7 +232,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 allowBlank: false,
                 forceSelection: true,
                 emptyText: Uni.I18n.translate(
-                    'general.calendarUploadComTask.empty',
+                    'general.comTask.empty',
                     'FWC',
                     'Select communication task ...'
                 ),

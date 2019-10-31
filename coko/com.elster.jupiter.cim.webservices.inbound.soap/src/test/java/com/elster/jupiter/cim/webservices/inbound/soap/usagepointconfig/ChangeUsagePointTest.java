@@ -481,7 +481,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.UNSUPPORTED_VALUE.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].ConfigurationEvents.status.reason' contains unsupported value 'Configure me anything'. " +
-                        "Must be one of: 'Purpose Active', 'Purpose Inactive', 'Change Status'.");
+                        "Must be one of: 'Purpose Active', 'Purpose Inactive', 'Change Status', 'Change Lifecycle'.");
     }
 
     @Test
