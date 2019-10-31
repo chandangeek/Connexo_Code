@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -157,13 +158,8 @@ public class DeviceBuilder {
             if (batch.isPresent()) {
                 batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);
             }
-            if (shipmentDate.isPresent()) {
-                if (DefaultState.IN_STOCK.equals(DefaultState.from(changedDevice.getState()).orElse(null))) {
+            if (shipmentDate.isPresent() && shipmentDate.get().isAfter(new Date(0).toInstant())) {
                     changedDevice.getLifecycleDates().setReceivedDate(shipmentDate.get());
-                } else {
-                    throw faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
-                            MessageSeeds.SHIPMENT_DATE_NOT_IN_STOCK).get();
-                }
             }
             serialNumber.ifPresent(changedDevice::setSerialNumber);
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));

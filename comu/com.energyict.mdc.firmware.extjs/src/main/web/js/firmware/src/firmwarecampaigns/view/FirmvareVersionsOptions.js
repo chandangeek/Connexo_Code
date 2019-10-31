@@ -34,7 +34,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 flex: 1,
                 width: 1000,
                 required: true,
-                fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
+                fieldLabel: Uni.I18n.translate('general.targetManagementOptions', 'FWC', 'Target firmware status'),
                 items: [
                     {
                         xtype: 'checkboxgroup',
@@ -48,7 +48,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                             {
                                 beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 15px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',
                                 itemId: 'targetFirmwareCheckFinal',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware'),
+                                boxLabel: Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of target firmware'),
                                 inputValue: 'FINAL',
                                 margin: '10 0',
                                 listeners: {
@@ -61,7 +61,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                             },
                             {
                                 itemId: 'targetFirmwareCheckTest',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of target firmware'),
+                                boxLabel: Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of target firmware'),
                                 inputValue: 'TEST',
                                 margin: '10 0',
                                 listeners: {
@@ -96,7 +96,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var targetFirmwareCheckFinalValue = me.down('#targetFirmwareCheckFinal') && me.down('#targetFirmwareCheckFinal').originalValue;
-                                           me.down('#targetFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckFinalValue) + '"');
+                                           me.down('#targetFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckFinalValue) + '"');
 
                                         })
                                     }
@@ -115,7 +115,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var targetFirmwareCheckTestValue = me.down('#targetFirmwareCheckTest') && me.down('#targetFirmwareCheckTest').originalValue;
-                                           me.down('#targetFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckTestValue) + '"');
+                                           me.down('#targetFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(targetFirmwareCheckTestValue) + '"');
 
                                         })
                                     }
@@ -142,7 +142,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 layout: 'hbox',
                 flex: 1,
                 width: 750,
-                fieldLabel: Uni.I18n.translate('general.firmwareDependenciesCheck', 'FWC', 'Dependencies check'),
+                fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
                 items: [
                      {
                         xtype: 'checkboxgroup',
@@ -156,7 +156,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                         items: [
                             {
                                 itemId: 'curFirmwareCheck',
-                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type.') + '</b>',
+                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type') + '</b>',
                                 inputValue: 'COMMON',
                                 margin: '10 0',
                                 listeners: {
@@ -191,7 +191,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var curFirmwareCheckValue = me.down('#curFirmwareCheck') && me.down('#curFirmwareCheck').originalValue;
-                                           me.down('#curFirmwareCheckReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(curFirmwareCheckValue) + '"');
+                                           me.down('#curFirmwareCheckReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(curFirmwareCheckValue) + '"');
 
                                         })
                                     }
@@ -301,7 +301,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var masterFirmwareCheckFinalValue = me.down('#masterFirmwareCheckFinal') && me.down('#masterFirmwareCheckFinal').originalValue;
-                                           me.down('#masterFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckFinalValue) + '"');
+                                           me.down('#masterFirmwareCheckFinalReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckFinalValue) + '"');
 
                                         })
                                     }
@@ -330,7 +330,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                     afterrender: function(){
                                         me.on('dependenciesSetted', function(){
                                            var masterFirmwareCheckTestValue = me.down('#masterFirmwareCheckTest') && me.down('#masterFirmwareCheckTest').originalValue;
-                                           me.down('#masterFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'MDC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckTestValue) + '"');
+                                           me.down('#masterFirmwareCheckTestReset').setTooltip(Uni.I18n.translate('general.restoreDefaultValue', 'FWC', 'Restore to default value') + ' "' + Boolean(masterFirmwareCheckTestValue) + '"');
 
                                         })
                                     }

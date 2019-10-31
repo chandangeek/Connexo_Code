@@ -309,7 +309,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                         check.execute(options, utils, campaign.getFirmwareVersion());
                         return false;
                     } catch (FirmwareCheck.FirmwareCheckException e) {
-                        getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to '" + check.getName() + "' fail: " + e.getLocalizedMessage());
+                        getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to '" + check.getName() + "' check fail: " + e.getLocalizedMessage());
                         return true;
                     }
                 })
@@ -333,12 +333,11 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return true;
     }
 
-    boolean deviceAlreadyHasTheSameVersion() {
+    @Override
+    public boolean doesDeviceAlreadyHaveTheSameVersion() {
         FirmwareVersion targetFirmwareVersion = getFirmwareCampaign().getFirmwareVersion();
         Optional<ActivatedFirmwareVersion> activeVersion = firmwareService.getActiveFirmwareVersion(getDevice(), getFirmwareCampaign().getFirmwareType());
-        return activeVersion.isPresent()
-                && targetFirmwareVersion != null
-                && activeVersion.get().getFirmwareVersion().getId() == targetFirmwareVersion.getId();
+        return activeVersion.isPresent() && activeVersion.get().getFirmwareVersion().equals(targetFirmwareVersion);
     }
 
     private void createFirmwareMessage(DeviceMessageId firmwareMessageId, boolean resume) {

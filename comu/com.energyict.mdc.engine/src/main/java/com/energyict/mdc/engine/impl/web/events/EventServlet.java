@@ -21,14 +21,16 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
  */
 public class EventServlet extends WebSocketServlet {
     private EventAPIStatistics statistics;
+    private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
 
-    public EventServlet(EventAPIStatistics statistics) {
+    public EventServlet(WebSocketEventPublisherFactory webSocketEventPublisherFactory, EventAPIStatistics statistics) {
         this.statistics = statistics;
+        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
     }
 
     @Override
     public void configure(WebSocketServletFactory webSocketServletFactory) {
-        webSocketServletFactory.setCreator(new EventServletCreator(statistics));
+        webSocketServletFactory.setCreator(new EventServletCreator(webSocketEventPublisherFactory, statistics));
     }
 
 }

@@ -288,6 +288,11 @@
 				<version>4.0</version>
 			</dependency>
 			<dependency>
+				<groupId>com.zaxxer</groupId>
+				<artifactId>HikariCP</artifactId>
+				<version>3.4.1</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.servicemix.bundles</groupId>
 				<artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
 				<version>1.0_6</version>

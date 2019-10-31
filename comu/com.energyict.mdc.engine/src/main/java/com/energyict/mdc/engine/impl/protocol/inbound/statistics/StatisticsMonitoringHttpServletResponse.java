@@ -10,10 +10,12 @@ import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.engine.impl.tools.Strings;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Locale;
 
 /**
@@ -226,6 +228,26 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
     }
 
     @Override
+    public int getStatus() {
+        return 0;
+    }
+
+    @Override
+    public String getHeader(String s) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getHeaders(String s) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getHeaderNames() {
+        return null;
+    }
+
+    @Override
     public String getCharacterEncoding () {
         return this.response.getCharacterEncoding();
     }
@@ -253,6 +275,11 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
     @Override
     public void setContentLength (int len) {
         this.response.setContentLength(len);
+    }
+
+    @Override
+    public void setContentLengthLong(long l) {
+
     }
 
     @Override
@@ -322,6 +349,15 @@ public class StatisticsMonitoringHttpServletResponse implements HttpServletRespo
             }
         }
 
+        @Override
+        public boolean isReady() {
+            return false;
+        }
+
+        @Override
+        public void setWriteListener(WriteListener writeListener) {
+
+        }
     }
 
 }

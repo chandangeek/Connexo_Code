@@ -19,7 +19,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
         me.columns = [
             {
                 dataIndex: 'firmwareVersion',
-                header: Uni.I18n.translate('device.firmware.history.Version', 'FWC', 'Version'),
+                header: Uni.I18n.translate('general.version', 'FWC', 'Version'),
                 itemId: 'deviceFirmwareHistory',
                 fixed: true,
                 flex: 3,
@@ -29,7 +29,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
             },
             {
                 dataIndex: 'imageIdentifier',
-                header: Uni.I18n.translate('device.firmware.history.imageIdentifier', 'FWC', 'Image identifier'),
+                header: Uni.I18n.translate('general.imageIdentifier', 'FWC', 'Image identifier'),
                 itemId: 'imageIdentifierHistory',
                 fixed: true,
                 flex: 3,
