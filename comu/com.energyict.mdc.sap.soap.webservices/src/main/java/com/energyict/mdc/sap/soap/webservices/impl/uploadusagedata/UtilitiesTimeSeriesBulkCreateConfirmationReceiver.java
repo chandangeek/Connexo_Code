@@ -92,13 +92,7 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
     }
 
     private static Optional<String> findReferenceUuid(BusinessDocumentMessageHeader header) {
-        return Stream.<Supplier<Optional<String>>>of(
-                () -> Optional.ofNullable(header.getReferenceID()).map(BusinessDocumentMessageID::getValue),
-                () -> Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue))
-                .map(Supplier::get)
-                .filter(Optional::isPresent)
-                .findFirst()
-                .map(Optional::get);
+        return Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue);
     }
 
     private static boolean isConfirmed(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
