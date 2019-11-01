@@ -27,6 +27,8 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -93,6 +95,7 @@ public class MeterReadingsBuilder {
     private Set<ReadingQualityType> referencedReadingQualityTypes;
     private Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap;
     private int registerUpperBoundShift;
+    private ServiceCall serviceCall;
 
     @Inject
     public MeterReadingsBuilder(MeteringService meteringService,
@@ -179,6 +182,11 @@ public class MeterReadingsBuilder {
         return this;
     }
 
+    public MeterReadingsBuilder withsServiceCall(ServiceCall serviceCall) {
+       this.serviceCall = serviceCall;
+       return this;
+    }
+
     public MeterReadings build() throws FaultMessage {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
@@ -206,8 +214,10 @@ public class MeterReadingsBuilder {
             }
             if (!registerGroups.isEmpty()) {
                 readingTypeMRIDs.addAll(registerGroups.stream()
+                        .peek(rg -> this.serviceCall.log(LogLevel.FINEST, " register group: " + rg.getName()))
                         .map(RegisterGroup::getRegisterTypes)
                         .flatMap(Collection::stream)
+                        .peek(rt-> this.serviceCall.log(LogLevel.FINEST, " register type: " + rt.getReadingType().getName()))
                         .map(registerType -> registerType.getReadingType().getMRID())
                         .collect(Collectors.toSet()));
             }
@@ -358,6 +368,9 @@ public class MeterReadingsBuilder {
             records = channel.getRegisterReadings(registerUppedBoundRange);
             timePeriods = TreeRangeSet.create(timePeriods);
             timePeriods.add(registerUppedBoundRange);
+            this.serviceCall.log(LogLevel.FINEST, "reading records fetched from DB, channel: " + channel.getReadingType());
+            records.stream().map(com.elster.jupiter.metering.readings.Reading.class::cast)
+                    .forEach(r -> this.serviceCall.log(LogLevel.FINEST, " value: " + r.getValue() + ", text: " + r.getText() + ", timestamp: " + r.getTimeStamp()));
         }
         return getReadingRecords(records, timePeriods);
     }
@@ -492,6 +505,9 @@ public class MeterReadingsBuilder {
             Optional.ofNullable(reading.getValue())
                     .map(BigDecimal::toPlainString)
                     .ifPresent(info::setValue);
+            if (info.getValue() == null && reading instanceof com.elster.jupiter.metering.readings.Reading) {
+                info.setValue(((com.elster.jupiter.metering.readings.Reading) reading).getText());
+            }
             info.setReportedDateTime(reading.getReportedDateTime());
             reading.getTimePeriod()
                     .map(MeterReadingsBuilder::createDateTimeInterval)

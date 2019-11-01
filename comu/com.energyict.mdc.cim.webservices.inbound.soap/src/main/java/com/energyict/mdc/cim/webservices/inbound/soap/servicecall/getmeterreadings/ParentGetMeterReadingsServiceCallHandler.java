@@ -113,6 +113,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .forEach(subParentServiceCall -> subParentServiceCall.requestTransition(newState));
     }
 
+    private boolean hasAllChildrenFinalStates(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        return serviceCalls.stream().filter(sc -> !sc.getState().isOpen()).allMatch(sc -> sc.getState().equals(defaultState));
+    }
+
     private void collectAndSendResult(ServiceCall serviceCall) {
         ParentGetMeterReadingsDomainExtension extension = serviceCall.getExtension(ParentGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
@@ -152,6 +156,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     .inTimeIntervals(timeRangeSet)
                     .withReadingTypesMRIDsTimeRangeMap(createReadingTypesMRIDsTimeRangeMap(endDevices, readingTypesMRIDs, loadProfilesNames, timePeriodStart, timePeriodEnd))
                     .withRegisterUpperBoundShift(calculateRegisterUpperBoundShift())
+                    .withsServiceCall(serviceCall)
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(FAILED);
@@ -170,7 +175,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             return;
         }
 
-        if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
+        if (hasAllChildrenFinalStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
             serviceCall.requestTransition(SUCCESSFUL);
         }else if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), CANCELLED))  {
             serviceCall.requestTransition(CANCELLED);
@@ -187,8 +192,8 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     }
 
     private int calculateRegisterUpperBoundShift() {
-        /// FIXME +5
-        return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 2;
+        //To make sure the latest register value is included
+        return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 5;
     }
 
     private boolean sendResponse(ServiceCall serviceCall, MeterReadings meterReadings, boolean sendFromFailedState) {
