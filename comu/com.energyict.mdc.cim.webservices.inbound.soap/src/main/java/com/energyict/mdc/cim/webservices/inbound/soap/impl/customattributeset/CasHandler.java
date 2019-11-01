@@ -15,6 +15,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.LoggerUtils;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.data.CustomPropertyTranslationKeys;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
@@ -114,8 +115,25 @@ public class CasHandler {
         } catch (FaultMessage ex) {
             faultSituationHandler.logSevere(device, ex);
         } catch (Exception ex) {
-            faultSituationHandler.logException(device, ex,
-                    MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId());
+            if(ex.getMessage().contains("Wrong card format value")){
+                faultSituationHandler.logException(device, ex,
+                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId(),
+                        CustomPropertyTranslationKeys.CARD_FORMAT_FULL_SIZE.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.CARD_FORMAT_MINI.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.CARD_FORMAT_MICRO.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.CARD_FORMAT_NANO.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.CARD_FORMAT_EMBEDDED.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.CARD_FORMAT_SW.getDefaultFormat());
+            }
+            if(ex.getMessage().contains("Wrong status value")){
+                faultSituationHandler.logException(device, ex,
+                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId(),
+                        CustomPropertyTranslationKeys.STATUS_ACTIVE.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.STATUS_DEMOLISHED.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.STATUS_INACTIVE.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.STATUS_PRE_ACTIVE.getDefaultFormat()+", "+
+                        CustomPropertyTranslationKeys.STATUS_TEST.getDefaultFormat());
+            }
         }
         return faultSituationHandler.faults();
     }
