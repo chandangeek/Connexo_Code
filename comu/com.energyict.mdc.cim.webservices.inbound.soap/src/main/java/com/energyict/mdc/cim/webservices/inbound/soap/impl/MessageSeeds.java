@@ -126,6 +126,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_READINGS_TO_READ(6036, "NoReadingsToRead", "Couldn''t find any correct  ''GetMeterReadings.Reading'' to read."),
     READING_NOT_APPLICABLE(6037, "ReadingNotApplicable", "''{0}'' will be skipped due to issue in the element ''{1}''.", Level.WARNING),
     READING_NOT_APPLICABLE_DUE_TO_COM_TASKS(6038, "ReadingNotApplicableDueToComTasks", "''{0}'' will be skipped due to inability to find proper communication tasks.", Level.WARNING),
+    NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES(6039, "NoComTaskExecutionForLoadProfileNames", "No communication task execution has been found on device ''{0}'' for load profiles ''{1}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION_FOR_REGISTER_GROUP(6040, "NoComTaskExecutionForRegisterGroup", "No communication task execution has been found on device ''{0}'' for register groups ''{1}''.", Level.WARNING),
     ;
 
     private final int number;

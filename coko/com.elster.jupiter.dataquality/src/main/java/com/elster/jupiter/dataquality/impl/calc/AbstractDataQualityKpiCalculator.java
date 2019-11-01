@@ -12,6 +12,7 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.metering.Channel;
@@ -29,6 +30,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -108,11 +110,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
     abstract DataQualityKpiSqlBuilder sqlBuilder();
 
     void calculateInTransaction() {
-        try {
-            transactionService.run(this::calculate);
-        } catch (Exception ex) {
-            transactionService.run(() -> logger.log(Level.WARNING, "Failed to calculate data quality KPI. Error: " + ex.getLocalizedMessage(), ex));
-        }
+        transactionService.run(this::calculate);
     }
 
     private void calculate() {

@@ -104,7 +104,7 @@ public class FirmwareCampaignInfoFactory {
         info.timeBoundaryStart = campaign.getUploadPeriodStart();
         info.timeBoundaryEnd = campaign.getUploadPeriodEnd();
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
-        info.validationTimeout = new TimeDurationInfo(campaign.getValidationTimeout());
+        info.validationTimeout = new TimeDurationInfo(campaign.getValidationTimeout(), thesaurus);
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
