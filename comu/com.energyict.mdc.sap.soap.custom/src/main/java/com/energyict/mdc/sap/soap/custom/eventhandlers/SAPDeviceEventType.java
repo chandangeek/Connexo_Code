@@ -24,7 +24,11 @@ public class SAPDeviceEventType {
         ORIGIN_TYPE_CODE,
         ORIGIN_TYPE_CODE_DESCRIPTION,
         SAP_PROCESS_WORKFLOW_TRIGGER,
-        REMARKS
+        REMARKS;
+
+        private int position() {
+            return ordinal() + 1;
+        }
     }
     private static final String NO_EVENT_CODE = "0.0.0.0";
     private final String eventCode;
@@ -76,7 +80,7 @@ public class SAPDeviceEventType {
         try {
             return value == null ? null : Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Incorrect integer value '" + value + "' for " + field.name() + " on position " + field.ordinal() + '.', e);
+            throw new IllegalArgumentException("Incorrect integer value '" + value + "' for " + field.name() + " on position " + field.position() + '.', e);
         }
     }
 
@@ -89,24 +93,24 @@ public class SAPDeviceEventType {
                     if ("false".equalsIgnoreCase(string)) {
                         return false;
                     }
-                    throw new IllegalArgumentException("Incorrect boolean value '" + string + "' for " + field.name() + " on position " + field.ordinal() + '.');
+                    throw new IllegalArgumentException("Incorrect boolean value '" + string + "' for " + field.name() + " on position " + field.position() + '.');
                 })
                 .orElse(false);
     }
 
     private static int parseMandatoryInt(String[] values, CsvField field) {
         return parseInt(values, field)
-                .orElseThrow(() -> new NoSuchElementException("Missing required element " + field.name() + " on position " + field.ordinal() + '.'));
+                .orElseThrow(() -> new NoSuchElementException("Missing required element " + field.name() + " on position " + field.position() + '.'));
     }
 
     private static IllegalArgumentException missingRequiredPairException(CsvField field1, CsvField field2) {
         return new IllegalArgumentException("Missing both elements " + field1.name() + " & " + field2.name() +
-                " on respective positions " + field1.ordinal() + " & " + field2.ordinal() + ". At least one of them is required.");
+                " on respective positions " + field1.position() + " & " + field2.position() + ". At least one of them is required.");
     }
 
     private static IllegalArgumentException bothEventCodeAndDeviceEventCodePresentException() {
         return new IllegalArgumentException("Both elements " + CsvField.EVENT_CODE.name() + " & " + CsvField.DEVICE_EVENT_CODE.name() +
-                " on respective positions " + CsvField.EVENT_CODE.ordinal() + " & " + CsvField.DEVICE_EVENT_CODE.ordinal() + " have values, though " +
+                " on respective positions " + CsvField.EVENT_CODE.position() + " & " + CsvField.DEVICE_EVENT_CODE.position() + " have values, though " +
                 CsvField.DEVICE_EVENT_CODE.name() + " can be used only in case " + CsvField.EVENT_CODE.name() + " is '0.0.0.0'.");
     }
 

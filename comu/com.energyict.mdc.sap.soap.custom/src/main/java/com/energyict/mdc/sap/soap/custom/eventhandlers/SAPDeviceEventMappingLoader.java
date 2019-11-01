@@ -83,8 +83,8 @@ class SAPDeviceEventMappingLoader {
              BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")))) {
             LineCounter lineCounter = new LineCounter();
             reader.lines()
-                    .skip(1) // header line
                     .peek(line -> lineCounter.newLine())
+                    .skip(1) // header line
                     .flatMap(line -> {
                         try {
                             SAPDeviceEventType eventType = SAPDeviceEventType.parseFromCsvEntry(line, separator);
