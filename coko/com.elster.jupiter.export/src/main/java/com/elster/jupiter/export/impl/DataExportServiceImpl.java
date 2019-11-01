@@ -24,6 +24,8 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildCustomPropertySet;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildDomainExtension;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportCustomPropertySet;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportDomainExtension;
 import com.elster.jupiter.export.security.Privileges;
@@ -150,6 +152,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();
     private CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
+    private CustomPropertySet<ServiceCall, WebServiceDataExportChildDomainExtension> childServiceCallCPS;
 
     public DataExportServiceImpl() {
     }
@@ -370,7 +373,9 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public final void activate(BundleContext context) {
         this.bundleContext = context;
         serviceCallCPS = new WebServiceDataExportCustomPropertySet(thesaurus, propertySpecService, this);
+        childServiceCallCPS = new WebServiceDataExportChildCustomPropertySet(thesaurus, propertySpecService);
         customPropertySetService.addCustomPropertySet(serviceCallCPS);
+        customPropertySetService.addCustomPropertySet(childServiceCallCPS);
         try {
             dataModel.register(new AbstractModule() {
                 @Override

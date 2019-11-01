@@ -158,7 +158,6 @@ public class ServiceCallCommands {
             MasterDataLinkageAction action, UsagePoint usagePoint,
             ch.iec.tc57._2011.masterdatalinkageconfig.Meter meter, ConfigurationEvent configurationEvent) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.DATA_LINKAGE_CONFIG);
-        /* AS EXAMPLE !!!!!!!!!!!!!! */
         MasterDataLinkageConfigDomainExtension domainExtension = new MasterDataLinkageConfigDomainExtension();
         domainExtension.setParentServiceCallId(BigDecimal.valueOf(parentServiceCall.getId()));
         domainExtension.setMeter(jsonService.serialize(new MeterInfo(meter)));

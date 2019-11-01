@@ -74,7 +74,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
         String NUMBER_OF_READINGS_PER_MSG = bundleContext.getProperty(PROPERTY_MSG_SIZE);
-        System.out.println("NUMBER_OF_READINGS_PER_MSG = "+NUMBER_OF_READINGS_PER_MSG);
     }
 
     void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -120,96 +119,74 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     }
 
     @Override
-    public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data){//
-    /*{
-          return  sendPartOfData(endPointConfiguration, data);
-    }*/
-        System.out.println("CALL!!!!!!!!!");
+    public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {//
+
         int meterReadingDataNr = 0;
+
         List<ServiceCall> srvCallList = new ArrayList<>();
-
-        List<MeterReadingData> readingDataToSend = new ArrayList<>();
-        int x =0;
-
+        List<ExportData> readingDataToSend = new ArrayList<>();
         List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
 
-        MeterReadingData readingDataTmp = readingDataList.get(0);
-        /* Test data */
-        readingDataList.add(readingDataTmp);
-        readingDataList.add(readingDataTmp);
-        readingDataList.add(readingDataTmp);
-
-        Iterator iterator;
-
-        for(iterator = readingDataList.iterator(); iterator.hasNext(); ){
-            MeterReadingData meterReadingData = (MeterReadingData)iterator.next();
+        for (Iterator iterator = readingDataList.iterator(); iterator.hasNext(); ) {
+            MeterReadingData meterReadingData = (MeterReadingData) iterator.next();
             /*Calculate number of readings that should be sent for this meterReadingData*/
             int numberOfItemsToSend = meterReadingData.getMeterReading().getReadings().size();
 
             Iterator intervalBlocksIterator;
             for (intervalBlocksIterator = meterReadingData.getMeterReading().getIntervalBlocks().iterator();
                  intervalBlocksIterator.hasNext(); ) {
-                numberOfItemsToSend = numberOfItemsToSend+((IntervalBlock) intervalBlocksIterator.next()).getIntervals().size();
+                numberOfItemsToSend = numberOfItemsToSend + ((IntervalBlock) intervalBlocksIterator.next()).getIntervals().size();
             }
 
-            if ( numberOfItemsToSend >  NUMBER_OF_READINGS_PER_MSG){
+            if (numberOfItemsToSend > NUMBER_OF_READINGS_PER_MSG) {
                 /*It means that number of readings in one meterReadingData is more than allowable size.
-                * This reading will not be sent? At current moment no because all reading from one profileId
-                * have to be sent in one message */
-                System.out.println("CONTINUE!!!");
+                 * This reading will not be sent? At current moment no because all reading from one profileId
+                 * have to be sent in one message */
                 continue;
             }
 
-            //List<IntervalBlock>  tmplist = meterReadingData.getMeterReading().getIntervalBlocks();
-            if (meterReadingDataNr < NUMBER_OF_READINGS_PER_MSG){
-                System.out.println("NUMBER OF READINGS = "+numberOfItemsToSend);
-                System.out.println("NUMBER ALL READINGS = "+meterReadingDataNr);
+            if (meterReadingDataNr < NUMBER_OF_READINGS_PER_MSG) {
                 if (NUMBER_OF_READINGS_PER_MSG - meterReadingDataNr > numberOfItemsToSend) {
                     readingDataToSend.add(meterReadingData);
                     meterReadingDataNr = meterReadingDataNr + numberOfItemsToSend;
-                    if (!iterator.hasNext()){
-                        System.out.println("SEND 1!!!!!!!!!!");
-                        sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->{
+                    if (!iterator.hasNext()) {
+                        sendPartOfData(endPointConfiguration, readingDataToSend).ifPresent(srvCall -> {
                             srvCallList.add(srvCall);
                         });
                         meterReadingDataNr = 0;
                         readingDataToSend.clear();
                     }
-                }else{
-                    System.out.println("SEND 2!!!!!!!!!!");
-                    sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->{
+                } else {
+                    sendPartOfData(endPointConfiguration, readingDataToSend).ifPresent(srvCall -> {
                         srvCallList.add(srvCall);
                     });
                     meterReadingDataNr = numberOfItemsToSend;
                     readingDataToSend.clear();
                     readingDataToSend.add(meterReadingData);
-                    if (!iterator.hasNext()){
-                        System.out.println("IT WAS LAST READING SEND IT 2!!!!!!!!!!");
+                    if (!iterator.hasNext()) {
                         /*It was last readings. Just send it*/
-                        sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->{
+                        sendPartOfData(endPointConfiguration, readingDataToSend).ifPresent(srvCall -> {
                             srvCallList.add(srvCall);
                         });
                     }
                 }
 
-            }else{
-                System.out.println("SEND 3!!!!!!!!!!");
-                sendPartOfData(endPointConfiguration, readingDataToSend.stream()).ifPresent(srvCall->srvCallList.add(srvCall));
+            } else {
+                sendPartOfData(endPointConfiguration, readingDataToSend).ifPresent(srvCall -> srvCallList.add(srvCall));
                 meterReadingDataNr = 0;
                 readingDataToSend.clear();
             }
-
         }
 
         return srvCallList;
     }
 
 
-    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data){
+    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, List<ExportData> data){
         String uuid = UUID.randomUUID().toString();
         try {
             SetMultimap<String, String> values = HashMultimap.create();
-            MSG message = createMessage(data, uuid, values);
+            MSG message = createMessage(data.stream(), uuid, values);
             if (message != null) {
                 Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                         .toEndpoints(endPointConfiguration)
@@ -221,7 +198,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
                 }
                 Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
                         .filter(timeout -> !timeout.isEmpty())
-                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), data));
+                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), data.stream()));
 
                 return serviceCall;
             }

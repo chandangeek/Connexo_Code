@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 public class WebServiceDataExportChildPersistentSupport implements PersistenceSupport<ServiceCall, WebServiceDataExportChildDomainExtension> {
-    public static final String COMPONENT_NAME = "DEW";
+    public static final String COMPONENT_NAME = "DE1";
     static final String APPLICATION_NAME = "Pulse";
 
 
     private static final String FK_NAME = COMPONENT_NAME + "_FK_WEB_SC_CPS_CSC";
-    private static final String UK_NAME = COMPONENT_NAME + "_UK_WEB_SC_CPS_NAME_MRID";
-    private static final String TABLE_NAME = COMPONENT_NAME + "_WEB_SERVICE_CALL_CHILD_CPS";
+    private static final String UK_NAME = COMPONENT_NAME + "_UK_WS_CPS_NAME_MRID";
+    private static final String TABLE_NAME = COMPONENT_NAME + "_WS_CALL_CHILD_CPS";
 
     @Override
     public String componentName() {
@@ -68,7 +68,6 @@ public class WebServiceDataExportChildPersistentSupport implements PersistenceSu
                 .map(WebServiceDataExportChildDomainExtension.FieldNames.READING_TYPE_MRID.javaName())
                 .notNull()
                 .add();
-        table.unique(UK_NAME).on(deviceName, readingTypeMrId).add();
     }
 
     @Override

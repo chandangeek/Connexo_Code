@@ -80,8 +80,8 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     public ServiceCallType findOrCreateChildType() {
 
         return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
-            RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
-                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
+            RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)));
 
             serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
             return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
@@ -118,13 +118,12 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
     @Override
     public void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data){
-        data.map(MeterReadingData.class::isInstance)
+        data.filter(MeterReadingData.class::isInstance)
                 .map(MeterReadingData.class::cast).forEach(datareading->createChild(parent, datareading));
     }
 
 
     private void createChild(ServiceCall parent, MeterReadingData reading){
-
         String deviceName = reading.getItem().getDomainObject().getName();
         String readingTypeMrID = reading.getItem().getReadingType().getMRID();
 
@@ -133,12 +132,9 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
 
         ServiceCallType srvCallChildType = findOrCreateChildType();
-
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(srvCallChildType)
                 .extendedWith(childSrvCallProperties);
-
         serviceCallBuilder.create();
-
     }
 
 
@@ -157,7 +153,6 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
                 .create();
         serviceCall.requestTransition(DefaultState.PENDING);
         serviceCall.requestTransition(DefaultState.ONGOING);
-
         createChildServiceCalls(serviceCall, data);
 
         return serviceCall;

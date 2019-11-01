@@ -86,7 +86,6 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     public void activate(BundleContext bundleContext) {
         String tmpStr = bundleContext.getProperty(PROPERTY_MSG_SIZE);
         NUMBER_OF_READINGS_PER_MSG = Integer.valueOf(tmpStr);
-        System.out.println("2 NUMBER_OF_READINGS_PER_MSG = "+NUMBER_OF_READINGS_PER_MSG);
     }
 
     @Override
