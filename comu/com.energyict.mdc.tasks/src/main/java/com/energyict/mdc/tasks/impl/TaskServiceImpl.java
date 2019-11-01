@@ -226,13 +226,6 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
     }
 
     @Override
-    public Optional<ComTask> findFirmwareComTask(long id) {
-        return dataModel.mapper(ComTask.class)
-                .select(where("name").isEqualTo(TaskService.FIRMWARE_COMTASK_NAME)).stream()
-                .filter(ComTask::isSystemComTask).filter(comTask -> comTask.getId() == id).findFirst();
-    }
-
-    @Override
     public List<LogBooksTask> findTasksUsing(LogBookType logBookType) {
         List<LogBookTypeUsageInProtocolTask> usages = dataModel.mapper(LogBookTypeUsageInProtocolTask.class)
                 .find(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName(), logBookType);

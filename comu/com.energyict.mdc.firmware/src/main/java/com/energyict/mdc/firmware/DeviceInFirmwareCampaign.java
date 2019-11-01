@@ -39,7 +39,7 @@ public interface DeviceInFirmwareCampaign {
 
     Optional<ComTaskExecution> findOrCreateFirmwareComTaskExecution();
 
-    Optional<ComTaskExecution> findOrCreateVerificationTaskExecution();
+    Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution();
 
     void delete();
 }

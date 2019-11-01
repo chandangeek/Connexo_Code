@@ -254,7 +254,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                 failed = true;
             }
         } else {
-            getServiceCall().log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             failed = true;
         }
         if (!doesConnectionWindowOverlap()) {
@@ -262,7 +262,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     .format(getDevice().getName()));
             failed = true;
         }
-        Optional<ComTaskExecution> verificationComTaskExecution = findOrCreateVerificationTaskExecution();
+        Optional<ComTaskExecution> verificationComTaskExecution = findOrCreateVerificationComTaskExecution();
         if (verificationComTaskExecution.isPresent()) {
             if (!verificationComTaskExecution.get().getConnectionTask().isPresent()) {
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
@@ -409,7 +409,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     @Override
     public Optional<ComTaskExecution> findOrCreateFirmwareComTaskExecution() {
-        Optional<ComTask> optionalComTask = taskService.findFirmwareComTask(getFirmwareCampaign().getFirmwareUploadComTaskId());
+        Optional<ComTask> optionalComTask = taskService.findFirmwareComTask();
         if (optionalComTask.isPresent()) {
             ComTask firmwareComTask = optionalComTask.get();
             Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.getId();
@@ -428,9 +428,10 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
-    public Optional<ComTaskExecution> findOrCreateVerificationTaskExecution() {
+    public Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution() {
         return getDevice().getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == getFirmwareCampaign().getValidationComTaskId())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .anyMatch(task -> task instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())

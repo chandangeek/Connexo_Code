@@ -39,7 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     MASTER_HAS_GHOST_FIRMWARE(30, "MasterHasGhostFirmware", "There is firmware with \"Ghost\" status on the master device.", Level.WARNING),
     WRONG_FIRMWARE_TYPE_FOR_AUX_FW_DEPENDENCY(31, "WrongFirmwareTypeForAuxFWDependency", "{0} ''{1}'' can''t be selected as a minimal auxiliary firmware for ''{2}''.", Level.SEVERE),
     WRONG_RANK_FOR_AUX_FW_DEPENDENCY(32, "WrongRankForAuxFWDependency", "Firmware ''{0}'' can''t have dependency on minimal auxiliary firmware ''{1}'' with a higher rank.", Level.SEVERE),
-    FIRMWARES_BELOW_MINIMUM_LEVEL(34, "FirmwaresBelowMinimumLevel", "Firmware of the following types are below the minimum level: {0}.", Level.WARNING),
+    FIRMWARES_BELOW_MINIMUM_LEVEL(34, "FirmwareBelowMinimumLevel", "Firmware of the following types is below the minimum level: {0}.", Level.WARNING),
 
 
     DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1001, "DevicesWerentAddedBecausePartOtherCampaign", "''{0}'' devices weren''t added to the campaign because they are a part of another ongoing campaign.", Level.INFO),
@@ -75,7 +75,7 @@ public enum MessageSeeds implements MessageSeed {
     CAMPAIGN_ALREADY_CANCELLED(4019, "CampaignAlreadyCancelled", "The campaign has already been cancelled.", Level.WARNING),
     DEVICE_IS_NOT_PENDING_STATE(4020, "DeviceIsNotPendingState", "The device service call isn''t in pending state.", Level.WARNING),
     CAMPAIGN_WITH_DEVICE_CANCELLED(4021, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),
-    CONNECTION_METHOD_MISSING_ON_COMTASK(4022, "ConnectionMissingOnComTask", "A connection method is missing on communication task ''{0}''.", Level.SEVERE);
+    CONNECTION_METHOD_MISSING_ON_COMTASK(4022, "ConnectionMissingOnComTask", "Communication task ''{0}'' doesn''t refer to any connection method.", Level.SEVERE);
 
 
     private final int number;

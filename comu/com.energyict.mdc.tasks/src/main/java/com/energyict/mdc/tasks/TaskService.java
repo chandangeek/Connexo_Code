@@ -58,8 +58,6 @@ public interface TaskService {
 
     public Optional<ComTask> findFirmwareComTask();
 
-    Optional<ComTask> findFirmwareComTask(long id);
-
     Optional<ComTask> findAndLockComTaskByIdAndVersion(long id, long version);
 
 }

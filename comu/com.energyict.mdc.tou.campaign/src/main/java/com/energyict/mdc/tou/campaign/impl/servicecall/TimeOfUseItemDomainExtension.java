@@ -177,6 +177,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     public Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution() {
         return getDevice().getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == getCampaign().getValidationComTaskId())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .anyMatch(task -> task instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())

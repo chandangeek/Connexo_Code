@@ -207,7 +207,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         Optional<? extends FirmwareCampaign> campaignOptional = serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class);
         if (campaignOptional.isPresent()) {
             FirmwareCampaign campaign = campaignOptional.get();
-            Optional<ComTaskExecution> comTaskExecutionOptional = deviceInFirmwareCampaign.findOrCreateVerificationTaskExecution();
+            Optional<ComTaskExecution> comTaskExecutionOptional = deviceInFirmwareCampaign.findOrCreateVerificationComTaskExecution();
             if (comTaskExecutionOptional.isPresent()) {
                 ComTaskExecution comTaskExecution = comTaskExecutionOptional.get();
                 if (comTaskExecution.getConnectionTask().isPresent()) {
