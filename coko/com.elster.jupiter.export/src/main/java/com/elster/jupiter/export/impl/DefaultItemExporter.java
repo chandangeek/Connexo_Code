@@ -68,8 +68,6 @@ class DefaultItemExporter implements ItemExporter {
     public List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
         ReadingTypeDataExportItem item = meterReadingData.getItem();
         dataFormatter.startItem(item);
-        item.setLastRun(occurrence.getTriggerTime());
-        item.update();
         FormattedData formattedData = dataFormatter.processData(Stream.of(meterReadingData));
         dataFormatter.endItem(item);
         exportItems.add(item);
