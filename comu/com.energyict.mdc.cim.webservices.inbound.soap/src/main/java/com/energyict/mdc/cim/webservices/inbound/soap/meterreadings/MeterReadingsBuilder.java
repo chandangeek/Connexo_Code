@@ -369,8 +369,13 @@ public class MeterReadingsBuilder {
             timePeriods = TreeRangeSet.create(timePeriods);
             timePeriods.add(registerUppedBoundRange);
             this.serviceCall.log(LogLevel.FINEST, "reading records fetched from DB, channel: " + channel.getReadingType());
-            records.stream().map(com.elster.jupiter.metering.readings.Reading.class::cast)
-                    .forEach(r -> this.serviceCall.log(LogLevel.FINEST, " value: " + r.getValue() + ", text: " + r.getText() + ", timestamp: " + r.getTimeStamp()));
+            try {
+
+                records.stream().map(com.elster.jupiter.metering.readings.Reading.class::cast)
+                        .forEach(r -> this.serviceCall.log(LogLevel.FINEST, " value: " + r.getValue() + ", text: " + r.getText() + ", timestamp: " + r.getTimeStamp()));
+            } catch (Exception e) {
+                this.serviceCall.log(LogLevel.FINEST, e.getMessage());
+            }
         }
         return getReadingRecords(records, timePeriods);
     }
