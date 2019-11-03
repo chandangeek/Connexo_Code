@@ -45,6 +45,11 @@ class ForwardedDeviceEventTypesFormatter {
         }
     }
 
+    boolean contains(SAPDeviceEventType eventType) {
+        return eventType.getEventCode().filter(forwardedEventTypesByEventCode::containsKey).isPresent()
+                || eventType.getDeviceEventCode().filter(forwardedEventTypesByDeviceEventCode::containsKey).isPresent();
+    }
+
     Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt> filterAndFormat(EndDeviceEventRecord eventRecord) {
         SAPDeviceEventType eventType = forwardedEventTypesByEventCode.get(eventRecord.getEventTypeCode());
         if (eventType == null) {
