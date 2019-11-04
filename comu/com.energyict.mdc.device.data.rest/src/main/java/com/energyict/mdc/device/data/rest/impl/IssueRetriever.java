@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -25,7 +26,7 @@ public class IssueRetriever {
     private final IssueService issueService;
     private IssueType dataCollectionIssueType;
     private IssueType dataValidationIssueType;
-    private Map<String, List<OpenIssue>> deviceIssueCache;
+    private Map<Long, List<String>> deviceIssueCache;
 
     public IssueRetriever(IssueService issueService) {
         this(issueService, null);
@@ -34,9 +35,7 @@ public class IssueRetriever {
     public IssueRetriever(IssueService issueService, List<Device> devices) {
         this.issueService = issueService;
         if (devices != null) {
-            deviceIssueCache = issueService.findOpenIssuesForDevices(devices.stream().map(Device::getName).collect(Collectors.toList()))
-                    .stream()
-                    .collect(Collectors.groupingBy(openIssue -> openIssue.getDevice().getName()));
+            deviceIssueCache = issueService.findOpenIssuesPerIssueTypeForDevices(devices.stream().map(Device::getId).collect(Collectors.toList()));
         } else {
             deviceIssueCache = null;
         }
@@ -45,28 +44,35 @@ public class IssueRetriever {
     }
 
     public boolean hasOpenDataCollectionIssues(Device device) {
-        List<OpenIssue> openIssues = getOpenIssuesForDevice(device);
-        return openIssues.stream().anyMatch(issue -> dataCollectionIssueType.equals(issue.getReason().getIssueType()));
-    }
-
-    private List<OpenIssue> getOpenIssuesForDevice(Device device) {
-        if (deviceIssueCache != null) {
-            return deviceIssueCache.containsKey(device.getName()) ? deviceIssueCache.get(device.getName()) : Collections.emptyList();
-        } else {
-            return issueService.findOpenIssuesForDevice(device.getName()).find();
-        }
+        List<String> issueTypes = getOpenIssuesForDevice(device);
+        return issueTypes.stream().anyMatch(issueType -> issueType.equals(dataCollectionIssueType.getKey()));
     }
 
     public boolean hasOpenDataValidationIssues(Device device) {
-        List<OpenIssue> openIssues = getOpenIssuesForDevice(device);
-        return openIssues.stream().anyMatch(issue -> dataValidationIssueType.equals(issue.getReason().getIssueType()));
+        List<String> issueTypes = getOpenIssuesForDevice(device);
+        return issueTypes.stream().anyMatch(issueType -> issueType.equals(dataValidationIssueType.getKey()));
     }
 
     public int numberOfDataCollectionIssues(Device device) {
-        return (int) getOpenIssuesForDevice(device).stream().filter(issue -> dataCollectionIssueType.equals(issue.getReason().getIssueType())).count();
+        return (int) issueService.findOpenIssuesForDevice(device.getName()).find().stream().filter(issue -> dataCollectionIssueType.equals(issue.getReason().getIssueType())).count();
     }
 
     public Optional<OpenIssue> getOpenDataValidationIssue(Device device) {
-        return getOpenIssuesForDevice(device).stream().filter(issue -> dataValidationIssueType.equals(issue.getReason().getIssueType())).findFirst();
+        return issueService.findOpenIssuesForDevice(device.getName())
+                .stream().filter(issue -> dataValidationIssueType.equals(issue.getReason().getIssueType())).findFirst();
+    }
+
+    private List<String> getOpenIssuesForDevice(Device device) {
+        if (deviceIssueCache != null) {
+            return deviceIssueCache.containsKey(device.getId()) ? deviceIssueCache.get(device.getId()) : Collections.emptyList();
+        } else {
+            return issueService.findOpenIssuesForDevice(device.getName()).find()
+                    .stream()
+                    .map(OpenIssue::getReason)
+                    .map(IssueReason::getIssueType)
+                    .map(IssueType::getKey)
+                    .collect(Collectors.toList());
+        }
     }
 }
+

@@ -96,6 +96,8 @@ public interface IssueService {
 
     Finder<OpenIssue> findOpenIssuesForDevices(List<String> deviceNames);
 
+    Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds);
+
     Finder<OpenIssue> findOpenIssuesForDevice(String deviceName);
 
     List<IssueProvider> getIssueProviders();
