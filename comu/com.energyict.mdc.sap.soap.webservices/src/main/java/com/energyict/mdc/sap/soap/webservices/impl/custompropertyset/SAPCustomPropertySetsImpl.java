@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -33,6 +34,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
@@ -83,9 +85,9 @@ import java.util.stream.Stream;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.SAPCustomPropertySets",
-        service = {SAPCustomPropertySets.class, TranslationKeyProvider.class},
+        service = {SAPCustomPropertySets.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + SAPCustomPropertySetsImpl.COMPONENT_NAME, immediate = true)
-public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCustomPropertySets {
+public class SAPCustomPropertySetsImpl implements MessageSeedProvider, TranslationKeyProvider, SAPCustomPropertySets {
     static final String COMPONENT_NAME = "SCA"; // only for translations
     private static final TemporalAmount LESS_THAN_TIME_STEP = Duration.ofNanos(1);
 
@@ -180,6 +182,11 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
