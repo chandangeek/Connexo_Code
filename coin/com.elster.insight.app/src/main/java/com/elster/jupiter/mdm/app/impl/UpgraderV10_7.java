@@ -45,7 +45,9 @@ public class UpgraderV10_7 implements Upgrader {
     private String[] getNewDataOperatorPrivileges() {
         return new String[]{
                 // audit
-                com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG
+                com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES
         };
     }
 
