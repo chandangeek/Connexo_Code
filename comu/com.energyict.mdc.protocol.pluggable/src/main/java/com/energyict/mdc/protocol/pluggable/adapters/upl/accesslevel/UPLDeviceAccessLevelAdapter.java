@@ -23,6 +23,7 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
     protected com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel;
     private Thesaurus thesaurus;
     private int id;
+    private String translation;
 
     public UPLDeviceAccessLevelAdapter() {
         super();
@@ -50,11 +51,12 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
     }
 
     @Override
-    @JsonIgnore
     public String getTranslation() {
-        return thesaurus != null
-                ? thesaurus.getString(uplDeviceAccessLevel.getTranslationKey(), uplDeviceAccessLevel.getDefaultTranslation())
-                : uplDeviceAccessLevel.getDefaultTranslation(); // Should only be the case for unit tests
+        if (thesaurus != null || uplDeviceAccessLevel != null)
+            translation = thesaurus != null
+                    ? thesaurus.getString(uplDeviceAccessLevel.getTranslationKey(), uplDeviceAccessLevel.getDefaultTranslation())
+                    : uplDeviceAccessLevel.getDefaultTranslation(); // Should only be the case for unit tests
+        return translation;
     }
 
     @Override
