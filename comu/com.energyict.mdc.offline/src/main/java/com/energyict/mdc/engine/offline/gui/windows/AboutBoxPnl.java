@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.offline.gui.windows;
 
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
+import com.energyict.mdc.engine.offline.core.OfflinePropertiesProvider;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.engine.offline.gui.beans.TableBuilder;
@@ -62,9 +63,10 @@ public class AboutBoxPnl extends JPanel {
     public AboutBoxPnl(String applicationName) {
         initComponents();
         pictureLabel.setIcon(EisIcons.ENERGYICT_ICON);
-        protocolTesterLabel.setText(applicationName + " " + getShortVersion());
-
-        buildLabel.setText("(Build " + getBuildNumber() + ")");
+        String version = OfflinePropertiesProvider.getInstance().getConnexoVersion();
+        version = version == null ? "" : version + " ";
+        protocolTesterLabel.setText(applicationName + " " + version);
+        buildLabel.setText("(Build " + version + ")");
 
         CustomerVersion protocolVersion = getProtocolVersion();
         if (protocolVersion == null) {
@@ -417,15 +419,5 @@ public class AboutBoxPnl extends JPanel {
         } catch (IllegalAccessException ex) {
             return null;
         }
-    }
-
-    public String getShortVersion() {
-        Package p = getClass().getPackage();
-        return p.getSpecificationVersion();
-    }
-
-    public String getBuildNumber() {
-        Package p = getClass().getPackage();
-        return p.getImplementationVersion();
     }
 }
