@@ -41,10 +41,4 @@ public class FirmwareManagementTaskImpl extends ProtocolTaskImpl implements Firm
         // currently no dependents to delete
     }
 
-    @Override
-    public boolean isValidFirmwareCommand(DeviceMessageSpec deviceMessageSpec) {
-        return this.deviceMessageSpecificationService.getFirmwareCategory().getId() == deviceMessageSpec.getCategory().getId();
-    }
-
-
 }

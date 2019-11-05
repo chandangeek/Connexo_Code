@@ -9,6 +9,7 @@ import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -21,6 +22,7 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.protocolimplv2.messages.DeviceMessageSpecImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
@@ -44,6 +46,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private final OfflineDevice offlineDevice;
     private IdentificationService identificationService;
     private ProtocolPluggableService protocolPluggableService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private DeviceMessageSpec specification;
     private DeviceMessageStatus deviceMessageStatus;
     private long deviceMessageId;
@@ -56,23 +59,25 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private Instant creationDate;
     private Device device;
     private String preparedContext;
+    private boolean firmwareMessage;
     private DeviceIdentifier deviceIdentifier;
     private MessageIdentifier messageIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
-    private OfflineDeviceMessageImpl() {
+    public OfflineDeviceMessageImpl() {
         this.deviceMessage = null;
         this.deviceProtocol = null;
         this.offlineDevice = null;
     }
 
-    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol, IdentificationService identificationService, ProtocolPluggableService protocolPluggableService, OfflineDevice offlineDevice) {
+    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol, IdentificationService identificationService, ProtocolPluggableService protocolPluggableService, DeviceMessageSpecificationService deviceMessageSpecificationService, OfflineDevice offlineDevice) {
         this.deviceMessage = deviceMessage;
         this.deviceProtocol = deviceProtocol;
         this.identificationService = identificationService;
         this.protocolPluggableService = protocolPluggableService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.offlineDevice = offlineDevice;
         goOffline();
     }
@@ -82,6 +87,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
         this.deviceMessageId = this.deviceMessage.getId();
         this.specification = this.protocolPluggableService.adapt(this.deviceMessage.getSpecification());
+        this.firmwareMessage = this.deviceMessageSpecificationService.getFirmwareCategory().getId() == specification.getCategory().getId();
         this.deviceId = device.getId();
         this.deviceSerialNumber = device.getSerialNumber();
         this.releaseDate = this.deviceMessage.getReleaseDate();
@@ -110,8 +116,8 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
-    @XmlTransient
     @JsonIgnore
+    @XmlTransient
     public DeviceProtocol getDeviceProtocol() {
         return deviceProtocol;
     }
@@ -164,6 +170,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
+    @XmlElement(type = OfflineDeviceMessageAttributeImpl.class)
     public List<OfflineDeviceMessageAttribute> getDeviceMessageAttributes() {
         return this.deviceMessageAttributes;
     }
@@ -186,6 +193,12 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         if (identificationService != null)
             deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
         return deviceIdentifier;
+    }
+
+    @Override
+    @XmlAttribute
+    public boolean isFirmwareMessage() {
+        return firmwareMessage;
     }
 
     @Override

@@ -13,5 +13,4 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
  */
 public interface FirmwareManagementTask extends ProtocolTask {
 
-    boolean isValidFirmwareCommand(DeviceMessageSpec deviceMessageId);
 }

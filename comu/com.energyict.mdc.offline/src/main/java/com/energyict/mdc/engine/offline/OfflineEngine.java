@@ -42,6 +42,7 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -294,6 +295,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
@@ -343,6 +345,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference
@@ -525,6 +532,10 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return protocolPluggableService;
+        }
+
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return deviceMessageSpecificationService;
         }
 
         @Override

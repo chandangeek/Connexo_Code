@@ -41,6 +41,7 @@ import com.energyict.mdc.engine.offline.persist.BusinessDataPersister;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -610,6 +611,10 @@ public class OfflineExecuter implements OfflineActionExecuter {
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return serviceProvider.protocolPluggableService();
+        }
+
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return serviceProvider.deviceMessageSpecificationService();
         }
 
         @Override
