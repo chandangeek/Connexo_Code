@@ -36,31 +36,36 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
     public void utilitiesDeviceERPSmartMeterRegisterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
 
-            SetMultimap<String, String> values = HashMultimap.create();
-
-            request.getUtilitiesDeviceERPSmartMeterRegisterCreateRequestMessage().forEach(req -> {
-                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), req.getUtilitiesDevice().getID().getValue());
-                req.getUtilitiesDevice().getRegister().forEach(reg -> {
-                    values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), reg.getUtilitiesMeasurementTaskID().getValue());
-                });
-            });
-
-            saveRelatedAttributes(values);
-
-            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);
-            }
-
-            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceRegisteredBulkNotification.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage.builder()
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                                UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
+                                        .from(requestMessage)
+                                        .build();
+
+                                SetMultimap<String, String> values = HashMultimap.create();
+
+                                message.getUtilitiesDeviceRegisterCreateMessages().forEach(device -> {
+                                    values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), device.getDeviceId());
+                                    device.getUtilitiesDeviceRegisterMessages().forEach(reg -> {
+                                        values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), reg.getLrn());
+                                    });
+                                });
+
+                                saveRelatedAttributes(values);
+
+                                if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
+                                    throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                            UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);
+                                }
+
+                                if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
+                                    throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                            UtilitiesDeviceRegisteredBulkNotification.NAME);
+                                }
+
+                                createServiceCallAndTransition(message);
+                            }
+                    );
             return null;
         });
 

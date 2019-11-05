@@ -34,30 +34,34 @@ public class UtilitiesDeviceRegisterCreateRequestEndpoint extends AbstractRegist
     @Override
     public void utilitiesDeviceERPSmartMeterRegisterCreateRequestCIn(UtilsDvceERPSmrtMtrRegCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-
-            SetMultimap<String, String> values = HashMultimap.create();
-            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDevice().getID().getValue());
-            request.getUtilitiesDevice().getRegister().forEach(register->{
-                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                        register.getUtilitiesMeasurementTaskID().getValue());
-            });
-
-            saveRelatedAttributes(values);
-
-            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceRegisterCreateConfirmation.NAME);
-            }
-
-            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredNotification.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceRegisteredNotification.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage.builder()
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                        UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
+                                .from(requestMessage)
+                                .build();
+
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getUtilitiesDeviceRegisterCreateMessages().get(0).getDeviceId());
+                        message.getUtilitiesDeviceRegisterCreateMessages().get(0).getUtilitiesDeviceRegisterMessages().forEach(register->{
+                            values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                                    register.getLrn());
+                        });
+
+                        saveRelatedAttributes(values);
+
+                        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
+                            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    UtilitiesDeviceRegisterCreateConfirmation.NAME);
+                        }
+
+                        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredNotification.NAME)) {
+                            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    UtilitiesDeviceRegisteredNotification.NAME);
+                        }
+
+                        createServiceCallAndTransition(message);
+
+                    });
             return null;
         });
     }

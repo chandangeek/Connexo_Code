@@ -53,8 +53,8 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
 
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
         PodMessage podMsg = new PodMessage(msg);
+        saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), podMsg.deviceId);
         if (podMsg.isValid()) {
-            saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), podMsg.deviceId);
             Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
             if (device.isPresent()) {
                 try {

@@ -9,6 +9,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -58,5 +60,10 @@ public class CheckScheduledRequestHandlerFactory implements MessageHandlerFactor
     @Reference
     public final void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 }

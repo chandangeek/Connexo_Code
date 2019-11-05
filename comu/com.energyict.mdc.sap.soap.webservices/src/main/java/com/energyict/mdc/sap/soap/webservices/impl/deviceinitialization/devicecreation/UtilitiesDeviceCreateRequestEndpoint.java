@@ -21,7 +21,6 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.stream.Collectors;
 
 public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestEndpoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn {
 
@@ -38,14 +37,12 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestE
                 UtilitiesDeviceCreateRequestMessage request = UtilitiesDeviceCreateRequestMessage.builder()
                         .from(requestMessage)
                         .build();
+
                 SetMultimap<String, String> values = HashMultimap.create();
-                values.putAll(CimAttributeNames.SERIAL_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().stream()
-                        .map(UtilitiesDeviceCreateMessage::getSerialId)
-                        .collect(Collectors.toList()));
-                values.putAll(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().stream()
-                        .map(UtilitiesDeviceCreateMessage::getDeviceId)
-                        .collect(Collectors.toList()));
+                values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().get(0).getSerialId());
+                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().get(0).getDeviceId());
                 saveRelatedAttributes(values);
+
                 if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
                     throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                             UtilitiesDeviceCreateConfirmation.NAME);

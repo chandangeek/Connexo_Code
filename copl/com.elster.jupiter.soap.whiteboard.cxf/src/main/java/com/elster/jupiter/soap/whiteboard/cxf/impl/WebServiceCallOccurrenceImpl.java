@@ -240,7 +240,12 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                     .filter(entry -> !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
                     .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName()).isEqualTo(entry.getKey())
                             .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
-                    .reduce(Condition::or).get();
+                    .reduce(Condition::or).orElse(null);
+
+            if (condition == null) {
+                return;
+            }
+
             /* Find all related attributes that has been already created */
             List<WebServiceCallRelatedAttributeImpl> createdRelatedAttributeList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition);
 
