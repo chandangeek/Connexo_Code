@@ -171,16 +171,9 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     private static BusinessDocumentMessageHeader createMessageHeader(String uuid, Instant now) {
         BusinessDocumentMessageHeader header = new BusinessDocumentMessageHeader();
-        header.setID(createID(uuid));
         header.setUUID(createUUID(uuid));
         header.setCreationDateTime(now);
         return header;
-    }
-
-    private static BusinessDocumentMessageID createID(String id) {
-        BusinessDocumentMessageID messageID = new BusinessDocumentMessageID();
-        messageID.setValue(id);
-        return messageID;
     }
 
     private static com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UUID createUUID(String uuid) {
