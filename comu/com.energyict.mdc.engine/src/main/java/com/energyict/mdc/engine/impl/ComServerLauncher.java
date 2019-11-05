@@ -44,6 +44,7 @@ import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -292,6 +293,10 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return serviceProvider.protocolPluggableService();
+        }
+
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return serviceProvider.deviceMessageSpecificationService();
         }
 
         @Override

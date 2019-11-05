@@ -26,6 +26,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.remote.MapXmlMarshallAdapter;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -600,6 +601,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
                 ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().get().getDeviceProtocol(),  //Downcast to CXO Device
                 serviceProvider.identificationService(),
                 serviceProvider.protocolPluggableService(),
+                serviceProvider.deviceMessageSpecificationService(),
                 this);
     }
 
@@ -721,6 +723,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         Thesaurus thesaurus();
 
         ProtocolPluggableService protocolPluggableService();
+
+        DeviceMessageSpecificationService deviceMessageSpecificationService();
 
         TopologyService topologyService();
 

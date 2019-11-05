@@ -62,6 +62,7 @@ public interface DeviceAccessLevel {
      *
      * @return The translation resource bundle
      */
+    @XmlAttribute
     String getTranslation();
 
     /**

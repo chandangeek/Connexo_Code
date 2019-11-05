@@ -124,6 +124,14 @@ public interface OfflineDeviceMessage extends Offline {
     @XmlAttribute
     List<? extends OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
 
+    /**
+     * Indication for a firmware message
+     *
+     * @return the creationDate of this message
+     */
+    @XmlAttribute
+    public boolean isFirmwareMessage();
+
     @XmlElement(name = "type")
     default String getXmlType() {
         return getClass().getName();

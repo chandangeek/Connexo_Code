@@ -82,6 +82,8 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public List<PropertySpec> getPropertySpecs() {
         return this.propertySpecs;
     }

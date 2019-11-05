@@ -87,6 +87,7 @@ import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -496,6 +497,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                                 deviceProtocolPluggableClass.get().getDeviceProtocol(),
                                 serviceProvider.identificationService(),
                                 serviceProvider.protocolPluggableService(),
+                                serviceProvider.deviceMessageSpecificationService(),
                                 new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
                         )
                 );
@@ -1160,6 +1162,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                                 device.getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
                                 serviceProvider.identificationService(),
                                 serviceProvider.protocolPluggableService(),
+                                serviceProvider.deviceMessageSpecificationService(),
                                 new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
                         ));
                     }
@@ -1903,6 +1906,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         ProtocolPluggableService protocolPluggableService();
 
+        DeviceMessageSpecificationService deviceMessageSpecificationService();
+
         EngineConfigurationService engineConfigurationService();
 
         ConnectionTaskService connectionTaskService();
@@ -1952,6 +1957,11 @@ public class ComServerDAOImpl implements ComServerDAO {
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return serviceProvider.protocolPluggableService();
+        }
+
+        @Override
+        public DeviceMessageSpecificationService deviceMessageSpecificationService() {
+            return serviceProvider.deviceMessageSpecificationService();
         }
 
         @Override

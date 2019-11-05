@@ -49,6 +49,7 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
@@ -142,6 +143,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
@@ -169,7 +171,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
             RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
             DataVaultService dataVaultService,
-            ProtocolPluggableService protocolPluggableService, StatusService statusService,
+            ProtocolPluggableService protocolPluggableService, DeviceMessageSpecificationService deviceMessageSpecificationService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
             SerialComponentService serialATComponentService,
@@ -202,6 +204,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
         setProtocolPluggableService(protocolPluggableService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setSocketService(socketService);
         setSerialATComponentService(serialATComponentService);
         setStatusService(statusService);
@@ -426,6 +429,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference
@@ -873,6 +881,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return protocolPluggableService;
+        }
+
+        @Override
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return deviceMessageSpecificationService;
         }
 
         @Override
