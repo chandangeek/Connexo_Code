@@ -23,6 +23,7 @@ import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
+import org.apache.velocity.util.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -259,7 +260,7 @@ public class JSonConverter {
                 if (active == activeProcess) {
                     JSONObject jsonComPort = new JSONObject();
                     jsonComPort.put("id", each.getId());
-                    jsonComPort.put("name", each.getName());
+                    jsonComPort.put("name", StringUtils.nullTrim(each.getName()));
                     jsonComPort.put("description", each.getDescription());
                     jsonComPort.put("inbound", each.isInbound());
                     if (lastSeen != null) {

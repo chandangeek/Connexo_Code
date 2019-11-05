@@ -153,12 +153,12 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     public DeviceSearchInfo from(Device device) {
         return DeviceSearchInfo
                 .from(
-                    device,
-                    new GatewayRetriever(topologyService),
-                    new IssueRetriever(issueService),
-                    this.thesaurus,
-                    this.meteringTranslationService,
-                    new DeviceValidationRetriever(deviceService));
+                        device,
+                        new GatewayRetriever(topologyService),
+                        new IssueRetriever(issueService),
+                        this.thesaurus,
+                        this.meteringTranslationService,
+                        new DeviceValidationRetriever(deviceService));
     }
 
     @Override
