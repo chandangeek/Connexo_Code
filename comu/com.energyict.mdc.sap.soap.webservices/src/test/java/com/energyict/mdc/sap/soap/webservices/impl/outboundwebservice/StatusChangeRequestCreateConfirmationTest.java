@@ -70,7 +70,7 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
 
         assertThatThrownBy(() -> provider.call(outboundMessage))
                 .isInstanceOf(LocalizedException.class)
-                .hasMessage("No web service endpoints are available to send the request using 'SapStatusChangeRequestCreateConfirmation'.");
+                .hasMessage("No web service endpoints are available to send the request using 'SAP ConnectionStatusChangeСonfirmation'.");
     }
 
     @Test

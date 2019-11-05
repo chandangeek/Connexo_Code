@@ -9,7 +9,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusCha
 
 public interface StatusChangeRequestCreateConfirmation {
 
-    String SAP_STATUS_CHANGE_REQUEST_CREATE_CONFIRMATION = "SapStatusChangeRequestCreateConfirmation";
+    String SAP_STATUS_CHANGE_REQUEST_CREATE_CONFIRMATION = "SAP ConnectionStatusChangeСonfirmation";
 
     /**
      * Invoked by the service call when the SAP status change request completed or failed

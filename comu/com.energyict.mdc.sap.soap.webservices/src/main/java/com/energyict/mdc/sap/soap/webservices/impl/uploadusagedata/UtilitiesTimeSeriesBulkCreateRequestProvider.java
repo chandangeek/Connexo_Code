@@ -61,12 +61,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = UtilitiesTimeSeriesBulkCreateRequestProvider.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateRequestProvider",
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
 public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg> implements ApplicationSpecific {
-    public static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out";
+    public static final String NAME = "SAP TimeSeriesBulkCreateRequest";
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
         // for OSGi purposes

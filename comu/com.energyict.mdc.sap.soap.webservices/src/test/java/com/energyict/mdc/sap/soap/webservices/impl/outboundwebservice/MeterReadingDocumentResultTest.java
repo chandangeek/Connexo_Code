@@ -64,7 +64,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
 
         assertThatThrownBy(() -> provider.call(outboundMessage))
                 .isInstanceOf(LocalizedException.class)
-                .hasMessage("No web service endpoints are available to send the request using 'SapMeterReadingResult'.");
+                .hasMessage("No web service endpoints are available to send the request using 'SAP MeterReadingResultRequest'.");
     }
 
     @Test

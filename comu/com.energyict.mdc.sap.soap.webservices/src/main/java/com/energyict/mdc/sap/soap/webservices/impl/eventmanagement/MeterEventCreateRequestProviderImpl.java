@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Singleton
-@Component(name = MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.eventmanagement.MeterEventCreateRequestProviderImpl",
         service = {MeterEventCreateRequestProvider.class, OutboundSoapEndPointProvider.class}, immediate = true,
         property = {"name=" + MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT})
 public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPointProvider<UtilitiesSmartMeterEventERPBulkCreateRequestCOut>

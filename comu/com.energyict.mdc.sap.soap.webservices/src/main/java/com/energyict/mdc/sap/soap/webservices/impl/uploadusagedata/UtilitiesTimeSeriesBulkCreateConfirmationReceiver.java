@@ -34,12 +34,12 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@Component(name = UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME})
 public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn, ApplicationSpecific {
-    static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateConfirmation_C_In";
+    static final String NAME = "SAP TimeSeriesBulkCreateConfirmation";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
