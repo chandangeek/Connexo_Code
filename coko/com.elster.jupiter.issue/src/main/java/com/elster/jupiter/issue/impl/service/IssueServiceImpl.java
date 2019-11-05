@@ -625,6 +625,42 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
+    public Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds){
+        Map<Long, List<String>> issuesPerReason = new HashMap<>();
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT " +
+                " ed.id, ri.issue_type " +
+                " FROM mtr_enddevice ed " +
+                "   INNER JOIN isu_issue_open oi ON ( oi.device_id = ed.id ) " +
+                "   LEFT JOIN isu_reason ri on ri.key = oi.reason_id " +
+                " WHERE ed.id IN " +
+                "   (" +
+                deviceIds.stream()
+                        .map( Object::toString )
+                        .collect(Collectors.joining(", ")) +
+                "   )" +
+                " GROUP BY ed.id, issue_type");
+        try (Connection connection = this.dataModel.getConnection(false);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Long endDeviceId = resultSet.getLong(1);
+                    String issueType = resultSet.getString(2);
+
+                    List<String> issueTypes = issuesPerReason.get(endDeviceId);
+                    if (issueTypes == null) {
+                        issueTypes = new ArrayList<>();
+                        issuesPerReason.put(endDeviceId, issueTypes);
+                    }
+                    issueTypes.add(issueType);
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        return issuesPerReason;
+    }
+
+    @Override
     public Finder<OpenIssue> findOpenIssuesForDevice(String deviceName) {
         Condition condition = where("device.name").isEqualTo(deviceName);
         return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
