@@ -91,7 +91,7 @@ public class DeviceConnectionTaskInfoFactory {
                 TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
                 if(scheduledConnectionTask.getTaskStatus().equals(TaskStatus.OnHold) && scheduledConnectionTask.getStatus().
                         equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)) {
-                    info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),"Active");
+                    info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),TranslationKeys.ACTIVE.getDefaultFormat());
                 } else {
                     info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),
                             thesaurus.getFormat(taskStatusTranslationKey).format());
