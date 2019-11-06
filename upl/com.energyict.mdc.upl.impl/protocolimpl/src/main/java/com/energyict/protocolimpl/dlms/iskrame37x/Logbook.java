@@ -6,14 +6,14 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.dlms.*;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
+import com.energyict.protocol.MeterEvent;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
@@ -23,7 +23,7 @@ public class Logbook {
     
     private static final int DEBUG = 5;
     
-    TimeZone timeZone;
+    private TimeZone timeZone;
     
     private static final int EVENT_STATUS_FATAL_ERROR=0x0001; // X
     private static final int EVENT_STATUS_DEVICE_CLOCK_RESERVE=0x0002;
@@ -56,23 +56,17 @@ public class Logbook {
     
     
     
-    public List getMeterEvents(DataContainer dc) {
-        List meterEvents = new ArrayList(); // of type MeterEvent
+    public List<MeterEvent> getMeterEvents(DataContainer dc) {
+        List<MeterEvent> meterEvents = new ArrayList<>(); // of type MeterEvent
         int size = dc.getRoot().getNrOfElements();
         Date eventTimeStamp = null;
         for (int i = 0; i<=(size-1); i++) {
-        	
-//        	int eventId = dc.getRoot().getStructure(i).getInteger(1);
         	int eventId = (int) dc.getRoot().getStructure(i).getValue(1);
-//        	int eventId = (byte)dc.getRoot().getStructure(i).getValue(1);
-        	
         	if ( isOctetString(dc.getRoot().getStructure(i)) )
                 eventTimeStamp = dc.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
                 
             buildMeterEvent(meterEvents,eventTimeStamp,eventId);
             if (DEBUG >= 1) System.out.println("KV_DEBUG> eventId="+eventId+", eventTimeStamp="+eventTimeStamp);
-        	
-        	
 
         }
         return meterEvents;
@@ -90,7 +84,7 @@ public class Logbook {
 
 
 
-	private void buildMeterEvent(List meterEvents, Date eventTimeStamp, int eventId) {
+	private void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
 		
 		int aloneEventId = eventId + 0x10000;
         
@@ -108,7 +102,7 @@ public class Logbook {
             if ((eventId & EVENT_STATUS_BILLING_RESET)==EVENT_STATUS_BILLING_RESET)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.BILLING_ACTION,"Billing action occured"));
             if ((eventId & EVENT_STATUS_DEVICE_CLOCK_CHANGED)==EVENT_STATUS_DEVICE_CLOCK_CHANGED)
-                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.SETCLOCK,"Set time"));
+                meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.SETCLOCK_AFTER,"Set time"));
             if ((eventId & EVENT_STATUS_POWER_RETURNED)==EVENT_STATUS_POWER_RETURNED)
                 meterEvents.add(new MeterEvent(eventTimeStamp,MeterEvent.POWERUP,"PowerUp"));
             if ((eventId & EVENT_STATUS_POWER_FAILURE)==EVENT_STATUS_POWER_FAILURE)
