@@ -35,10 +35,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UtilitiesDeviceCreateConfirmationTest extends AbstractOutboundWebserviceTest {
-    @Mock
-    private UtilitiesDeviceERPSmartMeterCreateConfirmationCOut port;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage;
+    @Mock
+    private UtilitiesDeviceERPSmartMeterCreateConfirmationCOut port;
     @Mock
     private UtilitiesDeviceCreateConfirmationMessage outboundMessage;
 

@@ -159,7 +159,7 @@ public class ServiceCallImpl implements ServiceCall {
         getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
     }
 
-    void setState(DefaultState defaultState) {
+    public void setState(DefaultState defaultState) {
         this.state.set(asState(defaultState));
     }
 

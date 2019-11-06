@@ -85,19 +85,21 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
             serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
             return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
-                    .handler(ServiceCallHandler.DUMMY.getDisplayName())
+                    .handler(CHILD_NAME)
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(registeredCustomPropertySet)
                     .create();
         });
     }
 
-    @Override//??? This method is used only in TEST????????????
-    public ServiceCall startServiceCall(String uuid, long timeout) {
+    @Override
+    public ServiceCall startServiceCall(String uuid, long timeout, Stream<? extends ExportData> data) {
         if (transactionService.isInTransaction()) {
-            return doStartServiceCall(uuid, timeout, null);
+            System.out.println("CALL doStartServiceCall!!!");
+            return doStartServiceCall(uuid, timeout, data);
         } else {
-            return startServiceCallInTransaction(uuid, timeout, null);
+            System.out.println("CALL startServiceCallInTransaction!!!");
+            return startServiceCallInTransaction(uuid, timeout, data);
         }
     }
 
@@ -119,22 +121,26 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     @Override
     public void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data){
         data.filter(MeterReadingData.class::isInstance)
-                .map(MeterReadingData.class::cast).forEach(datareading->createChild(parent, datareading));
+                .map(MeterReadingData.class::cast).forEach(datareading->createChild(parent,
+                datareading.getItem().getDomainObject().getName(),
+                datareading.getItem().getReadingType().getMRID()));
     }
 
 
-    private void createChild(ServiceCall parent, MeterReadingData reading){
-        String deviceName = reading.getItem().getDomainObject().getName();
-        String readingTypeMrID = reading.getItem().getReadingType().getMRID();
-
+    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID){
+        System.out.println("CREATE CHILD with name = "+deviceName+", mrid = "+readingTypeMrID);
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
         childSrvCallProperties.setDeviceName(deviceName);
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
 
         ServiceCallType srvCallChildType = findOrCreateChildType();
+
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(srvCallChildType)
                 .extendedWith(childSrvCallProperties);
-        serviceCallBuilder.create();
+        ServiceCall child = serviceCallBuilder.create();
+        child.requestTransition(DefaultState.PENDING);
+        child.requestTransition(DefaultState.ONGOING);
+        child.requestTransition(DefaultState.SUCCESSFUL);
     }
 
 

@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -55,18 +56,22 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = UtilitiesTimeSeriesBulkChangeRequestProvider.NAME,
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkChangeRequestProvider.NAME})
-public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkChangeRequestCOut, UtilsTmeSersERPItmBulkChgReqMsg> implements ApplicationSpecific {
+public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkChangeRequestCOut, UtilsTmeSersERPItmBulkChgReqMsg, UtilsTmeSersERPItmChgReqMsg> implements ApplicationSpecific {
     public static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeRequest_C_Out";
 
     public UtilitiesTimeSeriesBulkChangeRequestProvider() {
@@ -160,18 +165,15 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     }
 
     @Override
-    UtilsTmeSersERPItmBulkChgReqMsg createMessage(Stream<? extends ExportData> data, String uuid, SetMultimap<String, String> values) {
+    UtilsTmeSersERPItmBulkChgReqMsg createMessageFromTimeSerieses(List<UtilsTmeSersERPItmChgReqMsg> timeSeriesList, String uuid, SetMultimap<String, String> values, Instant now) {
         UtilsTmeSersERPItmBulkChgReqMsg msg = new UtilsTmeSersERPItmBulkChgReqMsg();
-        Instant now = getClock().instant();
         msg.setMessageHeader(createMessageHeader(uuid, now));
-        data.filter(MeterReadingData.class::isInstance)
-                .map(MeterReadingData.class::cast)
-                .forEach(item -> addDataItem(msg, item, now));
+        msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().addAll(timeSeriesList);
         if (msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().size() > 0) {
             msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().forEach(message->{
-                        values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
-                                message.getUtilitiesTimeSeries().getID().getValue());
-                    });
+                values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+                        message.getUtilitiesTimeSeries().getID().getValue());
+            });
             return msg;
         }
         return null;
@@ -198,7 +200,9 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         return messageUUID;
     }
 
-    private void addDataItem(UtilsTmeSersERPItmBulkChgReqMsg msg, MeterReadingData item, Instant now) {
+    /* Prepare list of time serieses that should be sent */
+    @Override
+    void prepareTimeSerieses(List<UtilsTmeSersERPItmChgReqMsg> timeSeriesList, MeterReadingData item, Instant now) {
         ReadingType readingType = item.getItem().getReadingType();
         TemporalAmount interval = readingType.getIntervalLength()
                 .orElse(Duration.ZERO);
@@ -214,8 +218,18 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .flatMap(Functions.asStream())
                 .flatMap(channelAndRange -> getTimeSlicedProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
                 .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(), meterReading, interval, unit, now, item.getValidationData()))
-                .forEach(msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage()::add);
+                .forEach(timeSeriesList::add);
     }
+
+    @Override
+    long calculateNumberOfReadingsInTimeSerieses(List<UtilsTmeSersERPItmChgReqMsg> list){
+        long count = 0;
+        for (UtilsTmeSersERPItmChgReqMsg msg : list) {
+            count = count + msg.getUtilitiesTimeSeries().getItem().size();
+        }
+        return count;
+    }
+
 
     private static UtilsTmeSersERPItmChgReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now, MeterReadingValidationData validationStatuses) {
         UtilsTmeSersERPItmChgReqMsg msg = new UtilsTmeSersERPItmChgReqMsg();

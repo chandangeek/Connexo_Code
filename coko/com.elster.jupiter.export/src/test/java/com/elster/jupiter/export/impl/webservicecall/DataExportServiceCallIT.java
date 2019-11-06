@@ -19,6 +19,8 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -71,7 +73,11 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -79,11 +85,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -105,6 +113,10 @@ public class DataExportServiceCallIT {
     private static final long TIMEOUT = 1000;
     private static final String UUID = "facade3e-c632-11e8-a355-529269fb1459";
     private static final String ANOTHER_UUID = "4ff58443-1234-4aed-ae6e-d1cd4db81f21";
+    private static final String DEVICE_NAME_1 = "DEVICE_1";
+    private static final String MRID_1 = "MRID_1";
+    private static final String DEVICE_NAME_2 = "DEVICE_2";
+    private static final String MRID_2 = "MRID_2";
     private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
@@ -113,6 +125,7 @@ public class DataExportServiceCallIT {
     private static ServiceCallHandler serviceCallHandler;
     private static CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
     private static TransactionService transactionService;
+    private static List<ExportData> dataExportList = new ArrayList<>();
 
     @Rule
     public TestRule transactional = new TransactionalRule(transactionService);
@@ -176,6 +189,18 @@ public class DataExportServiceCallIT {
             dataExportServiceCallType = dataExportService.getDataExportServiceCallType();
             serviceCallHandler = new WebServiceDataExportServiceCallHandler(thesaurus, dataExportServiceCallType, serviceCallCPS);
             serviceCallService.addServiceCallHandler(serviceCallHandler, ImmutableMap.of("name", WebServiceDataExportServiceCallHandler.NAME));
+
+            MeterReadingData meterReadingData1 = mock(MeterReadingData.class, RETURNS_DEEP_STUBS);
+            when(meterReadingData1.getItem().getDomainObject().getName()).thenReturn(DEVICE_NAME_1);
+            when(meterReadingData1.getItem().getReadingType().getMRID()).thenReturn(MRID_1);
+
+            MeterReadingData meterReadingData2 = mock(MeterReadingData.class, RETURNS_DEEP_STUBS);
+            when(meterReadingData2.getItem().getDomainObject().getName()).thenReturn(DEVICE_NAME_2);
+            when(meterReadingData2.getItem().getReadingType().getMRID()).thenReturn(MRID_2);
+
+            dataExportList.add(meterReadingData1);
+            dataExportList.add(meterReadingData2);
+
             return null;
         });
     }
@@ -188,19 +213,40 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStart() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
+
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         assertProperties(serviceCall, DefaultState.ONGOING, UUID, TIMEOUT, null);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testStartAsync() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT);
+
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, dataExportList.stream());
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+
         assertProperties(serviceCall, DefaultState.ONGOING, UUID, TIMEOUT, null);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
@@ -208,18 +254,32 @@ public class DataExportServiceCallIT {
     public void testFindServiceCall() {
         assertThat(dataExportServiceCallType.findServiceCall(UUID)).isEmpty();
 
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
+
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(dataExportServiceCallType.findServiceCall(UUID)).contains(serviceCall);
         assertThat(dataExportServiceCallType.findServiceCall(ANOTHER_UUID)).isEmpty();
+
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testFailServiceCall() {
         String error = "Errorrrr";
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.FAILED, UUID, TIMEOUT, error);
 
@@ -229,13 +289,25 @@ public class DataExportServiceCallIT {
 
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, "Another error!");
         assertProperties(serviceCall, DefaultState.FAILED, UUID, TIMEOUT, error);
+
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testPassServiceCall() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
         dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+
 
         assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, TIMEOUT, null);
 
@@ -244,13 +316,25 @@ public class DataExportServiceCallIT {
 
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, "Another error!");
         assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, TIMEOUT, null);
+
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testGetOngoingStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
+
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.ONGOING);
@@ -258,14 +342,25 @@ public class DataExportServiceCallIT {
         assertThat(status.isFailed()).isFalse();
         assertThat(status.isSuccessful()).isFalse();
         assertThat(status.getErrorMessage()).isEmpty();
+
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testGetSuccessfulStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
         dataExportServiceCallType.tryPassingServiceCall(serviceCall);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
+
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.SUCCESSFUL);
@@ -273,15 +368,26 @@ public class DataExportServiceCallIT {
         assertThat(status.isFailed()).isFalse();
         assertThat(status.isSuccessful()).isTrue();
         assertThat(status.getErrorMessage()).isEmpty();
+
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testGetFailedStatus() {
         String error = "myError";
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.FAILED);
@@ -289,14 +395,25 @@ public class DataExportServiceCallIT {
         assertThat(status.isFailed()).isTrue();
         assertThat(status.isSuccessful()).isFalse();
         assertThat(status.getErrorMessage()).contains(error);
+
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testGetAnotherStatus() {
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, dataExportList.stream());
         serviceCall.requestTransition(DefaultState.PAUSED);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.PAUSED);
@@ -304,6 +421,13 @@ public class DataExportServiceCallIT {
         assertThat(status.isFailed()).isFalse();
         assertThat(status.isSuccessful()).isFalse();
         assertThat(status.getErrorMessage()).isEmpty();
+
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
@@ -328,7 +452,7 @@ public class DataExportServiceCallIT {
     public void testServiceCallHandlerExecutionExceptionFailsServiceCall() {
         long timeout = WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1500; // 1.5 times the pause before status check
         String error = "Error mess";
-        ServiceCall realServiceCall = dataExportServiceCallType.startServiceCall(UUID, timeout);
+        ServiceCall realServiceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, dataExportList.stream());
         ServiceCall serviceCall = mock(ServiceCall.class);
         WebServiceDataExportDomainExtension extension = mock(WebServiceDataExportDomainExtension.class);
         when(serviceCall.getExtensionFor(serviceCallCPS)).thenReturn(Optional.of(extension));
@@ -354,21 +478,39 @@ public class DataExportServiceCallIT {
     @Transactional
     public void testServiceCallHandlerTimeoutExceptionFailsServiceCall() {
         long timeout = 1; // less than the pause before status check
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, dataExportList.stream());
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.FAILED, UUID, timeout, "No data export confirmation has been received in the configured timeout.");
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test
     @Transactional
     public void testServiceCallHandlerPasses() {
         long timeout = WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1500; // 1.5 times the pause before status check
-        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout);
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, dataExportList.stream());
         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
+        List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
+        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
+        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, timeout, null);
+        assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
+        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
+        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
+        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
+        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
     }
 
     @Test

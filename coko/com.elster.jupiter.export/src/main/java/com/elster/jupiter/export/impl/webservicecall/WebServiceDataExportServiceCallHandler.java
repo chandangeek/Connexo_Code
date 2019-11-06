@@ -66,8 +66,6 @@ public class WebServiceDataExportServiceCallHandler implements ServiceCallHandle
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        /*TO-DO: make method that will update all serviceCalls in one request */
-        serviceCall.findChildren().stream().forEach(child->child.requestTransition(newState));
         switch (newState) {
             case ONGOING:
                 process(serviceCall);

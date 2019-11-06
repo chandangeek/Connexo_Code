@@ -67,7 +67,7 @@ import java.util.stream.Stream;
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
-public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg> implements ApplicationSpecific {
+public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg, UtilsTmeSersERPItmCrteReqMsg> implements ApplicationSpecific {
     public static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out";
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
@@ -160,14 +160,12 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         return EnumSet.of(Operation.CREATE, Operation.CHANGE);
     }
 
+
     @Override
-    UtilsTmeSersERPItmBulkCrteReqMsg createMessage(Stream<? extends ExportData> data, String uuid, SetMultimap<String, String> values) {
+    UtilsTmeSersERPItmBulkCrteReqMsg createMessageFromTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, String uuid, SetMultimap<String, String> values, Instant now) {
         UtilsTmeSersERPItmBulkCrteReqMsg msg = new UtilsTmeSersERPItmBulkCrteReqMsg();
-        Instant now = getClock().instant();
         msg.setMessageHeader(createMessageHeader(uuid, now));
-        data.filter(MeterReadingData.class::isInstance)
-                .map(MeterReadingData.class::cast)
-                .forEach(item -> addDataItem(msg, item, now));
+        msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().addAll(timeSeriesList);
         if (msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().size() > 0) {
             msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().forEach(message->{
                 values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
@@ -199,13 +197,13 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         return messageUUID;
     }
 
-    private void addDataItem(UtilsTmeSersERPItmBulkCrteReqMsg msg, MeterReadingData item, Instant now) {
+    @Override
+    void prepareTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, MeterReadingData item, Instant now) {
         ReadingType readingType = item.getItem().getReadingType();
         TemporalAmount interval = readingType.getIntervalLength()
                 .orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
-
         final Range<Instant> allReadingsRange = getRange(meterReading);
         Map<String, RangeSet<Instant>> profileRanges = item.getItem().getReadingContainer().getChannelsContainers().stream()
                 .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(allReadingsRange))
@@ -219,8 +217,18 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
         profileRanges.entrySet().stream().map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
                 meterReading, interval, unit, now, item.getValidationData()))
-                .forEach(msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage()::add);
+                .forEach(timeSeriesList::add);
     }
+
+    @Override
+    long calculateNumberOfReadingsInTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> list){
+        long count = 0;
+        for (UtilsTmeSersERPItmCrteReqMsg msg : list) {
+            count = count + msg.getUtilitiesTimeSeries().getItem().size();
+        }
+        return count;
+    }
+
 
     private static UtilsTmeSersERPItmCrteReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet,
                                                                   MeterReading meterReading, TemporalAmount interval, String unit,
