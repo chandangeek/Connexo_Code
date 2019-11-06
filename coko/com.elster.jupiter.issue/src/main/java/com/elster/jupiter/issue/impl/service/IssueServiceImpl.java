@@ -720,7 +720,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public Finder<? extends Issue> findAlarms(IssueFilter filter, Class<?>... eagers) {
-        Condition condition = Condition.TRUE;
+        Condition condition = buildAlarmConditionFromFilter(filter);
         Optional<IssueType> alarmIssueType = getAllIssueTypes().stream()
                 .filter(issueType -> issueType.getPrefix().equals("ALM"))
                 .findFirst();
@@ -992,6 +992,21 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
         }
 
+        return condition;
+    }
+
+    private Condition buildAlarmConditionFromFilter(IssueFilter filter) {
+        Condition condition = Condition.TRUE;
+
+        //filter by statuses
+        if (!filter.getStatuses().isEmpty()) {
+            condition = condition.and(where("status").in(filter.getStatuses()));
+        }
+
+        // filter by SNOOZEDATETIME
+        if (filter.getUntilSnoozeDateTime().isPresent()){
+            condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
+        }
         return condition;
     }
 
