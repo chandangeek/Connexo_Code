@@ -49,8 +49,8 @@ public class SystemInfoFactory {
 
     private String getOSName() {
        String osName = System.getProperty("os.name");
-       if(osName.equalsIgnoreCase("Windows XP")){
-           osName = OSInfo.getOs() +" "+OSInfo.getOs().getVersion();
+       if(osName.equalsIgnoreCase("Windows XP")) {
+           osName = OSInfo.getOs().name().concat(" ").concat(OSInfo.getOs().getVersion());
        }
        return osName;
     }
