@@ -61,7 +61,11 @@ public class MeterConfigFaultMessageFactory {
     }
 
     FaultMessage meterConfigFaultMessage(List<FaultMessage> faults) {
-        return meterConfigFaultMessage(faults.get(0).getMessage(), faults, ReplyType.Result.FAILED);
+        StringBuilder message = new StringBuilder();
+        for(FaultMessage faultMessage:faults){
+            message.append(faultMessage.getMessage()+". ");
+        }
+        return meterConfigFaultMessage(message.toString(), faults, ReplyType.Result.FAILED);
     }
 
     FaultMessage meterConfigFaultMessage(MessageSeeds message, List<FaultMessage> faults, ReplyType.Result result) {

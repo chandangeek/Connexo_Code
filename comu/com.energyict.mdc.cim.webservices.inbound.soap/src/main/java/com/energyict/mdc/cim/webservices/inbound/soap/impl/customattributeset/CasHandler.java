@@ -117,7 +117,7 @@ public class CasHandler {
         } catch (Exception ex) {
             if(ex.getMessage().contains("Wrong card format value")){
                 faultSituationHandler.logException(device, ex,
-                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId(),
+                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, "Card format",
                         CustomPropertyTranslationKeys.CARD_FORMAT_FULL_SIZE.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.CARD_FORMAT_MINI.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.CARD_FORMAT_MICRO.getDefaultFormat()+", "+
@@ -127,7 +127,7 @@ public class CasHandler {
             }
             if(ex.getMessage().contains("Wrong status value")){
                 faultSituationHandler.logException(device, ex,
-                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId(),
+                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, "Status",
                         CustomPropertyTranslationKeys.STATUS_ACTIVE.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.STATUS_DEMOLISHED.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.STATUS_INACTIVE.getDefaultFormat()+", "+
