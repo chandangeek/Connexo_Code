@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.CustomPropertyTranslationKeys;
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import javax.inject.Inject;
+import javax.validation.ValidationException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,10 +115,10 @@ public class CasHandler {
             }
         } catch (FaultMessage ex) {
             faultSituationHandler.logSevere(device, ex);
-        } catch (Exception ex) {
+        } catch (ValidationException ex) {
             if(ex.getMessage().contains("Wrong card format value")){
                 faultSituationHandler.logException(device, ex,
-                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId(),
+                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, "Card format",
                         CustomPropertyTranslationKeys.CARD_FORMAT_FULL_SIZE.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.CARD_FORMAT_MINI.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.CARD_FORMAT_MICRO.getDefaultFormat()+", "+
@@ -127,13 +128,16 @@ public class CasHandler {
             }
             if(ex.getMessage().contains("Wrong status value")){
                 faultSituationHandler.logException(device, ex,
-                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId(),
+                        MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, "Status",
                         CustomPropertyTranslationKeys.STATUS_ACTIVE.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.STATUS_DEMOLISHED.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.STATUS_INACTIVE.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.STATUS_PRE_ACTIVE.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.STATUS_TEST.getDefaultFormat());
             }
+        } catch (Exception ex){
+            faultSituationHandler.logException(device, ex,
+                    MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId());
         }
         return faultSituationHandler.faults();
     }
