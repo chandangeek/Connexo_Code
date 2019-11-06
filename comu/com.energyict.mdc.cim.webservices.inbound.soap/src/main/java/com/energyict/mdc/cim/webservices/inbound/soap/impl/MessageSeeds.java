@@ -44,7 +44,7 @@ public enum MessageSeeds implements MessageSeed {
     CANT_FIND_CUSTOM_ATTRIBUTE_SET(1014, "CantFindCustomAttributeSet", "Can''t find custom attribute set ''{0}''"),
     CANT_CONVERT_VALUE_OF_CUSTOM_ATTRIBUTE(1015, "CantConvertValueOfCustomAttribute", "Can''t convert value ''{0}'' of attribute ''{1}'' for custom attribute set ''{2}''"),
     CANT_FIND_CUSTOM_ATTRIBUTE(1016, "CantFindCustomAttribute", "Can''t find attribute ''{0}'' for custom attribute set ''{1}''"),
-    CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET(1017, "CantAssignValuesForCustomAttributeSet", "Wrong enumeration value for attribute ''{0}''. Possible values: {1}"),
+    CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET(1017, "CantAssignValuesForCustomAttributeSet", "Wrong enumeration value for attribute ''{0}''. Possible values: {1} ."),
     ASSIGNED_VALUES_FOR_CUSTOM_ATTRIBUTE_SET(1018, "AssignedValuesForCustomAttributeSet", "Assigned values for custom attribute set ''{0}''", Level.INFO),
     CANNOT_IMPORT_KEY_TO_HSM(1019, "CannotImportKeyToHsm", "Cannot import key to HSM, exception occurred during import for device ''{0}'' and security accessor ''{1}''"),
     BOTH_PUBLIC_AND_SYMMETRIC_KEYS_SHOULD_BE_SPECIFIED(1020, "BothPublicAndSymmetricKeysShouldBeSpecified", "Both, public key and symmetric key should be specified or none"),

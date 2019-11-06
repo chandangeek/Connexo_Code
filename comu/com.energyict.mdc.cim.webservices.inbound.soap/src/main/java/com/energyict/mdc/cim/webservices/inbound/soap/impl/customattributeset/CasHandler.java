@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.CustomPropertyTranslationKeys;
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import javax.inject.Inject;
+import javax.validation.ValidationException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +115,7 @@ public class CasHandler {
             }
         } catch (FaultMessage ex) {
             faultSituationHandler.logSevere(device, ex);
-        } catch (Exception ex) {
+        } catch (ValidationException ex) {
             if(ex.getMessage().contains("Wrong card format value")){
                 faultSituationHandler.logException(device, ex,
                         MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, "Card format",
@@ -134,6 +135,9 @@ public class CasHandler {
                         CustomPropertyTranslationKeys.STATUS_PRE_ACTIVE.getDefaultFormat()+", "+
                         CustomPropertyTranslationKeys.STATUS_TEST.getDefaultFormat());
             }
+        } catch (Exception ex){
+            faultSituationHandler.logException(device, ex,
+                    MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId());
         }
         return faultSituationHandler.faults();
     }
