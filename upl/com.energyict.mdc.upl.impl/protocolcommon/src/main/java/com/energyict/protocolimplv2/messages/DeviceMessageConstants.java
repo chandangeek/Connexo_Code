@@ -23,8 +23,6 @@ public final class DeviceMessageConstants {
     public static final String relayActionAttributeDefaultTranslation = "ContactorDeviceMessage.Relay action";
     public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
     public static final String relayOperatingModeAttributeDefaultTranslation = "Relay operating mode";
-    public static final String contactorValveEnablePassword = "ContactorDeviceMessage.valveEnablePassword";
-
 
     public static final String broadcastLogicalDeviceIdAttributeName = "FirmwareDeviceMessage.broadcast.logicaldeviceid";
     public static final String broadcastLogicalDeviceIdAttributeDefaultTranslation = "Broadcast logical device ID";
@@ -1793,8 +1791,6 @@ public final class DeviceMessageConstants {
     public static final String vpnVirtualIPEnabledDefaultTranslation = "Set virtual IP enabled";
     public static final String vpnIPCompressionEnabled = "NetworkConnectivityMessage.vpnIPCompressionEnabled";
     public static final String vpnIPCompressionEnabledDefaultTranslation = "Set IP compression enabled";
-    public static final String simPincode = "NetworkConnectivityMessage.simPincode";
-    public static final String simPincodeDefaultTranslation = "Change the sim PIN code";
 
     //Debug log IC
     public static final String remoteSyslogTransportServiceType = "DeviceActionMessage.remoteSyslogTransportServiceType";

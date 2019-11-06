@@ -29,13 +29,6 @@ public enum ResultType {
     ConfigurationError(CompletionCode.ConfigurationError),
 
     /**
-     * A special case when reading an offline data concentrator mirror, when the protocol
-     * could read-out data, but an empty set of values was collected. This could mean that the data concentrator
-     * encountered errors while collecting the data. The user is expected to inspect the logs to see the reason.
-     */
-    DataWarning(CompletionCode.DataWarning),
-
-    /**
      * Identifies that the object is supported by the device, but the requested information could not be fully fetched.
      * No data is returned, what data could not be fetched should be informed by the Issue object.
      */

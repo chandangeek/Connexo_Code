@@ -131,14 +131,6 @@ abstract public class AbstractDataType {
 		return isUtf8String() ? (UTF8String) this : null;
 	}
 
-	public CosemDate getDate() {
-		return isCosemDate() ? (CosemDate) this : null;
-	}
-
-	public CosemTime getTime() {
-		return isCosemTime() ? (CosemTime) this : null;
-	}
-
 	public boolean isArray() {
 		return this instanceof Array;
 	}
@@ -214,14 +206,6 @@ abstract public class AbstractDataType {
     public boolean isNumerical(){
         return isInteger16()||isInteger32()||isInteger64()||isInteger8()||isUnsigned8()||isUnsigned16()||isUnsigned32();
     }
-
-	public boolean isCosemDate() {
-		return this instanceof CosemDate;
-	}
-
-	private boolean isCosemTime() {
-		return this instanceof CosemTime;
-	}
 
 	public void setLevel(int level) {
 		this.level = level;

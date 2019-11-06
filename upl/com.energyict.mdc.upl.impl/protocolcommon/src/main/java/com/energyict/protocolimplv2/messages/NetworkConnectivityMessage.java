@@ -654,34 +654,8 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.durationSpec(service, DeviceMessageConstants.dlmsWanInitialLockoutTime, DeviceMessageConstants.dlmsWanInitialLockoutTimeDefaultTranslation)
             );
         }
-    },
-    CONFIGURE_AUTO_CONNECT_A2(4078, "Configure auto connect for A2 protocol") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.stringSpecWithValues(DeviceMessageConstants.autoConnectMode,
-                            AutoConnectMode.Inactive.description,
-                            AutoConnectMode.Active.description,
-                            AutoConnectMode.DailyActive.description),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitions, DeviceMessageConstants.autoConnectRepetitionsDefaultTranslation),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitionsDelay, DeviceMessageConstants.autoConnectRepetitionsDelayDefaultTranslation),
-                    this.bigDecimalSpecWithValues(service, DeviceMessageConstants.windowAttributeName, getPossibleValues(1, 2)),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectDestionation1, DeviceMessageConstants.autoConnectDestionation1DefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.portNumberAttributeName, DeviceMessageConstants.portNumberAttributeDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectDayMap, DeviceMessageConstants.autoConnectDayMapDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectGSMRegistrationTimeout, DeviceMessageConstants.autoConnectGSMRegistrationTimeoutDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeout, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeoutDefaultTranslation)
-            );
-        }
-    },
-    CHANGE_SIM_PIN(4079, "Change the sim PIN code") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.bigDecimalSpec(service, DeviceMessageConstants.simPincode, DeviceMessageConstants.simPincodeDefaultTranslation)
-            );
-        }
-    };
+    }
+    ;
 
     public enum VPNAuthenticationType {
         IKEv2_With_PSK(0, "IKEv2 with PSK"),

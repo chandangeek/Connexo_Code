@@ -32,15 +32,6 @@ public class CommunicationException extends com.energyict.protocol.exceptions.Co
     }
 
     /**
-     * Creates an exception, indication that the property has an unexpected value.</br>
-     *
-     * @return the newly created serialNumberNotSupported  exception
-     */
-    public static CommunicationException unexpectedPropertyValue(String propertyName, String actual, String expected) {
-        return new CommunicationException(ProtocolExceptionMessageSeeds.UNEXPECTED_PROPERTY_VALUE, propertyName, actual, expected);
-    }
-
-    /**
      * The protocol received an unexpected response from the meter.
      * However, it is still possible to further communicate with the device.
      */
