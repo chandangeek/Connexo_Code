@@ -322,10 +322,9 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         for (SubMessageProtocol messaging : getMessagingList()) {
-            for (Iterator iterator = messageEntries.iterator(); iterator.hasNext(); ) {
-                MessageEntry messageEntry = (MessageEntry) iterator.next();
+            for (MessageEntry messageEntry : messageEntries) {
                 if (messaging.canHandleMessage(messageEntry)) {
                     messaging.applyMessages(messageEntries);
                 }
