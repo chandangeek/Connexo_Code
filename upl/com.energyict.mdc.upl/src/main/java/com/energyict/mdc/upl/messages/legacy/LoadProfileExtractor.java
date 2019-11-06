@@ -58,6 +58,7 @@ public interface LoadProfileExtractor {
         String deviceSerialNumber();
         String obisCode();
         String unit();
+        String MRID();
     }
 
     interface Register {
