@@ -40,6 +40,7 @@ n/a,n/a,n/a,n/a
 *,Clock,Season,Changed
 *,Clock,StandardTime,Started
 *,Clock,Time,Changed
+*,Clock,Time,Change
 *,Clock,Time,OutofRange
 *,Clock,Time,Reset
 *,Clock,TimeReset,Failed
@@ -378,7 +379,7 @@ n/a,n/a,n/a,n/a
 *,Security,SecurityKeyVersion,Invalid
 *,Security,Signature,Error
 *,Security,Signature,Failed
-*,Security,Signature,Invalid
+*,Security,Signature,InvalidU
 *,Security,Signature,NotFound
 *,Security,SignatureLength,Invalid
 *,Security,SignatureTimestamp,Invalid
