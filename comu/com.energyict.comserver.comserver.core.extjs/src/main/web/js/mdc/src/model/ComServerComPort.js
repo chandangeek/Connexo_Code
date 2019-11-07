@@ -203,7 +203,7 @@ Ext.define('Mdc.model.ComServerComPort', {
                 var comPortPools = data.outboundComPortPoolIds,
 
                     result = undefined;
-                if (Ext.isArray(comPortPools) && comPortPools.length && portPoolsStore.getCount()) {
+                if (Ext.isArray(comPortPools) && comPortPools.length) {
                     result = '';
                     Ext.Array.each(comPortPools, function (item) {
 
