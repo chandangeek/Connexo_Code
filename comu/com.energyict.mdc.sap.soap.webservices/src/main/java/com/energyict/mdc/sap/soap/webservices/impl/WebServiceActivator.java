@@ -156,6 +156,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String APPLICATION_NAME = "MultiSense";
     public static final String METERING_SYSTEM_ID = "CXO";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
+    public static final String UNSUCCESSFUL_PROCESSING_CODE = "001";
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestBulkCreateConfirmation> STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();

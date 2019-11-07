@@ -248,7 +248,7 @@ public class ServiceCallCommands {
                                 try {
                                     createAndSendCommand(deviceId, ed, serviceCall, hei, message);
                                 } catch (LocalizedException le) {
-                                    sendProcessError(le.getErrorCode(), le.getLocalizedMessage(), message);
+                                    sendProcessError(le.getLocalizedMessage(), message);
                                 }
                             }));
 
@@ -459,13 +459,13 @@ public class ServiceCallCommands {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
+                            .from(message, messageSeed.translate(thesaurus), clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
+                            .from(message, messageSeed.translate(thesaurus), clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
@@ -474,7 +474,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage message) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
+                        .from(message, messageSeed.translate(thesaurus), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -487,17 +487,17 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage, message.isBulk());
     }
 
-    private void sendProcessError(String exceptionCode, String exceptionInfo, StatusChangeRequestCreateMessage message) {
+    private void sendProcessError(String exceptionInfo, StatusChangeRequestCreateMessage message) {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, exceptionCode, exceptionInfo, clock.instant())
+                            .from(message, exceptionInfo, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, exceptionCode, exceptionInfo, clock.instant())
+                            .from(message, exceptionInfo, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
@@ -507,14 +507,14 @@ public class ServiceCallCommands {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
+                            .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
                             .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
+                            .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
                             .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);

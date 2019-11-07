@@ -117,7 +117,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeed).format(e.getMessageArgs()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
-                            .from(messageSeed.getLevel().getName(), String.valueOf(messageSeed.getNumber()), errorMessage)
+                            .from(messageSeed.getLevel().getName(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
@@ -127,7 +127,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(e.getLocalizedMessage()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
-                            .from(messageSeeds.getLevel().getName(), messageSeeds.code(), errorMessage)
+                            .from(messageSeeds.getLevel().getName(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
@@ -142,7 +142,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     private void sendProcessError(MeasurementTaskAssignmentChangeRequestMessage message, MessageSeeds messageSeed, Object... args) {
         MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                 MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
-                        .from(messageSeed.getLevel().getName(), messageSeed.code(), messageSeed.translate(thesaurus, args))
+                        .from(messageSeed.getLevel().getName(), messageSeed.translate(thesaurus, args))
                         .build();
         sendMessage(confirmationMessage);
     }

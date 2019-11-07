@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_CODE;
 
 public class CancellationConfirmationMessageFactory {
     private static final ObjectFactory objectFactory = new ObjectFactory();
@@ -54,11 +55,11 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
-    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, String message, int number, Instant now) {
+    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, String message, Instant now) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
         confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), requestMessage.getUuid(), now));
         confirmMsg.setLog(objectFactory.createLog());
-        confirmMsg.getLog().getItem().add(createLogItem(message, number));
+        confirmMsg.getLog().getItem().add(createLogItem(message));
         return confirmMsg;
     }
 
@@ -91,12 +92,12 @@ public class CancellationConfirmationMessageFactory {
         return log;
     }
 
-    private LogItem createLogItem(String message, int number) {
+    private LogItem createLogItem(String message) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(String.valueOf(number));
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(message);
 
@@ -108,7 +109,7 @@ public class CancellationConfirmationMessageFactory {
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 

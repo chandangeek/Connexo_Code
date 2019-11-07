@@ -16,6 +16,8 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_CODE;
+
 public class MeasurementTaskAssignmentChangeConfirmationMessage {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
@@ -41,8 +43,8 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             return this;
         }
 
-        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder from(String level, String typeId, String errorMessage) {
-            confirmationMessage.setLog(createLog(getSeverityCode(level), typeId, errorMessage));
+        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder from(String level, String errorMessage) {
+            confirmationMessage.setLog(createLog(getSeverityCode(level), errorMessage));
             return this;
         }
 
@@ -82,10 +84,10 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             return log;
         }
 
-        private Log createLog(String severityCode, String typeId, String errorMessage) {
+        private Log createLog(String severityCode, String errorMessage) {
             LogItem logItem = OBJECT_FACTORY.createLogItem();
 
-            logItem.setTypeID(typeId);
+            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
             logItem.setSeverityCode(severityCode);
             logItem.setNote(errorMessage);
 

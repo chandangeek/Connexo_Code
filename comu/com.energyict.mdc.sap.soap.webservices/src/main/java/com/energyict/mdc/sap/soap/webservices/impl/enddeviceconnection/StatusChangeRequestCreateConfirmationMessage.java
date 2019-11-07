@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_CODE;
 
 public class StatusChangeRequestCreateConfirmationMessage {
 
@@ -69,10 +70,10 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
+        public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(message.getUuid(), now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
-            confirmationMessage.setLog(createLog(exceptionID, PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
 
@@ -167,12 +168,12 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return deviceConnectionStatus;
         }
 
-        private Log createLog(String id, String categoryCode, String message) {
+        private Log createLog(String categoryCode, String message) {
             LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
             logItemCategoryCode.setValue(categoryCode);
 
             LogItem logItem = OBJECT_FACTORY.createLogItem();
-            logItem.setTypeID(id);
+            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
             logItem.setCategoryCode(logItemCategoryCode);
             logItem.setNote(message);
 

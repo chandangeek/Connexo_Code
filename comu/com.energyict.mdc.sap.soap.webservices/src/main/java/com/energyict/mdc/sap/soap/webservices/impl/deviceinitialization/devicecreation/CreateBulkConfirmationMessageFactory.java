@@ -27,6 +27,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_CODE;
+
 public class CreateBulkConfirmationMessageFactory {
     private static final ObjectFactory objectFactory = new ObjectFactory();
 
@@ -41,8 +43,7 @@ public class CreateBulkConfirmationMessageFactory {
 
         switch (parent.getState()) {
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()),
-                        MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
                 break;
             case SUCCESSFUL:
                 confirmationMessage.setLog(createSuccessfulLog());
@@ -66,7 +67,7 @@ public class CreateBulkConfirmationMessageFactory {
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
         confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), now));
 
-        confirmationMessage.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat(null)));
+        confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
         return confirmationMessage;
     }
 
@@ -88,7 +89,7 @@ public class CreateBulkConfirmationMessageFactory {
         if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
             confirmationMessage.setLog(createSuccessfulLog());
         } else if (childServiceCall.getState() == DefaultState.FAILED || childServiceCall.getState() == DefaultState.CANCELLED) {
-            confirmationMessage.setLog(createFailedLog(extension.getErrorCode(), extension.getErrorMessage()));
+            confirmationMessage.setLog(createFailedLog(extension.getErrorMessage()));
         }
         return confirmationMessage;
     }
@@ -152,19 +153,19 @@ public class CreateBulkConfirmationMessageFactory {
         return log;
     }
 
-    private Log createFailedLog(String code, String message) {
+    private Log createFailedLog(String message) {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-        log.getItem().add(createLogItem(code, message));
+        log.getItem().add(createLogItem(message));
         return log;
     }
 
-    private LogItem createLogItem(String code, String message) {
+    private LogItem createLogItem(String message) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
         logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(code);
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(message);
 
