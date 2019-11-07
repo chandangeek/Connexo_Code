@@ -32,10 +32,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.bootstrap.BootstrapService.KEY_FILE;
+
 public interface DataSourceProvider {
     DataSource createDataSource(ConnectionProperties properties) throws SQLException;
 
-    default String getDecryptedPassword(String encryptedPassword, String filePath) {
+    default  String getDecryptedPassword(String encryptedPassword, String filePath) {
 
         String decryptedPassword = "";
         List<String> list = null;
@@ -45,11 +47,14 @@ public interface DataSourceProvider {
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new PropertyNotFoundException(BootstrapService.JDBC_PASSWORD);
+            //Logger.getAnonymousLogger().log(Level.SEVERE, exception, () -> "Bootstrap service initialization: encryption failed");
+            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
+            throw new PropertyNotFoundException(KEY_FILE);
         }
 
         if (list.size() != 2) {
-            throw new PropertyNotFoundException(BootstrapService.JDBC_PASSWORD);
+            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
+            throw new PropertyNotFoundException(KEY_FILE);
         } else {
             try {
                 byte[] aesEncryptionKey = list.get(0).getBytes("UTF-8");
@@ -68,9 +73,9 @@ public interface DataSourceProvider {
                 decryptedPassword = new String(decryptedPasswordData, "UTF-8");
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException |
                     InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
-                    | BadPaddingException e) {
+                    | BadPaddingException | ArrayIndexOutOfBoundsException e) {
                 InvalidPasswordException exception = new InvalidPasswordException();
-                Logger.getAnonymousLogger().log(Level.SEVERE, exception, () -> "Bootstrap service init");
+                Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
                 throw exception;
             }
         }

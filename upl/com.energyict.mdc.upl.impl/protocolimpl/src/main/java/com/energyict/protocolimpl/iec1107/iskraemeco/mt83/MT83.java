@@ -527,7 +527,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      * @throws java.io.IOException if a logical error occurs
      */
     @Override
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         this.meterMessages.applyMessages(messageEntries);
     }
 

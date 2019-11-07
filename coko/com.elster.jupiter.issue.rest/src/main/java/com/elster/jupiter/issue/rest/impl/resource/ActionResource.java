@@ -26,7 +26,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,12 +67,11 @@ public class ActionResource extends BaseResource {
         Condition condition = (typeCondition).and(reasonCondition).and(phaseCondition);
 
         List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
-                .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
+                .filter(issueActionType -> issueActionType.createIssueAction().isPresent() && !createdActionTypeIds.contains(issueActionType.getId()))
                 .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds, issueReason))
-                .map(at -> actionInfoFactory.asInfo(at, reasonParam))
-                .filter(item -> (!((item.name).equals("Email") && (phaseParam.equals("OVERDUE") || issueTypeParam.equals("usagepointdatavalidation")))))
-                .sorted(Comparator.comparing(a -> a.name))
+                .map(issueActionType -> actionInfoFactory.asInfo(issueActionType, reasonParam, issueType.orElse(null), issueReason.orElse(null)))
                 .collect(Collectors.toList());
+
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }
 

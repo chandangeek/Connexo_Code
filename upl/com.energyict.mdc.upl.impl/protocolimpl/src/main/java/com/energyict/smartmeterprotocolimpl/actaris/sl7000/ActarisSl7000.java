@@ -276,7 +276,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 

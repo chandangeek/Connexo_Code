@@ -209,7 +209,7 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         waveSenseMessages.applyMessages(messageEntries);
     }
 

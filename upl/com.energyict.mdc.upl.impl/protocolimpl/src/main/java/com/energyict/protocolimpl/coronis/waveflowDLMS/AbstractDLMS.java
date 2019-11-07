@@ -467,7 +467,7 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         waveFlowDLMSWMessages.applyMessages(messageEntries);
     }
 
