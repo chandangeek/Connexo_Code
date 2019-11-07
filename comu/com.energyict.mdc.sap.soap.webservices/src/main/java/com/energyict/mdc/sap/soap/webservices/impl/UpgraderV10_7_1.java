@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -19,6 +20,9 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Optional;
@@ -83,13 +87,16 @@ public class UpgraderV10_7_1 implements Upgrader {
                 .put("SAP UtilitiesTimeSeriesERPItemBulkChangeRequest_C_Out", "SAP TimeSeriesBulkChangeRequest")
                 .put("SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out", "SAP TimeSeriesBulkCreateRequest")
                 .build();
-        for(String oldName: endpointNames.keySet()) {
-            updateEndpointName(oldName, endpointNames.get(oldName));
+        try (Connection connection = this.dataModel.getConnection(true);
+            Statement statement = connection.createStatement()) {
+            endpointNames.entrySet().forEach(oldName -> execute(statement, updateEndpointNameSql(oldName.getKey(), oldName.getValue())));
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private void updateEndpointName(String oldName, String newName) {
-        execute(dataModel, "UPDATE WS_ENDPOINTCFG SET WEBSERVICENAME = '" + newName + "' WHERE WEBSERVICENAME = '" + oldName + "'");
+    private String updateEndpointNameSql(String oldName, String newName) {
+        return "UPDATE WS_ENDPOINTCFG SET WEBSERVICENAME = '" + newName + "' WHERE WEBSERVICENAME = '" + oldName + "'";
     }
 
     private void createNewlyAddedServiceCallTypes() {
