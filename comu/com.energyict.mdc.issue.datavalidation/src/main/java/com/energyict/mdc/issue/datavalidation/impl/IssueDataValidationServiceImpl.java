@@ -10,12 +10,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
@@ -23,12 +18,7 @@ import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Version;
@@ -38,14 +28,9 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.*;
 import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
 import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -61,9 +46,9 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation",
-           service = { TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
-           property = "name=" + IssueDataValidationService.COMPONENT_NAME,
-           immediate = true)
+        service = {TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
+        property = "name=" + IssueDataValidationService.COMPONENT_NAME,
+        immediate = true)
 public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider, IssueReasonTranslationProvider {
 
     private volatile IssueService issueService;
@@ -113,7 +98,8 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        Version.version(10, 2), UpgraderV10_2.class
+                        Version.version(10, 2), UpgraderV10_2.class,
+                        Version.version(10, 7), UpgraderV10_7.class
                 ));
     }
 
@@ -138,17 +124,17 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     @Override
     public Optional<OpenIssueDataValidation> findOpenIssue(long id) {
         return dataModel.query(OpenIssueDataValidation.class, OpenIssue.class)
-                        .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
-                        .stream()
-                        .findFirst();
+                .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+                .stream()
+                .findFirst();
     }
 
     @Override
     public Optional<HistoricalIssueDataValidation> findHistoricalIssue(long id) {
         return dataModel.query(HistoricalIssueDataValidation.class, HistoricalIssue.class)
-                        .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
-                        .stream()
-                        .findFirst();
+                .select(Where.where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+                .stream()
+                .findFirst();
     }
 
     @Override
@@ -255,7 +241,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
             mainClass = IssueDataValidation.class;
             issueEager = Issue.class;
         }
-        return DefaultFinder.of(mainClass, condition, dataModel, issueEager, IssueStatus.class, EndDevice.class, User.class,  IssueReason.class, IssueType.class);
+        return DefaultFinder.of(mainClass, condition, dataModel, issueEager, IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class);
     }
 
     private Condition buildConditionFromFilter(DataValidationIssueFilter filter) {

@@ -56,6 +56,4 @@ public interface CreationRuleTemplate extends HasDynamicProperties {
     default void closeAllOpenIssues(IssueEvent event) throws OperationNotSupportedException {
         throw new OperationNotSupportedException("Method is not supported for current rule template");
     }
-
-    ;
 }

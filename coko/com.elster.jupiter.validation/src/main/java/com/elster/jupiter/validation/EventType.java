@@ -40,6 +40,20 @@ public enum EventType {
                     .scope("System")
                     .create();
         }
+    },
+    SUSPECT_VALUE_CREATED("suspect/CREATED", false) {
+        @Override
+        public void install(EventService eventService) {
+            eventService.buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(ValidationService.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .withProperty("channelId", ValueType.LONG, "channelId")
+                    .withProperty("readingType", ValueType.STRING, "readingType")
+                    .shouldPublish()
+                    .create();
+        }
     };
 
     private static final String NAMESPACE = "com/elster/jupiter/validation/";

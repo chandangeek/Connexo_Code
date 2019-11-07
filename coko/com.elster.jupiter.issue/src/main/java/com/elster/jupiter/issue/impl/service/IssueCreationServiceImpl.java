@@ -13,22 +13,8 @@ import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.FiltrableByComTask;
-import com.elster.jupiter.issue.share.IssueCreationValidator;
-import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleAction;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
-import com.elster.jupiter.issue.share.entity.Entity;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueActionType;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.IssueTypes;
-import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.*;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -43,11 +29,11 @@ import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-
 import org.drools.core.common.ProjectClassLoader;
+import org.drools.core.event.DebugAgendaEventListener;
+import org.drools.core.event.DebugRuleRuntimeEventListener;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
 import org.kie.api.io.ResourceType;
@@ -159,7 +145,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public List<CreationRuleAction> findActionsByMultiValueProperty(List<IssueTypes> issueTypes, String propertyKey,
-            List<String> groupIdsList) {
+                                                                    List<String> groupIdsList) {
         final List<CreationRuleAction> actionsList;
         if (issueTypes != null && !issueTypes.isEmpty()) {
             final Condition condition = Where.where("type.issueType.key")

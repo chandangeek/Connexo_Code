@@ -8,18 +8,13 @@ import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-
 import com.google.inject.Inject;
 
 import java.util.Map;
@@ -73,10 +68,11 @@ public abstract class DataValidationEvent implements IssueEvent {
         filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
         filter.addStatus(issueService.findStatus(IssueStatus.SNOOZED).get());
         Optional<? extends IssueDataValidation> foundIssue = issueDataValidationService.findAllDataValidationIssues(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
-        if (foundIssue.isPresent()) {
-            return Optional.of((OpenIssue)foundIssue.get());
-        }
-        return Optional.empty();
+        return foundIssue.map(issueDataValidation -> (OpenIssue) issueDataValidation);
+    }
+
+    protected Optional<ChannelsContainer> findChannelsContainer() {
+        return findChannel().map(Channel::getChannelsContainer);
     }
 
     protected Optional<Channel> findChannel() {

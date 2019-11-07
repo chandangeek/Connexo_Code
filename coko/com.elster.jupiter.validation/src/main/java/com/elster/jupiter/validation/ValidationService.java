@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
@@ -12,8 +13,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.TaskOccurrence;
-
-import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -131,8 +130,8 @@ public interface ValidationService {
      * Validates all channels in the given {@code channelsContainer}.
      *
      * @param targetQualityCodeSystems Set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
-     * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
-     * @param channelsContainer Container with channels to validate.
+     *                                 It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
+     * @param channelsContainer        Container with channels to validate.
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer);
 
@@ -140,20 +139,20 @@ public interface ValidationService {
      * Validates channel with specific {@code readingType} in the given {@code channelsContainer}.
      *
      * @param targetQualityCodeSystems Set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
-     * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
-     * @param channelsContainer Container with channels to validate.
-     * @param readingType channel's reading type
+     *                                 It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
+     * @param channelsContainer        Container with channels to validate.
+     * @param readingType              channel's reading type
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
     /**
      * Validates the scope of data corresponding to a given {@link ValidationContext} at most starting from a given date.
      *
-     * @param validationContext Target {@link ValidationContext}.
+     * @param validationContext  Target {@link ValidationContext}.
      * @param validateAtMostFrom A minimum timestamp that requires (re)validation, i.e.
-     * (re)validation will be performed starting from this timestamp inclusively.
-     * However if current last checked timestamp for a part of given {@code validationContext} is before this timestamp,
-     * validation will be performed starting from last checked timestamp exclusively.
+     *                           (re)validation will be performed starting from this timestamp inclusively.
+     *                           However if current last checked timestamp for a part of given {@code validationContext} is before this timestamp,
+     *                           validation will be performed starting from last checked timestamp exclusively.
      */
     void validate(ValidationContext validationContext, Instant validateAtMostFrom);
 
@@ -161,10 +160,10 @@ public interface ValidationService {
      * Validates the scope of data corresponding to a given {@link ValidationContext} on a given interval.
      *
      * @param validationContext Target {@link ValidationContext}.
-     * @param interval An interval of data that requires (re)validation, i.e.
-     * (re)validation will be performed starting from the start of a given interval inclusively until the end of interval.
-     * However if current last checked timestamp for a part of given {@code validationContext} is before the start of interval,
-     * validation will be performed starting from last checked timestamp exclusively.
+     * @param interval          An interval of data that requires (re)validation, i.e.
+     *                          (re)validation will be performed starting from the start of a given interval inclusively until the end of interval.
+     *                          However if current last checked timestamp for a part of given {@code validationContext} is before the start of interval,
+     *                          validation will be performed starting from last checked timestamp exclusively.
      */
     void validate(ValidationContext validationContext, Range<Instant> interval);
 
@@ -225,5 +224,4 @@ public interface ValidationService {
     Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
 
     List<DataValidationTask> findByDeviceGroup(EndDeviceGroup endDevice, int skip, int limit);
-
 }
