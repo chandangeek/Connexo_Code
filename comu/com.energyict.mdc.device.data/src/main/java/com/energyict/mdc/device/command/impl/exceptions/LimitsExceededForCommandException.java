@@ -17,14 +17,20 @@ import java.util.stream.Collectors;
 public class LimitsExceededForCommandException extends LocalizedException {
     protected final Thesaurus thesaurus;
     protected String message;
+    private long deviceMessageId;
 
-    public LimitsExceededForCommandException(Thesaurus thesaurus, List<ExceededCommandRule> exceededCommandRules) {
+    public LimitsExceededForCommandException(Thesaurus thesaurus, List<ExceededCommandRule> exceededCommandRules, long deviceMessageId) {
         //Dummy call to super so it the exception would get propagated correctly to the FE
         super(thesaurus, MessageSeeds.LIMITS_EXCEEDED);
         this.thesaurus = thesaurus;
+        this.deviceMessageId = deviceMessageId;
         if (exceededCommandRules.size() > 0) {
             createTranslatedMessage(exceededCommandRules);
         }
+    }
+
+    public long getDeviceMessageId() {
+        return deviceMessageId;
     }
 
     protected void createTranslatedMessage(List<ExceededCommandRule> exceededCommandRules) {

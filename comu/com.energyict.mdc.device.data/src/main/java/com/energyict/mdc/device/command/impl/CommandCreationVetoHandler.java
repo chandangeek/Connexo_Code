@@ -54,7 +54,7 @@ public class CommandCreationVetoHandler implements TopicHandler {
             DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
             List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForNewCommand(deviceMessage);
             if(!exceededCommandRules.isEmpty()) {
-                throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules);
+                throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules, deviceMessage.getId());
             } else {
                 commandRuleService.commandCreated(deviceMessage);
             }

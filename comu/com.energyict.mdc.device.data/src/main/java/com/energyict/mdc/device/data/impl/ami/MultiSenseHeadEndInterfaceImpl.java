@@ -36,8 +36,10 @@ import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.MultiSenseEndDeviceCommand;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
@@ -97,6 +99,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private volatile DeviceMessageService deviceMessageService;
     private Optional<String> multiSenseUrl = Optional.empty();
 
     //For OSGI purposes
@@ -104,7 +107,9 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     @Inject
-    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory, ThreadPrincipalService threadPrincipalService, Clock clock) {
+    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus,
+                                          ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory,
+                                          ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService, Clock clock) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -113,6 +118,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.customPropertySetService = customPropertySetService;
         this.endDeviceCommandFactory = endDeviceCommandFactory;
         this.threadPrincipalService = threadPrincipalService;
+        this.deviceMessageService = deviceMessageService;
         this.clock = clock;
     }
 
@@ -157,6 +163,10 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.endDeviceCommandFactory = endDeviceCommandFactory;
     }
 
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -371,6 +381,10 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.log("Encountered an exception when trying to create/schedule the device command(s)", e);
             serviceCall.log(LogLevel.SEVERE, e.getLocalizedMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
+            if (e instanceof LimitsExceededForCommandException) {
+                Optional<DeviceMessage> deviceMessage = deviceMessageService.findDeviceMessageById(((LimitsExceededForCommandException)e).getDeviceMessageId());
+                deviceMessage.ifPresent(DeviceMessage::delete);
+            }
             throw e;
         }
     }
