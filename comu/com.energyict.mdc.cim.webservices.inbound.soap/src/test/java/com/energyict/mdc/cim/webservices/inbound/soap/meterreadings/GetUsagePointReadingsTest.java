@@ -2053,7 +2053,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     }
 
     @Test
-    @Ignore
+    @Ignore //TODO: need to fix
     public void testSuccessCaseAsyncModeEndDeviceMeterSource() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();

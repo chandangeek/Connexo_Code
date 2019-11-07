@@ -667,12 +667,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceIrregularComTaskExecutionMap());
 
         //Map<Long, ComTaskExecution> -> Map<Long, Set<ComTaskExecution>>. Set<ComTaskExecution> will contain 1 element.
-        Map<Long, Set<ComTaskExecution>> deviceMessageMap =  new HashMap<>();
-        syncReplyIssue.getDeviceMessagesComTaskExecutionMap().forEach((k,v)-> {
-            Set<ComTaskExecution> comTaskExecutionSet = new HashSet<>();
-            comTaskExecutionSet.add(v);
-            deviceMessageMap.put(k, comTaskExecutionSet);
-        });
+        Map<Long, Set<ComTaskExecution>> deviceMessageMap = syncReplyIssue.getDeviceMessagesComTaskExecutionMap().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> ImmutableSet.of(entry.getValue())));
         deviceComTaskExecutionMaps.add(deviceMessageMap);
 
         AtomicBoolean isOk = new AtomicBoolean(false);

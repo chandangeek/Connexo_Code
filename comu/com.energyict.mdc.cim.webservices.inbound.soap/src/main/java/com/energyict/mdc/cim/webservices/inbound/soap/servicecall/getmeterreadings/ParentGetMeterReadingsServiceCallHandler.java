@@ -113,7 +113,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .forEach(subParentServiceCall -> subParentServiceCall.requestTransition(newState));
     }
 
-    private boolean hasAllChildrenFinalStates(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean doAllClosedServiceCallsHaveState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().filter(sc -> !sc.getState().isOpen()).allMatch(sc -> sc.getState().equals(defaultState));
     }
 
@@ -174,7 +174,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             return;
         }
 
-        if (hasAllChildrenFinalStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
+        if (doAllClosedServiceCallsHaveState(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
             serviceCall.requestTransition(SUCCESSFUL);
         }else if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), CANCELLED))  {
             serviceCall.requestTransition(CANCELLED);
