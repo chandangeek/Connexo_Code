@@ -34,4 +34,12 @@ public final class VersionInfo<T> {
         this.id = id;
         this.version = version;
     }
+
+    @JsonProperty("name")
+    public String name;  // allow null values
+    public VersionInfo(T id, Long version, String name) {
+        this.id = id;
+        this.version = version;
+        this.name = name;
+    }
 }

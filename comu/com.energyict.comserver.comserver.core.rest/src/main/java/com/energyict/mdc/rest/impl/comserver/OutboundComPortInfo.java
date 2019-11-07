@@ -34,7 +34,7 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
         List<OutboundComPortPool> outboundComPortPools = engineConfigurationService.findContainingComPortPoolsForComPort(comPort);
         outboundComPortPoolIds.addAll(engineConfigurationService.findContainingComPortPoolsForComPort(comPort)
                 .stream()
-                .map(pool -> new VersionInfo<Long>(pool.getId(), pool.getVersion()))
+                .map(pool -> new VersionInfo<Long>(pool.getId(), pool.getVersion(), pool.getName()))
                 .collect(Collectors.toList()));
     }
 
