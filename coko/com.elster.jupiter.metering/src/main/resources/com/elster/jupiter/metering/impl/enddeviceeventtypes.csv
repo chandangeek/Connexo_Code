@@ -379,7 +379,6 @@ n/a,n/a,n/a,n/a
 *,Security,SecurityKeyVersion,Invalid
 *,Security,Signature,Error
 *,Security,Signature,Failed
-*,Security,Signature,InvalidU
 *,Security,Signature,NotFound
 *,Security,SignatureLength,Invalid
 *,Security,SignatureTimestamp,Invalid
