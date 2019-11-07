@@ -156,7 +156,6 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     .inTimeIntervals(timeRangeSet)
                     .withReadingTypesMRIDsTimeRangeMap(createReadingTypesMRIDsTimeRangeMap(endDevices, readingTypesMRIDs, loadProfilesNames, timePeriodStart, timePeriodEnd))
                     .withRegisterUpperBoundShift(calculateRegisterUpperBoundShift())
-                    .withsServiceCall(serviceCall)
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(FAILED);
