@@ -61,7 +61,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCusto
 import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.audit.AuditTranslationKeys;
-import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
+import com.energyict.mdc.device.data.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
