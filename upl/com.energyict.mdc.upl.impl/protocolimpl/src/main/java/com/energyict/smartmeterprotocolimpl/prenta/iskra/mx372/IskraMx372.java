@@ -61,7 +61,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     private static final int ELECTRICITY = 0x00;
     private static final int MBUS = 0x01;
-    public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
+    private static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
     private final PropertySpecService propertySpecService;
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor extractor;
@@ -70,7 +70,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private final NumberLookupFinder numberLookupFinder;
     private final NumberLookupExtractor numberLookupExtractor;
     private IskraMX372Properties properties;
-    private String serialnr = null;
     private String devID = null;
     private CosemObjectFactory cosemObjectFactory;
     private LoadProfileBuilder loadProfileBuilder;
@@ -150,7 +149,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         throw new ConnectionException("DeviceID mismatch! meter device ID=" + deviceID + ", configured device ID=" + getProperties().getDeviceId());
     }
 
-    public String getDeviceAddress() throws ConnectionException {
+    private String getDeviceAddress() throws ConnectionException {
         if (devID == null) {
             try {
                 devID = getCosemObjectFactory().getGenericRead(deviceLogicalName, DLMSUtils.attrLN2SN(2), 1).getString();
@@ -217,7 +216,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-    public RegisterReader getRegisterReader() {
+    private RegisterReader getRegisterReader() {
         if (registerReader == null) {
             registerReader = new RegisterReader(this);
         }
@@ -335,7 +334,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 
@@ -371,8 +370,8 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     /**
      * Based on the serial number, find out the physical address of the slave Mbus meter.
      *
-     * @param serialNumber
-     * @return
+     * @param serialNumber the serial number to check
+     * @return the physical address for the serial number
      */
     public int getPhysicalAddressFromSerialNumber(String serialNumber) throws IOException {
         if (serialNumber == null || serialNumber.isEmpty()) {
@@ -390,10 +389,10 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     /**
      * Based on the physical address of the mbus slave, find out the serial number of the slave Mbus meter.
      *
-     * @param physicalAddress
-     * @return
+     * @param physicalAddress integer representing the physical address
+     * @return the Serialnumber
      */
-    public String getSerialNumberFromPhysicalAddress(int physicalAddress) {
+    String getSerialNumberFromPhysicalAddress(int physicalAddress) {
         for (MbusDevice mbusDevice : messageProtocol.getMbusDevices()) {
             if ((mbusDevice != null) && (mbusDevice.getPhysicalAddress() == physicalAddress)) {
                 return mbusDevice.getCustomerID();

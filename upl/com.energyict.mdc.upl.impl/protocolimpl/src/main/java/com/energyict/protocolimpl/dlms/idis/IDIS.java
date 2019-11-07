@@ -348,7 +348,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessageHandler().applyMessages(messageEntries);
     }
 
