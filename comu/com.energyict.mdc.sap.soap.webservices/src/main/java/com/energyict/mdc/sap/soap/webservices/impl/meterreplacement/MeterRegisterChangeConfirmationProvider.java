@@ -6,11 +6,16 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilitiesDeviceERPSmartMeterRegisterChangeConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilitiesDeviceERPSmartMeterRegisterChangeConfirmationCOutService;
-
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -18,6 +23,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = MeterRegisterChangeConfirmation.NAME,
         service = {MeterRegisterChangeConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -62,8 +68,18 @@ public class MeterRegisterChangeConfirmationProvider extends AbstractOutboundEnd
 
     @Override
     public void call(MeterRegisterChangeConfirmationMessage msg) {
+        SetMultimap<String, String> values = HashMultimap.create();
+        getDeviceId(msg.getConfirmationMessage()).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
         using("utilitiesDeviceERPSmartMeterRegisterChangeConfirmationCOut")
+                .withRelatedAttributes(values)
                 .send(msg.getConfirmationMessage());
+    }
+
+    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrRegChgConfMsg confMsg) {
+        return Optional.ofNullable(confMsg)
+                .map(UtilsDvceERPSmrtMtrRegChgConfMsg::getUtilitiesDevice)
+                .map(UtilsDvceERPSmrtMtrRegChgConfUtilsDvce::getID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override

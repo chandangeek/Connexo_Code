@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
@@ -28,7 +29,11 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceERPSmartMeterRegisterChangeRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqUtilsDvce;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -74,12 +79,23 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             }
 
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(MeterRegisterChangeMessageBuilder
-                            .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        getDeviceId(requestMessage.getUtilitiesDevice()).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        saveRelatedAttributes(values);
+                        createServiceCallAndTransition(MeterRegisterChangeMessageBuilder
+                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
+                                .from(requestMessage)
+                                .build());
+                    });
             return null;
         });
+    }
+
+    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce device) {
+        return Optional.ofNullable(device)
+                .map(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce::getID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     private boolean isAnyActiveEndpoint(String name) {

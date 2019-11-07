@@ -4,14 +4,20 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkResult;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOutService;
-
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltBulkCrteReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMtrRdngDoc;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqUtilsDvce;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqUtilsMsmtTsk;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UtilitiesMeasurementTaskID;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -20,7 +26,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.sap.meterreadingdocumentbulkresult.outbound.provider",
         service = {MeterReadingDocumentBulkResult.class, OutboundSoapEndPointProvider.class},
@@ -65,11 +74,9 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
         SetMultimap<String, String> values = HashMultimap.create();
-        resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().forEach(reading->{
-            values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                    reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
-            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                    reading.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
+        getCreateRequestMessages(resultMessage).forEach(reading -> {
+            getTaskId(reading).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+            getDeviceId(reading).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
         });
 
         using("meterReadingDocumentERPResultBulkCreateRequestCOut")
@@ -77,8 +84,32 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
                 .send(resultMessage.getBulkResultMessage());
     }
 
+    private static List<MtrRdngDocERPRsltCrteReqMsg> getCreateRequestMessages(MeterReadingDocumentCreateResultMessage resultMessage) {
+        return Optional.ofNullable(resultMessage)
+                .map(MeterReadingDocumentCreateResultMessage::getBulkResultMessage)
+                .map(MtrRdngDocERPRsltBulkCrteReqMsg::getMeterReadingDocumentERPResultCreateRequestMessage)
+                .orElse(new ArrayList<>());
+    }
+
+    private static Optional<String> getTaskId(MtrRdngDocERPRsltCrteReqMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(MtrRdngDocERPRsltCrteReqMsg::getMeterReadingDocument)
+                .map(MtrRdngDocERPRsltCrteReqMtrRdngDoc::getUtiltiesMeasurementTask)
+                .map(MtrRdngDocERPRsltCrteReqUtilsMsmtTsk::getUtilitiesMeasurementTaskID)
+                .map(UtilitiesMeasurementTaskID::getValue);
+    }
+
+    private static Optional<String> getDeviceId(MtrRdngDocERPRsltCrteReqMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(MtrRdngDocERPRsltCrteReqMsg::getMeterReadingDocument)
+                .map(MtrRdngDocERPRsltCrteReqMtrRdngDoc::getUtiltiesMeasurementTask)
+                .map(MtrRdngDocERPRsltCrteReqUtilsMsmtTsk::getUtiltiesDevice)
+                .map(MtrRdngDocERPRsltCrteReqUtilsDvce::getUtilitiesDeviceID)
+                .map(UtilitiesDeviceID::getValue);
+    }
+
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

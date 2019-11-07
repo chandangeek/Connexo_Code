@@ -9,7 +9,11 @@ import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmartMeterMeterReadingDocumentERPCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
-
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqUtilsDvce;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqUtilsMsmtTsk;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.UtilitiesMeasurementTaskID;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -31,12 +35,12 @@ public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint 
             Optional.ofNullable(request).ifPresent(requestMessage -> {
 
                 SetMultimap<String, String> values = HashMultimap.create();
-
-                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                        request.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
-                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                        request.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
+                getTaskId(requestMessage.getMeterReadingDocument())
+                        .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                getDeviceId(requestMessage.getMeterReadingDocument())
+                        .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
                 saveRelatedAttributes(values);
+
                 serviceCallCommands.createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage.builder()
                         .from(requestMessage)
                         .build());
@@ -46,8 +50,23 @@ public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint 
         });
     }
 
+    private static Optional<String> getTaskId(SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc doc) {
+        return Optional.ofNullable(doc)
+                .map(SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc::getUtiltiesMeasurementTask)
+                .map(SmrtMtrMtrRdngDocERPCrteReqUtilsMsmtTsk::getUtilitiesMeasurementTaskID)
+                .map(UtilitiesMeasurementTaskID::getValue);
+    }
+
+    private static Optional<String> getDeviceId(SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc doc) {
+        return Optional.ofNullable(doc)
+                .map(SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc::getUtiltiesMeasurementTask)
+                .map(SmrtMtrMtrRdngDocERPCrteReqUtilsMsmtTsk::getUtiltiesDevice)
+                .map(SmrtMtrMtrRdngDocERPCrteReqUtilsDvce::getUtilitiesDeviceID)
+                .map(UtilitiesDeviceID::getValue);
+    }
+
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }
