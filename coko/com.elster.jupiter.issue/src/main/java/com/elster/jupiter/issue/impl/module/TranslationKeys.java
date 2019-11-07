@@ -51,7 +51,7 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_WEBSERVICE_NOTIFICATION_CALLED_FAILED("alarm.action.webServiceNotification.call.failed", "Web service notification call failed"),
     ACTION_WEBSERVICE_NOTIFICATION_ENDPOINT_DOES_NOT_EXIST("alarm.action.webServiceNotification.endpoint.empty", "Web service does not exist in the system"),
     ACTION_WEBSERVICE_NOTIFICATION_ENDPOINT_CONFIGURATION_DOES_NOT_EXIST("alarm.action.webServiceNotification.endpoint.configuration", "Web service configuration does not exist in the systme"),
-    PROCESS_ACTION("issue.action.processAction", "Process action"),
+    PROCESS_ACTION("issue.action.startProcess", "Start process"),
     PROCESS_ACTION_SUCCESS("issue.action.processAction.success", "Process successufuly called"),
     PROCESS_ACTION_FAIL("issue.action.processAction.fail", "Process call failed"),
     PROCESS_ACTION_PROCESS_IS_ABSENT("issue.action.processAction.process.absent", "Process that you called does not exist in system"),

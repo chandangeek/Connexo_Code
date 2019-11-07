@@ -27,7 +27,6 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -66,7 +65,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         }
         if (isApplicable(issue)) {
             ((OpenIssue) issue).close(closeStatus.get());
-            getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User)threadPrincipalService.getPrincipal()));
+            getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User) threadPrincipalService.getPrincipal()));
             result.success(getThesaurus().getFormat(TranslationKeys.CLOSE_ACTION_ISSUE_CLOSED).format());
         } else {
             result.fail(getThesaurus().getFormat(TranslationKeys.CLOSE_ACTION_ISSUE_ALREADY_CLOSED).format());
@@ -77,22 +76,24 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(
-                getPropertySpecService()
-                        .specForValuesOf(new StatusValueFactory())
-                        .named(CLOSE_STATUS, TranslationKeys.CLOSE_ACTION_PROPERTY_CLOSE_STATUS)
-                        .describedAs(TranslationKeys.CLOSE_ACTION_PROPERTY_CLOSE_STATUS)
-                        .fromThesaurus(getThesaurus())
-                        .markRequired()
-                        .addValues(this.getPossibleStatuses())
-                        .markExhaustive()
-                        .finish());
+
+        builder.add(getPropertySpecService()
+                .specForValuesOf(new StatusValueFactory())
+                .named(CLOSE_STATUS, TranslationKeys.CLOSE_ACTION_PROPERTY_CLOSE_STATUS)
+                .describedAs(TranslationKeys.CLOSE_ACTION_PROPERTY_CLOSE_STATUS)
+                .fromThesaurus(getThesaurus())
+                .markRequired()
+                .addValues(this.getPossibleStatuses())
+                .markExhaustive()
+                .finish());
+
         builder.add(getPropertySpecService()
                 .specForValuesOf(new CommentsFactory())
                 .named(COMMENT, TranslationKeys.CLOSE_ACTION_PROPERTY_COMMENT)
                 .describedAs(TranslationKeys.CLOSE_ACTION_PROPERTY_COMMENT)
                 .fromThesaurus(getThesaurus())
                 .finish());
+
         return builder.build();
     }
 
@@ -130,7 +131,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         return "";
     }
 
-    private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
+    private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties) {
         Object value = properties.get(CLOSE_STATUS);
         if (value != null) {
             @SuppressWarnings("unchecked")
@@ -199,8 +200,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         public void bind(PreparedStatement statement, int offset, Status value) throws SQLException {
             if (value != null) {
                 statement.setObject(offset, valueToDatabase(value));
-            }
-            else {
+            } else {
                 statement.setNull(offset, Types.VARCHAR);
             }
         }
@@ -209,8 +209,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         public void bind(SqlBuilder builder, Status value) {
             if (value != null) {
                 builder.addObject(this.valueToDatabase(value));
-            }
-            else {
+            } else {
                 builder.addNull(Types.VARCHAR);
             }
         }
