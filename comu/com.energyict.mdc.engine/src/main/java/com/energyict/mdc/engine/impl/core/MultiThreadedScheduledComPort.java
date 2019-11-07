@@ -138,7 +138,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     protected void doRun() {
-//        goSleepIfWokeUpTooEarly();
+        goSleepIfWokeUpTooEarly();
         executeTasks();
     }
 
