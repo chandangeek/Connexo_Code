@@ -99,7 +99,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
-    private volatile DeviceMessageService deviceMessageService;
     private Optional<String> multiSenseUrl = Optional.empty();
 
     //For OSGI purposes
@@ -109,7 +108,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Inject
     public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus,
                                           ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory,
-                                          ThreadPrincipalService threadPrincipalService, DeviceMessageService deviceMessageService, Clock clock) {
+                                          ThreadPrincipalService threadPrincipalService, Clock clock) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -118,7 +117,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.customPropertySetService = customPropertySetService;
         this.endDeviceCommandFactory = endDeviceCommandFactory;
         this.threadPrincipalService = threadPrincipalService;
-        this.deviceMessageService = deviceMessageService;
         this.clock = clock;
     }
 
@@ -163,10 +161,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.endDeviceCommandFactory = endDeviceCommandFactory;
     }
 
-    @Reference
-    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
-        this.deviceMessageService = deviceMessageService;
-    }
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -382,8 +376,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.log(LogLevel.SEVERE, e.getLocalizedMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
             if (e instanceof LimitsExceededForCommandException) {
-                Optional<DeviceMessage> deviceMessage = deviceMessageService.findDeviceMessageById(((LimitsExceededForCommandException)e).getDeviceMessageId());
-                deviceMessage.ifPresent(DeviceMessage::delete);
+                Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException)e).getDeviceMessage();
+                deviceMessage.ifPresent(DeviceMessage::revoke);
             }
             throw e;
         }
