@@ -627,6 +627,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds){
         Map<Long, List<String>> issuesPerReason = new HashMap<>();
+
+        if (deviceIds.size() == 0){
+            return issuesPerReason;
+        }
+
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT " +
                 " ed.id, ri.issue_type " +
                 " FROM mtr_enddevice ed " +
