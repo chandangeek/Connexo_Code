@@ -95,10 +95,8 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     @Override
     public ServiceCall startServiceCall(String uuid, long timeout, Stream<? extends ExportData> data) {
         if (transactionService.isInTransaction()) {
-            System.out.println("CALL doStartServiceCall!!!");
             return doStartServiceCall(uuid, timeout, data);
         } else {
-            System.out.println("CALL startServiceCallInTransaction!!!");
             return startServiceCallInTransaction(uuid, timeout, data);
         }
     }
@@ -128,7 +126,6 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
 
 
     private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID){
-        System.out.println("CREATE CHILD with name = "+deviceName+", mrid = "+readingTypeMrID);
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
         childSrvCallProperties.setDeviceName(deviceName);
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
