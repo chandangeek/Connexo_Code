@@ -36,10 +36,10 @@ import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.MultiSenseEndDeviceCommand;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
@@ -365,6 +365,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
         try {
             checkComTaskEnablement(endDeviceCommand);
+            checkComTaskStatusInformationEnablement(endDeviceCommand);
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
             scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
@@ -396,6 +397,23 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                             .anyMatch(task -> task instanceof MessagesTask));
             if (noCommandComTaskEnablement) {
                 throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
+            }
+        }
+    }
+
+    private void checkComTaskStatusInformationEnablement(EndDeviceCommand endDeviceCommand) throws NoSuchElementException {
+        EndDevice endDevice = endDeviceCommand.getEndDevice();
+        if (endDevice != null) {
+            Device device = findDeviceForEndDevice(endDevice);
+
+            // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
+            boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
+                    .getComTaskEnablements().stream()
+                    .filter(cte -> cte.getComTask().isManualSystemTask())
+                    .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
+                            .anyMatch(task -> task instanceof StatusInformationTask));
+            if (noCommandComTaskEnablement) {
+                throw NoSuchElementException.comTaskStatusInformationCouldNotBeLocated(thesaurus).get();
             }
         }
     }
