@@ -245,7 +245,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET.translate(thesaurus, NON_VERSIONED_CPS_ID));
+                    .isEqualTo(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET.translate(thesaurus, NON_VERSIONED_CPS_ID));
         }
     }
 

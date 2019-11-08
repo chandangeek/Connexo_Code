@@ -61,7 +61,14 @@ public class MeterConfigFaultMessageFactory {
     }
 
     FaultMessage meterConfigFaultMessage(List<FaultMessage> faults) {
-        return meterConfigFaultMessage(faults.get(0).getMessage(), faults, ReplyType.Result.FAILED);
+        StringBuilder message = new StringBuilder();
+        if(faults.size()==2 && (faults.get(0).getMessage().contains("'Card format'") && faults.get(1).getMessage().contains("'Status'"))){
+            faults.forEach(faultMessage -> message.append(faultMessage.getMessage()).append(" "));
+        }else{
+            message.append(faults.get(0).getMessage());
+        }
+
+        return meterConfigFaultMessage(message.toString(), faults, ReplyType.Result.FAILED);
     }
 
     FaultMessage meterConfigFaultMessage(MessageSeeds message, List<FaultMessage> faults, ReplyType.Result result) {

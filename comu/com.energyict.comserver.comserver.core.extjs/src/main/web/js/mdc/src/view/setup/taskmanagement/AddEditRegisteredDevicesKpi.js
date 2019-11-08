@@ -34,6 +34,9 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditRegisteredDevicesKpi', {
                 required: true,
                 width: 600,
                 listeners: {
+                    change: function (combobox, value) {
+                        combobox.clearInvalid();
+                    },
                     afterrender: function (field) {
                         field.focus(false, 200);
                     }

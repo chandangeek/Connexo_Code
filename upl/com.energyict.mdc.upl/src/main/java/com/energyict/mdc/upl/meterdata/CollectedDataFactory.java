@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -37,6 +38,8 @@ public interface CollectedDataFactory {
     CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier);
 
     CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile);
+
+    CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader);
 
     CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters);
 

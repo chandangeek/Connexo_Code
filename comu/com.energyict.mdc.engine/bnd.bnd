@@ -29,5 +29,5 @@ Import-Package: !com.sun.jdi.*,\
     !sun.security.krb5.*,\
     !sun.security.util,\
     *
-Embed-Dependency: groupId=javassist|log4j|org.eclipse.jetty|org.json
+Embed-Dependency: groupId=javassist|log4j|org.json
 Embed-Transitive: true
