@@ -33,6 +33,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private List<Long> workGroupAssignees;
     private Set<String> issueTypes;
     private List<DueDateRange> dueDates;
+    private List<Long> deviceGroup;
 
     public IssueGroupFilterImpl() {
         this.statuses = new HashSet<>();
@@ -42,6 +43,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
         this.workGroupAssignees = new ArrayList<>();
         this.issueTypes = new HashSet<>();
         this.dueDates = new ArrayList<>();
+        this.deviceGroup = new ArrayList<>();
     }
 
     @Override
@@ -169,6 +171,12 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     @Override
     public IssueGroupFilter withUserAssignee(long id) {
         this.userAssignees.add(id);
+        return this;
+    }
+
+    @Override
+    public IssueGroupFilter withDeviceGroup(long id) {
+        this.deviceGroup.add(id);
         return this;
     }
 
