@@ -7,7 +7,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscan
 
 public interface StatusChangeRequestCancellationConfirmation {
 
-    String NAME = "SAP StatusChangeRequestCancellationConfirmation";
+    String NAME = "SAP ConnectionStatusChangeCancellationConfirmation";
 
     /**
      * Invoked to send cancelling status change request confirmation

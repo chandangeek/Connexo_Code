@@ -77,7 +77,7 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
 
         assertThatThrownBy(() -> provider.call(deviceId))
                 .isInstanceOf(LocalizedException.class)
-                .hasMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterRegisteredNotification_C_Out'.");
+                .hasMessage("No web service endpoints are available to send the request using 'SAP SmartMeterRegisteredNotification'.");
     }
 
     @Test
