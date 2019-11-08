@@ -86,8 +86,8 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
         });
     }
 
-    private static Optional<String> getDeviceId(UtilsSmrtMtrEvtERPCrteConfMsg confMsg) {
-        return Optional.ofNullable(confMsg)
+    private static Optional<String> getDeviceId(UtilsSmrtMtrEvtERPCrteConfMsg confirmation) {
+        return Optional.ofNullable(confirmation)
                 .map(UtilsSmrtMtrEvtERPCrteConfMsg::getUtilitiesSmartMeterEvent)
                 .map(UtilsSmrtMtrEvtERPCrteConfUtilsSmrtMtrEvt::getUtilitiesDeviceID)
                 .map(UtilitiesDeviceID::getValue);

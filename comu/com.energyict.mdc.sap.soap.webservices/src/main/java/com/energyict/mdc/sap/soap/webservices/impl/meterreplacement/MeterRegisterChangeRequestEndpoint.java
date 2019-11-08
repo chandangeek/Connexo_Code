@@ -29,18 +29,12 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceERPSmartMeterRegisterChangeRequestCIn;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesMeasurementTaskID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqUtilsDvce;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -84,37 +78,20 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                        requestMessage.getUtilitiesDevice().getRegister().forEach(r -> r.getUtilitiesMeasurementTaskID());
-                        SetMultimap<String, String> values = HashMultimap.create();
-                        getRegisters(requestMessage.getUtilitiesDevice())
-                                .forEach(r -> getTaskId(r.getUtilitiesMeasurementTaskID()).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value)));
-                        getDeviceId(requestMessage.getUtilitiesDevice())
-                                .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
-                        saveRelatedAttributes(values);
-                        createServiceCallAndTransition(MeterRegisterChangeMessageBuilder
+                        MeterRegisterChangeMessage message = MeterRegisterChangeMessageBuilder
                                 .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
                                 .from(requestMessage)
-                                .build());
+                                .build();
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        Optional.ofNullable(message.getLrn())
+                                .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                        Optional.ofNullable(message.getDeviceId())
+                                .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        saveRelatedAttributes(values);
+                        createServiceCallAndTransition(message);
                     });
             return null;
         });
-    }
-
-    private static List<UtilsDvceERPSmrtMtrRegChgReqReg> getRegisters(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce device) {
-        return Optional.ofNullable(device)
-                .map(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce::getRegister)
-                .orElse(new ArrayList<>());
-    }
-
-    private static Optional<String> getTaskId(UtilitiesMeasurementTaskID taskId) {
-        return Optional.ofNullable(taskId)
-                .map(UtilitiesMeasurementTaskID::getValue);
-    }
-
-    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce device) {
-        return Optional.ofNullable(device)
-                .map(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce::getID)
-                .map(UtilitiesDeviceID::getValue);
     }
 
     private boolean isAnyActiveEndpoint(String name) {

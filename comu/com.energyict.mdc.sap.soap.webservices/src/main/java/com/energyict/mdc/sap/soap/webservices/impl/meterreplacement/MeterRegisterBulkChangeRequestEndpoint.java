@@ -29,18 +29,12 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequestCIn;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesMeasurementTaskID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqUtilsDvce;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -84,39 +78,22 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
 
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                        SetMultimap<String, String> values = HashMultimap.create();
-                        requestMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeRequestMessage()
-                                .forEach(msg -> {
-                                    getRegisters(msg.getUtilitiesDevice())
-                                            .forEach(r -> getTaskId(r.getUtilitiesMeasurementTaskID()).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value)));
-                                    getDeviceId(msg.getUtilitiesDevice())
-                                            .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
-                                });
-                        saveRelatedAttributes(values);
-                        createServiceCallAndTransition(MeterRegisterBulkChangeRequestMessage
+                        MeterRegisterBulkChangeRequestMessage message = MeterRegisterBulkChangeRequestMessage
                                 .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
                                 .from(requestMessage)
-                                .build());
+                                .build();
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        message.getMeterRegisterChangeMessages().forEach(msg -> {
+                            Optional.ofNullable(msg.getLrn())
+                                    .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                            Optional.ofNullable(msg.getDeviceId())
+                                    .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        });
+                        saveRelatedAttributes(values);
+                        createServiceCallAndTransition(message);
                     });
             return null;
         });
-    }
-
-    private static List<UtilsDvceERPSmrtMtrRegChgReqReg> getRegisters(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce device) {
-        return Optional.ofNullable(device)
-                .map(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce::getRegister)
-                .orElse(new ArrayList<>());
-    }
-
-    private static Optional<String> getTaskId(UtilitiesMeasurementTaskID taskId) {
-        return Optional.ofNullable(taskId)
-                .map(UtilitiesMeasurementTaskID::getValue);
-    }
-
-    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce device) {
-        return Optional.ofNullable(device)
-                .map(UtilsDvceERPSmrtMtrRegChgReqUtilsDvce::getID)
-                .map(UtilitiesDeviceID::getValue);
     }
 
     private boolean isAnyActiveEndpoint(String name) {

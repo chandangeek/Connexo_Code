@@ -5,21 +5,14 @@ package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.UtilitiesDeviceID;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class StatusChangeRequestBulkCreateEndpoint extends AbstractInboundEndPoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateRequestCIn, ApplicationSpecific {
@@ -36,34 +29,17 @@ public class StatusChangeRequestBulkCreateEndpoint extends AbstractInboundEndPoi
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
+                        StatusChangeRequestBulkCreateMessage message = StatusChangeRequestBulkCreateMessage.builder().from(requestMessage).build();
                         SetMultimap<String, String> values = HashMultimap.create();
-                        requestMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestMessage()
-                                .forEach(msg -> getDeviceConnectionStatuses(msg)
-                                        .stream()
-                                        .map(StatusChangeRequestBulkCreateEndpoint::getDeviceId)
-                                        .flatMap(Functions.asStream())
-                                        .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value))
-                                );
+                        message.getRequests().forEach(r -> {
+                            values.putAll(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), r.getDeviceConnectionStatus().keySet());
+                        });
                         saveRelatedAttributes(values);
-
                         serviceCallCommands.createServiceCallAndTransition(
-                                StatusChangeRequestBulkCreateMessage.builder().from(requestMessage).build());
+                                message);
                     });
             return null;
         });
-    }
-
-    private static List<SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts> getDeviceConnectionStatuses(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg changeRequest) {
-        return Optional.ofNullable(changeRequest)
-                .map(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg::getUtilitiesConnectionStatusChangeRequest)
-                .map(SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq::getDeviceConnectionStatus)
-                .orElse(new ArrayList<>());
-    }
-
-    private static Optional<String> getDeviceId(SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts status) {
-        return Optional.ofNullable(status)
-                .map(SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts::getUtilitiesDeviceID)
-                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override
