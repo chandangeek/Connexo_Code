@@ -13,6 +13,7 @@ package com.energyict.mdc.upl.tasks;
  */
 public enum CompletionCode {
     Ok,
+    DataWarning,
     ConfigurationWarning,
     NotExecuted,
     Rescheduled,

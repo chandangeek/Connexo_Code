@@ -89,7 +89,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         return collectedDataFactory;
     }
 
-    protected IssueFactory getIssueFactory() {
+    public IssueFactory getIssueFactory() {
         return issueFactory;
     }
 
