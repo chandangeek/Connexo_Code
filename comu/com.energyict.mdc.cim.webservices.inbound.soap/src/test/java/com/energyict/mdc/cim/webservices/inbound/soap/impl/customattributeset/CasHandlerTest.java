@@ -90,7 +90,7 @@ public class CasHandlerTest {
         toTest.addCustomPropertySetsData(device, customPropertySetsData);
 
         verify(loggerUtils).logException(eq(device), any(), any(), isA(Exception.class),
-                eq(MessageSeeds.CANT_FIND_CUSTOM_ATTRIBUTE_SET), eq(NON_VERSIONED_CAS_ID));
+                eq(MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET), eq(NON_VERSIONED_CAS_ID));
     }
 
     @Test
