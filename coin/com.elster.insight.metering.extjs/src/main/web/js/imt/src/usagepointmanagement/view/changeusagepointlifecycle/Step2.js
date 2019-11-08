@@ -33,10 +33,10 @@ Ext.define('Imt.usagepointmanagement.view.changeusagepointlifecycle.Step2', {
             me.down('#change-usage-point-life-cycle-failed').setText(Uni.I18n.translate('usagePointLifeCycle.change.errorMsg1', 'IMT', 'Cannot change life cycle.'));
             me.down('#change-usage-point-life-cycle-failed').show();
             me.add({
-                 xtype: 'panel',
+                 xtype: 'component',
                  padding: '15 0 0 0',
                  height: 55,
-                 bodyStyle: 'color: #eb5642',
+                 style: 'color: #eb5642',
                  html: Uni.I18n.translate('usagePointLifeCycle.change.errorMsg2', 'IMT', 'The life cycle \'{0}\' doesn\'t contain the current state \'{1}\'.', [result.newUsagePointLifeCycle, result.usagePointState], false) + '<br>' +
                        Uni.I18n.translate('general.errorCode', 'UNI', 'Error code') + ': ' + result.errorCode,
                  itemId: 'change-usage-point-life-cycle-failed-msg'
