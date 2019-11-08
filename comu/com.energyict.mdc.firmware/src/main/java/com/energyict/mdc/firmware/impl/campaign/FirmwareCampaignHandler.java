@@ -119,7 +119,12 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
                 }
-            }
+            } else if (comTaskExecution.getComTask().getId() == firmwareCampaignOptional.get().getValidationComTaskId()){
+                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED).format());
+            } //else if cte.getid==cp.getfirmware ?
         }
     }
 
@@ -163,6 +168,11 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
                 }
+            } else if (comTaskExecution.getComTask().getId() == firmwareCampaignOptional.get().getValidationComTaskId()){
+                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED).format());
             }
         }
     }
@@ -232,6 +242,5 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
-
     }
 }
