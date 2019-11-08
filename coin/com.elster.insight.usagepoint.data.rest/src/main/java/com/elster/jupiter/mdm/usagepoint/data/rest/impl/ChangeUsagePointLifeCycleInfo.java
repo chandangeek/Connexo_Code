@@ -4,4 +4,5 @@ public class ChangeUsagePointLifeCycleInfo {
     public String usagePointName;
     public String usagePointState;
     public String newUsagePointLifeCycle;
+    public String errorCode;
 }
