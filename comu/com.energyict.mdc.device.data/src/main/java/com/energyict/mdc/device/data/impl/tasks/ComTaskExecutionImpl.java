@@ -1690,6 +1690,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.comTaskExecution.comSchedule = ValueReference.absent();
             this.comTaskExecution.setNextExecutionSpecsFrom(temporalExpression);
             this.comTaskExecution.behavior = new ManualBehavior();
+            connectionTaskSchedulingMayHaveChanged = true;
             return this;
         }
 
@@ -1702,6 +1703,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             if (this.comTaskExecution.getNextExecutionTimestamp() == null) {
                 this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             }
+            this.connectionTaskSchedulingMayHaveChanged = true;
             return this;
         }
 
