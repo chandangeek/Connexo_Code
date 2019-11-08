@@ -46,6 +46,9 @@ import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallDomainExtension;
@@ -364,8 +367,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         serviceCall.log(LogLevel.INFO, "Handling command " + endDeviceCommand.getEndDeviceControlType());
 
         try {
-            checkComTaskEnablement(endDeviceCommand);
-            checkComTaskStatusInformationEnablement(endDeviceCommand);
+            checkComTaskEnablement(multiSenseDevice);
+            if (endDeviceCommand instanceof OpenRemoteSwitchCommand || endDeviceCommand instanceof CloseRemoteSwitchCommand || endDeviceCommand instanceof ArmRemoteSwitchCommand) {
+                // check Status Information com task exists and is manual system for 3 command types which trigger it in service call handlers
+                checkStatusInformationComTaskEnablement(multiSenseDevice);
+            }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
             scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
@@ -384,37 +390,27 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         }
     }
 
-    private void checkComTaskEnablement(EndDeviceCommand endDeviceCommand) throws NoSuchElementException {
-        EndDevice endDevice = endDeviceCommand.getEndDevice();
-            if (endDevice != null) {
-            Device device = findDeviceForEndDevice(endDevice);
-
-            // just to check negative case when there is no ManualSystemTask of type MessagesTask
-            boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
-                    .getComTaskEnablements().stream()
-                    .filter(cte -> cte.getComTask().isManualSystemTask())
-                    .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
-                            .anyMatch(task -> task instanceof MessagesTask));
-            if (noCommandComTaskEnablement) {
-                throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
-            }
+    private void checkComTaskEnablement(Device device) throws NoSuchElementException {
+        // just to check negative case when there is no ManualSystemTask of type MessagesTask
+        boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
+                .getComTaskEnablements().stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
+                .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
+                        .anyMatch(task -> task instanceof MessagesTask));
+        if (noCommandComTaskEnablement) {
+            throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
         }
     }
 
-    private void checkComTaskStatusInformationEnablement(EndDeviceCommand endDeviceCommand) throws NoSuchElementException {
-        EndDevice endDevice = endDeviceCommand.getEndDevice();
-        if (endDevice != null) {
-            Device device = findDeviceForEndDevice(endDevice);
-
-            // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
-            boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
-                    .getComTaskEnablements().stream()
-                    .filter(cte -> cte.getComTask().isManualSystemTask())
-                    .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
-                            .anyMatch(task -> task instanceof StatusInformationTask));
-            if (noCommandComTaskEnablement) {
-                throw NoSuchElementException.comTaskStatusInformationCouldNotBeLocated(thesaurus).get();
-            }
+    private void checkStatusInformationComTaskEnablement(Device device) throws NoSuchElementException {
+        // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
+        boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
+                .getComTaskEnablements().stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
+                .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
+                        .anyMatch(task -> task instanceof StatusInformationTask));
+        if (noCommandComTaskEnablement) {
+            throw NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get();
         }
     }
 
