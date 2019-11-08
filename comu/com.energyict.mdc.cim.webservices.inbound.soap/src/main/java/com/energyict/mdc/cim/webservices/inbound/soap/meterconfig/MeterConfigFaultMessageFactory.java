@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
@@ -62,7 +63,11 @@ public class MeterConfigFaultMessageFactory {
 
     FaultMessage meterConfigFaultMessage(List<FaultMessage> faults) {
         StringBuilder message = new StringBuilder();
-        if(faults.size()==2 && (faults.get(0).getMessage().contains("'Card format'") && faults.get(1).getMessage().contains("'Status'"))){
+        if(
+            faults.size()==2 &&
+            faults.stream().anyMatch(faultMessage -> faultMessage.getMessage().contains(thesaurus.getFormat(TranslationKeys.CARD_FORMAT).format())) &&
+            faults.stream().anyMatch(faultMessage -> faultMessage.getMessage().contains(thesaurus.getFormat(TranslationKeys.STATUS).format()))
+        ){
             faults.forEach(faultMessage -> message.append(faultMessage.getMessage()).append(" "));
         }else{
             message.append(faults.get(0).getMessage());
