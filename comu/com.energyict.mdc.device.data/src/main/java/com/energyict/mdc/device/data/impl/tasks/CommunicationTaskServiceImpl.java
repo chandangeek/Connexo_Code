@@ -50,6 +50,7 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -89,11 +90,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private final DeviceDataModelService deviceDataModelService;
     private final PriorityComTaskService priorityComTaskService;
+    private final BundleContext bundleContext;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, PriorityComTaskService priorityComTaskService) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
         this.deviceDataModelService = deviceDataModelService;
         this.priorityComTaskService = priorityComTaskService;
+        this.bundleContext = bundleContext;
     }
 
     @Override
@@ -775,11 +778,31 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" and (NVL(ct.comwindowend, 99999000) > "); // max possible value of milisecondsSinceMidnight is 86399000
             sqlBuilder.addLong(msSinceMidnight);
             sqlBuilder.append(" or ct.comwindowend = 0) ");
-            sqlBuilder.append(" order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask");
+            sqlBuilder.append(getOrderForPlannedComTaskExecutions());
             return mapper.fetcher(sqlBuilder);
         } else {
             return new NoComTaskExecutions();
         }
+    }
+
+    private String getOrderForPlannedComTaskExecutions(){
+        String orderClause = "";
+        boolean isTrueMinimizedOn = Optional.ofNullable(bundleContext.getProperty("communication.true.minimized")).map(v -> v.toLowerCase().equals("true")).orElse(false);
+        boolean isRandomizationOn = Optional.ofNullable(bundleContext.getProperty("communication.randomization")).map(v -> v.toLowerCase().equals("true")).orElse(false);
+
+        if (!isTrueMinimizedOn && !isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";
+        }
+        else if (isTrueMinimizedOn && !isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, cte.connectiontask, cte.priority";
+        }
+        else if (!isTrueMinimizedOn && isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, mod(cte.id, 100), cte.priority, cte.connectiontask";
+        }
+        else if (isTrueMinimizedOn && isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, mod(cte.id, 100), cte.connectiontask, cte.priority";
+        }
+        return orderClause;
     }
 
     public Fetcher<ComTaskExecution> findComTaskExecutionsForDevicesByComTask(List<Long> deviceIds, List<Long> comTaskIds) {

@@ -181,7 +181,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
-
+    private BundleContext bundleContext;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -645,6 +645,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     @Activate
     public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         this.createRealServices();
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel, dataVaultService);
@@ -674,7 +675,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
         connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
         priorityComTaskService = new PriorityComTaskServiceImpl(this, engineConfigurationService, connectionTaskService);
-        communicationTaskService = new CommunicationTaskServiceImpl(this, priorityComTaskService);
+        communicationTaskService = new CommunicationTaskServiceImpl(this, bundleContext, priorityComTaskService);
         communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);
         registerService = new RegisterServiceImpl(this);
