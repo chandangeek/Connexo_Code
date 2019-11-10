@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,14 +25,8 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
     private Instant createdDateTime;
     private long createdDateTimeMillis;
 
-    private Instant createTime;
-    private Instant modTime;
-    private String userName;
-
-    private Map<String, String> properties = new HashMap<>();
-
     CalculatedEventRecordImpl(Meter meter, String code, Instant createdDateTime, EndDeviceDomain domain) {
-        this.eventType.set(new CalculatedEndDeviceEventTypeImpl(code, domain));
+        this.eventType.set(new CalculatedEndDeviceEventTypeImpl("0.0.0.0", domain));
         this.endDevice.set(meter);
         this.code = code;
         this.createdDateTime = createdDateTime;
@@ -49,12 +44,12 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public Instant getCreateTime() {
-        return createTime;
+        return null;
     }
 
     @Override
     public Instant getModTime() {
-        return modTime;
+        return null;
     }
 
     @Override
@@ -139,7 +134,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public Map<String, String> getProperties() {
-        return properties;
+        return Collections.emptyMap();
     }
 
     @Override
@@ -209,7 +204,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getUserID() {
-        return userName;
+        return null;
     }
 
     @Override

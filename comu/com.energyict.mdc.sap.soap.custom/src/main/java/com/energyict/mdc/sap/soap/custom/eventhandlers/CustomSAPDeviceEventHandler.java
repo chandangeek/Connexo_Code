@@ -53,7 +53,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = CustomSAPDeviceEventHandler.NAME, service = TopicHandler.class, immediate = true)
+@Component(name = CustomSAPDeviceEventHandler.NAME, service = {CustomSAPDeviceEventHandler.class, TopicHandler.class}, immediate = true)
 public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKeyProvider {
     static final String COMPONENT_NAME = "CSE";
     static final String APPLICATION_NAME = "MultiSense";
@@ -189,6 +189,14 @@ public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKey
         try {
             EndDeviceEventRecord source = (EndDeviceEventRecord) localEvent.getSource();
             createBulkMessage(source).ifPresent(meterEventCreateRequestProvider::send);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        }
+    }
+
+    public void handle(EndDeviceEventRecord eventRecord) {
+        try {
+            createBulkMessage(eventRecord).ifPresent(meterEventCreateRequestProvider::send);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }

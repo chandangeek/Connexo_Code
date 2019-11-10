@@ -43,8 +43,7 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal connectedLoad;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private String unit;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private Unit unit;
     private boolean flag;
 
     @Override
@@ -55,8 +54,8 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
     @Override
     public void copyFrom(Device device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
-        setConnectedLoad(new BigDecimal(propertyValues.getProperty(FieldNames.CONNECTED_LOAD.javaName()).toString()));
-        setUnit(((Units) propertyValues.getProperty(FieldNames.UNIT.javaName())).getValue());
+        setConnectedLoad((BigDecimal) propertyValues.getProperty(FieldNames.CONNECTED_LOAD.javaName()));
+        setUnit((Unit) propertyValues.getProperty(FieldNames.UNIT.javaName()));
         setFlag((boolean) propertyValues.getProperty(FieldNames.FLAG.javaName()));
     }
 
@@ -71,7 +70,7 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
         this.connectedLoad = connectedLoad;
     }
 
-    public void setUnit(String unit) {
+    public void setUnit(Unit unit) {
         this.unit = unit;
     }
 
@@ -87,7 +86,7 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
         return connectedLoad;
     }
 
-    public String getUnit() {
+    public Unit getUnit() {
         return unit;
     }
 

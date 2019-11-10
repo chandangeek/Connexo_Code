@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
+import static com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CustomPropertySets.APPLICATION_NAME;
 
 public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, MaxDemandDomainExtension> {
     public static final String CPS_ID = MaxDemandCustomPropertySet.class.getName();
@@ -35,9 +36,9 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
 
-    private final BigDecimal defaultConnectedLoad = new BigDecimal(0.5);
-    private final String defaultUnit = "kW";
-    private final boolean defaultFlag = false;
+    private static final BigDecimal defaultConnectedLoad = new BigDecimal(0.5);
+    private static final String defaultUnit = "kW";
+    private static final boolean defaultFlag = false;
 
     MaxDemandCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
@@ -95,25 +96,23 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
                 this.propertySpecService
                         .bigDecimalSpec()
                         .named(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName(), TranslationKeys.CPS_DEVICE_CONNECTED_LOAD)
-                        .describedAs(TranslationKeys.CPS_DEVICE_CONNECTED_LOAD_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .setDefaultValue(defaultConnectedLoad)
                         .finish(),
                 this.propertySpecService
-                        .specForValuesOf(new EnumFactory(Units.class))
+                        .specForValuesOf(new EnumFactory(Unit.class))
                         .named(MaxDemandDomainExtension.FieldNames.UNIT.javaName(), TranslationKeys.CPS_DEVICE_UNIT)
                         .describedAs(TranslationKeys.CPS_DEVICE_UNIT_DESCRIPTION)
                         .fromThesaurus(thesaurus)
-                        .addValues(Units.values())
+                        .addValues(Unit.values())
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
                         .markRequired()
-                        .setDefaultValue(Units.kW)
+                        .setDefaultValue(Unit.kW)
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
                         .named(MaxDemandDomainExtension.FieldNames.FLAG.javaName(), TranslationKeys.CPS_DEVICE_FLAG)
-                        .describedAs(TranslationKeys.CPS_DEVICE_FLAG_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .setDefaultValue(defaultFlag)
                         .markRequired()
@@ -122,8 +121,8 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
     }
 
     protected class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, MaxDemandDomainExtension> {
-        private final String TABLE_NAME = "SAP_CAS_ECV_MD1";
-        private final String FK = "FK_SAP_CAS_ECV_MD1";
+        private final String TABLE_NAME = "CSE_CAS_ECV_MD1";
+        private final String FK = "FK_CSE_CAS_ECV_MD1";
 
         @Override
         public String componentName() {
@@ -162,14 +161,20 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.databaseName()).number()
-                    .map(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName()).notNull()
+            table.column(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.databaseName())
+                    .number()
+                    .map(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName())
+                    .notNull()
                     .add();
-            table.column(MaxDemandDomainExtension.FieldNames.UNIT.databaseName()).varChar(Table.NAME_LENGTH)
-                    .map(MaxDemandDomainExtension.FieldNames.UNIT.javaName()).notNull()
+            table.column(MaxDemandDomainExtension.FieldNames.UNIT.databaseName())
+                    .varChar(Table.NAME_LENGTH)
+                    .map(MaxDemandDomainExtension.FieldNames.UNIT.javaName())
+                    .notNull()
+                    .conversion(ColumnConversion.CHAR2ENUM)
                     .add();
-            table.column(MaxDemandDomainExtension.FieldNames.FLAG.databaseName()).bool()
-                    .map(MaxDemandDomainExtension.FieldNames.FLAG.javaName()).notNull()
+            table.column(MaxDemandDomainExtension.FieldNames.FLAG.databaseName())
+                    .bool()
+                    .map(MaxDemandDomainExtension.FieldNames.FLAG.javaName())
                     .add();
         }
 

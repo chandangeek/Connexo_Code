@@ -41,7 +41,6 @@ public class CTRatioDomainExtension extends AbstractPersistentDomainExtension im
     private Reference<Device> device = Reference.empty();
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal ctRatio;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean flag;
 
     @Override
@@ -52,7 +51,7 @@ public class CTRatioDomainExtension extends AbstractPersistentDomainExtension im
     @Override
     public void copyFrom(Device device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
-        setCTRatio(new BigDecimal(propertyValues.getProperty(FieldNames.CT_RATIO.javaName()).toString()));
+        setCTRatio((BigDecimal) propertyValues.getProperty(FieldNames.CT_RATIO.javaName()));
         setFlag((boolean) propertyValues.getProperty(FieldNames.FLAG.javaName()));
     }
 

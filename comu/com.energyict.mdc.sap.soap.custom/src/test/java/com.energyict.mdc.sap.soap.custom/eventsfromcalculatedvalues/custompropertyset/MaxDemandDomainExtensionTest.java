@@ -17,7 +17,7 @@ public class MaxDemandDomainExtensionTest {
 
     private BigDecimal connectedLoad = new BigDecimal("100");
     private Boolean flag = true;
-    private Units unit = Units.kW;
+    private Unit unit = Unit.kW;
 
     private CustomPropertySetValues cpsValues;
     private MaxDemandDomainExtension domainExtension;
@@ -40,20 +40,20 @@ public class MaxDemandDomainExtensionTest {
         domainExtension.copyFrom(device, cpsValues);
 
         assertThat(domainExtension.getConnectedLoad()).isEqualTo(connectedLoad);
-        assertThat(domainExtension.getUnit()).isEqualTo(unit.getValue());
+        assertThat(domainExtension.getUnit()).isEqualTo(unit);
         assertThat(domainExtension.isFlag()).isSameAs(flag);
     }
 
     @Test
     public void testCopyTo() {
         domainExtension.setConnectedLoad(connectedLoad);
-        domainExtension.setUnit(unit.getValue());
+        domainExtension.setUnit(unit);
         domainExtension.setFlag(flag);
 
         domainExtension.copyTo(cpsValues);
 
         assertThat(cpsValues.getProperty(MaxDemandDomainExtension.FieldNames.UNIT.javaName()))
-                .isSameAs(unit.getValue());
+                .isSameAs(unit);
         assertThat(cpsValues.getProperty(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName()))
                 .isSameAs(connectedLoad);
         assertThat(cpsValues.getProperty(MaxDemandDomainExtension.FieldNames.FLAG.javaName()))

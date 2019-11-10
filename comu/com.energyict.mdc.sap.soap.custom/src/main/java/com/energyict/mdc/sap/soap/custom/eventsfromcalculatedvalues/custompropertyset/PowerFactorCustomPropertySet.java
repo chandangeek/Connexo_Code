@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
+import static com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CustomPropertySets.APPLICATION_NAME;
 
 public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, PowerFactorDomainExtension> {
     public static final String CPS_ID = PowerFactorCustomPropertySet.class.getName();
@@ -33,9 +33,9 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
 
-    private final BigDecimal defaultSetpointThreshold = new BigDecimal(0.9);
-    private final BigDecimal defaultHysteresisPercentage = new BigDecimal(0.5);
-    private final boolean defaultFlag = false;
+    private static final BigDecimal defaultSetpointThreshold = new BigDecimal(0.9);
+    private static final BigDecimal defaultHysteresisPercentage = new BigDecimal(0.5);
+    private static final boolean defaultFlag = false;
 
     PowerFactorCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
@@ -109,7 +109,6 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
                 this.propertySpecService
                         .booleanSpec()
                         .named(PowerFactorDomainExtension.FieldNames.FLAG.javaName(), TranslationKeys.CPS_DEVICE_FLAG)
-                        .describedAs(TranslationKeys.CPS_DEVICE_FLAG_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .setDefaultValue(defaultFlag)
                         .markRequired()
@@ -118,8 +117,8 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
     }
 
     protected class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, PowerFactorDomainExtension> {
-        private final String TABLE_NAME = "SAP_CAS_ECV_PF1";
-        private final String FK = "FK_SAP_CAS_ECV_PF1";
+        private final String TABLE_NAME = "CSE_CAS_ECV_PF1";
+        private final String FK = "FK_CSE_CAS_ECV_PF1";
 
         @Override
         public String componentName() {
@@ -158,14 +157,19 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.databaseName()).number()
-                    .map(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName()).notNull()
+            table.column(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.databaseName())
+                    .number()
+                    .map(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName())
+                    .notNull()
                     .add();
-            table.column(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.databaseName()).number()
-                    .map(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName()).notNull()
+            table.column(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.databaseName())
+                    .number()
+                    .map(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName())
+                    .notNull()
                     .add();
-            table.column(PowerFactorDomainExtension.FieldNames.FLAG.databaseName()).bool()
-                    .map(PowerFactorDomainExtension.FieldNames.FLAG.javaName()).notNull()
+            table.column(PowerFactorDomainExtension.FieldNames.FLAG.databaseName())
+                    .bool()
+                    .map(PowerFactorDomainExtension.FieldNames.FLAG.javaName())
                     .add();
         }
 

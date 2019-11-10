@@ -3,14 +3,14 @@
  */
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset;
 
-public enum Units {
+public enum Unit {
     kW("units.kw", "kW"),
     MW("units.mw", "MW");
 
     private String key;
     private String value;
 
-    Units(String key, String value) {
+    Unit(String key, String value) {
         this.key = key;
         this.value = value;
     }

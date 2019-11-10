@@ -4,21 +4,15 @@
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset;
 
 import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.device.data.Device;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 public class PowerFactorCustomPropertySetTest extends AbstractCustomPropertySetTest {
 
@@ -84,11 +78,6 @@ public class PowerFactorCustomPropertySetTest extends AbstractCustomPropertySetT
     }
 
     @Test
-    public void testGetPropertySpecs() {
-        assertThat(cps.getPropertySpecs()).hasSize(3);
-    }
-
-    @Test
     public void testComponentName() {
         assertThat(persistenceSupport.componentName()).isEqualTo(PowerFactorCustomPropertySet.MODEL_NAME);
     }
@@ -107,15 +96,6 @@ public class PowerFactorCustomPropertySetTest extends AbstractCustomPropertySetT
     @Test
     public void testModule() {
         assertThat(persistenceSupport.module()).isEmpty();
-    }
-
-    @Test
-    public void testAddCustomPropertyColumnsTo() {
-        @SuppressWarnings("rawtypes")
-        Table table = mock(Table.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS));
-        persistenceSupport.addCustomPropertyColumnsTo(table, null);
-
-        verify(table, times(3)).column(anyString());
     }
 
     @Test

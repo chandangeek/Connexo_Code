@@ -49,7 +49,6 @@ public class PowerFactorDomainExtension extends AbstractPersistentDomainExtensio
     @DecimalMin(message = "{" + MessageSeeds.Keys.VALUE_MUST_BE_POSITIVE + "}", value = "0", groups = {Save.Create.class, Save.Update.class})
     @DecimalMax(message = "{" + MessageSeeds.Keys.PERCENTAGE_VALUE_NOT_VALID + "}", value = "100", groups = {Save.Create.class, Save.Update.class})
     private BigDecimal hysteresisPercentage;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean flag;
 
     @Override
@@ -60,8 +59,8 @@ public class PowerFactorDomainExtension extends AbstractPersistentDomainExtensio
     @Override
     public void copyFrom(Device device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
-        setSetpointThreshold(new BigDecimal(propertyValues.getProperty(FieldNames.SETPOINT_THRESHOLD.javaName()).toString()));
-        setHysteresisPercentage(new BigDecimal(propertyValues.getProperty(FieldNames.HYSTERESIS_PERCENTAGE.javaName()).toString()));
+        setSetpointThreshold((BigDecimal) propertyValues.getProperty(FieldNames.SETPOINT_THRESHOLD.javaName()));
+        setHysteresisPercentage((BigDecimal) propertyValues.getProperty(FieldNames.HYSTERESIS_PERCENTAGE.javaName()));
         setFlag((boolean) propertyValues.getProperty(FieldNames.FLAG.javaName()));
     }
 

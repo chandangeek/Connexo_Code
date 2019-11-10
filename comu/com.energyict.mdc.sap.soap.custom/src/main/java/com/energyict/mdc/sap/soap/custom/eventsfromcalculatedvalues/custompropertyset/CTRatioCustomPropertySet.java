@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
-
+import static com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CustomPropertySets.APPLICATION_NAME;
 
 public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRatioDomainExtension> {
     public static final String CPS_ID = CTRatioCustomPropertySet.class.getName();
@@ -34,8 +33,8 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
 
-    private final BigDecimal defaultCTRatio = new BigDecimal(100);
-    private final boolean defaultFlag = false;
+    private static final BigDecimal defaultCTRatio = new BigDecimal(100);
+    private static final boolean defaultFlag = false;
 
     CTRatioCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
@@ -93,7 +92,6 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
                 this.propertySpecService
                         .bigDecimalSpec()
                         .named(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName(), TranslationKeys.CPS_DEVICE_CT_RATIO)
-                        .describedAs(TranslationKeys.CPS_DEVICE_CT_RATIO_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .setDefaultValue(defaultCTRatio)
                         .markRequired()
@@ -101,7 +99,6 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
                 this.propertySpecService
                         .booleanSpec()
                         .named(CTRatioDomainExtension.FieldNames.FLAG.javaName(), TranslationKeys.CPS_DEVICE_FLAG)
-                        .describedAs(TranslationKeys.CPS_DEVICE_FLAG_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .setDefaultValue(defaultFlag)
                         .markRequired()
@@ -110,8 +107,8 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
     }
 
     protected class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, CTRatioDomainExtension> {
-        private final String TABLE_NAME = "SAP_CAS_ECV_CR1";
-        private final String FK = "FK_SAP_CAS_ECV_CR1";
+        private final String TABLE_NAME = "CSE_CAS_ECV_CR1";
+        private final String FK = "FK_CSE_CAS_ECV_CR1";
 
         @Override
         public String componentName() {
@@ -150,11 +147,14 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(CTRatioDomainExtension.FieldNames.CT_RATIO.databaseName()).number()
-                    .map(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName()).notNull()
+            table.column(CTRatioDomainExtension.FieldNames.CT_RATIO.databaseName())
+                    .number()
+                    .map(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName())
+                    .notNull()
                     .add();
-            table.column(CTRatioDomainExtension.FieldNames.FLAG.databaseName()).bool()
-                    .map(CTRatioDomainExtension.FieldNames.FLAG.javaName()).notNull()
+            table.column(CTRatioDomainExtension.FieldNames.FLAG.databaseName())
+                    .bool()
+                    .map(CTRatioDomainExtension.FieldNames.FLAG.javaName())
                     .add();
         }
 
