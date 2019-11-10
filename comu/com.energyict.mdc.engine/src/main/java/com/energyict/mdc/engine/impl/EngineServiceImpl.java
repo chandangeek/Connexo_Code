@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -17,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -68,6 +70,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.Bundle;
@@ -95,6 +98,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.engine",
         service = {EngineService.class, ServerEngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
@@ -144,6 +148,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile SecurityManagementService securityManagementService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private volatile TimeOfUseCampaignService timeOfUseCampaignService;
+    private volatile MessageService messageService;
+    private volatile TaskService taskService;
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
@@ -438,6 +444,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setSecurityManagementService(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
     }
@@ -459,6 +475,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 bind(StatusService.class).toInstance(statusService);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(TaskService.class).toInstance(taskService);
             }
         };
     }
@@ -468,7 +486,9 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         try{
             this.bundleContext = bundleContext;
             dataModel.register(this.getModule());
-            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME),
+                    dataModel, Installer.class,
+                    ImmutableMap.of(version(10, 7), UpgraderV10_7.class));
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));

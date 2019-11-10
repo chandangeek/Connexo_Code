@@ -9,6 +9,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OfflineComServer;
@@ -271,4 +272,10 @@ public interface EngineConfigurationService {
     ComServer lockComServer(ComServer comServer);
 
     ComPort lockComPort(ComPort comPort);
+
+    ComServerAliveStatus findOrCreateAliveStatus(ComServer comServer);
+
+    Optional<ComServerAliveStatus> getAliveStatus(ComServer comServer);
+
+    Optional<Integer> getComServerStatusAliveFreq();
 }

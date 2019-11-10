@@ -31,6 +31,7 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
@@ -53,17 +54,20 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -84,14 +88,19 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
+    private volatile Clock clock;
+    private BundleContext bundleContext = null;
     private Thesaurus thesaurus;
+
+    public final static String COM_SERVER_STATUS_ALIVE_FREQ_PROP = "com.energyict.mdc.comserver.status.update.freq.seconds";
 
     public EngineConfigurationServiceImpl() {
         super();
     }
 
     @Inject
-    public EngineConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService, UserService userService, UpgradeService upgradeService) {
+    public EngineConfigurationServiceImpl(OrmService ormService, EventService eventService, NlsService nlsService, ProtocolPluggableService protocolPluggableService,
+                                          UserService userService, UpgradeService upgradeService, Clock clock, BundleContext bundleContext) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -99,7 +108,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         this.setProtocolPluggableService(protocolPluggableService);
         this.setUserService(userService);
         this.setUpgradeService(upgradeService);
-        this.activate();
+        setClock(clock);
+        activate(bundleContext);
     }
 
     @Override
@@ -123,6 +133,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference
@@ -182,7 +197,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         dataModel.register(getModule());
         upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
@@ -481,6 +497,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public DataMapper<ComServerAliveStatus> getComServerAliveDataMapper() {
+        return dataModel.mapper(ComServerAliveStatus.class);
+    }
+
+    @Override
     public List<OutboundComPortPool> findContainingComPortPoolsForComPort(OutboundComPort comPort) {
         List<ComPortPoolMember> comPortPoolMembers = getComPortPoolMemberDataMapper().find("comPort", comPort);
         return comPortPoolMembers
@@ -575,5 +596,41 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public ComPort lockComPort(ComPort comPort) {
         return getComPortDataMapper().lock(comPort.getId());
+    }
+
+    @Override
+    public ComServerAliveStatus findOrCreateAliveStatus(ComServer comServer) {
+        Optional<ComServerAliveStatus> comServerAliveOptional = getComServerAliveDataMapper().getUnique("comServer", comServer);
+        if (comServerAliveOptional.isPresent()) {
+            return comServerAliveOptional.get();
+        } else {
+            ComServerAliveStatusImpl comServerAlive = this.dataModel.getInstance(ComServerAliveStatusImpl.class).initialize(comServer, clock.instant());
+            comServerAlive.save();
+            return comServerAlive;
+        }
+    }
+
+    @Override
+    public Optional<ComServerAliveStatus> getAliveStatus(ComServer comServer) {
+        AtomicReference<ComServerAliveStatus> comServerAliveStatus = new AtomicReference<>();
+        getComServerStatusAliveFreq().ifPresent(
+                freq -> getComServerAliveDataMapper().getUnique("comServer", comServer).ifPresent(
+                        status -> {
+                            status.setRunning(clock.instant().getEpochSecond() - status.getLastActiveTime().getEpochSecond() <= freq);
+                            comServerAliveStatus.set(status);
+                        }
+                )
+        );
+        return Optional.ofNullable(comServerAliveStatus.get());
+    }
+
+    @Override
+    public Optional<Integer> getComServerStatusAliveFreq() {
+        try {
+            String val = bundleContext.getProperty(COM_SERVER_STATUS_ALIVE_FREQ_PROP);
+            return val == null ? Optional.empty() : Optional.of(Integer.valueOf(val));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 }
