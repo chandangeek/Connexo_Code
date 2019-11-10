@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.dataquality.impl.calc;
 
+import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -12,6 +13,7 @@ import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.logging.LoggingContext;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -43,7 +45,7 @@ class DataQualityKpiCalculatorHandler implements TaskExecutor {
             // task has been cancelled
             return;
         }
-            threadPrincipalService.runAs(user, () -> runCalculator(taskOccurrence), Locale.getDefault());
+        threadPrincipalService.runAs(user, () -> runCalculator(taskOccurrence), Locale.getDefault());
 
     }
 
@@ -53,6 +55,8 @@ class DataQualityKpiCalculatorHandler implements TaskExecutor {
             try {
                 DataQualityKpiCalculator kpiCalculator = KpiType.calculatorForRecurrentPayload(serviceProvider, occurrence, logger);
                 kpiCalculator.calculateAndStore();
+            } catch (ValidatorNotFoundException | EstimatorNotFoundException e) {
+                transactionService.run(() -> loggingContext.warning(logger, "Failed to calculate data quality KPI. Error: " + e.getLocalizedMessage()));
             } catch (Exception e) {
                 postFailEvent(eventService, occurrence, e.getLocalizedMessage());
                 transactionService.run(() -> loggingContext.severe(logger, e));

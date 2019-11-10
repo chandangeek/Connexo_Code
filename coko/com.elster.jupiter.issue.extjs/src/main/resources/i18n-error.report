@@ -1,0 +1,17 @@
+Errors detected in JS sources:
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=659, args=['issue.priority.veryLow',  'ISU',  'Very low']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=660, args=['issue.priority.low',  'ISU',  'Low']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=661, args=['issue.priority.medium',  'ISU',  'Medium']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=662, args=['issue.priority.high',  'ISU',  'High']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=663, args=['issue.priority.veryHigh',  'ISU',  'Very high']}
+Wrong argument for method invocation {jsFilePath='view\issues\ManuallyRuleItem.js', lineNo=89, args=['issue.priority.low',  'ISU',  'low']}
+Wrong argument for method invocation {jsFilePath='view\issues\ManuallyRuleItem.js', lineNo=330, args=['issue.priority.veryLow',  'ISU',  'Very low']}
+Wrong argument for method invocation {jsFilePath='view\issues\ManuallyRuleItem.js', lineNo=331, args=['issue.priority.low',  'ISU',  'Low']}
+Wrong argument for method invocation {jsFilePath='view\issues\ManuallyRuleItem.js', lineNo=332, args=['issue.priority.medium',  'ISU',  'Medium']}
+Wrong argument for method invocation {jsFilePath='view\issues\ManuallyRuleItem.js', lineNo=333, args=['issue.priority.high',  'ISU',  'High']}
+Wrong argument for method invocation {jsFilePath='view\issues\ManuallyRuleItem.js', lineNo=334, args=['issue.priority.veryHigh',  'ISU',  'Very high']}
+Wrong argument for method invocation {jsFilePath='view\issues\SetPriorityForm.js', lineNo=137, args=['issue.priority.veryLow',  'ISU',  'Very low']}
+Wrong argument for method invocation {jsFilePath='view\issues\SetPriorityForm.js', lineNo=138, args=['issue.priority.low',  'ISU',  'Low']}
+Wrong argument for method invocation {jsFilePath='view\issues\SetPriorityForm.js', lineNo=139, args=['issue.priority.medium',  'ISU',  'Medium']}
+Wrong argument for method invocation {jsFilePath='view\issues\SetPriorityForm.js', lineNo=140, args=['issue.priority.high',  'ISU',  'High']}
+Wrong argument for method invocation {jsFilePath='view\issues\SetPriorityForm.js', lineNo=141, args=['issue.priority.veryHigh',  'ISU',  'Very high']}

@@ -32,7 +32,7 @@ public interface MessageProtocol extends Messaging {
      * @param messageEntries a list of {@link MessageEntry}s
      * @throws IOException if a logical error occurs
      */
-    void applyMessages(List messageEntries) throws IOException;
+    void applyMessages(List<MessageEntry> messageEntries) throws IOException;
 
     /**
      * Indicates that each message has to be executed by the protocol.

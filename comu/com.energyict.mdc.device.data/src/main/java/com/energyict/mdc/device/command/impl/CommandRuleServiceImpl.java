@@ -406,21 +406,21 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
             }
         }
         if (!dayCounterExists && commandRule.getDayLimit() > 0) {
-            commandRuleCounters.add(createCounter(getDayFor(releaseDate), commandRule, count));
+            commandRuleCounters.add(createCounter(getDayFor(releaseDate), commandRule, count, ICommandRuleCounter.CounterType.DAY));
         }
         if (!weekCounterExists && commandRule.getWeekLimit() > 0) {
-            commandRuleCounters.add(createCounter(getWeekFor(releaseDate), commandRule, count));
+            commandRuleCounters.add(createCounter(getWeekFor(releaseDate), commandRule, count, ICommandRuleCounter.CounterType.WEEK));
         }
         if (!monthCounterExists && commandRule.getMonthLimit() > 0) {
-            commandRuleCounters.add(createCounter(getMonthFor(releaseDate), commandRule, count));
+            commandRuleCounters.add(createCounter(getMonthFor(releaseDate), commandRule, count, ICommandRuleCounter.CounterType.MONTH));
         }
 
         return commandRuleCounters;
     }
 
-    private CommandRuleCounter createCounter(Range<Instant> range, CommandRule commandRule, long count) {
+    private CommandRuleCounter createCounter(Range<Instant> range, CommandRule commandRule, long count, ICommandRuleCounter.CounterType counterType) {
         CommandRuleCounter counter = this.dataModel.getInstance(CommandRuleCounter.class);
-        return counter.initialize(range.lowerEndpoint(), range.upperEndpoint(), count, commandRule);
+        return counter.initialize(range.lowerEndpoint(), range.upperEndpoint(), count, commandRule, counterType);
     }
 
     private void decreaseExistingCounters(DeviceMessage deviceMessage, Instant oldReleaseDate) {
