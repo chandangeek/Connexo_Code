@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConnectionStatusChangeDomainExtensionTest {
 
     private String id = "1";
+    private String uuid = "7ccbe11f-25e1-4236-b1ea-dc3b923d1799";
     private String categoryCode = "2";
     private String reasonCode = "01";
     private String url = "http://localhost:8080/test";
@@ -42,6 +43,7 @@ public class ConnectionStatusChangeDomainExtensionTest {
     @Test
     public void testCopyFrom() {
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName(), id);
+        cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName(), uuid);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName(), categoryCode);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName(), reasonCode);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName(), nowDate);
@@ -51,6 +53,7 @@ public class ConnectionStatusChangeDomainExtensionTest {
         domainExtension.copyFrom(serviceCall, cpsValues);
 
         assertThat(domainExtension.getId()).isSameAs(id);
+        assertThat(domainExtension.getUuid()).isSameAs(uuid);
         assertThat(domainExtension.getCategoryCode()).isSameAs(categoryCode);
         assertThat(domainExtension.getReasonCode()).isSameAs(reasonCode);
         assertThat(domainExtension.getProcessDate()).isSameAs(nowDate);
@@ -61,6 +64,7 @@ public class ConnectionStatusChangeDomainExtensionTest {
     @Test
     public void testCopyTo() {
         domainExtension.setId(id);
+        domainExtension.setUuid(uuid);
         domainExtension.setCategoryCode(categoryCode);
         domainExtension.setReasonCode(reasonCode);
         domainExtension.setProcessDate(nowDate);
@@ -71,6 +75,8 @@ public class ConnectionStatusChangeDomainExtensionTest {
 
         assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName()))
                 .isSameAs(id);
+        assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName()))
+                .isSameAs(uuid);
         assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName()))
                 .isSameAs(categoryCode);
         assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName()))

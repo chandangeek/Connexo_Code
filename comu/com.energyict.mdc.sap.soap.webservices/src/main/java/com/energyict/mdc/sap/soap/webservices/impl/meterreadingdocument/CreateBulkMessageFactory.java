@@ -14,6 +14,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcre
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.UUID;
 
 import java.time.Instant;
 import java.util.List;
@@ -47,9 +48,12 @@ public class CreateBulkMessageFactory {
     private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
         BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
         id.setValue(requestMessage.getId());
+        UUID uuid = OBJECT_FACTORY.createUUID();
+        uuid.setValue(requestMessage.getUuid());
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         messageHeader.setReferenceID(id);
+        messageHeader.setReferenceUUID(uuid);
         messageHeader.setCreationDateTime(now);
 
         return messageHeader;

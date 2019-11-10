@@ -134,7 +134,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             itemId: 'firmware-min-meter-version-default-button',
                             hidden: false,
                             disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
                             margin: '0 30',
                             handler: function () {
                                 this.previousSibling('#firmware-min-meter-version').reset();
@@ -208,7 +208,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             itemId: 'firmware-min-communication-version-default-button',
                             hidden: false,
                             disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
                             margin: '0 30',
                             handler: function () {
                                 this.previousSibling('#firmware-min-communication-version').reset();
@@ -281,7 +281,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             itemId: 'firmware-min-auxiliary-version-default-button',
                             hidden: false,
                             disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
                             margin: '0 30',
                             handler: function () {
                                 this.previousSibling('#firmware-min-auxiliary-version').reset();

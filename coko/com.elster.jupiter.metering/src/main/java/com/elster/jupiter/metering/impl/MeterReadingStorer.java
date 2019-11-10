@@ -307,13 +307,10 @@ public class MeterReadingStorer {
 
     private Channel getChannel(IntervalReading reading, ReadingType readingType) {
         for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
-            if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                for (Channel channel : channelsContainer.getChannels()) {
-                    if (channel.getReadingTypes().contains(readingType)) {
-                        return channel;
-                    }
+            for (Channel channel : channelsContainer.getChannels()) {
+                if (channel.getReadingTypes().contains(readingType)) {
+                    return channel;
                 }
-                return null;
             }
         }
         return null;

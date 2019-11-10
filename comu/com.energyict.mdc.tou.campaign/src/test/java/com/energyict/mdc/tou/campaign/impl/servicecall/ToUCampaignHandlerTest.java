@@ -81,6 +81,8 @@ public class ToUCampaignHandlerTest {
     public void setUp() {
         when(timeOfUseCampaignService.getCampaignOn(calendarComTaskExecution)).thenReturn(Optional.of(timeOfUseCampaign));
         when(timeOfUseCampaignService.getCampaignOn(verificationComTaskExecution)).thenReturn(Optional.of(timeOfUseCampaign2));
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        when(timeOfUseItemDomainExtension.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getExtension(TimeOfUseItemDomainExtension.class)).thenReturn(Optional.of(timeOfUseItemDomainExtension));
         when(timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(any())).thenReturn(Optional.of(timeOfUseItem));
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
@@ -139,6 +141,7 @@ public class ToUCampaignHandlerTest {
     public void testVerificationTaskCompleted() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
+        when(timeOfUseItemDomainExtension.getStepOfUpdate()).thenReturn(1L);
         when(timeOfUseCampaignService.isWithVerification(timeOfUseCampaign2)).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
@@ -249,6 +252,7 @@ public class ToUCampaignHandlerTest {
         when(activeEffectiveCalendar.getAllowedCalendar()).thenReturn(allowedCalendar);
         when(device.getMessages()).thenReturn(Collections.singletonList(deviceMessage));
         when(device.calendars()).thenReturn(calendarSupport);
+        when(timeOfUseItem.getDeviceMessage()).thenReturn(Optional.of(deviceMessage));
         when(timeOfUseItemDomainExtension.getDeviceMessage()).thenReturn(Optional.of(deviceMessage));
         return device;
     }

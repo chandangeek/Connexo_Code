@@ -74,7 +74,7 @@ Ext.define('Imt.usagepointgroupsfromissues.view.step.SelectUsagePoints', {
                             layout: 'column',
                             lbar: {
                                 xtype: 'label',
-                                text: Uni.I18n.translate('searchItems.filter.criteria', 'MDC', 'Criteria'),
+                                text: Uni.I18n.translate('searchItems.filter.criteria', 'IMT', 'Criteria'),
                                 width: 100
                             },
                             rbar: [{
@@ -106,13 +106,13 @@ Ext.define('Imt.usagepointgroupsfromissues.view.step.SelectUsagePoints', {
                                 xtype: 'button',
                                 itemId: 'search-button',
                                 ui: 'action',
-                                text: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
+                                text: Uni.I18n.translate('general.apply', 'IMT', 'Apply'),
                                 action: 'search'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'clear-all-button',
-                                text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
+                                text: Uni.I18n.translate('general.clearAll', 'IMT', 'Clear all'),
                                 action: 'clearFilters',
                                 margin: '0 0 0 0',
                                 disabled: true

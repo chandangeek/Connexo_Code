@@ -121,6 +121,8 @@ Ext.define('Tou.view.AddForm', {
                 id: 'tou-activate-calendar',
                 name: 'activation',
                 fieldLabel: Uni.I18n.translate('general.activateCalendar', 'TOU', 'Activate calendar'),
+                layout: 'hbox',
+                width: 800,
                 required: true,
                 allowBlank: false,
                 hidden: true,
@@ -142,7 +144,7 @@ Ext.define('Tou.view.AddForm', {
                         itemId: 'activateCalendarError',
                         cls: 'x-form-invalid-under',
                         margin: '-12 0 0 0',
-                        html: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
+                        html: Uni.I18n.translate('general.required.field', 'TOU', 'This field is required')
                     }]
             }, {
                 xtype: 'displayfield',

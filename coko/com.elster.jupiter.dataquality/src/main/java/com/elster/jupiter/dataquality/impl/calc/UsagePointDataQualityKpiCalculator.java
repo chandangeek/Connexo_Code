@@ -51,12 +51,7 @@ class UsagePointDataQualityKpiCalculator extends AbstractDataQualityKpiCalculato
     }
 
     private void storeInTransaction(UsagePoint usagePoint) {
-        try {
-            getTransactionService().run(() -> store(usagePoint));
-        } catch (Exception ex) {
-            getTransactionService().run(() -> getLogger().log(Level.WARNING, "Failed to store data quality KPI data for usage point " + usagePoint.getName()
-                    + ". Error: " + ex.getLocalizedMessage(), ex));
-        }
+        getTransactionService().run(() -> store(usagePoint));
     }
 
     private void store(UsagePoint usagePoint) {

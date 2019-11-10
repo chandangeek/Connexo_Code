@@ -6,7 +6,6 @@ package com.elster.jupiter.bootstrap.oracle.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.DataSourceSetupException;
-import com.elster.jupiter.bootstrap.InvalidPasswordException;
 import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
@@ -14,36 +13,14 @@ import com.elster.jupiter.util.HolderBuilder;
 import oracle.ucp.UniversalConnectionPoolException;
 import oracle.ucp.admin.UniversalConnectionPoolManager;
 import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
-import oracle.ucp.jdbc.PoolDataSourceFactory;
-import oracle.ucp.jdbc.PoolDataSourceImpl;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * This Component is responsible for creating a DataSource on demand. It does so by getting the needed properties from the BundleContext.
@@ -66,7 +43,6 @@ import java.util.stream.Collectors;
         property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
 public final class BootstrapServiceImpl implements BootstrapService {
 
-    static final String ORACLE_CONNECTION_POOL_NAME = "OracleConnectionPool";
     public static final String ORACLE_ONS_NODES = "com.elster.jupiter.datasource.pool.oracle.ons.nodes";
 
     private String jdbcUrl;
@@ -75,7 +51,13 @@ public final class BootstrapServiceImpl implements BootstrapService {
     private String keyFile;
     private int maxLimit;
     private int maxStatementsLimit;
+    private int inactivityTimeout;
+    private int abandonedConnectionsTimeout;
+    private int timeToLive;
+    private int maxConnectionReuseTime;
     private String onsNodes;
+
+    private ConnectionProperties connectionProperties = new ConnectionProperties();
 
     private Holder<DataSource> cache = HolderBuilder.lazyInitialize(this::doCreateDataSource);
     private boolean initialized = false;
@@ -90,13 +72,19 @@ public final class BootstrapServiceImpl implements BootstrapService {
 
     @Activate
     public void activate(BundleContext context) {
-        jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
-        jdbcUser = getRequiredProperty(context, JDBC_USER);
-        jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
-        keyFile = getRequiredProperty(context, KEY_FILE);
-        maxLimit = getOptionalIntProperty(context, JDBC_POOLMAXLIMIT, Integer.parseInt(JDBC_POOLMAXLIMIT_DEFAULT));
-        maxStatementsLimit = getOptionalIntProperty(context, JDBC_POOLMAXSTATEMENTS, Integer.parseInt(JDBC_POOLMAXSTATEMENTS_DEFAULT));
-        onsNodes = getOptionalProperty(context, ORACLE_ONS_NODES, null);
+        connectionProperties.poolProvider = getOptionalProperty(context, CONNECTION_POOL_PROVIDER, ORACLE_CP);
+        connectionProperties.jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
+        connectionProperties.jdbcUser = getRequiredProperty(context, JDBC_USER);
+        connectionProperties.jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
+        connectionProperties.keyFile = getRequiredProperty(context, KEY_FILE);
+        connectionProperties.maxLimit = getOptionalIntProperty(context, JDBC_POOLMAXLIMIT, Integer.parseInt(JDBC_POOLMAXLIMIT_DEFAULT));
+        connectionProperties.maxStatementsLimit = getOptionalIntProperty(context, JDBC_POOLMAXSTATEMENTS, Integer.parseInt(JDBC_POOLMAXSTATEMENTS_DEFAULT));
+        connectionProperties.onsNodes = getOptionalProperty(context, ORACLE_ONS_NODES, null);
+        connectionProperties.connectionWaitTimeout = getOptionalIntProperty(context, JDBC_CONNECTION_WAIT_TIMEOUT, 30);
+        connectionProperties.inactivityTimeout = getOptionalIntProperty(context, JDBC_INACTIVITY_TIMEOUT, 0);
+        connectionProperties.abandonedConnectionsTimeout = getOptionalIntProperty(context, JDBC_ABANDONED_CONNECTION_TIMEOUT, 0);
+        connectionProperties.timeToLive = getOptionalIntProperty(context, JDBC_TTL_TIMEOUT, 0);
+        connectionProperties.maxConnectionReuseTime = getOptionalIntProperty(context, JDBC_MAX_CONNECTION_REUSE_TIME, 0);
     }
 
     @Deactivate
@@ -104,7 +92,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
         if (initialized) {
             try {
                 UniversalConnectionPoolManager manager = UniversalConnectionPoolManagerImpl.getUniversalConnectionPoolManager();
-                manager.destroyConnectionPool(ORACLE_CONNECTION_POOL_NAME);
+                manager.destroyConnectionPool(CONNECTION_POOL_NAME);
             } catch (UniversalConnectionPoolException e) {
                 throw new RuntimeException(e);
             }
@@ -130,31 +118,10 @@ public final class BootstrapServiceImpl implements BootstrapService {
     }
 
     private DataSource createDataSourceFromProperties() throws SQLException {
-        PoolDataSourceImpl source = (PoolDataSourceImpl) PoolDataSourceFactory.getPoolDataSource();
-        source.setConnectionFactoryClassName("oracle.jdbc.replay.OracleDataSourceImpl");
-        source.setURL(jdbcUrl);
-        source.setUser(jdbcUser);
-        source.setPassword(getDecryptedPassword(jdbcPassword, keyFile));
-        source.setConnectionPoolName(ORACLE_CONNECTION_POOL_NAME);
-        source.setMinPoolSize(3);
-        source.setMaxPoolSize(maxLimit);
-        source.setInitialPoolSize(3);
-        source.setMaxStatements(maxStatementsLimit);
-        //source.setInactiveConnectionTimeout(PropertiesHelper.getInt(INACTIVITY_TIMEOUT, properties, 0));
-        //source.setTimeToLiveConnectionTimeout(PropertiesHelper.getInt(TTL_TIMEOUT, properties, 0));
-        //source.setAbandonedConnectionTimeout(PropertiesHelper.getInt(ABANDONED_CONNECTION_TIMEOUT, properties, 0));
-        //source.setPropertyCycle(PropertiesHelper.getInt(PROPERTY_CHECK_INTERVAL, properties, 900));
-        source.setConnectionWaitTimeout(10);
-        source.setValidateConnectionOnBorrow(true);
-        source.setFastConnectionFailoverEnabled(true);
-        if (onsNodes != null) {
-            source.setONSConfiguration("nodes=" + onsNodes);
+        if (HIKARI_CP.equals(connectionProperties.poolProvider.trim().toLowerCase())) {
+            return new HikariDataSourceProvider().createDataSource(connectionProperties);
         }
-        // for now , no need to set connection properties , but possible interesting keys are
-        // defaultRowPrefetch
-        // oracle.jdbc.FreeMemoryOnEnterImplicitCache
-
-        return new UcpWrappedDataSource(source);
+        return new OracleDataSourceProvider().createDataSource(connectionProperties);
     }
 
     private String getRequiredProperty(BundleContext context, String property) {
@@ -181,51 +148,5 @@ public final class BootstrapServiceImpl implements BootstrapService {
         sb.append(" jdbcUrl = ").append(jdbcUrl).append("\n");
         sb.append(" dbUser = ").append(jdbcUser).append("\n");
         System.out.println(sb.toString());
-    }
-
-    private String getDecryptedPassword(String encryptedPassword, String filePath) {
-
-        String decryptedPassword = "";
-        List<String> list = null;
-        try {
-            list = Files.lines(Paths.get(filePath))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            //Logger.getAnonymousLogger().log(Level.SEVERE, exception, () -> "Bootstrap service initialization: encryption failed");
-            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
-            throw new PropertyNotFoundException(KEY_FILE);
-        }
-
-        if (list.size() != 2) {
-            Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
-            throw new PropertyNotFoundException(KEY_FILE);
-        } else {
-            try {
-                byte[] aesEncryptionKey = list.get(0).getBytes("UTF-8");
-                String id = list.get(1);
-
-                MessageDigest md5 = MessageDigest.getInstance("MD5");
-                md5.update(id.getBytes("UTF-8"));
-                byte[] encryptedPasswordData = DatatypeConverter.parseBase64Binary(encryptedPassword);
-
-
-                String initVector = new BigInteger(1, md5.digest()).toString(16).substring(0, 16);
-                byte[] iv = initVector.getBytes("UTF-8");
-                Cipher decrypt = Cipher.getInstance("AES/CBC/PKCS5Padding");
-                decrypt.init(Cipher.DECRYPT_MODE, new SecretKeySpec(aesEncryptionKey, "AES"), new IvParameterSpec(iv));
-                byte[] decryptedPasswordData = decrypt.doFinal(encryptedPasswordData);
-                decryptedPassword = new String(decryptedPasswordData, "UTF-8");
-            } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException |
-                    InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
-                    | BadPaddingException | ArrayIndexOutOfBoundsException e) {
-                InvalidPasswordException exception = new InvalidPasswordException();
-                Logger.getAnonymousLogger().log(Level.SEVERE, () -> "Cannot establish a connection to the database. Check the connection details.");
-                throw exception;
-            }
-        }
-        return decryptedPassword;
-
     }
 }

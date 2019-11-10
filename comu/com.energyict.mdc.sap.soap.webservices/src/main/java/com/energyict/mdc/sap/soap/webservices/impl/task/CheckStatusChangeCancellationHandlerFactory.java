@@ -9,6 +9,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -29,22 +31,24 @@ public class CheckStatusChangeCancellationHandlerFactory implements MessageHandl
     private volatile TaskService taskService;
     private volatile ServiceCallService serviceCallService;
     private volatile Clock clock;
+    private volatile WebServiceActivator webServiceActivator;
 
     public CheckStatusChangeCancellationHandlerFactory() {
         // for OSGI purpose
     }
 
     @Inject
-    public CheckStatusChangeCancellationHandlerFactory(TaskService taskService,
-                                                       ServiceCallService serviceCallService, Clock clock) {
+    public CheckStatusChangeCancellationHandlerFactory(TaskService taskService, ServiceCallService serviceCallService,
+                                                       Clock clock, WebServiceActivator webServiceActivator) {
         setTaskService(taskService);
         setServiceCallService(serviceCallService);
         setClock(clock);
+        setWebServiceActivator(webServiceActivator);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CheckStatusChangeCancellationHandler(serviceCallService, clock));
+        return taskService.createMessageHandler(new CheckStatusChangeCancellationHandler(serviceCallService, clock, webServiceActivator));
     }
 
     @Reference
@@ -60,5 +64,10 @@ public class CheckStatusChangeCancellationHandlerFactory implements MessageHandl
     @Reference
     public final void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }

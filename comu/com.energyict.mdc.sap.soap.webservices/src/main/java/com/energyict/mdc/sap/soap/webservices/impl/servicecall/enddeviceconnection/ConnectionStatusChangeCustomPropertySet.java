@@ -122,6 +122,11 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
                         .finish(),
                 propertySpecService
                         .stringSpec()
+                        .named(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
                         .named(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName(), TranslationKeys.CATEGORY_CODE)
                         .describedAs(TranslationKeys.CATEGORY_CODE)
                         .fromThesaurus(thesaurus)

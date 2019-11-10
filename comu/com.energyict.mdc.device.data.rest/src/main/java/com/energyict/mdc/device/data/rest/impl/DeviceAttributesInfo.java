@@ -163,7 +163,7 @@ public class DeviceAttributesInfo {
         DEACTIVATION_DATE {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED);
+                return Arrays.asList(DefaultState.INACTIVE);
             }
 
             @Override

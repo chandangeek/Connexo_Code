@@ -25,9 +25,9 @@ public class CancellationBulkConfirmationMessageFactory {
     public CancellationBulkConfirmationMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPBulkCanclnConfMsg createMessage(String requestId, List<CancelledMeterReadingDocument> documents, Instant now) {
+    public SmrtMtrMtrRdngDocERPBulkCanclnConfMsg createMessage(String requestId, String uuid, List<CancelledMeterReadingDocument> documents, Instant now) {
         SmrtMtrMtrRdngDocERPBulkCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrMtrRdngDocERPBulkCanclnConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestId, now));
+        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, now));
         createBody(confirmMsg, documents, now);
         if (hasAllSuccessDocument(documents)) {
             confirmMsg.setLog(createSuccessfulLog());
@@ -41,7 +41,7 @@ public class CancellationBulkConfirmationMessageFactory {
 
     public SmrtMtrMtrRdngDocERPBulkCanclnConfMsg createMessage(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
         SmrtMtrMtrRdngDocERPBulkCanclnConfMsg bulkConfirmationMessage = objectFactory.createSmrtMtrMtrRdngDocERPBulkCanclnConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createMessageHeader(requestMessage.getRequestID(), now));
+        bulkConfirmationMessage.setMessageHeader(createMessageHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
         bulkConfirmationMessage.setLog(objectFactory.createLog());
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
         return bulkConfirmationMessage;
@@ -61,7 +61,6 @@ public class CancellationBulkConfirmationMessageFactory {
     }
 
     private SmrtMtrMtrRdngDocERPCanclnConfMsg createChildMessage(CancelledMeterReadingDocument document, Instant now) {
-
         SmrtMtrMtrRdngDocERPCanclnConfMsg confirmationMessage = objectFactory.createSmrtMtrMtrRdngDocERPCanclnConfMsg();
         confirmationMessage.setMessageHeader(createChildHeader(now));
         MeterReadingDocumentID valueId = objectFactory.createMeterReadingDocumentID();
@@ -121,13 +120,14 @@ public class CancellationBulkConfirmationMessageFactory {
         return header;
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
 
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setReferenceID(createID(requestId));
         header.setUUID(createUUID(uuid));
+        header.setReferenceUUID(createUUID(referenceUuid));
         header.setCreationDateTime(now);
         return header;
     }

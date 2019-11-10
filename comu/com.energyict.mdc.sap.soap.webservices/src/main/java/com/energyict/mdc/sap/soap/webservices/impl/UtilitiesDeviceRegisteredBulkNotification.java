@@ -6,7 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 import java.util.List;
 
 public interface UtilitiesDeviceRegisteredBulkNotification {
-    String NAME = "SAP UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out";
+    String NAME = "SAP SmartMeterRegisteredBulkNotification";
 
 
     /**

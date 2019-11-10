@@ -51,7 +51,7 @@ public class ServiceCallTransitionUtils {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private static boolean hasAllChildrenStates(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    public static boolean hasAllChildrenStates(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 

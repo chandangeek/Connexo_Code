@@ -40,7 +40,10 @@ Ext.define('Uni.grid.commander.SortingPanel', {
         var me = this;
 
         me.menu = Ext.widget(me.menu);
-        me.initStore(me.menu.items.getRange());
+        me.initStore(me.menu.items.getRange().filter(function(item) {
+            return !item.inaccessible;
+        }
+        ));
 
         me.dockedItems = [
             {
@@ -185,7 +188,7 @@ Ext.define('Uni.grid.commander.SortingPanel', {
 
     getInitDirection: function (item) {
         var proxySort = this.sortStore.getProxy();
-        var direction = Uni.component.sort.model.Sort.ASC
+        var direction = this.defaults.sortOrder;
         proxySort.data.forEach(function(itemProxy) {
             if (itemProxy.property === item.name) {
                 direction = itemProxy.direction;

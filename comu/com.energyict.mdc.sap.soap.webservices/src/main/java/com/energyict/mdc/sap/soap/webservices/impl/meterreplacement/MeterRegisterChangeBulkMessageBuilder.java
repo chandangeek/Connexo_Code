@@ -5,10 +5,9 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
 
@@ -18,18 +17,21 @@ import java.util.Optional;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 public class MeterRegisterChangeBulkMessageBuilder {
+    private final Integer meterReplacementAddInterval;
 
     private MeterRegisterChangeMessage message = new MeterRegisterChangeMessage();
 
-    private MeterRegisterChangeBulkMessageBuilder() {
+    private MeterRegisterChangeBulkMessageBuilder(Integer meterReplacementAddInterval) {
+        this.meterReplacementAddInterval = meterReplacementAddInterval;
     }
 
-    public static MeterRegisterChangeBulkMessageBuilder builder() {
-        return new MeterRegisterChangeBulkMessageBuilder();
+    public static MeterRegisterChangeBulkMessageBuilder builder(Integer meterReplacementAddInterval) {
+        return new MeterRegisterChangeBulkMessageBuilder(meterReplacementAddInterval);
     }
 
     public MeterRegisterChangeBulkMessageBuilder from(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
         setId(getId(requestMessage));
+        setUuid(getUuid(requestMessage));
         setDeviceId(getDeviceId(requestMessage));
         setLrn(getLrn(requestMessage));
         setEndDate(calculateEndDate(requestMessage));
@@ -43,6 +45,10 @@ public class MeterRegisterChangeBulkMessageBuilder {
 
     private void setId(String id) {
         message.setId(id);
+    }
+
+    private void setUuid(String uuid) {
+        message.setUuid(uuid);
     }
 
     private void setDeviceId(String deviceId) {
@@ -75,6 +81,13 @@ public class MeterRegisterChangeBulkMessageBuilder {
                 .orElse(null);
     }
 
+    private String getUuid(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
+        return Optional.ofNullable(requestMessage.getMessageHeader().getUUID())
+                .map(UUID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
     private String getLrn(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
         Optional<UtilsDvceERPSmrtMtrRegChgReqReg> register = requestMessage.getUtilitiesDevice().getRegister().stream().findFirst();
         if (register.isPresent() && !Checks.is(register.get().getUtilitiesMeasurementTaskID().getValue()).emptyOrOnlyWhiteSpace()) {
@@ -96,7 +109,7 @@ public class MeterRegisterChangeBulkMessageBuilder {
     private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
         Optional<UtilsDvceERPSmrtMtrRegChgReqReg> register = requestMessage.getUtilitiesDevice().getRegister().stream().findFirst();
         if (register.isPresent()) {
-            return register.get().getEndDate().plus(WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL), MINUTES);
+            return register.get().getEndDate().plus(meterReplacementAddInterval, MINUTES);
         } else {
             return null;
         }

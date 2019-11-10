@@ -47,6 +47,21 @@ public enum TranslationKeys implements TranslationKey {
     CGMR_CPS("GM3.name", "Child get meter readings custom property set"),
     FUTURE_COM_TASK_EXECUTION_NAME(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
                                                FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+
+    CARD_FORMAT("property.cardformat", "Card format"),
+    CARD_FORMAT_FULL_SIZE("property.cardformat.fullsize", "Full-size (1FF)"),
+    CARD_FORMAT_MINI("property.cardformat.mini", "Mini (2FF)"),
+    CARD_FORMAT_MICRO("property.cardformat.micro", "Micro (3FF)"),
+    CARD_FORMAT_NANO("property.cardformat.nano", "Nano (4FF)"),
+    CARD_FORMAT_EMBEDDED("property.cardformat.embedded", "Embedded (e-SIM)"),
+    CARD_FORMAT_SW("property.cardformat.sw", "SW SIM (software SIM)"),
+
+    STATUS("property.status", "Status"),
+    STATUS_ACTIVE("property.status.active", "Active"),
+    STATUS_DEMOLISHED("property.status.demolished", "Demolished"),
+    STATUS_INACTIVE("property.status.inactive", "Inactive"),
+    STATUS_PRE_ACTIVE("property.status.pre.active", "Pre-active"),
+    STATUS_TEST("property.status.test", "Test"),
     ;
 
     private final String key;

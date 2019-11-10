@@ -51,7 +51,7 @@ Ext.define('Apr.view.taskmanagement.DetailsGeneralTask', {
                                 itemId: 'suspended-field-container',
                                 name: 'suspendUntilTime',
                                 renderer: function(value){
-                                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes.</br>The task has been suspended until next run.') : Uni.I18n.translate('general.suspended.no','APR','No')
+                                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes.</br>The task has been suspended until next run') : Uni.I18n.translate('general.suspended.no','APR','No')
                                 }
                             }
 

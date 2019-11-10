@@ -33,6 +33,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
 
     private volatile Clock clock;
     private volatile ServiceCallService serviceCallService;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Reference
     public void setClock(Clock clock) {
@@ -42,6 +43,11 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -169,7 +175,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
 
     private void setConfirmationTime(ServiceCall serviceCall) {
         MasterMeterReadingDocumentCreateResultDomainExtension masterExtension = serviceCall.getExtensionFor(new MasterMeterReadingDocumentCreateResultCustomPropertySet()).get();
-        Integer interval = WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.CONFIRMATION_TIMEOUT); // in mins
+        Integer interval = webServiceActivator.getSapProperty(AdditionalProperties.CONFIRMATION_TIMEOUT); // in mins
         masterExtension.setConfirmationTime(clock.instant().plusSeconds(interval * 60));
         serviceCall.update(masterExtension);
     }
