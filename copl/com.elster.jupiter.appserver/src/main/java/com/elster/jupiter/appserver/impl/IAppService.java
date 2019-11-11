@@ -6,6 +6,7 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Registration;
@@ -21,6 +22,8 @@ interface IAppService extends AppService {
     Registration addCommandListener(CommandListener commandListener);
 
     Thesaurus getThesaurus();
+
+    void registerQueue(SubscriberExecutionSpec subscriberExecutionSpec);
 
     interface CommandListener {
 
