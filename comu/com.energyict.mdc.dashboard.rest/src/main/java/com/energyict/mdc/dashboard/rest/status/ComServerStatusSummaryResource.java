@@ -90,9 +90,11 @@ public class ComServerStatusSummaryResource {
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, String authorizationHeader, ComServer comServer, String statusUri, ComServerType comServerType) {
         Optional<ComServerAliveStatus> comServerAliveStatus = engineConfigurationService.getAliveStatus(comServer);
         if (comServerAliveStatus.isPresent()) {
+            // since CONM-580 the main way to check status
             statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(
                     comServerStatusInfoFactory.from(comServer.getId(), comServer.getName(), statusUri, comServerType, comServerAliveStatus.get())));
         } else {
+            // legacy way
             try {
                 LOGGER.fine(() -> "Executing " + statusUri);
                 ComServerStatusInfo comServerStatusInfo =
