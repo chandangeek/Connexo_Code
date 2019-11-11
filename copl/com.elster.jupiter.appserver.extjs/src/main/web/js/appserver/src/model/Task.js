@@ -24,7 +24,7 @@ Ext.define('Apr.model.Task', {
             type: 'number',
             defaultValue: null,
            convert: function(value){
-               return value != null ? Uni.DateTime.formatDateTimeLong(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
+               return value? Uni.DateTime.formatDateTimeLong(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
            }
         },
         {
