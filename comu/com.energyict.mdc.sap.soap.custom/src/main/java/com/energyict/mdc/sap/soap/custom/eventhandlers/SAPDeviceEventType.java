@@ -6,14 +6,11 @@ package com.energyict.mdc.sap.soap.custom.eventhandlers;
 
 import com.elster.jupiter.util.streams.Predicates;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class SAPDeviceEventType {
-    private enum CsvField {
+    enum CsvField {
         FORWARDED_TO_SAP,
         EVENT_CODE,
         DEVICE_EVENT_CODE,
@@ -27,10 +24,13 @@ public class SAPDeviceEventType {
         ORIGIN_TYPE_CODE,
         ORIGIN_TYPE_CODE_DESCRIPTION,
         SAP_PROCESS_WORKFLOW_TRIGGER,
-        REMARKS
+        REMARKS;
+
+        int position() {
+            return ordinal() + 1;
+        }
     }
-    private static final List<String> BOOLEAN_VALUES = ImmutableList.of("true", "false");
-    private static final String NO_EVENT_CODE = "0.0.0.0";
+    static final String NO_EVENT_CODE = "0.0.0.0";
     private final String eventCode;
     private final String deviceEventCode;
     private final int categoryCode;
@@ -73,7 +73,15 @@ public class SAPDeviceEventType {
 
     private static Optional<Integer> parseInt(String[] values, CsvField field) {
         return parseString(values, field)
-                .map(Integer::parseInt);
+                .map(string -> toInt(string, field));
+    }
+
+    private static Integer toInt(String value, CsvField field) {
+        try {
+            return value == null ? null : Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Incorrect integer value '" + value + "' for " + field.name() + " on position " + field.position() + '.', e);
+        }
     }
 
     private static boolean parseBoolean(String[] values, CsvField field) {
@@ -85,24 +93,24 @@ public class SAPDeviceEventType {
                     if ("false".equalsIgnoreCase(string)) {
                         return false;
                     }
-                    throw new IllegalArgumentException("Incorrect boolean value for " + field.name() + " on position " + field.ordinal() + '.');
+                    throw new IllegalArgumentException("Incorrect boolean value '" + string + "' for " + field.name() + " on position " + field.position() + '.');
                 })
                 .orElse(false);
     }
 
     private static int parseMandatoryInt(String[] values, CsvField field) {
         return parseInt(values, field)
-                .orElseThrow(() -> new NoSuchElementException("Missing required element " + field.name() + " on position " + field.ordinal() + '.'));
+                .orElseThrow(() -> new NoSuchElementException("Missing required element " + field.name() + " on position " + field.position() + '.'));
     }
 
     private static IllegalArgumentException missingRequiredPairException(CsvField field1, CsvField field2) {
         return new IllegalArgumentException("Missing both elements " + field1.name() + " & " + field2.name() +
-                " on respective positions " + field1.ordinal() + " & " + field2.ordinal() + ". At least one of them is required.");
+                " on respective positions " + field1.position() + " & " + field2.position() + ". At least one of them is required.");
     }
 
     private static IllegalArgumentException bothEventCodeAndDeviceEventCodePresentException() {
         return new IllegalArgumentException("Both elements " + CsvField.EVENT_CODE.name() + " & " + CsvField.DEVICE_EVENT_CODE.name() +
-                " on respective positions " + CsvField.EVENT_CODE.ordinal() + " & " + CsvField.DEVICE_EVENT_CODE.ordinal() + " have values, though " +
+                " on respective positions " + CsvField.EVENT_CODE.position() + " & " + CsvField.DEVICE_EVENT_CODE.position() + " have values, though " +
                 CsvField.DEVICE_EVENT_CODE.name() + " can be used only in case " + CsvField.EVENT_CODE.name() + " is '0.0.0.0'.");
     }
 

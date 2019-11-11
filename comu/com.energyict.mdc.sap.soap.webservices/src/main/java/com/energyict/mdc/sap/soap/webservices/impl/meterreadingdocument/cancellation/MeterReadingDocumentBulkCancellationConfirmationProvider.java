@@ -17,7 +17,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.util.Map;
 
-@Component(name = MeterReadingDocumentBulkCancellationConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentBulkCancellationConfirmationProvider",
         service = {MeterReadingDocumentBulkCancellationConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentBulkCancellationConfirmation.NAME})
@@ -49,7 +49,7 @@ public class MeterReadingDocumentBulkCancellationConfirmationProvider extends Ab
     }
 
     @Override
-    public Class getService() {
+    public Class<SmartMeterMeterReadingDocumentERPBulkCancellationConfirmationCOut> getService() {
         return SmartMeterMeterReadingDocumentERPBulkCancellationConfirmationCOut.class;
     }
 

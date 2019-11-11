@@ -15,8 +15,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandLimitationRulesOverview', {
     router: undefined,
 
     initComponent: function () {
-        var me = this,
-            rulesStore = Ext.getStore('Mdc.store.CommandLimitationRules') || Ext.create('Mdc.store.CommandLimitationRules');
+        var me = this;
 
         me.content = {
             xtype: 'panel',
@@ -28,8 +27,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandLimitationRulesOverview', {
                     grid: {
                         xtype: 'commandRulesGrid',
                         itemId: 'mdc-command-rules-grid',
-                        router: me.router,
-                        store: rulesStore
+                        router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

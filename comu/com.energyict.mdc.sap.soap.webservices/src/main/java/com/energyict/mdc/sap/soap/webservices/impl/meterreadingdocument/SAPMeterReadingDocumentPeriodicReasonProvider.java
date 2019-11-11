@@ -12,6 +12,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Singleton;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     private static final String REASON_CODES_PERIODIC_DEFAULT_VALUE = "1";
 
     private static List<String> codes;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Activate
     public void activate(BundleContext bundleContext) {
@@ -35,6 +37,11 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
         }else{
             codes = Arrays.asList((valueCodes.split(",")));
         }
+    }
+
+    @Reference
+    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -49,7 +56,7 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
 
     @Override
     public long getShiftDate() {
-        return WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC)* SECONDS_IN_DAY;
+        return webServiceActivator.getSapProperty(AdditionalProperties.SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC)* SECONDS_IN_DAY;
     }
 
     @Override

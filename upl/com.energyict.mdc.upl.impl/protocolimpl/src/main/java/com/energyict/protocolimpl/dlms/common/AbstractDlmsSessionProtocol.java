@@ -140,7 +140,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
     }
 
     @Override

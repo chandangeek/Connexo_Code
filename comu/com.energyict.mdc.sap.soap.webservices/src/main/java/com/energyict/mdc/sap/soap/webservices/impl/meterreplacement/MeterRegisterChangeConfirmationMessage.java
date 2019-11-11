@@ -8,6 +8,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
@@ -46,7 +47,7 @@ public class MeterRegisterChangeConfirmationMessage {
             MasterMeterRegisterChangeRequestDomainExtension extension = parent.getExtensionFor(new MasterMeterRegisterChangeRequestCustomPropertySet()).get();
             ServiceCall child = parent.findChildren().stream().findFirst().orElseThrow(() -> new IllegalStateException("Unable to get child service call"));
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
                 confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
@@ -62,7 +63,7 @@ public class MeterRegisterChangeConfirmationMessage {
 
         public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), now));
 
             confirmationMessage.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat(null)));
             return this;
@@ -75,7 +76,7 @@ public class MeterRegisterChangeConfirmationMessage {
         private void createBody(UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage, ServiceCall child, Instant now) {
             MeterRegisterChangeRequestDomainExtension extension = child.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
 
-            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
             if (child.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
@@ -94,12 +95,13 @@ public class MeterRegisterChangeConfirmationMessage {
             return device;
         }
 
-        private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
+        private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
             header.setReferenceID(createID(requestId));
             header.setUUID(createUUID(uuid));
+            header.setReferenceUUID(createUUID(referenceUuid));
             header.setCreationDateTime(now);
             return header;
         }
@@ -138,7 +140,7 @@ public class MeterRegisterChangeConfirmationMessage {
 
         private LogItem createLogItem(String code, String message) {
             LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-            logItemCategoryCode.setValue("PRE");
+            logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
 
             LogItem logItem = objectFactory.createLogItem();
             logItem.setTypeID(code);

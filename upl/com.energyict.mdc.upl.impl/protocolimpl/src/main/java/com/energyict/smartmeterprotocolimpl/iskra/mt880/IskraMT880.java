@@ -108,7 +108,7 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
         return getEventProfile().getEvents(lastLogbookDate);
     }
 
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessaging().applyMessages(messageEntries);
     }
 

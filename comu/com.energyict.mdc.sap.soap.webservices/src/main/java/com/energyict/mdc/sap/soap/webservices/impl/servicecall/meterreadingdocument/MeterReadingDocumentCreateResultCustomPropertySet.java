@@ -288,6 +288,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .varChar(80)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
+                    .installValue("''")
                     .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DEVICE_NAME.databaseName())
@@ -326,6 +327,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .varChar(80)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.LRN.javaName())
                     .notNull()
+                    .installValue("''")
                     .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_REASON_CODE.databaseName())

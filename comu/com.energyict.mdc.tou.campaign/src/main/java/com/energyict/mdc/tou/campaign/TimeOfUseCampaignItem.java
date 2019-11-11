@@ -7,6 +7,7 @@ package com.energyict.mdc.tou.campaign;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -20,11 +21,15 @@ public interface TimeOfUseCampaignItem {
 
     ServiceCall getServiceCall();
 
-    ServiceCall retry();
+    ServiceCall cancel(boolean initFromCampaign);
 
-    ServiceCall cancel();
+    ServiceCall retry();
 
     long getParentServiceCallId();
 
     long getStepOfUpdate();
+
+    Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution();
+
+    Optional<ComTaskExecution> findOrCreateUploadComTaskExecution();
 }

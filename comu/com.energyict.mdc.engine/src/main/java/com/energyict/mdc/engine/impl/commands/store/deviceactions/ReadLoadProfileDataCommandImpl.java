@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.CollectedLoadProfileHelper;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 
@@ -49,8 +50,8 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
         List<CollectedData> collectedDatas = new ArrayList<>();
         collectedDatas.addAll(collectedLoadProfileList);
 
-        removeUnwantedChannels(loadProfileReaders, collectedDatas);
-        addReadingTypesToChannelInfos(collectedDatas, loadProfileReaders);
+        CollectedLoadProfileHelper.removeUnwantedChannels(loadProfileReaders, collectedDatas);
+        CollectedLoadProfileHelper.addReadingTypesToChannelInfos(collectedDatas, loadProfileReaders);
 
         this.loadProfileCommand.addListOfCollectedDataItems(collectedLoadProfileList);
     }

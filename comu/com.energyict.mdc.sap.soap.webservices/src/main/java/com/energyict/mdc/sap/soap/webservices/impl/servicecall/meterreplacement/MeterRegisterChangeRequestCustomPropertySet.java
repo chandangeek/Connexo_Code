@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -103,6 +104,11 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.javaName(), TranslationKeys.LRN)
                         .fromThesaurus(thesaurus)
                         .markRequired()
@@ -181,6 +187,11 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.databaseName())
                     .varChar(NAME_LENGTH)

@@ -148,6 +148,7 @@ public class AbstractContactorOperationServiceCallHandlerTest {
 
             }
         }));
+        when(comTask.isManualSystemTask()).thenReturn(true);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
@@ -202,7 +203,7 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     }
 
     @Test
-    @Expected(value = IllegalStateException.class, message = "A comtask to read out the status information could not be located")
+    @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information couldn't be located.")
     public void testStateChangeFromWaitingToOngoingStatusInformationComTaskEnablementNotFound() throws Exception {
         AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();

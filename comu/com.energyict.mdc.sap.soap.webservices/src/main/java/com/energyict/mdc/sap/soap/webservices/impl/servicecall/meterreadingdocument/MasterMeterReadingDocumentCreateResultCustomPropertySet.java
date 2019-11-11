@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateResultCustomPropertySet",
@@ -124,14 +126,19 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUEST_UUID.javaName(), TranslationKeys.REQUEST_UUID)
-                        .describedAs(TranslationKeys.REQUEST_UUID)
+                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUEST_UUID.javaName(), TranslationKeys.UUID)
+                        .describedAs(TranslationKeys.UUID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
                         .describedAs(TranslationKeys.REFERENCE_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -199,6 +206,11 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
                     .notNull()
+                    .add();
+            table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.databaseName())
                     .number()

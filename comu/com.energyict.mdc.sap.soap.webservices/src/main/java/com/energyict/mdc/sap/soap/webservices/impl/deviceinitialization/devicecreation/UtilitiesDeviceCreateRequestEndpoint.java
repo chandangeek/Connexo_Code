@@ -4,253 +4,55 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
 import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
-import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.DeviceHelper;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.BusinessDocumentMessageID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.Log;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.LogItem;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.LogItemCategoryCode;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.ObjectFactory;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfUtilsDvce;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.PartyInternalID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.ProductInternalID;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilitiesDeviceERPSmartMeterCreateRequestCIn;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
-import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
-
-public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn, ApplicationSpecific {
-
-    private final Clock clock;
-    private final EndPointConfigurationService endPointConfigurationService;
-    private final Thesaurus thesaurus;
-    private final DeviceHelper deviceHelper;
-
-    private final ObjectFactory objectFactory = new ObjectFactory();
+public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestEndpoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn {
 
     @Inject
-    UtilitiesDeviceCreateRequestEndpoint(Clock clock, EndPointConfigurationService endPointConfigurationService,
-                                         Thesaurus thesaurus, DeviceHelper deviceHelper) {
-        this.clock = clock;
-        this.endPointConfigurationService = endPointConfigurationService;
-        this.thesaurus = thesaurus;
-        this.deviceHelper = deviceHelper;
+    UtilitiesDeviceCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
+                                         Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService, WebServiceActivator webServiceActivator) {
+        super(serviceCallCommands, endPointConfigurationService, clock, sapCustomPropertySets, ormService, webServiceActivator);
     }
 
     @Override
-    public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg request) {
+    public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg requestMessage) {
         runInTransactionWithOccurrence(() -> {
-
-            Optional.ofNullable(request).ifPresent(requestMsg->{
-                saveRelatedAttribute(CimAttributeNames.SERIAL_ID.getAttributeName(), getSerialId(requestMsg));
-                saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), getDeviceId(requestMsg));
-            });
-
-            if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceCreateConfirmation.NAME);
+            if (requestMessage != null) {
+                UtilitiesDeviceCreateRequestMessage request = UtilitiesDeviceCreateRequestMessage.builder()
+                        .from(requestMessage)
+                        .build();
+                SetMultimap<String, String> values = HashMultimap.create();
+                values.putAll(CimAttributeNames.SERIAL_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().stream()
+                        .map(UtilitiesDeviceCreateMessage::getSerialId)
+                        .collect(Collectors.toList()));
+                values.putAll(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().stream()
+                        .map(UtilitiesDeviceCreateMessage::getDeviceId)
+                        .collect(Collectors.toList()));
+                saveRelatedAttributes(values);
+                if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
+                    throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                            UtilitiesDeviceCreateConfirmation.NAME);
+                }
+                createServiceCallAndTransition(request);
             }
-
-            Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> handleMessage(requestMessage));
             return null;
         });
-    }
-
-    private void handleMessage(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        if (isValid(msg)) {
-            String sapDeviceId = getDeviceId(msg);
-            try {
-                deviceHelper.processDeviceCreation(sapDeviceId, getSerialId(msg), getDeviceType(msg),
-                        getShipmentDate(msg), getManufacturer(msg), getModelNumber(msg));
-            } catch (LocalizedException ex) {
-                sendProcessError(msg, ex.getMessageSeed(), ex.getMessageArgs());
-                return;
-            }
-
-            UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = createConfirmationMessage(getRequestId(msg), sapDeviceId);
-            sendMessage(confirmMsg);
-        } else {
-            sendProcessError(msg, MessageSeeds.INVALID_MESSAGE_FORMAT);
-        }
-    }
-
-    private void sendProcessError(UtilsDvceERPSmrtMtrCrteReqMsg msg, MessageSeed messageSeed, Object... args) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(args));
-
-        UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(getRequestId(msg), clock.instant()));
-        confirmMsg.setUtilitiesDevice(createUtilitiesDevice(getDeviceId(msg)));
-        confirmMsg.setLog(createFailedLog(messageSeed, args));
-
-        sendMessage(confirmMsg);
-    }
-
-    private void sendMessage(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
-        WebServiceActivator.UTILITIES_DEVICE_CREATE_CONFIRMATION
-                .forEach(service -> service.call(msg));
-    }
-
-    private boolean isAnyActiveEndpoint(String name) {
-        return endPointConfigurationService
-                .getEndPointConfigurationsForWebService(name)
-                .stream()
-                .filter(EndPointConfiguration::isActive)
-                .findAny().isPresent();
-    }
-
-    private UtilsDvceERPSmrtMtrCrteConfMsg createConfirmationMessage(String requestId, String sapDeviceId) {
-        Instant now = clock.instant();
-        UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestId, now));
-        confirmMsg.setUtilitiesDevice(createUtilitiesDevice(sapDeviceId));
-        confirmMsg.setLog(createSuccessfulLog());
-        return confirmMsg;
-    }
-
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, Instant now) {
-        String uuid = UUID.randomUUID().toString();
-
-        BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        header.setReferenceID(createID(requestId));
-        header.setUUID(createUUID(uuid));
-        header.setCreationDateTime(now);
-        return header;
-    }
-
-    private UtilsDvceERPSmrtMtrCrteConfUtilsDvce createUtilitiesDevice(String strId) {
-        UtilsDvceERPSmrtMtrCrteConfUtilsDvce device = objectFactory.createUtilsDvceERPSmrtMtrCrteConfUtilsDvce();
-        UtilitiesDeviceID utDevice = objectFactory.createUtilitiesDeviceID();
-        utDevice.setValue(strId);
-        device.setID(utDevice);
-        return device;
-    }
-
-    private Log createSuccessfulLog() {
-        Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
-        return log;
-    }
-
-    private Log createFailedLog(MessageSeed messageSeed, Object... args) {
-        Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-        log.getItem().add(createLogItem(messageSeed, args));
-        return log;
-    }
-
-    private LogItem createLogItem(MessageSeed messageSeed, Object... args) {
-        LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
-
-        LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeed.getNumber()));
-        logItem.setCategoryCode(logItemCategoryCode);
-        logItem.setNote(MessageFormat.format(messageSeed.getDefaultFormat(), args));
-
-        return logItem;
-    }
-
-    private BusinessDocumentMessageID createID(String id) {
-        BusinessDocumentMessageID messageID = objectFactory.createBusinessDocumentMessageID();
-        messageID.setValue(id);
-        return messageID;
-    }
-
-    private com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UUID createUUID(String uuid) {
-        com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UUID messageUUID
-                = objectFactory.createUUID();
-        messageUUID.setValue(uuid);
-        return messageUUID;
-    }
-
-    private boolean isValid(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return getRequestId(msg) != null && getSerialId(msg) != null && getDeviceId(msg) != null &&
-                getDeviceType(msg) != null && getShipmentDate(msg) != null;
-    }
-
-    private String getDeviceId(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return Optional.ofNullable(msg.getUtilitiesDevice())
-                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getID)
-                .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilitiesDeviceID::getValue)
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private String getSerialId(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return Optional.ofNullable(msg.getUtilitiesDevice())
-                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getSerialID)
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private String getRequestId(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return Optional.ofNullable(msg.getMessageHeader())
-                .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader::getID)
-                .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageID::getValue)
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private String getDeviceType(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return Optional.ofNullable(msg.getUtilitiesDevice())
-                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getMaterialID)
-                .map(ProductInternalID::getValue)
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private String getManufacturer(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return Optional.ofNullable(msg.getUtilitiesDevice())
-                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getIndividualMaterialManufacturerInformation)
-                .map(UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getPartyInternalID)
-                .map(PartyInternalID::getValue)
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private String getModelNumber(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return Optional.ofNullable(msg.getUtilitiesDevice())
-                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getIndividualMaterialManufacturerInformation)
-                .map(UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
-                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                .orElse(null);
-    }
-
-    private Instant getShipmentDate(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return Optional.ofNullable(msg.getUtilitiesDevice())
-                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getStartDate)
-                .orElse(null);
-    }
-
-    @Override
-    public String getApplication() {
-        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

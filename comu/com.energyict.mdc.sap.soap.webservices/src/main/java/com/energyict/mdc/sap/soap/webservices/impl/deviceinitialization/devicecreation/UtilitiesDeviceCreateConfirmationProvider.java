@@ -12,7 +12,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirma
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOutService;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -24,7 +23,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.util.Map;
 
-@Component(name = UtilitiesDeviceCreateConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateConfirmationProvider",
         service = {UtilitiesDeviceCreateConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceCreateConfirmation.NAME})
@@ -56,7 +55,7 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesDeviceERPSmartMeterCreateConfirmationCOut> getService() {
         return UtilitiesDeviceERPSmartMeterCreateConfirmationCOut.class;
     }
 
@@ -66,15 +65,15 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
     }
 
     @Override
-    public void call(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
+    public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
 
         SetMultimap<String, String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-            msg.getUtilitiesDevice().getID().getValue());
+            msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
 
         using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut")
                 .withRelatedAttributes(values)
-                .send(msg);
+                .send(msg.getConfirmationMessage().get());
     }
 
     @Override

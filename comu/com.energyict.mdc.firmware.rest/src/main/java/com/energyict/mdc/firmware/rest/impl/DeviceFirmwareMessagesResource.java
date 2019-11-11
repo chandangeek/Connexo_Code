@@ -27,12 +27,9 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -254,7 +251,10 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private void cancelOldFirmwareUpdates(FirmwareManagementDeviceUtils helper, Map<String, Object> convertedProperties, DeviceMessageSpec firmwareMessageSpec) {
-        Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class)).findAny();
+        Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
+                .findAny();
         if (firmwareVersionPropertySpec.isPresent()) {
             FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertySpec.get().getName());
             if (requestedFirmwareVersion != null) {
@@ -285,7 +285,7 @@ public class DeviceFirmwareMessagesResource {
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
         rescheduleFirmwareUpgradeTask(device);
         firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
-                .ifPresent(DeviceInFirmwareCampaign::cancel);
+                .ifPresent(deviceInFirmwareCampaign -> deviceInFirmwareCampaign.cancel(false));
         return Response.ok().build();
     }
 
@@ -315,7 +315,7 @@ public class DeviceFirmwareMessagesResource {
             info.version = device.getVersion();
             deviceFirmwareActions.add(info);
         }
-        String runNowActionTitle = thesaurus.getFormat(MessageSeeds.Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY).format();
+        String runNowActionTitle = thesaurus.getFormat(TranslationKeys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY).format();
         DeviceFirmwareActionInfo info = new DeviceFirmwareActionInfo("runnow", runNowActionTitle);
         info.version = device.getVersion();
         deviceFirmwareActions.add(info);
@@ -345,7 +345,7 @@ public class DeviceFirmwareMessagesResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public Response runFirmwareVersionCheckNow(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
-        String actionName = thesaurus.getFormat(MessageSeeds.Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY).format();
+        String actionName = thesaurus.getFormat(TranslationKeys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY).format();
         Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.conflict()
                         .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
@@ -363,7 +363,8 @@ public class DeviceFirmwareMessagesResource {
     private boolean isDeviceFirmwareUpgradeAllowed(FirmwareManagementDeviceUtils helper) {
         Optional<ComTaskExecution> firmwareUpgradeExecution = helper.getFirmwareComTaskExecution();
         return helper.getPendingFirmwareMessages().stream()
-                .filter(message -> !firmwareUpgradeExecution.isPresent() || firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
+                .filter(message -> !firmwareUpgradeExecution.isPresent() || firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null || !message.getReleaseDate()
+                        .isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
                 .count() == 0 && !helper.firmwareUploadTaskIsBusy();
     }
 

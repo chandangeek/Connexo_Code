@@ -61,12 +61,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = UtilitiesTimeSeriesBulkCreateRequestProvider.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateRequestProvider",
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
 public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg> implements ApplicationSpecific {
-    public static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out";
+    public static final String NAME = "SAP TimeSeriesBulkCreateRequest";
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
         // for OSGi purposes
@@ -171,16 +171,9 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     private static BusinessDocumentMessageHeader createMessageHeader(String uuid, Instant now) {
         BusinessDocumentMessageHeader header = new BusinessDocumentMessageHeader();
-        header.setID(createID(uuid));
         header.setUUID(createUUID(uuid));
         header.setCreationDateTime(now);
         return header;
-    }
-
-    private static BusinessDocumentMessageID createID(String id) {
-        BusinessDocumentMessageID messageID = new BusinessDocumentMessageID();
-        messageID.setValue(id);
-        return messageID;
     }
 
     private static com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UUID createUUID(String uuid) {

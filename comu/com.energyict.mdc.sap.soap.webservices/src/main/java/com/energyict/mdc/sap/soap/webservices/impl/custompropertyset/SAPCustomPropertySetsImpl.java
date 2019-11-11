@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -33,6 +34,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
@@ -48,7 +50,6 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import com.energyict.obis.ObisCode;
@@ -84,9 +85,9 @@ import java.util.stream.Stream;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.SAPCustomPropertySets",
-        service = {SAPCustomPropertySets.class, TranslationKeyProvider.class},
+        service = {SAPCustomPropertySets.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + SAPCustomPropertySetsImpl.COMPONENT_NAME, immediate = true)
-public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCustomPropertySets {
+public class SAPCustomPropertySetsImpl implements MessageSeedProvider, TranslationKeyProvider, SAPCustomPropertySets {
     static final String COMPONENT_NAME = "SCA"; // only for translations
     private static final TemporalAmount LESS_THAN_TIME_STEP = Duration.ofNanos(1);
 
@@ -181,6 +182,11 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -319,13 +325,26 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         Condition notThisChannelSpec = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channelSpec);
         Condition notThisDevice = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isNotEqual(deviceId);
         Condition thisDevice = notThisDevice.not();
-        return (getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId)
                         .and(notThisDevice.or(thisDevice.and(notThisChannelSpec))))
-                .filter(whereOverlapped).map(s -> s.getChannelSpec()).findAny());
+                .filter(whereOverlapped).map(DeviceChannelSAPInfoDomainExtension::getChannelSpec).findAny();
+    }
+
+    @Override
+    public Set<Pair<Long, ChannelSpec>> getChannelInfosAfterDate(String lrn, String profileId, Instant date) {
+        Condition intervalAfterDateCondition = getIntervalAfterDateCondition(date);
+        return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .join(ChannelSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isEqualTo(lrn))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId))
+                .filter(intervalAfterDateCondition)
+                .map(e -> Pair.of(e.getDeviceId(), e.getChannelSpec())).collect(Collectors.toSet());
     }
 
     @Override
@@ -340,7 +359,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
         Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
         stream.forEach(e -> {
-            Range range = e.getRange();
+            Range<Instant> range = e.getRange();
             Optional<Range<Instant>> cutRange = cutRange(range);
             if (cutRange.isPresent()) {
                 Optional<Device> device = deviceService.findDeviceById(e.getDeviceId());
@@ -443,8 +462,6 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                     customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
                 }
             }
-
-
         } else {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, endDate);
         }
@@ -488,6 +505,10 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     private Condition getOverlappedCondition(Range<Instant> range) {
         return Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range);
+    }
+
+    private Condition getIntervalAfterDateCondition(Instant date) {
+        return Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThan(date.toEpochMilli());
     }
 
     private Optional<Range<Instant>> cutRange(Range<Instant> range) {

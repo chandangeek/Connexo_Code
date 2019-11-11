@@ -57,7 +57,7 @@ Ext.define('Fwc.firmwarecampaigns.view.ConfigurationOptions', {
                                 {
                                     xtype: 'uni-form-info-message',
                                     itemId: 'firmware-versions-info-message',
-                                    text: Uni.I18n.translate('firmwareVersions.infoMsg', 'FIM', 'This page only represents the firmware versions at the moment of campaign creation. The actual configuration could have been changed afterwards'),
+                                    text: Uni.I18n.translate('firmwareVersions.infoMsg', 'FWC', 'This page only represents the firmware versions at the moment of campaign creation. The actual configuration could have been changed afterwards'),
                                 },
                                 {
                                     xtype: 'firmware-grid',
@@ -66,8 +66,10 @@ Ext.define('Fwc.firmwarecampaigns.view.ConfigurationOptions', {
                                     router: me.router,
                                     scroll: 'vertical',
                                     maxHeight:402,
+                                    width: 1331,
                                     autoHeight: true,
-                                    isFirmwareCampaignVersions: true
+                                    autoWidth: true,
+                                    isFirmwareCampaignVersions: true,
                                 }
                             ]
                         }

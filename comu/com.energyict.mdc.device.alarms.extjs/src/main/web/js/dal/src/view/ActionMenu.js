@@ -110,8 +110,7 @@ Ext.define('Dal.view.ActionMenu', {
 
             if (me.record.get('status').id == 'status.snoozed') {
                 snoozedDateTime = new Date(me.record.get('snoozedDateTime'));
-            }
-            else {
+            } else {
                 var tomorrowMidnight = new Date();
                 tomorrowMidnight.setHours(24, 0, 0, 1);
                 snoozedDateTime = tomorrowMidnight;
@@ -153,6 +152,7 @@ Ext.define('Dal.view.ActionMenu', {
         var me = this,
             itemId = me.record.getId(),
             detail = Ext.ComponentQuery.query('alarm-detail-top')[0],
+            fromDetails = Ext.ComponentQuery.query('alarm-detail-top')[0] ? true : false,
             predefinedItems = me.getPredefinedItems();
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
@@ -216,24 +216,26 @@ Ext.define('Dal.view.ActionMenu', {
                             },
                             {
                                 details: (detail) ? true : false,
-                                issueType:'alarm'
+                                issueType: 'alarm'
                             }
                         );
                         break;
                 }
             });
             me.add(predefinedItems);
-        }
-        if (Dal.privileges.Alarm.viewAdminProcesses) {
-            me.add({
 
-                text: Uni.I18n.translate('alarms.actionMenu.startProcess', 'DAL', 'Start process'),
-                action: 'startProcess',
-                section: this.SECTION_ACTION,
-                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({alarmId: itemId}, {details: (detail) ? true : false}),
-                details: false,
-                section: me.SECTION_ACTION
-            });
+            if (Isu.privileges.Issue.canViewProcessMenu()) {
+                me.add({
+                    text: Uni.I18n.translate('issues.actionMenu.startProcess', 'DAL', 'Start process'),
+                    action: 'startProcess',
+                    section: this.SECTION_ACTION,
+                    href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({alarmId: itemId}, {
+                        details: fromDetails,
+                        issueType: 'devicealarm'
+                    }),
+                    details: false
+                });
+            }
         }
     },
 

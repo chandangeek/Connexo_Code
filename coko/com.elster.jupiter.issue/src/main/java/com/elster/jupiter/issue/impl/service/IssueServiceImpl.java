@@ -625,6 +625,47 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
+    public Map<Long, List<String>> findOpenIssuesPerIssueTypeForDevices(List<Long> deviceIds){
+        Map<Long, List<String>> issuesPerReason = new HashMap<>();
+
+        if (deviceIds.size() == 0){
+            return issuesPerReason;
+        }
+
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT " +
+                " ed.id, ri.issue_type " +
+                " FROM mtr_enddevice ed " +
+                "   INNER JOIN isu_issue_open oi ON ( oi.device_id = ed.id ) " +
+                "   LEFT JOIN isu_reason ri on ri.key = oi.reason_id " +
+                " WHERE ed.id IN " +
+                "   (" +
+                deviceIds.stream()
+                        .map( Object::toString )
+                        .collect(Collectors.joining(", ")) +
+                "   )" +
+                " GROUP BY ed.id, issue_type");
+        try (Connection connection = this.dataModel.getConnection(false);
+             PreparedStatement statement = sqlBuilder.prepare(connection)) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    Long endDeviceId = resultSet.getLong(1);
+                    String issueType = resultSet.getString(2);
+
+                    List<String> issueTypes = issuesPerReason.get(endDeviceId);
+                    if (issueTypes == null) {
+                        issueTypes = new ArrayList<>();
+                        issuesPerReason.put(endDeviceId, issueTypes);
+                    }
+                    issueTypes.add(issueType);
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+        return issuesPerReason;
+    }
+
+    @Override
     public Finder<OpenIssue> findOpenIssuesForDevice(String deviceName) {
         Condition condition = where("device.name").isEqualTo(deviceName);
         return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
@@ -684,7 +725,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public Finder<? extends Issue> findAlarms(IssueFilter filter, Class<?>... eagers) {
-        Condition condition = Condition.TRUE;
+        Condition condition = buildAlarmConditionFromFilter(filter);
         Optional<IssueType> alarmIssueType = getAllIssueTypes().stream()
                 .filter(issueType -> issueType.getPrefix().equals("ALM"))
                 .findFirst();
@@ -949,6 +990,27 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .and(where("priorityTotal").isLessThan(second));
             }
 
+        }
+
+        // filter by SNOOZEDATETIME
+        if (filter.getUntilSnoozeDateTime().isPresent()){
+            condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
+        }
+
+        return condition;
+    }
+
+    private Condition buildAlarmConditionFromFilter(IssueFilter filter) {
+        Condition condition = Condition.TRUE;
+
+        //filter by statuses
+        if (!filter.getStatuses().isEmpty()) {
+            condition = condition.and(where("status").in(filter.getStatuses()));
+        }
+
+        // filter by SNOOZEDATETIME
+        if (filter.getUntilSnoozeDateTime().isPresent()){
+            condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
         }
         return condition;
     }

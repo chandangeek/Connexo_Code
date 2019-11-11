@@ -17,6 +17,7 @@ import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -108,6 +109,15 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
         Optional<WebServiceCallRelatedAttribute> relatedObject = dataModel.mapper(WebServiceCallRelatedAttribute.class)
                 .getOptional(id);
 
+        return relatedObject;
+    };
+
+    @Override
+    public List<WebServiceCallRelatedAttribute> getRelatedAttributesByValue(String value){
+
+        List<WebServiceCallRelatedAttribute> relatedObject = dataModel
+                .mapper(WebServiceCallRelatedAttribute.class)
+                .select(where("value").isEqualToIgnoreCase(value));
         return relatedObject;
     };
 

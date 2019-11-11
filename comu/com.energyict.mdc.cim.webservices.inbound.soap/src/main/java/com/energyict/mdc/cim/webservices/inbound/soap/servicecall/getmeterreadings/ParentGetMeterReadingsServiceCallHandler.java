@@ -88,7 +88,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             case FAILED:
             case CANCELLED:
                 processChildren(serviceCall, CANCELLED);
-                sendResponse(serviceCall, new MeterReadings());
+                sendResponse(serviceCall, new MeterReadings(), true);
                 break;
             default:
                 // No specific action required for these states
@@ -111,6 +111,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .collect(Collectors.toSet()));
         parentServiceCall.findChildren(filter).stream()
                 .forEach(subParentServiceCall -> subParentServiceCall.requestTransition(newState));
+    }
+
+    private boolean doAllClosedServiceCallsHaveState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        return serviceCalls.stream().filter(sc -> !sc.getState().isOpen()).allMatch(sc -> sc.getState().equals(defaultState));
     }
 
     private void collectAndSendResult(ServiceCall serviceCall) {
@@ -166,13 +170,19 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     MessageFormat.format("No meter readings are found for source ''{0}'', time range {1}",
                             source, timeRangeSet));
         }
-        if (!sendResponse(serviceCall, meterReadings)) {
+        if (!sendResponse(serviceCall, meterReadings, false)) {
             return;
         }
-        if (ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), PARTIAL_SUCCESS)) {
-            serviceCall.requestTransition(PARTIAL_SUCCESS);
-        } else {
+
+        if (doAllClosedServiceCallsHaveState(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
             serviceCall.requestTransition(SUCCESSFUL);
+        }else if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), CANCELLED))  {
+            serviceCall.requestTransition(CANCELLED);
+        }else if (ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), PARTIAL_SUCCESS) ||
+                ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)){
+            serviceCall.requestTransition(PARTIAL_SUCCESS);
+        }else{
+            serviceCall.requestTransition(FAILED);
         }
 
         serviceCall.log(LogLevel.FINE,
@@ -181,22 +191,33 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     }
 
     private int calculateRegisterUpperBoundShift() {
-        /// FIXME +5
-        return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 2;
+        //To make sure the latest register value is included
+        return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 5;
     }
 
-    private boolean sendResponse(ServiceCall serviceCall, MeterReadings meterReadings) {
+    private boolean sendResponse(ServiceCall serviceCall, MeterReadings meterReadings, boolean sendFromFailedState) {
         ParentGetMeterReadingsDomainExtension extension = serviceCall.getExtension(ParentGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+        if (sendFromFailedState && extension.getResponseStatus().equals(ParentGetMeterReadingsDomainExtension.ResponseStatus.NOT_CONFIRMED.getName())) {
+            return false;
+        }
 
         Optional<EndPointConfiguration> endPointConfigurationOptional = getEndPointConfiguration(serviceCall, extension.getCallbackUrl());
         if (!endPointConfigurationOptional.isPresent()) {
             serviceCall.log(LogLevel.SEVERE, MessageFormat.format("No end point configuration is found by URL ''{0}''.", extension.getCallbackUrl()));
-            serviceCall.requestTransition(FAILED);
+            if (!sendFromFailedState) {
+                serviceCall.requestTransition(FAILED);
+            }
             return false;
         }
-        if (!sendMeterReadingsProvider.call(meterReadings, getHeader(extension.getCorrelationId()), endPointConfigurationOptional.get())) {
-            serviceCall.requestTransition(FAILED);
+        if (!sendMeterReadingsProvider.call(meterReadings, getHeader(extension.getCorrelationId(), sendFromFailedState ? "Failure occurred" : null), endPointConfigurationOptional.get())) {
+            if (!sendFromFailedState) {
+                serviceCall.requestTransition(FAILED);
+                extension.setResponseStatus(ParentGetMeterReadingsDomainExtension.ResponseStatus.NOT_CONFIRMED.getName());
+                serviceCall.update(extension);
+            }
+
             RangeSet<Instant> timeRangeSet = null;
             if (extension.getTimePeriodStart() != null) {
                 timeRangeSet = getTimeRangeSet(extension.getTimePeriodStart(), extension.getTimePeriodEnd());
@@ -204,7 +225,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             serviceCall.log(LogLevel.SEVERE,
                     MessageFormat.format("Unable to send meter readings data for source ''{0}'', time range {1}", extension
                             .getSource(), timeRangeSet));
+            return false;
         }
+        extension.setResponseStatus(ParentGetMeterReadingsDomainExtension.ResponseStatus.CONFIRMED.getName());
+        serviceCall.update(extension);
         return true;
     }
 
@@ -256,11 +280,14 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 .orElseThrow(() -> new IllegalStateException("Unable to get actual end date for child service call"));
     }
 
-    private HeaderType getHeader(String correlationId) {
+    private HeaderType getHeader(String correlationId, String comment) {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun("MeterReadings");
         header.setCorrelationID(correlationId);
+        if (comment != null) {
+            header.setComment(comment);
+        }
         return header;
     }
 

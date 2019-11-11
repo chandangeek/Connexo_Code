@@ -36,6 +36,7 @@ public class LoadProfileMessageUtils {
     private static final String ChannelNametag = "Name";
     private static final String ChannelMeterIdentifier = "ID";
     private static final String ChannelUnitTag = "Unit";
+    private static final String ChannelReadingTypeMRID = "MRID";
 
     /**
      * Hide utility class constructor.
@@ -84,6 +85,7 @@ public class LoadProfileMessageUtils {
             channelElement.setAttribute(ChannelNametag, String.valueOf(item.getAttributes().getNamedItem(ChannelNametag).getNodeValue()));
             channelElement.setAttribute(ChannelUnitTag, String.valueOf(item.getAttributes().getNamedItem(ChannelUnitTag).getNodeValue()));
             channelElement.setAttribute(ChannelMeterIdentifier, String.valueOf(item.getAttributes().getNamedItem(ChannelMeterIdentifier).getNodeValue()));
+            channelElement.setAttribute(ChannelReadingTypeMRID, String.valueOf(item.getAttributes().getNamedItem(ChannelReadingTypeMRID).getNodeValue()));
             channels.appendChild(channelElement);
         }
         return channels;
@@ -176,6 +178,7 @@ public class LoadProfileMessageUtils {
             channelElement.setAttribute(ChannelNametag, channel.obisCode());
             channelElement.setAttribute(ChannelUnitTag, channel.unit());
             channelElement.setAttribute(ChannelMeterIdentifier, channel.deviceSerialNumber());
+            channelElement.setAttribute(ChannelReadingTypeMRID, channel.MRID());
             channels.appendChild(channelElement);
         }
         return channels;

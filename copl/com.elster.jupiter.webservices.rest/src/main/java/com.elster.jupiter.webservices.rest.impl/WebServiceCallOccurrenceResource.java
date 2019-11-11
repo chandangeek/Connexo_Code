@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.webservices.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -31,6 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -138,15 +140,55 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     @Path("/relatedattributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
-    public Response getRelatedObjects(@BeanParam JsonQueryParameters params) {
+    public Response getRelatedAttributes(@BeanParam JsonQueryParameters params) {
         String searchText = params.getLike();
-        List<WebServiceCallRelatedAttribute> listRelatedObjects = webServiceCallOccurrenceService.getRelatedAttributesByValueLike(searchText)
-                .paged(params.getStart().get(),params.getLimit().get()).find();
+        String txtToFind = null;
+        final String translationTxt;
 
-        List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream().map(obj-> {
+        if (searchText == null){
+            searchText = "";
+        }
+
+        if (searchText.contains("(") && searchText.contains(")")){
+            txtToFind = searchText.substring(0, searchText.lastIndexOf("(") - 1);
+            translationTxt = searchText.substring(searchText.lastIndexOf("(") + 1, searchText.length() - 1);
+        }else{
+            translationTxt = null;
+        }
+
+        Finder<WebServiceCallRelatedAttribute> finder = webServiceCallOccurrenceService
+                .getRelatedAttributesByValueLike(txtToFind == null ? searchText.trim() : txtToFind.trim());
+
+        if (params.getStart().isPresent() && params.getLimit().isPresent()){
+            finder.paged(params.getStart().get(),params.getLimit().get());
+        }
+
+        List<WebServiceCallRelatedAttribute> listRelatedObjects = finder.find();
+
+        List<RelatedAttributeInfo> listInfo = listRelatedObjects.stream()
+                .filter(obj->translationTxt == null ? true : webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt))
+                .map(obj-> {
             return new RelatedAttributeInfo(obj.getId(),
                                         obj.getValue()+" ("+webServiceCallOccurrenceService.translateAttributeType(obj.getKey())+")");
         }).collect(toList());
+
+        return Response.ok().entity(listInfo).build();
+    }
+
+    @GET
+    @Path("/relatedattributes/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
+    public Response getRelatedAttributeById(@BeanParam JsonQueryParameters params,
+                                            @PathParam("id") long id) {
+
+        Optional<WebServiceCallRelatedAttribute> relatedObject = webServiceCallOccurrenceService.getRelatedObjectById(id);
+
+        RelatedAttributeInfo info = new RelatedAttributeInfo(relatedObject.get().getId(),
+                relatedObject.get().getValue() +" ("+webServiceCallOccurrenceService.translateAttributeType(relatedObject.get().getKey())+")");
+        /* Extjs parse response as list of elements. So here send list with one element */
+        List<RelatedAttributeInfo> listInfo = new ArrayList<>();
+        listInfo.add(info);
 
         return Response.ok().entity(listInfo).build();
     }

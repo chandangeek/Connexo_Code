@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.custom.eventhandlers;
 
@@ -9,16 +9,13 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.sap.soap.custom.TranslationInstaller;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.BusinessDocumentMessageHeader;
@@ -43,22 +40,22 @@ import javax.validation.MessageInterpolator;
 import java.nio.file.FileSystem;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 @Component(name = CustomSAPDeviceEventHandler.NAME, service = {CustomSAPDeviceEventHandler.class, TopicHandler.class}, immediate = true)
-public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKeyProvider {
-    static final String COMPONENT_NAME = "CSE";
+public class CustomSAPDeviceEventHandler implements TopicHandler {
+    public static final String COMPONENT_NAME = "CSE";
     static final String APPLICATION_NAME = "MultiSense";
     static final String NAME = "com.energyict.mdc.webservices.demo.eventhandlers.CustomSapDeviceEventHandler";
     private static final Logger LOGGER = Logger.getLogger(NAME);
+    private static final Function<EndDeviceEventRecord, Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt>> NO_MAPPING_FORMATTER = event -> {
+        throw new RuntimeException("Failed to send notification about event " + toString(event) + ": mapping csv hadn't been loaded properly.");
+    };
 
     private volatile BundleContext bundleContext;
     private volatile MeterEventCreateRequestProvider meterEventCreateRequestProvider;
@@ -123,15 +120,15 @@ public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKey
             eventFormatter = formatter::filterAndFormat;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Couldn't load SAP device event mapping csv: " + e.getLocalizedMessage(), e);
-            eventFormatter = event -> {
-                throw new RuntimeException("Failed to send notification about event " + toString(event) + ": mapping csv hadn't been loaded properly.");
-            };
+            eventFormatter = NO_MAPPING_FORMATTER;
         }
     }
 
     @Deactivate
     public void deactivate() {
         customPropertySetService.removeCustomPropertySet(mappingStatusCustomPropertySet);
+        eventFormatter = NO_MAPPING_FORMATTER;
+        mappingStatusCustomPropertySet = null;
         bundleContext = null;
     }
 
@@ -158,25 +155,6 @@ public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKey
 
     private static String toString(EndDeviceEventRecord eventRecord) {
         return eventRecord.getEventType().getMRID() + " (" + eventRecord.getDeviceEventType() + ") on device " + eventRecord.getEndDevice().getName();
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.SOAP;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Stream.of(
-                TranslationKeys.values(),
-                SAPDeviceEventMappingStatusDomainExtension.FieldNames.values())
-                .flatMap(Arrays::stream)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -267,11 +245,6 @@ public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKey
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(getComponentName(), getLayer());
-    }
-
-    @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -289,5 +262,10 @@ public class CustomSAPDeviceEventHandler implements TopicHandler, TranslationKey
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setThesaurus(TranslationInstaller translationInstaller) {
+        this.thesaurus = translationInstaller.getThesaurus();
     }
 }

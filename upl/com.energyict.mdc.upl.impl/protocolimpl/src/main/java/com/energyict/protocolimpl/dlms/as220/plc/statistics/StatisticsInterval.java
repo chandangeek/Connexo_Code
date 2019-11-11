@@ -6,7 +6,7 @@ import java.util.TimeZone;
 
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 
 /**
  * @author jme
@@ -22,7 +22,7 @@ public class StatisticsInterval extends Structure {
 	}
 
 	public Date getTimeStamp() {
-		DateTime dt = getDataType(0).getOctetString().getDateTime(getTimeZone());
+		DateTimeOctetString dt = getDataType(0).getOctetString().getDateTime(getTimeZone());
 		return dt.getValue().getTime();
 	}
 

@@ -143,7 +143,7 @@ public class BpmResource {
     public StartupInfo getStartup(@Context UriInfo uriInfo) {
         StartupInfo startupInfo = new StartupInfo();
         BpmServer server = bpmService.getBpmServer();
-        startupInfo.url = server.getUrl();
+        startupInfo.url = server.getExternalUrl();
 
         return startupInfo;
     }

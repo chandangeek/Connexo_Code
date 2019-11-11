@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Component(name = UtilitiesDeviceRegisteredBulkNotification.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider",
         service = {UtilitiesDeviceRegisteredBulkNotification.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisteredBulkNotification.NAME})
@@ -44,7 +44,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
     private final ObjectFactory objectFactory = new ObjectFactory();
 
-    private volatile  Clock clock;
+    private volatile Clock clock;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
@@ -82,7 +82,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> getService() {
         return UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut.class;
     }
 

@@ -12,7 +12,6 @@ import com.energyict.protocolimplv2.nta.esmr50.common.methods.ESMR50MbusClientMe
 
 import java.io.IOException;
 
-
 public class ESMR50MbusClient extends DSMR4_MbusClient {
 
     private int version;

@@ -7,6 +7,7 @@ import java.time.Instant;
 
 public class MeterRegisterChangeMessage {
     private String id;
+    private String uuid;
     private String deviceId;
     private String lrn;
     private Instant endDate;
@@ -23,6 +24,14 @@ public class MeterRegisterChangeMessage {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getDeviceId() {

@@ -154,8 +154,6 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
                     }
                     LOGGER.info("[high-prio] load for pool " + comPortPoolId + ": " + loadPerComPortPool.get(comPortPoolId));
                 }
-                LOGGER.info("[high-prio] executor " + (i++) + " connected to device: " + executor.getConnectionTask().getDevice().getName()
-                + ", executes high-prio job: " + executesHighPrio);
             }
             return loadPerComPortPool;
         }

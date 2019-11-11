@@ -22,7 +22,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.util.Map;
 
-@Component(name = UtilitiesDeviceBulkCreateConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateConfirmationProvider",
         service = {UtilitiesDeviceBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceBulkCreateConfirmation.NAME})
@@ -62,13 +62,13 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutbo
     public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
         SetMultimap<String, String> values = HashMultimap.create();
 
-        msg.getConfirmationMessage().getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage().forEach(message->{
+        msg.getBulkConfirmationMessage().get().getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage().forEach(message->{
             values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
                     message.getUtilitiesDevice().getID().getValue());
         });
         using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
                 .withRelatedAttributes(values)
-                .send(msg.getConfirmationMessage());
+                .send(msg.getBulkConfirmationMessage().get());
     }
 
     @Override

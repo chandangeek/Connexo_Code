@@ -53,7 +53,7 @@ public class BpmAppServiceImpl implements BpmAppService, TranslationKeyProvider,
 
     @Activate
     public final void activate(BundleContext context) {
-        App app = new App(APPLICATION_KEY, APPLICATION_NAME, "connexo", bpmService.getBpmServer().getUrl(), user -> user
+        App app = new App(APPLICATION_KEY, APPLICATION_NAME, "connexo", bpmService.getBpmServer().getExternalUrl(), user -> user
                 .getPrivileges(bpmService.COMPONENTNAME)
                 .stream()
                 .anyMatch(p -> "privilege.design.bpm".equals(p.getName())));

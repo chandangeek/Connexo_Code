@@ -101,10 +101,13 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         try {
             Optional<String> selectorName = Optional.ofNullable((String) getEndPointConfiguration().getPropertiesWithValue().get(EXPORTER.getKey()));
-            measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() : DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR);
+            measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() :
+                    dataExportService.getAvailableSelectors().stream()
+                            .filter(s -> s.getName().equals(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR))
+                            .findAny().get().getDisplayName());
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
                             .create()
                             .build();
             sendMessage(confirmationMessage);
@@ -113,7 +116,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = e.getLocalizedMessage();
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeed).format(e.getMessageArgs()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
                             .from(messageSeed.getLevel().getName(), String.valueOf(messageSeed.getNumber()), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
@@ -123,7 +126,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = messageSeeds.translate(thesaurus, e.getLocalizedMessage());
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(e.getLocalizedMessage()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
                             .from(messageSeeds.getLevel().getName(), messageSeeds.code(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
@@ -138,7 +141,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
     private void sendProcessError(MeasurementTaskAssignmentChangeRequestMessage message, MessageSeeds messageSeed, Object... args) {
         MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
                         .from(messageSeed.getLevel().getName(), messageSeed.code(), messageSeed.translate(thesaurus, args))
                         .build();
         sendMessage(confirmationMessage);

@@ -343,10 +343,6 @@
             <artifactId>metering.zone</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering.groups</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

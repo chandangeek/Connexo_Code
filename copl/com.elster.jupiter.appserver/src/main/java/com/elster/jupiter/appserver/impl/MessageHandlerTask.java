@@ -14,6 +14,7 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 public class MessageHandlerTask implements ProvidesCancellableFuture {
@@ -25,6 +26,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     private final Transaction<Message> processTransaction = new ProcessTransaction();
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
+    private AtomicBoolean continueRunning = new AtomicBoolean(true); // safety flag for finishing the thread
 
     MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler, TransactionService transactionService, Thesaurus thesaurus) {
         this.subscriberSpec = subscriberSpec;
@@ -35,7 +37,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
 
     @Override
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && continueRunning.get()) {
             try {
                 Message message = transactionService.execute(processTransaction);
                 if (message != null) {
@@ -49,7 +51,11 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     }
 
     public void cancel() {
-        subscriberSpec.cancel();
+        try {
+            subscriberSpec.cancel();
+        } finally {
+            continueRunning.set(false);
+        }
     }
 
     @Override

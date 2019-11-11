@@ -9,12 +9,9 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.SelectorType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.sap.soap.custom.TranslationInstaller;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,15 +27,10 @@ import java.util.logging.Logger;
         service = DataSelectorFactory.class,
         immediate = true)
 public class CustomDataSelectorFactory implements DataSelectorFactory {
-    static final String CUSTOM_READINGTYPE_DATA_SELECTOR = "Custom Data Selector";
-    static final String CUSTOM_READINGTYPE_DATA_SELECTOR_KEY_NAME = "customDataSelector";
-    static final String TRANSLATION_KEY = CUSTOM_READINGTYPE_DATA_SELECTOR;
-    public static final String DISPLAY_NAME = "Device readings data selector [CST]";
+    static final String CUSTOM_READING_DATA_SELECTOR_KEY = "Custom Data Selector";
+    static final String CUSTOM_READING_DATA_SELECTOR_NAME = "Device readings data selector [CST]";
 
     private volatile Thesaurus thesaurus;
-
-    static final String NAME = CUSTOM_READINGTYPE_DATA_SELECTOR;
-
 
     public CustomDataSelectorFactory() {
     }
@@ -64,12 +56,12 @@ public class CustomDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getName() {
-        return CUSTOM_READINGTYPE_DATA_SELECTOR;
+        return CUSTOM_READING_DATA_SELECTOR_KEY;
     }
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(getNlsKey().getKey(), DISPLAY_NAME);
+        return thesaurus.getFormat(TranslationKeys.CUSTOM_DATA_SELECTOR_FACTORY).format();
     }
 
     @Override
@@ -82,18 +74,13 @@ public class CustomDataSelectorFactory implements DataSelectorFactory {
         return SelectorType.DEFAULT_READINGS;
     }
 
-    private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, TRANSLATION_KEY);
-    }
-
     @Override
     public List<String> targetApplications() {
         return Collections.singletonList("MDC");
     }
 
     @Reference
-    public void setThesaurus(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
+    public void setThesaurus(TranslationInstaller translationInstaller) {
+        this.thesaurus = translationInstaller.getThesaurus();
     }
-
 }

@@ -210,9 +210,9 @@ class DeviceValidationImpl implements DeviceValidation {
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         Stream<com.elster.jupiter.metering.Channel> koreChannels = ((DeviceImpl) channel.getDevice()).findKoreChannels(channel).stream();
         return koreChannels
-                .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
+                .filter(k -> does(k.getChannelsContainer().getInterval().toOpenClosedRange()).overlap(interval))
                 .flatMap(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings,
-                        k.getChannelsContainer().getRange().intersection(interval)).stream())
+                        k.getChannelsContainer().getInterval().toOpenClosedRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
 

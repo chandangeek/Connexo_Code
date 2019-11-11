@@ -35,14 +35,15 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 text: Uni.I18n.translate('importService.history.finished', 'WSS', 'Finished between')
             },
             {
-                type: Boolean(me.endpoint) ? undefined : 'combobox',
+                type: Boolean(me.endpoint) ? 'noui' : 'combobox',
                 dataIndex: 'webServiceEndPoint',
                 itemId: 'history-topfilter-webServiceEndPoint',
                 emptyText: Uni.I18n.translate('general.webServiceEndpoint', 'WSS', 'Web service endpoint'),
                 displayField: 'name',
                 valueField: 'id',
                 store: endpointStore,
-                value: me.endpoint ? me.endpoint.getId() : undefined
+                value: me.endpoint ? me.endpoint.getId() : undefined,
+                valueToNumber: true
             },
             {
                 type: 'combobox',
@@ -70,25 +71,53 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 type: 'combobox',
                 itemId: 'history-topfilter-relatedobject',
                 dataIndex: 'wsRelatedObjectId',
-                emptyText: Uni.I18n.translate('mdc.processes.allprocessestopfilter.objects', 'MDC', 'Objects'),
+                emptyText: Uni.I18n.translate('mdc.processes.allprocessestopfilter.objects', 'WSS', 'Objects'),
                 displayField: 'displayValue',
                 valueField: "id",
                 store: 'Wss.store.RelatedAttributeStore',
                 queryMode: 'remote',
                 queryParam: 'like',
+                setFilterValue: me.comboSetFilterValue,
                 queryCaching: false,
                 minChars: 0,
                 loadStore: false,
-                forceSelection: false,
+                forceSelection: true,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
-                        }
+                        },
+                    blur: {
+                        fn: me.onAssigneeBlur
                     }
+                }
             },
         ];
 
         me.callParent(arguments);
+    },
+
+    onAssigneeBlur: function (field) {
+        if (field.getRawValue()) {
+            field.setValue(field.lastSelection);
+        }
+    },
+
+    comboSetFilterValue: function(value) {
+        var combo = this,
+        store = combo.getStore();
+
+        combo.value = value;
+        combo.setHiddenValue(value);
+
+        store.model.load(value, {
+            success: function (record) {
+                combo.setValue(record);
+                //combo.value = [record];
+                store.loadData([record], false);
+                store.lastOptions = {};
+                store.fireEvent('load', store, [record], true)
+            }
+        });
     },
 
     comboLimitNotification: function (combo) {
@@ -100,7 +129,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 if (store.getTotalCount() > store.getCount()) {
                     el.appendChild({
                         tag: 'li',
-                        html: Uni.I18n.translate('mdc.processes.limitNotification', 'MDC', 'Keep typing to narrow down'),
+                        html: Uni.I18n.translate('mdc.processes.limitNotification', 'WSS', 'Keep typing to narrow down'),
                         cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
                     });
                 }
@@ -111,6 +140,4 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 picker.un('refresh', fn);
             }, combo, {single: true});
      }
-
-
 });

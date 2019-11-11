@@ -24,13 +24,15 @@ public class LoadProfileMessageUtilsTest {
     private static final ObisCode OBISCODE1 = ObisCode.fromString("1.0.1.8.0.255");
     private static final ObisCode OBISCODE2 = ObisCode.fromString("1.0.2.8.0.255");
     private static final Unit UNIT = Unit.get("kWh");
+    private static final String MRID1 = "0.0.1.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String MRID2 = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
 
-    private static final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPId=\"0\" LPObisCode=\"1.0.99.1.0.255\" MSerial=\"SomeSerialNumber\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" Name=\"1.0.1.8.0.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" Name=\"1.0.2.8.0.255\" Unit=\"kWh\"/></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\" RegID=\"1\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\" RegID=\"2\"/></RtuRegs></LoadProfile>";
+    private static final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPId=\"0\" LPObisCode=\"1.0.99.1.0.255\" MSerial=\"SomeSerialNumber\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" MRID=\"0.0.1.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.1.8.0.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" MRID=\"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.2.8.0.255\" Unit=\"kWh\"/></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\" RegID=\"1\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\" RegID=\"2\"/></RtuRegs></LoadProfile>";
 
     @Test
     public void loadProfileFormatTest() {
-        LoadProfileExtractor.Channel channel1 = createdMockedChannel(OBISCODE1);
-        LoadProfileExtractor.Channel channel2 = createdMockedChannel(OBISCODE2);
+        LoadProfileExtractor.Channel channel1 = createdMockedChannel(OBISCODE1, MRID1);
+        LoadProfileExtractor.Channel channel2 = createdMockedChannel(OBISCODE2, MRID2);
         LoadProfile loadProfile = mock(LoadProfile.class);
         LoadProfileExtractor loadProfileExtractor = mock(LoadProfileExtractor.class);
         String expectedLoadProfileId = "0";
@@ -54,11 +56,12 @@ public class LoadProfileMessageUtilsTest {
         assertThat(format).isEqualTo(expectedXml);
     }
 
-    private LoadProfileExtractor.Channel createdMockedChannel(ObisCode obisCode) {
+    private LoadProfileExtractor.Channel createdMockedChannel(ObisCode obisCode, String mrid) {
         LoadProfileExtractor.Channel channel = mock(LoadProfileExtractor.Channel.class);
         when(channel.deviceSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(channel.obisCode()).thenReturn(obisCode.toString());
         when(channel.unit()).thenReturn(UNIT.toString());
+        when(channel.MRID()).thenReturn(mrid);
         return channel;
     }
 }

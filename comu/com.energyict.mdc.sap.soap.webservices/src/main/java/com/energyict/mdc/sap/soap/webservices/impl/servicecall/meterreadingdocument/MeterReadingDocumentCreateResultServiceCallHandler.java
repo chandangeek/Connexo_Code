@@ -29,6 +29,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
 
     private volatile Clock clock;
     private volatile MeteringService meteringService;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Reference
     public void setClock(Clock clock) {
@@ -38,6 +39,11 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -53,13 +59,13 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                 }
                 break;
             case CANCELLED:
-                    MeterReadingDocumentCreateResultDomainExtension extension = serviceCall
-                            .getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
-                            .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-                    if(extension.getCancelledBySap() == null) {
-                        extension.setCancelledBySap(false);
-                        serviceCall.update(extension);
-                    }
+                MeterReadingDocumentCreateResultDomainExtension extension = serviceCall
+                        .getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+                if (extension.getCancelledBySap() == null) {
+                    extension.setCancelledBySap(false);
+                    serviceCall.update(extension);
+                }
                 break;
             default:
                 break;
@@ -110,9 +116,9 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
         }
     }
 
-    private SAPMeterReadingDocumentCollectionData createCollectionDataBuilder(ServiceCall serviceCall){
-        return SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock)
-                .from(serviceCall, WebServiceActivator.SAP_PROPERTIES)
+    private SAPMeterReadingDocumentCollectionData createCollectionDataBuilder(ServiceCall serviceCall) {
+        return SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock, webServiceActivator.getSapProperties())
+                .from(serviceCall)
                 .build();
     }
 }
