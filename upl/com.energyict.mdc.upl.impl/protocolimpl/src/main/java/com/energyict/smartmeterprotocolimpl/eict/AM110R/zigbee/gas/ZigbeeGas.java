@@ -159,7 +159,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
     }
 
     //---------- MESSAGING ----------//
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 

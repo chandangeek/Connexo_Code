@@ -168,7 +168,7 @@ Ext.define('Tou.view.DetailForm', {
                         }
                     }, {
                         itemId: 'firmware-service-call-field',
-                        fieldLabel: Uni.I18n.translate('general.firmwareServiceCall', 'FWC', 'Service call'),
+                        fieldLabel: Uni.I18n.translate('general.firmwareServiceCall', 'TOU', 'Service call'),
                         name: 'serviceCall',
                         renderer: function (value) {
                             return value ?  '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id})+ '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'

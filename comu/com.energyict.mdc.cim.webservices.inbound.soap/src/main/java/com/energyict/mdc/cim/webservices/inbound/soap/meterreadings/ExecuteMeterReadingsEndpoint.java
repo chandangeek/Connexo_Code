@@ -692,7 +692,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         List<Map<Long, Set<ComTaskExecution>>> deviceComTaskExecutionMaps = new ArrayList<>();
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceRegularComTaskExecutionMap());
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceIrregularComTaskExecutionMap());
-        //deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceMessagesComTaskExecutionMap());
+
+        //Map<Long, ComTaskExecution> -> Map<Long, Set<ComTaskExecution>>. Set<ComTaskExecution> will contain 1 element.
+        Map<Long, Set<ComTaskExecution>> deviceMessageMap = syncReplyIssue.getDeviceMessagesComTaskExecutionMap().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> ImmutableSet.of(entry.getValue())));
+        deviceComTaskExecutionMaps.add(deviceMessageMap);
 
         AtomicBoolean isOk = new AtomicBoolean(false);
         for (Map<Long, Set<ComTaskExecution>> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda

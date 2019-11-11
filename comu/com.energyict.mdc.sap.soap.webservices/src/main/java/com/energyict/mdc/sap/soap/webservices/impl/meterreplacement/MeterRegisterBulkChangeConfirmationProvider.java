@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Component(name = MeterRegisterBulkChangeConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeConfirmationProvider",
         service = {MeterRegisterBulkChangeConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterRegisterBulkChangeConfirmation.NAME})

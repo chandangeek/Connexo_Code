@@ -9,12 +9,18 @@ import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCo
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
+
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * An implementation of the {@link CollectedMessage} interface,
@@ -27,6 +33,7 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
 
     private final MessageIdentifier deviceMessageIdentifier;
     private final CollectedLoadProfile collectedLoadProfile;
+    private LoadProfileReader loadProfileReader;
 
     private Instant sentDate;
     private DeviceMessageStatus deviceMessageStatus;
@@ -35,6 +42,11 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
     public DeviceProtocolMessageWithCollectedLoadProfileData(MessageIdentifier deviceMessageIdentifier, CollectedLoadProfile collectedLoadProfile) {
         this.deviceMessageIdentifier = deviceMessageIdentifier;
         this.collectedLoadProfile = collectedLoadProfile;
+    }
+
+    public DeviceProtocolMessageWithCollectedLoadProfileData(MessageIdentifier deviceMessageIdentifier, CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
+        this(deviceMessageIdentifier, collectedLoadProfile);
+        this.loadProfileReader = loadProfileReader;
     }
 
     @Override
@@ -90,6 +102,9 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
+        if (loadProfileReader != null) {
+            CollectedLoadProfileHelper.addReadingTypeToChannelInfo(collectedLoadProfile, loadProfileReader);
+        }
         return new CollectedLoadProfileDeviceCommand(collectedLoadProfile, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 

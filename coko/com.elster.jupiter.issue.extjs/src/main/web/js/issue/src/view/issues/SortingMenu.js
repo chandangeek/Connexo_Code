@@ -21,12 +21,12 @@ Ext.define('Isu.view.issues.SortingMenu', {
         },
         {
             itemId: 'issues-sorting-menu-item-by-creation-date',
-            text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation Date'),
+            text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
             action: 'createDateTime'
         },
         {
             itemId: 'issues-sorting-menu-item-by-issueId',
-            text: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
+            text: Uni.I18n.translate('general.title.issueId', 'ISU', 'ID'),
             action: 'id'
         },
         {

@@ -382,7 +382,13 @@ public class MeterReadingsBuilder {
      * @return {@code true} if it is missing with no reading qualities (except derived that is always present).
      */
     private static boolean isMissingWithOnlyDerivedQualities(BaseReadingRecord reading) {
-        return reading.getValue() == null
+        boolean hasValue = false;
+        if ((reading.getValue() != null)
+                || (reading instanceof com.elster.jupiter.metering.readings.Reading && ((com.elster.jupiter.metering.readings.Reading) reading).getText() != null)) {
+            hasValue = true;
+        }
+
+        return !hasValue
                 && reading.getReadingQualities().stream()
                 .map(ReadingQualityRecord::getType)
                 .mapToInt(ReadingQualityType::getCategoryCode)
@@ -489,9 +495,11 @@ public class MeterReadingsBuilder {
         info.setTimeStamp(record.getTimestamp());
 
         record.getReading().ifPresent(reading -> {
-            Optional.ofNullable(reading.getValue())
-                    .map(BigDecimal::toPlainString)
-                    .ifPresent(info::setValue);
+            if (reading.getValue() != null) {
+                info.setValue(reading.getValue().toPlainString());
+            } else if (reading instanceof com.elster.jupiter.metering.readings.Reading) {
+                info.setValue(((com.elster.jupiter.metering.readings.Reading) reading).getText());
+            }
             info.setReportedDateTime(reading.getReportedDateTime());
             reading.getTimePeriod()
                     .map(MeterReadingsBuilder::createDateTimeInterval)

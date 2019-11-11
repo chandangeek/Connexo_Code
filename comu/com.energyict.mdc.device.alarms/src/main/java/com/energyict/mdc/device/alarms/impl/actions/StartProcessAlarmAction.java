@@ -178,7 +178,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
 
         final PropertySpec processCombobox = propertyFactoriesProvider
                 .getFactory(PropertyType.ALARM_PROCESS_COMBOBOX)
-                .getElement(PROCESSES_COMBOBOX, TranslationKeys.ACTION_START_ALARM_PROCESS, TranslationKeys.ACTION_START_ALARM_PROCESS);
+                .getElement(PROCESSES_COMBOBOX, TranslationKeys.ACTION_START_ALARM_PROCESS, TranslationKeys.ACTION_START_ALARM_PROCESS, issueType, issueReason);
 
         final PropertySpec assigneeElementsGroup = propertyFactoriesProvider
                 .getFactory(PropertyType.ASSIGN_ISSUE_FORM)
@@ -192,7 +192,6 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         builder.add(assigneeElementsGroup);
         builder.add(closeIssueForm);
 
-
         return builder.build();
     }
 
@@ -203,5 +202,10 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
             return ((ProcessValue) value).getName();
         }
         return "";
+    }
+
+    @Override
+    public boolean isApplicable(Issue issue) {
+        return issue == null;
     }
 }

@@ -514,7 +514,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             }
 
             List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
-            CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0));
+            CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0), fullLpr);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
             return collectedMessage;
         } catch (SAXException e) {              //Failed to parse XML data

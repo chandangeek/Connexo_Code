@@ -187,8 +187,10 @@ public class TransactionServiceImpl implements TransactionService {
             } catch (ExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof CheckedRuntimeException) {
-                    throw (E) e.getCause();
-                } else {
+                    throw (E) cause.getCause();
+                } else if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else  {
                     throw new RuntimeException(cause);
                 }
             } catch (InterruptedException e) {
@@ -217,7 +219,9 @@ public class TransactionServiceImpl implements TransactionService {
             } catch (ExecutionException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof CheckedRuntimeException) {
-                    throw (E) e.getCause();
+                    throw (E) cause.getCause();
+                } else if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
                 } else {
                     throw new RuntimeException(cause);
                 }

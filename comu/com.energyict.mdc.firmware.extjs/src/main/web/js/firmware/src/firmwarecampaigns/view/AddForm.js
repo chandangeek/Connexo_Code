@@ -333,17 +333,29 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id'
+                        valueField: 'id',
+                        listeners: {
+                            change: function (checkBox, value) {
+                                if (this.originalValue !== value) {
+                                    me.down('#fwc-campaign-validation-connection-strategy-reset').enable();
+                                } else {
+                                    me.down('#fwc-campaign-validation-connection-strategy-reset').disable();
+
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-validation-connection-strategy-reset',
                         handler: function() {
                             this.down('[name=validationConnectionStrategy]').reset();
+                            me.down('#fwc-campaign-validation-connection-strategy-reset').disable();
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },
@@ -386,7 +398,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         me.callParent(arguments);
 
         Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
-           item.setTooltip('Restore to default empty value');
+           item.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'FWC', 'Restore to default empty value'));
         })
     },
 

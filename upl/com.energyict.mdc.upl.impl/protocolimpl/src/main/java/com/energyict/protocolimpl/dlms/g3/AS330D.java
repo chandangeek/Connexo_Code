@@ -240,7 +240,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessaging().applyMessages(messageEntries);
     }
 

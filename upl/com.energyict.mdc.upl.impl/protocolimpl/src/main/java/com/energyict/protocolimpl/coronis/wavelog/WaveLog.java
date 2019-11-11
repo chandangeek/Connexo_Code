@@ -195,7 +195,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         waveLogMessages.applyMessages(messageEntries);
     }
 
