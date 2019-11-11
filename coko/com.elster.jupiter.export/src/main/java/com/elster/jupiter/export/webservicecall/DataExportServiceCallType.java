@@ -5,8 +5,10 @@
 package com.elster.jupiter.export.webservicecall;
 
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -18,7 +20,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCall(String uuid, long timeout, Stream<? extends ExportData> data);
+    ServiceCall startServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
 
     /**
      * Creates and starts a new service call in a new thread.
@@ -27,9 +29,8 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout, Stream<? extends ExportData> data);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
 
-    void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data);
 
     /**
      * @param uuid UUID identifying the service call.

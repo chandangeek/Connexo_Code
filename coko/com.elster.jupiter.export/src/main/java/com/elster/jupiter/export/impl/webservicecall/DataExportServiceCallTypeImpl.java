@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
@@ -31,6 +32,8 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -93,7 +96,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCall(String uuid, long timeout, Stream<? extends ExportData> data) {
+    public ServiceCall startServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
         if (transactionService.isInTransaction()) {
             return doStartServiceCall(uuid, timeout, data);
         } else {
@@ -102,7 +105,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCallAsync(String uuid, long timeout, Stream<? extends ExportData> data) {
+    public ServiceCall startServiceCallAsync(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
         Principal principal = threadPrincipalService.getPrincipal();
         try {
             return CompletableFuture.supplyAsync(() -> {
@@ -116,12 +119,10 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    @Override
-    public void createChildServiceCalls(ServiceCall parent, Stream<? extends ExportData> data){
-        data.filter(MeterReadingData.class::isInstance)
-                .map(MeterReadingData.class::cast).forEach(datareading->createChild(parent,
-                datareading.getItem().getDomainObject().getName(),
-                datareading.getItem().getReadingType().getMRID()));
+    public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data){
+        data.forEach(item->createChild(parent,
+                item.getDomainObject().getName(),
+                item.getReadingType().getMRID()));
     }
 
 
@@ -141,11 +142,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
 
-    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Stream<? extends ExportData> data) {
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, List<ReadingTypeDataExportItem>  data) {
         return transactionService.execute(() -> doStartServiceCall(uuid, timeout, data));
     }
 
-    private ServiceCall doStartServiceCall(String uuid, long timeout, Stream<? extends ExportData> data) {
+    private ServiceCall doStartServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);

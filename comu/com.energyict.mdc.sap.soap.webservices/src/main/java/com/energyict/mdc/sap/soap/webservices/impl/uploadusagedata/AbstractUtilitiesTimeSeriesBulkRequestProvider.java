@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -124,12 +125,12 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     abstract long calculateNumberOfReadingsInTimeSerieses(List<TS> list);
 
     @Override
-    public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {//
+    public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
         List<TS> timeSeriesListToSend = new ArrayList<>();
         Instant now = null;
         long meterReadingDataNr = 0;
         List<ServiceCall> srvCallList = new ArrayList<>();
-        List<ExportData> readingDataToSend = new ArrayList<>();
+        List<MeterReadingData> readingDataToSend = new ArrayList<>();
 
         List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
 
@@ -143,11 +144,10 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
             prepareTimeSerieses(timeSeriesListFromMeterData, meterReadingData, now);
             long numberOfItemsToSend = calculateNumberOfReadingsInTimeSerieses(timeSeriesListFromMeterData);
-
             if (numberOfItemsToSend > NUMBER_OF_READINGS_PER_MSG) {
                 /*It means that number of readings in one meterReadingData is more than allowable size.
                 /* Just send it. But actually shouldn't happen */
-                sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, new ArrayList<ExportData>(Arrays.asList(meterReadingData)), now).ifPresent(srvCall -> {
+                sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, new ArrayList<MeterReadingData>(Arrays.asList(meterReadingData)), now).ifPresent(srvCall -> {
                     srvCallList.add(srvCall);
                 });
                 now = null;
@@ -201,7 +201,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         return srvCallList;
     }
 
-    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, List<TS> timeSerieses, List<ExportData> exportData, Instant now){
+    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, List<TS> timeSerieses, List<MeterReadingData> exportData, Instant now){
         String uuid = UUID.randomUUID().toString();
         try {
             SetMultimap<String, String> values = HashMultimap.create();
@@ -217,7 +217,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 }
                 Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
                         .filter(timeout -> !timeout.isEmpty())
-                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), exportData.stream()));
+                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), exportData.stream().map(data->data.getItem()).collect(Collectors.toList())));
 
                 return serviceCall;
             }
