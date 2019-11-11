@@ -169,7 +169,7 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
     }
 
     //---------- MESSAGING ----------//
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 

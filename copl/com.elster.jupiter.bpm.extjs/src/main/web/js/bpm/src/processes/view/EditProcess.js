@@ -44,7 +44,16 @@ Ext.define('Bpm.processes.view.EditProcess', {
                         queryMode: 'local',
                         displayField: 'name',
                         valueField: 'type',
-                        forceSelection: true
+                        forceSelection: true,
+                        listeners: {
+                            change: function(combobox, newValue) {
+                                var store = combobox.getStore();
+
+                                if (store.findRecord('type', newValue).raw.properties && Ext.isEmpty(store.findRecord('type', newValue).raw.properties )) {
+                                    me.down('#custom-form').hide()
+                                } else me.down('#custom-form').show()
+                            }
+                        }
 
                     },
                     {

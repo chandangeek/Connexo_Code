@@ -84,7 +84,7 @@ Ext.define('Itk.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'ITK', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'IDV', 'Unassigned');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ITK', 'Unassigned');
                         }
                     },
                     {

@@ -275,7 +275,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         waveLogMessages.applyMessages(messageEntries);
     }
 
