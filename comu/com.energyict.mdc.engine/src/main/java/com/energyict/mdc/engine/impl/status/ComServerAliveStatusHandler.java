@@ -32,9 +32,11 @@ public class ComServerAliveStatusHandler implements TaskExecutor {
                     ComServerStatus status = statusService.getStatus();
                     if (status.isBlocked()) {
                         engineConfigurationService.findOrCreateAliveStatus(comServer).update(clock.instant(),
+                                engineConfigurationService.getComServerStatusAliveFreq(),
                                 status.getBlockTimestamp(), (int) status.getBlockTime().getSeconds());
                     } else {
                         engineConfigurationService.findOrCreateAliveStatus(comServer).update(clock.instant(),
+                                engineConfigurationService.getComServerStatusAliveFreq(),
                                 null, null);
                     }
                 }

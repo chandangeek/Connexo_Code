@@ -604,7 +604,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         if (comServerAliveOptional.isPresent()) {
             return comServerAliveOptional.get();
         } else {
-            ComServerAliveStatusImpl comServerAlive = this.dataModel.getInstance(ComServerAliveStatusImpl.class).initialize(comServer, clock.instant());
+            ComServerAliveStatusImpl comServerAlive = this.dataModel.getInstance(ComServerAliveStatusImpl.class).initialize(comServer, clock.instant(), getComServerStatusAliveFreq());
             comServerAlive.save();
             return comServerAlive;
         }
@@ -612,25 +612,21 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public Optional<ComServerAliveStatus> getAliveStatus(ComServer comServer) {
-        AtomicReference<ComServerAliveStatus> comServerAliveStatus = new AtomicReference<>();
-        getComServerStatusAliveFreq().ifPresent(
-                freq -> getComServerAliveDataMapper().getUnique("comServer", comServer).ifPresent(
-                        status -> {
-                            status.setRunning(clock.instant().getEpochSecond() - status.getLastActiveTime().getEpochSecond() <= freq);
-                            comServerAliveStatus.set(status);
-                        }
-                )
+        Optional<ComServerAliveStatus> comServerAliveStatus = getComServerAliveDataMapper().getUnique("comServer", comServer);
+        comServerAliveStatus.ifPresent(
+                status ->
+                        status.setRunning(clock.instant().getEpochSecond() - status.getLastActiveTime().getEpochSecond() <= status.getUpdateFrequency())
         );
-        return Optional.ofNullable(comServerAliveStatus.get());
+        return comServerAliveStatus;
     }
 
     @Override
-    public Optional<Integer> getComServerStatusAliveFreq() {
+    public Integer getComServerStatusAliveFreq() {
         try {
             String val = bundleContext.getProperty(COM_SERVER_STATUS_ALIVE_FREQ_PROP);
-            return val == null ? Optional.empty() : Optional.of(Integer.valueOf(val));
+            return val == null ? ComServerAliveStatusImpl.DEFAULT_FREQUENCY : Integer.valueOf(val);
         } catch (NumberFormatException e) {
-            return Optional.empty();
+            return ComServerAliveStatusImpl.DEFAULT_FREQUENCY;
         }
     }
 }

@@ -202,6 +202,7 @@ public enum TableSpecs {
             table.column("ACTIVETIME").number().notNull().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.LAST_ACTIVE_TIME.getName()).add();
             table.column("BLOCKED_SINCE").number().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.BLOCKED_SINCE.getName()).add();
             table.column("BLOCK_TIME").number().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.BLOCK_TIME.getName()).add();
+            table.column("UPDATE_FREQ").number().notNull().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.UPDATE_FREQ.getName()).add();
             table.primaryKey("PK_MDC_COMALIVE_COMSERVER").on(comServerColumn).add();
             table.foreignKey("FK_MDC_COMALIVE_COMSERVER")
                     .map("comServer")

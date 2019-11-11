@@ -19,14 +19,18 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
     private Instant lastActiveTime;
     private Instant blockedSince;
     private Integer blockTime;
+    private Integer updateFreq;
     private boolean running;
     private final Reference<ComServer> comServer = ValueReference.absent();
     private final DataModel dataModel;
 
+    final static int DEFAULT_FREQUENCY = 60;
+
     public enum FieldNames {
         LAST_ACTIVE_TIME("lastActiveTime"),
         BLOCKED_SINCE("blockedSince"),
-        BLOCK_TIME("blockTime");
+        BLOCK_TIME("blockTime"),
+        UPDATE_FREQ("updateFreq");
 
         private final String name;
 
@@ -39,9 +43,10 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
         }
     }
 
-    ComServerAliveStatusImpl initialize(ComServer comServer, Instant time) {
+    ComServerAliveStatusImpl initialize(ComServer comServer, Instant time, Integer updateFrequency) {
         this.comServer.set(comServer);
         this.lastActiveTime = time;
+        this.updateFreq = updateFrequency;
         return this;
     }
 
@@ -76,6 +81,11 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
     }
 
     @Override
+    public Integer getUpdateFrequency() {
+        return updateFreq;
+    }
+
+    @Override
     public Optional<Instant> getBlockedSince() {
         return Optional.ofNullable(blockedSince);
     }
@@ -86,10 +96,11 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
     }
 
     @Override
-    public void update(Instant time, Instant blockedSince, Integer blockTime) {
+    public void update(Instant time, Integer updateFrequency, Instant blockedSince, Integer blockTime) {
         this.lastActiveTime = time;
         this.blockedSince = blockedSince;
         this.blockTime = blockTime;
+        this.updateFreq = updateFrequency;
         Save.UPDATE.save(dataModel, this);
     }
 

@@ -15,13 +15,15 @@ public interface ComServerAliveStatus {
 
     Instant getLastActiveTime();
 
-    void update(Instant time, Instant blockedSince, Integer blockTime);
+    void update(Instant time, Integer updateFrequency, Instant blockedSince, Integer blockTime);
 
     boolean isBlocked();
 
     boolean isRunning();
 
     void setRunning(boolean isRunning);
+
+    Integer getUpdateFrequency();
 
     Optional<Instant> getBlockedSince();
 

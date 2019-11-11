@@ -277,5 +277,5 @@ public interface EngineConfigurationService {
 
     Optional<ComServerAliveStatus> getAliveStatus(ComServer comServer);
 
-    Optional<Integer> getComServerStatusAliveFreq();
+    Integer getComServerStatusAliveFreq();
 }
