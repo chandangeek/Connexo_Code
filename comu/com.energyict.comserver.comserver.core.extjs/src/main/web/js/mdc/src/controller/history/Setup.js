@@ -1375,14 +1375,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showAddTask',
                             items: {
                                   readingtypes: {
-                                       title: Uni.I18n.translate('general.addReadingTypes','DES','Add reading types'),
+                                       title: Uni.I18n.translate('general.addReadingTypes','MDC','Add reading types'),
                                        route: 'readingtypes',
                                        controller: 'Dxp.controller.Tasks',
                                        privileges: Dxp.privileges.DataExport.admin,
                                        action: 'addReadingTypes'
                                   },
                                   destination: {
-                                       title: Uni.I18n.translate('general.addDestination','DES','Add destination'),
+                                       title: Uni.I18n.translate('general.addDestination','MDC','Add destination'),
                                        route: 'destination',
                                        controller: 'Dxp.controller.Tasks',
                                        privileges: Dxp.privileges.DataExport.admin,
