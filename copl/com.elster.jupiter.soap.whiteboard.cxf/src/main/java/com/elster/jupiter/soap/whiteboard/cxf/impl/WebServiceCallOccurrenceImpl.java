@@ -236,47 +236,45 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             List<WebServiceCallRelatedAttributeImpl> relatedAttributeListToCreate = new ArrayList<>();
             List<WebServiceCallRelatedAttributeBindingImpl> relatedAttributeBindingList = new ArrayList<>();
 
-            Condition condition = values.entries().stream()
+            Optional<Condition> condition = values.entries().stream()
                     .filter(entry -> !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
                     .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName()).isEqualTo(entry.getKey())
                             .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
-                    .reduce(Condition::or).orElse(null);
+                    .reduce(Condition::or);
 
-            if (condition == null) {
-                return;
-            }
+            if (condition.isPresent()) {
+                /* Find all related attributes that has been already created */
+                List<WebServiceCallRelatedAttributeImpl> createdRelatedAttributeList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition.get());
 
-            /* Find all related attributes that has been already created */
-            List<WebServiceCallRelatedAttributeImpl> createdRelatedAttributeList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition);
-
-            /* Find all related attributes that should be created */
-            values.entries().forEach(entry -> {
-                if (entry.getKey() != null && !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace()) {
-                    WebServiceCallRelatedAttributeImpl relatedAttribute = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
-                    relatedAttribute.init(entry.getKey(), entry.getValue().trim());
-                    if (!createdRelatedAttributeList.contains(relatedAttribute)) {
-                        relatedAttributeListToCreate.add(relatedAttribute);
+                /* Find all related attributes that should be created */
+                values.entries().forEach(entry -> {
+                    if (entry.getKey() != null && !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace()) {
+                        WebServiceCallRelatedAttributeImpl relatedAttribute = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
+                        relatedAttribute.init(entry.getKey(), entry.getValue().trim());
+                        if (!createdRelatedAttributeList.contains(relatedAttribute)) {
+                            relatedAttributeListToCreate.add(relatedAttribute);
+                        }
                     }
-                }
-            });
+                });
 
-            /* Create related attributes that hasn't been created yet */
-            dataModel.mapper(WebServiceCallRelatedAttributeImpl.class).persist(relatedAttributeListToCreate);
+                /* Create related attributes that hasn't been created yet */
+                dataModel.mapper(WebServiceCallRelatedAttributeImpl.class).persist(relatedAttributeListToCreate);
 
 
-            createdRelatedAttributeList.forEach(obj -> {
-                WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
-                relatedAttributeBinding.init(this, obj);
-                relatedAttributeBindingList.add(relatedAttributeBinding);
-            });
+                createdRelatedAttributeList.forEach(obj -> {
+                    WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
+                    relatedAttributeBinding.init(this, obj);
+                    relatedAttributeBindingList.add(relatedAttributeBinding);
+                });
 
-            relatedAttributeListToCreate.forEach(obj -> {
-                WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
-                relatedAttributeBinding.init(this, obj);
-                relatedAttributeBindingList.add(relatedAttributeBinding);
-            });
+                relatedAttributeListToCreate.forEach(obj -> {
+                    WebServiceCallRelatedAttributeBindingImpl relatedAttributeBinding = dataModel.getInstance(WebServiceCallRelatedAttributeBindingImpl.class);
+                    relatedAttributeBinding.init(this, obj);
+                    relatedAttributeBindingList.add(relatedAttributeBinding);
+                });
 
-            dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedAttributeBindingList);
+                dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedAttributeBindingList);
+            }
         });
     }
 

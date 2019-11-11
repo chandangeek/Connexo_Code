@@ -81,11 +81,11 @@ public class CreateBulkConfirmationMessageFactory {
 
         children.forEach(child -> {
             confirmationMessage.getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage()
-                    .add(createFailedChildMessage(child, now));
+                    .add(createChildMessage(child, now));
         });
     }
 
-    private UtilsDvceERPSmrtMtrCrteConfMsg createFailedChildMessage(ServiceCall childServiceCall, Instant now) {
+    private UtilsDvceERPSmrtMtrCrteConfMsg createChildMessage(ServiceCall childServiceCall, Instant now) {
         UtilitiesDeviceCreateRequestDomainExtension extension = childServiceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();

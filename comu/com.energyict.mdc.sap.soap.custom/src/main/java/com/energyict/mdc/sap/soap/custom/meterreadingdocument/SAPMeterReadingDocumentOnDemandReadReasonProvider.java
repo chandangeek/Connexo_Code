@@ -111,7 +111,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     private boolean hasCommunicationConnection(ServiceCall serviceCall, String deviceName, boolean isRegular,
                                                Instant scheduledReadingDate) {
         Optional<ComTaskExecution> comTaskExecution = findLastTaskExecution(deviceName, isRegular);
-        //todo: need to check
+
         if(comTaskExecution.isPresent()) {
             return hasLastTaskExecutionTimestamp(comTaskExecution.get(), scheduledReadingDate)
                     ? checkTaskStatus(serviceCall, comTaskExecution.get())

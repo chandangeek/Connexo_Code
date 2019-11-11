@@ -38,10 +38,12 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestE
                         .from(requestMessage)
                         .build();
 
-                SetMultimap<String, String> values = HashMultimap.create();
-                values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().get(0).getSerialId());
-                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().get(0).getDeviceId());
-                saveRelatedAttributes(values);
+                if (request.getUtilitiesDeviceCreateMessages().get(0) != null) {
+                    SetMultimap<String, String> values = HashMultimap.create();
+                    values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().get(0).getSerialId());
+                    values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().get(0).getDeviceId());
+                    saveRelatedAttributes(values);
+                }
 
                 if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
                     throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,

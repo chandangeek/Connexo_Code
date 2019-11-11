@@ -61,6 +61,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
         SetMultimap<String, String> values = HashMultimap.create();
         bulkMsg.locationMessages.forEach(message -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId));
         saveRelatedAttributes(values);
+
         if (bulkMsg.isValid()) {
             bulkMsg.locationMessages.forEach(message -> {
                 if (message.isValid()) {

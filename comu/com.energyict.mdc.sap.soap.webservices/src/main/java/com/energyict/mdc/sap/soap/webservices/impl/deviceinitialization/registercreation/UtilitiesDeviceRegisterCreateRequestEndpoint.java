@@ -40,14 +40,16 @@ public class UtilitiesDeviceRegisterCreateRequestEndpoint extends AbstractRegist
                                 .from(requestMessage)
                                 .build();
 
-                        SetMultimap<String, String> values = HashMultimap.create();
-                        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getUtilitiesDeviceRegisterCreateMessages().get(0).getDeviceId());
-                        message.getUtilitiesDeviceRegisterCreateMessages().get(0).getUtilitiesDeviceRegisterMessages().forEach(register->{
-                            values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                                    register.getLrn());
-                        });
+                        if (message.getUtilitiesDeviceRegisterCreateMessages().get(0) != null) {
+                            SetMultimap<String, String> values = HashMultimap.create();
+                            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getUtilitiesDeviceRegisterCreateMessages().get(0).getDeviceId());
+                            message.getUtilitiesDeviceRegisterCreateMessages().get(0).getUtilitiesDeviceRegisterMessages().forEach(register -> {
+                                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                                        register.getLrn());
+                            });
 
-                        saveRelatedAttributes(values);
+                            saveRelatedAttributes(values);
+                        }
 
                         if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
                             throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
