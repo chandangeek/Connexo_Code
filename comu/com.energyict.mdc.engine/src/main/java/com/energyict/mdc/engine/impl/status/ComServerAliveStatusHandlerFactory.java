@@ -16,31 +16,31 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 
-@Component(name = "com.energyict.mdc.engine.impl.status.ComServerAliveHandlerFactory",
+@Component(name = "com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber=" + ComServerAliveHandlerFactory.COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER,
-                "destination=" + ComServerAliveHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION},
+        property = {"subscriber=" + ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER,
+                "destination=" + ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION},
         immediate = true)
-public class ComServerAliveHandlerFactory implements MessageHandlerFactory {
-    public static final String COM_SERVER_ALIVE_TASK_DESTINATION = "ComServerAliveTopic";
-    public static final String COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER = "ComServerAliveSubscriber";
+public class ComServerAliveStatusHandlerFactory implements MessageHandlerFactory {
+    public static final String COM_SERVER_ALIVE_TASK_DESTINATION = "ComServerAliveStatusTopic";
+    public static final String COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER = "ComServerAliveStatusSubscriber";
 
     private volatile TaskService taskService;
     private volatile Clock clock;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile StatusService statusService;
 
-    public ComServerAliveHandlerFactory() {
+    public ComServerAliveStatusHandlerFactory() {
     }
 
     @Inject
-    public ComServerAliveHandlerFactory(TaskService taskService) {
+    public ComServerAliveStatusHandlerFactory(TaskService taskService) {
         setTaskService(taskService);
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new ComServerAliveHandler(clock, engineConfigurationService, statusService));
+        return taskService.createMessageHandler(new ComServerAliveStatusHandler(clock, engineConfigurationService, statusService));
     }
 
     @Reference

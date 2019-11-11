@@ -14,7 +14,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineConfigurationServiceImpl;
-import com.energyict.mdc.engine.impl.status.ComServerAliveHandlerFactory;
+import com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory;
 
 import org.osgi.framework.BundleContext;
 
@@ -34,7 +34,7 @@ public class UpgraderV10_7 implements Upgrader {
     private static final TranslationKey TASK_DEFAULT_NAME_TRANSLATION = new TranslationKey() {
         @Override
         public String getKey() {
-            return ComServerAliveHandlerFactory.COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER;
+            return ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER;
         }
 
         @Override
@@ -59,7 +59,7 @@ public class UpgraderV10_7 implements Upgrader {
     private void createComServerAliveStatusTask() {
         String property = bundleContext.getProperty(EngineConfigurationServiceImpl.COM_SERVER_STATUS_ALIVE_FREQ_PROP);
         DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
-                .createDestinationSpec(ComServerAliveHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION, TASK_RETRY_DELAY);
+                .createDestinationSpec(ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION, TASK_RETRY_DELAY);
         destination.activate();
         destination.subscribe(TASK_DEFAULT_NAME_TRANSLATION, EngineConfigurationService.COMPONENT_NAME, Layer.DOMAIN);
         taskService.newBuilder()

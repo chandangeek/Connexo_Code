@@ -13,13 +13,13 @@ import com.energyict.mdc.engine.status.StatusService;
 
 import java.time.Clock;
 
-public class ComServerAliveHandler implements TaskExecutor {
+public class ComServerAliveStatusHandler implements TaskExecutor {
 
     private final Clock clock;
     private final EngineConfigurationService engineConfigurationService;
     private final StatusService statusService;
 
-    public ComServerAliveHandler(Clock clock, EngineConfigurationService engineConfigurationService, StatusService statusService) {
+    public ComServerAliveStatusHandler(Clock clock, EngineConfigurationService engineConfigurationService, StatusService statusService) {
         this.clock = clock;
         this.engineConfigurationService = engineConfigurationService;
         this.statusService = statusService;
