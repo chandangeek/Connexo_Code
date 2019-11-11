@@ -79,7 +79,6 @@ class DataExportTaskExecutor implements TaskExecutor {
             postFailEvent(eventService, occurrence, e.getLocalizedMessage());
             throw e;
         }
-
     }
 
     @Override

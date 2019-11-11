@@ -26,9 +26,7 @@ import com.google.common.collect.ImmutableList;
 import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -93,8 +91,6 @@ public class WebServiceDestinationImplTest {
     @Captor
     private ArgumentCaptor<Stream<ExportData>> dataStreamCaptor;
 
-    private List<ServiceCall> serviceCallList = new ArrayList<>();
-
     @Before
     public void setUp() {
         when(newData.getStructureMarker()).thenReturn(DefaultStructureMarker.createRoot(clock, "create"));
@@ -110,8 +106,8 @@ public class WebServiceDestinationImplTest {
         when(dataExportService.getExportWebService(WEB_SERVICE_CREATE)).thenReturn(Optional.of(webServiceCreate));
         when(dataExportService.getExportWebService(WEB_SERVICE_CHANGE)).thenReturn(Optional.of(webServiceChange));
 
-        when(webServiceCreate.call(any(EndPointConfiguration.class), any())).thenReturn(serviceCallList);
-        when(webServiceChange.call(any(EndPointConfiguration.class), any())).thenReturn(serviceCallList);
+        when(webServiceCreate.call(any(EndPointConfiguration.class), any())).thenReturn(Collections.singletonList(createServiceCall));
+        when(webServiceChange.call(any(EndPointConfiguration.class), any())).thenReturn(Collections.singletonList(changeServiceCall));
         when(dataExportService.getDataExportServiceCallType()).thenReturn(serviceCallType);
         stubStatus(createServiceCall, DefaultState.SUCCESSFUL, null);
         stubStatus(changeServiceCall, DefaultState.SUCCESSFUL, null);
