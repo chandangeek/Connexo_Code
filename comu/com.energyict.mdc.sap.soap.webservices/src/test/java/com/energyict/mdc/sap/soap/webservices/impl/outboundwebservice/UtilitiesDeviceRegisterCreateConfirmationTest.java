@@ -62,7 +62,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationTest extends AbstractOutbo
 
         assertThatThrownBy(() -> provider.call(outboundMessage))
                 .isInstanceOf(LocalizedException.class)
-                .hasMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterRegisterCreateConfirmation_C_Out'.");
+                .hasMessage("No web service endpoints are available to send the request using 'SAP SmartMeterRegisterCreateConfirmation'.");
     }
 
     @Test

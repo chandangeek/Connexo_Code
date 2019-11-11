@@ -1,0 +1,4 @@
+Errors detected in JS sources:
+Wrong argument for method invocation {jsFilePath='purpose\controller\Readings.js', lineNo=467, args=['channelData.successMsg.potentialSuspects.', me.numberOfPotentialSuspects, 'IMT', null, 'Channel data have been saved with {0} potential suspect', 'Channel data have been saved with {0} potential suspects']}
+Wrong argument for method invocation {jsFilePath='purpose\controller\Readings.js', lineNo=1253, args=['preValidate.potentialSuspectsFound', response.total, 'IMT', null, '{0} potential suspect reading found.', '{0} potential suspect readings found.']}
+Wrong argument for method invocation {jsFilePath='usagepointmanagement\view\transitionexecute\ResultPanel.js', lineNo=79, args=['devicetransitionexecute.wizard.step2.checksFail', 'IMT', "Unable to change usage point state to '{0}' due to failed pretransition checks"+':', me.response.toStateName]}

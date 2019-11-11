@@ -34,12 +34,12 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@Component(name = UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME})
 public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn, ApplicationSpecific {
-    static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateConfirmation_C_In";
+    static final String NAME = "SAP TimeSeriesBulkCreateConfirmation";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
@@ -92,13 +92,7 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
     }
 
     private static Optional<String> findReferenceUuid(BusinessDocumentMessageHeader header) {
-        return Stream.<Supplier<Optional<String>>>of(
-                () -> Optional.ofNullable(header.getReferenceID()).map(BusinessDocumentMessageID::getValue),
-                () -> Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue))
-                .map(Supplier::get)
-                .filter(Optional::isPresent)
-                .findFirst()
-                .map(Optional::get);
+        return Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue);
     }
 
     private static boolean isConfirmed(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {

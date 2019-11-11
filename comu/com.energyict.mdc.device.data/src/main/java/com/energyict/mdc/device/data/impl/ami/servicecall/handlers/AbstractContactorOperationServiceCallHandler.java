@@ -82,6 +82,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         Optional<ComTaskEnablement> enablementOptional = device.getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream().
                         filter(task -> task instanceof StatusInformationTask).
                         findFirst().

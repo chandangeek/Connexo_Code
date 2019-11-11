@@ -606,7 +606,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     @Override
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         this.messages.applyMessages(messageEntries);
     }
 

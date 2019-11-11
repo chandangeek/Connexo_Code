@@ -7,6 +7,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
 
@@ -30,6 +31,7 @@ public class MeterRegisterChangeBulkMessageBuilder {
 
     public MeterRegisterChangeBulkMessageBuilder from(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
         setId(getId(requestMessage));
+        setUuid(getUuid(requestMessage));
         setDeviceId(getDeviceId(requestMessage));
         setLrn(getLrn(requestMessage));
         setEndDate(calculateEndDate(requestMessage));
@@ -43,6 +45,10 @@ public class MeterRegisterChangeBulkMessageBuilder {
 
     private void setId(String id) {
         message.setId(id);
+    }
+
+    private void setUuid(String uuid) {
+        message.setUuid(uuid);
     }
 
     private void setDeviceId(String deviceId) {
@@ -71,6 +77,13 @@ public class MeterRegisterChangeBulkMessageBuilder {
     private String getId(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
         return Optional.ofNullable(requestMessage.getMessageHeader().getID())
                 .map(BusinessDocumentMessageID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getUuid(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
+        return Optional.ofNullable(requestMessage.getMessageHeader().getUUID())
+                .map(UUID::getValue)
                 .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                 .orElse(null);
     }

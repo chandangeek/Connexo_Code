@@ -274,7 +274,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         this.messageProtocol.applyMessages(messageEntries);
     }
 

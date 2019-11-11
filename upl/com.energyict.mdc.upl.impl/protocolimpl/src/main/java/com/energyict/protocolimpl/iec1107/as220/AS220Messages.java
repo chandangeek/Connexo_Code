@@ -162,7 +162,7 @@ public class AS220Messages implements MessageProtocol {
 		return msg.write(getAS220());
 	}
 
-	public void applyMessages(List messageEntries) {
+	public void applyMessages(List<MessageEntry> messageEntries) {
 	}
 
 	public String writeTag(MessageTag tag) {

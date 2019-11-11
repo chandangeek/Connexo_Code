@@ -22,7 +22,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.util.Map;
 
-@Component(name = UtilitiesDeviceBulkCreateConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateConfirmationProvider",
         service = {UtilitiesDeviceBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceBulkCreateConfirmation.NAME})

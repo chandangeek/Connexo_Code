@@ -88,8 +88,8 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         ChildGetMeterReadingsDomainExtension domainExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-        if (comTaskName != null && comTaskName.equals(domainExtension.getCommunicationTask())) {
-            Instant triggerDate = domainExtension.getTriggerDate();
+        Instant triggerDate = domainExtension.getTriggerDate();
+        if (clock.instant().isAfter(triggerDate) && comTaskName != null && comTaskName.equals(domainExtension.getCommunicationTask())) {
             serviceCall.log(LogLevel.SEVERE, String.format("Communication task execution '%s'(trigger date: %s) is failed",
                     comTaskName, triggerDate.atZone(ZoneId.systemDefault())));
             serviceCall.requestTransition(DefaultState.ONGOING);

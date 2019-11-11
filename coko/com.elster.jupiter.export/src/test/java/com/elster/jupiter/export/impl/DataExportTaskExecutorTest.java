@@ -507,8 +507,9 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasCommitted(); // newItem
         transactionService.assertThatTransaction(3).wasCommitted(); // log success of newItem
-        transactionService.assertThatTransaction(4).wasNotCommitted(); // existingItem
-        transactionService.assertThatTransaction(5).wasCommitted(); // log failure of existingItem
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted(); // existingItem
+        transactionService.assertThatTransaction(6).wasCommitted(); // log failure of existingItem
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -547,7 +548,8 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -613,7 +615,8 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -652,8 +655,9 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
-        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(6).wasCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -719,8 +723,9 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
-        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(6).wasCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -752,8 +757,9 @@ public class DataExportTaskExecutorTest {
 
         transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
-        transactionService.assertThatTransaction(4).wasNotCommitted();
-        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(6).wasCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }

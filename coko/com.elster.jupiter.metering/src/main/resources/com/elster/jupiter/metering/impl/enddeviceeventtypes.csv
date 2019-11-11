@@ -40,6 +40,7 @@ n/a,n/a,n/a,n/a
 *,Clock,Season,Changed
 *,Clock,StandardTime,Started
 *,Clock,Time,Changed
+*,Clock,Time,Change
 *,Clock,Time,OutofRange
 *,Clock,Time,Reset
 *,Clock,TimeReset,Failed

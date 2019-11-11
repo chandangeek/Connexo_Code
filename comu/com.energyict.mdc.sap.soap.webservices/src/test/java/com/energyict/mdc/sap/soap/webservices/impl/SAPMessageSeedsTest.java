@@ -14,7 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MessageSeedsTest {
+public class SAPMessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveUniqueNumber() {

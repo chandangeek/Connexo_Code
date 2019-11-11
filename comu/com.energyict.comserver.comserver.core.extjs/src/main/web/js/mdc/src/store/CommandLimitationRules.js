@@ -9,7 +9,6 @@ Ext.define('Mdc.store.CommandLimitationRules',{
     ],
     model: 'Mdc.model.CommandLimitRule',
     storeId: 'CommandLimitationRules',
-    autoLoad: false,
     proxy: {
         type: 'rest',
         url: '/api/crr/commandrules',

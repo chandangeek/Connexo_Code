@@ -34,6 +34,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
     private static final String ChannelNametag = "Name";
     private static final String ChannelMeterIdentifier = "ID";
     private static final String ChannelUnitTag = "Unit";
+    private static final String ChannelReadingTypeMRID = "MRID";
 
     /**
      * Holds the <CODE>ObisCode</CODE> from the <CODE>LoadProfile</CODE> to read
@@ -145,7 +146,7 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
                     channelInfos = new ArrayList<>();
                 } else if (ChannelTag.equals(localName)) {
                     channelInfos.add(new ChannelInfo(Integer.valueOf(atts.getValue(namespaceURI, ChannelIdTag)), atts.getValue(namespaceURI, ChannelNametag),
-                            Unit.get(atts.getValue(namespaceURI, ChannelUnitTag)), atts.getValue(namespaceURI, ChannelMeterIdentifier)));
+                            Unit.get(atts.getValue(namespaceURI, ChannelUnitTag)), atts.getValue(namespaceURI, ChannelMeterIdentifier), atts.getValue(namespaceURI, ChannelReadingTypeMRID)));
                 }
             }
         }

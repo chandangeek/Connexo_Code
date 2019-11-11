@@ -145,5 +145,10 @@ public class LoadProfileExtractorImpl implements LoadProfileExtractor {
         public String unit() {
             return readingTypeUtilService.getMdcUnitFor(this.channel.getChannelSpec().getReadingType()).toString();
         }
+
+        @Override
+        public String MRID() {
+            return channel.getReadingType().getMRID();
+        }
     }
 }

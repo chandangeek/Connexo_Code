@@ -45,7 +45,7 @@ import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = UtilitiesDeviceRegisteredNotification.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredNotificationProvider",
         service = {UtilitiesDeviceRegisteredNotification.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisteredNotification.NAME})

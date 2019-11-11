@@ -30,13 +30,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@Component(name = MeterEventCreateRequestConfirmationReceiver.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.eventmanagement.MeterEventCreateRequestConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterEventCreateRequestConfirmationReceiver.NAME})
 public class MeterEventCreateRequestConfirmationReceiver extends AbstractInboundEndPoint
         implements InboundSoapEndPointProvider, UtilitiesSmartMeterEventERPBulkCreateConfirmationCIn, ApplicationSpecific {
-    static final String NAME = "SAP SmartMeterEventCreateConfirmation";
+    static final String NAME = "SAP SmartMeterEventBulkCreateConfirmation";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile Thesaurus thesaurus;

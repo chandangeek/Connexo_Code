@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -113,6 +114,13 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile) {
         DeviceProtocolMessageWithCollectedLoadProfileData collectedMessage = new DeviceProtocolMessageWithCollectedLoadProfileData(messageIdentifier, collectedLoadProfile);
+        collectedMessage.setSentDate(clock.instant());
+        return collectedMessage;
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
+        DeviceProtocolMessageWithCollectedLoadProfileData collectedMessage = new DeviceProtocolMessageWithCollectedLoadProfileData(messageIdentifier, collectedLoadProfile, loadProfileReader);
         collectedMessage.setSentDate(clock.instant());
         return collectedMessage;
     }

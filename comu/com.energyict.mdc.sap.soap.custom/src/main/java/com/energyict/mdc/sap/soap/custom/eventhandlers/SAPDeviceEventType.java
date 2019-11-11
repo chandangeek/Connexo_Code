@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class SAPDeviceEventType {
-    private enum CsvField {
+    enum CsvField {
         FORWARDED_TO_SAP,
         EVENT_CODE,
         DEVICE_EVENT_CODE,
@@ -26,11 +26,11 @@ public class SAPDeviceEventType {
         SAP_PROCESS_WORKFLOW_TRIGGER,
         REMARKS;
 
-        private int position() {
+        int position() {
             return ordinal() + 1;
         }
     }
-    private static final String NO_EVENT_CODE = "0.0.0.0";
+    static final String NO_EVENT_CODE = "0.0.0.0";
     private final String eventCode;
     private final String deviceEventCode;
     private final int categoryCode;
