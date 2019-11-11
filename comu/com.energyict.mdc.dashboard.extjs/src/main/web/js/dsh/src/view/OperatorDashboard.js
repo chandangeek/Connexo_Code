@@ -133,10 +133,11 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     url: '/api/isu/topissues/issues',
                     itemRoute: 'workspace/issues/view',
                     routeArguments: [{name: 'issueId', property: 'id'}],
-                    queryParams: [{name: 'issueType', value: 'datacollection'}],
+                    queryParams: [{name: 'issueType', value: 'datacollection'}],//by default, will be overwritten in queryParamFunction
                     queryParamFunction: function(item, name, value) {
                         if (name === 'issueType') {
-                            return item['issueType'].uid === 'datacollection' ? 'datacollection' : 'datavalidation'
+                            var issueTypeId = item && item['issueType'] && item['issueType'].uid;
+                            return issueTypeId ? issueTypeId : 'datavalidation'
                         }
                         return value;
                     },
