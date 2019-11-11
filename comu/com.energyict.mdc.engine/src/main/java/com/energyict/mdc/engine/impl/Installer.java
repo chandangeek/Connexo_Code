@@ -5,23 +5,13 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.impl.EngineConfigurationServiceImpl;
-import com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory;
-
-import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -39,36 +29,13 @@ class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
-    private final TaskService taskService;
-    private final MessageService messageService;
-    private final BundleContext bundleContext;
-
-    private static final String TASK_NAME = "ComServerAliveStatusTask";
-    private static final String TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
-    private static final int TASK_RETRY_DELAY = 60;
-
-    private static final TranslationKey TASK_DEFAULT_NAME_TRANSLATION = new TranslationKey() {
-        @Override
-        public String getKey() {
-            return ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return "Com Server Alive";
-        }
-    };
 
     @Inject
-    Installer(DataModel dataModel, EventService eventService, UserService userService,
-              TaskService taskService, MessageService messageService, BundleContext bundleContext) {
+    Installer(DataModel dataModel, EventService eventService, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
-        this.taskService = taskService;
-        this.messageService = messageService;
-        this.bundleContext = bundleContext;
     }
 
     @Override
@@ -87,11 +54,6 @@ class Installer implements FullInstaller {
         doTry(
                 "Publish events",
                 this::publishEvents,
-                logger
-        );
-        doTry(
-                "ComServer alive task",
-                this::createComServerAliveStatusTask,
                 logger
         );
     }
@@ -122,19 +84,4 @@ class Installer implements FullInstaller {
                 });
     }
 
-    private void createComServerAliveStatusTask() {
-        String property = bundleContext.getProperty(EngineConfigurationServiceImpl.COM_SERVER_STATUS_ALIVE_FREQ_PROP);
-        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
-                .createDestinationSpec(ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION, TASK_RETRY_DELAY);
-        destination.activate();
-        destination.subscribe(TASK_DEFAULT_NAME_TRANSLATION, EngineConfigurationService.COMPONENT_NAME, Layer.DOMAIN);
-        taskService.newBuilder()
-                .setApplication("Admin")
-                .setName(TASK_NAME)
-                .setScheduleExpressionString(property == null ? TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *")
-                .setDestination(destination)
-                .setPayLoad("payload")
-                .scheduleImmediately(true)
-                .build();
-    }
 }

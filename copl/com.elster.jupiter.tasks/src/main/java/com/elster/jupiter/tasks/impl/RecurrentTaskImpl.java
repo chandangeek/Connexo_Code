@@ -251,6 +251,12 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
+    public void setScheduleExpressionString(String expression) {
+        this.cronString = expression;
+        this.scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
+    }
+
+    @Override
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
         this.cronString = scheduleExpression.encoded();
