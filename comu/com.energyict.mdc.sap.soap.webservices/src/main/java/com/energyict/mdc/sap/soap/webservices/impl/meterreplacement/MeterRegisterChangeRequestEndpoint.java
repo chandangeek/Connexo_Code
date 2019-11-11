@@ -71,11 +71,6 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
     @Override
     public void utilitiesDeviceERPSmartMeterRegisterChangeRequestCIn(UtilsDvceERPSmrtMtrRegChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        MeterRegisterChangeConfirmation.NAME);
-            }
-
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                         MeterRegisterChangeMessage message = MeterRegisterChangeMessageBuilder
@@ -88,6 +83,10 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                         Optional.ofNullable(message.getDeviceId())
                                 .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
                         saveRelatedAttributes(values);
+                        if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    MeterRegisterChangeConfirmation.NAME);
+                        }
                         createServiceCallAndTransition(message);
                     });
             return null;

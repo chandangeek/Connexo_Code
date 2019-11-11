@@ -27,6 +27,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,7 +89,7 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
         return Optional.ofNullable(resultMessage)
                 .map(MeterReadingDocumentCreateResultMessage::getBulkResultMessage)
                 .map(MtrRdngDocERPRsltBulkCrteReqMsg::getMeterReadingDocumentERPResultCreateRequestMessage)
-                .orElse(new ArrayList<>());
+                .orElse(Collections.emptyList());
     }
 
     private static Optional<String> getTaskId(MtrRdngDocERPRsltCrteReqMsg msg) {

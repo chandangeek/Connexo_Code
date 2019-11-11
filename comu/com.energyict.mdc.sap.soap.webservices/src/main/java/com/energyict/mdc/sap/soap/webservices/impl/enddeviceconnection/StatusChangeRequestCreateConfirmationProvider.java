@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Singleton;
 import javax.xml.ws.Service;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -135,7 +136,7 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
         return Optional.ofNullable(message)
                 .map(SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg::getUtilitiesConnectionStatusChangeRequest)
                 .map(SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq::getDeviceConnectionStatus)
-                .orElse(new ArrayList<>());
+                .orElse(Collections.emptyList());
     }
 
     private static Optional<String> getDeviceId(SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts status) {

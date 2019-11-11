@@ -70,14 +70,14 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
     public void utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(UtilsSmrtMtrEvtERPBulkCrteConfMsg confirmation) {
         runWithOccurrence(() -> {
             String uuid = findReferenceUuid(confirmation).orElse("null");
+            SetMultimap<String, String> values = HashMultimap.create();
+            confirmation.getUtilitiesSmartMeterEventERPCreateConfirmationMessage().stream()
+                    .map(MeterEventCreateRequestConfirmationReceiver::getDeviceId)
+                    .flatMap(Functions.asStream())
+                    .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+            saveRelatedAttributes(values);
             if (isConfirmed(confirmation)) {
                 log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.EVENT_CONFIRMED).format(uuid));
-                SetMultimap<String, String> values = HashMultimap.create();
-                confirmation.getUtilitiesSmartMeterEventERPCreateConfirmationMessage().stream()
-                        .map(MeterEventCreateRequestConfirmationReceiver::getDeviceId)
-                        .flatMap(Functions.asStream())
-                        .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
-                saveRelatedAttributes(values);
             } else {
                 String cause = getSeverestError(confirmation).orElseGet(() -> thesaurus.getSimpleFormat(MessageSeeds.EVENT_NO_ERROR_MESSAGE_PROVIDED).format());
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.EVENT_FAILED_TO_CONFIRM, uuid, cause);

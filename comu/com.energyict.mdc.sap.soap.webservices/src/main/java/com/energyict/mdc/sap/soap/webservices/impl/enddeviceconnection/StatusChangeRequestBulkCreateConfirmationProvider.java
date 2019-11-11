@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Singleton;
 import javax.xml.ws.Service;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -135,13 +136,13 @@ public class StatusChangeRequestBulkCreateConfirmationProvider extends AbstractO
     private static List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> getDeviceConfirmationMessages(SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg message) {
         return Optional.ofNullable(message)
                 .map(SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg::getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage)
-                .orElse(new ArrayList<>());
+                .orElse(Collections.emptyList());
     }
 
     private static List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> getDeviceConnectionStatuses(SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq changeRequest) {
         return Optional.ofNullable(changeRequest)
                 .map(SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq::getDeviceConnectionStatus)
-                .orElse(new ArrayList<>());
+                .orElse(Collections.emptyList());
     }
 
     private static Optional<String> getDeviceId(SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts status) {

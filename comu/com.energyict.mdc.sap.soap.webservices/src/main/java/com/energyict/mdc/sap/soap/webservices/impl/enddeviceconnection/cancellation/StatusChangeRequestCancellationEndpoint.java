@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -68,11 +69,6 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     @Override
     public void smartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequestCIn(SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(StatusChangeRequestCancellationConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        StatusChangeRequestCancellationConfirmation.NAME);
-            }
-
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                         SetMultimap<String, String> values = HashMultimap.create();
@@ -82,6 +78,11 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                                 .flatMap(Functions.asStream())
                                 .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
                         saveRelatedAttributes(values);
+
+                        if (!isAnyActiveEndpoint(StatusChangeRequestCancellationConfirmation.NAME)) {
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    StatusChangeRequestCancellationConfirmation.NAME);
+                        }
                         handleMessage(StatusChangeRequestCancellationRequestMessage.builder()
                                 .from(requestMessage)
                                 .build());
@@ -93,7 +94,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     private static List<SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts> getDeviceConnectionStatuses(SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq request) {
         return Optional.ofNullable(request)
                 .map(SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq::getDeviceConnectionStatus)
-                .orElse(new ArrayList<>());
+                .orElse(Collections.emptyList());
     }
 
     private static Optional<String> getDeviceId(SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts status) {
