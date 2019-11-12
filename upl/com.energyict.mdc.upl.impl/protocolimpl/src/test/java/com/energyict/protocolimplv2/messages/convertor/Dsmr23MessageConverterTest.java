@@ -98,6 +98,8 @@ public class Dsmr23MessageConverterTest extends AbstractMessageConverterTest {
     private static final ObisCode OBISCODE1 = ObisCode.fromString("1.0.1.8.0.255");
     private static final ObisCode OBISCODE2 = ObisCode.fromString("1.0.2.8.0.255");
     private static final Unit UNIT = Unit.get("kWh");
+    private static final String MRID1 = "0.0.1.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String MRID2 = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
 
     @Mock
     private TariffCalendarFinder tariffCalendarFinder;
@@ -469,7 +471,7 @@ public class Dsmr23MessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
     public void formatLoadProfileAttributeTest() {
-        final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPId=\"0\" LPObisCode=\"1.0.99.1.0.255\" MSerial=\"SomeSerialNumber\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" Name=\"1.0.1.8.0.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" Name=\"1.0.2.8.0.255\" Unit=\"kWh\"/></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\" RegID=\"1\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\" RegID=\"2\"/></RtuRegs></LoadProfile>";
+        final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPId=\"0\" LPObisCode=\"1.0.99.1.0.255\" MSerial=\"SomeSerialNumber\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" MRID=\"0.0.1.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.1.8.0.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" MRID=\"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.2.8.0.255\" Unit=\"kWh\"/></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\" RegID=\"1\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\" RegID=\"2\"/></RtuRegs></LoadProfile>";
 
         LoadProfile loadProfile = mock(LoadProfile.class);
         when(loadProfileExtractor.specDeviceObisCode(loadProfile)).thenReturn(LOAD_PROFILE_OBISCODE.toString());
@@ -477,10 +479,12 @@ public class Dsmr23MessageConverterTest extends AbstractMessageConverterTest {
         when(loadProfileExtractor.deviceSerialNumber(loadProfile)).thenReturn(METER_SERIAL_NUMBER);
         LoadProfileExtractor.Channel channel1 = mock(LoadProfileExtractor.Channel.class);
         when(channel1.obisCode()).thenReturn(OBISCODE1.toString());
+        when(channel1.MRID()).thenReturn(MRID1);
         when(channel1.deviceSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(channel1.unit()).thenReturn(UNIT.toString());
         LoadProfileExtractor.Channel channel2 = mock(LoadProfileExtractor.Channel.class);
         when(channel2.obisCode()).thenReturn(OBISCODE2.toString());
+        when(channel2.MRID()).thenReturn(MRID2);
         when(channel2.deviceSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
         when(channel2.unit()).thenReturn(UNIT.toString());
         when(loadProfileExtractor.channels(loadProfile)).thenReturn(Arrays.asList(channel1, channel2));
@@ -1015,8 +1019,8 @@ public class Dsmr23MessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
     public void sendPartialLoadProfileTest() {
-        final String expectedMessageContent = "<PartialLoadProfile EndTime=\"13/03/2013 11:32:25\" LPId=\"821\" LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"2\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"3\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\"/></Channels></PartialLoadProfile>";
-        final String loadProfileAttributeValue = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\" EndTime=\"13/03/2013 11:32:25\" LPId=\"821\"><Channels><Ch Id=\"0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"1\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"2\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"3\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\" RegID=\"1\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\" RegID=\"2\"/></RtuRegs></LoadProfile>";
+        final String expectedMessageContent = "<PartialLoadProfile EndTime=\"13/03/2013 11:32:25\" LPId=\"821\" LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" MRID=\"0.0.1.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" MRID=\"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"2\" MRID=\"0.0.3.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"3\" MRID=\"0.0.4.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\"/></Channels></PartialLoadProfile>";
+        final String loadProfileAttributeValue = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\" EndTime=\"13/03/2013 11:32:25\" LPId=\"821\"><Channels><Ch Id=\"0\" MRID=\"0.0.1.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"1\" MRID=\"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"2\" MRID=\"0.0.3.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"3\" MRID=\"0.0.4.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\" RegID=\"1\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\" RegID=\"2\"/></RtuRegs></LoadProfile>";
 
         OfflineDeviceMessage partialLoadProfileDeviceMessage = mock(OfflineDeviceMessage.class);
         when(partialLoadProfileDeviceMessage.getDeviceMessageId()).thenReturn(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.id());

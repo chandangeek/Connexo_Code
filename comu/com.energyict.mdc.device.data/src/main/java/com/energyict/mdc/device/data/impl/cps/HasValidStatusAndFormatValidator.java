@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.data.impl.cps;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.inject.Inject;

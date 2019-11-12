@@ -7,6 +7,7 @@ package com.energyict.mdc.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -22,6 +23,8 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
     @Mock
     EngineConfigurationService engineConfigurationService;
     @Mock
+    EngineService engineService;
+    @Mock
     ProtocolPluggableService protocolPluggableService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
@@ -36,6 +39,7 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setEngineConfigurationService(engineConfigurationService);
+        application.setEngineService(engineService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setProtocolPluggableService(protocolPluggableService);
         application.setPropertyValueInfoService(propertyValueInfoService);

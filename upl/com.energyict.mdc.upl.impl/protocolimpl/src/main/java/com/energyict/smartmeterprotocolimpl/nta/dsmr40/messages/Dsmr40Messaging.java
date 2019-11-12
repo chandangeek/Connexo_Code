@@ -55,37 +55,25 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
      * Check if there's pending security messages (enable/disable P0/P3 level). They should be executed in the right order.
      */
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
-        for (Object messageEntryObject : messageEntries) {
-            if (messageEntryObject instanceof MessageEntry) {
-                MessageEntry messageEntry = (MessageEntry) messageEntryObject;
-                if (isEnableP0(messageEntry)) {
-                    getSecurityMessages().add(messageEntry);
-                }
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
+        for (MessageEntry messageEntry : messageEntries) {
+            if (isEnableP0(messageEntry)) {
+                getSecurityMessages().add(messageEntry);
             }
         }
-        for (Object messageEntryObject : messageEntries) {
-            if (messageEntryObject instanceof MessageEntry) {
-                MessageEntry messageEntry = (MessageEntry) messageEntryObject;
-                if (isEnableP3(messageEntry)) {
-                    getSecurityMessages().add(messageEntry);
-                }
+        for (MessageEntry messageEntry : messageEntries) {
+            if (isEnableP3(messageEntry)) {
+                getSecurityMessages().add(messageEntry);
             }
         }
-        for (Object messageEntryObject : messageEntries) {
-            if (messageEntryObject instanceof MessageEntry) {
-                MessageEntry messageEntry = (MessageEntry) messageEntryObject;
-                if (isDisableP0(messageEntry)) {
-                    getSecurityMessages().add(messageEntry);
-                }
+        for (MessageEntry messageEntry : messageEntries) {
+            if (isDisableP0(messageEntry)) {
+                getSecurityMessages().add(messageEntry);
             }
         }
-        for (Object messageEntryObject : messageEntries) {
-            if (messageEntryObject instanceof MessageEntry) {
-                MessageEntry messageEntry = (MessageEntry) messageEntryObject;
-                if (isDisableP3(messageEntry)) {
-                    getSecurityMessages().add(messageEntry);
-                }
+        for (MessageEntry messageEntry : messageEntries) {
+            if (isDisableP3(messageEntry)) {
+                getSecurityMessages().add(messageEntry);
             }
         }
         super.applyMessages(messageEntries);

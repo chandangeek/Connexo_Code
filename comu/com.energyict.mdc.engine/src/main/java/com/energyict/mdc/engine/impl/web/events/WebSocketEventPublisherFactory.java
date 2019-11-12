@@ -30,8 +30,8 @@ public class WebSocketEventPublisherFactory {
         soleInstance = factory;
     }
 
-    public WebSocketEventPublisher newWebSocketEventPublisher (RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
-        return new WebSocketEventPublisher(comServer, serviceProvider, eventPublisher, closeEventListener);
+    public WebSocketEventPublisher newWebSocketEventPublisher ( WebSocketCloseEventListener closeEventListener) {
+        return null;
     }
 
 

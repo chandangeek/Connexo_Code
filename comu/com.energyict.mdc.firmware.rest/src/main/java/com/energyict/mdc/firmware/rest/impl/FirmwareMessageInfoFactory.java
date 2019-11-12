@@ -99,19 +99,14 @@ public class FirmwareMessageInfoFactory {
         initImageIdentifier(info, null);
         initResumeProperty(info, false);
         info.getProperties().forEach(pr->{
-            switch (pr.name){
-                case "Resume":
-                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_RESUME.getKey(),pr.name);
-                    break;
-                case "Firmware file":
-                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_FILE.getKey(),pr.name);
-                    break;
-                case "Image identifier":
-                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getKey(),pr.name);
-                    break;
-                case "Activation date":
-                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getKey(),pr.name);
-                    break;
+            if(pr.name.equals(TranslationKeys.FIRMWARE_RESUME.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_RESUME.getKey(),pr.name);
+            } else if(pr.name.equals(TranslationKeys.FIRMWARE_FILE.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_FILE.getKey(),pr.name);
+            } else if(pr.name.equals(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getKey(),pr.name);
+            } else if(pr.name.equals(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getKey(),pr.name);
             }
         });
         return info;
