@@ -14,6 +14,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.exception.BaseException;
+import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCancellationConfirmation;
@@ -23,11 +25,18 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnecti
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangePersistenceSupport;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UtilitiesDeviceID;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -60,17 +69,38 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     @Override
     public void smartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequestCIn(SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(StatusChangeRequestCancellationConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        StatusChangeRequestCancellationConfirmation.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> handleMessage(StatusChangeRequestCancellationRequestMessage.builder()
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        getDeviceConnectionStatuses(requestMessage.getUtilitiesConnectionStatusChangeRequest())
+                                .stream()
+                                .map(StatusChangeRequestCancellationEndpoint::getDeviceId)
+                                .flatMap(Functions.asStream())
+                                .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        saveRelatedAttributes(values);
+
+                        if (!isAnyActiveEndpoint(StatusChangeRequestCancellationConfirmation.NAME)) {
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    StatusChangeRequestCancellationConfirmation.NAME);
+                        }
+                        handleMessage(StatusChangeRequestCancellationRequestMessage.builder()
+                                .from(requestMessage)
+                                .build());
+                    });
             return null;
         });
+    }
+
+    private static List<SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts> getDeviceConnectionStatuses(SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq request) {
+        return Optional.ofNullable(request)
+                .map(SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq::getDeviceConnectionStatus)
+                .orElse(Collections.emptyList());
+    }
+
+    private static Optional<String> getDeviceId(SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts status) {
+        return Optional.ofNullable(status)
+                .map(SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts::getUtilitiesDeviceID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override
@@ -122,7 +152,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
             // send already processed message
             return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
         }
-        for (ServiceCall serviceCall: serviceCalls) {
+        for (ServiceCall serviceCall : serviceCalls) {
             try {
                 if (serviceCall.getState().isOpen()) {
                     serviceCall = lock(serviceCall);
