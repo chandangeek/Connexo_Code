@@ -48,6 +48,7 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -232,6 +233,7 @@ public class CustomMeterReadingsEventHandlerTest {
         when(customPropertySet.getId()).thenReturn(CTRatioCustomPropertySet.CPS_ID);
         when(reading.getValue()).thenReturn(BigDecimal.TEN);
         readings.add(readingInfo1);
+        customMeterReadingsEventHandler.ctRatioEventReadingTypes = new HashMap<>();
         customMeterReadingsEventHandler.ctRatioEventReadingTypes.put(DEVICE_TYPE_NAME, READING_TYPE_MRID_1);
         values.setProperty(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName(), true);
         values.setProperty(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName(), BigDecimal.ONE);
@@ -275,6 +277,7 @@ public class CustomMeterReadingsEventHandlerTest {
         when(reading.getValue()).thenReturn(BigDecimal.TEN);
 
         readings.add(readingInfo1);
+        customMeterReadingsEventHandler.powerFactorEventReadingTypes = new HashMap<>();
         customMeterReadingsEventHandler.powerFactorEventReadingTypes.put(DEVICE_TYPE_NAME, Pair.of(READING_TYPE_MRID_1, READING_TYPE_MRID_2));
         values.setProperty(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName(), true);
         values.setProperty(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName(), BigDecimal.TEN);
@@ -288,6 +291,7 @@ public class CustomMeterReadingsEventHandlerTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.MEGA);
         when(reading.getValue()).thenReturn(BigDecimal.TEN);
         readings.add(readingInfo1);
+        customMeterReadingsEventHandler.maxDemandEventReadingTypes = new HashMap<>();
         customMeterReadingsEventHandler.maxDemandEventReadingTypes.put(DEVICE_TYPE_NAME, READING_TYPE_MRID_1);
         values.setProperty(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName(), true);
         values.setProperty(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName(), BigDecimal.ONE);

@@ -82,9 +82,9 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     public static final String SEMICOLON_SEPARATOR = ";";
     public static final String COMMA_SEPARATOR = ",";
 
-    protected Map<String, Pair<String, String>> powerFactorEventReadingTypes = new HashMap<>();
-    protected Map<String, String> maxDemandEventReadingTypes = new HashMap<>();
-    protected Map<String, String> ctRatioEventReadingTypes = new HashMap<>();
+    protected Map<String, Pair<String, String>> powerFactorEventReadingTypes = Collections.emptyMap();
+    protected Map<String, String> maxDemandEventReadingTypes = Collections.emptyMap();
+    protected Map<String, String> ctRatioEventReadingTypes = Collections.emptyMap();
 
     // For OSGi purposes
     public CustomMeterReadingsEventHandler() {

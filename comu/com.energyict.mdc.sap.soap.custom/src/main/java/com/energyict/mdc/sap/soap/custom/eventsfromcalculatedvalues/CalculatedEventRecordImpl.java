@@ -9,8 +9,6 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -19,15 +17,15 @@ import java.util.Map;
 
 public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
-    private final Reference<EndDeviceEventType> eventType = ValueReference.absent();
-    private final Reference<EndDevice> endDevice = ValueReference.absent();
+    private EndDeviceEventType eventType;
+    private EndDevice endDevice;
     private String code;
     private Instant createdDateTime;
     private long createdDateTimeMillis;
 
     CalculatedEventRecordImpl(Meter meter, String code, Instant createdDateTime, EndDeviceDomain domain) {
-        this.eventType.set(new CalculatedEndDeviceEventTypeImpl("0.0.0.0", domain));
-        this.endDevice.set(meter);
+        this.eventType = new CalculatedEndDeviceEventTypeImpl("0.0.0.0", domain);
+        this.endDevice = meter;
         this.code = code;
         this.createdDateTime = createdDateTime;
         this.createdDateTimeMillis = createdDateTime.toEpochMilli();
@@ -54,77 +52,77 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public EndDevice getEndDevice() {
-        return endDevice.get();
+        return endDevice;
     }
 
     @Override
     public EndDeviceEventType getEventType() {
-        return eventType.get();
+        return eventType;
     }
 
     @Override
     public void setAliasName(String aliasName) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setDescription(String description) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setIssuerID(String issuerID) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setIssuerTrackingID(String issuerTrackingID) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setLogBookId(long logBookId) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setLogBookPosition(int logBookPosition) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setmRID(String mRID) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setName(String name) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setProcessingFlags(long processingFlags) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setReason(String reason) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setSeverity(String severity) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void setStatus(Status status) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void addProperty(String key, String value) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -144,12 +142,12 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public void setDeviceEventType(String deviceEventType) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeProperty(String key) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -164,7 +162,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public void setReadingDateTime(Instant readingDateTime) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -224,7 +222,7 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getEventTypeCode() {
-        return eventType.get().getMRID();
+        return eventType.getMRID();
     }
 
     @Override
