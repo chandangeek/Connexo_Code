@@ -35,7 +35,7 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
 
     private static final BigDecimal defaultSetpointThreshold = new BigDecimal(0.9);
     private static final BigDecimal defaultHysteresisPercentage = new BigDecimal(0.5);
-    private static final boolean defaultFlag = false;
+    private static final boolean defaultCheckEnabled = false;
 
     PowerFactorCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
@@ -108,9 +108,9 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
-                        .named(PowerFactorDomainExtension.FieldNames.FLAG.javaName(), TranslationKeys.CPS_DEVICE_FLAG)
+                        .named(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName(), TranslationKeys.CPS_DEVICE_CHECK_ENABLED)
                         .fromThesaurus(thesaurus)
-                        .setDefaultValue(defaultFlag)
+                        .setDefaultValue(defaultCheckEnabled)
                         .markRequired()
                         .finish()
         );
@@ -167,9 +167,9 @@ public class PowerFactorCustomPropertySet implements CustomPropertySet<Device, P
                     .map(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName())
                     .notNull()
                     .add();
-            table.column(PowerFactorDomainExtension.FieldNames.FLAG.databaseName())
+            table.column(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.databaseName())
                     .bool()
-                    .map(PowerFactorDomainExtension.FieldNames.FLAG.javaName())
+                    .map(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName())
                     .add();
         }
 

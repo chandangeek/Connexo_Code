@@ -166,6 +166,7 @@ public class CustomMeterReadingsEventHandlerTest {
         setPowerFactorEventParameters();
         readings.add(readingInfo2);
         when(reading.getValue()).thenReturn(BigDecimal.ZERO);
+        when(reading2.getValue()).thenReturn(BigDecimal.ZERO);
 
         // Business method
         customMeterReadingsEventHandler.handle(event);
@@ -232,7 +233,7 @@ public class CustomMeterReadingsEventHandlerTest {
         when(reading.getValue()).thenReturn(BigDecimal.TEN);
         readings.add(readingInfo1);
         customMeterReadingsEventHandler.ctRatioEventReadingTypes.put(DEVICE_TYPE_NAME, READING_TYPE_MRID_1);
-        values.setProperty(CTRatioDomainExtension.FieldNames.FLAG.javaName(), true);
+        values.setProperty(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName(), true);
         values.setProperty(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName(), BigDecimal.ONE);
         when(customPropertySetService.getUniqueValuesFor(customPropertySet, device)).thenReturn(values);
 
@@ -275,7 +276,7 @@ public class CustomMeterReadingsEventHandlerTest {
 
         readings.add(readingInfo1);
         customMeterReadingsEventHandler.powerFactorEventReadingTypes.put(DEVICE_TYPE_NAME, Pair.of(READING_TYPE_MRID_1, READING_TYPE_MRID_2));
-        values.setProperty(PowerFactorDomainExtension.FieldNames.FLAG.javaName(), true);
+        values.setProperty(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName(), true);
         values.setProperty(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName(), BigDecimal.TEN);
         values.setProperty(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName(), BigDecimal.ONE);
         when(customPropertySetService.getUniqueValuesFor(customPropertySet, device)).thenReturn(values);
@@ -288,7 +289,7 @@ public class CustomMeterReadingsEventHandlerTest {
         when(reading.getValue()).thenReturn(BigDecimal.TEN);
         readings.add(readingInfo1);
         customMeterReadingsEventHandler.maxDemandEventReadingTypes.put(DEVICE_TYPE_NAME, READING_TYPE_MRID_1);
-        values.setProperty(MaxDemandDomainExtension.FieldNames.FLAG.javaName(), true);
+        values.setProperty(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName(), true);
         values.setProperty(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName(), BigDecimal.ONE);
         values.setProperty(MaxDemandDomainExtension.FieldNames.UNIT.javaName(), kW);
         when(customPropertySetService.getUniqueValuesFor(customPropertySet, device)).thenReturn(values);
@@ -296,7 +297,7 @@ public class CustomMeterReadingsEventHandlerTest {
 
     private CustomMeterReadingsEventHandler getInstance() {
         return new CustomMeterReadingsEventHandler(eventService, meteringService, deviceService,
-                customPropertySetService, nlsService, handler);
+                customPropertySetService, handler, thesaurus);
     }
 
     @After

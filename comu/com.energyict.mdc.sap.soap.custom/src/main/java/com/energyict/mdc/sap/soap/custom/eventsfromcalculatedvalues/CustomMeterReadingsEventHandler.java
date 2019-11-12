@@ -18,13 +18,13 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.custom.TranslationInstaller;
 import com.energyict.mdc.sap.soap.custom.eventhandlers.CustomSAPDeviceEventHandler;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioCustomPropertySet;
 import com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CTRatioDomainExtension;
@@ -40,12 +40,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,14 +64,15 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     static final String NAME = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.CustomMeterReadingsEventHandler";
 
     private static final Logger LOGGER = Logger.getLogger(CustomMeterReadingsEventHandler.class.getName());
-    protected static final String POWER_FACTOR_EVENT_CODE = "powerFactor";
-    protected static final String MAX_DEMAND_EVENT_CODE = "maxDemand";
-    protected static final String CT_RATIO_EVENT_CODE = "ctRatio";
+    private static final String POWER_FACTOR_EVENT_CODE = "powerFactor";
+    private static final String MAX_DEMAND_EVENT_CODE = "maxDemand";
+    private static final String CT_RATIO_EVENT_CODE = "ctRatio";
 
     private volatile DeviceService deviceService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
+    private volatile CustomSAPDeviceEventHandler handler;
     private volatile Thesaurus thesaurus;
 
     public static final String SAP_CALCULATEDEVENTS_POWERFACTOR = "sap.calculatedevents.powerfactor";
@@ -85,10 +86,6 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     protected Map<String, String> maxDemandEventReadingTypes = new HashMap<>();
     protected Map<String, String> ctRatioEventReadingTypes = new HashMap<>();
 
-    private volatile CustomSAPDeviceEventHandler handler;
-
-    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM ''yy 'at' HH:mm");
-
     // For OSGi purposes
     public CustomMeterReadingsEventHandler() {
         super();
@@ -97,15 +94,14 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     @Inject
     public CustomMeterReadingsEventHandler(EventService eventService, MeteringService meteringService,
                                            DeviceService deviceService, CustomPropertySetService customPropertySetService,
-                                           NlsService nlsService,
-                                           CustomSAPDeviceEventHandler handler) {
+                                           CustomSAPDeviceEventHandler handler, Thesaurus thesaurus) {
         this();
         setEventService(eventService);
         setMeteringService(meteringService);
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
-        setNlsService(nlsService);
         setCustomSAPDeviceEventHandler(handler);
+        this.thesaurus = thesaurus;
     }
 
     @Activate
@@ -176,7 +172,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         Optional<CustomPropertySet> cps = getCAS(device, PowerFactorCustomPropertySet.CPS_ID);
         if (cps.isPresent()) {
             CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(cps.get(), device);
-            if ((boolean) values.getProperty(PowerFactorDomainExtension.FieldNames.FLAG.javaName())) {
+            if ((boolean) values.getProperty(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
                 return Optional.of(Pair.of(
                         (BigDecimal) values.getProperty(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName()),
                         (BigDecimal) values.getProperty(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName())));
@@ -196,7 +192,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                 if (value == 0 && reactiveValue == 0) {
                     MessageSeeds.POWER_FACTOR_VALUES_ARE_NULL.log(LOGGER, thesaurus, device.getName(),
                             reading.getReadingType().getMRID() + ";" + reactiveReading.get().getReadingType().getMRID(),
-                            dateFormatter.format(Date.from(reading.getReading().getTimeStamp())));
+                            DefaultDateTimeFormatters.shortDate().withShortTime().build().format(reading.getReading().getTimeStamp().atZone(ZoneId.systemDefault())));
                 } else {
                     if (isSetpointThresholdViolated(value, reactiveValue, setpointThreshold.doubleValue(), hysteresisPercentage.doubleValue())) {
                         // generate event
@@ -205,7 +201,8 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                 }
             } else {
                 MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, device.getName(),
-                        reading.getReadingType().getMRID(), dateFormatter.format(Date.from(reading.getReading().getTimeStamp())));
+                        reading.getReadingType().getMRID(),
+                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(reading.getReading().getTimeStamp().atZone(ZoneId.systemDefault())));
             }
         }
     }
@@ -214,7 +211,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         Optional<CustomPropertySet> cps = getCAS(device, MaxDemandCustomPropertySet.CPS_ID);
         if (cps.isPresent()) {
             CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(cps.get(), device);
-            if ((boolean) values.getProperty(MaxDemandDomainExtension.FieldNames.FLAG.javaName())) {
+            if ((boolean) values.getProperty(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
                 return Optional.of(Pair.of(
                         (BigDecimal) values.getProperty(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName()),
                         ((Unit) values.getProperty(MaxDemandDomainExtension.FieldNames.UNIT.javaName())).getValue()));
@@ -238,7 +235,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         Optional<CustomPropertySet> cps = getCAS(device, CTRatioCustomPropertySet.CPS_ID);
         if (cps.isPresent()) {
             CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(cps.get(), device);
-            if ((boolean) values.getProperty(CTRatioDomainExtension.FieldNames.FLAG.javaName())) {
+            if ((boolean) values.getProperty(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
                 return Optional.of((BigDecimal) values.getProperty(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName()));
             }
         }
@@ -426,12 +423,12 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
+    public void setCustomSAPDeviceEventHandler(CustomSAPDeviceEventHandler handler) {
+        this.handler = handler;
     }
 
     @Reference
-    public void setCustomSAPDeviceEventHandler(CustomSAPDeviceEventHandler handler) {
-        this.handler = handler;
+    public void setThesaurus(TranslationInstaller translationInstaller) {
+        this.thesaurus = translationInstaller.getThesaurus();
     }
 }

@@ -19,7 +19,7 @@ public class CTRatioDomainExtension extends AbstractPersistentDomainExtension im
     public enum FieldNames {
         DOMAIN("device", "DEVICE"),
         CT_RATIO("ctRatio", "CT_RATIO"),
-        FLAG("flag", "FLAG");
+        CHECK_ENABLED("checkEnabled", "CHECK_ENABLED");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -41,7 +41,7 @@ public class CTRatioDomainExtension extends AbstractPersistentDomainExtension im
     private Reference<Device> device = Reference.empty();
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal ctRatio;
-    private boolean flag;
+    private boolean checkEnabled;
 
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -52,29 +52,29 @@ public class CTRatioDomainExtension extends AbstractPersistentDomainExtension im
     public void copyFrom(Device device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
         setCTRatio((BigDecimal) propertyValues.getProperty(FieldNames.CT_RATIO.javaName()));
-        setFlag((boolean) propertyValues.getProperty(FieldNames.FLAG.javaName()));
+        setCheckEnabled((boolean) propertyValues.getProperty(FieldNames.CHECK_ENABLED.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.CT_RATIO.javaName(), ctRatio);
-        propertySetValues.setProperty(FieldNames.FLAG.javaName(), flag);
+        propertySetValues.setProperty(FieldNames.CHECK_ENABLED.javaName(), checkEnabled);
     }
 
     public void setCTRatio(BigDecimal ctRatio) {
         this.ctRatio = ctRatio;
     }
 
-    public void setFlag(Boolean flag) {
-        this.flag = flag;
+    public void setCheckEnabled(Boolean checkEnabled) {
+        this.checkEnabled = checkEnabled;
     }
 
     public BigDecimal getCtRatio() {
         return ctRatio;
     }
 
-    public boolean isFlag() {
-        return flag;
+    public boolean isCheckEnabled() {
+        return checkEnabled;
     }
 
     public Device getDevice() {

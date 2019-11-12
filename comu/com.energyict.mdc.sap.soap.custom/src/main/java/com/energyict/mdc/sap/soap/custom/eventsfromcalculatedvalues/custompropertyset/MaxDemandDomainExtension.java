@@ -20,7 +20,7 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
         DOMAIN("device", "DEVICE"),
         CONNECTED_LOAD("connectedLoad", "CONNECTED_LOAD"),
         UNIT("unit", "UNIT"),
-        FLAG("flag", "FLAG");
+        CHECK_ENABLED("checkEnabled", "CHECK_ENABLED");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -44,7 +44,7 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
     private BigDecimal connectedLoad;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Unit unit;
-    private boolean flag;
+    private boolean checkEnabled;
 
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -56,14 +56,14 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
         this.device.set(device);
         setConnectedLoad((BigDecimal) propertyValues.getProperty(FieldNames.CONNECTED_LOAD.javaName()));
         setUnit((Unit) propertyValues.getProperty(FieldNames.UNIT.javaName()));
-        setFlag((boolean) propertyValues.getProperty(FieldNames.FLAG.javaName()));
+        setCheckEnabled((boolean) propertyValues.getProperty(FieldNames.CHECK_ENABLED.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.CONNECTED_LOAD.javaName(), connectedLoad);
         propertySetValues.setProperty(FieldNames.UNIT.javaName(), unit);
-        propertySetValues.setProperty(FieldNames.FLAG.javaName(), flag);
+        propertySetValues.setProperty(FieldNames.CHECK_ENABLED.javaName(), checkEnabled);
     }
 
     public void setConnectedLoad(BigDecimal connectedLoad) {
@@ -74,8 +74,8 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
         this.unit = unit;
     }
 
-    public void setFlag(Boolean flag) {
-        this.flag = flag;
+    public void setCheckEnabled(Boolean checkEnabled) {
+        this.checkEnabled = checkEnabled;
     }
 
     public Device getDevice() {
@@ -90,8 +90,8 @@ public class MaxDemandDomainExtension extends AbstractPersistentDomainExtension 
         return unit;
     }
 
-    public boolean isFlag() {
-        return flag;
+    public boolean isCheckEnabled() {
+        return checkEnabled;
     }
 
     @Override

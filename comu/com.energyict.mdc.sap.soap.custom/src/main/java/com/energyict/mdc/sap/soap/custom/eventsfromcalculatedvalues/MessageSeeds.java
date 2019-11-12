@@ -3,10 +3,10 @@
  */
 package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues;
 
-import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.sap.soap.custom.eventhandlers.CustomSAPDeviceEventHandler;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,7 +46,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return DataExportService.COMPONENTNAME;
+        return CustomSAPDeviceEventHandler.COMPONENT_NAME;
     }
 
     @Override

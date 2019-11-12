@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MaxDemandDomainExtensionTest {
 
     private BigDecimal connectedLoad = new BigDecimal("100");
-    private Boolean flag = true;
+    private Boolean checkEnabled = true;
     private Unit unit = Unit.kW;
 
     private CustomPropertySetValues cpsValues;
@@ -35,20 +35,20 @@ public class MaxDemandDomainExtensionTest {
     public void testCopyFrom() {
         cpsValues.setProperty(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName(), connectedLoad);
         cpsValues.setProperty(MaxDemandDomainExtension.FieldNames.UNIT.javaName(), unit);
-        cpsValues.setProperty(MaxDemandDomainExtension.FieldNames.FLAG.javaName(), flag);
+        cpsValues.setProperty(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName(), checkEnabled);
 
         domainExtension.copyFrom(device, cpsValues);
 
         assertThat(domainExtension.getConnectedLoad()).isEqualTo(connectedLoad);
         assertThat(domainExtension.getUnit()).isEqualTo(unit);
-        assertThat(domainExtension.isFlag()).isSameAs(flag);
+        assertThat(domainExtension.isCheckEnabled()).isSameAs(checkEnabled);
     }
 
     @Test
     public void testCopyTo() {
         domainExtension.setConnectedLoad(connectedLoad);
         domainExtension.setUnit(unit);
-        domainExtension.setFlag(flag);
+        domainExtension.setCheckEnabled(checkEnabled);
 
         domainExtension.copyTo(cpsValues);
 
@@ -56,8 +56,8 @@ public class MaxDemandDomainExtensionTest {
                 .isSameAs(unit);
         assertThat(cpsValues.getProperty(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName()))
                 .isSameAs(connectedLoad);
-        assertThat(cpsValues.getProperty(MaxDemandDomainExtension.FieldNames.FLAG.javaName()))
-                .isSameAs(flag);
+        assertThat(cpsValues.getProperty(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName()))
+                .isSameAs(checkEnabled);
     }
 
     @Test

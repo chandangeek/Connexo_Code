@@ -17,7 +17,7 @@ public class PowerFactorDomainExtensionTest {
 
     private BigDecimal setpointThreshold = BigDecimal.ONE;
     private BigDecimal hysteresisPercentage = new BigDecimal(0.5);
-    private Boolean flag = true;
+    private Boolean checkEnabled = true;
 
     private CustomPropertySetValues cpsValues;
     private PowerFactorDomainExtension domainExtension;
@@ -35,20 +35,20 @@ public class PowerFactorDomainExtensionTest {
     public void testCopyFrom() {
         cpsValues.setProperty(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName(), setpointThreshold);
         cpsValues.setProperty(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName(), hysteresisPercentage);
-        cpsValues.setProperty(PowerFactorDomainExtension.FieldNames.FLAG.javaName(), flag);
+        cpsValues.setProperty(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName(), checkEnabled);
 
         domainExtension.copyFrom(device, cpsValues);
 
         assertThat(domainExtension.getSetpointThreshold()).isEqualTo(setpointThreshold);
         assertThat(domainExtension.getHysteresisPercentage()).isEqualTo(hysteresisPercentage);
-        assertThat(domainExtension.isFlag()).isSameAs(flag);
+        assertThat(domainExtension.isCheckEnabled()).isSameAs(checkEnabled);
     }
 
     @Test
     public void testCopyTo() {
         domainExtension.setSetpointThreshold(setpointThreshold);
         domainExtension.setHysteresisPercentage(hysteresisPercentage);
-        domainExtension.setFlag(flag);
+        domainExtension.setCheckEnabled(checkEnabled);
 
         domainExtension.copyTo(cpsValues);
 
@@ -56,8 +56,8 @@ public class PowerFactorDomainExtensionTest {
                 .isSameAs(setpointThreshold);
         assertThat(cpsValues.getProperty(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName()))
                 .isSameAs(hysteresisPercentage);
-        assertThat(cpsValues.getProperty(PowerFactorDomainExtension.FieldNames.FLAG.javaName()))
-                .isSameAs(flag);
+        assertThat(cpsValues.getProperty(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName()))
+                .isSameAs(checkEnabled);
     }
 
     @Test

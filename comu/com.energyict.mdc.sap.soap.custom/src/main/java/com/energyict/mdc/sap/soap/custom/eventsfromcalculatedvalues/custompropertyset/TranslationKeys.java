@@ -13,7 +13,7 @@ public enum TranslationKeys implements TranslationKey {
     CPS_DEVICE_SETPOINT_THRESHOLD_DESCRIPTION("device.cps.properties.setpointthreshold.description", "Threshold for result value of the power factor"),
     CPS_DEVICE_HYSTERESIS_PERCENTAGE("device.cps.properties.hysteresispercentage", "Hysteresis percentage"),
     CPS_DEVICE_HYSTERESIS_PERCENTAGE_DESCRIPTION("device.cps.properties.hysteresispercentage.description", "Allowable deviation from the threshold (in percent [0-100])"),
-    CPS_DEVICE_FLAG("device.cps.properties.flag", "Flag"),
+    CPS_DEVICE_CHECK_ENABLED("device.cps.properties.checkenabled", "Check enabled"),
     CPS_DEVICE_MAX_DEMAND("device.cps.properties.maxdemand", "Max demand"),
     CPS_DEVICE_CONNECTED_LOAD("device.cps.properties.connectedload", "Connected load"),
     CPS_DEVICE_UNIT("device.cps.properties.unit", "Unit"),

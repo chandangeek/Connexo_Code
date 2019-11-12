@@ -5,15 +5,12 @@ package com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.customprope
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.custom.TranslationInstaller;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -21,15 +18,11 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.List;
 
 
 @Component(name = "com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.CustomPropertySets",
-        service = CustomPropertySets.class,
-        property = "name=" + CustomPropertySets.COMPONENT_NAME, immediate = true)
-public class CustomPropertySets implements TranslationKeyProvider {
-    static final String COMPONENT_NAME = "CU1";
+        service = CustomPropertySets.class, immediate = true)
+public class CustomPropertySets {
     static final String APPLICATION_NAME = "MultiSense";
 
     private volatile DeviceService deviceService;
@@ -49,12 +42,12 @@ public class CustomPropertySets implements TranslationKeyProvider {
     @Inject
     public CustomPropertySets(BundleContext bundleContext, DeviceService deviceService, CustomPropertySetService customPropertySetService,
                               PropertySpecService propertySpecService, OrmService ormService,
-                              NlsService nlsService) {
+                              Thesaurus thesaurus) {
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
         setPropertySpecService(propertySpecService);
         setOrmService(ormService);
-        setNlsService(nlsService);
+        this.thesaurus = thesaurus;
         activate(bundleContext);
     }
 
@@ -93,22 +86,7 @@ public class CustomPropertySets implements TranslationKeyProvider {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(getComponentName(), getLayer());
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+    public void setThesaurus(TranslationInstaller translationInstaller) {
+        this.thesaurus = translationInstaller.getThesaurus();
     }
 }

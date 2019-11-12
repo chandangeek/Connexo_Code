@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CTRatioDomainExtensionTest {
 
     private BigDecimal ctRatio = new BigDecimal("100");
-    private Boolean flag = true;
+    private Boolean checkEnabled = true;
 
     private CustomPropertySetValues cpsValues;
     private CTRatioDomainExtension domainExtension;
@@ -33,25 +33,25 @@ public class CTRatioDomainExtensionTest {
     @Test
     public void testCopyFrom() {
         cpsValues.setProperty(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName(), ctRatio);
-        cpsValues.setProperty(CTRatioDomainExtension.FieldNames.FLAG.javaName(), flag);
+        cpsValues.setProperty(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName(), checkEnabled);
 
         domainExtension.copyFrom(device, cpsValues);
 
         assertThat(domainExtension.getCtRatio()).isEqualTo(ctRatio);
-        assertThat(domainExtension.isFlag()).isSameAs(flag);
+        assertThat(domainExtension.isCheckEnabled()).isSameAs(checkEnabled);
     }
 
     @Test
     public void testCopyTo() {
         domainExtension.setCTRatio(ctRatio);
-        domainExtension.setFlag(flag);
+        domainExtension.setCheckEnabled(checkEnabled);
 
         domainExtension.copyTo(cpsValues);
 
         assertThat(cpsValues.getProperty(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName()))
                 .isSameAs(ctRatio);
-        assertThat(cpsValues.getProperty(CTRatioDomainExtension.FieldNames.FLAG.javaName()))
-                .isSameAs(flag);
+        assertThat(cpsValues.getProperty(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName()))
+                .isSameAs(checkEnabled);
     }
 
     @Test

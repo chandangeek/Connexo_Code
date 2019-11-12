@@ -34,7 +34,7 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
     private final Thesaurus thesaurus;
 
     private static final BigDecimal defaultCTRatio = new BigDecimal(100);
-    private static final boolean defaultFlag = false;
+    private static final boolean defaultCheckEnabled = false;
 
     CTRatioCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
@@ -98,9 +98,9 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
-                        .named(CTRatioDomainExtension.FieldNames.FLAG.javaName(), TranslationKeys.CPS_DEVICE_FLAG)
+                        .named(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName(), TranslationKeys.CPS_DEVICE_CHECK_ENABLED)
                         .fromThesaurus(thesaurus)
-                        .setDefaultValue(defaultFlag)
+                        .setDefaultValue(defaultCheckEnabled)
                         .markRequired()
                         .finish()
         );
@@ -152,9 +152,9 @@ public class CTRatioCustomPropertySet implements CustomPropertySet<Device, CTRat
                     .map(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName())
                     .notNull()
                     .add();
-            table.column(CTRatioDomainExtension.FieldNames.FLAG.databaseName())
+            table.column(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.databaseName())
                     .bool()
-                    .map(CTRatioDomainExtension.FieldNames.FLAG.javaName())
+                    .map(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName())
                     .add();
         }
 

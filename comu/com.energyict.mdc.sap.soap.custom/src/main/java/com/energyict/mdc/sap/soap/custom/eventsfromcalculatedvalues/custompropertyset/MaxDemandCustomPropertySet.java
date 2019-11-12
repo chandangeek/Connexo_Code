@@ -37,8 +37,8 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
     private final Thesaurus thesaurus;
 
     private static final BigDecimal defaultConnectedLoad = new BigDecimal(0.5);
-    private static final String defaultUnit = "kW";
-    private static final boolean defaultFlag = false;
+    private static final Unit defaultUnit = Unit.kW;
+    private static final boolean defaultCheckEnabled = false;
 
     MaxDemandCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
@@ -108,13 +108,13 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
                         .addValues(Unit.values())
                         .markExhaustive(PropertySelectionMode.COMBOBOX)
                         .markRequired()
-                        .setDefaultValue(Unit.kW)
+                        .setDefaultValue(defaultUnit)
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
-                        .named(MaxDemandDomainExtension.FieldNames.FLAG.javaName(), TranslationKeys.CPS_DEVICE_FLAG)
+                        .named(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName(), TranslationKeys.CPS_DEVICE_CHECK_ENABLED)
                         .fromThesaurus(thesaurus)
-                        .setDefaultValue(defaultFlag)
+                        .setDefaultValue(defaultCheckEnabled)
                         .markRequired()
                         .finish()
         );
@@ -172,9 +172,9 @@ public class MaxDemandCustomPropertySet implements CustomPropertySet<Device, Max
                     .notNull()
                     .conversion(ColumnConversion.CHAR2ENUM)
                     .add();
-            table.column(MaxDemandDomainExtension.FieldNames.FLAG.databaseName())
+            table.column(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.databaseName())
                     .bool()
-                    .map(MaxDemandDomainExtension.FieldNames.FLAG.javaName())
+                    .map(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName())
                     .add();
         }
 
