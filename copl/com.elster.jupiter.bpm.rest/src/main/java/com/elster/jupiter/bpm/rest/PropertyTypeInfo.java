@@ -110,34 +110,55 @@ public class PropertyTypeInfo {
     }
 
     private void createCustomField(JSONObject field) {
-        if ("quantity".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        String param1 = getComboBoxValue(field, "param1");
+        if ("quantity".equalsIgnoreCase(param1)) {
             createQuantityField(field);
-        } else if ("readingType".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("DropDown".equalsIgnoreCase(param1)) {
+            createDropDown(field);
+        } else if ("RadioButtons".equalsIgnoreCase(param1)) {
+            createRadioButtons(field);
+        } else if ("readingType".equalsIgnoreCase(param1)) {
             simplePropertyType = "METROLOGYCONFIGOUTPUT";
-        } else if ("certSecurityAccessors".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("certSecurityAccessors".equalsIgnoreCase(param1)) {
             simplePropertyType = "CERTSECURITYACCESSORSOUTPUT";
-        } else if ("securityAccessors".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("securityAccessors".equalsIgnoreCase(param1)) {
             simplePropertyType = "SECURITYACCESSORSOUTPUT";
-        } else if ("serviceKeysSignatures".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("serviceKeysSignatures".equalsIgnoreCase(param1)) {
             simplePropertyType = "SERVICEKEYSSIGNATURESOUTPUT";
-        } else if ("meterActivationsOnUsagePoint".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("meterActivationsOnUsagePoint".equalsIgnoreCase(param1)) {
             simplePropertyType = "UP_METERACTIVATION";
-        } else if ("meterMrid".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("meterMrid".equalsIgnoreCase(param1)) {
             simplePropertyType = "METER_MRID";
-        } else if ("metrologyConfiguration".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("metrologyConfiguration".equalsIgnoreCase(param1)) {
             simplePropertyType = "METROLOGYCONFIGURATION";
-        } else if ("metrologyPurposes".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("metrologyPurposes".equalsIgnoreCase(param1)) {
             simplePropertyType = "METROLOGYPURPOSES";
-        } else if ("usagePointTransition".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("usagePointTransition".equalsIgnoreCase(param1)) {
             simplePropertyType = "UP_TRANSITION";
-            if(getComboBoxValues(field, "param2")!=null) {
+            if(getComboBoxValue(field, "param2")!=null) {
                 params = new HashMap<>();
-                params.put("toStage", getComboBoxValues(field, "param2"));
+                params.put("toStage", getComboBoxValue(field, "param2"));
             }
-        } else if ("meterInstallationDate".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("meterInstallationDate".equalsIgnoreCase(param1)) {
             simplePropertyType = "METER_INSTALLATION_DATE";
-        } else if ("meterRole".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
+        } else if ("meterRole".equalsIgnoreCase(param1)) {
             simplePropertyType = "METER_ROLE";
+        }
+    }
+
+    private void createDropDown(JSONObject field) {
+        simplePropertyType = "COMBOBOX";
+        String param2 = getComboBoxValue(field, "param2");
+        if (param2 != null) {
+            propertyValueInfo = new PropertyValueInfo(param2);
+        }
+    }
+
+    private void createRadioButtons(JSONObject field) {
+        simplePropertyType = "RADIOBYURL";
+        String param2 = getComboBoxValue(field, "param2");
+        if (param2 != null) {
+            propertyValueInfo = new PropertyValueInfo(param2);
         }
     }
 
@@ -145,7 +166,7 @@ public class PropertyTypeInfo {
         simplePropertyType = "QUANTITY";
 
         List<Integer> multipliers = Collections.singletonList(0);
-        String param2 = getComboBoxValues(field, "param2");
+        String param2 = getComboBoxValue(field, "param2");
 
         if (param2 != null) {
             multipliers = Arrays.stream(param2.split(","))
@@ -153,7 +174,7 @@ public class PropertyTypeInfo {
                     .collect(Collectors.toList());
         }
 
-        String param3 = getComboBoxValues(field, "param3");
+        String param3 = getComboBoxValue(field, "param3");
         List<String> units = Collections.emptyList();
 
         if (param3 != null) {
@@ -186,7 +207,7 @@ public class PropertyTypeInfo {
         }
     }
 
-    private String getComboBoxValues(JSONObject field, String property){
+    private String getComboBoxValue(JSONObject field, String property){
         JSONArray arr = null;
         try {
             arr = field.getJSONArray("properties");
@@ -207,7 +228,7 @@ public class PropertyTypeInfo {
     }
 
     private boolean checkAndCreateComboBox(JSONObject field){
-        String combo = getComboBoxValues(field, "rangeFormula");
+        String combo = getComboBoxValue(field, "rangeFormula");
         if(combo !=null){
             String[] comboArray = combo.split(";");
             Map<String, Object> comboKeys = new HashMap<>();
@@ -216,10 +237,10 @@ public class PropertyTypeInfo {
                 comboArray[i] = comboArray[i].substring(comboArray[i].indexOf(",") + 1).trim().replace("}","");
             }
             if(taskContentInfo.propertyValueInfo == null) {
-                String comboDefault = getComboBoxValues(field, "defaultValueFormula");
+                String comboDefault = getComboBoxValue(field, "defaultValueFormula");
                 taskContentInfo.propertyValueInfo = new PropertyValueInfo(combo, comboDefault);
             }else if(taskContentInfo.propertyValueInfo.defaultValue == null || "".equals(taskContentInfo.propertyValueInfo.defaultValue)){
-                String comboDefault = getComboBoxValues(field, "defaultValueFormula");
+                String comboDefault = getComboBoxValue(field, "defaultValueFormula");
                 taskContentInfo.propertyValueInfo = new PropertyValueInfo(combo, comboDefault);
             }else{
                 Iterator<String> it = comboKeys.keySet().iterator();
@@ -237,7 +258,7 @@ public class PropertyTypeInfo {
     }
 
     private void checkDefaultValues(JSONObject field){
-        String defaultValue = getComboBoxValues(field, "defaultValueFormula");
+        String defaultValue = getComboBoxValue(field, "defaultValueFormula");
         if(defaultValue != null){
             taskContentInfo.propertyValueInfo = new PropertyValueInfo(defaultValue.replaceAll("\"","").replaceAll("=",""));
         }
