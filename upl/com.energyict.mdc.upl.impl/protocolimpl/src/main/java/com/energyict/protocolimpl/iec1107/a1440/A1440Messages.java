@@ -188,7 +188,7 @@ public class A1440Messages implements MessageProtocol {
         return msg.write(this.a1440);
     }
 
-    public void applyMessages(List messageEntries) {
+    public void applyMessages(List<MessageEntry> messageEntries) {
     }
 
     public String writeTag(MessageTag tag) {

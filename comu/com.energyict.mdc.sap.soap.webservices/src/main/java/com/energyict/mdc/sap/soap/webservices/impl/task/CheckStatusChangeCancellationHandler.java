@@ -26,15 +26,18 @@ public class CheckStatusChangeCancellationHandler implements TaskExecutor {
 
     private final ServiceCallService serviceCallService;
     private final Clock clock;
+    private final WebServiceActivator webServiceActivator;
 
-    public CheckStatusChangeCancellationHandler(ServiceCallService serviceCallService, Clock clock) {
+    public CheckStatusChangeCancellationHandler(ServiceCallService serviceCallService, Clock clock,
+                                                WebServiceActivator webServiceActivator) {
         this.serviceCallService = serviceCallService;
         this.clock = clock;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
     public void execute(TaskOccurrence occurrence) {
-        long timeoutMinutes = WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.CHECK_STATUS_CHANGE_TIMEOUT);
+        long timeoutMinutes = webServiceActivator.getSapProperty(AdditionalProperties.CHECK_STATUS_CHANGE_TIMEOUT);
         Instant now = clock.instant();
         Finder<ServiceCall> serviceCallFinder = findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE);
         serviceCallFinder

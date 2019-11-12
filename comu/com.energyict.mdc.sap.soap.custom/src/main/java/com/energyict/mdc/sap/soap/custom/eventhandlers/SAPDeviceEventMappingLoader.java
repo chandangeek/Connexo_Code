@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.sap.soap.custom.eventhandlers.SAPDeviceEventType.CsvField;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
 import com.google.common.collect.ImmutableMap;
@@ -83,11 +84,14 @@ class SAPDeviceEventMappingLoader {
              BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")))) {
             LineCounter lineCounter = new LineCounter();
             reader.lines()
-                    .skip(1) // header line
                     .peek(line -> lineCounter.newLine())
+                    .skip(1) // header line
                     .flatMap(line -> {
                         try {
                             SAPDeviceEventType eventType = SAPDeviceEventType.parseFromCsvEntry(line, separator);
+                            if (eventType.isForwardedToSap() && formatter.contains(eventType)) {
+                                throw duplicateEventCodeOrDeviceEventCodeException(eventType);
+                            }
                             lineCounter.success(!eventType.isForwardedToSap());
                             return Stream.of(eventType);
                         } catch (Exception e) {
@@ -104,6 +108,19 @@ class SAPDeviceEventMappingLoader {
             closeServiceCall(serviceCall, 0, 0, 0);
         }
         return formatter;
+    }
+
+    private static Exception duplicateEventCodeOrDeviceEventCodeException(SAPDeviceEventType eventType) {
+        return new Exception("Non-unique event identification code(s) " + toString(eventType) +
+                ". Combination of " + CsvField.EVENT_CODE.name() + " & " + CsvField.DEVICE_EVENT_CODE.name() +
+                " on respective positions " + CsvField.EVENT_CODE.position() + " & " + CsvField.DEVICE_EVENT_CODE.position() + " must be unique.");
+    }
+
+    private static String toString(SAPDeviceEventType eventType) {
+        return eventType.getEventCode()
+                .orElseGet(() -> SAPDeviceEventType.NO_EVENT_CODE + eventType.getDeviceEventCode()
+                        .map(code -> " (" + code + ')')
+                        .orElse(""));
     }
 
     private void setSecurityContext() {

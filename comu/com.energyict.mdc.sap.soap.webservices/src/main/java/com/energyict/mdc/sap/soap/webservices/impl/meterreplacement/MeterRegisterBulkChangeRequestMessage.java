@@ -7,6 +7,7 @@ import com.elster.jupiter.util.Checks;
 
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
 
 import java.util.ArrayList;
@@ -14,23 +15,30 @@ import java.util.List;
 import java.util.Optional;
 
 public class MeterRegisterBulkChangeRequestMessage {
+    private final Integer meterReplacementAddInterval;
 
     private String requestId;
+    private String uuid;
     private List<MeterRegisterChangeMessage> meterRegisterChangeMessages = new ArrayList<>();
 
-    private MeterRegisterBulkChangeRequestMessage() {
+    private MeterRegisterBulkChangeRequestMessage(Integer meterReplacementAddInterval) {
+        this.meterReplacementAddInterval = meterReplacementAddInterval;
     }
 
     public String getRequestId() {
         return requestId;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
     public List<MeterRegisterChangeMessage> getMeterRegisterChangeMessages() {
         return meterRegisterChangeMessages;
     }
 
-    static MeterRegisterBulkChangeRequestMessage.Builder builder() {
-        return new MeterRegisterBulkChangeRequestMessage().new Builder();
+    static MeterRegisterBulkChangeRequestMessage.Builder builder(Integer meterReplacementAddInterval) {
+        return new MeterRegisterBulkChangeRequestMessage(meterReplacementAddInterval).new Builder();
     }
 
     public boolean isValid() {
@@ -46,12 +54,13 @@ public class MeterRegisterBulkChangeRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setRequestId(getRequestId(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
 
             requestMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeRequestMessage()
                     .forEach(message ->
                             meterRegisterChangeMessages.add(MeterRegisterChangeBulkMessageBuilder
-                                    .builder()
+                                    .builder(meterReplacementAddInterval)
                                     .from(message)
                                     .build()));
             return this;
@@ -65,9 +74,20 @@ public class MeterRegisterBulkChangeRequestMessage {
             MeterRegisterBulkChangeRequestMessage.this.requestId = requestId;
         }
 
+        private void setUuid(String uuid) {
+            MeterRegisterBulkChangeRequestMessage.this.uuid = uuid;
+        }
+
         private String getRequestId(BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getID())
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

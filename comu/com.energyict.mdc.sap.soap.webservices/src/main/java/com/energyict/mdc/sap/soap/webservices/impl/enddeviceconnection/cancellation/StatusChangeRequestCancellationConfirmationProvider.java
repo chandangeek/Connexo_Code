@@ -21,7 +21,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.util.Map;
 
-@Component(name = StatusChangeRequestCancellationConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationConfirmationProvider",
         service = {StatusChangeRequestCancellationConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + StatusChangeRequestCancellationConfirmation.NAME})

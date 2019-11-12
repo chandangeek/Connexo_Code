@@ -47,4 +47,8 @@ public class NoSuchElementException extends LocalizedException implements Suppli
     public static NoSuchElementException comTaskCouldNotBeLocated(Thesaurus thesaurus) {
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_COMTASK_FOR_COMMAND);
     }
+
+    public static NoSuchElementException statusInformationComTaskCouldNotBeLocated(Thesaurus thesaurus) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.NO_STATUS_INFORMATION_COMTASK);
+    }
 }

@@ -86,6 +86,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         MasterUtilitiesDeviceCreateRequestDomainExtension masterUtilitiesDeviceCreateRequestDomainExtension =
                 new MasterUtilitiesDeviceCreateRequestDomainExtension();
         masterUtilitiesDeviceCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+        masterUtilitiesDeviceCreateRequestDomainExtension.setUuid(requestMessage.getUuid());
         masterUtilitiesDeviceCreateRequestDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()

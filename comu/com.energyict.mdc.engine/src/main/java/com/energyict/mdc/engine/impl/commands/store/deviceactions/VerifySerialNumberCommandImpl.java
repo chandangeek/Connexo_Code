@@ -51,8 +51,8 @@ public class VerifySerialNumberCommandImpl extends SimpleComCommand implements V
                     getIssueService().newWarning(deviceProtocol, MessageSeeds.NOT_POSSIBLE_TO_VERIFY_SERIALNUMBER, offlineDevice.getSerialNumber(), deviceProtocol.getClass().getSimpleName()),
                     CompletionCode.ConfigurationWarning
             );
-            // strips leading 0's from both serial numbers
-        } else if (!meterSerialNumber.replaceAll("^0*", "").equals(offlineDevice.getSerialNumber().replaceAll("^0*", ""))) {
+            // strips leading 0's o -'s from both serial numbers
+        } else if (!meterSerialNumber.replaceAll("^[0-]*", "").equals(offlineDevice.getSerialNumber().replaceAll("^[0-]*", ""))) {
             addIssue(getIssueService().newProblem(getCommandType(), MessageSeeds.CONFIG_SERIAL_NUMBER_MISMATCH, meterSerialNumber, offlineDevice.getSerialNumber()), CompletionCode.ConfigurationError);
         }
     }

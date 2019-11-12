@@ -29,7 +29,7 @@ public class MT880Messaging extends ProtocolMessages {
         this.protocol = protocol;
     }
 
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         //nothing to do here ...
     }
 

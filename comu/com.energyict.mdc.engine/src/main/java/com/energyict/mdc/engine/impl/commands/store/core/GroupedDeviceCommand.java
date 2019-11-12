@@ -389,16 +389,15 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     private AlreadyExecutedComCommand getAlreadyExecutedCommand(final GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution, ComCommandTypes comCommandType) {
+        AlreadyExecutedComCommand alreadyExecutedCommand = null;
         if (checkIfCommandExists(ComCommandTypes.ALREADY_EXECUTED)) { // Note: as we use 'containsKey', object equals is used (which is something we want, as then comTaskExecutionId is also checked)
-            AlreadyExecutedComCommand alreadyExecutedCommand = (AlreadyExecutedComCommand) getComCommand(ComCommandTypes.ALREADY_EXECUTED);
-            alreadyExecutedCommand.linkToComCommandDoingActualExecution(comCommandType, getComCommand(comCommandType));
-            return alreadyExecutedCommand;
+             alreadyExecutedCommand = (AlreadyExecutedComCommand) getComCommand(ComCommandTypes.ALREADY_EXECUTED);
         } else {
-            AlreadyExecutedComCommand alreadyExecutedCommand = createAlreadyExecutedCommand(comCommandType);
-            alreadyExecutedCommand.linkToComCommandDoingActualExecution(comCommandType, getComCommand(comCommandType));
-            groupedDeviceCommand.addCommand(alreadyExecutedCommand, comTaskExecution);
-            return alreadyExecutedCommand;
+            alreadyExecutedCommand = createAlreadyExecutedCommand(comCommandType);
         }
+        alreadyExecutedCommand.linkToComCommandDoingActualExecution(comCommandType, getComCommand(comCommandType));
+        groupedDeviceCommand.addCommand(alreadyExecutedCommand, comTaskExecution);
+        return alreadyExecutedCommand;
     }
 
     private AlreadyExecutedComCommand createAlreadyExecutedCommand(final ComCommandTypes comCommandType) {

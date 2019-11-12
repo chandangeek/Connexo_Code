@@ -79,7 +79,6 @@ class DataExportTaskExecutor implements TaskExecutor {
             postFailEvent(eventService, occurrence, e.getLocalizedMessage());
             throw e;
         }
-
     }
 
     @Override
@@ -140,6 +139,15 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
+        if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
+            try (TransactionContext context = transactionService.getContext()) {
+                task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
+                        .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                        .forEach(ReadingTypeDataExportItem::update);
+                context.commit();
+            }
+        }
+
         DataFormatter dataFormatter = getDataFormatter(task, occurrence);
 
         catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
@@ -177,7 +185,6 @@ class DataExportTaskExecutor implements TaskExecutor {
         if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
-                        .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                         .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();

@@ -94,7 +94,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                     if (message.isValid()) {
                         CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
-                        sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), document, clock.instant()));
+                        sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
                     } else {
                         sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
                     }

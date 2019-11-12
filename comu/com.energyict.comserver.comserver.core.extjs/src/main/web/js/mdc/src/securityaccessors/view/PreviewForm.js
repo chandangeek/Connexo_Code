@@ -70,7 +70,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     },
                     {
                         xtype: 'displayfield',
-                        fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Wrapper name'),
+                        fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
                         itemId: 'previewWrapperName',
                     }
                 ]

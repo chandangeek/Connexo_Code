@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 allowBlank: false,
                 required: true,
                 width: 600,
-                afterSubTpl: '<div id="frequencySubTpl"/>'
+                afterSubTpl: '<div><div id="frequencySubTpl"/></div>'
             },
             {
                 xtype: 'combobox',
@@ -95,7 +95,7 @@ Ext.define('Mdc.view.setup.taskmanagement.AddEditDataCollectionKpis', {
                 disabled: true,
                 lastQuery: '',
                 width: 600,
-                afterSubTpl: '<div id="displayRangeSubTpl"/>'
+                afterSubTpl: '<div><div id="displayRangeSubTpl"/></div>'
             },
             {
                 xtype: 'fieldcontainer',

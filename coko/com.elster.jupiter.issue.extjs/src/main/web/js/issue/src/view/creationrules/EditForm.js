@@ -522,7 +522,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
     
     isDeviceIssueType: function (typeValue) {
         var deviceIssueTypesArray = ['datacollection', 'datavalidation', 'devicelifecycle'];
-        return deviceIssueTypesArray.includes(typeValue);
+        return Ext.Array.contains(deviceIssueTypesArray,typeValue);
     },
     
     updateExcludedGroupsForm: function (typeValue) {

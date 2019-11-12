@@ -17,6 +17,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -52,6 +53,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     public static final String COMPONENT_NAME = "CCR";
 
     private volatile EngineConfigurationService engineConfigurationService;
+    private volatile EngineService engineService;
     private volatile TransactionService transactionService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -83,6 +85,11 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     @Reference
     public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
         this.engineConfigurationService = engineConfigurationService;
+    }
+
+    @Reference
+    public void setEngineService(EngineService engineService) {
+        this.engineService = engineService;
     }
 
     @Reference
@@ -150,6 +157,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
         @Override
         protected void configure() {
             bind(engineConfigurationService).to(EngineConfigurationService.class);
+            bind(engineService).to(EngineService.class);
             bind(transactionService).to(TransactionService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);

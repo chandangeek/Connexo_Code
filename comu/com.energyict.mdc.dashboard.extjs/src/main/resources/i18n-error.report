@@ -1,0 +1,2 @@
+Errors detected in JS sources:
+Wrong argument for method invocation {jsFilePath='view\widget\common\StackedBar.js', lineNo=9, args=["overview.widget.breakdown."+xkey, "DSH", xkey]}

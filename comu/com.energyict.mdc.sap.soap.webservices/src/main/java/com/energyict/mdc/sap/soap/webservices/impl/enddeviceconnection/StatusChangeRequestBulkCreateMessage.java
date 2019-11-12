@@ -15,6 +15,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.UtilitiesConnectionStatusChangeRequestCategoryCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.UtilitiesConnectionStatusChangeRequestID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreate.UUID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class StatusChangeRequestBulkCreateMessage {
 
     private String id;
+    private String uuid;
 
     private List<StatusChangeRequestCreateMessage> requests = new ArrayList<>();
 
@@ -37,6 +39,10 @@ public class StatusChangeRequestBulkCreateMessage {
 
     public String getId() {
         return id;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public List<StatusChangeRequestCreateMessage> getRequests() {
@@ -54,6 +60,7 @@ public class StatusChangeRequestBulkCreateMessage {
 
         public StatusChangeRequestBulkCreateMessage.Builder from(SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg requestMessage) {
             setId(getRequestId(requestMessage));
+            setUuid(getUuid(requestMessage));
             setRequestMessages(getRequestMessages(requestMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestMessage()));
             return this;
         }
@@ -68,12 +75,18 @@ public class StatusChangeRequestBulkCreateMessage {
             return this;
         }
 
+        public Builder setUuid(String uuid) {
+            StatusChangeRequestBulkCreateMessage.this.uuid = uuid;
+            return this;
+        }
+
         private List<StatusChangeRequestCreateMessage> getRequestMessages(List<SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg> statusChangeRequest) {
             return statusChangeRequest.stream().map(m -> getRequestMessage(m)).collect(Collectors.toList());
         }
 
         private StatusChangeRequestCreateMessage getRequestMessage(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg msg) {
             return StatusChangeRequestCreateMessage.builder().from(getId(msg.getUtilitiesConnectionStatusChangeRequest()),
+                    getUuid(msg),
                     getCategoryCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     getUtilitiesServiceDisconnectionReasonCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     msg.getUtilitiesConnectionStatusChangeRequest() != null ? msg.getUtilitiesConnectionStatusChangeRequest().getPlannedProcessingDateTime() : null,
@@ -89,6 +102,22 @@ public class StatusChangeRequestBulkCreateMessage {
             return Optional.ofNullable(changeRequest.getMessageHeader())
                     .map(m -> m.getID())
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg changeRequest) {
+            return Optional.ofNullable(changeRequest.getMessageHeader())
+                    .map(m -> m.getUUID())
+                    .map(UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg changeRequest) {
+            return Optional.ofNullable(changeRequest.getMessageHeader())
+                    .map(m -> m.getUUID())
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

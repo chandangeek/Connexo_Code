@@ -19,7 +19,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.util.Map;
 
-@Component(name = MeterRegisterChangeConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeConfirmationProvider",
         service = {MeterRegisterChangeConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterRegisterChangeConfirmation.NAME})

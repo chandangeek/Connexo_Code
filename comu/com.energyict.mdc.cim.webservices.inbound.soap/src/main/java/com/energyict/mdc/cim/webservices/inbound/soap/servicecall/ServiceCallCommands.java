@@ -356,7 +356,6 @@ public class ServiceCallCommands {
         if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay)) {
             Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
-
                 if (start != null && actualEnd.isBefore(start)) {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
                             MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
@@ -387,8 +386,13 @@ public class ServiceCallCommands {
                     // wait next task execution
                 }
             }
-            subParentServiceCall.requestTransition(DefaultState.WAITING);
             meterReadingRunning = true;
+        }
+        if(!subParentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
+            subParentServiceCall.requestTransition(DefaultState.WAITING);
+        }else{
+            subParentServiceCall.requestTransition(DefaultState.FAILED);
+            subParentServiceCall.log(LogLevel.SEVERE, "No child service calls have been created.");
         }
         return meterReadingRunning;
     }
@@ -447,7 +451,7 @@ public class ServiceCallCommands {
 
     private void fillComTaskExecutions(Set<ComTaskExecution> existedComTaskExecutions, com.elster.jupiter.metering.Meter meter,
                                        Set<ReadingType> combinedReadingTypes, SyncReplyIssue syncReplyIssue, boolean isRegular) {
-        ComTaskExecution comTaskExecution;
+        Set<ComTaskExecution> comTaskExecution;
         if (isRegular) {
             comTaskExecution = syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(Long.parseLong(meter.getAmrId()));
         } else {
@@ -455,14 +459,7 @@ public class ServiceCallCommands {
         }
 
         if (comTaskExecution != null) {
-            existedComTaskExecutions.add(comTaskExecution);
-        } else {
-            String readingTypes = combinedReadingTypes.stream()
-                    .filter(readingType -> readingType.isRegular() == isRegular)
-                    .map(rt -> rt.getName())
-                    .collect(Collectors.joining(";"));
-            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_READING_TYPES, null,
-                    meter.getName(), readingTypes));
+            existedComTaskExecutions.addAll(comTaskExecution);
         }
     }
 

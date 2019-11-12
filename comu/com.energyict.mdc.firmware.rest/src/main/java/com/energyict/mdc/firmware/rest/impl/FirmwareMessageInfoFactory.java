@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -33,11 +34,13 @@ public class FirmwareMessageInfoFactory {
 
     private final MdcPropertyUtils mdcPropertyUtils;
     private final FirmwareService firmwareService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public FirmwareMessageInfoFactory(MdcPropertyUtils mdcPropertyUtils, FirmwareService firmwareService) {
+    public FirmwareMessageInfoFactory(MdcPropertyUtils mdcPropertyUtils, FirmwareService firmwareService,Thesaurus thesaurus) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.firmwareService = firmwareService;
+        this.thesaurus = thesaurus;
     }
 
     public Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos){
@@ -94,7 +97,18 @@ public class FirmwareMessageInfoFactory {
         info.localizedValue = deviceMessageSpec.getName();
         info.setProperties(mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty(), provider));
         initImageIdentifier(info, null);
-        initResumeProperty(info, false);        
+        initResumeProperty(info, false);
+        info.getProperties().forEach(pr->{
+            if(pr.name.equals(TranslationKeys.FIRMWARE_RESUME.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_RESUME.getKey(),pr.name);
+            } else if(pr.name.equals(TranslationKeys.FIRMWARE_FILE.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_FILE.getKey(),pr.name);
+            } else if(pr.name.equals(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getKey(),pr.name);
+            } else if(pr.name.equals(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getDefaultFormat())){
+                pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getKey(),pr.name);
+            }
+        });
         return info;
     }
 

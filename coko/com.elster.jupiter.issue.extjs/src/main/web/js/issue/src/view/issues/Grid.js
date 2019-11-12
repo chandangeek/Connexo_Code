@@ -120,7 +120,7 @@ Ext.define('Isu.view.issues.Grid', {
                         itemId: 'create-group-from-issues-button',
                         action: 'createGroupFromIssuesAction',
                         privileges: Isu.privileges.Issue.closeOrAssing,
-                        text: Uni.util.Application.getAppName() === 'MdmApp' ? Uni.I18n.translate('usagepointgroupfromissues.issues.addGroupButton', 'IMT', 'Add usage point group') :
+                        text: Uni.util.Application.getAppName() === 'MdmApp' ? Uni.I18n.translate('usagepointgroupfromissues.issues.addGroupButton', 'ISU', 'Add usage point group') :
                             Uni.util.Application.getAppName() === 'MultiSense' ? Uni.I18n.translate('devicegroupfromissues.issues.addGroupButton', 'ISU', 'Add device group') : ''
                     }
                 ]

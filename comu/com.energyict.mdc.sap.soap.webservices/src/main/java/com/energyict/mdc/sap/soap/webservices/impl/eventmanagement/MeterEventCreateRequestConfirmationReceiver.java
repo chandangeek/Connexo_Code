@@ -14,7 +14,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UUID;
@@ -29,16 +28,15 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@Component(name = MeterEventCreateRequestConfirmationReceiver.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.eventmanagement.MeterEventCreateRequestConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterEventCreateRequestConfirmationReceiver.NAME})
 public class MeterEventCreateRequestConfirmationReceiver extends AbstractInboundEndPoint
         implements InboundSoapEndPointProvider, UtilitiesSmartMeterEventERPBulkCreateConfirmationCIn, ApplicationSpecific {
-    static final String NAME = "SAP SmartMeterEventCreateConfirmation";
+    static final String NAME = "SAP SmartMeterEventBulkCreateConfirmation";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile Thesaurus thesaurus;
@@ -79,17 +77,8 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
     private static Optional<String> findReferenceUuid(UtilsSmrtMtrEvtERPBulkCrteConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsSmrtMtrEvtERPBulkCrteConfMsg::getMessageHeader)
-                .flatMap(MeterEventCreateRequestConfirmationReceiver::findReferenceUuid);
-    }
-
-    private static Optional<String> findReferenceUuid(BusinessDocumentMessageHeader header) {
-        return Stream.<Supplier<Optional<String>>>of(
-                () -> Optional.ofNullable(header.getReferenceID()).map(BusinessDocumentMessageID::getValue),
-                () -> Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue))
-                .map(Supplier::get)
-                .filter(Optional::isPresent)
-                .findFirst()
-                .map(Optional::get);
+                .map(BusinessDocumentMessageHeader::getReferenceUUID)
+                .map(UUID::getValue);
     }
 
     private static boolean isConfirmed(UtilsSmrtMtrEvtERPBulkCrteConfMsg confirmation) {
@@ -131,7 +120,7 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
             } catch (NumberFormatException e) {
                 return item2;
             }
-            return i1 < i2 ? item2 : item1;
+            return i1 < i2 ? item2 : i2 < i1 ? item1 : item1.getNote() == null ? item2 : item1;
         }
     }
 

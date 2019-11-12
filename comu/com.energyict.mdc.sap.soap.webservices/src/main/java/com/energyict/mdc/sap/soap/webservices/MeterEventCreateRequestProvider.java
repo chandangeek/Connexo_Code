@@ -10,7 +10,7 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface MeterEventCreateRequestProvider {
 
-    String SAP_CREATE_UTILITIES_SMART_METER_EVENT = "CreateUtilitiesSmartMeterEvent";
+    String SAP_CREATE_UTILITIES_SMART_METER_EVENT = "SAP SmartMeterEventBulkCreateRequest";
 
     void send(UtilsSmrtMtrEvtERPBulkCrteReqMsg reqMsg);
 }

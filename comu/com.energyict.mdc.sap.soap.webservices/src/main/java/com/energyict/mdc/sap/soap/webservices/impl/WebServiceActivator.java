@@ -156,7 +156,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String APPLICATION_NAME = "MultiSense";
     public static final String METERING_SYSTEM_ID = "CXO";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
-    public static final Map<AdditionalProperties, Integer> SAP_PROPERTIES = new HashMap<>();
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestBulkCreateConfirmation> STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -251,6 +250,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile TimeService timeService;
     private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
+    private Map<AdditionalProperties, Integer> sapProperties = new HashMap<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private Map<String, String> deviceTypesMap;
 
@@ -288,6 +288,14 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public Map<String, String> getDeviceTypesMap() {
         return deviceTypesMap;
+    }
+
+    public Map<AdditionalProperties, Integer> getSapProperties() {
+        return sapProperties;
+    }
+
+    public Integer getSapProperty(AdditionalProperties property) {
+        return sapProperties.get(property);
     }
 
     public WebServiceActivator() {
@@ -444,7 +452,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     private void createOrUpdateUpdateSapExportTask() {
-        Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.UPDATE_SAP_EXPORT_TASK_PROPERTY);
+        Integer frequency = getSapProperty(AdditionalProperties.UPDATE_SAP_EXPORT_TASK_PROPERTY);
 
         createOrUpdateActionTask(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DESTINATION,
                 UPDATE_SAP_EXPORT_TASK_RETRY_DELAY,
@@ -454,7 +462,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     private void createOrUpdateCheckStatusChangeCancellationTask() {
-        Integer frequency = SAP_PROPERTIES.get(AdditionalProperties.CHECK_STATUS_CHANGE_FREQUENCY);
+        Integer frequency = getSapProperty(AdditionalProperties.CHECK_STATUS_CHANGE_FREQUENCY);
 
         createOrUpdateActionTask(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DESTINATION,
                 CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_RETRY_DELAY,
@@ -536,7 +544,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     private void loadProperties(BundleContext context) {
         EnumSet.allOf(AdditionalProperties.class)
-                .forEach(key -> SAP_PROPERTIES.put(key, Optional.ofNullable(context.getProperty(key.getKey()))
+                .forEach(key -> sapProperties.put(key, Optional.ofNullable(context.getProperty(key.getKey()))
                         .map(Integer::valueOf)
                         .orElse(key.getDefaultValue())));
     }

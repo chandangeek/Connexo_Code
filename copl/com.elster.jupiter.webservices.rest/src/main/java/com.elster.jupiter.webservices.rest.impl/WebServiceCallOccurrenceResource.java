@@ -145,6 +145,10 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         String txtToFind = null;
         final String translationTxt;
 
+        if (searchText == null){
+            searchText = "";
+        }
+
         if (searchText.contains("(") && searchText.contains(")")){
             txtToFind = searchText.substring(0, searchText.lastIndexOf("(") - 1);
             translationTxt = searchText.substring(searchText.lastIndexOf("(") + 1, searchText.length() - 1);

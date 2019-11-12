@@ -21,14 +21,16 @@ import java.math.BigDecimal;
 public class SearchDataSourceHandler implements TaskExecutor {
 
     private final ServiceCallService serviceCallService;
+    private final WebServiceActivator webServiceActivator;
 
-    public SearchDataSourceHandler(ServiceCallService serviceCallService) {
+    public SearchDataSourceHandler(ServiceCallService serviceCallService, WebServiceActivator webServiceActivator) {
         this.serviceCallService = serviceCallService;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        BigDecimal attempts = new BigDecimal(WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
         findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
                 .stream()
                 .forEach(serviceCall -> {

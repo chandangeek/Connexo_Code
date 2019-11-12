@@ -7,16 +7,20 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
 
 @Component(name = MasterConnectionStatusChangeServiceCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + MasterConnectionStatusChangeServiceCallHandler.NAME, immediate = true)
 public class MasterConnectionStatusChangeServiceCallHandler implements ServiceCallHandler {
+
+    private volatile ServiceCallService serviceCallService;
 
     public static final String NAME = "MasterConnectionStatusChangeServiceCallHandler";
     public static final String VERSION = "v1.0";
@@ -54,18 +58,31 @@ public class MasterConnectionStatusChangeServiceCallHandler implements ServiceCa
     private void resultTransition(ServiceCall parent) {
         List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
         if (ServiceCallHelper.isLastChild(children)) {
-            if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
-                parent.transitionWithLockIfPossible(DefaultState.ONGOING);
-            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
-                parent.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
+            if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
+                transitWithLock(parent, DefaultState.SUCCESSFUL);
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
-                parent.transitionWithLockIfPossible(DefaultState.CANCELLED);
-            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
-                parent.transitionWithLockIfPossible(DefaultState.PARTIAL_SUCCESS);
+                transitWithLock(parent, DefaultState.CANCELLED);
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+                transitWithLock(parent, DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
-                parent.transitionWithLockIfPossible(DefaultState.FAILED);
+                transitWithLock(parent, DefaultState.FAILED);
             }
         }
+    }
+
+    private void transitWithLock(ServiceCall serviceCall, DefaultState finalState) {
+        ServiceCall lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Unable to lock service call"));
+        if (lockedServiceCall.getState().equals(DefaultState.WAITING) && lockedServiceCall.canTransitionTo(DefaultState.ONGOING)) {
+            lockedServiceCall.requestTransition(DefaultState.ONGOING);
+        }
+        if (lockedServiceCall.canTransitionTo(finalState)) {
+            lockedServiceCall.requestTransition(finalState);
+        }
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
 }

@@ -905,7 +905,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         this.a1440Messages.applyMessages(messageEntries);
     }
 
