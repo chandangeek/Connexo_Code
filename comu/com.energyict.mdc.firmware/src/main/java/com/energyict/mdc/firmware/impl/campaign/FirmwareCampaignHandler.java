@@ -23,6 +23,7 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
@@ -103,7 +104,14 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                     serviceCall.requestTransition(DefaultState.FAILED);
                     serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
                 }
-            } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
+            } else if (comTaskExecution.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME)){
+                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            }
+
+            if (comTaskExecution.getComTask().getProtocolTasks().stream()
                     .anyMatch(StatusInformationTask.class::isInstance)) {
                 FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
                 if (firmwareCampaign.isWithVerification()) {
@@ -119,12 +127,12 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
                 }
-            } else if (comTaskExecution.getComTask().getId() == firmwareCampaignOptional.get().getValidationComTaskId()){
+            } else if (comTaskExecution.getComTask().getId() == firmwareCampaignOptional.get().getValidationComTaskId()) {
                 ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.requestTransition(DefaultState.FAILED);
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED).format());
-            } //else if cte.getid==cp.getfirmware ?
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+            }
         }
     }
 
@@ -145,7 +153,14 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
                     }
                 }
-            } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
+            } else if (comTaskExecution.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME)){
+                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            }
+
+            if (comTaskExecution.getComTask().getProtocolTasks().stream()
                     .anyMatch(StatusInformationTask.class::isInstance)) {
                 if (firmwareCampaign.isWithVerification()) {
                     Instant firmwareTimeUpload = deviceInFirmwareCampaign
@@ -172,7 +187,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.requestTransition(DefaultState.FAILED);
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED).format());
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
             }
         }
     }
