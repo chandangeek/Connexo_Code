@@ -16,6 +16,7 @@ Export-Package: com.elster.jupiter.metering,\
 	com.elster.jupiter.metering.readings,\
 	com.elster.jupiter.metering.readings.beans,\
 	com.elster.jupiter.metering.events,\
+	com.elster.jupiter.metering.configproperties,\
 	com.elster.jupiter.metering.security,\
 	com.elster.jupiter.metering.ami,\
 	com.elster.jupiter.metering.slp

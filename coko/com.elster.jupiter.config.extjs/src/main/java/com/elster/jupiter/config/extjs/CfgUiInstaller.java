@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.config.extjs;
 
-import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -39,9 +39,9 @@ public class CfgUiInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-        //HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\git10.6\\connexo\\coko\\com.elster.jupiter.config.extjs\\src\\main\\web\\js\\cfg", new FileResolver());
+        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\connexo\\coko\\com.elster.jupiter.config.extjs\\src\\main\\web\\js\\cfg", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

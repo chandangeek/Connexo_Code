@@ -50,6 +50,7 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
+import com.elster.jupiter.metering.configproperties.ConfigProperty;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
@@ -78,6 +79,7 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementImpl;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
+import com.elster.jupiter.metering.impl.configproperties.ConfigPropertyImpl;
 import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileImpl;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.orm.Column;
@@ -2129,6 +2131,21 @@ public enum TableSpecs {
             table.column("COMMENTS").varChar(4000).map("comment").add();
 
             table.primaryKey("PK_MTR_RQC").on(idColumn).add();
+        }
+    },
+    MTR_CONFIG_PROPERTY {
+        @Override
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+            Table<ConfigProperty> table = dataModel.addTable(name(), ConfigProperty.class);
+            table.since(version(10, 7));
+            table.map(ConfigPropertyImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.setJournalTableName("MTR_CONFIG_PROPERTYJRNL");
+            table.column("SCOPE").varChar(NAME_LENGTH).conversion(CHAR2ENUM).map("scope").add();
+            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
+            table.addAuditColumns();
+            table.primaryKey("PK_MTR_CONFIG_PROPERTY").on(idColumn).add();
         }
     };
 

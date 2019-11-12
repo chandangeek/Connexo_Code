@@ -32,7 +32,6 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;

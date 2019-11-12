@@ -149,7 +149,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.processes.controller.ProcessesController',
         'Mdc.processes.controller.ProcBulkActions',
         'Cfg.audit.controller.Audit',
-        'Mdc.controller.setup.AutoclosureExclusions'
+        'Mdc.controller.setup.AutoclosureExclusions',
+        'Cfg.properties.controller.ConfigProperties'
     ],
 
     stores: [
@@ -312,6 +313,12 @@ Ext.define('Mdc.controller.Main', {
                             href: '#/administration/commandrules',
                             privileges: Mdc.privileges.CommandLimitationRules.view,
                             route: 'commandrules'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
+                            href: '#/administration/commsettings',
+                            //privileges: Mdc.privileges.CommandLimitationRules.view,
+                            route: 'commsettings'
                         }
                     ]
                 });

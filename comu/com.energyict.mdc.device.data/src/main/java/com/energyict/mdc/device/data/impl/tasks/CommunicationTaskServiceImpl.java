@@ -792,14 +792,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
         if (!isTrueMinimizedOn && !isRandomizationOn) {
             orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";
-        }
-        else if (isTrueMinimizedOn && !isRandomizationOn) {
+        } else if (isTrueMinimizedOn && !isRandomizationOn) {
             orderClause = " order by cte.nextexecutiontimestamp, cte.connectiontask, cte.priority";
-        }
-        else if (!isTrueMinimizedOn && isRandomizationOn) {
+        } else if (!isTrueMinimizedOn && isRandomizationOn) {
             orderClause = " order by cte.nextexecutiontimestamp, mod(cte.id, 100), cte.priority, cte.connectiontask";
-        }
-        else if (isTrueMinimizedOn && isRandomizationOn) {
+        } else if (isTrueMinimizedOn && isRandomizationOn) {
             orderClause = " order by cte.nextexecutiontimestamp, mod(cte.id, 100), cte.connectiontask, cte.priority";
         }
         return orderClause;
