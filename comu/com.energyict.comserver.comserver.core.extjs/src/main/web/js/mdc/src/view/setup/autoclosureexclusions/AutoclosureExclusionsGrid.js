@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsGrid', {
         me.deviceId = me.device.get('name');
         me.columns = [
             {
-                header: Uni.I18n.translate('creationRule.ruleName', 'MDC', 'Rule name'),
+                header: Uni.I18n.translate('creationRule.ruleName', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 1
             },

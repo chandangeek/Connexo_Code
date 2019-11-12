@@ -226,7 +226,7 @@ Ext.define('Dal.view.ActionMenu', {
 
             if (Isu.privileges.Issue.canViewProcessMenu()) {
                 me.add({
-                    text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
+                    text: Uni.I18n.translate('issues.actionMenu.startProcess', 'DAL', 'Start process'),
                     action: 'startProcess',
                     section: this.SECTION_ACTION,
                     href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({alarmId: itemId}, {

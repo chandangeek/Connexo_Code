@@ -135,6 +135,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.engine</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>

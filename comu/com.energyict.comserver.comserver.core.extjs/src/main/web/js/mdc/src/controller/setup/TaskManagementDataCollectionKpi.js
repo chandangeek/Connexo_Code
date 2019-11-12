@@ -97,6 +97,12 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
 
         formErrorsPanel.hide();
         editForm.getForm().clearInvalid();
+
+        if (!editForm.getForm().isValid()){
+            formErrorsPanel.show();
+            return;
+        }
+
         editForm.setLoading();
         record.beginEdit();
         if (!record.getId()) {
@@ -358,7 +364,9 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             deviceGroupDisplayField = form.down('#devicegroupDisplayField');
 
         new Ext.get('displayRangeSubTpl').setHTML('');
+        form.down('#cmb-display-range') && form.down('#cmb-display-range').clearInvalid();
         new Ext.get('frequencySubTpl').setHTML('');
+        form.down('#cmb-frequency') && form.down('#cmb-frequency').clearInvalid();
 
         deviceGroupCombo.clearValue();
         deviceGroupCombo.setDisabled(false);
@@ -395,6 +403,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
 
         if (newValue) {
             var name = typeof combo.getValue() == 'object' ? combo.getValue().name : combo.getRawValue();
+            combo.clearInvalid();
 
             afterSubTplTxt = '<div class="x-form-display-field"><i>' + Uni.I18n.translate('datacollectionkpis.templateTxt', 'MDC', "This change will be also applied for '{0}' {1} task", [name,
                     collectionTypeValue == 'connection' ? Uni.I18n.translate('datacollectionkpis.communicationKPI', 'MDC', 'communication KPI') :
