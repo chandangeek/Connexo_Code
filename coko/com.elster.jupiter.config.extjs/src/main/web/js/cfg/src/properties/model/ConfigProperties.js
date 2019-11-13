@@ -3,7 +3,7 @@
  */
 
 Ext.define('Cfg.properties.model.ConfigProperties', {
-    extend: 'Uni.model.Version',
+    extend: 'Ext.data.Model',
     requires: [
         'Cfg.properties.model.Properties'
     ],

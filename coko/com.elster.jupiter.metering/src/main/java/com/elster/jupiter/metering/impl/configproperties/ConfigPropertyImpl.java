@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.configproperties;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.configproperties.ConfigPropertiesProvider;
 import com.elster.jupiter.metering.configproperties.ConfigProperty;
 import com.elster.jupiter.metering.configproperties.PropertiesInfo;
@@ -17,12 +18,14 @@ import java.util.List;
 
 public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
 
-    private final DataModel dataModel;
-
-    String name;
+    //managed by orm
+    private long id;
+    private String name;
+    private String scope;
     private String stringValue;
-    ConfigPropertiesProvider provider;
-    PropertySpec propertySpec;
+    private ConfigPropertiesProvider provider;
+    private PropertySpec propertySpec;
+    private final DataModel dataModel;
 
     @Inject
     ConfigPropertyImpl(DataModel dataModel) {
@@ -33,6 +36,7 @@ public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
         this.provider = provider;
         this.name = propertySpec.getName();
         this.propertySpec = propertySpec;
+        this.scope = provider.getScope();
         setValue(value);
         return this;
     }
@@ -64,8 +68,12 @@ public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
             this.stringValue = value.toString();
             return;
         }
-
         this.stringValue = toStringValue(value);
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
 
 
@@ -76,7 +84,11 @@ public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
 
     @Override
     public void save() {
-        dataModel.mapper(ConfigProperty.class).update(this);
+        if (id == 0) {
+            Save.CREATE.save(dataModel, this);
+        } else {
+            Save.UPDATE.save(dataModel, this);
+        }
     }
 
     @Override

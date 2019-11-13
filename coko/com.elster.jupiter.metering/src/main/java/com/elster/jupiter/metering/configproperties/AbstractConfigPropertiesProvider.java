@@ -4,12 +4,8 @@
 
 package com.elster.jupiter.metering.configproperties;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.impl.configproperties.ConfigPropertyImpl;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +16,6 @@ public abstract class AbstractConfigPropertiesProvider implements ConfigProperti
 
     protected volatile DataModel dataModel;
     private List<ConfigProperty> properties = new ArrayList<>();
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        dataModel = ormService.getDataModel(MeteringService.COMPONENTNAME).get();
-    }
 
     @Override
     public void update(){
@@ -37,7 +28,7 @@ public abstract class AbstractConfigPropertiesProvider implements ConfigProperti
                 .filter(p -> p.getName().equals(key))
                 .findFirst()
                 .orElseGet(() -> {
-                    ConfigPropertyImpl property = ConfigPropertyImpl.from(dataModel, this, key, value);
+                    ConfigProperty property = ConfigPropertyImpl.from(dataModel, this, key, value);
                     properties.add(property);
                     return property;
                 });
@@ -49,5 +40,4 @@ public abstract class AbstractConfigPropertiesProvider implements ConfigProperti
         return properties.stream()
                 .collect(Collectors.toMap(ConfigProperty::getName, ConfigProperty::getValue));
     }
-
 }

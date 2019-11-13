@@ -2839,7 +2839,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         controller: 'Cfg.properties.controller.ConfigProperties',
                         action: 'showOverview',
                         //privileges: Cfg.privileges.Audit.viewAuditLog,
-                        scope: 'COMM_SETTINGS',
+                        scope: 'COMMUNICATION',
                         items: {
                             edit: {
                                 title: Uni.I18n.translate('general.communicationSettings.edit', 'MDC', 'Edit'),
@@ -2848,7 +2848,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Cfg.properties.controller.ConfigProperties',
                                 //privileges: Mdc.privileges.SecurityAccessor.admin,
                                 action: 'editProperties',
-                                scope: 'COMM_SETTINGS',
+                                scope: 'COMMUNICATION',
                                 callback: function (route) {
                                     this.getApplication().on('configPropertiesLoaded', function (name) {
                                         route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));

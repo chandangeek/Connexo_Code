@@ -8,8 +8,8 @@ import com.elster.jupiter.nls.TranslationKey;
 
 
 public enum YesNoTranslationKeys implements TranslationKey {
-    VALUE_YES("communication.settings.value.yes", "Yes"),
-    VALUE_NO("communication.settings.value.no", "No"),
+    YES("communication.settings.value.yes", "Yes"),
+    NO("communication.settings.value.no", "No"),
     ;
 
     private String key;

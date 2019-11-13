@@ -10,6 +10,7 @@ import java.util.List;
 @XmlRootElement
 public class ConfigPropertiesInfo {
 
+    public String id;
     public String type;
     public List<ConfigPropertiesPropertiesInfo> properties;
 }

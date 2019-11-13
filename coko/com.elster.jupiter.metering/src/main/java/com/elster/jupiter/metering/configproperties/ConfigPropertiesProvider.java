@@ -19,7 +19,7 @@ public interface ConfigPropertiesProvider {
 
     Map<String, Object> getPropertyValues();
 
-    boolean isValid(List<PropertiesInfo> properties, ConstraintValidatorContext context);
+    default boolean isValid(List<PropertiesInfo> properties, ConstraintValidatorContext context) {return true;};
 
     void update();
 

@@ -25,6 +25,7 @@ Ext.define('Cfg.properties.controller.ConfigProperties', {
 
     refs: [
         {ref: 'editForm', selector: '#cfg-properties-form'},
+        {ref: 'errorsPanel', selector: '#cfg-config-properties-form #form-errors'},
     ],
 
     init: function () {
@@ -158,10 +159,16 @@ Ext.define('Cfg.properties.controller.ConfigProperties', {
     saveProperties: function (button) {
         var me = this,
             form = me.getEditForm(),
-            record = form.getRecord();
+            errorsPanel = me.getErrorsPanel(),
+            record = form.getRecord(),
+            router = me.getController('Uni.controller.history.Router'),
+            returnLink = router.getRoute(router.currentRoute.replace('/edit', ''));
 
         form.getForm().clearInvalid();
-
+        form.setLoading();
+        if (!errorsPanel.isHidden()) {
+            errorsPanel.hide();
+        }
         // set properties
         record.beginEdit();
         if (record.properties && record.properties().count() > 0) {
@@ -182,18 +189,19 @@ Ext.define('Cfg.properties.controller.ConfigProperties', {
         record.save({
             success: function (record, operation) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('config.properties.successMsg.saved', 'CFG', 'Settings saved'));
+                returnLink.forward();
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
                     var json = Ext.decode(operation.response.responseText, true);
                     if (json && json.errors) {
                         form.getForm().markInvalid(json.errors);
-                        formErrorsPanel.show();
+                        errorsPanel.show();
                     }
                 }
             },
             callback: function () {
-                page.setLoading(false);
+                form.setLoading(false);
             }
         })
     },

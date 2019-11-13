@@ -2144,7 +2144,7 @@ public enum TableSpecs {
             table.column("SCOPE").varChar(NAME_LENGTH).conversion(CHAR2ENUM).map("scope").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
-            table.addAuditColumns();
+            //table.addAuditColumns();
             table.primaryKey("PK_MTR_CONFIG_PROPERTY").on(idColumn).add();
         }
     };

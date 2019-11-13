@@ -14,6 +14,8 @@ public interface ConfigProperty extends HasName {
 
     void setValue(Object value);
 
+    void setName(String name);
+
     void save();
 
 }

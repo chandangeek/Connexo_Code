@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.configproperties;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.configproperties.AbstractConfigPropertiesProvider;
 import com.elster.jupiter.metering.configproperties.ConfigPropertiesProvider;
 import com.elster.jupiter.metering.configproperties.PropertiesInfo;
@@ -21,7 +22,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 @Component(name = "com.energyict.mdc.device.data.impl.configproperties", service = ConfigPropertiesProvider.class, immediate = true)
 public class CommunicationSettings extends AbstractConfigPropertiesProvider implements ConfigPropertiesProvider {
-    static final String SCOPE_NAME = "COMM_SETTINGS";
+    static final String SCOPE_NAME = "COMMUNICATION";
 
     private static final Function<YesNoTranslationKeys, String> KEY_EXTRACTOR = Enum::name;
     private static final Function<String, YesNoTranslationKeys> OBJECT_FETCHER = YesNoTranslationKeys::valueOf;
@@ -47,6 +47,11 @@ public class CommunicationSettings extends AbstractConfigPropertiesProvider impl
         setOrmService(ormService);
         setPropertySpecService(propertySpecService);
         setThesaurus(nlsService);
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        dataModel = ormService.getDataModel(MeteringService.COMPONENTNAME).get();
     }
 
     @Reference
@@ -71,11 +76,6 @@ public class CommunicationSettings extends AbstractConfigPropertiesProvider impl
                         getTrueMinimizedProperty(), getRandomizationProperty())));
     }
 
-    @Override
-    public boolean isValid(List<PropertiesInfo> properties, ConstraintValidatorContext context) {
-        return false;
-    }
-
     protected final Thesaurus getThesaurus() {
         return thesaurus;
     }
@@ -87,7 +87,7 @@ public class CommunicationSettings extends AbstractConfigPropertiesProvider impl
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .addValues(getPossibleValues())
-                .setDefaultValue(this.booleanValuesFactory.wrap(YesNoTranslationKeys.VALUE_NO))
+                .setDefaultValue(this.booleanValuesFactory.wrap(YesNoTranslationKeys.NO))
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
@@ -99,15 +99,15 @@ public class CommunicationSettings extends AbstractConfigPropertiesProvider impl
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .addValues(getPossibleValues())
-                .setDefaultValue(this.booleanValuesFactory.wrap(YesNoTranslationKeys.VALUE_NO))
+                .setDefaultValue(this.booleanValuesFactory.wrap(YesNoTranslationKeys.NO))
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
 
     private List<HasIdAndName> getPossibleValues() {
         return Arrays.asList(
-                this.booleanValuesFactory.wrap(YesNoTranslationKeys.VALUE_YES),
-                this.booleanValuesFactory.wrap(YesNoTranslationKeys.VALUE_NO));
+                this.booleanValuesFactory.wrap(YesNoTranslationKeys.YES),
+                this.booleanValuesFactory.wrap(YesNoTranslationKeys.NO));
     }
 
     private String translateConnectionState(YesNoTranslationKeys translationKeys) {

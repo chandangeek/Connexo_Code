@@ -19,9 +19,6 @@ public class PropertiesInfo {
         this.properties = properties;
     }
 
-    public PropertiesInfo() {
-    }
-
     public String getName(){
         return name;
     }
@@ -33,5 +30,4 @@ public class PropertiesInfo {
     public List<PropertySpec> getProperties(){
         return properties;
     }
-
 }
