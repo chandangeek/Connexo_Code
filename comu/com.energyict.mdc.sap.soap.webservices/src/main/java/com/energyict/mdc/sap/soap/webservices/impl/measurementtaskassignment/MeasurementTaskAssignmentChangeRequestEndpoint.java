@@ -83,11 +83,13 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         MeasurementTaskAssignmentChangeRequestMessage message = MeasurementTaskAssignmentChangeRequestMessage.builder().from(msg).build();
         if (!message.hasValidId()) {
+            log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             return;
         }
 
         if (!message.arePeriodsValid()) {
+            log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.INVALID_TIME_PERIOD).format());
             sendProcessError(message, MessageSeeds.INVALID_TIME_PERIOD);
             return;
         }
@@ -95,6 +97,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
         if (Ranges.doAnyRangesIntersect(message.getRoles().stream()
                 .filter(role -> !WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode()))
                 .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
+            log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TIME_PERIODS_INTERSECT).format());
             sendProcessError(message, MessageSeeds.TIME_PERIODS_INTERSECT);
             return;
         }
