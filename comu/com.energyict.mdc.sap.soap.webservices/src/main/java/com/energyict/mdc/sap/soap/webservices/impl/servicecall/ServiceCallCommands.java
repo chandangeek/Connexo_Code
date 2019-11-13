@@ -248,7 +248,7 @@ public class ServiceCallCommands {
                                 try {
                                     createAndSendCommand(deviceId, ed, serviceCall, hei, message);
                                 } catch (LocalizedException le) {
-                                    sendProcessError(le.getErrorCode(), le.getLocalizedMessage(), message);
+                                    sendProcessErrorWithStatus(le.getErrorCode(), le.getLocalizedMessage(), message, deviceId);
                                 }
                             }));
 
@@ -487,17 +487,19 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage, message.isBulk());
     }
 
-    private void sendProcessError(String exceptionCode, String exceptionInfo, StatusChangeRequestCreateMessage message) {
+    private void sendProcessErrorWithStatus(String exceptionCode, String exceptionInfo, StatusChangeRequestCreateMessage message, String deviceId) {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, exceptionCode, exceptionInfo, clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
                             .from(message, exceptionCode, exceptionInfo, clock.instant())
+                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
