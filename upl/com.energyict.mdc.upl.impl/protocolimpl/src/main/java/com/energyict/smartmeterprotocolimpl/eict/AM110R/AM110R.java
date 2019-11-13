@@ -187,7 +187,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 

@@ -17,11 +17,11 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconf
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.LogItemCategoryCode;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilsDvceERPSmrtMtrBlkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilsDvceERPSmrtMtrCrteConfUtilsDvce;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.ObjectFactory;
 
 import java.time.Instant;
 import java.util.List;
@@ -66,7 +66,13 @@ public class CreateBulkConfirmationMessageFactory {
     public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Instant now) {
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
         confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), now));
+        message.getUtilitiesDeviceCreateMessages()
+                .forEach(item -> {
+                    confirmationMessage
+                            .getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage()
+                            .add(createFailedChildMessage(item, now));
 
+                });
         confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
         return confirmationMessage;
     }
@@ -91,6 +97,15 @@ public class CreateBulkConfirmationMessageFactory {
         } else if (childServiceCall.getState() == DefaultState.FAILED || childServiceCall.getState() == DefaultState.CANCELLED) {
             confirmationMessage.setLog(createFailedLog(extension.getErrorMessage()));
         }
+        return confirmationMessage;
+    }
+
+    private UtilsDvceERPSmrtMtrCrteConfMsg createFailedChildMessage(UtilitiesDeviceCreateMessage message, Instant now) {
+
+        UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
+        confirmationMessage.setMessageHeader(createChildHeader(now));
+        confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
+        confirmationMessage.setLog(createFailedLog());
         return confirmationMessage;
     }
 

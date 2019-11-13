@@ -17,7 +17,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.util.Map;
 
-@Component(name = MeterReadingDocumentCancellationConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationConfirmationProvider",
         service = {MeterReadingDocumentCancellationConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentCancellationConfirmation.NAME})

@@ -72,6 +72,13 @@ public class CreateBulkRegisterConfirmationMessageFactory {
     public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
         bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
+        requestMessage.getUtilitiesDeviceRegisterCreateMessages()
+                .forEach(item -> {
+                    bulkConfirmationMessage
+                            .getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage()
+                            .add(createFailedChildMessage(item, now));
+
+                });
         bulkConfirmationMessage.setLog(objectFactory.createLog());
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
         return bulkConfirmationMessage;
@@ -141,6 +148,14 @@ public class CreateBulkRegisterConfirmationMessageFactory {
                 // No specific action required for these states
                 break;
         }
+        return confirmationMessage;
+    }
+
+    private UtilsDvceERPSmrtMtrRegCrteConfMsg createFailedChildMessage(UtilitiesDeviceRegisterCreateMessage message, Instant now) {
+             UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
+        confirmationMessage.setMessageHeader(createChildHeader(now));
+        confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
+        confirmationMessage.setLog(createFailedLog());
         return confirmationMessage;
     }
 

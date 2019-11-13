@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -16,13 +17,19 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -61,7 +68,23 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         return thesaurus;
     }
 
-    void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
+    void handleRequestMessage(UtilitiesDeviceCreateRequestMessage requestMessage) {
+        SetMultimap<String, String> values = HashMultimap.create();
+        requestMessage.getUtilitiesDeviceCreateMessages().forEach(message -> {
+            values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), message.getSerialId());
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getDeviceId());
+        });
+
+        saveRelatedAttributes(values);
+
+        if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceCreateConfirmation.NAME);
+        }
+        createServiceCallAndTransition(requestMessage);
+    }
+
+    private void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
         if (message.isValid()) {
             if (hasUtilDeviceRequestServiceCall(message.getRequestID())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
@@ -75,7 +98,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         }
     }
 
-    boolean isAnyActiveEndpoint(String name) {
+    private boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()

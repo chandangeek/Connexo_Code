@@ -62,17 +62,6 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     @Override
     public void utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            SetMultimap<String, String> values = HashMultimap.create();
-            values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
-                    request.getUtilitiesTimeSeries().getID().getValue());
-            request.getUtilitiesTimeSeries().getMeasurementTaskAssignmentRole().forEach(role->
-            {
-                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                        role.getUtilitiesMeasurementTaskID().getValue());
-            });
-
-            saveRelatedAttributes(values);
-
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> handleMessage(requestMessage));
             return null;
@@ -80,8 +69,17 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     }
 
     public void handleMessage(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
-
         MeasurementTaskAssignmentChangeRequestMessage message = MeasurementTaskAssignmentChangeRequestMessage.builder().from(msg).build();
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+                message.getProfileId());
+        message.getRoles().forEach(role->
+                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                        role.getLrn()));
+
+        saveRelatedAttributes(values);
+
         if (!message.hasValidId()) {
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             return;
@@ -140,6 +138,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     }
 
     private void sendProcessError(MeasurementTaskAssignmentChangeRequestMessage message, MessageSeeds messageSeed, Object... args) {
+        log(LogLevel.SEVERE, messageSeed.translate(thesaurus, args));
         MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                 MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
                         .from(messageSeed.getLevel().getName(), messageSeed.translate(thesaurus, args))

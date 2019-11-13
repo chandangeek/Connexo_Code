@@ -47,7 +47,7 @@ public class StatusChangeRequestCancellationConfirmationTest extends AbstractOut
 
         assertThatThrownBy(() -> provider.call(confirmationMessage))
                 .isInstanceOf(LocalizedException.class)
-                .hasMessage("No web service endpoints are available to send the request using 'SAP StatusChangeRequestCancellationConfirmation'.");
+                .hasMessage("No web service endpoints are available to send the request using 'SAP ConnectionStatusChangeCancellationConfirmation'.");
     }
 
     @Test

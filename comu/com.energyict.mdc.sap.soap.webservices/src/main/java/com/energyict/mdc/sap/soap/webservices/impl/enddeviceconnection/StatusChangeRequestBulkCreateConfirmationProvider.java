@@ -9,12 +9,19 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestBulkCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg;
-
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesDeviceID;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -22,8 +29,11 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Singleton;
 import javax.xml.ws.Service;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,7 +83,16 @@ public class StatusChangeRequestBulkCreateConfirmationProvider extends AbstractO
     @Override
     public void call(StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage) {
         SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg message = confirmationMessage.getConfirmationMessage();
+        SetMultimap<String, String> values = HashMultimap.create();
+        getDeviceConfirmationMessages(message)
+                .forEach(msg -> getDeviceConnectionStatuses(msg.getUtilitiesConnectionStatusChangeRequest())
+                        .stream()
+                        .map(StatusChangeRequestBulkCreateConfirmationProvider::getDeviceId)
+                        .flatMap(Functions.asStream())
+                        .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value))
+                );
         using("smartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOut")
+                .withRelatedAttributes(values)
                 .send(message);
     }
 
@@ -82,9 +101,18 @@ public class StatusChangeRequestBulkCreateConfirmationProvider extends AbstractO
         boolean retValue = true;
         List<EndPointConfiguration> endpoints = getEndPointConfigurationsForWebService();
         SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg message = confirmationMessage.getConfirmationMessage();
+        SetMultimap<String, String> values = HashMultimap.create();
+        getDeviceConfirmationMessages(message)
+                .forEach(msg -> getDeviceConnectionStatuses(msg.getUtilitiesConnectionStatusChangeRequest())
+                        .stream()
+                        .map(StatusChangeRequestBulkCreateConfirmationProvider::getDeviceId)
+                        .flatMap(Functions.asStream())
+                        .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value))
+                );
 
         Set<EndPointConfiguration> successEndpoints = using("smartMeterUtilitiesConnectionStatusChangeRequestERPBulkCreateConfirmationCOut")
                 .toEndpoints(endpoints)
+                .withRelatedAttributes(values)
                 .send(message).keySet();
 
         endpoints.removeAll(successEndpoints);
@@ -99,10 +127,28 @@ public class StatusChangeRequestBulkCreateConfirmationProvider extends AbstractO
             parent.log(LogLevel.INFO, "Sent confirmation to the following endpoints: " + successEndpoints.stream()
                     .map(EndPointConfiguration::getName)
                     .collect(Collectors.joining(", ")));
-        }else{
+        } else {
             retValue = false;
         }
         return retValue;
+    }
+
+    private static List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> getDeviceConfirmationMessages(SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg message) {
+        return Optional.ofNullable(message)
+                .map(SmrtMtrUtilsConncnStsChgReqERPBulkCrteConfMsg::getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage)
+                .orElse(Collections.emptyList());
+    }
+
+    private static List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> getDeviceConnectionStatuses(SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq changeRequest) {
+        return Optional.ofNullable(changeRequest)
+                .map(SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq::getDeviceConnectionStatus)
+                .orElse(Collections.emptyList());
+    }
+
+    private static Optional<String> getDeviceId(SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts status) {
+        return Optional.ofNullable(status)
+                .map(SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts::getUtilitiesDeviceID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override

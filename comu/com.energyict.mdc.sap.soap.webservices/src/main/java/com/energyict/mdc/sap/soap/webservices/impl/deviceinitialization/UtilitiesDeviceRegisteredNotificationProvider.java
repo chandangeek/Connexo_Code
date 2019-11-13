@@ -45,7 +45,7 @@ import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = UtilitiesDeviceRegisteredNotification.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredNotificationProvider",
         service = {UtilitiesDeviceRegisteredNotification.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisteredNotification.NAME})
@@ -173,8 +173,11 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
     private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
         using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .toEndpoints(endPointConfigurations)
+                .withRelatedAttributes(values)
                 .send(notificationMessage);
     }
 

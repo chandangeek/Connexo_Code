@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
@@ -117,7 +116,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                             serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED).format());
                         }
                     } else {
-                        scheduleVerification(comTaskExecution.getDevice(), firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
+                        scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
                 }
             }
@@ -130,7 +129,6 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
             DeviceInFirmwareCampaign deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get();
             if (comTaskExecution.isFirmware()) {
-                Device device = comTaskExecution.getDevice();
                 if (deviceInFirmwareCampaign.getDeviceMessage().isPresent() && deviceInFirmwareCampaign.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
                     ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
@@ -138,7 +136,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         serviceCallService.lockServiceCall(serviceCall.getId());
                         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                     } else {
-                        scheduleVerification(device, clock.instant().plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
+                        scheduleVerification(deviceInFirmwareCampaign, clock.instant().plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                         serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
                     }
                 }
@@ -162,7 +160,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                             }
                         }
                     } else {
-                        scheduleVerification(comTaskExecution.getDevice(), firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
+                        scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
                 }
             }
@@ -204,23 +202,14 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         }
     }
 
-    private void scheduleVerification(Device device, Instant when) {
-        ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(device).get().getServiceCall();
+    private void scheduleVerification(DeviceInFirmwareCampaign deviceInFirmwareCampaign, Instant when) {
+        ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
         Optional<? extends FirmwareCampaign> campaignOptional = serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class);
         if (campaignOptional.isPresent()) {
             FirmwareCampaign campaign = campaignOptional.get();
-            Optional<ComTaskEnablement> comTaskEnablementOptional = device.getDeviceConfiguration().getComTaskEnablements().stream()
-                    .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == campaign.getValidationComTaskId())
-                    .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
-                            .anyMatch(task -> task instanceof StatusInformationTask))
-                    .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                    .filter(comTaskEnablement -> (firmwareCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
-                            || (!firmwareCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
-                    .findAny();
-            if (comTaskEnablementOptional.isPresent()) {
-                ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
-                        .filter(cte -> cte.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
-                        .findAny().orElseGet(() -> device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add());
+            Optional<ComTaskExecution> comTaskExecutionOptional = deviceInFirmwareCampaign.findOrCreateVerificationComTaskExecution();
+            if (comTaskExecutionOptional.isPresent()) {
+                ComTaskExecution comTaskExecution = comTaskExecutionOptional.get();
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
                     if (comTaskExecution.getConnectionTask().get().isActive() && (!campaign.getValidationConnectionStrategy()
@@ -232,11 +221,14 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                                 .format(campaign.getValidationConnectionStrategy().get().name(), comTaskExecution.getComTask().getName()));
                         serviceCall.requestTransition(DefaultState.FAILED);
                     }
+                } else {
+                    serviceCallService.lockServiceCall(serviceCall.getId());
+                    serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK).format(comTaskExecution.getComTask().getName()));
+                    serviceCall.requestTransition(DefaultState.FAILED);
                 }
             } else {
                 serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING)
-                        .format(firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName()));
+                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }

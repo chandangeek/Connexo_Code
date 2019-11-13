@@ -8,7 +8,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -17,10 +19,14 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbu
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UUID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilitiesSmartMeterEventERPBulkCreateConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilsSmrtMtrEvtERPBulkCrteConfMsg;
-
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilsSmrtMtrEvtERPCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilsSmrtMtrEvtERPCrteConfUtilsSmrtMtrEvt;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -30,13 +36,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-@Component(name = MeterEventCreateRequestConfirmationReceiver.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.eventmanagement.MeterEventCreateRequestConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterEventCreateRequestConfirmationReceiver.NAME})
 public class MeterEventCreateRequestConfirmationReceiver extends AbstractInboundEndPoint
         implements InboundSoapEndPointProvider, UtilitiesSmartMeterEventERPBulkCreateConfirmationCIn, ApplicationSpecific {
-    static final String NAME = "SAP SmartMeterEventCreateConfirmation";
+    static final String NAME = "SAP SmartMeterEventBulkCreateConfirmation";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile Thesaurus thesaurus;
@@ -64,6 +70,12 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
     public void utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(UtilsSmrtMtrEvtERPBulkCrteConfMsg confirmation) {
         runWithOccurrence(() -> {
             String uuid = findReferenceUuid(confirmation).orElse("null");
+            SetMultimap<String, String> values = HashMultimap.create();
+            confirmation.getUtilitiesSmartMeterEventERPCreateConfirmationMessage().stream()
+                    .map(MeterEventCreateRequestConfirmationReceiver::getDeviceId)
+                    .flatMap(Functions.asStream())
+                    .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+            saveRelatedAttributes(values);
             if (isConfirmed(confirmation)) {
                 log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.EVENT_CONFIRMED).format(uuid));
             } else {
@@ -72,6 +84,13 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
             }
             return null;
         });
+    }
+
+    private static Optional<String> getDeviceId(UtilsSmrtMtrEvtERPCrteConfMsg confirmation) {
+        return Optional.ofNullable(confirmation)
+                .map(UtilsSmrtMtrEvtERPCrteConfMsg::getUtilitiesSmartMeterEvent)
+                .map(UtilsSmrtMtrEvtERPCrteConfUtilsSmrtMtrEvt::getUtilitiesDeviceID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     private static Optional<String> findReferenceUuid(UtilsSmrtMtrEvtERPBulkCrteConfMsg confirmation) {
@@ -125,7 +144,7 @@ public class MeterEventCreateRequestConfirmationReceiver extends AbstractInbound
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return WebServiceApplicationName.MULTISENSE.getName();
     }
 }

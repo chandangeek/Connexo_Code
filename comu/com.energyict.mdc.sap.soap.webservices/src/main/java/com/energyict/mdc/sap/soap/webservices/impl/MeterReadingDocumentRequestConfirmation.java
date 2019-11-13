@@ -7,7 +7,7 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
 
 public interface MeterReadingDocumentRequestConfirmation {
-    String SAP_METER_READING_DOCUMENT_REQUEST_CONFIRMATION = "SapMeterReadingRequestConfirmation";
+    String SAP_METER_READING_DOCUMENT_REQUEST_CONFIRMATION = "SAP MeterReadingRequestConfirmation";
 
     /**
      * Invoked by the service call when the SAP meter reading document request is proceeded

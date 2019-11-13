@@ -251,7 +251,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile TimeService timeService;
     private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
-    private Map<AdditionalProperties, Integer> sapProperties = new HashMap<>();
+    private final Map<AdditionalProperties, Integer> sapProperties = new HashMap<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private Map<String, String> deviceTypesMap;
 

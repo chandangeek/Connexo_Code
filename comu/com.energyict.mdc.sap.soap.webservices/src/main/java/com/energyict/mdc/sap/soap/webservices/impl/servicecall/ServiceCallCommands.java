@@ -248,7 +248,7 @@ public class ServiceCallCommands {
                                 try {
                                     createAndSendCommand(deviceId, ed, serviceCall, hei, message);
                                 } catch (LocalizedException le) {
-                                    sendProcessError(le.getLocalizedMessage(), message);
+                                    sendProcessErrorWithStatus(le.getLocalizedMessage(), message, deviceId);
                                 }
                             }));
 
@@ -274,13 +274,13 @@ public class ServiceCallCommands {
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
 
         Optional<SAPMeterReadingDocumentReason> provider = WebServiceActivator.findReadingReasonProvider(childDomainExtension.getReadingReasonCode());
-        if(provider.isPresent()){
-            if(provider.get().shouldUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())){
+        if (provider.isPresent()) {
+            if (provider.get().shouldUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())) {
                 childDomainExtension.setScheduledReadingDate(clock.instant());
-            }else{
+            } else {
                 childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate().plusSeconds(provider.get().getShiftDate()));
             }
-        }else{
+        } else {
             childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
         }
 
@@ -487,17 +487,19 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage, message.isBulk());
     }
 
-    private void sendProcessError(String exceptionInfo, StatusChangeRequestCreateMessage message) {
+    private void sendProcessErrorWithStatus(String exceptionInfo, StatusChangeRequestCreateMessage message, String deviceId) {
         if (message.isBulk()) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, exceptionInfo, clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
                             .from(message, exceptionInfo, clock.instant())
+                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }

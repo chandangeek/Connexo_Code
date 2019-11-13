@@ -11,6 +11,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterBulkCr
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegBulkCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -21,8 +25,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.Map;
+import java.util.Optional;
 
-@Component(name = UtilitiesDeviceRegisterBulkCreateConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateConfirmationProvider",
         service = {UtilitiesDeviceRegisterBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisterBulkCreateConfirmation.NAME})
@@ -61,16 +66,23 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationProvider extends Abstr
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
         SetMultimap<String, String> values = HashMultimap.create();
-        if (msg.getBulkConfirmationMessage().isPresent()){
-            msg.getBulkConfirmationMessage().get().getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage().forEach(cnfMsg->{
-                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                        cnfMsg.getUtilitiesDevice().getID().getValue());
-            });
-        }
+        UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = msg.getBulkConfirmationMessage()
+                .orElseThrow(() -> new IllegalStateException("Unable to get confirmation message"));
+
+        bulkConfirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage().forEach(cnfMsg -> {
+            getDeviceId(cnfMsg).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+        });
 
         using("utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut")
                 .withRelatedAttributes(values)
-                .send(msg.getBulkConfirmationMessage().get());
+                .send(bulkConfirmationMessage);
+    }
+
+    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrRegCrteConfMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(UtilsDvceERPSmrtMtrRegCrteConfMsg::getUtilitiesDevice)
+                .map(UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce::getID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
@@ -29,6 +30,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceERPSmartMeterRegisterChangeRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -68,16 +71,24 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
     @Override
     public void utilitiesDeviceERPSmartMeterRegisterChangeRequestCIn(UtilsDvceERPSmrtMtrRegChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        MeterRegisterChangeConfirmation.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(MeterRegisterChangeMessageBuilder
-                            .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                        MeterRegisterChangeMessage message = MeterRegisterChangeMessageBuilder
+                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
+                                .from(requestMessage)
+                                .build();
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        Optional.ofNullable(message.getLrn())
+                                .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                        Optional.ofNullable(message.getDeviceId())
+                                .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        saveRelatedAttributes(values);
+                        if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    MeterRegisterChangeConfirmation.NAME);
+                        }
+                        createServiceCallAndTransition(message);
+                    });
             return null;
         });
     }

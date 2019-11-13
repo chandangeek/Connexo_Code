@@ -152,7 +152,7 @@ public enum MessageSeeds implements MessageSeed {
     CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS(2126, "changeDeviceConfigUnsatisfiedRequirements", "The device {0} can''t have the device configuration {1} because this device configuration doesn''t have the following reading types that are specified in the metrology configuration versions of the usage points that are linked to this device: {2}"),
     NO_SUCH_END_DEVICE_CONTROL_TYPE(2127, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(2128, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
-    NO_STATUS_INFORMATION_COMTASK(2129, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
+    NO_STATUS_INFORMATION_COMTASK(2129, Keys.NO_STATUS_INFORMATION_COMTASK, "A communication task to read out the status information couldn''t be located."),
     DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2130, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2131, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
     COMMAND_ARGUMENT_SPEC_NOT_FOUND(2132, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
@@ -221,7 +221,9 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized."),
     WRONG_STATUS(2194, Keys.WRONG_STATUS, "Wrong status value. Possible values: {0}"),
     WRONG_CARD_FORMAT(2195, Keys.WRONG_CARD_FORMAT, "Wrong card format value. Possible values: {0}"),
-    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\")
+    FORBIDDEN_CHARS(2196, Keys.FORBIDDEN_CHARS, "Device name contains forbidden characters: %, +, /, ;, ?, \\"),
+    NO_COMTASK_EXECUTION(2197, Keys.NO_COMTASK_EXECUTION, "A communication task execution for the device messages couldn''t be located or it''s on hold."),
+    NO_STATUS_INFORMATION_COMTASK_EXECUTION(2198, Keys.NO_STATUS_INFORMATION_COMTASK_EXECUTION, "A communication task execution to read out the status information couldn''t be located or it''s on hold."),
     ;
 
     private final int number;
@@ -425,5 +427,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String WRONG_STATUS = "WrongStatus";
         public static final String WRONG_CARD_FORMAT = "WrongCardFormat";
         public static final String FORBIDDEN_CHARS = "forbiddenChars";
+        public static final String NO_COMTASK_EXECUTION = "noComTaskExecution";
+        public static final String NO_STATUS_INFORMATION_COMTASK_EXECUTION = "noStatusInformationComTaskExecution";
     }
 }

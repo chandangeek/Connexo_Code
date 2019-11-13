@@ -36,6 +36,8 @@ import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
@@ -44,6 +46,9 @@ import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallDomainExtension;
@@ -104,7 +109,9 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     @Inject
-    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory, ThreadPrincipalService threadPrincipalService, Clock clock) {
+    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus,
+                                          ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory,
+                                          ThreadPrincipalService threadPrincipalService, Clock clock) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -360,7 +367,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         serviceCall.log(LogLevel.INFO, "Handling command " + endDeviceCommand.getEndDeviceControlType());
 
         try {
-            checkComTaskEnablement(endDeviceCommand);
+            checkComTask(multiSenseDevice);
+            if (endDeviceCommand instanceof OpenRemoteSwitchCommand || endDeviceCommand instanceof CloseRemoteSwitchCommand || endDeviceCommand instanceof ArmRemoteSwitchCommand) {
+                // check Status Information com task exists and is manual system for 3 command types which trigger it in service call handlers
+                checkStatusInformationComTask(multiSenseDevice);
+            }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
             scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
@@ -371,25 +382,46 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.log("Encountered an exception when trying to create/schedule the device command(s)", e);
             serviceCall.log(LogLevel.SEVERE, e.getLocalizedMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
+            if (e instanceof LimitsExceededForCommandException) {
+                Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException)e).getDeviceMessage();
+                deviceMessage.ifPresent(DeviceMessage::revoke);
+            }
             throw e;
         }
     }
 
-    private void checkComTaskEnablement(EndDeviceCommand endDeviceCommand) throws NoSuchElementException {
-        EndDevice endDevice = endDeviceCommand.getEndDevice();
-            if (endDevice != null) {
-            Device device = findDeviceForEndDevice(endDevice);
+    private void checkComTask(Device device) throws NoSuchElementException {
+        // just to check negative case when there is no ManualSystemTask of type MessagesTask
+        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
+                .getComTaskEnablements().stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
+                .filter(cte -> cte.getComTask().getProtocolTasks().stream()
+                        .anyMatch(task -> task instanceof MessagesTask))
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get());
 
-            // just to check negative case when there is no ManualSystemTask of type MessagesTask
-            boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
-                    .getComTaskEnablements().stream()
-                    .filter(cte -> cte.getComTask().isManualSystemTask())
-                    .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
-                            .anyMatch(task -> task instanceof MessagesTask));
-            if (noCommandComTaskEnablement) {
-                throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
-            }
-        }
+        device.getComTaskExecutions().stream()
+                .filter(cte -> !cte.isOnHold())
+                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get());
+    }
+
+    private void checkStatusInformationComTask(Device device) throws NoSuchElementException {
+        // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
+        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
+                .getComTaskEnablements().stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
+                .filter(cte -> cte.getComTask().getProtocolTasks().stream()
+                        .anyMatch(task -> task instanceof StatusInformationTask))
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get());
+
+        device.getComTaskExecutions().stream()
+                .filter(cte -> !cte.isOnHold())
+                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.statusInformationComTaskExecutionCouldNotBeLocated(thesaurus).get());
     }
 
     private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages) {
@@ -399,6 +431,9 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
                     .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                     .findFirst();
+            if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
+                throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+            }
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
             deviceMessages.stream()
                     .map(DeviceMessage::getReleaseDate)

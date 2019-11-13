@@ -93,7 +93,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             MeterRegisterChangeRequestDomainExtension extension = childServiceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
 
             UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-            confirmationMessage.setMessageHeader(createChildHeader(now));
+            confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
             if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
@@ -113,9 +113,11 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return device;
         }
 
-        private BusinessDocumentMessageHeader createChildHeader(Instant now) {
+        private BusinessDocumentMessageHeader createChildHeader(String id, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
+            header.setReferenceID(createID(id));
+            header.setReferenceUUID(createUUID(uuid));
             header.setCreationDateTime(now);
             return header;
         }

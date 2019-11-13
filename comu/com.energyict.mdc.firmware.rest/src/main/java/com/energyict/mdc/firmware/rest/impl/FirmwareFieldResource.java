@@ -168,7 +168,7 @@ public class FirmwareFieldResource extends FieldResource {
         deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
-                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
@@ -187,7 +187,7 @@ public class FirmwareFieldResource extends FieldResource {
         deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
-                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                 .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME))
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 

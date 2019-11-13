@@ -305,7 +305,7 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         waveFlow100mWMessages.applyMessages(messageEntries);
     }
 

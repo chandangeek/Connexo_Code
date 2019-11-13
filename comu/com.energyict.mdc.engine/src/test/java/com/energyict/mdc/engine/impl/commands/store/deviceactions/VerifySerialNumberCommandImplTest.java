@@ -36,6 +36,10 @@ import static org.mockito.Mockito.when;
 public class VerifySerialNumberCommandImplTest extends CommonCommandImplTests {
 
     private static final String CORRECT_METER_SERIAL_NUMBER = "CorrectMeterSerialNumber";
+    private static final String CORRECT_METER_SERIAL_NUMBER_WITH_LEADING_ZEROS = "0000CorrectMeterSerialNumber";
+    private static final String CORRECT_METER_SERIAL_NUMBER_WITH_LEADING_DASHES = "----CorrectMeterSerialNumber";
+    private static final String CORRECT_METER_SERIAL_NUMBER_WITH_TRAILING_DASHES = "CorrectMeterSerialNumber----";
+    private static final String CORRECT_METER_SERIAL_NUMBER_WITH_MIDDLE_DASHES = "Correct-Meter--SerialNumber";
     private static final String INCORRECT_METER_SERIAL_NUMBER = "IncorrectMeterSerialNumber";
 
     @Mock
@@ -60,6 +64,94 @@ public class VerifySerialNumberCommandImplTest extends CommonCommandImplTests {
         assertEquals("There should be no issues logged", 0, verifySerialNumberCommand.getIssues().size());
         assertEquals("There should be no problems logged", 0, verifySerialNumberCommand.getProblems().size());
         assertEquals("There should be no warning logged", 0, verifySerialNumberCommand.getWarnings().size());
+    }
+
+    @Test
+    public void verifyWithCorrectSerialNumberAndCorrectSerialNumberWithLeadingZerosTest() {
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER_WITH_LEADING_ZEROS);
+        VerifySerialNumberCommandImpl verifySerialNumberCommand = new VerifySerialNumberCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol));
+        verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        // asserts
+        assertEquals("There should be no issues logged", 0, verifySerialNumberCommand.getIssues().size());
+        assertEquals("There should be no problems logged", 0, verifySerialNumberCommand.getProblems().size());
+        assertEquals("There should be no warning logged", 0, verifySerialNumberCommand.getWarnings().size());
+    }
+
+    @Test
+    public void verifyWithCorrectSerialNumberWithLeadingZerosAndCorrectSerialNumberTest() {
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER_WITH_LEADING_ZEROS);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER);
+        VerifySerialNumberCommandImpl verifySerialNumberCommand = new VerifySerialNumberCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol));
+        verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        // asserts
+        assertEquals("There should be no issues logged", 0, verifySerialNumberCommand.getIssues().size());
+        assertEquals("There should be no problems logged", 0, verifySerialNumberCommand.getProblems().size());
+        assertEquals("There should be no warning logged", 0, verifySerialNumberCommand.getWarnings().size());
+    }
+
+    @Test
+    public void verifyWithCorrectSerialNumberAndCorrectSerialNumberWithLeadingDashesTest() {
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER_WITH_LEADING_DASHES);
+        VerifySerialNumberCommandImpl verifySerialNumberCommand = new VerifySerialNumberCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol));
+        verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        // asserts
+        assertEquals("There should be no issues logged", 0, verifySerialNumberCommand.getIssues().size());
+        assertEquals("There should be no problems logged", 0, verifySerialNumberCommand.getProblems().size());
+        assertEquals("There should be no warning logged", 0, verifySerialNumberCommand.getWarnings().size());
+    }
+
+    @Test
+    public void verifyWithCorrectSerialNumberWithLeadingDashesAndCorrectSerialNumberTest() {
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER_WITH_LEADING_DASHES);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER);
+        VerifySerialNumberCommandImpl verifySerialNumberCommand = new VerifySerialNumberCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol));
+        verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        // asserts
+        assertEquals("There should be no issues logged", 0, verifySerialNumberCommand.getIssues().size());
+        assertEquals("There should be no problems logged", 0, verifySerialNumberCommand.getProblems().size());
+        assertEquals("There should be no warning logged", 0, verifySerialNumberCommand.getWarnings().size());
+    }
+
+    @Test
+    public void verifyIncorrectSerialNumberWithTrailingDashesTest() {
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER_WITH_TRAILING_DASHES);
+        VerifySerialNumberCommandImpl verifySerialNumberCommand = new VerifySerialNumberCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol));
+        verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        Assertions.assertThat(verifySerialNumberCommand.getIssues().size()).isEqualTo(1);
+        Assertions.assertThat(verifySerialNumberCommand.getIssues().get(0).getDescription()).isEqualTo("serialNumberMismatch");
+        Assertions.assertThat(verifySerialNumberCommand.getCompletionCode()).isEqualTo(CompletionCode.ConfigurationError);
+    }
+
+    @Test
+    public void verifyIncorrectSerialNumberWithMiddleDashesTest() {
+        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        when(offlineDevice.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getSerialNumber()).thenReturn(CORRECT_METER_SERIAL_NUMBER_WITH_MIDDLE_DASHES);
+        VerifySerialNumberCommandImpl verifySerialNumberCommand = new VerifySerialNumberCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol));
+        verifySerialNumberCommand.execute(deviceProtocol, newTestExecutionContext());
+
+        Assertions.assertThat(verifySerialNumberCommand.getIssues().size()).isEqualTo(1);
+        Assertions.assertThat(verifySerialNumberCommand.getIssues().get(0).getDescription()).isEqualTo("serialNumberMismatch");
+        Assertions.assertThat(verifySerialNumberCommand.getCompletionCode()).isEqualTo(CompletionCode.ConfigurationError);
     }
 
     @Test
