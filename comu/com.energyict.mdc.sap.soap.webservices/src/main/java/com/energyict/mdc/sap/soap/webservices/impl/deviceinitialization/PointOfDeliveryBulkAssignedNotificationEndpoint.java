@@ -59,11 +59,13 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
 
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivBulkAssgndNotifMsg msg) {
         PodBulkMessage bulkMsg = new PodBulkMessage(msg);
+        SetMultimap<String, String> values = HashMultimap.create();
+        bulkMsg.podMessages.forEach(message -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId));
+        saveRelatedAttributes(values);
+
         if (bulkMsg.isValid()) {
-            SetMultimap<String, String> values = HashMultimap.create();
             bulkMsg.podMessages.forEach(message -> {
                 if (message.isValid()) {
-                    values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId);
                     Optional<Device> device = sapCustomPropertySets.getDevice(message.deviceId);
                     if (device.isPresent()) {
                         try {
@@ -78,7 +80,6 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
                     log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
                 }
             });
-            saveRelatedAttributes(values);
         } else {
             log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
         }

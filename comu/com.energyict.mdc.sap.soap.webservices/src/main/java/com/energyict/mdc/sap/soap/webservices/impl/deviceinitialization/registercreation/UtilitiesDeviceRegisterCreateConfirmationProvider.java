@@ -11,6 +11,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterCreate
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -21,6 +24,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationProvider",
         service = {UtilitiesDeviceRegisterCreateConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -61,12 +65,22 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
         SetMultimap<String, String> values = HashMultimap.create();
-        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
+
+        UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = msg.getConfirmationMessage()
+                .orElseThrow(() -> new IllegalStateException("Unable to get confirmation message"));
+
+        getDeviceId(confirmationMessage).ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
 
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")
                 .withRelatedAttributes(values)
-                .send(msg.getConfirmationMessage().get());
+                .send(confirmationMessage);
+    }
+
+    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrRegCrteConfMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(UtilsDvceERPSmrtMtrRegCrteConfMsg::getUtilitiesDevice)
+                .map(UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce::getID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override
