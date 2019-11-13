@@ -392,42 +392,36 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     private void checkComTask(Device device) throws NoSuchElementException {
         // just to check negative case when there is no ManualSystemTask of type MessagesTask
-        Optional<ComTaskEnablement> comTaskEnablement = device.getDeviceConfiguration()
+        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
                 .getComTaskEnablements().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream()
-                        .anyMatch(task -> task instanceof MessagesTask)).findFirst();
+                        .anyMatch(task -> task instanceof MessagesTask))
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get());
 
-        if (!comTaskEnablement.isPresent()) {
-            throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
-        }
-        Optional<ComTaskExecution> comTaskExecution = device.getComTaskExecutions().stream()
+        device.getComTaskExecutions().stream()
                 .filter(cte -> !cte.isOnHold())
-                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.get().getComTask().getId())
-                .findFirst();
-        if (!comTaskExecution.isPresent()) {
-            throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
-        }
+                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get());
     }
 
     private void checkStatusInformationComTask(Device device) throws NoSuchElementException {
         // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
-        Optional<ComTaskEnablement> comTaskEnablement = device.getDeviceConfiguration()
+        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
                 .getComTaskEnablements().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream()
-                        .anyMatch(task -> task instanceof StatusInformationTask)).findFirst();
+                        .anyMatch(task -> task instanceof StatusInformationTask))
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get());
 
-        if (!comTaskEnablement.isPresent()) {
-            throw NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get();
-        }
-        Optional<ComTaskExecution> comTaskExecution = device.getComTaskExecutions().stream()
+        device.getComTaskExecutions().stream()
                 .filter(cte -> !cte.isOnHold())
-                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.get().getComTask().getId())
-                .findFirst();
-        if (!comTaskExecution.isPresent()) {
-            throw NoSuchElementException.statusInformationComTaskExecutionCouldNotBeLocated(thesaurus).get();
-        }
+                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
+                .findFirst()
+                .orElseThrow(() -> NoSuchElementException.statusInformationComTaskExecutionCouldNotBeLocated(thesaurus).get());
     }
 
     private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages) {
