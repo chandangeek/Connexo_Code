@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
 import static com.elster.jupiter.servicecall.DefaultState.FAILED;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
-import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateBulkRegisterConfirmationMessageFactory {
 
@@ -182,7 +182,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
@@ -219,7 +219,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(message);
 

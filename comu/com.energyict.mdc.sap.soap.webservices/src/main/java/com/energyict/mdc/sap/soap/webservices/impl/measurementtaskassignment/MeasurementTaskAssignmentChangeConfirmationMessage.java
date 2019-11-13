@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.logging.Level;
 
-import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class MeasurementTaskAssignmentChangeConfirmationMessage {
 
@@ -87,7 +87,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         private Log createLog(String severityCode, String errorMessage) {
             LogItem logItem = OBJECT_FACTORY.createLogItem();
 
-            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_CODE);
+            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
             logItem.setSeverityCode(severityCode);
             logItem.setNote(errorMessage);
 
