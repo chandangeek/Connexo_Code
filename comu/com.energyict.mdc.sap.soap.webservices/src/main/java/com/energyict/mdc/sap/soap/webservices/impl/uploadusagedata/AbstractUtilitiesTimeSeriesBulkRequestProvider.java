@@ -29,6 +29,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -57,8 +58,15 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
 
-    protected int NUMBER_OF_READINGS_PER_MSG = 100;
+    protected int NUMBER_OF_READINGS_PER_MSG;
+    protected final int NUMBER_OF_READINGS_PER_MSG_DEFAULT = 500;
+    protected int MESSAGE_SIZE;
+    protected int MESSAGE_SIZE_DEFAULT = 512000;//500kB
+    protected int READING_SIZE; //bytes
+    protected final int READING_SIZE_DEFAULT = 327; //bytes
+    protected final String PROPERTY_READING_SIZE = "reading.size";
     protected final String PROPERTY_MSG_SIZE = "msg.size.property";
+    protected final int HEADER_SIZE = 1024; // bytes
 
     AbstractUtilitiesTimeSeriesBulkRequestProvider() {
         // for OSGi
@@ -75,7 +83,28 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         setThesaurus(thesaurus);
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
-        String NUMBER_OF_READINGS_PER_MSG = bundleContext.getProperty(PROPERTY_MSG_SIZE);
+        initNumberOfReadingsPerMsg(bundleContext);
+    }
+
+    protected void initNumberOfReadingsPerMsg(BundleContext bundleContext){
+        String msgSize = bundleContext.getProperty(PROPERTY_MSG_SIZE);
+        String readingSize = bundleContext.getProperty(PROPERTY_READING_SIZE);
+        if (!Strings.isNullOrEmpty(msgSize)) {
+            MESSAGE_SIZE = Integer.valueOf(msgSize)*1024;
+        }else{
+            MESSAGE_SIZE = MESSAGE_SIZE_DEFAULT;
+        }
+
+        if (!Strings.isNullOrEmpty(readingSize)) {
+            READING_SIZE = Integer.valueOf(readingSize);
+        }else{
+            READING_SIZE = READING_SIZE_DEFAULT;
+        }
+
+        NUMBER_OF_READINGS_PER_MSG = (MESSAGE_SIZE - HEADER_SIZE)/READING_SIZE;
+
+        if (NUMBER_OF_READINGS_PER_MSG == 0)
+            NUMBER_OF_READINGS_PER_MSG = NUMBER_OF_READINGS_PER_MSG_DEFAULT;
     }
 
     void setPropertySpecService(PropertySpecService propertySpecService) {
