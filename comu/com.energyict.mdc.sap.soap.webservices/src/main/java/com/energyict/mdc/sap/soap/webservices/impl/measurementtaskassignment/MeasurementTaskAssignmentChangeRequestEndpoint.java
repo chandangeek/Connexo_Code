@@ -138,6 +138,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     }
 
     private void sendProcessError(MeasurementTaskAssignmentChangeRequestMessage message, MessageSeeds messageSeed, Object... args) {
+        log(LogLevel.SEVERE, messageSeed.translate(thesaurus, args));
         MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                 MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
                         .from(messageSeed.getLevel().getName(), messageSeed.code(), messageSeed.translate(thesaurus, args))
