@@ -59,7 +59,16 @@ Ext.define('Imt.usagepointmanagement.controller.ChangeUsagePointLifeCycle', {
                     callback: function () {
                         view.down('#change-usage-point-life-cycle-combo').getStore().filterBy(function (rec) {
                             var isNotCurrentLifeCycle = rec.get('id') != usagePoint.get('lifeCycle').id;
-                            var hasCurrentUsagePointState = rec.raw && rec.raw.states && rec.raw.states.map(x => x.name ).includes(usagePoint.get('state').name);
+                            var hasCurrentUsagePointState = false;
+                            if (rec.raw && rec.raw.states) {
+                                for (var key in rec.raw.states) {
+                                    var member = rec.raw.states[key];
+                                    if (member.name === usagePoint.get('state').name) {
+                                        hasCurrentUsagePointState = true;
+                                        break;
+                                    }
+                                }
+                            }
                             return isNotCurrentLifeCycle && hasCurrentUsagePointState;
                         });
                         view.setLoading(false);
