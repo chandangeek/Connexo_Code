@@ -404,7 +404,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
             }
         }
 
-        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINTS_NOT_FOUND, String.join(",", webservices));
+        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINTS_NOT_FOUND, String.join(", ", webservices));
     }
 
     private int getNumberOfReadingTypes(ExportTask exportTask) {
