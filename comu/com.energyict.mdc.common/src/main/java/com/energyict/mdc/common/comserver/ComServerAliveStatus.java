@@ -23,7 +23,7 @@ public interface ComServerAliveStatus {
 
     void setRunning(boolean isRunning);
 
-    Integer getUpdateFrequency();
+    Integer getUpdateFrequencyMinutes();
 
     Optional<Instant> getBlockedSince();
 

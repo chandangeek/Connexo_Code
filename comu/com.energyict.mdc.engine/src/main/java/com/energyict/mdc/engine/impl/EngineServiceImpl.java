@@ -21,12 +21,14 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.common.protocol.DeviceMessage;
@@ -164,7 +166,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private BundleContext bundleContext = null;
 
     private static final String COM_SERVER_STATUS_TASK_NAME = "ComServerAliveStatusTask";
-    private static final String COM_SERVER_STATUS_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
     private static final int COM_SERVER_STATUS_TASK_RETRY_DELAY = 60;
 
     public EngineServiceImpl() {
@@ -692,17 +693,18 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 COM_SERVER_STATUS_TASK_RETRY_DELAY,
                 TranslationKeys.COM_SERVER_STATUS_TASK_NAME_TRANSLATION,
                 COM_SERVER_STATUS_TASK_NAME,
-                property == null ? COM_SERVER_STATUS_TASK_SCHEDULE : "0 0/" + property + " * 1/1 * ? *");
+                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFreq()).minutes().at(0).build());
     }
 
     private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
-                                          TranslationKey subscriberSpecName, String taskName, String taskSchedule) {
+                                          TranslationKey subscriberSpecName, String taskName, ScheduleExpression scheduleExpression) {
+
         threadPrincipalService.set(() -> "Activator");
         try (TransactionContext context = transactionService.getContext()) {
             Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(taskName);
             if (taskOptional.isPresent()) {
                 RecurrentTask task = taskOptional.get();
-                task.setScheduleExpressionString(taskSchedule);
+                task.setScheduleExpression(scheduleExpression);
                 task.save();
             } else {
                 DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
@@ -714,7 +716,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 taskService.newBuilder()
                         .setApplication("Admin")
                         .setName(taskName)
-                        .setScheduleExpressionString(taskSchedule)
+                        .setScheduleExpression(scheduleExpression)
                         .setDestination(destination)
                         .setPayLoad("payload")
                         .scheduleImmediately(true)

@@ -24,7 +24,7 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
     private final Reference<ComServer> comServer = ValueReference.absent();
     private final DataModel dataModel;
 
-    final static int DEFAULT_FREQUENCY = 60;
+    final static int DEFAULT_FREQUENCY_MINUTES = 1;
 
     public enum FieldNames {
         LAST_ACTIVE_TIME("lastActiveTime"),
@@ -81,7 +81,7 @@ public class ComServerAliveStatusImpl implements ComServerAliveStatus {
     }
 
     @Override
-    public Integer getUpdateFrequency() {
+    public Integer getUpdateFrequencyMinutes() {
         return updateFreq;
     }
 

@@ -67,7 +67,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,7 +91,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     private BundleContext bundleContext = null;
     private Thesaurus thesaurus;
 
-    public final static String COM_SERVER_STATUS_ALIVE_FREQ_PROP = "com.energyict.mdc.comserver.status.update.freq.seconds";
+    public final static String COM_SERVER_STATUS_ALIVE_FREQ_PROP = "com.energyict.mdc.comserver.status.update.freq.minutes";
 
     public EngineConfigurationServiceImpl() {
         super();
@@ -615,7 +614,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         Optional<ComServerAliveStatus> comServerAliveStatus = getComServerAliveDataMapper().getUnique("comServer", comServer);
         comServerAliveStatus.ifPresent(
                 status ->
-                        status.setRunning(clock.instant().getEpochSecond() - status.getLastActiveTime().getEpochSecond() <= status.getUpdateFrequency())
+                        status.setRunning(clock.instant().getEpochSecond() - status.getLastActiveTime().getEpochSecond() <= status.getUpdateFrequencyMinutes() * 60)
         );
         return comServerAliveStatus;
     }
@@ -624,9 +623,9 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     public Integer getComServerStatusAliveFreq() {
         try {
             String val = bundleContext.getProperty(COM_SERVER_STATUS_ALIVE_FREQ_PROP);
-            return val == null ? ComServerAliveStatusImpl.DEFAULT_FREQUENCY : Integer.valueOf(val);
+            return val == null ? ComServerAliveStatusImpl.DEFAULT_FREQUENCY_MINUTES : Integer.valueOf(val);
         } catch (NumberFormatException e) {
-            return ComServerAliveStatusImpl.DEFAULT_FREQUENCY;
+            return ComServerAliveStatusImpl.DEFAULT_FREQUENCY_MINUTES;
         }
     }
 }
