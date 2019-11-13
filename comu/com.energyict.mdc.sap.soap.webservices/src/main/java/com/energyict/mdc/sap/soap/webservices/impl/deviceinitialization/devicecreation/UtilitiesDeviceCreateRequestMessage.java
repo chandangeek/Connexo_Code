@@ -59,10 +59,13 @@ public class UtilitiesDeviceCreateRequestMessage {
                         setUuid(getUuid(messageHeader));
                     });
 
-            utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
-                    .builder()
-                    .from(requestMessage.getUtilitiesDevice())
-                    .build());
+            Optional.ofNullable(requestMessage.getUtilitiesDevice())
+                    .ifPresent(utilitiesDevice ->
+                            utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
+                                    .builder()
+                                    .from(utilitiesDevice)
+                                    .build())
+                    );
             return this;
         }
 
@@ -76,10 +79,13 @@ public class UtilitiesDeviceCreateRequestMessage {
 
             requestMessage.getUtilitiesDeviceERPSmartMeterCreateRequestMessage()
                     .forEach(message ->
-                            utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
-                                    .builder()
-                                    .from(message.getUtilitiesDevice())
-                                    .build()));
+                            Optional.ofNullable(message.getUtilitiesDevice())
+                                    .ifPresent(utilitiesDevice ->
+                                            utilitiesDeviceCreateMessages.add(UtilitiesDeviceCreateMessage
+                                                    .builder()
+                                                    .from(utilitiesDevice)
+                                                    .build()))
+                    );
             return this;
         }
 

@@ -117,7 +117,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                     ? checkTaskStatus(serviceCall, comTaskExecution.get())
                     : runTask(serviceCall, comTaskExecution.get());
         }else{
-            serviceCall.log(LogLevel.SEVERE, "A comtask to execute the device messages couldn't be located");
+            serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages couldn't be located");
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
             return false;
         }

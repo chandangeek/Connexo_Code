@@ -34,28 +34,13 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractCreateRequ
     @Override
     public void utilitiesDeviceERPSmartMeterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrBlkCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
                                 UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder()
                                         .from(requestMessage)
                                         .build();
 
-                                SetMultimap<String, String> values = HashMultimap.create();
-
-                                message.getUtilitiesDeviceCreateMessages().forEach(req -> {
-                                    values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), req.getSerialId());
-                                    values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), req.getDeviceId());
-                                });
-
-                                saveRelatedAttributes(values);
-
-                                if (!isAnyActiveEndpoint(UtilitiesDeviceBulkCreateConfirmation.NAME)) {
-                                    throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                                            UtilitiesDeviceBulkCreateConfirmation.NAME);
-                                }
-
-                                createServiceCallAndTransition(message);
+                                handleRequestMessage(message);
                             }
                     );
             return null;
