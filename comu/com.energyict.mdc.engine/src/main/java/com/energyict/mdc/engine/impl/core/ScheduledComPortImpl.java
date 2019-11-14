@@ -227,13 +227,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
                 doRun();
             } catch (Throwable t) {
                 exceptionLogger.unexpectedError(t);
-                if (t instanceof PersistenceException) {
-                    runningComServer.refresh(getComPort());
-                    continueRunning.set(false);
-                } else {
-                    // Give the infrastructure some time to recover from e.g. unexpected SQL errors
-                    reschedule();
-                }
+                // Give the infrastructure some time to recover from e.g. unexpected SQL errors
+                reschedule();
             }
         }
         status = ServerProcessStatus.SHUTDOWN;
