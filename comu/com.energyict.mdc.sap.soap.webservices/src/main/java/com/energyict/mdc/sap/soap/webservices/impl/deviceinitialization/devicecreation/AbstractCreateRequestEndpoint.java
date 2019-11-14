@@ -133,15 +133,15 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
 
     private boolean hasUtilDeviceRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceCreateRequestCustomPropertySet.MODEL_NAME);
-        boolean idAlreadyExists = dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
-                .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
-                .orElse(false);
-        if (idAlreadyExists) {
-            return true;
+        if (id != null) {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                    .orElse(false);
+        } else {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
+                    .orElse(false);
         }
-        return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
-                .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
-                .orElse(false);
     }
 
     private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed) {

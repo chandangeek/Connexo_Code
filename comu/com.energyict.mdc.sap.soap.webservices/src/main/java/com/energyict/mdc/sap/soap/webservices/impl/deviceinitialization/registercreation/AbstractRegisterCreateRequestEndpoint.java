@@ -198,14 +198,14 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
     private boolean hasUtilDeviceRegisterRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.MODEL_NAME);
-        boolean idAlreadyExists = dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
-                .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
-                .orElse(false);
-        if (idAlreadyExists) {
-            return true;
+        if (id != null) {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                    .orElse(false);
+        } else {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
+                    .orElse(false);
         }
-        return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
-                .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
-                .orElse(false);
     }
 }
