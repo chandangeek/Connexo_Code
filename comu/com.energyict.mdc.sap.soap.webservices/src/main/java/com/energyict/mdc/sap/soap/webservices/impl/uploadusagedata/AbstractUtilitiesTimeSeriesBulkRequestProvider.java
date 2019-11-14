@@ -161,8 +161,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         List<ServiceCall> srvCallList = new ArrayList<>();
         List<MeterReadingData> readingDataToSend = new ArrayList<>();
 
+        //List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
         List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
-
         for (Iterator iterator = readingDataList.iterator(); iterator.hasNext(); ) {
             MeterReadingData meterReadingData = (MeterReadingData) iterator.next();
             /* Calculate number of readings that should be sent for this meterReadingData */
