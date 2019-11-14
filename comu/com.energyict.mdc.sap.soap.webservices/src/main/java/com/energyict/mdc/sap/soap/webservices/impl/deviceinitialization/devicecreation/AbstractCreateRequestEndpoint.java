@@ -86,7 +86,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
 
     private void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
         if (message.isValid()) {
-            if (hasUtilDeviceRequestServiceCall(message.getRequestID())) {
+            if (hasUtilDeviceRequestServiceCall(message.getRequestID(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST).ifPresent(serviceCallType -> {
@@ -131,10 +131,16 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         }
     }
 
-    private boolean hasUtilDeviceRequestServiceCall(String id) {
+    private boolean hasUtilDeviceRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceCreateRequestCustomPropertySet.MODEL_NAME);
-        return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
+        boolean idAlreadyExists = dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
                 .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                .orElse(false);
+        if (idAlreadyExists) {
+            return true;
+        }
+        return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
+                .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
                 .orElse(false);
     }
 

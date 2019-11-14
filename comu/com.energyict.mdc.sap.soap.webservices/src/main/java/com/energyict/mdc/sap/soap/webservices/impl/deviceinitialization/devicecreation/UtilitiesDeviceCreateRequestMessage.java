@@ -43,7 +43,7 @@ public class UtilitiesDeviceCreateRequestMessage {
     }
 
     public boolean isValid() {
-        return requestID != null;
+        return requestID != null || uuid != null;
     }
 
     public class Builder {
