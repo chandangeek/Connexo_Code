@@ -64,7 +64,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     protected int MESSAGE_SIZE_DEFAULT = 512000;//500kB
     protected int READING_SIZE; //bytes
     protected final int READING_SIZE_DEFAULT = 327; //bytes
-    protected final String PROPERTY_READING_SIZE = "reading.size";
+    protected final String PROPERTY_READING_SIZE = "reading.size.property";
     protected final String PROPERTY_MSG_SIZE = "msg.size.property";
     protected final int HEADER_SIZE = 1024; // bytes
 
