@@ -82,6 +82,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private final TaskService taskService;
     private final Clock clock;
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
+    private final DataModel ddcDataModel;
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
@@ -96,6 +97,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         super();
         this.firmwareService = firmwareService;
         this.dataModel = firmwareService.getDataModel();
+        this.ddcDataModel = firmwareService.getOrmService().getDataModel("DDC").get();
         this.thesaurus = thesaurus;
         this.serviceCallService = dataModel.getInstance(ServiceCallService.class);
         this.taskService = dataModel.getInstance(TaskService.class);
@@ -419,7 +421,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     .orElseGet(() -> {
                         ComTaskEnablement comTaskEnablement = getDevice().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask).get();
                         ComTaskExecution firmwareComTaskExecution = getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
-                        getDevice().save();
+                        setDevice(ddcDataModel.mapper(Device.class).getOptional(getDevice().getId()).get()); // to re-fetch connection task & com task executions after update
                         return firmwareComTaskExecution;
                     }));
         } else {
@@ -429,18 +431,24 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     @Override
     public Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution() {
-        return getDevice().getDeviceConfiguration().getComTaskEnablements().stream()
+        Device device = getDevice();
+        return device.getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == getFirmwareCampaign().getValidationComTaskId())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .anyMatch(task -> task instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .filter(comTaskEnablement -> (firmwareCampaignService.findComTaskExecution(getDevice(), comTaskEnablement) == null)
-                        || (!firmwareCampaignService.findComTaskExecution(getDevice(), comTaskEnablement).isOnHold()))
+                .filter(comTaskEnablement -> (firmwareCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
+                        || (!firmwareCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
                 .findAny()
-                .map(comTaskEnablement -> getDevice().getComTaskExecutions().stream()
+                .map(comTaskEnablement -> device.getComTaskExecutions().stream()
                         .filter(comTaskExecution -> comTaskExecution.getComTask().equals(comTaskEnablement.getComTask()))
-                        .findAny().orElseGet(() -> getDevice().newAdHocComTaskExecution(comTaskEnablement).add()));
+                        .findAny()
+                        .orElseGet(() -> {
+                            ComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement).add();
+                            setDevice(ddcDataModel.mapper(Device.class).getOptional(device.getId()).get()); // to re-fetch connection task & com task executions after update
+                            return comTaskExecution;
+                        }));
     }
 
     @Override
