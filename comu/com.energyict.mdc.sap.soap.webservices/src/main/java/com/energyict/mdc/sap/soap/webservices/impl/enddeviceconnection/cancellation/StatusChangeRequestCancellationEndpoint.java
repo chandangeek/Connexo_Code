@@ -125,7 +125,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                 sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
         } catch (BaseException be) {
-            sendProcessError(message, be.getMessageSeed().getDefaultFormat(), be.getMessageSeed().getNumber());
+            sendProcessError(message, be.getMessageSeed().getDefaultFormat());
         } catch (Exception e) {
             sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
         }
@@ -190,9 +190,9 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, clock.instant()));
     }
 
-    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg, int number) {
+    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg) {
         log(LogLevel.SEVERE, msg);
-        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, msg, number, clock.instant()));
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, msg, clock.instant()));
     }
 
     private void sendMessage(SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmationMessage) {

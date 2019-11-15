@@ -16,6 +16,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilitiesDeviceERPSmartMeterLocationNotificationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc;
@@ -71,23 +72,33 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
 
     private class LocationMessage {
         private String requestId;
+        private String uuid;
         private String deviceId;
         private String locationId;
 
         private LocationMessage(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
             requestId = getRequestId(msg);
+            uuid = getUuid(msg);
             deviceId = getDeviceId(msg);
             locationId = getLocationId(msg);
         }
 
         private boolean isValid() {
-            return requestId != null && deviceId != null && locationId != null;
+            return (requestId != null || uuid != null) && deviceId != null && locationId != null;
         }
 
         private String getRequestId(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
             return Optional.ofNullable(msg.getMessageHeader())
                     .map(BusinessDocumentMessageHeader::getID)
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
+            return Optional.ofNullable(msg.getMessageHeader())
+                    .map(BusinessDocumentMessageHeader::getUUID)
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

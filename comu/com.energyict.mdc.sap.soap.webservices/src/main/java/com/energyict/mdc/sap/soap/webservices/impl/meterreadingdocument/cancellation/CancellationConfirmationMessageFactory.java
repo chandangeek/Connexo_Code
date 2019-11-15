@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CancellationConfirmationMessageFactory {
     private static final ObjectFactory objectFactory = new ObjectFactory();
@@ -71,7 +72,7 @@ public class CancellationConfirmationMessageFactory {
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
