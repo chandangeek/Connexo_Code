@@ -148,10 +148,17 @@ public class MasterMeterRegisterChangeRequestCustomPropertySet implements Custom
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+            Column oldRequestIdColumn = table.column(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7, 1))
+                    .add();
+            table.column(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                    .varChar()
+                    .map(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .previously(oldRequestIdColumn)
                     .add();
             table.column(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
                     .varChar(NAME_LENGTH)

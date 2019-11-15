@@ -116,25 +116,19 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     void handleMessage(StatusChangeRequestCancellationRequestMessage message) {
-        Principal principal = threadPrincipalService.getPrincipal();
-        CompletableFuture.runAsync(() -> {
-            threadPrincipalService.set(principal);
-            transactionService.run(() -> {
-                try {
-                    if (message.isValid()) {
-                        CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
+        try {
+            if (message.isValid()) {
+                CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
-                        sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
-                    } else {
-                        sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-                    }
-                } catch (BaseException be) {
-                    sendProcessError(message, be.getMessageSeed().getDefaultFormat(), be.getMessageSeed().getNumber());
-                } catch (Exception e) {
-                    sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
-                }
-            });
-        }, Executors.newSingleThreadExecutor());
+                sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
+            } else {
+                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            }
+        } catch (BaseException be) {
+            sendProcessError(message, be.getMessageSeed().getDefaultFormat(), be.getMessageSeed().getNumber());
+        } catch (Exception e) {
+            sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
+        }
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {

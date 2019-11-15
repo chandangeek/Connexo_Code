@@ -42,7 +42,7 @@ public class MeterRegisterBulkChangeRequestMessage {
     }
 
     public boolean isValid() {
-        return requestId != null;
+        return requestId != null || uuid != null;
     }
 
     public class Builder {
