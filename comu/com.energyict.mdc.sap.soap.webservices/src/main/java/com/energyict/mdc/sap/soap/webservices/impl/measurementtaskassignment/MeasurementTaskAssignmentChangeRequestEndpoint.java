@@ -80,7 +80,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         saveRelatedAttributes(values);
 
-        if (!message.hasValidId()) {
+        if (!message.isValid()) {
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             return;
         }

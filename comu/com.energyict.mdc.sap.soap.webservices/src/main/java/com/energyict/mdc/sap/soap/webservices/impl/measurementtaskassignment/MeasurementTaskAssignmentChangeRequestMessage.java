@@ -43,8 +43,8 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
         return roles;
     }
 
-    public boolean hasValidId() {
-        return id != null;
+    public boolean isValid() {
+        return id != null || uuid != null;
     }
 
     public boolean arePeriodsValid() {

@@ -142,7 +142,7 @@ public class ServiceCallCommands {
 
     public void createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage message) {
         if (message.isValid()) {
-            if (hasMeterReadingRequestServiceCall(message.getId())) {
+            if (hasMeterReadingRequestServiceCall(message.getId(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 getServiceCallType(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST).ifPresent(serviceCallType -> {
@@ -171,7 +171,7 @@ public class ServiceCallCommands {
                                 children.forEach(child -> {
                                     MeterReadingDocumentCreateResultDomainExtension childExtension =
                                             child.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
-                                    if (childExtension.getMeterReadingDocumentId().equals(item.getKey())) {
+                                    if (childExtension.getMeterReadingDocumentId().equals(item.getKey()) && item.getValue() != null) {
                                         if (item.getValue().equals(ProcessingResultCode.FAILED.getCode())) {
                                             finishServiceCall(child, DefaultState.FAILED);
                                         } else {
@@ -426,13 +426,19 @@ public class ServiceCallCommands {
                 .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
     }
 
-    private boolean hasMeterReadingRequestServiceCall(String id) {
+    private boolean hasMeterReadingRequestServiceCall(String id, String uuid) {
         return findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
                 .stream()
                 .map(serviceCall -> serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class))
                 .filter(Objects::nonNull)
                 .map(Optional::get)
-                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+                .anyMatch(domainExtension -> {
+                    if(id != null){
+                        return domainExtension.getRequestID() != null && domainExtension.getRequestID().equals(id);
+                    }else{
+                        return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
+                    }
+                });
     }
 
     private void sendMessage(StatusChangeRequestCreateConfirmationMessage message) {
