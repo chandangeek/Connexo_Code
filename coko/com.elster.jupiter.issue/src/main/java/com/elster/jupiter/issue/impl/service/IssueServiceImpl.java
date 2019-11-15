@@ -86,10 +86,12 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -631,19 +633,20 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (deviceIds.size() == 0){
             return issuesPerReason;
         }
-
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT " +
                 " ed.id, ri.issue_type " +
                 " FROM mtr_enddevice ed " +
                 "   INNER JOIN isu_issue_open oi ON ( oi.device_id = ed.id ) " +
                 "   LEFT JOIN isu_reason ri on ri.key = oi.reason_id " +
-                " WHERE ed.id IN " +
-                "   (" +
-                deviceIds.stream()
-                        .map( Object::toString )
-                        .collect(Collectors.joining(", ")) +
-                "   )" +
-                " GROUP BY ed.id, issue_type");
+                " WHERE ed.id ");
+        sqlBuilder.addInClauseForIdList(deviceIds.stream()
+                .map(id -> new HasId(){
+                    @Override
+                    public long getId() {
+                        return id;
+                    }
+                }).collect(Collectors.toList()));
+        sqlBuilder.append(" GROUP BY ed.id, issue_type");
         try (Connection connection = this.dataModel.getConnection(false);
              PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
