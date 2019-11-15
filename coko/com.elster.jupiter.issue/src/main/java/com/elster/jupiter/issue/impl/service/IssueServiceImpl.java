@@ -86,7 +86,6 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -133,6 +132,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 @Component(name = "com.elster.jupiter.issue",
         service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
@@ -638,14 +638,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 " FROM mtr_enddevice ed " +
                 "   INNER JOIN isu_issue_open oi ON ( oi.device_id = ed.id ) " +
                 "   LEFT JOIN isu_reason ri on ri.key = oi.reason_id " +
-                " WHERE ed.id ");
-        sqlBuilder.addInClauseForIdList(deviceIds.stream()
-                .map(id -> new HasId(){
-                    @Override
-                    public long getId() {
-                        return id;
-                    }
-                }).collect(Collectors.toList()));
+                " WHERE ");
+        sqlBuilder.append(decorate(deviceIds.stream())
+                .partitionPer(1000)
+                .map(list -> "ed.id IN (" + list.stream().map(l -> l.toString()).collect(Collectors.joining(",")) + ")")
+                .collect(Collectors.joining(" OR ", "(", ")")));
         sqlBuilder.append(" GROUP BY ed.id, issue_type");
         try (Connection connection = this.dataModel.getConnection(false);
              PreparedStatement statement = sqlBuilder.prepare(connection)) {
