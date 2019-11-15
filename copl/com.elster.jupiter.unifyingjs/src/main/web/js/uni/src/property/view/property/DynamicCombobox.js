@@ -2,23 +2,24 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.property.CertificateSecurityAccessors', {
-    extend: 'Uni.property.view.property.Base',
+Ext.define('Uni.property.view.property.DynamicCombobox', {
+    extend: 'Uni.property.view.property.BaseCombo',
 
     require: [
-        'Mdc.securityaccessors.store.DeviceSecurityCertificates'
+        'Uni.property.store.DynamicComboboxData'
     ],
 
     store: null,
 
     initComponent: function() {
         var me = this,
-            deviceName = me.parentForm.context.deviceName;
+            entityTypeName = me.parentForm.entityTypeName,
+            url =  me.getProperty().getPropertyType().get('simplePropertyType');
 
-        me.store = Ext.getStore('Mdc.securityaccessors.store.DeviceSecurityCertificates');
-
+        me.store = Ext.getStore('Uni.property.store.DynamicComboboxData');
         me.callParent();
-        me.store.getProxy().setExtraParam('deviceId', deviceName);
+        me.store.getProxy().setUrl(url);
+        me.store.getProxy().setExtraParam('deviceId', entityTypeName);
     },
 
     getEditCmp: function () {
@@ -35,7 +36,6 @@ Ext.define('Mdc.property.CertificateSecurityAccessors', {
             width: me.width,
             readOnly: me.isReadOnly,
             blankText: me.blankText,
-            emptyText: Uni.I18n.translate('securityacessrors.certSecuritySets', 'MDC', 'Select security accessor type...'),
         }
     },
 
