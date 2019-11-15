@@ -133,7 +133,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
             Column name = table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
-            table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
+            Column serialNumber = table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
             Column mRID_10_2 = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).upTo(version(10, 2, 1)).add();
             Column mRID = table.column("MRID").varChar().notNull().map(DeviceFields.MRID.fieldName()).since(version(10, 2, 1)).previously(mRID_10_2).add();
@@ -168,6 +168,7 @@ public enum TableSpecs {
 
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
+            table.index("IX_DDC_DEVICE_SERIALNUMBER").on(serialNumber).add();
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
             table.audit(DDC_DEVICE.name())
                     .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())

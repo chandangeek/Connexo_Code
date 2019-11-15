@@ -23,6 +23,8 @@ Ext.define('Scs.controller.ServiceCalls', {
         'Scs.model.ServiceCall'
     ],
 
+    servicecallId: null,
+
     refs: [
         {
             ref: 'page',
@@ -60,10 +62,20 @@ Ext.define('Scs.controller.ServiceCalls', {
             },
             '#scsActionButton scs-action-menu': {
                 click: this.chooseAction
+            },
+            '#service-call-overview-tab': {
+                tabChange: this.changeTab
             }
         });
     },
-
+    changeTab: function(tabPanel, tab){
+        var me = this,
+        router = me.getController('Uni.controller.history.Router');
+        var mainUrl = router.getRoute().buildUrl({'serviceCallId' : me.servicecallId});
+        if (mainUrl != window.location.hash){
+            router.getRoute().forward();
+        }
+    },
     showServiceCalls: function () {
         var me = this,
             store = Ext.getStore('Scs.store.ServiceCalls'),
@@ -95,23 +107,23 @@ Ext.define('Scs.controller.ServiceCalls', {
             store = Ext.getStore('Scs.store.ServiceCalls'),
             logStore = Ext.getStore('Scs.store.Logs'),
             view,
-            servicecallId = arguments[arguments.length - 1],
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        if (servicecallId) {
+        me.servicecallId = arguments[arguments.length - 1];
+        if (me.servicecallId) {
             viewport.setLoading();
             store.setProxy({
                 type: 'rest',
-                url: '/api/scs/servicecalls/' + servicecallId + '/children',
+                url: '/api/scs/servicecalls/' + me.servicecallId + '/children',
                 timeout: 120000,
                 reader: {
                     type: 'json',
                     root: 'serviceCalls'
                 }
             });
-            me.getModel('Scs.model.ServiceCall').load(servicecallId, {
+            me.getModel('Scs.model.ServiceCall').load(me.servicecallId, {
                 success: function (record) {
-                    logStore.getProxy().setUrl(servicecallId);
+                    logStore.getProxy().setUrl(me.servicecallId);
                     var parents = record.get('parents');
                     parents.push({id:record.get('id'),name:record.get('name')});
                     if (record.get('numberOfChildren') > 0) {
