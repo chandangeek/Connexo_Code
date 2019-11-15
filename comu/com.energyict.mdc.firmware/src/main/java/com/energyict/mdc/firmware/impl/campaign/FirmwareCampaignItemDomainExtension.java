@@ -25,6 +25,7 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -97,7 +98,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         super();
         this.firmwareService = firmwareService;
         this.dataModel = firmwareService.getDataModel();
-        this.ddcDataModel = firmwareService.getOrmService().getDataModel("DDC").get();
+        this.ddcDataModel = firmwareService.getOrmService().getDataModel(DeviceDataServices.COMPONENT_NAME).get();
         this.thesaurus = thesaurus;
         this.serviceCallService = dataModel.getInstance(ServiceCallService.class);
         this.taskService = dataModel.getInstance(TaskService.class);
