@@ -103,7 +103,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
 
     private void createServiceCallAndTransition(MeterRegisterChangeMessage message) {
         if (message.isValid()) {
-            if (hasMeterChangeRequestServiceCall(message.getId())) {
+            if (hasMeterChangeRequestServiceCall(message.getId(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_METER_REGISTER_CHANGE_REQUEST).ifPresent(serviceCallType -> {
@@ -138,11 +138,16 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         }
     }
 
-    private boolean hasMeterChangeRequestServiceCall(String id) {
+    private boolean hasMeterChangeRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterMeterRegisterChangeRequestCustomPropertySet.MODEL_NAME);
         if (dataModel.isPresent()) {
-            return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
-                    .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+            if (id != null) {
+                return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
+                        .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+            } else {
+                return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
+                        .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid));
+            }
         }
         return false;
     }

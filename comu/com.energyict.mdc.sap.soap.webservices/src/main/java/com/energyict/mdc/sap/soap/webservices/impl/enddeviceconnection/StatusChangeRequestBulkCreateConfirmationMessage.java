@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class StatusChangeRequestBulkCreateConfirmationMessage {
 
@@ -67,40 +68,42 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(StatusChangeRequestBulkCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
+        public Builder from(StatusChangeRequestBulkCreateMessage message, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(message));
-            confirmationMessage.setLog(createLog(exceptionID, PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
 
-        public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
+        public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message);
-            msg.setLog(createLog(exceptionID, PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            msg.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
             return this;
         }
 
         public Builder withSingleStatus(String messageId, String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
-            UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
-            UtilitiesConnectionStatusChangeResultCode resultCode =
-                    OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
-            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
-                    OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
+            if (messageId != null) {
+                UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
+                UtilitiesConnectionStatusChangeResultCode resultCode =
+                        OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
+                SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
+                        OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
 
-            id.setValue(deviceID);
-            resultCode.setValue(processingResultCode.getCode());
+                id.setValue(deviceID);
+                resultCode.setValue(processingResultCode.getCode());
 
-            deviceConnectionStatus.setUtilitiesDeviceID(id);
-            deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
-            deviceConnectionStatus.setProcessingDateTime(processDate);
+                deviceConnectionStatus.setUtilitiesDeviceID(id);
+                deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
+                deviceConnectionStatus.setProcessingDateTime(processDate);
 
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage()
-                    .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
-                    .filter(s -> messageId.equals(s.getID().getValue()))
-                    .forEach(c -> c.getDeviceConnectionStatus().add(deviceConnectionStatus));
-
+                confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage()
+                        .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
+                        .filter(s -> s.getID() != null)
+                        .filter(s -> messageId.equals(s.getID().getValue()))
+                        .forEach(c -> c.getDeviceConnectionStatus().add(deviceConnectionStatus));
+            }
             return this;
         }
 
@@ -185,12 +188,12 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return deviceConnectionStatus;
         }
 
-        private Log createLog(String id, String categoryCode, String message) {
+        private Log createLog(String categoryCode, String message) {
             LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
             logItemCategoryCode.setValue(categoryCode);
 
             LogItem logItem = OBJECT_FACTORY.createLogItem();
-            logItem.setTypeID(id);
+            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
             logItem.setCategoryCode(logItemCategoryCode);
             logItem.setNote(message);
 

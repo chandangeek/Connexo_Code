@@ -26,6 +26,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.
 import java.time.Instant;
 import java.util.UUID;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
+
 public class MeterRegisterChangeConfirmationMessage {
     private final ObjectFactory objectFactory = new ObjectFactory();
     private UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage;
@@ -50,7 +52,7 @@ public class MeterRegisterChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else {
@@ -65,7 +67,7 @@ public class MeterRegisterChangeConfirmationMessage {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), now));
 
-            confirmationMessage.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat(null)));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
             return this;
         }
 
@@ -81,7 +83,7 @@ public class MeterRegisterChangeConfirmationMessage {
             if (child.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (child.getState() == DefaultState.FAILED || child.getState() == DefaultState.CANCELLED) {
-                confirmationMessage.setLog(createFailedLog(extension.getErrorCode(), extension.getErrorMessage()));
+                confirmationMessage.setLog(createFailedLog(extension.getErrorMessage()));
             }
         }
 
@@ -131,19 +133,19 @@ public class MeterRegisterChangeConfirmationMessage {
             return log;
         }
 
-        private Log createFailedLog(String code, String message) {
+        private Log createFailedLog(String message) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-            log.getItem().add(createLogItem(code, message));
+            log.getItem().add(createLogItem(message));
             return log;
         }
 
-        private LogItem createLogItem(String code, String message) {
+        private LogItem createLogItem(String message) {
             LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
             logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
 
             LogItem logItem = objectFactory.createLogItem();
-            logItem.setTypeID(code);
+            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
             logItem.setCategoryCode(logItemCategoryCode);
             logItem.setNote(message);
 
