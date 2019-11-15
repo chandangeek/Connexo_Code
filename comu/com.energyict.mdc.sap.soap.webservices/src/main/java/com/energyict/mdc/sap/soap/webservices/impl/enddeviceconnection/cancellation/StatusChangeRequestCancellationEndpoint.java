@@ -127,7 +127,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         } catch (BaseException be) {
             sendProcessError(message, be.getMessageSeed().getDefaultFormat());
         } catch (Exception e) {
-            sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
+            sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()));
         }
     }
 
