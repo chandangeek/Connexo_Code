@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -40,6 +41,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.configproperties.ConfigProperties;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
@@ -90,12 +92,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private final DeviceDataModelService deviceDataModelService;
     private final PriorityComTaskService priorityComTaskService;
+    private final ConfigPropertiesService configPropertiesService;
     private final BundleContext bundleContext;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, ConfigPropertiesService configPropertiesService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
         this.deviceDataModelService = deviceDataModelService;
         this.priorityComTaskService = priorityComTaskService;
+        this.configPropertiesService = configPropertiesService;
         this.bundleContext = bundleContext;
     }
 
@@ -787,8 +791,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private String getOrderForPlannedComTaskExecutions(){
         String orderClause = "";
-        boolean isTrueMinimizedOn = Optional.ofNullable(bundleContext.getProperty("communication.true.minimized")).map(v -> v.toLowerCase().equals("true")).orElse(false);
-        boolean isRandomizationOn = Optional.ofNullable(bundleContext.getProperty("communication.randomization")).map(v -> v.toLowerCase().equals("true")).orElse(false);
+        boolean isTrueMinimizedOn = Optional.ofNullable(configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value())).map(v -> v.toString().toUpperCase().equals("YES")).orElse(false);
+        boolean isRandomizationOn = Optional.ofNullable(configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value())).map(v -> v.toString().toUpperCase().equals("YES")).orElse(false);
 
         if (!isTrueMinimizedOn && !isRandomizationOn) {
             orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";

@@ -8,9 +8,9 @@ import com.elster.jupiter.nls.TranslationKey;
 
 
 public enum CommunicationSettingTranslationKeys implements TranslationKey {
-    COMMUNICATION_SELECTOR("communication.settings.selector", "Communication settings"),
-    TRUE_MINIMIZED("communication.settings.true.minimized", "True minimized"),
-    RANDOMIZATION("communication.settings.randomization", "Randomization"),
+    COMMUNICATION_SELECTOR("communication.settings.scheduling.selector", "Scheduling priority"),
+    TRUE_MINIMIZED(ConfigProperties.TRUE_MINIMIZED.value(), "True minimized"),
+    RANDOMIZATION(ConfigProperties.RANDOMIZATION.value(), "Randomization"),
     ;
 
     private String key;

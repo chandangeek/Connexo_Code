@@ -22,26 +22,12 @@ import java.util.Optional;
         service = {ConfigPropertiesService.class}, immediate = true,
         property = "name=" + MeteringDataModelService.COMPONENT_NAME)
 public class ConfigPropertiesServiceImpl implements ConfigPropertiesService {
-
-    //private volatile DataModel dataModel;
     private final List<ConfigPropertiesProvider> configProperties = Collections.synchronizedList(new ArrayList<ConfigPropertiesProvider>());
 
     // For OSGi purposes
     @Inject
     public ConfigPropertiesServiceImpl() {
     }
-
-    // For testing purposes
-   /* @Inject
-    public ConfigPropertiesServiceImpl(OrmService ormService) {
-       // this();
-        //this.setOrmService(ormService);
-    }
-
-    @Reference
-    public final void setOrmService(OrmService ormService) {
-        ormService.getDataModel("MTR").ifPresent(found -> this.dataModel = found);
-    }*/
 
     @Override
     public Optional<ConfigPropertiesProvider> findConfigFroperties(String scope) {
@@ -50,6 +36,13 @@ public class ConfigPropertiesServiceImpl implements ConfigPropertiesService {
                 .findFirst();
     }
 
+    @Override
+    public Optional<String> getPropertyValue(String scope, String name) {
+        return this.configProperties.stream()
+                .filter(cp -> cp.getScope().equals(scope))
+                .findFirst()
+                .map(cp -> cp.getPropertyStringValues().get(name));
+    }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConfigPropertiesProvider(ConfigPropertiesProvider configProperties) {

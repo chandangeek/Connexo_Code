@@ -72,7 +72,7 @@ public class CommunicationSettings extends AbstractConfigPropertiesProvider impl
     @Override
     public List<PropertiesInfo> getPropertyInfos() {
        return Collections.singletonList(
-                new PropertiesInfo("communicationSettings", /*thesaurus.getFormat(CommunicationSettingTranslationKeys.COMMUNICATION_SELECTOR).format()*/"", Arrays.asList(
+                new PropertiesInfo("communicationSettings", thesaurus.getFormat(CommunicationSettingTranslationKeys.COMMUNICATION_SELECTOR).format(), Arrays.asList(
                         getTrueMinimizedProperty(), getRandomizationProperty())));
     }
 

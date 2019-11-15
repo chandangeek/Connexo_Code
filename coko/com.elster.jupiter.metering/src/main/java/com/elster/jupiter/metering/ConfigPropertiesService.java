@@ -12,4 +12,6 @@ public interface ConfigPropertiesService {
 
     Optional<ConfigPropertiesProvider> findConfigFroperties(String scope);
 
+    Optional<String> getPropertyValue(String scope, String name);
+
 }

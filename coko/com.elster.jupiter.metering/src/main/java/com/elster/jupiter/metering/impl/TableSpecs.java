@@ -2141,7 +2141,7 @@ public enum TableSpecs {
             table.map(ConfigPropertyImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.setJournalTableName("MTR_CONFIG_PROPERTYJRNL");
-            table.column("SCOPE").varChar(NAME_LENGTH).conversion(CHAR2ENUM).map("scope").add();
+            table.column("SCOPE").varChar(NAME_LENGTH).map("scope").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
             //table.addAuditColumns();
