@@ -70,7 +70,10 @@ public enum MessageSeeds implements MessageSeed {
     ENDPOINT_IS_USED_BY_EXPORT_TASK(1050, "EndpointIsUsedByExportTask", "Web service endpoint {0} is still in use by an export task."),
     BAD_ENDPOINTS_FOR_DATA_SELECTOR(1051, Keys.BAD_ENDPOINTS_FOR_DATA_SELECTOR, "Endpoints specified on web service destinations mismatch the data selector."),
     ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW(1052, "dataexport.item.created.nodata", "Item {0} doesn''t contain created data for the selected export window.", Level.WARNING),
-    ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.WARNING);
+    ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.WARNING),
+
+    DATA_SENDING_FAILED_ALL_DATA_SOURCES(2000, "data.sending.failed.all.data.sources", "Failed to export all data to one or more destinations."),
+    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}.");
 
     private final int number;
     private final String key;

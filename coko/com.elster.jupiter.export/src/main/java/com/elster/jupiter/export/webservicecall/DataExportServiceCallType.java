@@ -5,9 +5,11 @@
 package com.elster.jupiter.export.webservicecall;
 
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public interface DataExportServiceCallType {
@@ -58,4 +60,6 @@ public interface DataExportServiceCallType {
      * @return {@link ServiceCallStatus} containing info about actual service call state.
      */
     ServiceCallStatus getStatus(ServiceCall serviceCall);
+
+    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall);
 }

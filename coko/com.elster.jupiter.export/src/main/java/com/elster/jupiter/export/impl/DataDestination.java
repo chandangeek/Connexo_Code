@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 interface DataDestination extends Destination {
-    void send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger);
+    DataSendingStatus send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger);
 
     @Override
     default Type getType() {

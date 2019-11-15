@@ -82,7 +82,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     }
 
     @Override
-    public void send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger) {
+    public DataSendingStatus send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger) {
         EndPointConfiguration createEndPoint = getCreateWebServiceEndpoint();
         DataExportWebService createService = getExportWebService(createEndPoint);
         TimeDuration timeout = getTimeout(createEndPoint);
@@ -111,6 +111,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
         execute(serviceCalls, serviceCallStates, timeout);
         processErrors(serviceCallStates);
+        // TODO: implement
+        return DataSendingStatus.success();
     }
 
     @Override
