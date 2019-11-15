@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -28,6 +29,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -56,8 +58,15 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
 
-    protected int NUMBER_OF_READINGS_PER_MSG = 100;
+    protected int NUMBER_OF_READINGS_PER_MSG;
+    protected final int NUMBER_OF_READINGS_PER_MSG_DEFAULT = 500;
+    protected int MESSAGE_SIZE;
+    protected int MESSAGE_SIZE_DEFAULT = 512000;//500kB
+    protected int READING_SIZE; //bytes
+    protected final int READING_SIZE_DEFAULT = 327; //bytes
+    protected final String PROPERTY_READING_SIZE = "reading.size.property";
     protected final String PROPERTY_MSG_SIZE = "msg.size.property";
+    protected final int HEADER_SIZE = 1024; // bytes
 
     AbstractUtilitiesTimeSeriesBulkRequestProvider() {
         // for OSGi
@@ -74,7 +83,28 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         setThesaurus(thesaurus);
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
-        String NUMBER_OF_READINGS_PER_MSG = bundleContext.getProperty(PROPERTY_MSG_SIZE);
+        initNumberOfReadingsPerMsg(bundleContext);
+    }
+
+    protected void initNumberOfReadingsPerMsg(BundleContext bundleContext){
+        String msgSize = bundleContext.getProperty(PROPERTY_MSG_SIZE);
+        String readingSize = bundleContext.getProperty(PROPERTY_READING_SIZE);
+        if (!Strings.isNullOrEmpty(msgSize)) {
+            MESSAGE_SIZE = Integer.valueOf(msgSize)*1024;
+        }else{
+            MESSAGE_SIZE = MESSAGE_SIZE_DEFAULT;
+        }
+
+        if (!Strings.isNullOrEmpty(readingSize)) {
+            READING_SIZE = Integer.valueOf(readingSize);
+        }else{
+            READING_SIZE = READING_SIZE_DEFAULT;
+        }
+
+        NUMBER_OF_READINGS_PER_MSG = (MESSAGE_SIZE - HEADER_SIZE)/READING_SIZE;
+
+        if (NUMBER_OF_READINGS_PER_MSG == 0)
+            NUMBER_OF_READINGS_PER_MSG = NUMBER_OF_READINGS_PER_MSG_DEFAULT;
     }
 
     void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -124,12 +154,12 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     abstract long calculateNumberOfReadingsInTimeSerieses(List<TS> list);
 
     @Override
-    public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {//
+    public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
         List<TS> timeSeriesListToSend = new ArrayList<>();
         Instant now = null;
         long meterReadingDataNr = 0;
         List<ServiceCall> srvCallList = new ArrayList<>();
-        List<ExportData> readingDataToSend = new ArrayList<>();
+        List<MeterReadingData> readingDataToSend = new ArrayList<>();
 
         List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
 
@@ -143,11 +173,10 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
             prepareTimeSerieses(timeSeriesListFromMeterData, meterReadingData, now);
             long numberOfItemsToSend = calculateNumberOfReadingsInTimeSerieses(timeSeriesListFromMeterData);
-
             if (numberOfItemsToSend > NUMBER_OF_READINGS_PER_MSG) {
                 /*It means that number of readings in one meterReadingData is more than allowable size.
                 /* Just send it. But actually shouldn't happen */
-                sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, new ArrayList<ExportData>(Arrays.asList(meterReadingData)), now).ifPresent(srvCall -> {
+                sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, new ArrayList<MeterReadingData>(Arrays.asList(meterReadingData)), now).ifPresent(srvCall -> {
                     srvCallList.add(srvCall);
                 });
                 now = null;
@@ -201,7 +230,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         return srvCallList;
     }
 
-    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, List<TS> timeSerieses, List<ExportData> exportData, Instant now){
+    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, List<TS> timeSerieses, List<MeterReadingData> exportData, Instant now){
         String uuid = UUID.randomUUID().toString();
         try {
             SetMultimap<String, String> values = HashMultimap.create();
@@ -217,7 +246,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 }
                 Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
                         .filter(timeout -> !timeout.isEmpty())
-                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), exportData.stream()));
+                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), exportData.stream().map(data->data.getItem()).collect(Collectors.toList())));
 
                 return serviceCall;
             }

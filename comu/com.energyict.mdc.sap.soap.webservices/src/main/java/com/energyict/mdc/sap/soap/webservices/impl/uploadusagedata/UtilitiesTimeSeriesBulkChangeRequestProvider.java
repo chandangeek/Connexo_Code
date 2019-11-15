@@ -6,7 +6,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
-import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -17,7 +16,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
@@ -56,16 +54,11 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeRequestProvider",
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
@@ -88,8 +81,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        String tmpStr = bundleContext.getProperty(PROPERTY_MSG_SIZE);
-        NUMBER_OF_READINGS_PER_MSG = Integer.valueOf(tmpStr);
+        initNumberOfReadingsPerMsg(bundleContext);
     }
 
     @Override
