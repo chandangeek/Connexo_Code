@@ -120,7 +120,7 @@ public class LoadProfileResource {
         Range<Instant> checkInterval = lastMonth();
         List<Channel> channels = loadProfile.getChannels();
         if (!channels.isEmpty()) {
-            loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
+            loadProfileInfo.validationInfo.dataValidated = channels.stream()
                     .filter(Channel::hasData)
                     .allMatch(c -> allDataValidatedOnChannel(c, checkInterval));
         }
