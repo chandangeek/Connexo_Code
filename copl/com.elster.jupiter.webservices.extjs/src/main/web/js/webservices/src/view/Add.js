@@ -188,6 +188,8 @@ Ext.define('Wss.view.Add', {
                 userNameField = this.down('#userNameField'),
                 passwordField = this.down('#passwordField');
             if (value === 'NONE') {
+                userNameField.reset();
+                passwordField.reset();
                 if (!!userRoleField) {
                     userRoleField.setVisible(false)
                 }
