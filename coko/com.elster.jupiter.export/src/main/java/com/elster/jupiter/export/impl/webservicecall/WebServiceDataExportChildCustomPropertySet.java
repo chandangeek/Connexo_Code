@@ -86,7 +86,7 @@ public class WebServiceDataExportChildCustomPropertySet implements CustomPropert
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
-                        .stringSpec()
+                        .longSpec()
                         .named(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName(), TranslationKeys.DATA_SOURCE_ID)
                         .fromThesaurus(thesaurus)
                         .finish()

@@ -8,7 +8,6 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
-import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.readings.BaseReading;

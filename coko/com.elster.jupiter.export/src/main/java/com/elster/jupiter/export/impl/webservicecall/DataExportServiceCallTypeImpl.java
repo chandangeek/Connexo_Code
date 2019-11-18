@@ -84,12 +84,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     public ServiceCallType findOrCreateChildType() {
-
+        serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
         return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)));
 
-            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
             return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
                     .handler(CHILD_NAME)
                     .logLevel(LogLevel.FINEST)
