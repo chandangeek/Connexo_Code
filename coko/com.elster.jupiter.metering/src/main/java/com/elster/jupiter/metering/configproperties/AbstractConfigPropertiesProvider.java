@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.configproperties;
 
 import com.elster.jupiter.metering.impl.configproperties.ConfigPropertyImpl;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -17,7 +18,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractConfigPropertiesProvider implements ConfigPropertiesProvider {
 
     protected volatile DataModel dataModel;
-    //private List<ConfigProperty> properties = new ArrayList<>();
     private Map<String, Object> propertyValues = new HashMap<>();
 
     @Override
@@ -34,7 +34,7 @@ public abstract class AbstractConfigPropertiesProvider implements ConfigProperti
                                 return p;
                             })
                             .orElseGet(() -> {
-                                ConfigProperty property = ConfigPropertyImpl.from(dataModel, this, entry.getKey(), entry.getValue());
+                                ConfigProperty property = ConfigPropertyImpl.from(dataModel, this, entry.getKey(), getPropertySpec(entry.getKey()).getValueFactory().valueToDatabase(entry.getValue()));
                                 property.save();
                                 return property;
                             });
@@ -44,21 +44,11 @@ public abstract class AbstractConfigPropertiesProvider implements ConfigProperti
     @Override
     public void setProperty(String key, Object value){
         propertyValues.put(key, value);
-        /*ConfigProperty configProperty = getProperties().stream()
-                .filter(p -> p.getName().equals(key))
-                .findFirst()
-                .orElseGet(() -> {
-                    ConfigProperty property = ConfigPropertyImpl.from(dataModel, this, key, value);
-                    properties.add(property);
-                    return property;
-                });
-        configProperty.setValue(value);*/
     }
 
     @Override
     public Map<String, Object> getPropertyValues() {
         return getProperties().stream()
-                .map(p -> ConfigPropertyImpl.from(dataModel, this, p.getName(), p.getStringValue()))
                 .collect(Collectors.toMap(ConfigProperty::getName, ConfigProperty::getValue));
     }
 
@@ -71,16 +61,18 @@ public abstract class AbstractConfigPropertiesProvider implements ConfigProperti
 
     private List<ConfigProperty> getProperties() {
         Condition condition = Where.where("scope").isEqualTo(getScope());
-        return dataModel.mapper(ConfigProperty.class).select(condition);
+        return dataModel.mapper(ConfigProperty.class).select(condition)
+                .stream()
+                .map(cp -> ((ConfigPropertyImpl)cp).setPropertySpec(getPropertySpec(cp.getName())))
+                .collect(Collectors.toList());
     }
-    /*private List<ConfigProperty> getProperties(){
-        //if (properties.isEmpty()){
-            Condition condition = Where.where("scope").isEqualTo(getScope());
-            properties = dataModel.mapper(ConfigProperty.class).select(condition)
-                    .stream()
-                    .map(prop -> ConfigPropertyImpl.from(dataModel, this, prop.getName(), prop.getStringValue()))
-                    .collect(Collectors.toList());
-       // }
-        return  properties;
-    }*/
+
+    private PropertySpec getPropertySpec(String name){
+        return getPropertyInfos().stream()
+                .map(PropertiesInfo::getProperties)
+                .flatMap(List::stream)
+                .filter(info -> info.getName().equals(name))
+                .findFirst()
+                .get();
+    }
 }

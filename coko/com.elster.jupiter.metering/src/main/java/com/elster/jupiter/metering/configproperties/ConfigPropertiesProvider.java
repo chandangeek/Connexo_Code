@@ -26,4 +26,8 @@ public interface ConfigPropertiesProvider {
     void update();
 
     void setProperty(String key, Object value);
+
+    List<String> getViewPrivileges();
+
+    List<String> getEditPrivileges();
 }

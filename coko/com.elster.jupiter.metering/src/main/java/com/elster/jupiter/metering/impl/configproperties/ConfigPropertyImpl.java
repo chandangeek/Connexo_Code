@@ -11,9 +11,9 @@ import com.elster.jupiter.metering.configproperties.PropertiesInfo;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.List;
 
 public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
@@ -27,17 +27,27 @@ public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
     private PropertySpec propertySpec;
     private final DataModel dataModel;
 
+    // Audit fields
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
+
     @Inject
-    ConfigPropertyImpl(DataModel dataModel) {
+    public ConfigPropertyImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    ConfigPropertyImpl init(ConfigPropertiesProvider provider, PropertySpec propertySpec, Object value) {
+    public ConfigPropertyImpl init(ConfigPropertiesProvider provider, PropertySpec propertySpec, Object value) {
         this.provider = provider;
         this.name = propertySpec.getName();
         this.propertySpec = propertySpec;
         this.scope = provider.getScope();
-        setValue(value);
+        this.stringValue = value.toString();
         return this;
     }
 
@@ -49,6 +59,11 @@ public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
                 .findFirst()
                 .get(); // some test is necessary here
         return dataModel.getInstance(ConfigPropertyImpl.class).init(provider, propertySpec, value);
+    }
+
+    public ConfigPropertyImpl setPropertySpec(PropertySpec propertySpec){
+        this.propertySpec = propertySpec;
+        return this;
     }
 
     @Override
@@ -63,12 +78,7 @@ public class ConfigPropertyImpl implements ConfigProperty, PersistenceAware {
 
     @Override
     public void setValue(Object value) {
-        if (value != null && !(value instanceof String && Checks.is((String) value)
-                .emptyOrOnlyWhiteSpace())) {
-            this.stringValue = value.toString();
-            return;
-        }
-        this.stringValue = toStringValue(value);
+        this.stringValue = propertySpec.getValueFactory().toStringValue(value);
     }
 
     @Override

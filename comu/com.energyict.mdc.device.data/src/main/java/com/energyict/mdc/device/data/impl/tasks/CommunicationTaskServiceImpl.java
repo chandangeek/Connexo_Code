@@ -791,8 +791,8 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private String getOrderForPlannedComTaskExecutions(){
         String orderClause = "";
-        boolean isTrueMinimizedOn = Optional.ofNullable(configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value())).map(v -> v.toString().toUpperCase().equals("YES")).orElse(false);
-        boolean isRandomizationOn = Optional.ofNullable(configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value())).map(v -> v.toString().toUpperCase().equals("YES")).orElse(false);
+        boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
+        boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
         if (!isTrueMinimizedOn && !isRandomizationOn) {
             orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";

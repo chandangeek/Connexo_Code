@@ -13,12 +13,12 @@ public class ConfigPropertiesPropertiesInfo {
     public String displayName;
     public List<PropertyInfo> properties;
 
+    public ConfigPropertiesPropertiesInfo() {
+    }
+
     public ConfigPropertiesPropertiesInfo(String name, String displayName, List<PropertyInfo> properties) {
         this.name = name;
         this.displayName = displayName;
         this.properties = properties;
-    }
-
-    public ConfigPropertiesPropertiesInfo() {
     }
 }

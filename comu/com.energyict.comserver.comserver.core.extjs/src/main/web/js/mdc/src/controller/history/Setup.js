@@ -2838,7 +2838,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         route: 'commsettings',
                         controller: 'Cfg.properties.controller.ConfigProperties',
                         action: 'showOverview',
-                        //privileges: Cfg.privileges.Audit.viewAuditLog,
+                        privileges: Mdc.privileges.Communication.view,
                         scope: 'COMMUNICATION',
                         items: {
                             edit: {
@@ -2846,7 +2846,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 scopeTitle: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
                                 route: 'edit',
                                 controller: 'Cfg.properties.controller.ConfigProperties',
-                                //privileges: Mdc.privileges.SecurityAccessor.admin,
+                                privileges: Mdc.privileges.Communication.admin,
                                 action: 'editProperties',
                                 scope: 'COMMUNICATION',
                                 callback: function (route) {
@@ -2857,8 +2857,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         }
-
-
                     }
                 }
             },

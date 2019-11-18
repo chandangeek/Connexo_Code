@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 public class ConfigPropertiesInfoFactory {
 
     private final PropertyValueInfoService propertyValueInfoService;
+    public List<ConfigPropertiesPropertiesInfo> properties;
 
     @Inject
     public ConfigPropertiesInfoFactory(PropertyValueInfoService propertyValueInfoService){
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
-    public List<ConfigPropertiesPropertiesInfo> properties;
     ConfigPropertiesInfo from(ConfigPropertiesProvider configPropertiesProvider){
         ConfigPropertiesInfo info = new ConfigPropertiesInfo();
 
@@ -34,6 +34,5 @@ public class ConfigPropertiesInfoFactory {
                 })
                 .collect(Collectors.toList());
         return info;
-
     }
 }

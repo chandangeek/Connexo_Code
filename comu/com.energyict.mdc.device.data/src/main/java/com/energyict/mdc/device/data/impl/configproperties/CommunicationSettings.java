@@ -12,7 +12,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -25,20 +25,14 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
 @Component(name = "com.energyict.mdc.device.data.impl.configproperties", service = ConfigPropertiesProvider.class, immediate = true)
 public class CommunicationSettings extends AbstractConfigPropertiesProvider implements ConfigPropertiesProvider {
     static final String SCOPE_NAME = "COMMUNICATION";
-
-    private static final Function<YesNoTranslationKeys, String> KEY_EXTRACTOR = Enum::name;
-    private static final Function<String, YesNoTranslationKeys> OBJECT_FETCHER = YesNoTranslationKeys::valueOf;
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
-    private IdWithNameFactory<YesNoTranslationKeys> booleanValuesFactory;
 
-    public CommunicationSettings() {
-        this.booleanValuesFactory = new IdWithNameFactory<>(KEY_EXTRACTOR, this::translateConnectionState, OBJECT_FETCHER);
+    public CommunicationSettings(){
     }
 
     @Inject
@@ -76,46 +70,39 @@ public class CommunicationSettings extends AbstractConfigPropertiesProvider impl
                         getTrueMinimizedProperty(), getRandomizationProperty())));
     }
 
+    @Override
+    public List<String> getViewPrivileges() {
+        return Arrays.asList("privilege.administrate.communicationAdministration","privilege.view.communicationAdministration");
+    }
+
+    @Override
+    public List<String> getEditPrivileges() {
+        return Arrays.asList("privilege.administrate.communicationAdministration");
+    }
+
     protected final Thesaurus getThesaurus() {
         return thesaurus;
     }
 
     private PropertySpec getTrueMinimizedProperty() {
         return propertySpecService
-                .specForValuesOf(this.booleanValuesFactory)
+                .specForValuesOf(new BooleanFactory())
                 .named(CommunicationSettingTranslationKeys.TRUE_MINIMIZED)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
-                .addValues(getPossibleValues())
-                .setDefaultValue(this.booleanValuesFactory.wrap(YesNoTranslationKeys.NO))
+                .setDefaultValue(false)
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
 
     private PropertySpec getRandomizationProperty() {
         return propertySpecService
-                .specForValuesOf(this.booleanValuesFactory)
+                .specForValuesOf(new BooleanFactory())
                 .named(CommunicationSettingTranslationKeys.RANDOMIZATION)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
-                .addValues(getPossibleValues())
-                .setDefaultValue(this.booleanValuesFactory.wrap(YesNoTranslationKeys.NO))
+                .setDefaultValue(false)
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
-
-    private List<HasIdAndName> getPossibleValues() {
-        return Arrays.asList(
-                this.booleanValuesFactory.wrap(YesNoTranslationKeys.YES),
-                this.booleanValuesFactory.wrap(YesNoTranslationKeys.NO));
-    }
-
-    private String translateConnectionState(YesNoTranslationKeys translationKeys) {
-        if (translationKeys == null) {
-            return null;
-        }
-        return getThesaurus().getString(translationKeys.getKey(), translationKeys.getDefaultFormat());
-    }
-
-
 }
