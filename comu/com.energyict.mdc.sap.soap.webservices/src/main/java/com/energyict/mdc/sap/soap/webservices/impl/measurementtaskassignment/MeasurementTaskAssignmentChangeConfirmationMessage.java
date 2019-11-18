@@ -27,15 +27,15 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         return confirmationMessage;
     }
 
-    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, MeasurementTaskAssignmentChangeRequestMessage message) {
-        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, message);
+    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid) {
+        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id, uuid);
     }
 
     public class Builder {
 
-        private Builder(Instant now, MeasurementTaskAssignmentChangeRequestMessage message) {
+        private Builder(Instant now, String id, String uuid) {
             confirmationMessage = OBJECT_FACTORY.createUtilsTmeSersERPMsmtTskAssgmtChgConfMsg();
-            confirmationMessage.setMessageHeader(createHeader(now, message.getId(), message.getUuid()));
+            confirmationMessage.setMessageHeader(createHeader(now, id, uuid));
         }
 
         public MeasurementTaskAssignmentChangeConfirmationMessage.Builder create() {
@@ -53,17 +53,20 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         }
 
         private BusinessDocumentMessageHeader createHeader(Instant now, String id, String uuid) {
-            BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
-            messageID.setValue(id);
-
             BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-            messageHeader.setReferenceID(messageID);
             com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UUID newUUID = OBJECT_FACTORY.createUUID();
             newUUID.setValue(UUID.randomUUID().toString());
-            com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UUID referenceUUID = OBJECT_FACTORY.createUUID();
-            referenceUUID.setValue(uuid);
             messageHeader.setUUID(newUUID);
-            messageHeader.setReferenceUUID(referenceUUID);
+            if (id != null) {
+                BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
+                messageID.setValue(id);
+                messageHeader.setReferenceID(messageID);
+            }
+            if (uuid != null) {
+                com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UUID referenceUUID = OBJECT_FACTORY.createUUID();
+                referenceUUID.setValue(uuid);
+                messageHeader.setReferenceUUID(referenceUUID);
+            }
             messageHeader.setCreationDateTime(now);
             return messageHeader;
         }

@@ -27,7 +27,6 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
@@ -43,7 +42,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -57,7 +55,6 @@ import static com.elster.jupiter.util.Ranges.copy;
 import static com.elster.jupiter.util.streams.ExtraCollectors.toImmutableRangeSet;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.joda.time.DateTimeConstants.MINUTES_PER_HOUR;
-import static org.joda.time.DateTimeConstants.SECONDS_PER_MINUTE;
 
 class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
@@ -73,8 +70,8 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
     @Inject
     CustomMeterReadingItemDataSelector(Clock clock,
-                             Thesaurus thesaurus,
-                             TransactionService transactionService) {
+                                       Thesaurus thesaurus,
+                                       TransactionService transactionService) {
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
@@ -107,8 +104,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
         String itemDescription = item.getDescription();
 
-        if (!readings.isEmpty() && item.getReadingType().isRegular() &&
-                getIntervalInMinutes(item.getReadingType().getIntervalLength().get()) <= MINUTES_PER_HOUR) {
+        if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
             readings = filterReadings(readings);
 
             List<Instant> instants = new ArrayList<>();
@@ -149,9 +145,12 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return Optional.empty();
     }
 
-    int getIntervalInMinutes(TemporalAmount interval) {
-        return TimeDuration.minutes(Math.toIntExact(interval
-                .get(ChronoUnit.SECONDS)) / SECONDS_PER_MINUTE).getCount();
+    private boolean checkInterval(ReadingType readingType) {
+        if (readingType.isRegular()) {
+            int minutes = readingType.getMeasuringPeriod().getMinutes();
+            return minutes > 0 && minutes <= MINUTES_PER_HOUR;
+        }
+        return false;
     }
 
     List<BaseReading> filterReadings(List<BaseReading> readings) {
@@ -279,8 +278,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                     .collect(Collectors.toCollection(ArrayList::new));
         }
 
-        if (!readings.isEmpty() && item.getReadingType().isRegular() &&
-                getIntervalInMinutes(item.getReadingType().getIntervalLength().get()) <= MINUTES_PER_HOUR) {
+        if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
             readings = filterReadings(readings);
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             Map<Instant, DataValidationStatus> validationStatuses = new HashMap<>();
