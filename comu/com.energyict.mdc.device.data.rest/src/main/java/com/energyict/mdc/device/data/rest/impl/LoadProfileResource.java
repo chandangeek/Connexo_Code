@@ -119,11 +119,9 @@ public class LoadProfileResource {
         loadProfileInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
         Range<Instant> checkInterval = lastMonth();
         List<Channel> channels = loadProfile.getChannels();
-        if (!channels.isEmpty()) {
             loadProfileInfo.validationInfo.dataValidated = channels.stream()
                     .filter(Channel::hasData)
                     .allMatch(c -> allDataValidatedOnChannel(c, checkInterval));
-        }
         loadProfileInfo.validationInfo.channelValidationStatus = isChannelValidationActive(loadProfile);
     }
 
@@ -149,9 +147,9 @@ public class LoadProfileResource {
         List<DataValidationStatus> validationStatuses =
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), checkInterval);
         if (!validationStatuses.isEmpty()) {
-            return  validationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
+            return validationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
         }
-        return channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
+        return channel.getDevice().forValidation().allDataValidated(channel);
     }
 
     private boolean isValidationActive(LoadProfile loadProfile) {
