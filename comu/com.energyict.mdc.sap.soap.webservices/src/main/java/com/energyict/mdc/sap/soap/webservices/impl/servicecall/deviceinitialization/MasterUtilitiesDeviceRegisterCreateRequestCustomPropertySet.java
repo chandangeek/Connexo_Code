@@ -92,7 +92,6 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
                         .stringSpec()
                         .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()

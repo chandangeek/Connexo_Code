@@ -94,7 +94,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
     private void createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage message) {
         if (message.isValid()) {
-            if (hasUtilDeviceRegisterRequestServiceCall(message.getRequestID())) {
+            if (hasUtilDeviceRegisterRequestServiceCall(message.getRequestID(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST).ifPresent(serviceCallType -> {
@@ -196,10 +196,16 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         }
     }
 
-    private boolean hasUtilDeviceRegisterRequestServiceCall(String id) {
+    private boolean hasUtilDeviceRegisterRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.MODEL_NAME);
-        return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
-                .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
-                .orElse(false);
+        if (id != null) {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                    .orElse(false);
+        } else {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
+                    .orElse(false);
+        }
     }
 }
