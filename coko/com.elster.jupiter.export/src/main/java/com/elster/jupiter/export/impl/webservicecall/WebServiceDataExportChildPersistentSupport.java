@@ -68,6 +68,12 @@ public class WebServiceDataExportChildPersistentSupport implements PersistenceSu
                 .map(WebServiceDataExportChildDomainExtension.FieldNames.READING_TYPE_MRID.javaName())
                 .notNull()
                 .add();
+        Column dataSourceId = table.column(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.databaseName())
+                .number()
+                .map(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName())
+                .notNull()
+                .add();
+
     }
 
     @Override

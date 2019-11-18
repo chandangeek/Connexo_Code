@@ -125,14 +125,16 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data){
         data.forEach(item->createChild(parent,
                 item.getDomainObject().getName(),
-                item.getReadingType().getMRID()));
+                item.getReadingType().getMRID(),
+                item.getId()));
     }
 
 
-    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID){
+    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
         childSrvCallProperties.setDeviceName(deviceName);
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
+        childSrvCallProperties.setDataSourceId(itemId);
 
         ServiceCallType srvCallChildType = findOrCreateChildType();
 
@@ -239,8 +241,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
                 .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
-                // TODO: update id
-                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), "dataSourceId");
+                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
         return ormService.getDataModel(DataExportService.COMPONENTNAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
                 .stream(ReadingTypeDataExportItem.class)

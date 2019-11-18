@@ -15,8 +15,9 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
 
     public enum FieldNames {
         DOMAIN("serviceCall", "SERVICE_CALL"),
+        DATA_SOURCE_ID("dataSourceId", "DATA_SOURCE_ID"),
         DEVICE_NAME("deviceName", "DEVICE_NAME"),
-        READING_TYPE_MRID("readingTypeMRID", "READING_TYPE_MR_ID");
+        READING_TYPE_MRID("readingTypeMRID", "READING_TYPE_MRID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -39,8 +40,10 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
 
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String deviceName;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String readingTypeMRID;
+
+    private long dataSourceId;
 
     public WebServiceDataExportChildDomainExtension() {
         super();
@@ -62,6 +65,13 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
         this.readingTypeMRID = readingTypeMRID;
     }
 
+    public long getDataSourceId(){
+        return this.dataSourceId;
+    }
+    public void setDataSourceId(long dataSourceId){
+        this.dataSourceId = dataSourceId;
+    }
+
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -71,12 +81,14 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
         this.serviceCall.set(serviceCall);
         setDeviceName((String) propertyValues.getProperty(FieldNames.DEVICE_NAME.javaName()));
         setReadingTypeMRID((String) propertyValues.getProperty(FieldNames.READING_TYPE_MRID.javaName()));
+        setDataSourceId((long) propertyValues.getProperty(FieldNames.DATA_SOURCE_ID.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.DEVICE_NAME.javaName(), getDeviceName());
         propertySetValues.setProperty(FieldNames.READING_TYPE_MRID.javaName(), getReadingTypeMRID());
+        propertySetValues.setProperty(FieldNames.DATA_SOURCE_ID.javaName(), getDataSourceId());
     }
 
     @Override
