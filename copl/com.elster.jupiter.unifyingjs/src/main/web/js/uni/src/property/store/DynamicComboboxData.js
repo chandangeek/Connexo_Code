@@ -10,7 +10,7 @@ Ext.define('Uni.property.store.DynamicComboboxData', {
     storeId: 'DynamicComboboxData',
     proxy: {
         type: 'rest',
-        tempUrl: '/api/ddr/devices/{deviceId}/securityaccessors/certificates',
+        url: '',
         reader: {
             type: 'json',
             root: 'data'

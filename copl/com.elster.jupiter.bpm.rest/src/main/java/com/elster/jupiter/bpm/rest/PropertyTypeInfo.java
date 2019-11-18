@@ -147,7 +147,7 @@ public class PropertyTypeInfo {
     }
 
     private void createDropDown(JSONObject field) {
-        simplePropertyType = "COMBOBOX";
+        simplePropertyType = "DYNAMIC_COMBOBOX";
         String param2 = getComboBoxValue(field, "param2");
         if (param2 != null) {
             propertyValueInfo = new PropertyValueInfo(param2);

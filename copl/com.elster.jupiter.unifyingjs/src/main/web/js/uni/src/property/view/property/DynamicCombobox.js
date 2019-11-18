@@ -13,13 +13,23 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
 
     initComponent: function() {
         var me = this,
-            entityTypeName = me.parentForm.entityTypeName,
-            url =  me.getProperty().getPropertyType().get('simplePropertyType');
+            entityType = me.parentForm.context.id,
+            url = me.getProperty().getPropertyType().raw.propertyValueInfo.defaultValue || '',
+            re = /\{.*?\}/g;
 
         me.store = Ext.getStore('Uni.property.store.DynamicComboboxData');
+
         me.callParent();
-        me.store.getProxy().setUrl(url);
-        me.store.getProxy().setExtraParam('deviceId', entityTypeName);
+
+        if (!Ext.isEmpty(url)) {
+            url = url.replace(re, entityType);
+            me.store.getProxy().setUrl(url);
+            me.store.load();
+        } else {
+            this.markInvalid( Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+
+        }
+
     },
 
     getEditCmp: function () {
@@ -36,6 +46,16 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
             width: me.width,
             readOnly: me.isReadOnly,
             blankText: me.blankText,
+            listeners: {
+                expand: function(combo) {
+                    var me = this;
+
+                    combo.getStore().load(function(records, operation, success) {
+                           success ? me.clearInvalid() : me.markInvalid();
+                        }
+                    );
+                }
+            }
         }
     },
 
