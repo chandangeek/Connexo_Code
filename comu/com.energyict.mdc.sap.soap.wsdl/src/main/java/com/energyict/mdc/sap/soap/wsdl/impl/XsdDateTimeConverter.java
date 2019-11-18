@@ -8,13 +8,14 @@ import com.google.common.base.Strings;
 
 import javax.xml.bind.DatatypeConverter;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
+import static java.time.ZoneOffset.UTC;
 
 public class XsdDateTimeConverter {
 
@@ -27,22 +28,18 @@ public class XsdDateTimeConverter {
     }
 
     public static String marshalDate(Instant date) {
-        return DatatypeConverter.printDate(asCalendar(date));
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(ZonedDateTime.ofInstant(date, ZoneId.of("UTC")));
     }
 
     public static String marshalTime(LocalTime time) {
-        return DatatypeConverter.printTime(asCalendar(time.atDate(LocalDate.ofEpochDay(1))));
+        return DateTimeFormatter.ISO_LOCAL_TIME.format(time.atOffset(UTC));
     }
 
     public static String marshalDateTime(Instant dateTime) {
-        return DatatypeConverter.printDateTime(asCalendar(dateTime));
+        return DatatypeConverter.printDateTime(asCalendarUTC(dateTime));
     }
 
-    private static Calendar asCalendar(Instant instant) {
-        return GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()));
-    }
-
-    private static Calendar asCalendar(LocalDateTime localDateTime) {
-        return GregorianCalendar.from(localDateTime.atZone(ZoneId.systemDefault()));
+    private static Calendar asCalendarUTC(Instant instant) {
+        return GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")));
     }
 }
