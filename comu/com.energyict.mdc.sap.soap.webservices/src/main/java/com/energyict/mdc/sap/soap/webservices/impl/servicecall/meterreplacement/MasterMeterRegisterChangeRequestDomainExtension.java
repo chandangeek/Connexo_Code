@@ -24,7 +24,6 @@ public class MasterMeterRegisterChangeRequestDomainExtension extends AbstractPer
         REQUEST_ID("requestId", "REQUEST_ID"),
         UUID("uuid", "UUID"),
         BULK("bulk", "BULK");
-        ;
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -45,7 +44,6 @@ public class MasterMeterRegisterChangeRequestDomainExtension extends AbstractPer
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String requestId;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")

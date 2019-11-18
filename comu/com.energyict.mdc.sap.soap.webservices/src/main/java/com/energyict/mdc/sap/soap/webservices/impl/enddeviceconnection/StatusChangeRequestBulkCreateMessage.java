@@ -50,7 +50,7 @@ public class StatusChangeRequestBulkCreateMessage {
     }
 
     public boolean isValid() {
-        return id != null && !requests.isEmpty();
+        return (id != null || uuid != null) && !requests.isEmpty();
     }
 
     public class Builder {

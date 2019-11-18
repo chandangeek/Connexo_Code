@@ -34,7 +34,7 @@ public class StatusChangeRequestCancellationRequestMessage {
     }
 
     public boolean isValid() {
-        return requestId != null && categoryCode != null;
+        return (requestId != null || uuid != null) && categoryCode != null;
     }
 
     public class Builder {

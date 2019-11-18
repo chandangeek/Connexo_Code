@@ -100,7 +100,6 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                         .stringSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.ID)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
@@ -183,10 +182,17 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
                     .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+            Column oldRequestIdColumn = table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .previously(oldRequestIdColumn)
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
                     .varChar(NAME_LENGTH)

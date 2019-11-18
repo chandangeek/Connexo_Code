@@ -84,24 +84,26 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
         }
 
         public Builder withSingleStatus(String messageId, String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
-            UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
-            UtilitiesConnectionStatusChangeResultCode resultCode =
-                    OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
-            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
-                    OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
+            if (messageId != null) {
+                UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
+                UtilitiesConnectionStatusChangeResultCode resultCode =
+                        OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
+                SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
+                        OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
 
-            id.setValue(deviceID);
-            resultCode.setValue(processingResultCode.getCode());
+                id.setValue(deviceID);
+                resultCode.setValue(processingResultCode.getCode());
 
-            deviceConnectionStatus.setUtilitiesDeviceID(id);
-            deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
-            deviceConnectionStatus.setProcessingDateTime(processDate);
+                deviceConnectionStatus.setUtilitiesDeviceID(id);
+                deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
+                deviceConnectionStatus.setProcessingDateTime(processDate);
 
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage()
-                    .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
-                    .filter(s -> messageId.equals(s.getID().getValue()))
-                    .forEach(c -> c.getDeviceConnectionStatus().add(deviceConnectionStatus));
-
+                confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage()
+                        .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
+                        .filter(s -> s.getID() != null)
+                        .filter(s -> messageId.equals(s.getID().getValue()))
+                        .forEach(c -> c.getDeviceConnectionStatus().add(deviceConnectionStatus));
+            }
             return this;
         }
 
@@ -212,6 +214,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             messageUUID.setValue(uuid);
             return messageUUID;
         }
+
         public StatusChangeRequestBulkCreateConfirmationMessage build() {
             return StatusChangeRequestBulkCreateConfirmationMessage.this;
         }

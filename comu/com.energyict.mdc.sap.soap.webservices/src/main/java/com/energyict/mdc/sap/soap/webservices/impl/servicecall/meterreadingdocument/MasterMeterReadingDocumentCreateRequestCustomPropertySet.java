@@ -189,10 +189,17 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+            Column oldRequestIdColumn = table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7, 1))
+                    .add();
+            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                    .varChar()
+                    .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .previously(oldRequestIdColumn)
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.UUID.databaseName())
                     .varChar(NAME_LENGTH)

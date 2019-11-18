@@ -29,18 +29,15 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscan
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UtilitiesDeviceID;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
-import java.security.Principal;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -116,25 +113,19 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     void handleMessage(StatusChangeRequestCancellationRequestMessage message) {
-        Principal principal = threadPrincipalService.getPrincipal();
-        CompletableFuture.runAsync(() -> {
-            threadPrincipalService.set(principal);
-            transactionService.run(() -> {
-                try {
-                    if (message.isValid()) {
-                        CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
+        try {
+            if (message.isValid()) {
+                CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
-                        sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
-                    } else {
-                        sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-                    }
-                } catch (BaseException be) {
-                    sendProcessError(message, be.getMessageSeed().getDefaultFormat());
-                } catch (Exception e) {
-                    sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()));
-                }
-            });
-        }, Executors.newSingleThreadExecutor());
+                sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
+            } else {
+                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            }
+        } catch (BaseException be) {
+            sendProcessError(message, be.getMessageSeed().getDefaultFormat());
+        } catch (Exception e) {
+            sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()));
+        }
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {

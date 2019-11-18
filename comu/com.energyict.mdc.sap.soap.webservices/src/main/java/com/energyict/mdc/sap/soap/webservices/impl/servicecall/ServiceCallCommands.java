@@ -81,7 +81,7 @@ public class ServiceCallCommands {
 
     public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message) {
         if (message.isValid()) {
-            if (!hasConnectionStatusChangeServiceCall(message.getId())) {
+            if (!hasConnectionStatusChangeServiceCall(message.getId(), message.getUuid())) {
                 getServiceCallType(ServiceCallTypes.CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
                     createServiceCall(serviceCallType, message);
                 });
@@ -95,7 +95,7 @@ public class ServiceCallCommands {
 
     public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message, ServiceCall parent) {
         if (message.isValid()) {
-            if (!hasConnectionStatusChangeServiceCall(message.getId())) {
+            if (!hasConnectionStatusChangeServiceCall(message.getId(), message.getUuid())) {
                 getServiceCallType(ServiceCallTypes.CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
                     createChildServiceCall(serviceCallType, message, parent);
                 });
@@ -109,7 +109,7 @@ public class ServiceCallCommands {
 
     public void createServiceCallAndTransition(StatusChangeRequestBulkCreateMessage messages) {
         if (messages.isValid()) {
-            if (!hasMasterConnectionStatusChangeServiceCall(messages.getId())) {
+            if (!hasMasterConnectionStatusChangeServiceCall(messages.getId(), messages.getUuid())) {
                 getServiceCallType(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
                     MasterConnectionStatusChangeDomainExtension extension =
                             new MasterConnectionStatusChangeDomainExtension();
@@ -142,7 +142,7 @@ public class ServiceCallCommands {
 
     public void createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage message) {
         if (message.isValid()) {
-            if (hasMeterReadingRequestServiceCall(message.getId())) {
+            if (hasMeterReadingRequestServiceCall(message.getId(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 getServiceCallType(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST).ifPresent(serviceCallType -> {
@@ -171,7 +171,7 @@ public class ServiceCallCommands {
                                 children.forEach(child -> {
                                     MeterReadingDocumentCreateResultDomainExtension childExtension =
                                             child.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
-                                    if (childExtension.getMeterReadingDocumentId().equals(item.getKey())) {
+                                    if (childExtension.getMeterReadingDocumentId().equals(item.getKey()) && item.getValue() != null) {
                                         if (item.getValue().equals(ProcessingResultCode.FAILED.getCode())) {
                                             finishServiceCall(child, DefaultState.FAILED);
                                         } else {
@@ -408,31 +408,59 @@ public class ServiceCallCommands {
         return serviceCallService.getServiceCallFinder(filter);
     }
 
-    private boolean hasConnectionStatusChangeServiceCall(String id) {
-        return findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
-                .stream()
-                .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
-                .filter(Objects::nonNull)
-                .map(Optional::get)
-                .anyMatch(domainExtension -> domainExtension.getId().equals(id));
+    private boolean hasConnectionStatusChangeServiceCall(String id, String uuid) {
+        if (id != null) {
+            return findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
+                    .stream()
+                    .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
+                    .filter(Objects::nonNull)
+                    .map(Optional::get)
+                    .filter(domainExtension -> domainExtension.getId() != null)
+                    .anyMatch(domainExtension -> domainExtension.getId().equals(id));
+        } else {
+            return findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
+                    .stream()
+                    .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
+                    .filter(Objects::nonNull)
+                    .map(Optional::get)
+                    .filter(domainExtension -> domainExtension.getUuid() != null)
+                    .anyMatch(domainExtension -> domainExtension.getUuid().equals(uuid));
+        }
     }
 
-    private boolean hasMasterConnectionStatusChangeServiceCall(String id) {
-        return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
-                .stream()
-                .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
-                .filter(Objects::nonNull)
-                .map(Optional::get)
-                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+    private boolean hasMasterConnectionStatusChangeServiceCall(String id, String uuid) {
+        if (id != null) {
+            return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
+                    .stream()
+                    .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
+                    .filter(Objects::nonNull)
+                    .map(Optional::get)
+                    .filter(domainExtension -> domainExtension.getRequestID() != null)
+                    .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+        } else {
+            return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
+                    .stream()
+                    .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
+                    .filter(Objects::nonNull)
+                    .map(Optional::get)
+                    .filter(domainExtension -> domainExtension.getUuid() != null)
+                    .anyMatch(domainExtension -> domainExtension.getUuid().equals(uuid));
+        }
     }
 
-    private boolean hasMeterReadingRequestServiceCall(String id) {
+    private boolean hasMeterReadingRequestServiceCall(String id, String uuid) {
         return findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
                 .stream()
                 .map(serviceCall -> serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class))
                 .filter(Objects::nonNull)
                 .map(Optional::get)
-                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+                .anyMatch(domainExtension -> {
+                    if (id != null) {
+                        return domainExtension.getRequestID() != null && domainExtension.getRequestID().equals(id);
+                    } else {
+                        return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
+                    }
+                });
     }
 
     private void sendMessage(StatusChangeRequestCreateConfirmationMessage message) {
