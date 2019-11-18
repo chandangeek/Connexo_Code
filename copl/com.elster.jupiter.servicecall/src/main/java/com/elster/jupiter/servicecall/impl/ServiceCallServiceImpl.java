@@ -63,6 +63,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -447,7 +448,9 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     private Condition createConditionFromFilter(ServiceCallFilter filter) {
         Condition condition = Condition.TRUE;
-
+        if (filter.ids != null) {
+            condition = condition.and(where("id").in(new ArrayList<>(filter.ids)));
+        }
         if (filter.reference != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(filter.reference).or(where("internalReference").like(filter.reference)));
         }

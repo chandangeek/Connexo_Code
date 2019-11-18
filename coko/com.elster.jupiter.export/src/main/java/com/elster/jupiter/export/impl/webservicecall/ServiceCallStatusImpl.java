@@ -7,9 +7,13 @@ package com.elster.jupiter.export.impl.webservicecall;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ServiceCallStatusImpl implements ServiceCallStatus {
     public static final ServiceCallStatus SUCCESS = new ServiceCallStatusImpl(null, DefaultState.SUCCESSFUL, null);
@@ -21,6 +25,16 @@ public class ServiceCallStatusImpl implements ServiceCallStatus {
 
     ServiceCallStatusImpl(ServiceCallService serviceCallService, ServiceCall serviceCall) {
         this(serviceCallService.getServiceCall(serviceCall.getId()).orElse(serviceCall));
+    }
+
+    static List<ServiceCallStatus> from(ServiceCallService serviceCallService, Collection<ServiceCall> serviceCalls) {
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.ids = serviceCalls.stream()
+                .map(ServiceCall::getId)
+                .collect(Collectors.toSet());
+        return serviceCallService.getServiceCallFinder(filter).stream()
+                .map(ServiceCallStatusImpl::new)
+                .collect(Collectors.toList());
     }
 
     private ServiceCallStatusImpl(ServiceCall serviceCall) {

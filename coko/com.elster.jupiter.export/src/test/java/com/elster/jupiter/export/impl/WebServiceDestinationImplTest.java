@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportServiceCallHandler;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +41,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.elster.jupiter.devtools.tests.MatchersExtension.anyListContaining;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
@@ -58,14 +59,16 @@ import static org.mockito.Mockito.when;
 public class WebServiceDestinationImplTest {
     private static final String WEB_SERVICE_CREATE = "CreateWebService";
     private static final String WEB_SERVICE_CHANGE = "ChangeWebService";
-    private static final String SERVICE_CALL_ID = "SC_00029162";
+    private static final String CREATE_SERVICE_CALL_ID = "SC_00048576";
+    private static final String CHANGE_SERVICE_CALL_ID = "SC_00029162";
     private static final Principal PRINCIPAL = () -> "Batch executor";
 
     private Clock clock = Clock.systemDefaultZone();
     private TagReplacerFactory tagReplacerFactory = structureMarker -> TagReplacerImpl.asTagReplacer(clock, structureMarker, 17);
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
-    private Logger logger = Logger.getAnonymousLogger();
     private TransactionService transactionService = new TransactionVerifier();
+    @Mock
+    private Logger logger;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -90,6 +93,8 @@ public class WebServiceDestinationImplTest {
     private DataExportServiceCallType serviceCallType;
     @Captor
     private ArgumentCaptor<Stream<ExportData>> dataStreamCaptor;
+    @Mock
+    private ReadingTypeDataExportItem source1, source2;
 
     @Before
     public void setUp() {
@@ -99,7 +104,7 @@ public class WebServiceDestinationImplTest {
         when(createEndPoint.getProperties()).thenReturn(Collections.singletonList(timeout));
         when(changeEndPoint.getProperties()).thenReturn(Collections.singletonList(timeout));
         when(timeout.getName()).thenReturn(DataExportWebService.TIMEOUT_PROPERTY_KEY);
-        when(timeout.getValue()).thenReturn(TimeDuration.seconds((int) (1.5 * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS)));
+        when(timeout.getValue()).thenReturn(TimeDuration.seconds((int) (.5 * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS)));
 
         when(createEndPoint.getWebServiceName()).thenReturn(WEB_SERVICE_CREATE);
         when(changeEndPoint.getWebServiceName()).thenReturn(WEB_SERVICE_CHANGE);
@@ -110,7 +115,11 @@ public class WebServiceDestinationImplTest {
         when(webServiceChange.call(any(EndPointConfiguration.class), any())).thenReturn(Collections.singletonList(changeServiceCall));
         when(dataExportService.getDataExportServiceCallType()).thenReturn(serviceCallType);
         stubStatus(createServiceCall, DefaultState.SUCCESSFUL, null);
+        when(createServiceCall.getNumber()).thenReturn(CREATE_SERVICE_CALL_ID);
         stubStatus(changeServiceCall, DefaultState.SUCCESSFUL, null);
+        when(changeServiceCall.getNumber()).thenReturn(CHANGE_SERVICE_CALL_ID);
+        when(serviceCallType.getDataSources(createServiceCall)).thenReturn(Collections.singleton(source1));
+        when(serviceCallType.getDataSources(changeServiceCall)).thenReturn(Collections.singleton(source2));
 
         when(threadPrincipalService.getPrincipal()).thenReturn(PRINCIPAL);
     }
@@ -119,7 +128,11 @@ public class WebServiceDestinationImplTest {
     public void testSendMultipleData() {
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
 
-        destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
@@ -128,8 +141,8 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
-        verify(serviceCallType).getStatus(changeServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(createServiceCall));
+        verify(serviceCallType).getStatuses(Collections.singletonList(changeServiceCall));
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -139,7 +152,11 @@ public class WebServiceDestinationImplTest {
         when(changeEndPoint.getProperties()).thenReturn(Collections.emptyList());
 
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
@@ -156,7 +173,11 @@ public class WebServiceDestinationImplTest {
         when(timeout.getValue()).thenReturn(TimeDuration.seconds(0));
 
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
@@ -174,7 +195,11 @@ public class WebServiceDestinationImplTest {
         when(webServiceChange.call(any(EndPointConfiguration.class), any())).thenReturn(Collections.emptyList());
 
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
@@ -186,60 +211,76 @@ public class WebServiceDestinationImplTest {
         verifyZeroInteractions(serviceCallType);
     }
 
-    @Ignore
     @Test
     public void testSendToOneEndpoint() {
-        WebServiceDestinationImpl destination = getDestination(createEndPoint, createEndPoint);
-        destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
+        WebServiceDestinationImpl destination = getDestination(changeEndPoint, changeEndPoint);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
-        verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
-        verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
-        assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, updatedData);
-        verifyNoMoreInteractions(webServiceCreate);
-        verifyZeroInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
+
+        verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
+        verify(webServiceChange, times(2)).call(eq(changeEndPoint), dataStreamCaptor.capture());
+        assertThat(dataStreamCaptor.getAllValues().stream().map(stream -> stream.collect(Collectors.toList())).collect(Collectors.toList()))
+                .containsOnly(Collections.singletonList(newData), Collections.singletonList(updatedData));
+        verifyNoMoreInteractions(webServiceChange);
+        verifyZeroInteractions(webServiceCreate);
+        verify(serviceCallType, times(2)).getStatuses(Collections.singletonList(changeServiceCall));
         verifyNoMoreInteractions(serviceCallType);
     }
 
     @Test
     public void testNoUpdatedData() {
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        destination.send(ImmutableList.of(newData, newData), tagReplacerFactory, logger);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, newData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
 
         verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, newData);
         verifyNoMoreInteractions(webServiceCreate);
         verifyZeroInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(createServiceCall));
         verifyNoMoreInteractions(serviceCallType);
     }
 
     @Test
     public void testNoNewData() {
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        destination.send(ImmutableList.of(updatedData, updatedData), tagReplacerFactory, logger);
+        DataSendingStatus status = destination.send(ImmutableList.of(updatedData, updatedData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
 
         verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData, updatedData);
         verifyNoMoreInteractions(webServiceChange);
         verifyZeroInteractions(webServiceCreate);
-        verify(serviceCallType).getStatus(changeServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(changeServiceCall));
         verifyNoMoreInteractions(serviceCallType);
     }
 
     @Test
     public void testExportOnlyNewData() {
         WebServiceDestinationImpl destination = getDestination(createEndPoint, null);
-        destination.send(ImmutableList.of(newData, newData), tagReplacerFactory, logger);
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, newData), tagReplacerFactory, logger);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isFalse();
 
         verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData, newData);
         verifyNoMoreInteractions(webServiceCreate);
         verifyZeroInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(createServiceCall));
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -248,10 +289,14 @@ public class WebServiceDestinationImplTest {
         stubStatus(createServiceCall, DefaultState.ONGOING, null);
 
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        assertThatThrownBy(() -> destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger))
-                .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Data export via web service isn't confirmed: No data export confirmation has been received in the configured timeout.");
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(source1)).isTrue();
+        assertThat(status.isFailed(source2)).isFalse();
+
+        verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
+                ": No data export confirmation has been received in the configured timeout.");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -259,8 +304,9 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
-        verify(serviceCallType).getStatus(changeServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(createServiceCall));
+        verify(serviceCallType).getStatuses(Collections.singletonList(changeServiceCall));
+        verify(serviceCallType).getDataSources(createServiceCall);
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -269,10 +315,14 @@ public class WebServiceDestinationImplTest {
         stubStatus(changeServiceCall, DefaultState.FAILED, "Error!");
 
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        assertThatThrownBy(() -> destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger))
-                .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Data export via web service isn't confirmed: Error!");
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isTrue();
+
+        verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
+                ": Error!");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -280,8 +330,9 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
-        verify(serviceCallType).getStatus(changeServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(createServiceCall));
+        verify(serviceCallType).getStatuses(Collections.singletonList(changeServiceCall));
+        verify(serviceCallType).getDataSources(changeServiceCall);
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -290,10 +341,14 @@ public class WebServiceDestinationImplTest {
         stubStatus(createServiceCall, DefaultState.FAILED, null);
 
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        assertThatThrownBy(() -> destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger))
-                .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Data export via web service isn't confirmed: Received error code, but no error has been provided.");
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(source1)).isTrue();
+        assertThat(status.isFailed(source2)).isFalse();
+
+        verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
+                ": Received error code, but no error has been provided.");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -301,21 +356,25 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
-        verify(serviceCallType).getStatus(changeServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(createServiceCall));
+        verify(serviceCallType).getStatuses(Collections.singletonList(changeServiceCall));
+        verify(serviceCallType).getDataSources(createServiceCall);
         verifyNoMoreInteractions(serviceCallType);
     }
 
     @Test
     public void testUnknownStateOfServiceCall() {
         stubStatus(changeServiceCall, DefaultState.REJECTED, null);
-        when(changeServiceCall.getNumber()).thenReturn(SERVICE_CALL_ID);
 
         WebServiceDestinationImpl destination = getDestination(createEndPoint, changeEndPoint);
-        assertThatThrownBy(() -> destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger))
-                .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Unexpected state of web service call " + SERVICE_CALL_ID + ": REJECTED.");
+        DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(source1)).isFalse();
+        assertThat(status.isFailed(source2)).isTrue();
+
+        verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
+                ": Unexpected state of the service call: REJECTED.");
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(newData);
@@ -323,8 +382,9 @@ public class WebServiceDestinationImplTest {
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture());
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
-        verify(serviceCallType).getStatus(createServiceCall);
-        verify(serviceCallType).getStatus(changeServiceCall);
+        verify(serviceCallType).getStatuses(Collections.singletonList(createServiceCall));
+        verify(serviceCallType).getStatuses(Collections.singletonList(changeServiceCall));
+        verify(serviceCallType).getDataSources(changeServiceCall);
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -338,7 +398,7 @@ public class WebServiceDestinationImplTest {
                 .isInstanceOf(DestinationFailedException.class)
                 .hasMessage("No data export web service is found for endpoint '" + WEB_SERVICE_CHANGE + "'.");
 
-        verifyZeroInteractions(threadPrincipalService); // per each of 2 started threads
+        verifyZeroInteractions(threadPrincipalService);
         verifyZeroInteractions(webServiceCreate);
         verifyZeroInteractions(webServiceChange);
         verifyZeroInteractions(serviceCallType);
@@ -361,6 +421,7 @@ public class WebServiceDestinationImplTest {
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
         verify(serviceCallType, never()).getStatus(changeServiceCall);
+        verify(serviceCallType, never()).getStatuses(anyListContaining(changeServiceCall));
         verify(serviceCallType, never()).tryFailingServiceCall(any(ServiceCall.class), anyString());
         verify(serviceCallType, never()).tryPassingServiceCall(any(ServiceCall.class));
     }
@@ -374,6 +435,7 @@ public class WebServiceDestinationImplTest {
         when(result.isSuccessful()).thenReturn(status == DefaultState.SUCCESSFUL);
         when(result.isOpen()).thenReturn(status.isOpen());
         when(serviceCallType.getStatus(serviceCall)).thenReturn(result);
+        when(serviceCallType.getStatuses(anyListContaining(serviceCall))).thenReturn(Collections.singletonList(result));
     }
 
     private WebServiceDestinationImpl getDestination(EndPointConfiguration createEndPoint, EndPointConfiguration changeEndPoint) {

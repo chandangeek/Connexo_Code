@@ -8,8 +8,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -35,14 +33,13 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
@@ -87,8 +84,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         });
     }
 
-    public ServiceCallType findOrCreateChildType() {
-
+    private ServiceCallType findOrCreateChildType() {
         return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)));
@@ -226,6 +222,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     @Override
     public ServiceCallStatus getStatus(ServiceCall serviceCall) {
         return new ServiceCallStatusImpl(serviceCallService, serviceCall);
+    }
+
+    @Override
+    public List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls) {
+        return ServiceCallStatusImpl.from(serviceCallService, serviceCalls);
     }
 
     private ServiceCall lock(ServiceCall serviceCall) {
