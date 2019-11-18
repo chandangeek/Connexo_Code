@@ -7,8 +7,6 @@ package com.elster.jupiter.export.impl.webservicecall;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -32,12 +30,10 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
 
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
@@ -122,14 +118,16 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data){
         data.forEach(item->createChild(parent,
                 item.getDomainObject().getName(),
-                item.getReadingType().getMRID()));
+                item.getReadingType().getMRID(),
+                item.getId()));
     }
 
 
-    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID){
+    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
         childSrvCallProperties.setDeviceName(deviceName);
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
+        childSrvCallProperties.setDataSourceId(itemId);
 
         ServiceCallType srvCallChildType = findOrCreateChildType();
 

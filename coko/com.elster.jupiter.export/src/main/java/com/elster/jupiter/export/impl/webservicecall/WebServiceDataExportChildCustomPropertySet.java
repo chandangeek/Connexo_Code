@@ -82,7 +82,12 @@ public class WebServiceDataExportChildCustomPropertySet implements CustomPropert
                         .finish(),
                 propertySpecService
                         .stringSpec()
-                        .named(WebServiceDataExportChildDomainExtension.FieldNames.READING_TYPE_MRID.javaName(), TranslationKeys.READING_TYPE_MR_ID)
+                        .named(WebServiceDataExportChildDomainExtension.FieldNames.READING_TYPE_MRID.javaName(), TranslationKeys.READING_TYPE_MRID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName(), TranslationKeys.DATA_SOURCE_ID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
