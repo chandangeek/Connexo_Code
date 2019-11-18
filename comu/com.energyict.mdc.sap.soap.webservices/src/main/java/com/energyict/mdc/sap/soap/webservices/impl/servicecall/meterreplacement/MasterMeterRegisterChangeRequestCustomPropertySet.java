@@ -105,8 +105,9 @@ public class MasterMeterRegisterChangeRequestCustomPropertySet implements Custom
                         .markRequired()
                         .finish()
 
-                );
+        );
     }
+
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterMeterRegisterChangeRequestDomainExtension> {
         private final String TABLE_NAME = "SAP_LR1_MASTER_CR_SC_CPS";
         private final String FK = "FK_SAP_LR1_MASTER_CR_SC_CPS";

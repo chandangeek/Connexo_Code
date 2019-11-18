@@ -24,7 +24,6 @@ public class MasterMeterRegisterChangeRequestDomainExtension extends AbstractPer
         REQUEST_ID("requestId", "REQUEST_ID"),
         UUID("uuid", "UUID"),
         BULK("bulk", "BULK");
-        ;
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;

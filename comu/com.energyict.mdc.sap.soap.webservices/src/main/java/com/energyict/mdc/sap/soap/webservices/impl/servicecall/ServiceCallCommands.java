@@ -455,9 +455,9 @@ public class ServiceCallCommands {
                 .filter(Objects::nonNull)
                 .map(Optional::get)
                 .anyMatch(domainExtension -> {
-                    if(id != null){
+                    if (id != null) {
                         return domainExtension.getRequestID() != null && domainExtension.getRequestID().equals(id);
-                    }else{
+                    } else {
                         return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
                     }
                 });

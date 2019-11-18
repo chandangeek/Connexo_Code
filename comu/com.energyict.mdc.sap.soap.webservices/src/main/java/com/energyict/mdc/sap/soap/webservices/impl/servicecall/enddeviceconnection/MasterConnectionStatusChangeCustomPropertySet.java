@@ -99,6 +99,7 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
                         .finish()
         );
     }
+
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
         private final String TABLE_NAME = "SAP_C02_MASTER_CR_SC_CPS";
         private final String FK = "FK_SAP_C02_MASTER_CR_SC_CPS";

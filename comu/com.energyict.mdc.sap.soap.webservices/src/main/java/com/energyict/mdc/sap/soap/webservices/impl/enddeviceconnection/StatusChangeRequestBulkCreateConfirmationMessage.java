@@ -214,6 +214,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             messageUUID.setValue(uuid);
             return messageUUID;
         }
+
         public StatusChangeRequestBulkCreateConfirmationMessage build() {
             return StatusChangeRequestBulkCreateConfirmationMessage.this;
         }

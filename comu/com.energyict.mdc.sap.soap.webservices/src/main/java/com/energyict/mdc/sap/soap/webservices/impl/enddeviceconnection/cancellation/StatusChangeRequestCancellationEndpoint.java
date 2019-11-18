@@ -29,18 +29,15 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscan
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UtilitiesDeviceID;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
-import java.security.Principal;
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 

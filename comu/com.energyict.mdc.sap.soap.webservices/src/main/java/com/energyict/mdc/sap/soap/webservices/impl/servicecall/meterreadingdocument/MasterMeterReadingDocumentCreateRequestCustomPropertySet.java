@@ -193,12 +193,12 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
-                    .upTo(Version.version(10,7,1))
+                    .upTo(Version.version(10, 7, 1))
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .since(Version.version(10,7,1))
+                    .since(Version.version(10, 7, 1))
                     .previously(oldRequestIdColumn)
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.UUID.databaseName())

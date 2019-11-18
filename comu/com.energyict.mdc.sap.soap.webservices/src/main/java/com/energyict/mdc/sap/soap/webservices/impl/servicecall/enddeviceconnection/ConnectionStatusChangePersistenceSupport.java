@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+
 import com.google.inject.Module;
 
 import java.util.Collections;
