@@ -27,6 +27,7 @@ public class PropertyTypeInfo {
     public String simplePropertyType;
     public PredefinedPropertyValuesInfo predefinedPropertyValuesInfo;
     public PropertyValueInfo propertyValueInfo;
+    public String valueProviderUrl;
     private TaskContentInfo taskContentInfo;
     public Map<String, Object> params;
 
@@ -115,8 +116,6 @@ public class PropertyTypeInfo {
             createQuantityField(field);
         } else if ("DropDown".equalsIgnoreCase(param1)) {
             createDropDown(field);
-        } else if ("RadioButtons".equalsIgnoreCase(param1)) {
-            createRadioButtons(field);
         } else if ("readingType".equalsIgnoreCase(param1)) {
             simplePropertyType = "METROLOGYCONFIGOUTPUT";
         } else if ("certSecurityAccessors".equalsIgnoreCase(param1)) {
@@ -148,18 +147,7 @@ public class PropertyTypeInfo {
 
     private void createDropDown(JSONObject field) {
         simplePropertyType = "COMBOBOX";
-        String param2 = getComboBoxValue(field, "param2");
-        if (param2 != null) {
-            propertyValueInfo = new PropertyValueInfo(param2);
-        }
-    }
-
-    private void createRadioButtons(JSONObject field) {
-        simplePropertyType = "RADIOBYURL";
-        String param2 = getComboBoxValue(field, "param2");
-        if (param2 != null) {
-            propertyValueInfo = new PropertyValueInfo(param2);
-        }
+        valueProviderUrl = getComboBoxValue(field, "param2");
     }
 
     private void createQuantityField(JSONObject field) {
