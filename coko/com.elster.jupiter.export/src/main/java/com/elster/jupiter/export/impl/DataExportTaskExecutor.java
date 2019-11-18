@@ -17,8 +17,8 @@ import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.SimpleFormattedData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,6 +29,7 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.streams.Predicates;
 
 import java.nio.file.Path;
 import java.time.Clock;
@@ -83,15 +84,15 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     @Override
     public void postExecute(TaskOccurrence occurrence) {
-        IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
         boolean success = false;
         String errorMessage = null;
         Exception thrown = null;
 
-        Logger occurrenceLogger = occurrence.getRetryTime().isPresent() ? getLogger(occurrence, occurrence.getRecurrentTask().getHistory().getVersionAt(occurrence.getRetryTime().get()).get()) :
+        Logger occurrenceLogger = occurrence.getRetryTime().isPresent() ?
+                getLogger(occurrence, occurrence.getRecurrentTask().getHistory().getVersionAt(occurrence.getRetryTime().get()).get()) :
                 getLogger(occurrence, occurrence.getRecurrentTask());
         try {
-            doExecute(dataExportOccurrence, occurrenceLogger);
+            catchingUnexpected(() -> doExecute(findOccurrence(occurrence), occurrenceLogger)).run();
             success = true;
         } catch (Exception ex) {
             thrown = ex;
@@ -104,7 +105,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 //Refetch dataExportOccurrence to avoid Optimistic Lock exceptions
-                dataExportOccurrence = findOccurrence(occurrence);
+                IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
                 if (thrown != null) {
                     if (thrown.getCause() instanceof DestinationFailedException) {
                         occurrenceLogger.log(Level.SEVERE, errorMessage, thrown);
@@ -150,46 +151,46 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         DataFormatter dataFormatter = getDataFormatter(task, occurrence);
 
-        catchingUnexpected(loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger))).run();
+        loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger)).run();
 
         ItemExporter itemExporter = new LazyItemExporter(dataFormatter, logger);
 
-        catchingUnexpected(() -> {
-            Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
-            CompositeDataExportDestination destination = occurrence.getRetryTime()
-                    .map(task::getCompositeDestination)
-                    .orElseGet(task::getCompositeDestination);
-            List<ExportData> dataList;
-            Map<StructureMarker, Path> files;
-            if (destination.hasDataDestinations()) {
-                dataList = data.collect(Collectors.toList());
-                data = dataList.stream();
-            } else {
-                dataList = Collections.emptyList();
-            }
-            if (destination.hasFileDestinations()) {
-                FormattedData formattedData = task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent() ?
-                        doProcessFromDefaultReadingSelector(occurrence, data, itemExporter) :
-                        dataFormatter.processData(data);
-                files = localFileWriter.writeToTempFiles(formattedData.getData());
-            } else {
-                files = Collections.emptyMap();
-            }
-            destination.send(dataList, files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
-        }).run();
+        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
+        CompositeDataExportDestination destination = occurrence.getRetryTime()
+                .map(task::getCompositeDestination)
+                .orElseGet(task::getCompositeDestination);
+        List<ExportData> dataList;
+        Map<StructureMarker, Path> files;
+        if (destination.hasDataDestinations()) {
+            dataList = data.collect(Collectors.toList());
+            data = dataList.stream();
+        } else {
+            dataList = Collections.emptyList();
+        }
+        if (destination.hasFileDestinations()) {
+            FormattedData formattedData = task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent() ?
+                    doProcessFromDefaultReadingSelector(occurrence, data, itemExporter) :
+                    dataFormatter.processData(data);
+            files = localFileWriter.writeToTempFiles(formattedData.getData());
+        } else {
+            files = Collections.emptyMap();
+        }
+        DataSendingStatus dataSendingStatus = destination.send(dataList, files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
 
         itemExporter.done();
 
-        catchingUnexpected(loggingExceptions(logger, dataFormatter::endExport)).run();
+        loggingExceptions(logger, dataFormatter::endExport).run();
 
         if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
+                        .filter(Predicates.not(dataSendingStatus::isFailed))
                         .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();
             }
         }
+        dataSendingStatus.throwExceptionIfFailed(thesaurus);
     }
 
     private LoggingItemExporter getItemExporter(DataFormatter dataFormatter, Logger logger) {
@@ -253,7 +254,6 @@ class DataExportTaskExecutor implements TaskExecutor {
     }
 
     private static final class ExceptionsToFatallyFailed implements Runnable {
-
         private final Runnable decorated;
 
         private ExceptionsToFatallyFailed(Runnable decorated) {

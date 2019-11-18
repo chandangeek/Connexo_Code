@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl.webservicecall;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -24,6 +25,8 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
@@ -32,8 +35,10 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
@@ -49,6 +54,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     private final CustomPropertySetService customPropertySetService;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final OrmService ormService;
 
     @Inject
     public DataExportServiceCallTypeImpl(OrmService ormService, Thesaurus thesaurus, ServiceCallService serviceCallService,
@@ -61,6 +67,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         this.customPropertySetService = customPropertySetService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
+        this.ormService = ormService;
     }
 
     public ServiceCallType findOrCreate() {
@@ -222,5 +229,19 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     private ServiceCall lock(ServiceCall serviceCall) {
         return serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    @Override
+    public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall) {
+        Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
+                .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
+                .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
+                // TODO: update id
+                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), "dataSourceId");
+        return ormService.getDataModel(DataExportService.COMPONENTNAME)
+                .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
+                .stream(ReadingTypeDataExportItem.class)
+                .filter(ListOperator.IN.contains(dataSourceIds, "id"))
+                .collect(Collectors.toSet());
     }
 }

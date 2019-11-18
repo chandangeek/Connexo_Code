@@ -141,16 +141,16 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
+    public DataSendingStatus send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
         try {
-            if (files.isEmpty()) {
-                return;
+            if (!files.isEmpty()) {
+                getFtpSessionFactory().runInSession(
+                        remoteFileSystem -> {
+                            new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem, logger, thesaurus).send(files);
+                        }
+                );
             }
-            getFtpSessionFactory().runInSession(
-                    remoteFileSystem -> {
-                        new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem, logger, thesaurus).send(files);
-                    }
-            );
+            return DataSendingStatus.success();
         } catch (Exception e) {
             StructureMarker marker = files.keySet().iterator().next();
             throw new DestinationFailedException(
