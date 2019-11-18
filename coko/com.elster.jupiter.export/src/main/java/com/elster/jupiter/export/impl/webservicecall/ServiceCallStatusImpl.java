@@ -16,9 +16,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ServiceCallStatusImpl implements ServiceCallStatus {
-    public static final ServiceCallStatus SUCCESS = new ServiceCallStatusImpl(null, DefaultState.SUCCESSFUL, null);
-    public static final ServiceCallStatus ONGOING = new ServiceCallStatusImpl(null, DefaultState.ONGOING, null);
-
     private final ServiceCall serviceCall;
     private final DefaultState state;
     private String errorMessage;
