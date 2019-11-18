@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class WebServiceDataExportChildDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
@@ -38,9 +39,11 @@ public class WebServiceDataExportChildDomainExtension extends AbstractPersistent
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + '}')
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + '}')
     private String deviceName;
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + '}')
+    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + '}')
     private String readingTypeMRID;
 
     private long dataSourceId;

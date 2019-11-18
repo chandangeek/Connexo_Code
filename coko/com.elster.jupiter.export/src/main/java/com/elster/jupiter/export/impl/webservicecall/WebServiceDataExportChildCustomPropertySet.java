@@ -79,16 +79,19 @@ public class WebServiceDataExportChildCustomPropertySet implements CustomPropert
                         .stringSpec()
                         .named(WebServiceDataExportChildDomainExtension.FieldNames.DEVICE_NAME.javaName(), TranslationKeys.DEVICE_NAME)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 propertySpecService
                         .stringSpec()
                         .named(WebServiceDataExportChildDomainExtension.FieldNames.READING_TYPE_MRID.javaName(), TranslationKeys.READING_TYPE_MRID)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 propertySpecService
-                        .stringSpec()
+                        .longSpec()
                         .named(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName(), TranslationKeys.DATA_SOURCE_ID)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }

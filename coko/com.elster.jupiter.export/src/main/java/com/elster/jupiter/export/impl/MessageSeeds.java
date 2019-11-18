@@ -125,23 +125,22 @@ public enum MessageSeeds implements MessageSeed {
         logger.log(getLevel(), format.format(args), t);
     }
 
-    public enum Keys {
-        ;
-        public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
-        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
-        public static final String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
-        public static final String MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE = "MustHaveEventTypes";
-        public static final String FIELD_SIZE_BETWEEN_MIN_AND_MAX = "FieldSizeBetweenMinAndMax";
-        public static final String NO_SUCH_FORMATTER = "NoSuchFormatter";
-        public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
-        public static final String NO_SUCH_SELECTOR = "NoSuchSelector";
-        public static final String PARENT_BREAKING_PATH = "path.parent.breaking.disallowed";
-        public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
-        public static final String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
-        public static final String FTP_FAILURE = "ftp.io.writing.failure";
-        public static final String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
-        public static final String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
-        public static final String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
+    public interface Keys {
+        String NO_SUCH_READINGTYPE = "NoSuchReadingType";
+        String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
+        String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
+        String MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE = "MustHaveEventTypes";
+        String FIELD_SIZE_BETWEEN_MIN_AND_MAX = "FieldSizeBetweenMinAndMax";
+        String NO_SUCH_FORMATTER = "NoSuchFormatter";
+        String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
+        String NO_SUCH_SELECTOR = "NoSuchSelector";
+        String PARENT_BREAKING_PATH = "path.parent.breaking.disallowed";
+        String INVALIDCHARS_EXCEPTION = "InvalidChars";
+        String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
+        String FTP_FAILURE = "ftp.io.writing.failure";
+        String NULL_FORMATTER_WITH_FILE_DESTINATIONS = "NullFormatterWithFileDestinations";
+        String NO_CHANGE_ENDPOINT_FOR_UPDATED_DATA = "NoChangeEndpointForUpdatedData";
+        String BAD_ENDPOINTS_FOR_DATA_SELECTOR = "BadEndpointsForDataSelector";
     }
 }
 
