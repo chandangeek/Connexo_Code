@@ -85,7 +85,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                             role.getLrn()));
 
             saveRelatedAttributes(values);
-            if (id == null && uuid == null) {
+            if (!message.isValid()) {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
 

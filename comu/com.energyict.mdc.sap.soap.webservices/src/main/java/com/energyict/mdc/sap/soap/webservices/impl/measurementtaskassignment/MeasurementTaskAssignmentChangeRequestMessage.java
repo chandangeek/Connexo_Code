@@ -7,9 +7,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesMeasurementTaskID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesAssignmentRoleCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesID;
@@ -53,8 +50,8 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
         return roles;
     }
 
-    public boolean hasValidId() {
-        return id != null;
+    public boolean isValid() {
+        return id != null || uuid != null;
     }
 
     public boolean arePeriodsValid() {
@@ -112,20 +109,6 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
 
         public MeasurementTaskAssignmentChangeRequestMessage build() {
             return MeasurementTaskAssignmentChangeRequestMessage.this;
-        }
-
-        private String getId(BusinessDocumentMessageHeader header) {
-            return Optional.ofNullable(header.getID())
-                    .map(BusinessDocumentMessageID::getValue)
-                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
-        }
-
-        private String getUuid(BusinessDocumentMessageHeader header) {
-            return Optional.ofNullable(header.getUUID())
-                    .map(UUID::getValue)
-                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
         }
 
         private String getProfileId(UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers changeRequest) {
