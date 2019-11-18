@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>dlms-elster</artifactId>
-            <version>9.1.95</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
