@@ -579,7 +579,7 @@ public class WaveThermMessages implements MessageProtocol {
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
     }
 
 }

@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,8 +14,6 @@ import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Device.CalendarSupport;
-import com.elster.jupiter.metering.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.time.Instant;
 import java.util.Optional;

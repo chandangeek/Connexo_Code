@@ -1,0 +1,6 @@
+Errors detected in JS sources:
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=503, args=['alarm.priority.veryLow',  'DAL',  'Very low']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=504, args=['alarm.priority.low',  'DAL',  'Low']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=505, args=['alarm.priority.medium',  'DAL',  'Medium']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=506, args=['alarm.priority.high',  'DAL',  'High']}
+Wrong argument for method invocation {jsFilePath='view\creationrules\EditForm.js', lineNo=507, args=['alarm.priority.veryHigh',  'DAL',  'Very high']}

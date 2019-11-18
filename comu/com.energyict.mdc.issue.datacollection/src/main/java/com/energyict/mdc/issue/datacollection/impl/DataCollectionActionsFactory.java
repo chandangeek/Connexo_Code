@@ -160,17 +160,17 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
-    
+
     @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
-    
+
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
-    
+
     private void addDefaultActions() {
         try {
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));

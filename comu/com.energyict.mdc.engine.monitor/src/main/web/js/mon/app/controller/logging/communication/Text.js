@@ -84,7 +84,7 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
             if (addDelimiter) {
                 criteriaInfo += ' - ';
             }
-            criteriaInfo += ('Communication port name = ' + this.getPortNames());
+            criteriaInfo += ('Communication port name = ' + decodeURI(this.getPortNames()));
             addDelimiter = true;
         }
 

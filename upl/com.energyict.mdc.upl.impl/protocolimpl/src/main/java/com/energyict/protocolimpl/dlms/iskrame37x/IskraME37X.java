@@ -216,8 +216,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     private int deviation = -1;
     private int addressingMode;
     private int connectionMode;
-    private String version = null;
-    private String serialnr = null;
     private String nodeId;
     private CapturedObjects capturedObjects = null;
     private DLMSConnection dlmsConnection = null;
@@ -248,8 +246,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         numberOfChannels = -1;
         configProgramChanges = -1;
         iInterval = 0;
-        version = null;
-        serialnr = null;
 
         try {
             cosemObjectFactory = new CosemObjectFactory(this);
@@ -283,7 +279,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     private byte[] buildaarq(byte[] aarq1, byte[] aarq2) {
-        byte[] aarq = null;
+        byte[] aarq;
         int i, t = 0;
         // prepare aarq buffer
         aarq = new byte[3 + aarq1.length + 1 + (strPassword == null ? 0 : strPassword.length()) + aarq2.length];
@@ -647,14 +643,14 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     private String bytesToObisString(byte[] channelLN) {
-        String str = "";
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < channelLN.length; i++) {
             if (i > 0) {
-                str += ".";
+                builder.append(".");
             }
-            str += "" + ((int) channelLN[i] & 0xff);
+            builder.append("" + ((int) channelLN[i] & 0xff));
         }
-        return str;
+        return builder.toString();
     }
 
     private List getLogbookData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
@@ -1050,7 +1046,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
     }
 
-    public String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
+    private String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
         return doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
     }
 
@@ -1076,7 +1072,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-09-04$";
+        return "$Date: 2019-11-06$";
     }
 
     @Override
@@ -1319,9 +1315,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public void applyMessages(List messageEntries) throws IOException {
-        Iterator it = messageEntries.iterator();
-        while (it.hasNext()) {
-            MessageEntry messageEntry = (MessageEntry) it.next();
+        for (Object each : messageEntries) {
+            MessageEntry messageEntry = (MessageEntry)each;
             if (DEBUG == 1) {
                 System.out.println(messageEntry);
             }
@@ -1390,8 +1385,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     @Override
-    public List getMessageCategories() {
-        List theCategories = new ArrayList();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec cat = new MessageCategorySpec("IskraMT372Messages");
 
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
@@ -1422,8 +1417,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = it.next();
+        for (MessageAttribute att : msgTag.getAttributes()) {
             if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
@@ -1433,8 +1427,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         builder.append(">");
 
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
-            MessageElement elt = (MessageElement) it.next();
+        for (MessageElement elt : msgTag.getSubElements()) {
             if (elt.isTag()) {
                 builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {

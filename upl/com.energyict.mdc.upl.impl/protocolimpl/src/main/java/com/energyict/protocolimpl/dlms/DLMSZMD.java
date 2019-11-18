@@ -419,7 +419,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
     }
 
     @Override
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         this.messageProtocol.applyMessages(messageEntries);
     }
 

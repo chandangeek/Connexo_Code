@@ -6,6 +6,7 @@ package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.energyict.mdc.common.comserver.ComServerAliveStatus;
 import com.energyict.mdc.dashboard.rest.status.impl.ComServerTypeAdapter;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
@@ -59,6 +60,22 @@ public class ComServerStatusInfoFactory {
         statusInfo.comServerType = getComServerType(comServerType);
         statusInfo.blocked = false;
         statusInfo.running = false;
+        return statusInfo;
+    }
+
+    public ComServerStatusInfo from(long comServerId, String comServerName, String defaultUri, ComServerType comServerType,
+                                    ComServerAliveStatus comServerAliveStatus) {
+        ComServerStatusInfo statusInfo = from(comServerId, comServerName, defaultUri, comServerType);
+        statusInfo.running = comServerAliveStatus.isRunning();
+        statusInfo.blocked = comServerAliveStatus.isBlocked();
+        if (statusInfo.blocked) {
+            comServerAliveStatus.getBlockedTime().ifPresent(time ->
+                    statusInfo.blockTime = new TimeDurationInfo(time)
+            );
+            comServerAliveStatus.getBlockedSince().ifPresent(since ->
+                    statusInfo.blockedSince = since
+            );
+        }
         return statusInfo;
     }
 

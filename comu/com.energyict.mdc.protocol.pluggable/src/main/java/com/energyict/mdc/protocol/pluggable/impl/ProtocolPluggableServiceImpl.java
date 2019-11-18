@@ -119,6 +119,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -1172,6 +1173,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile) {
             return this.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(messageIdentifier, collectedLoadProfile);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
+            return this.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(messageIdentifier, collectedLoadProfile, loadProfileReader);
         }
 
         @Override

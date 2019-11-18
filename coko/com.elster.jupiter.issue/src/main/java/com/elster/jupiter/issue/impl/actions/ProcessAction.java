@@ -160,7 +160,7 @@ public class ProcessAction extends AbstractIssueAction {
 
         final PropertySpec processCombobox = propertyFactoriesProvider
                 .getFactory(PropertyType.PROCESS_COMBOBOX)
-                .getElement(PROCESSES_COMBOBOX, TranslationKeys.PROCESS_ACTION, TranslationKeys.PROCESS_ACTION);
+                .getElement(PROCESSES_COMBOBOX, TranslationKeys.PROCESS_ACTION, TranslationKeys.PROCESS_ACTION, issueType, issueReason);
 
         final PropertySpec assigneeElementsGroup = propertyFactoriesProvider
                 .getFactory(PropertyType.ASSIGN_ISSUE_FORM)

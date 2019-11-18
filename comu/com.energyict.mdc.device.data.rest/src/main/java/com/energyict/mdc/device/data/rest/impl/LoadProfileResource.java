@@ -118,9 +118,12 @@ public class LoadProfileResource {
 
         loadProfileInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
         Range<Instant> checkInterval = lastMonth();
-        loadProfileInfo.validationInfo.dataValidated &= loadProfile.getChannels().stream()
-                .filter(Channel::hasData)
-                .allMatch(c -> allDataValidatedOnChannel(c, checkInterval));
+        List<Channel> channels = loadProfile.getChannels();
+        if (!channels.isEmpty()) {
+            loadProfileInfo.validationInfo.dataValidated = channels.stream()
+                    .filter(Channel::hasData)
+                    .allMatch(c -> allDataValidatedOnChannel(c, checkInterval));
+        }
         loadProfileInfo.validationInfo.channelValidationStatus = isChannelValidationActive(loadProfile);
     }
 

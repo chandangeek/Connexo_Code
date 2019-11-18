@@ -88,7 +88,7 @@ public class WebRTUZ3Messaging extends GenericMessaging implements MessageProtoc
      * @param messageEntries a list of {@link MessageEntry}s
      * @throws java.io.IOException if a logical error occurs
      */
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         // nothing to do
     }
 

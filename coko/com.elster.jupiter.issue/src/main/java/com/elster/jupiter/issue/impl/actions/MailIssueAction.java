@@ -21,7 +21,11 @@ import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
-import javax.mail.*;
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -32,8 +36,11 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 public class MailIssueAction extends AbstractIssueAction {
     private static final String NAME = "MailIssueAction";
@@ -140,7 +147,7 @@ public class MailIssueAction extends AbstractIssueAction {
 
     public Properties getMailProperties() {
         Properties props = new Properties();
-        BundleContext bundleContext = ((IssueServiceImpl)issueService).getBundleContext().get();
+        BundleContext bundleContext = ((IssueServiceImpl) issueService).getBundleContext().get();
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
         password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
@@ -160,17 +167,17 @@ public class MailIssueAction extends AbstractIssueAction {
                 .atZone(ZoneId.systemDefault())
                 .format(formatter);
         Optional<String> user = Optional.of("Unassigned");
-        if(issue.getAssignee().getUser() != null){
+        if (issue.getAssignee().getUser() != null) {
             user = Optional.of(issue.getAssignee().getUser().getName());
         }
 
         String issueId = issue.getIssueId(),
                 issueReason = issue.getReason().getName(),
-                issueType =  issue.getReason().getIssueType().getName(),
+                issueType = issue.getReason().getIssueType().getName(),
                 device = issue.getDevice().getName(),
-                userName =  user.get(),
+                userName = user.get(),
                 priority = String.valueOf(totalPriority),
-                creationTime= formattedDtm;
+                creationTime = formattedDtm;
 
         return MessageFormat.format("Issue ID: {0}\nIssue reason: {1}\nIssue type: {2}\nDevice: {3}\n" +
                 "User: {4}\nPriority: {5}\nCreation Time: {6}", issueId, issueReason, issueType, device, userName, priority, creationTime);

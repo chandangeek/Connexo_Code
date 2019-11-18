@@ -134,13 +134,18 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
                 success: function (response) {
                     var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
                     if (decoded && decoded.workgroups) {
-                        queryString.myworkgroupissues = undefined;
-                        queryString.userAssignee = [-1];
-                        queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
-                                return wg.id;
-                            });
-                        queryString.sort = ['-priorityTotal'];
-                        window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                        me.getStore('Isu.store.IssueAssignees').load({
+                            params: {me: true},
+                            callback: function (records) {
+                                queryString.myworkgroupissues = undefined;
+                                queryString.userAssignee = records && !Ext.isEmpty(records) ? [-1, records[0].getId()] : [-1];
+                                queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
+                                    return wg.id;
+                                });
+                                queryString.sort = ['-priorityTotal'];
+                                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                            }
+                        });
                     }
                 }
             });
