@@ -9,8 +9,8 @@ Ext.define('Dal.view.AlarmSortingToolbar', {
         'Dal.view.AlarmSortingMenu'
     ],
     alias: 'widget.alarm-sorting-toolbar',
-    title: Uni.I18n.translate('general.sort', 'ISU', 'Sort'),
-    emptyText: Uni.I18n.translate('general.none', 'ISU', 'None'),
+    title: Uni.I18n.translate('general.sort', 'DAL', 'Sort'),
+    emptyText: Uni.I18n.translate('general.none', 'DAL', 'None'),
     showClearButton: false,
     store: null,
 
@@ -33,7 +33,7 @@ Ext.define('Dal.view.AlarmSortingToolbar', {
                         style: {
                             marginRight: '0px !important'
                         },
-                        text: Uni.I18n.translate('issues.clearAll','ISU','Clear all'),
+                        text: Uni.I18n.translate('issues.clearAll','DAL','Clear all'),
                         action: 'clear'
                     },
                     {
@@ -43,7 +43,7 @@ Ext.define('Dal.view.AlarmSortingToolbar', {
                             marginRight: '0px !important'
                         },
                         //      ui: 'sort',
-                        text: Uni.I18n.translate('issues.addSort','ISU','Add sort'),
+                        text: Uni.I18n.translate('issues.addSort','DAL','Add sort'),
                         action: 'addSort',
                         menu: {
                             xtype: 'alarm-sorting-menu',

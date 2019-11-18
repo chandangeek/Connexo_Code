@@ -61,6 +61,7 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_GET_METER_CONFIG_EVENTS(1031, "UnableToGetMeterConfigEvents", "Unable to get meter config events"),
     NO_DEVICE(1032, "NoDevice", "Device(s) not found"),
     SHIPMENT_DATE_NOT_IN_STOCK(1033, "shipmentdateNotInStock", "Unable to edit shipment date when device isn''t in state ''In stock''."),
+    WRONG_ENUM_WALUE_FOR_ATTRIBUTE(1034, "WrongEnumerationValueForAttribute", "Wrong enumeration value for attribute ''{0}''. Possible values: {1}."),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),

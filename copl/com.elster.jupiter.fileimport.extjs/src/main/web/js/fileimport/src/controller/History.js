@@ -148,10 +148,6 @@ Ext.define('Fim.controller.History', {
         if (sorting === undefined) { // set default filters
             sorting = [];
             sorting.push({
-                property: 'status',
-                direction: Uni.component.sort.model.Sort.DESC
-            });
-            sorting.push({
                 property: 'startDate',
                 direction: Uni.component.sort.model.Sort.DESC
             });

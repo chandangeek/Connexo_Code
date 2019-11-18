@@ -6,6 +6,7 @@ package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -45,6 +47,7 @@ import java.util.logging.Logger;
 public class ComServerStatusSummaryResource {
 
     private static final Logger LOGGER = Logger.getLogger(ComServerStatusSummaryResource.class.getName());
+    private static final String COM_SERVER_ALIVE_FREQ = "com.elster.jupiter.comserver.alive.freq";
 
     private final EngineConfigurationService engineConfigurationService;
     private final ComServerStatusInfoFactory comServerStatusInfoFactory;
@@ -77,32 +80,40 @@ public class ComServerStatusSummaryResource {
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, OnlineComServer comServer, Client jerseyClient, String authorizationHeader, UriBuilder uriBuilder) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, authorizationHeader, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.ONLINE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, authorizationHeader, comServer, comServer.getStatusUri(), ComServerType.ONLINE);
     }
 
     private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, RemoteComServer comServer, Client jerseyClient, String authorizationHeader, UriBuilder uriBuilder) {
-        this.addStatusInfo(statusSummaryInfo, jerseyClient, authorizationHeader, comServer.getId(), comServer.getName(), comServer.getStatusUri(), ComServerType.REMOTE);
+        this.addStatusInfo(statusSummaryInfo, jerseyClient, authorizationHeader, comServer, comServer.getStatusUri(), ComServerType.REMOTE);
     }
 
-    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, String authorizationHeader, long comServerId, String comServerName, String statusUri, ComServerType comServerType) {
-        try {
-            LOGGER.fine(() -> "Executing " + statusUri);
-            ComServerStatusInfo comServerStatusInfo =
-                    jerseyClient.
-                            target(statusUri).
-                            request(MediaType.APPLICATION_JSON).
-                            header("Authorization", authorizationHeader)
-                            .get(ComServerStatusInfo.class);
-            statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(comServerStatusInfo));
-        } catch (ClientErrorException | ProcessingException e) {
-            /* Occurrence of ProcessingException was established when debugging the situation
-             * where the host name of the ComServer was not known to the dns service.
-             * The underlying exception in this case is: java.net.UnknownHostException */
-            /* The ComServerStatusResource of this ComServer is not accessible,
-             * most likely because the ComServer is not running. */
-            LOGGER.info(() -> "ComServer " + comServerName + " is most likely not running");
-            ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServerId, comServerName, statusUri, comServerType);
-            statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(statusInfo));
+    private void addStatusInfo(ComServerStatusSummaryInfo statusSummaryInfo, Client jerseyClient, String authorizationHeader, ComServer comServer, String statusUri, ComServerType comServerType) {
+        Optional<ComServerAliveStatus> comServerAliveStatus = engineConfigurationService.getAliveStatus(comServer);
+        if (comServerAliveStatus.isPresent()) {
+            // since CONM-580 the main way to check status
+            statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(
+                    comServerStatusInfoFactory.from(comServer.getId(), comServer.getName(), statusUri, comServerType, comServerAliveStatus.get())));
+        } else {
+            // legacy way
+            try {
+                LOGGER.fine(() -> "Executing " + statusUri);
+                ComServerStatusInfo comServerStatusInfo =
+                        jerseyClient.
+                                target(statusUri).
+                                request(MediaType.APPLICATION_JSON).
+                                header("Authorization", authorizationHeader)
+                                .get(ComServerStatusInfo.class);
+                statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(comServerStatusInfo));
+            } catch (ClientErrorException | ProcessingException e) {
+                /* Occurrence of ProcessingException was established when debugging the situation
+                 * where the host name of the ComServer was not known to the dns service.
+                 * The underlying exception in this case is: java.net.UnknownHostException */
+                /* The ComServerStatusResource of this ComServer is not accessible,
+                 * most likely because the ComServer is not running. */
+                LOGGER.info(() -> "ComServer " + comServer.getName() + " is most likely not running");
+                ComServerStatusInfo statusInfo = comServerStatusInfoFactory.from(comServer.getId(), comServer.getName(), statusUri, comServerType);
+                statusSummaryInfo.comServerStatusInfos.add(comServerStatusInfoFactory.translate(statusInfo));
+            }
         }
     }
 

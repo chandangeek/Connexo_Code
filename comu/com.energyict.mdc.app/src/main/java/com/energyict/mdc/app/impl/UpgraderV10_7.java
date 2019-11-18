@@ -31,7 +31,9 @@ public class UpgraderV10_7 implements Upgrader {
 
     private String[] getNewMeterOperatorPrivileges() {
         return new String[]{
-                CREATE_ISSUE
+                CREATE_ISSUE,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES
         };
     }
 

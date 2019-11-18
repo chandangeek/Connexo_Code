@@ -1372,7 +1372,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                 return Apr.TaskManagementApp.dependenciesLoaded();
                             },
                             controller: 'Mdc.controller.setup.TaskManagement',
-                            action: 'showAddTask'
+                            action: 'showAddTask',
+                            items: {
+                                  readingtypes: {
+                                       title: Uni.I18n.translate('general.addReadingTypes','MDC','Add reading types'),
+                                       route: 'readingtypes',
+                                       controller: 'Dxp.controller.Tasks',
+                                       action: 'addReadingTypes'
+                                  },
+                                  destination: {
+                                       title: Uni.I18n.translate('general.addDestination','MDC','Add destination'),
+                                       route: 'destination',
+                                       controller: 'Dxp.controller.Tasks',
+                                       action: 'addDestination'
+                                  }
+                            }
                         },
                         viewTaskManagement: {
                             title: '',

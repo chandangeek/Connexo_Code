@@ -26,8 +26,8 @@ Ext.define('Usr.view.user.UsersGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'general.nrOfUsers.selected', count, 'ISU',
-            'No users selected', '{0} user selected', '{0} users selected'
+            'general.nrOfUsers.selected', count, 'USR',
+            'No user selected', '{0} user selected', '{0} users selected'
         );
     },
 

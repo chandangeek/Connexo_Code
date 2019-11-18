@@ -311,20 +311,18 @@ public class G3Messaging extends AnnotatedMessaging {
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         List<AnnotatedMessage> annotatedMessages = new ArrayList<>(messageEntries.size());
-        for (Object msgObject : messageEntries) {
-            if (msgObject instanceof MessageEntry) {
-                MessageEntry messageEntry = (MessageEntry) msgObject;
-                try {
-                    if (!isTimeOfUseMessage(messageEntry)) {
-                        AnnotatedMessage annotatedMessage = createAnnotatedMessage(messageEntry);
-                        annotatedMessages.add(annotatedMessage);
-                    }
-                } catch (IOException e) {
-                    getLogger().severe("Unable to create annotated message from message entry with content [" + messageEntry.getContent() + "]! " + e.getMessage());
+        for (MessageEntry messageEntry : messageEntries) {
+            try {
+                if (!isTimeOfUseMessage(messageEntry)) {
+                    AnnotatedMessage annotatedMessage = createAnnotatedMessage(messageEntry);
+                    annotatedMessages.add(annotatedMessage);
                 }
+            } catch (IOException e) {
+                getLogger().severe("Unable to create annotated message from message entry with content [" + messageEntry.getContent() + "]! " + e.getMessage());
             }
+
         }
         applyAnnotatedMessages(annotatedMessages);
     }

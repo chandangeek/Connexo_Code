@@ -151,11 +151,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         switch (operation) {
             case CREATE:
                 method = "createdMeterConfig";
-                message = createStatusResponseMessage(failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
+                message = createStatusResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case UPDATE:
                 method = "changedMeterConfig";
-                message = createStatusResponseMessage(failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
+                message = createStatusResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
                 method = "replyMeterConfig";
@@ -211,7 +211,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createStatusResponseMessage(List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+    private MeterConfigEventMessageType createStatusResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
         MeterConfigEventMessageType meterConfigEventMessageType = meterConfigMessageObjectFactory.createMeterConfigEventMessageType();
 
         // set header
@@ -226,6 +226,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         } else {
             replyType.setResult(ReplyType.Result.PARTIAL);
         }
+
+        // set payload
+        MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
+        payloadType.setMeterConfig(meterConfig);
+        meterConfigEventMessageType.setPayload(payloadType);
 
         // set errors
         failedDevices.forEach(failedMeterOperation -> {

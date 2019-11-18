@@ -11,7 +11,7 @@ Ext.define('Imt.usagepointgroupsfromissues.view.grid.IssuesGrid', {
     checkAllButtonPresent: true,
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural('general.nrOfIssues.selected', count, 'ISU',
+        return Uni.I18n.translatePlural('general.nrOfIssues.selected', count, 'IMT',
             'No issues selected', '{0} issue selected', '{0} issues selected'
         );
     },
@@ -22,25 +22,25 @@ Ext.define('Imt.usagepointgroupsfromissues.view.grid.IssuesGrid', {
         items: [
             {
                 itemId: 'issues-grid-title',
-                header: Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
+                header: Uni.I18n.translate('general.title.issue', 'IMT', 'Issue'),
                 dataIndex: 'title',
                 flex: 2
             },
             {
                 itemId: 'issues-grid-type',
-                header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                header: Uni.I18n.translate('general.type', 'IMT', 'Type'),
                 dataIndex: 'issueType_name',
                 flex: 1.2
             },
             {
                 itemId: 'issues-grid-priority',
-                header: Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                header: Uni.I18n.translate('general.priority', 'IMT', 'Priority'),
                 dataIndex: 'priority',
                 flex: 1
             },
             {
                 itemId: 'issues-grid-due-date',
-                header: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                header: Uni.I18n.translate('general.title.dueDate', 'IMT', 'Due date'),
                 dataIndex: 'dueDate',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateShort(value) : '';
@@ -49,26 +49,26 @@ Ext.define('Imt.usagepointgroupsfromissues.view.grid.IssuesGrid', {
             },
             {
                 itemId: 'issues-grid-status',
-                header: Uni.I18n.translate('general.status', 'ISU', 'Status'),
+                header: Uni.I18n.translate('general.status', 'IMT', 'Status'),
                 dataIndex: 'status_name',
                 width: 100
             },
             {
                 itemId: 'issues-grid-workgroup-assignee',
-                header: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),
+                header: Uni.I18n.translate('general.workgroup', 'IMT', 'Workgroup'),
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'IMT', 'Unassigned');
                 }
             },
             {
                 itemId: 'issues-grid-user-assignee',
-                header: Uni.I18n.translate('general.user', 'ISU', 'User'),
+                header: Uni.I18n.translate('general.user', 'IMT', 'User'),
                 dataIndex: 'userAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'IMT', 'Unassigned');
                 }
             }
         ]
