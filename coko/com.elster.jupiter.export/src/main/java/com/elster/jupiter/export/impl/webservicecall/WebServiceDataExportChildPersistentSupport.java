@@ -72,7 +72,7 @@ public class WebServiceDataExportChildPersistentSupport implements PersistenceSu
                 .add();
         Column dataSourceId = table.column(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.databaseName())
                 .number()
-                .conversion(NUMBER2LONG)
+                .conversion(ColumnConversion.NUMBER2LONG)
                 .map(WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName())
                 .notNull()
                 .add();

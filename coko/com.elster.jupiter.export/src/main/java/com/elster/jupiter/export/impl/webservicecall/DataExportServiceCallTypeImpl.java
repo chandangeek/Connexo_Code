@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -83,7 +84,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         });
     }
 
-    public ServiceCallType findOrCreateChildType() {
+    private ServiceCallType findOrCreateChildType() {
         serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
         return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)
@@ -225,6 +226,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         return new ServiceCallStatusImpl(serviceCallService, serviceCall);
     }
 
+    @Override
+    public List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls) {
+        return ServiceCallStatusImpl.from(serviceCallService, serviceCalls);
+    }
+
     private ServiceCall lock(ServiceCall serviceCall) {
         return serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
@@ -235,8 +241,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
                 .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
-                // TODO: update id
-                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), "dataSourceId");
+                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
         return ormService.getDataModel(DataExportService.COMPONENTNAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
                 .stream(ReadingTypeDataExportItem.class)

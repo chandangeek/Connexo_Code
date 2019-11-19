@@ -26,8 +26,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -38,15 +36,12 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 
 import com.google.common.collect.ImmutableSet;
@@ -75,7 +70,6 @@ import java.util.stream.Stream;
 import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -91,6 +85,7 @@ import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -124,8 +119,6 @@ public class DataExportTaskExecutorTest {
     @Mock
     private ThreadPrincipalService threadPrincipalService;
     @Mock
-    private TaskService taskService;
-    @Mock
     private IDataExportService dataExportService;
     @Mock
     private TaskOccurrence occurrence;
@@ -142,7 +135,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private ReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
     @Mock
-    private ReadingType readingType1, readingType2;
+    private ReadingType readingType1;
     @Mock
     private DataFormatterFactory dataFormatterFactory;
     @Mock
@@ -158,19 +151,11 @@ public class DataExportTaskExecutorTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Thesaurus thesaurus;
     @Mock
-    private ReadingContainer readingContainer;
-    @Mock
     private PropertySpec propertySpec;
     @Mock
     private MeterReadingSelectorConfigImpl selectorConfig;
     @Mock
     private DataExportStrategy dataExportStrategy;
-    @Mock
-    private MeteringService meteringService;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private RelativePeriod exportRelativePeriod;
     @Mock
     private FormattedData formattedData;
     @Mock
@@ -182,14 +167,9 @@ public class DataExportTaskExecutorTest {
     @Mock
     private EventService eventService;
 
-    private Logger logger = Logger.getAnonymousLogger();
-
-    public static final Predicate<IntervalReading> READING_1 = r -> r.getSource().equals("reading1");
-    public static final Predicate<IntervalReading> READING_2 = r -> r.getSource().equals("reading2");
-
     @Before
     public void setUp() {
-        createTime = ZonedDateTime.of(2012, 11, 01, 6, 0, 0, 0, ZoneId.systemDefault());
+        createTime = ZonedDateTime.of(2012, 11, 1, 6, 0, 0, 0, ZoneId.systemDefault());
         exportPeriodStart = ZonedDateTime.of(2012, 11, 10, 6, 0, 0, 0, ZoneId.systemDefault());
         lastExported = ZonedDateTime.of(2012, 11, 5, 6, 0, 0, 0, ZoneId.systemDefault());
         exportPeriodEnd = ZonedDateTime.of(2012, 11, 11, 6, 0, 0, 0, ZoneId.systemDefault());
@@ -298,6 +278,9 @@ public class DataExportTaskExecutorTest {
         when(dataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
         when(strategy.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);
         when(strategy.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);
+
+        when(destination.send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.success());
     }
 
     @After
@@ -305,7 +288,6 @@ public class DataExportTaskExecutorTest {
         passedStreams.clear();
     }
 
-    @Ignore
     @Test
     public void testDataFormatterGetsTheRightNotifications() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock, threadPrincipalService, eventService);
@@ -342,10 +324,9 @@ public class DataExportTaskExecutorTest {
         assertThat(readingList2).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getReadings()).has(new ReadingFor(reading2));
 
-        verify(destination).send(any(), any(), any(), any());
+        verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
 
-    @Ignore
     @Test
     public void testDataFormatterGetsTheRightNotificationsForIntervalReadings() {
         when(readingType1.isRegular()).thenReturn(true);
@@ -391,10 +372,9 @@ public class DataExportTaskExecutorTest {
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks()).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading2));
 
-        verify(destination).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
+        verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
 
-    @Ignore
     @Test
     public void testDataFormatterGetsTheRightNotificationsInTheRightTransactions() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock, threadPrincipalService, eventService);
@@ -405,23 +385,23 @@ public class DataExportTaskExecutorTest {
         executor.postExecute(occurrence);
 
         verify(dataFormatter, transactionService.notInTransaction()).startExport(eq(dataExportOccurrence), any());
-        verify(dataFormatter, transactionService.inTransaction(2)).startItem(newItem);
+        verify(dataFormatter, transactionService.inTransaction(3)).startItem(newItem);
         assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
-        verify(dataFormatter, transactionService.inTransaction(2)).endItem(newItem);
-        verify(dataFormatter, transactionService.inTransaction(4)).startItem(existingItem);
+        verify(dataFormatter, transactionService.inTransaction(3)).endItem(newItem);
+        verify(dataFormatter, transactionService.inTransaction(5)).startItem(existingItem);
         assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
-        verify(dataFormatter, transactionService.inTransaction(4)).endItem(existingItem);
+        verify(dataFormatter, transactionService.inTransaction(5)).endItem(existingItem);
         verify(dataFormatter, transactionService.notInTransaction()).endExport();
 
-        verify(newItem, transactionService.inTransaction(6)).update();
-        verify(existingItem, transactionService.inTransaction(6)).update();
+        verify(newItem, transactionService.inTransaction(7)).update();
+        verify(existingItem, transactionService.inTransaction(7)).update();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(6).wasCommitted();
 
-        verify(destination).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
+        verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
 
     @Test
@@ -523,7 +503,7 @@ public class DataExportTaskExecutorTest {
 
     @Test
     public void testStartItemThrowsRuntimeException() {
-        doThrow(new RuntimeException()).when(dataFormatter).startItem(existingItem);
+        doThrow(new RuntimeException("test exception; no worries")).when(dataFormatter).startItem(existingItem);
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock, threadPrincipalService, eventService);
 
@@ -554,7 +534,6 @@ public class DataExportTaskExecutorTest {
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
 
-    @Ignore
     @Test
     public void testStartItemThrowsDataExportException() {
         doThrow(DataExportException.class).when(dataFormatter).startItem(newItem);
@@ -575,10 +554,10 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
-        transactionService.assertThatTransaction(2).wasNotCommitted();
-        transactionService.assertThatTransaction(3).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
 
-        verify(destination).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
+        verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
 
     @Test
@@ -662,7 +641,6 @@ public class DataExportTaskExecutorTest {
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
 
-    @Ignore
     @Test
     public void testProcessItemThrowsDataExportException() {
         doAnswer(invocation -> {
@@ -690,10 +668,10 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
-        transactionService.assertThatTransaction(2).wasNotCommitted();
-        transactionService.assertThatTransaction(3).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
 
-        verify(destination).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
+        verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
 
     @Test
@@ -764,7 +742,6 @@ public class DataExportTaskExecutorTest {
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
 
-    @Ignore
     @Test
     public void testEndItemThrowsDataExportException() {
         doThrow(DataExportException.class).when(dataFormatter).endItem(newItem);
@@ -785,13 +762,12 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
-        transactionService.assertThatTransaction(2).wasNotCommitted();
-        transactionService.assertThatTransaction(3).wasCommitted();
+        transactionService.assertThatTransaction(3).wasNotCommitted();
+        transactionService.assertThatTransaction(4).wasCommitted();
 
-        verify(destination).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
+        verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
 
-    @Ignore
     @Test
     public void testActiveItemsHaveLastRunUpdated() {
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock, threadPrincipalService, eventService);
