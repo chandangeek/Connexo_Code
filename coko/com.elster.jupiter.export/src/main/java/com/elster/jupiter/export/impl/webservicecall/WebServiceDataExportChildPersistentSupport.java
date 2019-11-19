@@ -12,8 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-
 public class WebServiceDataExportChildPersistentSupport implements PersistenceSupport<ServiceCall, WebServiceDataExportChildDomainExtension> {
     public static final String COMPONENT_NAME = "DE1";
     static final String APPLICATION_NAME = "Pulse";
