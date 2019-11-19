@@ -11,7 +11,7 @@ Ext.define('Cfg.properties.view.ActionMenu', {
                 itemId: 'edit-config-properties',
                 text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
                 action: 'editConfigProperties',
-                //privileges: ,
+                privileges: this.editPrivileges,
                 section: this.SECTION_EDIT
             }
         ];

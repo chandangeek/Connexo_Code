@@ -44,8 +44,10 @@ Ext.define('Cfg.properties.controller.ConfigProperties', {
             router = me.getController('Uni.controller.history.Router'),
             title = router.getRoute(router.currentRoute).title,
             scope = router.getRoute(router.currentRoute).scope,
+            editPrivileges = router.getRoute(router.currentRoute + '/edit').privileges,
             widget = Ext.widget('cfg-config-properties', {
-                title: title
+                title: title,
+                editPrivileges: editPrivileges
             }),
             taskModel = me.getModel('Cfg.properties.model.ConfigProperties');
 

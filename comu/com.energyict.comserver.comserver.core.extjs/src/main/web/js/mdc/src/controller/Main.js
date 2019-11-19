@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.Main', {
                         {
                             text: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
                             href: '#/administration/commsettings',
-                            //privileges: Mdc.privileges.CommandLimitationRules.view,
+                            privileges: Mdc.privileges.Communication.view,
                             route: 'commsettings'
                         }
                     ]
