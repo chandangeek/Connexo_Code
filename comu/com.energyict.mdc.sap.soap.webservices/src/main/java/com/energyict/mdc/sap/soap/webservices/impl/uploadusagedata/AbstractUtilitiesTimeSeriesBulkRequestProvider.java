@@ -63,8 +63,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     protected int MESSAGE_SIZE_DEFAULT = 512000;//500kB
     protected int READING_SIZE; //bytes
     protected final int READING_SIZE_DEFAULT = 327; //bytes
-    protected final String PROPERTY_READING_SIZE = "com.elster.jupiter.sap.timeseries.msg.size.in.kbytes";
-    protected final String PROPERTY_MSG_SIZE = "com.elster.jupiter.sap.timeseries.reading.size.in.bytes";
+    protected final String PROPERTY_READING_SIZE = "com.elster.jupiter.sap.timeseries.reading.size.in.bytes";
+    protected final String PROPERTY_MSG_SIZE = "com.elster.jupiter.sap.timeseries.msg.size.in.kbytes";
     protected final int HEADER_SIZE = 1024; // bytes
 
     AbstractUtilitiesTimeSeriesBulkRequestProvider() {
