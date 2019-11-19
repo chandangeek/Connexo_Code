@@ -350,7 +350,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         String serialNumber = pendingMessage.getDeviceSerialNumber();
 
         if (!isUsingCryptoServer()) {
-            return super.doFirmwareUpgrade(pendingMessage, super.getMBusFUAK());
+            return super.doFirmwareUpgrade(pendingMessage, super.getMBusFUAK(pendingMessage));
         }
 
         // crypto phase 2
@@ -374,7 +374,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
             journal(Level.FINE, "-activationDate: " + activationDateStr);
         }
 
-        String fuakRaw = super.getMBusFUAK();
+        String fuakRaw = super.getMBusFUAK(pendingMessage);
         journal(Level.FINE, "-imageData length:" + imageData.length);
         journal(Level.FINE, "-FUAK key:" + fuakRaw);
 

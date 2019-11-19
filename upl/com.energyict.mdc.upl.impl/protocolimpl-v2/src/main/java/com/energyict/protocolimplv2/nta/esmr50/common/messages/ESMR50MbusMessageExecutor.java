@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.FUAKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.P2KeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
@@ -53,8 +54,13 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
         byte[] keyData;
         try {
-            String defaultKey = getMBusDefaultKey(pendingMessage);
-            keyData = getKeyDataPhase0(keyID, defaultKey, newOpenKey, serialNumber);
+            String mBusKey = null;
+            if (keyID.equals(MBusKeyID.P2)) {
+                mBusKey = getMBusDefaultKey(pendingMessage);
+            } else if (keyID.equals(MBusKeyID.FUAK)) {
+                mBusKey = getMBusFUAK(pendingMessage);
+            }
+            keyData = getKeyDataPhase0(keyID, mBusKey, newOpenKey, serialNumber);
             journal(Level.INFO,"Complete keyData " + ProtocolTools.getHexStringFromBytes(keyData));
         } catch (ConfigurationException | ProtocolException e) {
             journal(Level.SEVERE, "Configuration Exception while preparing key data: " + e.getCause() + " : " + e.getMessage());
@@ -104,7 +110,7 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
     }
 
     protected String getMBusDefaultKey(OfflineDeviceMessage pendingMessage) throws ConfigurationException, ProtocolException {
-        String p2Key = getDeviceMessageAttributeValue(pendingMessage, P2KeyAttributeName);
+        final String p2Key = getDeviceMessageAttributeValue(pendingMessage, P2KeyAttributeName);
 
         if (p2Key == null || p2Key.length() == 0) {
             throw new ConfigurationException("P2 key is empty! Please fill in the P2 key security accessor on the slave MBus meter.");
@@ -112,12 +118,11 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
         return p2Key;
     }
 
-    protected String getMBusFUAK() throws ConfigurationException {
-        AbstractSmartNtaProtocol protocol = (AbstractSmartNtaProtocol)getProtocol();
-        String fuak = ((ESMR50Properties) protocol.getProperties()).getFUAK();
+    protected String getMBusFUAK(OfflineDeviceMessage pendingMessage) throws ConfigurationException, ProtocolException {
+        final String fuak = getDeviceMessageAttributeValue(pendingMessage, FUAKeyAttributeName);
 
         if (fuak == null || fuak.length() == 0) {
-            throw new ConfigurationException("FirmwareUpgradeAuthenticationKey is empty! Please fill in the FirmwareUpgradeAuthenticationKey property on the slave MBus meter properties.");
+            throw new ConfigurationException("FUAK key is empty! Please fill in the FUAK key security accessor on the slave MBus meter.");
         }
         return fuak;
     }
@@ -362,7 +367,7 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
     protected CollectedMessage upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) {
         try {
-            return doFirmwareUpgrade(pendingMessage, getMBusFUAK());
+            return doFirmwareUpgrade(pendingMessage, getMBusFUAK(pendingMessage));
         } catch (Exception ex) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
