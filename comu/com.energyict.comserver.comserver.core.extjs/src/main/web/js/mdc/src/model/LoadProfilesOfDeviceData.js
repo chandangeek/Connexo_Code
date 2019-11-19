@@ -55,7 +55,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
                 })
             });
         } else if (Ext.isFunction(callback)) {
-            callback();
+            callback(record);  // CXO-11320
         }
     }
 });
