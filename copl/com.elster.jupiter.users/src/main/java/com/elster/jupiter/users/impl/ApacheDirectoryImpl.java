@@ -348,13 +348,15 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         if (attributes.get("uid") != null) {
             LdapUser ldapUser = new LdapUserImpl();
             String userName = attributes.get("uid").get().toString();
-            ldapUser.setUsername(userName);
-            ldapUser.setStatus(true);
-            if (attributes.get("pwdAccountLockedTime") != null
-                    && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
-                ldapUser.setStatus(false);
+            if (isUserValid(userName)) {
+                ldapUser.setUsername(userName);
+                ldapUser.setStatus(true);
+                if (attributes.get("pwdAccountLockedTime") != null
+                        && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
+                    ldapUser.setStatus(false);
+                }
+                ldapUsers.add(ldapUser);
             }
-            ldapUsers.add(ldapUser);
         }
     }
 
