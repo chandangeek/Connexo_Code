@@ -199,11 +199,19 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
                         sendEvent(reading.getMeter().get(), reading.getReading().getTimeStamp(), POWER_FACTOR_EVENT_CODE, EndDeviceDomain.POWER);
                     }
                 }
+                reactiveReadings.remove(reactiveReading.get());
             } else {
                 MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, device.getName(),
-                        reading.getReadingType().getMRID(),
+                        powerFactorEventReadingTypes.get(device.getDeviceType().getName()).getLast(),
                         DefaultDateTimeFormatters.shortDate().withShortTime().build().format(reading.getReading().getTimeStamp().atZone(ZoneId.systemDefault())));
             }
+        }
+        // generate error log for remaining reactive readings that do not have the corresponding active reading
+        reactiveReadings.sort(Comparator.comparing(rI -> rI.getReading().getTimeStamp()));
+        for (ReadingInfo reading : reactiveReadings) {
+            MessageSeeds.POWER_FACTOR_MISSING_READING.log(LOGGER, thesaurus, device.getName(),
+                    powerFactorEventReadingTypes.get(device.getDeviceType().getName()).getFirst(),
+                    DefaultDateTimeFormatters.shortDate().withShortTime().build().format(reading.getReading().getTimeStamp().atZone(ZoneId.systemDefault())));
         }
     }
 
