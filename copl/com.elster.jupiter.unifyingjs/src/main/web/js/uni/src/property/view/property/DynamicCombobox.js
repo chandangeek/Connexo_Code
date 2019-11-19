@@ -25,7 +25,7 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
             url = url.replace(re, entityType);
             me.store.getProxy().setUrl(url);
             me.store.load();
-        } else this.markInvalid( Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+        } else this.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
     },
 
     getEditCmp: function () {
@@ -48,7 +48,7 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
                     //check if store is empty otherwise we trying to load it on each combo expand
                     if (me.store.getCount() == 0) {
                         combo.getStore().load(function(records, operation, success) {
-                            success ? me.clearInvalid() : me.markInvalid();
+                            success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
                          }
                      );
                     }
