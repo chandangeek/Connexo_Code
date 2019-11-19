@@ -112,27 +112,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION(33, "Upload firmware with version, KDL, hashcode and activation date") {
-        @Override
-        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
-                    this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation),
-                    this.stringSpecWithDefaultAndOtherValues(service, firmwareUpdateImageTypeAttributeName,firmwareUpdateImageTypeAttributeNameDefaultTranslation,
-                            FirmwareImageType.ApplicationImage.getDescription(),
-                            FirmwareImageType.BootloaderImage.getDescription(),
-                            FirmwareImageType.MetrologyImage.getDescription(),
-                            FirmwareImageType.LanguageTableImage.getDescription()),
-                    this.stringSpec(service, firmwareUpdateKDLAttributeName, firmwareUpdateKDLAttributeNameDefaultTranslation),
-                    this.stringSpec(service, firmwareUpdateHashAttributeName, firmwareUpdateHashAttributeNameDefaultTranslation)
-            );
-        }
-
-        @Override
-        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
-            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
-        }
-    },
     UPGRADE_FIRMWARE_URL(5007, "Upload firmware via url and activate immediately") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
@@ -153,6 +132,26 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
 
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
+    },
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION(5009, "Upload firmware with version, KDL, hashcode and activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation),
+                    this.stringSpecWithDefaultAndOtherValues(service, firmwareUpdateImageTypeAttributeName,firmwareUpdateImageTypeAttributeNameDefaultTranslation,
+                            FirmwareImageType.ApplicationImage.getDescription(),
+                            FirmwareImageType.BootloaderImage.getDescription(),
+                            FirmwareImageType.MetrologyImage.getDescription(),
+                            FirmwareImageType.LanguageTableImage.getDescription()),
+                    this.stringSpec(service, firmwareUpdateKDLAttributeName, firmwareUpdateKDLAttributeNameDefaultTranslation),
+                    this.stringSpec(service, firmwareUpdateHashAttributeName, firmwareUpdateHashAttributeNameDefaultTranslation)
+            );
+        }
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);

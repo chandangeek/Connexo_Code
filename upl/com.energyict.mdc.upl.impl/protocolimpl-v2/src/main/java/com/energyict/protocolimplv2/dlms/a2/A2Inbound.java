@@ -40,7 +40,7 @@ import java.util.logging.Logger;
 
 public class A2Inbound implements BinaryInboundDeviceProtocol {
 
-    protected ComChannelRemoteAddress comChannel;
+    protected ComChannel comChannel;
     private InboundDiscoveryContext context;
     private DlmsProperties dlmsProperties;
     private DeviceIdentifier deviceIdentifier;
@@ -61,7 +61,7 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
 
     @Override
     public void initComChannel(ComChannel comChannel) {
-        this.comChannel = (ComChannelRemoteAddress) comChannel;
+        this.comChannel = comChannel;
     }
 
     @Override
@@ -97,11 +97,11 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
         getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
         connectWithRetries(publicDlmsSession);
         try {
-            getLogger().info("Public client connected, reading frame counter " + FRAME_COUNTER_MANAGEMENT.toString() + ", corresponding to client " + getDlmsProperties().getClientMacAddress());
+            getLogger().info("Public client connected, reading frame counter " + FRAME_COUNTER_MANAGEMENT.toString() + ", corresponding to client " + publicClientProperties.getClientMacAddress());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAME_COUNTER_MANAGEMENT).getValueAttr().longValue();
             getLogger().info("Frame counter received: " + frameCounter);
 
-            getLogger().info("Reading COSEM logical device name " + COSEM_LOGICAL_DEVICE_NAME.toString() + ", corresponding to client " + getDlmsProperties().getClientMacAddress());
+            getLogger().info("Reading COSEM logical device name " + COSEM_LOGICAL_DEVICE_NAME.toString() + ", corresponding to client " + publicClientProperties.getClientMacAddress());
             logicalDeviceName = publicDlmsSession.getCosemObjectFactory().getData(COSEM_LOGICAL_DEVICE_NAME).getValueAttr().getOctetString().stringValue();
             getLogger().info("COSEM logical device name received: " + logicalDeviceName);
         } catch (DataAccessResultException | ProtocolException e) {

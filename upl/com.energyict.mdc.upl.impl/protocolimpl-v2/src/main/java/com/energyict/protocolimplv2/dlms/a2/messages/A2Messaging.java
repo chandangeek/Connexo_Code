@@ -59,6 +59,7 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             supportedMessages.add(ClockDeviceMessage.SyncTime.get(this.propertySpecService, this.nlsService, this.converter));
             supportedMessages.add(ClockDeviceMessage.ConfigureDST.get(this.propertySpecService, this.nlsService, this.converter));
 
+            supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION.get(this.propertySpecService, this.nlsService, this.converter));
             supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter));
             supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter));
             supportedMessages.add(ContactorDeviceMessage.REMOTE_CONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION.get(this.propertySpecService, this.nlsService, this.converter));

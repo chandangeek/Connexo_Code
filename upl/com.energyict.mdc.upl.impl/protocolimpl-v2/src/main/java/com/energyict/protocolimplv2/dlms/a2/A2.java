@@ -281,11 +281,6 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String getProtocolDescription() {
-        return "A2 ThemisUno DLMS Protocol";
-    }
-
-    @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return getProfileDataReader().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
@@ -390,8 +385,13 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "A2 ThemisUno DLMS Protocol";
+    }
+
+    @Override
     public String getVersion() {
-        return "$Date: 2019-04-05 12:00:00 +0200 (Fri, 4 Apr 2019) $";
+        return "$Date: 2019-11-29 12:00:00 +0200 (Fri, 29 Sep 2019) $";
     }
 
     private A2Messaging getA2Messaging() {
