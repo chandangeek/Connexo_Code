@@ -5,6 +5,6 @@ Ext.define('Uni.property.model.DynamicComboboxData', {
     extend: 'Ext.data.Model',
 
     fields: [
-        {name: 'id', type: 'auto'},
+        { name: 'name', type: 'auto' },
     ],
 });

@@ -13,7 +13,7 @@ Ext.define('Uni.property.store.DynamicComboboxData', {
         url: '',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'certificates'
         },
         setUrl: function (url) {
             this.url = url;

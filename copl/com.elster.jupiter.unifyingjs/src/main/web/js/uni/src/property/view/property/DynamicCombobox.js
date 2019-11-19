@@ -14,22 +14,18 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
     initComponent: function() {
         var me = this,
             entityType = me.parentForm.context.id,
-            url = me.getProperty().getPropertyType().raw.propertyValueInfo.defaultValue || '',
+            url = me.getProperty().getPropertyType().raw.valueProviderUrl || '',
             re = /\{.*?\}/g;
 
         me.store = Ext.getStore('Uni.property.store.DynamicComboboxData');
 
         me.callParent();
-
+        //check if url is empty otherwise mark combo with an error
         if (!Ext.isEmpty(url)) {
             url = url.replace(re, entityType);
             me.store.getProxy().setUrl(url);
             me.store.load();
-        } else {
-            this.markInvalid( Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
-
-        }
-
+        } else this.markInvalid( Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
     },
 
     getEditCmp: function () {
@@ -49,11 +45,13 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
             listeners: {
                 expand: function(combo) {
                     var me = this;
-
-                    combo.getStore().load(function(records, operation, success) {
-                           success ? me.clearInvalid() : me.markInvalid();
-                        }
-                    );
+                    //check if store is empty otherwise we trying to load it on each combo expand
+                    if (me.store.getCount() == 0) {
+                        combo.getStore().load(function(records, operation, success) {
+                            success ? me.clearInvalid() : me.markInvalid();
+                         }
+                     );
+                    }
                 }
             }
         }
