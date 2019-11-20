@@ -7,6 +7,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadi
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -16,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
@@ -38,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
@@ -144,6 +147,8 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
         Set<String> registerGroupsNames = getSetOfValuesFromString(registerGroupsString);
 
+        updateLastReadingForLoadProfiles(endDevicesMRIDs, loadProfilesNames, readingTypesMRIDs);
+
         MeterReadingsBuilder meterReadingsBuilder = readingBuilderProvider.get();
         MeterReadings meterReadings = null;
         serviceCall.log(LogLevel.FINE, MessageFormat.format("Result collection is started for source ''{0}'', time range {1}",
@@ -176,18 +181,65 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
         if (doAllClosedServiceCallsHaveState(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
             serviceCall.requestTransition(SUCCESSFUL);
-        }else if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), CANCELLED))  {
+        } else if (ServiceCallTransitionUtils.hasAllChildrenStates(ServiceCallTransitionUtils.findAllChildren(serviceCall), CANCELLED)) {
             serviceCall.requestTransition(CANCELLED);
-        }else if (ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), PARTIAL_SUCCESS) ||
-                ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)){
+        } else if (ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), PARTIAL_SUCCESS) ||
+                ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), SUCCESSFUL)) {
             serviceCall.requestTransition(PARTIAL_SUCCESS);
-        }else{
+        } else {
             serviceCall.requestTransition(FAILED);
         }
 
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
+    }
+
+    private void updateLastReadingForLoadProfiles(List<String> endDevicesMRIDs, Set<String> loadProfilesNames, Set<String> readingTypesMRIDs) {
+        endDevicesMRIDs.forEach(mrid -> {
+            deviceService.findDeviceByMrid(mrid).ifPresent(
+                    device -> {
+                        Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, loadProfilesNames);
+                        loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypesMRIDs));
+                        loadProfiles.forEach(loadProfile -> {
+                            final AtomicReference<Instant> lastReading = new AtomicReference<>(Instant.MIN);
+                            loadProfile.getChannels().forEach(channel -> {
+                                if (channel.getLastDateTime().isPresent() && channel.getLastDateTime().get().isAfter(lastReading.get())) {
+                                    lastReading.set(channel.getLastDateTime().get());
+                                }
+                            });
+                            if (lastReading.get().isAfter(Instant.MIN) && !lastReading.get().equals(loadProfile.getLastReading().toInstant())) {
+                                device.getLoadProfileUpdaterFor(loadProfile).setLastReading(lastReading.get()).update();
+                            }
+                        });
+                    }
+            );
+        });
+    }
+
+    private Set<LoadProfile> getLoadProfilesForReadingTypes(Device device, Set<String> readingTypes) {
+        return device.getLoadProfiles().stream()
+                .filter(lp -> lp.getLoadProfileSpec().getChannelSpecs().stream()
+                        .anyMatch(c -> readingTypes.contains(c.getReadingType().getMRID()))
+                )
+                .collect(Collectors.toSet());
+    }
+
+    private Set<LoadProfile> getExistedOnDeviceLoadProfiles(Device device, Set<String> loadProfilesNames) {
+        Set<LoadProfile> existedOnDeviceLoadProfiles = new HashSet<>();
+        if (loadProfilesNames != null) {
+            Map<String, LoadProfile> allDeviceLoadProfileNames = device.getLoadProfiles().stream()
+                    .collect(Collectors.toMap(lp -> lp.getLoadProfileSpec()
+                            .getLoadProfileType()
+                            .getName(), lp -> lp, (a, b) -> a));
+            loadProfilesNames.forEach(lpName -> {
+                LoadProfile loadProfile = allDeviceLoadProfileNames.get(lpName);
+                if (loadProfile != null) {
+                    existedOnDeviceLoadProfiles.add(loadProfile);
+                }
+            });
+        }
+        return existedOnDeviceLoadProfiles;
     }
 
     private int calculateRegisterUpperBoundShift() {

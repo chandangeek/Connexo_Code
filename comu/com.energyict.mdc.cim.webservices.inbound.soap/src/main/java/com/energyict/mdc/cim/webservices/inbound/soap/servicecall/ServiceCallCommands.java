@@ -413,6 +413,9 @@ public class ServiceCallCommands {
             }
             Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
             loadProfiles.forEach(loadProfile -> {
+                if(start.isBefore(loadProfile.getLastReading().toInstant())) {
+                    device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update();
+                }
                 ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
                         ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, deviceMessagesComTaskExecution, trigger, start, end);
                 DeviceMessage deviceMessage = createDeviceMessage(device, childServiceCall, loadProfile, trigger, start, end);
