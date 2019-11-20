@@ -18,9 +18,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
@@ -75,7 +72,6 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -86,7 +82,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -233,7 +228,6 @@ public class DataExportServiceCallIT {
     @Test
     @Transactional
     public void testStartAsync() {
-
         ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, itemList);
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
@@ -309,7 +303,6 @@ public class DataExportServiceCallIT {
         WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
         WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
-
         assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, TIMEOUT, null);
 
         // check that further operations don't change the state
@@ -335,7 +328,6 @@ public class DataExportServiceCallIT {
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
         WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
         WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.ONGOING);
@@ -389,7 +381,6 @@ public class DataExportServiceCallIT {
         WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
         WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
-
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.FAILED);
         assertThat(status.isOpen()).isFalse();
@@ -414,7 +405,6 @@ public class DataExportServiceCallIT {
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
         WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
         WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.PAUSED);

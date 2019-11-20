@@ -59,6 +59,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -155,7 +156,12 @@ public class UsagePointReadingDataSelectorImplTest {
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel) {
             @Override
             public long getId() {
-                return this.hashCode();
+                return hashCode();
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(getReadingContainer(), getReadingType());
             }
         })
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
