@@ -48,7 +48,7 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec fixedLengthHexStringPropertySpec(String name, int length, TranslationKey translationKey) {
         return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey,() -> this.getPropertySpecService().stringSpecOfMaximumLength(length))
+                .specBuilder(name, false, translationKey,() -> this.getPropertySpecService().hexStringSpecOfExactLength(length))
                 .finish();
     }
 }
