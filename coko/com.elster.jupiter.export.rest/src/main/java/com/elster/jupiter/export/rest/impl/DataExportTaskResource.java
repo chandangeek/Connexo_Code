@@ -22,7 +22,6 @@ import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.export.security.Privileges;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -677,8 +676,6 @@ public class DataExportTaskResource {
         List<ReadingTypeDataExportItem> activeExportItems = readingDataSelectorConfig.getExportItems().stream()
                 .filter(ReadingTypeDataExportItem::isActive)
                 .filter(item -> item.getLastRun().isPresent())
-                .filter(item -> item.getDomainObject() instanceof Meter)
-                .filter(item -> ((Meter)item.getDomainObject()).getReadingTypes(Range.all()).contains(item.getReadingType()))
                 .collect(Collectors.toList());
         return ListPager.of(activeExportItems).from(queryParameters).find();
     }
