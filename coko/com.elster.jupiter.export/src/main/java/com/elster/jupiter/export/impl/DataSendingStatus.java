@@ -78,9 +78,11 @@ public class DataSendingStatus {
         }
 
         public DataSendingStatusBuilder withFailedDataSources(Collection<ReadingTypeDataExportItem> items) {
-            failed = true;
-            if (!allDataSourcesFailed) {
-                failedDataSources.addAll(items);
+            if (!items.isEmpty()) {
+                failed = true;
+                if (!allDataSourcesFailed) {
+                    failedDataSources.addAll(items);
+                }
             }
             return this;
         }
@@ -93,6 +95,9 @@ public class DataSendingStatus {
         }
 
         public DataSendingStatus build() {
+            if (failed && failedDataSources.isEmpty()) {
+                allDataSourcesFailed = true;
+            }
             return DataSendingStatus.this;
         }
     }
