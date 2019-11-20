@@ -1048,6 +1048,7 @@ Ext.define('Dxp.controller.Tasks', {
                 returnLink: router.getRoute('administration/dataexporttasks').buildUrl()
             })
         }
+        this.addExportTaskForm = view;
 
         if (me.destinationToEdit) { // coming from an edit destination (that hence was cancelled), add the old one again
             me.destinationsArray.push(me.destinationToEdit);
