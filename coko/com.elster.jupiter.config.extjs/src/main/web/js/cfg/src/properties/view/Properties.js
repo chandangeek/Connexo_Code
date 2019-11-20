@@ -33,6 +33,7 @@ Ext.define('Cfg.properties.view.Properties', {
                 {
                     xtype: 'uni-button-action',
                     margin: '20 0 0 0',
+                    privileges: me.editPrivileges,
                     menu: {
                         xtype: 'cfg-properties-action-menu',
                         editPrivileges: me.editPrivileges
