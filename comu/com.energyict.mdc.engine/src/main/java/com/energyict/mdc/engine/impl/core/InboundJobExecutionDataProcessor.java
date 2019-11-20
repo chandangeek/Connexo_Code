@@ -241,10 +241,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         }
 
         if (executePendingTaskOnInboundConnection) {
-            //TODO port COMMUNICATION-1587
             //execute remaining pending tasks on same inbound connection
-            //return super.prepareAll(comTaskExecutions, root, groupedDeviceCommand, false);
-            return root;
+            return super.prepareAll(comTaskExecutions, false);
         } else {
             return root;
         }
