@@ -1,11 +1,13 @@
 package com.energyict.encryption;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,6 +75,10 @@ public class AesGcm {
 
 	/** The authentication tag. */
 	private byte[] tag;
+
+	private Cipher aesGCMCipher;
+	private Cipher aesECBCipher;
+	private Cipher aesCTRCipher;
 
 	/**
 	 * Create a new instance.
@@ -162,15 +168,22 @@ public class AesGcm {
 	 */
 	public final BitVector aesEncrypt(final BitVector plain) {
 		try {
-			final Cipher aesCipher = Cipher.getInstance(CIPHER_AES_ECB);
-			aesCipher.init(Cipher.ENCRYPT_MODE, this.key);
+			aesECBCipher = getAesECBCipher();
+			aesECBCipher.init(Cipher.ENCRYPT_MODE, this.key);
 
-			final byte[] cipherText = aesCipher.doFinal(plain.getValue());
+			final byte[] cipherText = aesECBCipher.doFinal(plain.getValue());
 
 			return new BitVector(cipherText);
 		} catch (GeneralSecurityException e) {
 			throw new IllegalStateException("Error encrypting block of data : [" + e.getMessage() + "]", e);
 		}
+	}
+
+	private Cipher getAesECBCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+		if (aesECBCipher == null) {
+			aesECBCipher = Cipher.getInstance(CIPHER_AES_ECB);
+		}
+		return aesECBCipher;
 	}
 
 	public final void encrypt() {
@@ -239,7 +252,7 @@ public class AesGcm {
 	private void encryptNative() {
 		try {
 			final GCMParameterSpec parameterSpec = new GCMParameterSpec(DEFAULT_TAG_SIZE * 8, this.iv);
-			final Cipher aesGCMCipher = Cipher.getInstance(CIPHER_AES_GCM);
+			aesGCMCipher = getAesGCMCipher();
 
 			aesGCMCipher.init(Cipher.ENCRYPT_MODE, this.key, parameterSpec);
 			aesGCMCipher.updateAAD(this.aad);
@@ -278,7 +291,7 @@ public class AesGcm {
 			// Use CTR here.
 			try {
 				final IvParameterSpec parameterSpec = new IvParameterSpec(getCTRIV(this.iv));
-				final Cipher aesCTRCipher = Cipher.getInstance(CIPHER_AES_CTR);
+				aesCTRCipher = getAesCTRCipher();
 
 				aesCTRCipher.init(Cipher.DECRYPT_MODE, this.key, parameterSpec);
 
@@ -307,7 +320,7 @@ public class AesGcm {
 			try {
 				final GCMParameterSpec parameterSpec = new GCMParameterSpec(this.tagSize * 8, iv);
 
-				final Cipher aesGCMCipher = Cipher.getInstance(CIPHER_AES_GCM);
+				aesGCMCipher = getAesGCMCipher();
 				aesGCMCipher.init(Cipher.DECRYPT_MODE, this.key, parameterSpec);
 				aesGCMCipher.updateAAD(this.aad);
 
@@ -328,8 +341,6 @@ public class AesGcm {
 			}
 		}
 	}
-
-	// Getters - Setters
 
 	/**
 	 * Decrypts the cipherText. Will also check validity of the data.
@@ -387,6 +398,21 @@ public class AesGcm {
 		return true;
 	}
 
+	// Getters - Setters
+
+	private Cipher getAesGCMCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+		if (aesGCMCipher == null) {
+			aesGCMCipher = Cipher.getInstance(CIPHER_AES_GCM);
+		}
+		return aesGCMCipher;
+	}
+
+	private Cipher getAesCTRCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+		if (aesCTRCipher == null) {
+			aesCTRCipher = Cipher.getInstance(CIPHER_AES_CTR);
+		}
+		return aesCTRCipher;
+	}
 	/**
 	 * Getter for the global encryption key
 	 * @return - the globalEncryptionKey
