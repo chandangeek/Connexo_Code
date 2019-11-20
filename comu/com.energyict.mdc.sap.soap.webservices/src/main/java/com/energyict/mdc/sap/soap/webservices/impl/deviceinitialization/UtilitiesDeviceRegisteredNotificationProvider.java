@@ -173,8 +173,11 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
     private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), sapDeviceId);
         using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
                 .toEndpoints(endPointConfigurations)
+                .withRelatedAttributes(values)
                 .send(notificationMessage);
     }
 

@@ -39,7 +39,7 @@ public class MeterReadingDocumentCancellationRequestMessage {
     }
 
     public boolean isValid() {
-        return requestID != null && !meterReadingDocumentIds.isEmpty();
+        return (requestID != null || uuid != null) && !meterReadingDocumentIds.isEmpty();
     }
 
     public class Builder {

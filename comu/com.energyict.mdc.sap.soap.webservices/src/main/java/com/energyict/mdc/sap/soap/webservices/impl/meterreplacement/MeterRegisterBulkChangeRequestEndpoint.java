@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterBulkChangeConfirmation;
@@ -29,6 +30,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -68,16 +72,26 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
     @Override
     public void utilitiesDeviceERPSmartMeterRegisterBulkChangeRequestCIn(UtilsDvceERPSmrtMtrRegBulkChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(MeterRegisterBulkChangeConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        MeterRegisterBulkChangeConfirmation.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(MeterRegisterBulkChangeRequestMessage
-                            .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                        MeterRegisterBulkChangeRequestMessage message = MeterRegisterBulkChangeRequestMessage
+                                .builder(webServiceActivator.getSapProperty(AdditionalProperties.METER_REPLACEMENT_ADD_INTERVAL))
+                                .from(requestMessage)
+                                .build();
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        message.getMeterRegisterChangeMessages().forEach(msg -> {
+                            Optional.ofNullable(msg.getLrn())
+                                    .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                            Optional.ofNullable(msg.getDeviceId())
+                                    .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        });
+                        saveRelatedAttributes(values);
+                        if (!isAnyActiveEndpoint(MeterRegisterBulkChangeConfirmation.NAME)) {
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    MeterRegisterBulkChangeConfirmation.NAME);
+                        }
+                        createServiceCallAndTransition(message);
+                    });
             return null;
         });
     }
@@ -92,7 +106,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
 
     private void createServiceCallAndTransition(MeterRegisterBulkChangeRequestMessage message) {
         if (message.isValid()) {
-            if (hasMeterChangeRequestServiceCall(message.getRequestId())) {
+            if (hasMeterChangeRequestServiceCall(message.getRequestId(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_METER_REGISTER_CHANGE_REQUEST).ifPresent(serviceCallType -> {
@@ -130,11 +144,16 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         }
     }
 
-    private boolean hasMeterChangeRequestServiceCall(String id) {
+    private boolean hasMeterChangeRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterMeterRegisterChangeRequestCustomPropertySet.MODEL_NAME);
         if (dataModel.isPresent()) {
-            return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
-                    .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+            if (id != null) {
+                return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
+                        .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+            } else {
+                return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
+                        .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid));
+            }
         }
         return false;
     }

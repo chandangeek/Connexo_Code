@@ -34,6 +34,7 @@ import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
 import static com.elster.jupiter.servicecall.DefaultState.FAILED;
 import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateRegisterConfirmationMessageFactory {
 
@@ -60,21 +61,21 @@ public class CreateRegisterConfirmationMessageFactory {
                     confirmationMessage.setLog(createSuccessfulLog());
                 } else if (deviceServiceCall.getState() == FAILED) {
                     if (isDeviceNotFoundError(registerServiceCalls)) {
-                        confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.getDefaultFormat(subExtension.getDeviceId())));
+                        confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.getDefaultFormat(subExtension.getDeviceId())));
                     } else {
                         String failedRegisterError = createRegisterError(registerServiceCalls);
                         if (!failedRegisterError.isEmpty()) {
-                            confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.code(), MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
+                            confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
                         } else {
                             confirmationMessage.setLog(createFailedLog());
                         }
                     }
                 }else if (deviceServiceCall.getState() == CANCELLED) {
-                    confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.code(), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
                 }
                 break;
             case CANCELLED:
-                confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
                 break;
             default:
                 // No specific action required for these states
@@ -89,6 +90,9 @@ public class CreateRegisterConfirmationMessageFactory {
     public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
         confirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
+        if(!requestMessage.getUtilitiesDeviceRegisterCreateMessages().isEmpty()) {
+            confirmationMessage.setUtilitiesDevice(createUtilsDvce(requestMessage.getUtilitiesDeviceRegisterCreateMessages().get(0).getDeviceId()));
+        }
         confirmationMessage.setLog(objectFactory.createLog());
         confirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
         return confirmationMessage;
@@ -170,19 +174,19 @@ public class CreateRegisterConfirmationMessageFactory {
         return log;
     }
 
-    private Log createFailedLog(String code, String message) {
+    private Log createFailedLog(String message) {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-        log.getItem().add(createLogItem(code, message));
+        log.getItem().add(createLogItem(message));
         return log;
     }
 
-    private LogItem createLogItem(String code, String message) {
+    private LogItem createLogItem(String message) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(code);
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(message);
 
@@ -194,7 +198,7 @@ public class CreateRegisterConfirmationMessageFactory {
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 

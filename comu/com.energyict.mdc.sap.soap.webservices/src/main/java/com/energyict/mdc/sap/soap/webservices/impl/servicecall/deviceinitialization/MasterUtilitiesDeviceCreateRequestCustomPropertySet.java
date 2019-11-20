@@ -90,7 +90,6 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
                         .stringSpec()
                         .named(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()

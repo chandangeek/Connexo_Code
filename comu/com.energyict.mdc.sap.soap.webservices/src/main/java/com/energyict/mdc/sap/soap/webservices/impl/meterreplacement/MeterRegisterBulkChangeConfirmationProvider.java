@@ -6,18 +6,28 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterBulkChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmationCOutService;
-
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegBulkChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeConfirmationProvider",
         service = {MeterRegisterBulkChangeConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -56,9 +66,28 @@ public class MeterRegisterBulkChangeConfirmationProvider extends AbstractOutboun
     }
 
     @Override
-    public void call(MeterRegisterBulkChangeConfirmationMessage msg) {
+    public void call(MeterRegisterBulkChangeConfirmationMessage message) {
+        SetMultimap<String, String> values = HashMultimap.create();
+        getDeviceConfirmationMessages(message)
+                .forEach(msg -> getDeviceId(msg.getUtilitiesDevice())
+                        .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value)));
+
         using("utilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmationCOut")
-                .send(msg.getConfirmationMessage());
+                .withRelatedAttributes(values)
+                .send(message.getConfirmationMessage());
+    }
+
+    private static List<UtilsDvceERPSmrtMtrRegChgConfMsg> getDeviceConfirmationMessages(MeterRegisterBulkChangeConfirmationMessage message) {
+        return Optional.ofNullable(message)
+                .map(MeterRegisterBulkChangeConfirmationMessage::getConfirmationMessage)
+                .map(UtilsDvceERPSmrtMtrRegBulkChgConfMsg::getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage)
+                .orElse(Collections.emptyList());
+    }
+
+    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrRegChgConfUtilsDvce device) {
+        return Optional.ofNullable(device)
+                .map(UtilsDvceERPSmrtMtrRegChgConfUtilsDvce::getID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override

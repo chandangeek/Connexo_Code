@@ -14,6 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
@@ -21,9 +22,11 @@ import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChan
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqMsg;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -62,17 +65,6 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     @Override
     public void utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            SetMultimap<String, String> values = HashMultimap.create();
-            values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
-                    request.getUtilitiesTimeSeries().getID().getValue());
-            request.getUtilitiesTimeSeries().getMeasurementTaskAssignmentRole().forEach(role->
-            {
-                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                        role.getUtilitiesMeasurementTaskID().getValue());
-            });
-
-            saveRelatedAttributes(values);
-
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> handleMessage(requestMessage));
             return null;
@@ -80,26 +72,33 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     }
 
     public void handleMessage(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
-
-        MeasurementTaskAssignmentChangeRequestMessage message = MeasurementTaskAssignmentChangeRequestMessage.builder().from(msg).build();
-        if (!message.hasValidId()) {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-            return;
-        }
-
-        if (!message.arePeriodsValid()) {
-            sendProcessError(message, MessageSeeds.INVALID_TIME_PERIOD);
-            return;
-        }
-
-        if (Ranges.doAnyRangesIntersect(message.getRoles().stream()
-                .filter(role -> !WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode()))
-                .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
-            sendProcessError(message, MessageSeeds.TIME_PERIODS_INTERSECT);
-            return;
-        }
-
+        String id = getId(msg);
+        String uuid = getUuid(msg);
         try {
+            MeasurementTaskAssignmentChangeRequestMessage message = MeasurementTaskAssignmentChangeRequestMessage.builder(thesaurus).from(msg, id, uuid).build();
+
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+                    message.getProfileId());
+            message.getRoles().forEach(role ->
+                    values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                            role.getLrn()));
+
+            saveRelatedAttributes(values);
+            if (!message.isValid()) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            }
+
+            if (!message.arePeriodsValid()) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_TIME_PERIOD);
+            }
+
+            if (Ranges.doAnyRangesIntersect(message.getRoles().stream()
+                    .filter(role -> !WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode()))
+                    .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.TIME_PERIODS_INTERSECT);
+            }
+
             Optional<String> selectorName = Optional.ofNullable((String) getEndPointConfiguration().getPropertiesWithValue().get(EXPORTER.getKey()));
             measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() :
                     dataExportService.getAvailableSelectors().stream()
@@ -107,7 +106,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                             .findAny().get().getDisplayName());
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid)
                             .create()
                             .build();
             sendMessage(confirmationMessage);
@@ -116,8 +115,8 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = e.getLocalizedMessage();
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeed).format(e.getMessageArgs()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
-                            .from(messageSeed.getLevel().getName(), String.valueOf(messageSeed.getNumber()), errorMessage)
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid)
+                            .from(messageSeed.getLevel().getName(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
@@ -126,25 +125,39 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = messageSeeds.translate(thesaurus, e.getLocalizedMessage());
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(e.getLocalizedMessage()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
-                            .from(messageSeeds.getLevel().getName(), messageSeeds.code(), errorMessage)
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid)
+                            .from(messageSeeds.getLevel().getName(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
         }
     }
 
+    private String getId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+        Optional<BusinessDocumentMessageHeader> header = Optional.ofNullable(msg.getMessageHeader());
+        if (header.isPresent()) {
+            return Optional.ofNullable(header.get().getID())
+                    .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    private String getUuid(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+        Optional<BusinessDocumentMessageHeader> header = Optional.ofNullable(msg.getMessageHeader());
+        if (header.isPresent()) {
+            return Optional.ofNullable(header.get().getUUID())
+                    .map(UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+        return null;
+    }
+
     private void sendMessage(MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage) {
         WebServiceActivator.MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS
                 .forEach(service -> service.call(confirmationMessage));
-    }
-
-    private void sendProcessError(MeasurementTaskAssignmentChangeRequestMessage message, MessageSeeds messageSeed, Object... args) {
-        MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message)
-                        .from(messageSeed.getLevel().getName(), messageSeed.code(), messageSeed.translate(thesaurus, args))
-                        .build();
-        sendMessage(confirmationMessage);
     }
 
     @Override

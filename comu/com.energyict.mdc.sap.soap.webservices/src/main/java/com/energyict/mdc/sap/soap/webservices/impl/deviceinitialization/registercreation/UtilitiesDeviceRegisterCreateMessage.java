@@ -23,7 +23,7 @@ public class UtilitiesDeviceRegisterCreateMessage {
     }
 
     public boolean isValid() {
-        return deviceId != null;
+        return deviceId != null && getUtilitiesDeviceRegisterMessages().stream().allMatch(bodyMessage -> bodyMessage.isValid());
     }
 
     static UtilitiesDeviceRegisterCreateMessage.Builder builder() {

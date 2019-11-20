@@ -14,6 +14,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.exception.BaseException;
+import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCancellationConfirmation;
@@ -23,15 +25,19 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnecti
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangePersistenceSupport;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UtilitiesDeviceID;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
-import java.security.Principal;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -60,17 +66,38 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     @Override
     public void smartMeterUtilitiesConnectionStatusChangeRequestERPCancellationRequestCIn(SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(StatusChangeRequestCancellationConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        StatusChangeRequestCancellationConfirmation.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> handleMessage(StatusChangeRequestCancellationRequestMessage.builder()
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        getDeviceConnectionStatuses(requestMessage.getUtilitiesConnectionStatusChangeRequest())
+                                .stream()
+                                .map(StatusChangeRequestCancellationEndpoint::getDeviceId)
+                                .flatMap(Functions.asStream())
+                                .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        saveRelatedAttributes(values);
+
+                        if (!isAnyActiveEndpoint(StatusChangeRequestCancellationConfirmation.NAME)) {
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    StatusChangeRequestCancellationConfirmation.NAME);
+                        }
+                        handleMessage(StatusChangeRequestCancellationRequestMessage.builder()
+                                .from(requestMessage)
+                                .build());
+                    });
             return null;
         });
+    }
+
+    private static List<SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts> getDeviceConnectionStatuses(SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq request) {
+        return Optional.ofNullable(request)
+                .map(SmrtMtrUtilsConncnStsChgReqERPCanclnReqUtilsConncnStsChgReq::getDeviceConnectionStatus)
+                .orElse(Collections.emptyList());
+    }
+
+    private static Optional<String> getDeviceId(SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts status) {
+        return Optional.ofNullable(status)
+                .map(SmrtMtrUtilsConncnStsChgReqERPCanclnReqDvceConncnSts::getUtilitiesDeviceID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override
@@ -86,25 +113,19 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     void handleMessage(StatusChangeRequestCancellationRequestMessage message) {
-        Principal principal = threadPrincipalService.getPrincipal();
-        CompletableFuture.runAsync(() -> {
-            threadPrincipalService.set(principal);
-            transactionService.run(() -> {
-                try {
-                    if (message.isValid()) {
-                        CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
+        try {
+            if (message.isValid()) {
+                CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
-                        sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
-                    } else {
-                        sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-                    }
-                } catch (BaseException be) {
-                    sendProcessError(message, be.getMessageSeed().getDefaultFormat(), be.getMessageSeed().getNumber());
-                } catch (Exception e) {
-                    sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()), MessageSeeds.UNEXPECTED_EXCEPTION.getNumber());
-                }
-            });
-        }, Executors.newSingleThreadExecutor());
+                sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
+            } else {
+                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            }
+        } catch (BaseException be) {
+            sendProcessError(message, be.getMessageSeed().getDefaultFormat());
+        } catch (Exception e) {
+            sendProcessError(message, MessageSeeds.UNEXPECTED_EXCEPTION.getDefaultFormat(e.getLocalizedMessage()));
+        }
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {
@@ -122,7 +143,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
             // send already processed message
             return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
         }
-        for (ServiceCall serviceCall: serviceCalls) {
+        for (ServiceCall serviceCall : serviceCalls) {
             try {
                 if (serviceCall.getState().isOpen()) {
                     serviceCall = lock(serviceCall);
@@ -166,9 +187,9 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, clock.instant()));
     }
 
-    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg, int number) {
+    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg) {
         log(LogLevel.SEVERE, msg);
-        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, msg, number, clock.instant()));
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, msg, clock.instant()));
     }
 
     private void sendMessage(SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmationMessage) {

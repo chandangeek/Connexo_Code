@@ -9,7 +9,6 @@ import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmartMeterMeterReadingDocumentERPCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -29,17 +28,18 @@ public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint 
     public void smartMeterMeterReadingDocumentERPCreateRequestCIn(SmrtMtrMtrRdngDocERPCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request).ifPresent(requestMessage -> {
-
-                SetMultimap<String, String> values = HashMultimap.create();
-
-                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
-                        request.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtilitiesMeasurementTaskID().getValue());
-                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                        request.getMeterReadingDocument().getUtiltiesMeasurementTask().getUtiltiesDevice().getUtilitiesDeviceID().getValue());
-                saveRelatedAttributes(values);
-                serviceCallCommands.createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage.builder()
+                MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder()
                         .from(requestMessage)
-                        .build());
+                        .build();
+                SetMultimap<String, String> values = HashMultimap.create();
+                message.getMeterReadingDocumentCreateMessages().forEach(msg -> {
+                    Optional.ofNullable(msg.getLrn())
+                            .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                    Optional.ofNullable(msg.getDeviceId())
+                            .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                });
+                saveRelatedAttributes(values);
+                serviceCallCommands.createServiceCallAndTransition(message);
             });
 
             return null;
@@ -47,7 +47,7 @@ public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint 
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }
