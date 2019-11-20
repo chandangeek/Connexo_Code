@@ -799,7 +799,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                     users.add(((IssueAssignee) l.keySet().toArray()[i]));
                 }
                 long userUnassignedCount = users.stream().filter(item -> item.getUser() == null).count();
-                Map<?, ? extends List<?>> map = users.stream().collect(Collectors.groupingBy(IssueAssignee::getUser));
+                Map<?, ? extends List<?>> map = users.stream().filter(item -> item.getWorkGroup() != null).collect(Collectors.groupingBy(IssueAssignee::getUser));
                 for (int i = 0; i < map.keySet().size(); i++) {
                     User user = (User) map.keySet().toArray()[i];
                     long workGroupId = user == null ? -1l : user.getId();
