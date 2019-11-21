@@ -38,7 +38,7 @@ public class CsvUsagePointDataFormatter extends StandardCsvDataFormatter{
     }
 
     @Override
-    Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
+    Optional<String> writeReading(BaseReading reading, ValidationResult validationResult, String readingStatus) {
         if (reading.getValue() != null) {
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
             StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")

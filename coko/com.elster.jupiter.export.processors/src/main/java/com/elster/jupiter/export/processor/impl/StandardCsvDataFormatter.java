@@ -47,8 +47,6 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
     public static final String VALID_STRING = "valid";
     public static final String INVALID_STRING = "suspect";
-    public static final String ACTL_STRING = "ACTL";
-    public static final String INVL_STRING = "INVL";
     public static final String SEMICOLON_SEPARATOR = ";";
     public static final String COMMA_SEPARATOR = ",";
     public static final String DEFAULT_SEPARATOR = COMMA_SEPARATOR;
@@ -104,6 +102,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         MeterReadingData meterReadingData = ((MeterReadingData) exportData);
         MeterReading data = meterReadingData.getMeterReading();
         MeterReadingValidationData validationData = meterReadingData.getValidationData();
+        Map<Instant, String> readingStatuses = meterReadingData.getReadingStatuses();
         List<Reading> readings = data.getReadings().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
         ReadingType readingType = meterReadingData.getItem().getReadingType();
@@ -111,12 +110,14 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         List<FormattedExportData> formattedExportData = Stream.concat(
                 readings.stream()
                         .map(reading ->
-                                writeReading(reading, asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType))),
+                                writeReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : null,
+                                        readingStatuses != null ? readingStatuses.get(reading.getTimeStamp()) : null)),
                 intervalBlocks.stream()
                         .map(IntervalBlock::getIntervals)
                         .flatMap(Collection::stream)
                         .map(reading ->
-                                writeReading(reading, asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType))))
+                                writeReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : null,
+                                        readingStatuses != null ? readingStatuses.get(reading.getTimeStamp()) : null)))
                 .flatMap(Functions.asStream())
                 .map(line -> TextLineExportData.of(createStructureMarker(exportData, main, update), line))
                 .collect(Collectors.toList());
@@ -153,7 +154,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
                 .orElse(null);
     }
 
-    Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
+    Optional<String> writeReading(BaseReading reading, ValidationResult validationResult, String readingStatus) {
         if (reading.getValue() != null) {
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
             StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
@@ -161,8 +162,13 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
                     .add(domainObject.getMRID())
                     .add(domainObject.getName())
                     .add(readingType.getMRID())
-                    .add(reading.getValue().toString())
-                    .add(asString(validationResult));
+                    .add(reading.getValue().toString());
+            if (validationResult != null) {
+                joiner.add(asString(validationResult));
+            }
+            if (readingStatus != null) {
+                joiner.add(readingStatus);
+            }
             return Optional.of(joiner.toString());
         }
         return Optional.empty();
@@ -174,10 +180,6 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
                 return VALID_STRING;
             case SUSPECT:
                 return INVALID_STRING;
-            case ACTUAL:
-                return ACTL_STRING;
-            case INVALID:
-                return INVL_STRING;
             default:
                 return "";
         }

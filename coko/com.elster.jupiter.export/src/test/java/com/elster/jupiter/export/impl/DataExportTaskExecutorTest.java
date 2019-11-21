@@ -287,12 +287,14 @@ public class DataExportTaskExecutorTest {
                 this.newItem,
                 MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1)),
                 new MeterReadingValidationData(Collections.emptyMap()),
+                null,
                 DefaultStructureMarker.createRoot(clock, "newItem")
         );
         MeterReadingData existItemData = new MeterReadingData(
                 this.existingItem,
                 MeterReadingImpl.of(ReadingImpl.reading(reading2, readingType1)),
                 new MeterReadingValidationData(Collections.emptyMap()),
+                null,
                 DefaultStructureMarker.createRoot(clock, "newItem"));
         when(selectorConfig.createDataSelector(any())).thenReturn(dataSelector);
         when(dataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
@@ -350,9 +352,9 @@ public class DataExportTaskExecutorTest {
     public void testDataFormatterGetsTheRightNotificationsForIntervalReadings() {
         when(readingType1.isRegular()).thenReturn(true);
         MeterReadingImpl meterReading1 = getMeterReadingWithIntervalBlock(newItem, Collections.singletonList(reading1));
-        MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading1, new MeterReadingValidationData(Collections.emptyMap()), DefaultStructureMarker.createRoot(clock, "newItem"));
+        MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading1, new MeterReadingValidationData(Collections.emptyMap()), null, DefaultStructureMarker.createRoot(clock, "newItem"));
         MeterReadingImpl meterReading2 = getMeterReadingWithIntervalBlock(existingItem, Collections.singletonList(reading2));
-        MeterReadingData existItemData = new MeterReadingData(this.existingItem, meterReading2, new MeterReadingValidationData(Collections.emptyMap()), DefaultStructureMarker.createRoot(clock, "newItem"));
+        MeterReadingData existItemData = new MeterReadingData(this.existingItem, meterReading2, new MeterReadingValidationData(Collections.emptyMap()), null, DefaultStructureMarker.createRoot(clock, "newItem"));
         when(dataSelector.selectData(dataExportOccurrence)).thenReturn(Stream.of(newItemData, existItemData));
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock, threadPrincipalService, eventService);
