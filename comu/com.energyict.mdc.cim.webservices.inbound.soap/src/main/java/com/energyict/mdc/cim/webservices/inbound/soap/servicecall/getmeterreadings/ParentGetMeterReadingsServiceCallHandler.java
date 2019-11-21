@@ -209,24 +209,26 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                         .getEndDeviceMrid())
                 .collect(Collectors.toList());
 
-        deviceService.findAllDevices(where("mRID").in(endDevicesMRIDs))
-                .stream()
-                .forEach(device -> {
-                    Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, loadProfilesNames);
-                    loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypesMRIDs));
-                    loadProfiles.forEach(loadProfile -> {
-                        Optional<Instant> lastReading = loadProfile.getChannels().stream()
-                                .map(channel -> channel.getLastDateTime())
-                                .filter(Optional::isPresent)
-                                .map(Optional::get)
-                                .max(Comparator.naturalOrder());
+        if (!endDevicesMRIDs.isEmpty()) {
+            deviceService.findAllDevices(where("mRID").in(endDevicesMRIDs))
+                    .stream()
+                    .forEach(device -> {
+                        Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, loadProfilesNames);
+                        loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypesMRIDs));
+                        loadProfiles.forEach(loadProfile -> {
+                            Optional<Instant> lastReading = loadProfile.getChannels().stream()
+                                    .map(channel -> channel.getLastDateTime())
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .max(Comparator.naturalOrder());
 
-                        if (lastReading.isPresent() && !lastReading.get().equals(loadProfile.getLastReading().toInstant())) {
-                            device.getLoadProfileUpdaterFor(loadProfile).setLastReading(lastReading.get()).update();
-                        }
+                            if (lastReading.isPresent() && !lastReading.get().equals(loadProfile.getLastReading().toInstant())) {
+                                device.getLoadProfileUpdaterFor(loadProfile).setLastReading(lastReading.get()).update();
+                            }
+                        });
+
                     });
-
-                });
+        }
     }
 
     private Set<LoadProfile> getLoadProfilesForReadingTypes(Device device, Set<String> readingTypes) {
