@@ -168,10 +168,9 @@ public class AesGcm {
 	 */
 	public final BitVector aesEncrypt(final BitVector plain) {
 		try {
-			aesECBCipher = getAesECBCipher();
-			aesECBCipher.init(Cipher.ENCRYPT_MODE, this.key);
+			getAesECBCipher().init(Cipher.ENCRYPT_MODE, this.key);
 
-			final byte[] cipherText = aesECBCipher.doFinal(plain.getValue());
+			final byte[] cipherText = getAesECBCipher().doFinal(plain.getValue());
 
 			return new BitVector(cipherText);
 		} catch (GeneralSecurityException e) {
@@ -252,13 +251,11 @@ public class AesGcm {
 	private void encryptNative() {
 		try {
 			final GCMParameterSpec parameterSpec = new GCMParameterSpec(DEFAULT_TAG_SIZE * 8, this.iv);
-			aesGCMCipher = getAesGCMCipher();
-
-			aesGCMCipher.init(Cipher.ENCRYPT_MODE, this.key, parameterSpec);
-			aesGCMCipher.updateAAD(this.aad);
+			getAesGCMCipher().init(Cipher.ENCRYPT_MODE, this.key, parameterSpec);
+			getAesGCMCipher().updateAAD(this.aad);
 
 			// This is cipher text + tag, need to split these.
-			final byte[] cipherText = aesGCMCipher.doFinal(this.plainText);
+			final byte[] cipherText = getAesGCMCipher().doFinal(this.plainText);
 
 			final int tagStart = cipherText.length - 16;
 			final int tagEnd = tagStart + this.tagSize;
@@ -291,11 +288,10 @@ public class AesGcm {
 			// Use CTR here.
 			try {
 				final IvParameterSpec parameterSpec = new IvParameterSpec(getCTRIV(this.iv));
-				aesCTRCipher = getAesCTRCipher();
 
-				aesCTRCipher.init(Cipher.DECRYPT_MODE, this.key, parameterSpec);
+				getAesCTRCipher().init(Cipher.DECRYPT_MODE, this.key, parameterSpec);
 
-				this.plainText = aesCTRCipher.doFinal(this.cipherText);
+				this.plainText = getAesCTRCipher().doFinal(this.cipherText);
 
 				return true;
 			} catch (GeneralSecurityException e) {
@@ -320,16 +316,15 @@ public class AesGcm {
 			try {
 				final GCMParameterSpec parameterSpec = new GCMParameterSpec(this.tagSize * 8, iv);
 
-				aesGCMCipher = getAesGCMCipher();
-				aesGCMCipher.init(Cipher.DECRYPT_MODE, this.key, parameterSpec);
-				aesGCMCipher.updateAAD(this.aad);
+				getAesGCMCipher().init(Cipher.DECRYPT_MODE, this.key, parameterSpec);
+				getAesGCMCipher().updateAAD(this.aad);
 
 				final byte[] data = new byte[this.cipherText.length + this.tag.length];
 
 				System.arraycopy(this.cipherText, 0, data, 0, this.cipherText.length);
 				System.arraycopy(this.tag, 0, data, this.cipherText.length, this.tag.length);
 
-				this.plainText = aesGCMCipher.doFinal(data);
+				this.plainText = getAesGCMCipher().doFinal(data);
 
 				return true;
 			} catch (GeneralSecurityException e) {
