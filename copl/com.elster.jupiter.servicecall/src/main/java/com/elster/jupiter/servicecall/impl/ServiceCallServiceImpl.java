@@ -448,16 +448,16 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     private Condition createConditionFromFilter(ServiceCallFilter filter) {
         Condition condition = Condition.TRUE;
-        if (filter.ids != null) {
+        if (filter.ids != null && !filter.ids.isEmpty()) {
             condition = condition.and(where("id").in(new ArrayList<>(filter.ids)));
         }
         if (filter.reference != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(filter.reference).or(where("internalReference").like(filter.reference)));
         }
-        if (!filter.types.isEmpty()) {
+        if (filter.types != null && !filter.types.isEmpty()) {
             condition = condition.and(ofAnyType(filter.types));
         }
-        if (!filter.states.isEmpty()) {
+        if (filter.states != null && !filter.states.isEmpty()) {
             condition = condition.and(ofAnyState(filter.states));
         }
         if (filter.receivedDateFrom != null) {
