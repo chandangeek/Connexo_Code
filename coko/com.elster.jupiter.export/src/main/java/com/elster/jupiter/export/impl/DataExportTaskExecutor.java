@@ -13,13 +13,12 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.SimpleFormattedData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
@@ -187,7 +186,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
-                        .peek(item -> item.setLastExportedDate(((DefaultSelectorOccurrence)occurrence).getExportedDataInterval().upperEndpoint()))
+                        .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();
             }
