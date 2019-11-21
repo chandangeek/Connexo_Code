@@ -13,6 +13,13 @@ public enum ResultType {
     Supported(CompletionCode.Ok),
 
     /**
+     * A special case when reading an offline data concentrator mirror, when the protocol
+     * could read-out data, but an empty set of values was collected. This could mean that the data concentrator
+     * encountered errors while collecting the data. The user is expected to inspect the logs to see the reason.
+     */
+    DataWarning(CompletionCode.DataWarning),
+
+    /**
      * Identifies that the object is not supported by the device, so no additional data is provided.
      */
     NotSupported(CompletionCode.ConfigurationWarning),
@@ -27,13 +34,6 @@ public enum ResultType {
      * Type similar to {@link #ConfigurationMisMatch}, but with CompletionCode ConfigurationError instead of ConfigurationWarning.
      */
     ConfigurationError(CompletionCode.ConfigurationError),
-
-    /**
-     * A special case when reading an offline data concentrator mirror, when the protocol
-     * could read-out data, but an empty set of values was collected. This could mean that the data concentrator
-     * encountered errors while collecting the data. The user is expected to inspect the logs to see the reason.
-     */
-    DataWarning(CompletionCode.DataWarning),
 
     /**
      * Identifies that the object is supported by the device, but the requested information could not be fully fetched.
