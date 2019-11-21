@@ -315,9 +315,9 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
         serviceLocator.setWUTriggerPortEndpointAddress(serviceEndpoint);
 
-        int timeout = (int) getPropertyRequestTimeout().getSeconds();
+        int timeout = (int) getPropertyRequestTimeout().getSeconds() * 1000;
         stub.setTimeout(timeout);
-        log("\t- request timeout: "+timeout+" sec");
+        log("\t- request timeout: "+timeout+" milliseconds");
 
         //need also this for cached endpoint
         ((WUTriggerPortBindingStub) wuTriggerPort)._setProperty("javax.xml.rpc.service.endpoint.address", serviceEndpoint );
