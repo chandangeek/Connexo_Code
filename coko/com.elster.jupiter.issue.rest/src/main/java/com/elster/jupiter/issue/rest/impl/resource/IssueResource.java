@@ -387,10 +387,6 @@ public class IssueResource extends BaseResource {
                 .stream()
                 .filter(el -> el != null)
                 .forEach(groupFilter::withUserAssignee);
-        filter.getLongList(IssueRestModuleConst.DEVICE_GROUP)
-                .stream()
-                .filter(el -> el != null)
-                .forEach(groupFilter::withDeviceGroup);
         filter.getLongList(IssueRestModuleConst.WORKGROUP)
                 .stream()
                 .filter(el -> el != null)

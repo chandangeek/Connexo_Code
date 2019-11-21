@@ -175,12 +175,6 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
-    public IssueGroupFilter withDeviceGroup(long id) {
-        this.deviceGroup.add(id);
-        return this;
-    }
-
-    @Override
     public IssueGroupFilter withMeter(long id) {
         this.meters.add(id);
         return this;

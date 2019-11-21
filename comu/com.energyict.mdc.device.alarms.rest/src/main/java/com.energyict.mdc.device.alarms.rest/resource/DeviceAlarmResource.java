@@ -357,7 +357,6 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 .from(params.getFrom()).to(params.getTo());
         filter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().filter(el -> el != null).forEach(groupFilter::withUserAssignee);
         filter.getLongList(IssueRestModuleConst.WORKGROUP).stream().filter(el -> el != null).forEach(groupFilter::withWorkGroupAssignee);
-        filter.getLongList(IssueRestModuleConst.DEVICE_GROUP).stream().filter(el -> el != null).forEach(groupFilter::withDeviceGroup);
         getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
 
         List<IssueGroupInfo> infos = null;

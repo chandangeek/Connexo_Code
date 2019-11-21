@@ -53,8 +53,6 @@ public interface IssueGroupFilter {
 
     IssueGroupFilter withUserAssignee(long id);
 
-    IssueGroupFilter withDeviceGroup(long id);
-
     IssueGroupFilter withMeter(long id);
 
     IssueGroupFilter withId(String id);
