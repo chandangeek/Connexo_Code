@@ -9,10 +9,12 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ComServerAliveStatus;
 
 public interface OrmClient {
-    public DataMapper<ComServer> getComServerDataMapper();
-    public DataMapper<ComPort> getComPortDataMapper();
-    public DataMapper<ComPortPool> getComPortPoolDataMapper();
-    public DataMapper<ComPortPoolMember> getComPortPoolMemberDataMapper();
+    DataMapper<ComServer> getComServerDataMapper();
+    DataMapper<ComPort> getComPortDataMapper();
+    DataMapper<ComPortPool> getComPortPoolDataMapper();
+    DataMapper<ComPortPoolMember> getComPortPoolMemberDataMapper();
+    DataMapper<ComServerAliveStatus> getComServerAliveDataMapper();
 }

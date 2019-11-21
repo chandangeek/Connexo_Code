@@ -99,6 +99,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     private static final String COMPONENT_NAME_KEY = "componentName";
     private static final String TABLE_NAME = "tableName";
     private static final String ID = "id";
+    public static final String SUBSCRIBER_EXECUTION_SPEC = "subscriberExecutionSpec";
 
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
@@ -719,5 +720,13 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     @Override
     public void start(BundleContext context) {
         registration = context.registerService(AppService.class, this, null);
+    }
+
+    @Override
+    public void registerQueue(SubscriberExecutionSpec subscriberExecutionSpec) {
+        Properties properties = new Properties();
+        properties.put(SUBSCRIBER_EXECUTION_SPEC, subscriberExecutionSpec);
+        AppServerCommand command = new AppServerCommand(Command.NEW_QUEUE_ADDED, properties);
+        commandListeners.forEach(commandListener -> commandListener.notify(command));
     }
 }
