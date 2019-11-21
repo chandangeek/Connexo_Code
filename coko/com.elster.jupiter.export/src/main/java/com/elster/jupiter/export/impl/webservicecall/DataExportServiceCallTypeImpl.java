@@ -122,13 +122,12 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data){
-        data.forEach(item->createChild(parent,
+    public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data) {
+        data.forEach(item -> createChild(parent,
                 item.getDomainObject().getName(),
                 item.getReadingType().getMRID(),
                 item.getId()));
     }
-
 
     private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();

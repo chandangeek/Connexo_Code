@@ -24,6 +24,7 @@ import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.ReadingNumberPerMessageProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageID;
@@ -56,6 +57,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,11 +82,6 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                                                         SAPCustomPropertySets sapCustomPropertySets,
                                                         BundleContext bundleContext) {
         super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, bundleContext);
-    }
-
-    @Activate
-    public void activate(BundleContext bundleContext) {
-        initNumberOfReadingsPerMsg(bundleContext);
     }
 
     @Override
@@ -125,6 +122,11 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         super.doAddEndpoint(createRequestPort, properties);
     }
 
+    @Reference
+    public void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider){
+        super.setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
+    }
+
     public void removeCreateRequestEndpoint(UtilitiesTimeSeriesERPItemBulkCreateRequestCOut createRequestPort) {
         super.doRemoveEndpoint(createRequestPort);
     }
@@ -161,11 +163,11 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
 
     @Override
-    UtilsTmeSersERPItmBulkCrteReqMsg createMessageFromTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, String uuid, SetMultimap<String, String> values, Instant now) {
+    UtilsTmeSersERPItmBulkCrteReqMsg createMessageFromTimeSeries(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, String uuid, SetMultimap<String, String> values, Instant now) {
         UtilsTmeSersERPItmBulkCrteReqMsg msg = new UtilsTmeSersERPItmBulkCrteReqMsg();
         msg.setMessageHeader(createMessageHeader(uuid, now));
         msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().addAll(timeSeriesList);
-        if (msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().size() > 0) {
+        if (!msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().isEmpty()) {
             msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().forEach(message->{
                 values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
                         message.getUtilitiesTimeSeries().getID().getValue());
@@ -190,7 +192,8 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Override
-    void prepareTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, MeterReadingData item, Instant now) {
+    List<UtilsTmeSersERPItmCrteReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
+        List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList = new LinkedList<>();
         ReadingType readingType = item.getItem().getReadingType();
         TemporalAmount interval = readingType.getIntervalLength()
                 .orElse(Duration.ZERO);
@@ -210,10 +213,11 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         profileRanges.entrySet().stream().map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
                 meterReading, interval, unit, now, item.getValidationData()))
                 .forEach(timeSeriesList::add);
+        return timeSeriesList;
     }
 
     @Override
-    long calculateNumberOfReadingsInTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> list){
+    long calculateNumberOfReadingsInTimeSeries(List<UtilsTmeSersERPItmCrteReqMsg> list){
         long count = 0;
         for (UtilsTmeSersERPItmCrteReqMsg msg : list) {
             count = count + msg.getUtilitiesTimeSeries().getItem().size();

@@ -16,9 +16,7 @@ public class WebServiceDataExportChildPersistentSupport implements PersistenceSu
     public static final String COMPONENT_NAME = "DE1";
     static final String APPLICATION_NAME = "Pulse";
 
-
     private static final String FK_NAME = COMPONENT_NAME + "_FK_WEB_SC_CPS_CSC";
-    private static final String UK_NAME = COMPONENT_NAME + "_UK_WS_CPS_NAME_MRID";
     private static final String TABLE_NAME = COMPONENT_NAME + "_WS_CALL_CHILD_CPS";
 
     @Override

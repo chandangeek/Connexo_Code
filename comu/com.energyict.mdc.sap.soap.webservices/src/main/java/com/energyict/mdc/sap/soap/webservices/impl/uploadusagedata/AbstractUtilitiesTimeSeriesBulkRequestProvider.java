@@ -25,6 +25,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.ReadingNumberPerMessageProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
@@ -56,16 +57,9 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile ReadingNumberPerMessageProvider readingNumberPerMessageProvider;
 
-    protected int NUMBER_OF_READINGS_PER_MSG;
-    protected final int NUMBER_OF_READINGS_PER_MSG_DEFAULT = 500;
-    protected int MESSAGE_SIZE;
-    protected int MESSAGE_SIZE_DEFAULT = 512000;//500kB
-    protected int READING_SIZE; //bytes
-    protected final int READING_SIZE_DEFAULT = 327; //bytes
-    protected final String PROPERTY_READING_SIZE = "com.elster.jupiter.sap.timeseries.reading.size.in.bytes";
-    protected final String PROPERTY_MSG_SIZE = "com.elster.jupiter.sap.timeseries.msg.size.in.kbytes";
-    protected final int HEADER_SIZE = 1024; // bytes
+    protected int numberOfReadingsPerMsg;
 
     AbstractUtilitiesTimeSeriesBulkRequestProvider() {
         // for OSGi
@@ -82,28 +76,13 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         setThesaurus(thesaurus);
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
-        initNumberOfReadingsPerMsg(bundleContext);
+        //initNumberOfReadingsPerMsg(bundleContext);
     }
 
-    protected void initNumberOfReadingsPerMsg(BundleContext bundleContext){
-        String msgSize = bundleContext.getProperty(PROPERTY_MSG_SIZE);
-        String readingSize = bundleContext.getProperty(PROPERTY_READING_SIZE);
-        if (!Strings.isNullOrEmpty(msgSize)) {
-            MESSAGE_SIZE = Integer.valueOf(msgSize)*1024;
-        }else{
-            MESSAGE_SIZE = MESSAGE_SIZE_DEFAULT;
-        }
 
-        if (!Strings.isNullOrEmpty(readingSize)) {
-            READING_SIZE = Integer.valueOf(readingSize);
-        }else{
-            READING_SIZE = READING_SIZE_DEFAULT;
-        }
-
-        NUMBER_OF_READINGS_PER_MSG = (MESSAGE_SIZE - HEADER_SIZE)/READING_SIZE;
-
-        if (NUMBER_OF_READINGS_PER_MSG == 0)
-            NUMBER_OF_READINGS_PER_MSG = NUMBER_OF_READINGS_PER_MSG_DEFAULT;
+    void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider){
+        this.readingNumberPerMessageProvider = readingNumberPerMessageProvider;
+        numberOfReadingsPerMsg = readingNumberPerMessageProvider.getNumberOfReadingsPerMsg();
     }
 
     void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -148,9 +127,9 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         );
     }
 
-    abstract void prepareTimeSerieses(List<TS> list, MeterReadingData item, Instant now);
-    abstract MSG createMessageFromTimeSerieses(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
-    abstract long calculateNumberOfReadingsInTimeSerieses(List<TS> list);
+    abstract List<TS> prepareTimeSeries(MeterReadingData item, Instant now);
+    abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
+    abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
 
     @Override
     public List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
@@ -159,38 +138,40 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         long meterReadingDataNr = 0;
         List<ServiceCall> srvCallList = new ArrayList<>();
         List<MeterReadingData> readingDataToSend = new ArrayList<>();
+        TimeDuration timeout = getTimeout(endPointConfiguration).filter(tout -> !tout.isEmpty()).get();
 
-        List<MeterReadingData> readingDataList = data.map(MeterReadingData.class::cast).collect(Collectors.toList());
+        List<MeterReadingData> readingDataList = data.filter(MeterReadingData.class::isInstance).map(MeterReadingData.class::cast).collect(Collectors.toList());
 
         for (Iterator iterator = readingDataList.iterator(); iterator.hasNext(); ) {
             MeterReadingData meterReadingData = (MeterReadingData) iterator.next();
             /* Calculate number of readings that should be sent for this meterReadingData */
             List<TS> timeSeriesListFromMeterData = new ArrayList<>();
+
             if (now == null){
                 now = getClock().instant();
             }
 
-            prepareTimeSerieses(timeSeriesListFromMeterData, meterReadingData, now);
-            long numberOfItemsToSend = calculateNumberOfReadingsInTimeSerieses(timeSeriesListFromMeterData);
-            if (numberOfItemsToSend > NUMBER_OF_READINGS_PER_MSG) {
+            timeSeriesListFromMeterData = prepareTimeSeries(meterReadingData, now);
+            long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
+            if (numberOfItemsToSend >= numberOfReadingsPerMsg) {
                 /*It means that number of readings in one meterReadingData is more than allowable size.
                 /* Just send it. But actually shouldn't happen */
-                sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, new ArrayList<MeterReadingData>(Arrays.asList(meterReadingData)), now).ifPresent(srvCall -> {
+                sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, new ArrayList<MeterReadingData>(Arrays.asList(meterReadingData)), now, timeout).ifPresent(srvCall -> {
                     srvCallList.add(srvCall);
                 });
                 now = null;
                 continue;
             }
 
-            if (meterReadingDataNr < NUMBER_OF_READINGS_PER_MSG) {
-                if (NUMBER_OF_READINGS_PER_MSG - meterReadingDataNr > numberOfItemsToSend) {
+            if (meterReadingDataNr < numberOfReadingsPerMsg) {
+                if (numberOfReadingsPerMsg - meterReadingDataNr > numberOfItemsToSend) {
                     /* If we have enough space in message for readings add it to message. If no send message without current readings.
                      * Current readings will be sent in next message */
                     readingDataToSend.add(meterReadingData);
                     timeSeriesListToSend.addAll(timeSeriesListFromMeterData);
-                    meterReadingDataNr = meterReadingDataNr + numberOfItemsToSend;
+                    meterReadingDataNr += numberOfItemsToSend;
                     if (!iterator.hasNext()) {
-                        sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now).ifPresent(srvCall -> {
+                        sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout).ifPresent(srvCall -> {
                             srvCallList.add(srvCall);
                         });
                         meterReadingDataNr = 0;
@@ -199,11 +180,10 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                         readingDataToSend.clear();
                     }
                 } else {
-                    sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now).ifPresent(srvCall -> {
+                    sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout).ifPresent(srvCall -> {
                         srvCallList.add(srvCall);
                     });
                     meterReadingDataNr = numberOfItemsToSend;
-                    now = null;
                     timeSeriesListToSend.clear();
                     timeSeriesListToSend.addAll(timeSeriesListFromMeterData);
                     readingDataToSend.clear();
@@ -211,15 +191,15 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
                     if (!iterator.hasNext()) {
                         /*It was last readings. Just send it*/
-                        sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now).ifPresent(srvCall -> {
+                        sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout).ifPresent(srvCall -> {
                             srvCallList.add(srvCall);
                         });
-                        now = null;
                     }
+                    now = null;
                 }
 
             } else {
-                sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now).ifPresent(srvCall -> srvCallList.add(srvCall));
+                sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout).ifPresent(srvCall -> srvCallList.add(srvCall));
                 meterReadingDataNr = 0;
                 now = null;
                 timeSeriesListToSend.clear();
@@ -229,11 +209,14 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         return srvCallList;
     }
 
-    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration, List<TS> timeSerieses, List<MeterReadingData> exportData, Instant now){
+    private Optional<ServiceCall> sendPartOfData(EndPointConfiguration endPointConfiguration,
+                                                 List<TS> timeSerieses, List<MeterReadingData> exportData,
+                                                 Instant now,
+                                                 TimeDuration timeout){
         String uuid = UUID.randomUUID().toString();
         try {
             SetMultimap<String, String> values = HashMultimap.create();
-            MSG message = createMessageFromTimeSerieses(timeSerieses, uuid, values, now);
+            MSG message = createMessageFromTimeSeries(timeSerieses, uuid, values, now);
             if (message != null) {
                 Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                         .toEndpoints(endPointConfiguration)
@@ -243,11 +226,12 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 if (!processedEndpoints.contains(endPointConfiguration)) {
                     throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
                 }
-                Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
-                        .filter(timeout -> !timeout.isEmpty())
-                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds(), exportData.stream().map(data->data.getItem()).collect(Collectors.toList())));
 
-                return serviceCall;
+                ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid,
+                        timeout.getMilliSeconds(),
+                        exportData.stream().map(data -> data.getItem()).collect(Collectors.toList()));
+
+                return Optional.of(serviceCall);
             }
             return Optional.empty();
         } catch (Exception ex) {

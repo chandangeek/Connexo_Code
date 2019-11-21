@@ -442,6 +442,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Deactivate
     public final void deactivate() {
         customPropertySetService.removeCustomPropertySet(serviceCallCPS);
+        customPropertySetService.removeCustomPropertySet(childServiceCallCPS);
     }
 
     @Reference
