@@ -5,9 +5,9 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -34,13 +34,13 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
@@ -128,7 +128,8 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         String readingTypesString = extension.getReadingTypes();
         String loadProfilesString = extension.getLoadProfiles();
         String registerGroupsString = extension.getRegisterGroups();
-        List<String> endDevicesMRIDs = serviceCall.findChildren().stream()
+        Finder<ServiceCall> subParentChildren = serviceCall.findChildren();
+        List<String> endDevicesMRIDs = subParentChildren.stream()
                 .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
                         .getEndDeviceMrid())
@@ -147,7 +148,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
         Set<String> registerGroupsNames = getSetOfValuesFromString(registerGroupsString);
 
-        updateLastReadingForLoadProfiles(endDevicesMRIDs, loadProfilesNames, readingTypesMRIDs);
+        setBackLastReadingForLoadProfiles(subParentChildren, loadProfilesNames, readingTypesMRIDs);
 
         MeterReadingsBuilder meterReadingsBuilder = readingBuilderProvider.get();
         MeterReadings meterReadings = null;
@@ -195,26 +196,37 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                         source, timeRangeSet));
     }
 
-    private void updateLastReadingForLoadProfiles(List<String> endDevicesMRIDs, Set<String> loadProfilesNames, Set<String> readingTypesMRIDs) {
-        endDevicesMRIDs.forEach(mrid -> {
-            deviceService.findDeviceByMrid(mrid).ifPresent(
-                    device -> {
-                        Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, loadProfilesNames);
-                        loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypesMRIDs));
-                        loadProfiles.forEach(loadProfile -> {
-                            final AtomicReference<Instant> lastReading = new AtomicReference<>(Instant.MIN);
-                            loadProfile.getChannels().forEach(channel -> {
-                                if (channel.getLastDateTime().isPresent() && channel.getLastDateTime().get().isAfter(lastReading.get())) {
-                                    lastReading.set(channel.getLastDateTime().get());
-                                }
-                            });
-                            if (lastReading.get().isAfter(Instant.MIN) && !lastReading.get().equals(loadProfile.getLastReading().toInstant())) {
-                                device.getLoadProfileUpdaterFor(loadProfile).setLastReading(lastReading.get()).update();
-                            }
-                        });
-                    }
-            );
-        });
+    /**
+     * Set back last reading date to the most recent entry we have in our database.
+     * Last reading date is set to start date during parsing get meter readings request and creating communication child services.
+     * {@link com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands}
+     */
+    private void setBackLastReadingForLoadProfiles(Finder<ServiceCall> subParentChildren, Set<String> loadProfilesNames, Set<String> readingTypesMRIDs) {
+        List<String> endDevicesMRIDs = subParentChildren.stream()
+                .filter(subParent -> !subParent.findChildren().paged(0, 0).find().isEmpty())
+                .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
+                        .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
+                        .getEndDeviceMrid())
+                .collect(Collectors.toList());
+
+        deviceService.findAllDevices(where("mRID").in(endDevicesMRIDs))
+                .stream()
+                .forEach(device -> {
+                    Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, loadProfilesNames);
+                    loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypesMRIDs));
+                    loadProfiles.forEach(loadProfile -> {
+                        Optional<Instant> lastReading = loadProfile.getChannels().stream()
+                                .map(channel -> channel.getLastDateTime())
+                                .filter(Optional::isPresent)
+                                .map(Optional::get)
+                                .max(Comparator.naturalOrder());
+
+                        if (lastReading.isPresent() && !lastReading.get().equals(loadProfile.getLastReading().toInstant())) {
+                            device.getLoadProfileUpdaterFor(loadProfile).setLastReading(lastReading.get()).update();
+                        }
+                    });
+
+                });
     }
 
     private Set<LoadProfile> getLoadProfilesForReadingTypes(Device device, Set<String> readingTypes) {
@@ -226,20 +238,9 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     }
 
     private Set<LoadProfile> getExistedOnDeviceLoadProfiles(Device device, Set<String> loadProfilesNames) {
-        Set<LoadProfile> existedOnDeviceLoadProfiles = new HashSet<>();
-        if (loadProfilesNames != null) {
-            Map<String, LoadProfile> allDeviceLoadProfileNames = device.getLoadProfiles().stream()
-                    .collect(Collectors.toMap(lp -> lp.getLoadProfileSpec()
-                            .getLoadProfileType()
-                            .getName(), lp -> lp, (a, b) -> a));
-            loadProfilesNames.forEach(lpName -> {
-                LoadProfile loadProfile = allDeviceLoadProfileNames.get(lpName);
-                if (loadProfile != null) {
-                    existedOnDeviceLoadProfiles.add(loadProfile);
-                }
-            });
-        }
-        return existedOnDeviceLoadProfiles;
+        return device.getLoadProfiles().stream()
+                .filter(lp -> loadProfilesNames.contains(lp.getLoadProfileSpec().getLoadProfileType().getName()))
+                .collect(Collectors.toSet());
     }
 
     private int calculateRegisterUpperBoundShift() {

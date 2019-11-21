@@ -17,7 +17,9 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.meterreadings.MeterReading;
@@ -128,6 +130,19 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         when(childServiceCallFinder.stream()).then((i) -> Stream.of(subParentServiceCall_1, subParentServiceCall_2));
         when(serviceCall.findChildren()).thenReturn(childServiceCallFinder);
         when(serviceCall.findChildren(any())).thenReturn(childServiceCallFinder);
+
+        Finder<ServiceCall> secondChildServiceCallFinder_1 = mock(Finder.class);
+        when(secondChildServiceCallFinder_1.stream()).then((i) -> Stream.empty());
+        when(subParentServiceCall_1.findChildren()).thenReturn(secondChildServiceCallFinder_1);
+        when(subParentServiceCall_1.findChildren().paged(anyInt(), anyInt())).thenReturn(secondChildServiceCallFinder_1);
+
+        Finder<ServiceCall> secondChildServiceCallFinder_2 = mock(Finder.class);
+        when(secondChildServiceCallFinder_2.stream()).then((i) -> Stream.empty());
+        when(subParentServiceCall_2.findChildren()).thenReturn(secondChildServiceCallFinder_2);
+        when(subParentServiceCall_2.findChildren().paged(anyInt(), anyInt())).thenReturn(secondChildServiceCallFinder_2);
+
+        Finder<Device> deviceFinder = mockFinder(Collections.emptyList());
+        when(deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
 
         parentServiceCallHandler = new ParentGetMeterReadingsServiceCallHandler(meteringService,
                 sendMeterReadingsProvider, readingBuilderProvider, endPointConfigurationService, deviceService);
