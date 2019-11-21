@@ -36,7 +36,7 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec callingAPTitlePropertySpec() {
-        return this.fixedLengthHexStringPropertySpec(CALLING_AP_TITLE_PROPERTY, 8, PropertyTranslationKeys.V2_DLMS_IDIS_CALLING_AP_TITLE);
+        return this.fixedLengthHexStringPropertySpec(CALLING_AP_TITLE_PROPERTY, 16, PropertyTranslationKeys.V2_DLMS_IDIS_CALLING_AP_TITLE);
     }
 
     protected PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {
