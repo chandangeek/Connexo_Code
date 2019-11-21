@@ -198,7 +198,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
     /**
      * Set back last reading date to the most recent entry we have in our database.
-     * Last reading date is set to start date during parsing get meter readings request and creating communication child services.
+     * Last reading date was set to start date during parsing get meter readings request and creating communication child services.
      * {@link com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands}
      */
     private void setBackLastReadingForLoadProfiles(Finder<ServiceCall> subParentChildren, Set<String> loadProfilesNames, Set<String> readingTypesMRIDs) {
