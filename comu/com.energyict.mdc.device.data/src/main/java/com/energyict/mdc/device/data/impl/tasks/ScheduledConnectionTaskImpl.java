@@ -82,6 +82,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private boolean calledByComtaskExecution = false;
     private final ServerCommunicationTaskService communicationTaskService;
     private final CustomPropertySetService customPropertySetService;
+    private boolean strategyChange = false;
 
     @Inject
     protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService,  CustomPropertySetService customPropertySetService) {
@@ -122,6 +123,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(this.getConnectionStrategy())) {
             this.updateStrategy = this.updateStrategy.createSchedule(temporalExpression);
             this.updateStrategy.prepare();
+            this.nextExecutionTimestamp = this.calculateNextPlannedExecutionTimestamp();
         }
     }
 
@@ -157,6 +159,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void prepareStrategyChange(ConnectionStrategy oldStrategy) {
+        this.strategyChange = true;
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(oldStrategy)) {
             // Old strategy is to minimize connections and therefore the new strategy must be as soon as possible
             this.updateNextExecutionTimeStampBasedOnComTask();
@@ -164,6 +167,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             // Old strategy is asap and therefore the new strategy is to minimize connections
             this.updateNextExecutionTimestamp(PostingMode.LATER);
         }
+        this.strategyChange = false;
     }
 
     /**
@@ -548,18 +552,19 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant doMinimizeConnectionsSchedule(Instant when, PostingMode postingMode) {
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
-        Integer highestPriority;
-        if ((earliestNextExecutionTimeStampAndPriority == null || earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp == null) && !lastExecutionFailed()) {
-            highestPriority = TaskPriorityConstants.DEFAULT_PRIORITY;
-            when = null;
-        } else {
-            highestPriority = earliestNextExecutionTimeStampAndPriority.priority;
-            if (earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null && when.isBefore(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp)) {
-                when = earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp;
-            }
-            when = this.applyComWindowIfAny(when);
-            if (!calledByComtaskExecution) {
-                this.synchronizeScheduledComTaskExecution(when, highestPriority);
+        Integer highestPriority = TaskPriorityConstants.DEFAULT_PRIORITY;
+        if (!this.strategyChange) {
+            if ((earliestNextExecutionTimeStampAndPriority == null || earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp == null) && !lastExecutionFailed()) {
+                when = null;
+            } else {
+                highestPriority = earliestNextExecutionTimeStampAndPriority.priority;
+                if (earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null && when.isBefore(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp)) {
+                    when = earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp;
+                }
+                when = this.applyComWindowIfAny(when);
+                if (!calledByComtaskExecution) {
+                    this.synchronizeScheduledComTaskExecution(when, highestPriority);
+                }
             }
         }
         this.applyNextExecutionTimestampAndPriority(when, highestPriority, postingMode);
