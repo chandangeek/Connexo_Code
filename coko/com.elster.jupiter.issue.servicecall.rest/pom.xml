@@ -15,10 +15,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.issue.servicecall.rest</name>
 
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <profiles>
         <profile>
             <id>restdoc</id>

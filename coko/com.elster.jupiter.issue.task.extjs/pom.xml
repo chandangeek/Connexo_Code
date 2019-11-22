@@ -17,7 +17,6 @@
 
 
     <properties>
-        <baseline>(,${project.version})</baseline>
         <js.dir>js/itk</js.dir>
         <package.name>${project.groupId}.${project.artifactId}</package.name>
     </properties>

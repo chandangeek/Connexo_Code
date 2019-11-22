@@ -18,10 +18,6 @@
         Contains web service issue templates
     </description>
 
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>biz.aQute.bnd</groupId>

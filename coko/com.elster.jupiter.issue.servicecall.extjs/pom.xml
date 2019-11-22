@@ -16,7 +16,6 @@
     <name>[Jupiter] com.elster.jupiter.issue.servicecall.extjs</name>
 
     <properties>
-        <baseline>(,${project.version})</baseline>
         <js.dir>js/isc</js.dir>
         <package.name>${project.groupId}.${project.artifactId}</package.name>
     </properties>

@@ -18,10 +18,6 @@
         Contains custom exporter selector logic
     </description>
 
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
