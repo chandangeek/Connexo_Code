@@ -172,7 +172,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         Optional<CustomPropertySet> cps = getCAS(device, PowerFactorCustomPropertySet.CPS_ID);
         if (cps.isPresent()) {
             CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(cps.get(), device);
-            if ((boolean) values.getProperty(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
+            if (values != null && (boolean) values.getProperty(PowerFactorDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
                 return Optional.of(Pair.of(
                         (BigDecimal) values.getProperty(PowerFactorDomainExtension.FieldNames.SETPOINT_THRESHOLD.javaName()),
                         (BigDecimal) values.getProperty(PowerFactorDomainExtension.FieldNames.HYSTERESIS_PERCENTAGE.javaName())));
@@ -219,7 +219,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         Optional<CustomPropertySet> cps = getCAS(device, MaxDemandCustomPropertySet.CPS_ID);
         if (cps.isPresent()) {
             CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(cps.get(), device);
-            if ((boolean) values.getProperty(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
+            if (values != null && (boolean) values.getProperty(MaxDemandDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
                 return Optional.of(Pair.of(
                         (BigDecimal) values.getProperty(MaxDemandDomainExtension.FieldNames.CONNECTED_LOAD.javaName()),
                         ((Unit) values.getProperty(MaxDemandDomainExtension.FieldNames.UNIT.javaName())).getValue()));
@@ -243,7 +243,7 @@ public class CustomMeterReadingsEventHandler implements TopicHandler {
         Optional<CustomPropertySet> cps = getCAS(device, CTRatioCustomPropertySet.CPS_ID);
         if (cps.isPresent()) {
             CustomPropertySetValues values = customPropertySetService.getUniqueValuesFor(cps.get(), device);
-            if ((boolean) values.getProperty(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
+            if (values != null  && (boolean) values.getProperty(CTRatioDomainExtension.FieldNames.CHECK_ENABLED.javaName())) {
                 return Optional.of((BigDecimal) values.getProperty(CTRatioDomainExtension.FieldNames.CT_RATIO.javaName()));
             }
         }
