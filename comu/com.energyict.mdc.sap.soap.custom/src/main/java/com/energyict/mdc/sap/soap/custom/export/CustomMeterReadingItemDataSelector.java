@@ -196,7 +196,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getRange() : Range.all();
         Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
         return item.getLastExportedDate()
-                .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, truncateToDays(lastExport)))
+                .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, lastExport))
                 .filter(interval -> Ranges.does(interval).overlap(readingsContainerInterval) || interval.isEmpty())
                 .map(interval -> interval.intersection(readingsContainerInterval))
                 .map(intersection -> Ranges.copy(intersection).asOpenClosed())

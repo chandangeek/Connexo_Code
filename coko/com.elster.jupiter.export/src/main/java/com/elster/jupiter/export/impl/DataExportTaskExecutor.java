@@ -13,6 +13,7 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
@@ -185,7 +186,7 @@ class DataExportTaskExecutor implements TaskExecutor {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
                         .filter(Predicates.not(dataSendingStatus::isFailed))
-                        .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                        .peek(item -> item.setLastExportedDate(((DefaultSelectorOccurrence)occurrence).getExportedDataInterval().upperEndpoint()))
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();
             }
