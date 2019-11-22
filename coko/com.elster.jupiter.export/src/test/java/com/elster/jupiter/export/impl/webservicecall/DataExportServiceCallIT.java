@@ -226,13 +226,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -251,13 +251,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -279,13 +279,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -311,13 +311,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -342,13 +342,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -372,13 +372,14 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());    }
+        }).findFirst()).isPresent();
+    }
 
     @Test
     @Transactional
@@ -402,13 +403,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -433,13 +434,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -463,13 +464,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -531,13 +532,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -556,13 +557,13 @@ public class DataExportServiceCallIT {
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
             return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
                     srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
-        }).findFirst().isPresent());
+        }).findFirst()).isPresent();
     }
 
     @Test
