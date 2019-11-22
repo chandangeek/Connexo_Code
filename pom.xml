@@ -42,7 +42,7 @@
         <target.version>1.8</target.version>
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <baseline>1.0.0-Nessus</baseline>
+        <baseline>1.0.0-Heracles</baseline>
         <commercial.version>10.7.1</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
