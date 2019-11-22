@@ -140,7 +140,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         int poolRetries = getPropertyNumberOfPoolRetries().intValue();
 
         log("Monitoring the host property, waiting for the IP notification web-service to fill it: "
-                +poolRetries+" tries x "+connectTimeout.getSeconds()+" sec ...");
+                +poolRetries+" tries x "+connectTimeout.toMillis()+" milliseconds ...");
 
         while (poolRetries > 0){
             Optional<String> host = getUpdatedHostProperty();
@@ -315,9 +315,9 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
         serviceLocator.setWUTriggerPortEndpointAddress(serviceEndpoint);
 
-        int timeout = (int) getPropertyRequestTimeout().getSeconds() * 1000;
-        stub.setTimeout(timeout);
-        log("\t- request timeout: "+timeout+" milliseconds");
+        int timeoutMilliseconds = (int) getPropertyRequestTimeout().toMillis();
+        stub.setTimeout(timeoutMilliseconds);
+        log("\t- request timeout: "+timeoutMilliseconds+" milliseconds");
 
         //need also this for cached endpoint
         ((WUTriggerPortBindingStub) wuTriggerPort)._setProperty("javax.xml.rpc.service.endpoint.address", serviceEndpoint );
@@ -445,7 +445,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
     private PropertySpec requestTimeOutPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(PROPERTY_WS_REQUEST_TIME_OUT, true, PropertyTranslationKeys.OUTBOUND_IP_WAKEUP_REQUEST_TIMEOUT, getPropertySpecService()::durationSpec)
-                .setDefaultValue(Duration.ofSeconds(30))
+                .setDefaultValue(Duration.ofMillis(4500))
                 .finish();
     }
 
