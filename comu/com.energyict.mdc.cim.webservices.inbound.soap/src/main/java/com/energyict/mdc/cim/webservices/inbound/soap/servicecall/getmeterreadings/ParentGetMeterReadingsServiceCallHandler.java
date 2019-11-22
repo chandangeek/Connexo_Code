@@ -191,7 +191,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     }
 
     private int calculateRegisterUpperBoundShift() {
-        //To make sure the latest register value is included
+        // CXO-10805: To make sure the latest register value is included
         return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 5;
     }
 

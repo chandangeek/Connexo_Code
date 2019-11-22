@@ -13,13 +13,21 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
 
     initComponent: function() {
         var me = this,
-            entityTypeName = me.parentForm.entityTypeName,
-            url =  me.getProperty().getPropertyType().get('simplePropertyType');
+            entityType = me.parentForm.context.id,
+            url = me.getProperty().getPropertyType().raw.valueProviderUrl || '',
+            re = /\{.*?\}/g;
 
         me.store = Ext.getStore('Uni.property.store.DynamicComboboxData');
+
         me.callParent();
-        me.store.getProxy().setUrl(url);
-        me.store.getProxy().setExtraParam('deviceId', entityTypeName);
+        //check if url is empty otherwise mark combo with an error
+        if (!Ext.isEmpty(url)) {
+            url = url.replace(re, entityType);
+            me.store.getProxy().setUrl(url);
+            me.store.load(function(rec){
+                me.comboBoxStore = me.store && me.store.getPropertiesData();
+            });
+        } else this.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
     },
 
     getEditCmp: function () {
@@ -29,13 +37,26 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
             name: this.getName(),
-            store: me.store,
             minChars: 0,
             displayField: 'name',
             valueField: 'name',
             width: me.width,
             readOnly: me.isReadOnly,
+            store: me.comboBoxStore,
             blankText: me.blankText,
+            listeners: {
+                expand: function(combo) {
+                    var me = this;
+                    //check if store is empty otherwise we trying to load it on each combo expand
+                    if (me.store.getCount() == 0) {
+                         me.store.load(function(records, operation, success) {
+                            combo.store = me.comboBoxStore;
+                            success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+                         }
+                     );
+                    }
+                }
+            }
         }
     },
 

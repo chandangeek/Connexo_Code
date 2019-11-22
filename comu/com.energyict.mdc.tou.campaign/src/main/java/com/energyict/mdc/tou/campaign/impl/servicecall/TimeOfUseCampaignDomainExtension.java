@@ -24,6 +24,7 @@ import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.EventType;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 
@@ -31,6 +32,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -280,10 +282,17 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         setManuallyCancelled(true);
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
-        timeOfUseCampaignService
+        List<? extends TimeOfUseCampaignItem> streamOfItems = timeOfUseCampaignService
                 .streamDevicesInCampaigns()
                 .filter(Where.where("parentServiceCallId").isEqualTo(serviceCall.getId()))
-                .forEach(item -> item.cancel(true));
+                .select();
+        if (streamOfItems.isEmpty()) {
+            if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+                serviceCall.requestTransition(DefaultState.CANCELLED);
+            }
+        } else {
+            streamOfItems.forEach(item -> item.cancel(true));
+        }
     }
 
     @Override

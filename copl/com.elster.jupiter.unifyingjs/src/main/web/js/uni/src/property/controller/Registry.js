@@ -157,7 +157,7 @@ Ext.define('Uni.property.controller.Registry', {
         CUSTOM_EVENT_TYPE: 'Uni.property.view.property.CustomEventTypeReference',
         EXCLUDED_COM_TASKS: 'Uni.property.view.property.comtasks.ComTasks',
         ENDPOINT_CONFIGURATION_LIST: 'Uni.property.view.property.webservices.WebServiceIssue',
-        CERTSECURITYACCESSORSOUTPUT: 'Uni.property.view.property.DynamicCombobox'
+        DYNAMIC_COMBOBOX: 'Uni.property.view.property.DynamicCombobox'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
