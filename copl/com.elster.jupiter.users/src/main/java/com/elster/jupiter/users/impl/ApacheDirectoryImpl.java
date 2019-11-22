@@ -385,7 +385,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private void putSecurityPrincipal(Hashtable<String, Object> env) {
-        putSecurityPrincipal(getDirectoryUser(), env, !shouldUseDirectoryUserToFindUserDN());
+        putSecurityPrincipal(getDirectoryUser(), env, getBaseUser() == null);
     }
 
     private void putSecurityPrincipal(String name, Hashtable<String, Object> env, boolean useNameAsIs) {
