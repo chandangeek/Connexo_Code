@@ -223,15 +223,17 @@ public class DataExportServiceCallIT {
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -248,15 +250,17 @@ public class DataExportServiceCallIT {
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
         assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -275,16 +279,18 @@ public class DataExportServiceCallIT {
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -307,16 +313,18 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -338,16 +346,18 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -368,16 +378,18 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -399,16 +411,18 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -430,16 +444,18 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -460,16 +476,18 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -528,16 +546,18 @@ public class DataExportServiceCallIT {
         assertProperties(serviceCall, DefaultState.FAILED, UUID, timeout, "No data export confirmation has been received in the configured timeout.");
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 
@@ -553,16 +573,18 @@ public class DataExportServiceCallIT {
         assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, timeout, null);
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_1) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_1;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_1;
         }).findFirst()).isPresent();
 
-        assertThat(srvCallChild.stream().filter(srvCallChd->{
-            return srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDeviceName().equals(DEVICE_NAME_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getReadingTypeMRID().equals(MRID_2) &&
-                    srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get().getDataSourceId() == DATA_SOURCE_ID_2;
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == DATA_SOURCE_ID_2;
         }).findFirst()).isPresent();
     }
 

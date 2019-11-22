@@ -20,13 +20,12 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
-import com.energyict.mdc.sap.soap.webservices.impl.ReadingNumberPerMessageProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.Quantity;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesERPItemBulkChangeRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesERPItemBulkChangeRequestCOutService;
@@ -37,12 +36,11 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchange
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilsTmeSersERPItmChgReqItmSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilsTmeSersERPItmChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilsTmeSersERPItmChgReqUtilsTmeSers;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -56,11 +54,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeRequestProvider",
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
@@ -114,14 +112,14 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         // need to know that response from SAP can be processed correctly
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addChangeRequestEndpoint(UtilitiesTimeSeriesERPItemBulkChangeRequestCOut changeRequestPort, Map<String, Object> properties) {
-        super.doAddEndpoint(changeRequestPort, properties);
-    }
-
     @Reference
     public void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider){
         super.setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addChangeRequestEndpoint(UtilitiesTimeSeriesERPItemBulkChangeRequestCOut changeRequestPort, Map<String, Object> properties) {
+        super.doAddEndpoint(changeRequestPort, properties);
     }
 
     public void removeChangeRequestEndpoint(UtilitiesTimeSeriesERPItemBulkChangeRequestCOut changeRequestPort) {
@@ -190,14 +188,13 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     /* Prepare list of time serieses that should be sent */
     @Override
     List<UtilsTmeSersERPItmChgReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
-        List<UtilsTmeSersERPItmChgReqMsg> timeSeriesList = new LinkedList<>();
         ReadingType readingType = item.getItem().getReadingType();
         TemporalAmount interval = readingType.getIntervalLength()
                 .orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
         Range<Instant> allReadingsRange = getRange(meterReading);
-        item.getItem().getReadingContainer().getChannelsContainers().stream()
+        Map<String, RangeSet<Instant>> profileRanges = item.getItem().getReadingContainer().getChannelsContainers().stream()
                 .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(allReadingsRange))
                 .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(allReadingsRange)))
                 .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
@@ -205,9 +202,11 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
                 .flatMap(channelAndRange -> getTimeSlicedProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
-                .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(), meterReading, interval, unit, now, item.getValidationData()))
-                .forEach(timeSeriesList::add);
-        return timeSeriesList;
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, RangeSets::union));
+        return profileRanges.entrySet().stream()
+                .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
+                        meterReading, interval, unit, now, item.getValidationData()))
+                .collect(Collectors.toList());
     }
 
     @Override
