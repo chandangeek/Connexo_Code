@@ -42,6 +42,7 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
     protected static final String[] MEMBER_ARRAY = { MEMBER };
     protected static final String CN = "cn";
     protected static final String DESCRIPTION = "description";
+    private static final String ADMIN_USER_NAME = "admin";
     private static final String[] CN_AND_DESCRIPTION = new String[] { CN, DESCRIPTION };
 
     @Inject
@@ -200,6 +201,10 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
         } catch (Exception ex) {
             return ((UserImpl) user).doGetGroups();
         }
+    }
+
+    protected boolean isUserValid(String userName) {
+        return !ADMIN_USER_NAME.equalsIgnoreCase(userName);
     }
 
 }

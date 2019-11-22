@@ -348,13 +348,15 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         if (attributes.get("uid") != null) {
             LdapUser ldapUser = new LdapUserImpl();
             String userName = attributes.get("uid").get().toString();
-            ldapUser.setUsername(userName);
-            ldapUser.setStatus(true);
-            if (attributes.get("pwdAccountLockedTime") != null
-                    && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
-                ldapUser.setStatus(false);
+            if (isUserValid(userName)) {
+                ldapUser.setUsername(userName);
+                ldapUser.setStatus(true);
+                if (attributes.get("pwdAccountLockedTime") != null
+                        && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
+                    ldapUser.setStatus(false);
+                }
+                ldapUsers.add(ldapUser);
             }
-            ldapUsers.add(ldapUser);
         }
     }
 
@@ -383,7 +385,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private void putSecurityPrincipal(Hashtable<String, Object> env) {
-        putSecurityPrincipal(getDirectoryUser(), env, false);
+        putSecurityPrincipal(getDirectoryUser(), env, !shouldUseDirectoryUserToFindUserDN());
     }
 
     private void putSecurityPrincipal(String name, Hashtable<String, Object> env, boolean useNameAsIs) {
@@ -392,6 +394,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             principal = "uid=" + name + "," + getBaseUser();
         } else {
             principal = name;
+            setBaseUser(name);
         }
         env.put(Context.SECURITY_PRINCIPAL, principal);
     }
