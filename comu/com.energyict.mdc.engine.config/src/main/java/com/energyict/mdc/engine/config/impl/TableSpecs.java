@@ -196,7 +196,7 @@ public enum TableSpecs {
     MDC_COMALIVE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ComServerAliveStatus> table = dataModel.addTable(name(), ComServerAliveStatus.class);
+            Table<ComServerAliveStatus> table = dataModel.addTable(name(), ComServerAliveStatus.class).since(Version.version(10,7, 1));
             table.map(ComServerAliveStatusImpl.class);
             Column comServerColumn = table.column("COMSERVERID").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("ACTIVETIME").number().notNull().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.LAST_ACTIVE_TIME.getName()).add();
