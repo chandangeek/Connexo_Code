@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-package com.elster.jupiter.webservices.demo.meterreadings;
+package com.elster.jupiter.webservices.demo.impl;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.events.LocalEvent;
