@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.devtools.tests;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.mockito.ArgumentMatcher;
@@ -18,11 +19,12 @@ public class MatchersExtension {
         // not intended as instantiable class
     }
 
-    public static <T> List<T> anyListContaining(T object) {
+    @SafeVarargs
+    public static <T> List<T> anyListContaining(T... objects) {
         return Matchers.argThat(new ArgumentMatcher<List<T>>() {
             @Override
             public boolean matches(Object o) {
-                return o instanceof List && ((List) o).contains(object);
+                return o instanceof List && ((List) o).containsAll(Arrays.asList(objects));
             }
         });
     }
