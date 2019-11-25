@@ -10,6 +10,7 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.crypto.KeyRenewalMBusResponse;
@@ -46,14 +47,17 @@ import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.DEFAULT_KEY;
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.FUAK;
 
 public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
     private static final int BLOCK_SIZE = 64 * 1024;
     private CommonCryptoMbusMessageExecutor mbusCryptoMessageExecutor;
 
-    public CryptoESMR50MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(protocol, collectedDataFactory, issueFactory);
+    public CryptoESMR50MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
+                                           IssueFactory issueFactory, DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        super(protocol, collectedDataFactory, issueFactory, deviceMasterDataExtractor);
         mbusCryptoMessageExecutor = new CommonCryptoMbusMessageExecutor(isUsingCryptoServer(), getProtocol(), collectedDataFactory, issueFactory);
     }
 
@@ -141,7 +145,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
     }
 
     private CollectedMessage doTransferMBusKeyCrypto(MBusKeyID keyID, OfflineDeviceMessage pendingMessage) {
-        String serialNumber = pendingMessage.getDeviceSerialNumber();
+        final String serialNumber = pendingMessage.getDeviceSerialNumber();
 
         if (!isUsingCryptoServer()) {
             return super.doTransferMbusKeyPlain(keyID, pendingMessage);
@@ -256,7 +260,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         byte[] mbusIV = getInitializationVector(kcc, serialNumber);
         byte[] eMeterIV = mbusCryptoMessageExecutor.getNextInitializationVector();
 
-        String defaultKeyProperty = getMBusDefaultKey(pendingMessage);
+        String defaultKeyProperty = getMBusDefaultKey(serialNumber, DEFAULT_KEY);
         //IrreversibleKeyImpl encryptedKeyPhase2DefaultKey = EncryptedKeyPhase2.fromDataBaseString(defaultKeyProperty);
         //ProtectedSessionKey defaultKey = encryptedKeyPhase2DefaultKey.toProtectedSessionKey();
         IrreversibleKey defaultKey = IrreversibleKeyImpl.fromByteArray(ProtocolTools.getBytesFromHexString(defaultKeyProperty));
@@ -347,10 +351,10 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
 
     private CollectedMessage doFirmwareUpgradeCrypto(OfflineDeviceMessage pendingMessage) throws IOException, ConfigurationException {
         journal(Level.INFO, "Handling message Firmware upgrade (crypto)");
-        String serialNumber = pendingMessage.getDeviceSerialNumber();
+        final String serialNumber = pendingMessage.getDeviceSerialNumber();
 
         if (!isUsingCryptoServer()) {
-            return super.doFirmwareUpgrade(pendingMessage, super.getMBusFUAK());
+            return super.doFirmwareUpgrade(pendingMessage, super.getMBusDefaultKey(serialNumber, FUAK));
         }
 
         // crypto phase 2
@@ -374,7 +378,7 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
             journal(Level.FINE, "-activationDate: " + activationDateStr);
         }
 
-        String fuakRaw = super.getMBusFUAK();
+        String fuakRaw = super.getMBusDefaultKey(serialNumber, FUAK);
         journal(Level.FINE, "-imageData length:" + imageData.length);
         journal(Level.FINE, "-FUAK key:" + fuakRaw);
 

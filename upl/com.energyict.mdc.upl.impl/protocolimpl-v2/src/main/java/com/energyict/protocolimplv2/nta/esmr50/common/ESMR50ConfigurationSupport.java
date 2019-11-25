@@ -11,7 +11,6 @@ import java.util.List;
 public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
 
     public static final String ESMR_50_HEX_PASSWORD = "HexPassword";
-    public static final String FIRMWARE_UPGRADE_AUTHENTICATION_KEY = "FirmwareUpgradeAuthenticationKey";
     public static final String IGNORE_DST_STATUS_BIT = "IgnoreDstStatusBit";
     public static final String FRAME_COUNTER_LIMIT = "FrameCounterLimit";
     public static final String WORKING_KEY_LABEL_PHASE1 = "WorkingKeyLabelPhase1";
@@ -26,7 +25,6 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
     public List<PropertySpec> getUPLPropertySpecs() {
         List <PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(this.esmr50HexPassword());
-        propertySpecs.add(this.firmwareUpgradeAutheticationKey());
         propertySpecs.add(this.ignoreDstStatusBit());
         propertySpecs.add(this.frameCounterLimit());
         propertySpecs.add(this.workingKeyLabelPhase1());
@@ -37,10 +35,6 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec esmr50HexPassword(){
         return UPLPropertySpecFactory.specBuilder(ESMR_50_HEX_PASSWORD, false, PropertyTranslationKeys.V2_NTA_ESMR_50_HEX_PASSWORD, getPropertySpecService()::stringSpec).finish();
-    }
-
-    private PropertySpec firmwareUpgradeAutheticationKey(){
-        return UPLPropertySpecFactory.specBuilder(FIRMWARE_UPGRADE_AUTHENTICATION_KEY, false, PropertyTranslationKeys.V2_NTA_FIRMWARE_UPGRADE_AUTHENTICATION_KEY, getPropertySpecService()::stringSpec).finish();
     }
 
     private PropertySpec ignoreDstStatusBit(){

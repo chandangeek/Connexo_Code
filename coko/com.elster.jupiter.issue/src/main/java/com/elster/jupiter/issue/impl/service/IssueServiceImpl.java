@@ -90,6 +90,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -131,6 +132,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 @Component(name = "com.elster.jupiter.issue",
         service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
@@ -631,19 +633,17 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (deviceIds.size() == 0){
             return issuesPerReason;
         }
-
         SqlBuilder sqlBuilder = new SqlBuilder("SELECT " +
                 " ed.id, ri.issue_type " +
                 " FROM mtr_enddevice ed " +
                 "   INNER JOIN isu_issue_open oi ON ( oi.device_id = ed.id ) " +
                 "   LEFT JOIN isu_reason ri on ri.key = oi.reason_id " +
-                " WHERE ed.id IN " +
-                "   (" +
-                deviceIds.stream()
-                        .map( Object::toString )
-                        .collect(Collectors.joining(", ")) +
-                "   )" +
-                " GROUP BY ed.id, issue_type");
+                " WHERE ");
+        sqlBuilder.append(decorate(deviceIds.stream())
+                .partitionPer(1000)
+                .map(list -> "ed.id IN (" + list.stream().map(l -> l.toString()).collect(Collectors.joining(",")) + ")")
+                .collect(Collectors.joining(" OR ", "(", ")")));
+        sqlBuilder.append(" GROUP BY ed.id, issue_type");
         try (Connection connection = this.dataModel.getConnection(false);
              PreparedStatement statement = sqlBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
