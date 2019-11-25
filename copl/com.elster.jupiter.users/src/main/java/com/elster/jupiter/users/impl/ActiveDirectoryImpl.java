@@ -215,6 +215,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
                 if (isUserValid(userNAme)) {
                     LdapUser ldapUser = new LdapUserImpl();
                     ldapUser.setUsername(userNAme);
+                    ldapUser.setDN(searchResult.getNameInNamespace());
                     ldapUser.setStatus(true);
                     if (attributes.get(USERACCOUNTCONTROL) != null) {
                         ldapUser.setStatus(isUserActive(attributes.get(USERACCOUNTCONTROL)));
