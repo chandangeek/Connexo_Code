@@ -5,64 +5,70 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.encryption.AesGcm;
 import com.energyict.encryption.BitVector;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MbusMessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusClient;
-import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Properties;
 
 import javax.naming.ConfigurationException;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.FUAKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.P2KeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.DEFAULT_KEY;
+import static com.energyict.protocolimplv2.nta.esmr50.common.ESMR50MbusConfigurationSupport.FUAK;
 
 public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
     private static final String MBUS_IMAGE_TRANSFER_OBIS_CODE = "0.x.44.0.0.255";
     private static final int KEY_LENGTH = 16;
     private static final byte KCC_LEN = 4;
+    private final DeviceMasterDataExtractor deviceMasterDataExtractor;
 
     protected ImageFileHeaderFactory factory = null;
 
-    public ESMR50MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public ESMR50MbusMessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
+                                     IssueFactory issueFactory, DeviceMasterDataExtractor deviceMasterDataExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
 
     protected CollectedMessage doTransferMbusKeyPlain(MBusKeyID keyID, OfflineDeviceMessage pendingMessage) {
 
-        String serialNumber = pendingMessage.getDeviceSerialNumber();
+        final String serialNumber = pendingMessage.getDeviceSerialNumber();
         String newOpenKey = getMBusNewRandomKey();
 
         byte[] keyData;
         try {
             String mBusKey = null;
             if (keyID.equals(MBusKeyID.P2)) {
-                mBusKey = getMBusDefaultKey(pendingMessage);
+                mBusKey = getMBusDefaultKey(serialNumber, DEFAULT_KEY);
             } else if (keyID.equals(MBusKeyID.FUAK)) {
-                mBusKey = getMBusFUAK(pendingMessage);
+                mBusKey = getMBusDefaultKey(serialNumber, FUAK);
             }
             keyData = getKeyDataPhase0(keyID, mBusKey, newOpenKey, serialNumber);
             journal(Level.INFO,"Complete keyData " + ProtocolTools.getHexStringFromBytes(keyData));
-        } catch (ConfigurationException | ProtocolException e) {
+        } catch (ConfigurationException e) {
             journal(Level.SEVERE, "Configuration Exception while preparing key data: " + e.getCause() + " : " + e.getMessage());
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -109,22 +115,33 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
         return collectedMessage;
     }
 
-    protected String getMBusDefaultKey(OfflineDeviceMessage pendingMessage) throws ConfigurationException, ProtocolException {
-        final String p2Key = getDeviceMessageAttributeValue(pendingMessage, P2KeyAttributeName);
+    protected String getMBusDefaultKey(String serialNumber, String propertyName) throws ConfigurationException {
+        final List<? extends OfflineDevice> allSlaveDevices = getProtocol().getOfflineDevice().getAllSlaveDevices();
 
-        if (p2Key == null || p2Key.length() == 0) {
-            throw new ConfigurationException("P2 key is empty! Please fill in the P2 key security accessor on the slave MBus meter.");
+        final Optional<? extends OfflineDevice> slave = allSlaveDevices.stream().filter(
+                d -> d.getSerialNumber().equals(serialNumber)
+        ).findFirst();
+
+        if (slave.isPresent()) {
+            final Optional<Device> deviceOptional = deviceMasterDataExtractor.find(slave.get().getId());
+
+            if (deviceOptional.isPresent()) {
+                final Device device = deviceOptional.get();
+                final com.energyict.mdc.upl.properties.TypedProperties typedProperties = deviceMasterDataExtractor.protocolProperties(device);
+
+                final String defaultKey = (String) typedProperties.getProperty(propertyName);
+
+                if (defaultKey == null || defaultKey.length() == 0) {
+                    throw new ConfigurationException(propertyName + " is empty! Please fill in the " + propertyName + " property on the slave MBus meter properties.");
+                }
+
+                return defaultKey;
+            } else {
+                throw new ConfigurationException("Could not find slave device on master configuration. Topology may not be in order.");
+            }
+        } else {
+            throw new ConfigurationException("Could not find slave device on master configuration. Topology may not be in order.");
         }
-        return p2Key;
-    }
-
-    protected String getMBusFUAK(OfflineDeviceMessage pendingMessage) throws ConfigurationException, ProtocolException {
-        final String fuak = getDeviceMessageAttributeValue(pendingMessage, FUAKeyAttributeName);
-
-        if (fuak == null || fuak.length() == 0) {
-            throw new ConfigurationException("FUAK key is empty! Please fill in the FUAK key security accessor on the slave MBus meter.");
-        }
-        return fuak;
     }
 
     private String getMBusNewRandomKey() {
@@ -367,7 +384,7 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
 
     protected CollectedMessage upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) {
         try {
-            return doFirmwareUpgrade(pendingMessage, getMBusFUAK(pendingMessage));
+            return doFirmwareUpgrade(pendingMessage, getMBusDefaultKey(pendingMessage.getDeviceSerialNumber(), FUAK));
         } catch (Exception ex) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
