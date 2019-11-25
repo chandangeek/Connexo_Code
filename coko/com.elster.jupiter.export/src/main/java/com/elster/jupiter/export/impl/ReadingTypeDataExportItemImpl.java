@@ -37,7 +37,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private long id;
     private Instant lastRun;
     private Instant lastExportedDate;
-    private Instant lastExportedReadingDate;
+    private Instant lastExportedPeriodEnd;
     private String readingTypeMRId;
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
@@ -94,8 +94,8 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public Optional<Instant> getLastExportedReadingDate() {
-        return Optional.ofNullable(lastExportedReadingDate);
+    public Optional<Instant> getLastExportedPeriodEnd() {
+        return Optional.ofNullable(lastExportedPeriodEnd);
     }
 
     @Override
@@ -114,8 +114,8 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public void setLastExportedReadingDate(Instant lastExportedReadingDate) {
-        this.lastExportedReadingDate = lastExportedReadingDate;
+    public void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd) {
+        this.lastExportedPeriodEnd = lastExportedPeriodEnd;
     }
 
     @Override

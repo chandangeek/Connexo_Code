@@ -187,7 +187,7 @@ class DataExportTaskExecutor implements TaskExecutor {
                         .filter(Predicates.not(dataSendingStatus::isFailed))
                         .peek(item -> {
                             item.setLastExportedDate(occurrence.getTriggerTime());
-                            occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedReadingDate(s.getExportedDataInterval().upperEndpoint()));
+                            occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedPeriodEnd(s.getExportedDataInterval().upperEndpoint()));
                         })
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();
