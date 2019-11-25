@@ -278,27 +278,31 @@ public class PreStoreLoadProfile {
             for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
                 IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
                 ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
-                comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
-                    IntervalBlock processed = null;
-                    DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
-                    Device device = comServerDAO.getDeviceFor(deviceIdentifier).orElseThrow(() -> new IllegalArgumentException("Could not resolve device identifier: '" + deviceIdentifier.toString() + "'"));
-                    ZoneId zone = device.getZone();
-                    if (pair.getFirst().isDataLoggerSlaveLoadProfile()) {
-                        OfflineLoadProfileChannel offlineLoadProfileChannel = pair.getFirst().getAllOfflineChannels().get(0);
-                        processed = processBlock(intervalBlock, offlineLoadProfileChannel, channelInfo.getMultiplier(), pair.getLast(), zone);
-                    }
-                    if (processed == null) {
-                        processed = processBlock(intervalBlock, channelInfo, pair.getLast(), zone);
-                    }
-                    if (!processed.getIntervals().isEmpty()) {
-                        PreStoredLoadProfile preStoredLoadProfile = findOrCreatePreStoredLoadProfile(pair.getFirst());
-                        if (preStoredLoadProfile.addIntervalBlock(processed)) {
-                            if (!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
-                                setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+                //filter out channels without readingTypeMRID. We consider them as not confingured in our system so those will be dropped.
+                if (channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty()) {
+                    comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
+                        IntervalBlock processed = null;
+                        DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
+                        Device device = comServerDAO.getDeviceFor(deviceIdentifier)
+                                .orElseThrow(() -> new IllegalArgumentException("Could not resolve device identifier: '" + deviceIdentifier.toString() + "'"));
+                        ZoneId zone = device.getZone();
+                        if (pair.getFirst().isDataLoggerSlaveLoadProfile()) {
+                            OfflineLoadProfileChannel offlineLoadProfileChannel = pair.getFirst().getAllOfflineChannels().get(0);
+                            processed = processBlock(intervalBlock, offlineLoadProfileChannel, channelInfo.getMultiplier(), pair.getLast(), zone);
+                        }
+                        if (processed == null) {
+                            processed = processBlock(intervalBlock, channelInfo, pair.getLast(), zone);
+                        }
+                        if (!processed.getIntervals().isEmpty()) {
+                            PreStoredLoadProfile preStoredLoadProfile = findOrCreatePreStoredLoadProfile(pair.getFirst());
+                            if (preStoredLoadProfile.addIntervalBlock(processed)) {
+                                if (!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
+                                    setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
             if (!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
                 setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
