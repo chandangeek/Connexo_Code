@@ -24,9 +24,6 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
         if (!Ext.isEmpty(url)) {
             url = url.replace(re, entityType);
             me.store.getProxy().setUrl(url);
-            me.store.load(function(rec){
-                me.comboBoxStore = me.store && me.store.getPropertiesData();
-            });
         } else this.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
     },
 
@@ -42,19 +39,19 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
             valueField: 'name',
             width: me.width,
             readOnly: me.isReadOnly,
-            store: me.comboBoxStore,
             blankText: me.blankText,
             listeners: {
-                expand: function(combo) {
+                afterrender: function(combo) {
                     var me = this;
                     //check if store is empty otherwise we trying to load it on each combo expand
-                    if (me.store.getCount() == 0) {
-                         me.store.load(function(records, operation, success) {
-                            me.comboBoxStore = me.store.getPropertiesData();
-                            combo.bindStore(me.comboBoxStore);
-                            success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
-                         }
-                     );
+                    var propsStore = Ext.getStore('Uni.property.store.DynamicComboboxData') || Ext.create('Uni.property.store.DynamicComboboxData');
+                    if (propsStore.getCount() == 0) {
+                         propsStore.load(function(records, operation, success) {
+                             if (propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
+                             success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+                         });
+                    }else{
+                        if (!me.store && propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
                     }
                 }
             }
