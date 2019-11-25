@@ -14,7 +14,7 @@ public class MeterRegisterChangeMessage {
     private String timeZone;
 
     public boolean isValid() {
-        return id != null && deviceId != null &&
+        return (id != null || uuid != null) && deviceId != null &&
                 lrn != null && endDate != null;
     }
 

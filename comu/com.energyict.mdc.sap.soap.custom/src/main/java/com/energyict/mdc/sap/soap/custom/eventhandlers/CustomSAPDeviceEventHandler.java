@@ -46,7 +46,8 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = CustomSAPDeviceEventHandler.NAME, service = TopicHandler.class, immediate = true)
+
+@Component(name = CustomSAPDeviceEventHandler.NAME, service = {CustomSAPDeviceEventHandler.class, TopicHandler.class}, immediate = true)
 public class CustomSAPDeviceEventHandler implements TopicHandler {
     public static final String COMPONENT_NAME = "CSE";
     static final String APPLICATION_NAME = "MultiSense";
@@ -166,6 +167,14 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
         try {
             EndDeviceEventRecord source = (EndDeviceEventRecord) localEvent.getSource();
             createBulkMessage(source).ifPresent(meterEventCreateRequestProvider::send);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        }
+    }
+
+    public void handle(EndDeviceEventRecord eventRecord) {
+        try {
+            createBulkMessage(eventRecord).ifPresent(meterEventCreateRequestProvider::send);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }

@@ -40,7 +40,7 @@ public class MeterReadingDocumentCreateRequestMessage {
     }
 
     public boolean isValid() {
-        return id != null;
+        return id != null || uuid != null;
     }
 
     public boolean isBulk() {

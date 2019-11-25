@@ -18,6 +18,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 import java.time.Instant;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateMessageFactory {
 
@@ -86,7 +87,7 @@ public class CreateMessageFactory {
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = OBJECT_FACTORY.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 

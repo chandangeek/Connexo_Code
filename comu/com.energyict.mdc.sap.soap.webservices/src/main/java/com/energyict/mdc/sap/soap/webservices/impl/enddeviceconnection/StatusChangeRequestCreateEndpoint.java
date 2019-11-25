@@ -9,7 +9,6 @@ import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -29,24 +28,20 @@ public class StatusChangeRequestCreateEndpoint extends AbstractInboundEndPoint i
     public void smartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestCIn(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
 
-            SetMultimap<String, String> values = HashMultimap.create();
-
-            request.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus().forEach(status->{
-                values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
-                        status.getUtilitiesDeviceID().getValue());
-            });
-
-            saveRelatedAttributes(values);
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> serviceCallCommands.createServiceCallAndTransition(
-                            StatusChangeRequestCreateMessage.builder().from(requestMessage).build()));
+                    .ifPresent(requestMessage -> {
+                        StatusChangeRequestCreateMessage message = StatusChangeRequestCreateMessage.builder().from(requestMessage).build();
+                        SetMultimap<String, String> values = HashMultimap.create();
+                        values.putAll(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getDeviceConnectionStatus().keySet());
+                        saveRelatedAttributes(values);
+                        serviceCallCommands.createServiceCallAndTransition(message);
+                    });
             return null;
         });
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

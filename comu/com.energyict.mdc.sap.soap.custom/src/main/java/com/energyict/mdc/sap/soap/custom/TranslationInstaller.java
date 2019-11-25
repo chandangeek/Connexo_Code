@@ -45,14 +45,19 @@ public class TranslationInstaller implements MessageSeedProvider, TranslationKey
         return Stream.of(
                 com.energyict.mdc.sap.soap.custom.export.TranslationKeys.values(),
                 TranslationKeys.values(),
-                SAPDeviceEventMappingStatusDomainExtension.FieldNames.values())
+                SAPDeviceEventMappingStatusDomainExtension.FieldNames.values(),
+                com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.TranslationKeys.values())
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                MessageSeeds.values(),
+                com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.MessageSeeds.values())
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
     }
 
     @Reference

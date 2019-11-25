@@ -4,14 +4,17 @@
 
 package com.elster.jupiter.export.webservicecall;
 
-import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.Set;
 
+@ProviderType
 public interface DataExportServiceCallType {
     /**
      * Creates and starts a new service call in current transaction, or in a new transaction if there's no transaction in context.
@@ -59,4 +62,8 @@ public interface DataExportServiceCallType {
      * @return {@link ServiceCallStatus} containing info about actual service call state.
      */
     ServiceCallStatus getStatus(ServiceCall serviceCall);
+
+    List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls);
+
+    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall);
 }

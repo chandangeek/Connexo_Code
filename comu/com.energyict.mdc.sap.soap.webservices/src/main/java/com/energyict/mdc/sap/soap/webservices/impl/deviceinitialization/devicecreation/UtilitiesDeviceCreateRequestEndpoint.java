@@ -3,25 +3,18 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
-import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilitiesDeviceERPSmartMeterCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestEndpoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn {
 
@@ -32,26 +25,17 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestE
     }
 
     @Override
-    public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg requestMessage) {
+    public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (requestMessage != null) {
-                UtilitiesDeviceCreateRequestMessage request = UtilitiesDeviceCreateRequestMessage.builder()
-                        .from(requestMessage)
-                        .build();
-                SetMultimap<String, String> values = HashMultimap.create();
-                values.putAll(CimAttributeNames.SERIAL_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().stream()
-                        .map(UtilitiesDeviceCreateMessage::getSerialId)
-                        .collect(Collectors.toList()));
-                values.putAll(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), request.getUtilitiesDeviceCreateMessages().stream()
-                        .map(UtilitiesDeviceCreateMessage::getDeviceId)
-                        .collect(Collectors.toList()));
-                saveRelatedAttributes(values);
-                if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
-                    throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                            UtilitiesDeviceCreateConfirmation.NAME);
-                }
-                createServiceCallAndTransition(request);
-            }
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage -> {
+                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder()
+                                        .from(requestMessage)
+                                        .build();
+
+                                handleRequestMessage(message);
+                            }
+                    );
             return null;
         });
     }

@@ -7,8 +7,7 @@ package com.elster.jupiter.export.impl.webservicecall;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.MessageSeeds;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -26,18 +25,21 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 public class DataExportServiceCallTypeImpl implements DataExportServiceCallType {
     // TODO: no way to make names of service call types translatable
@@ -53,6 +55,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     private final CustomPropertySetService customPropertySetService;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final OrmService ormService;
 
     @Inject
     public DataExportServiceCallTypeImpl(OrmService ormService, Thesaurus thesaurus, ServiceCallService serviceCallService,
@@ -65,6 +68,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         this.customPropertySetService = customPropertySetService;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
+        this.ormService = ormService;
     }
 
     public ServiceCallType findOrCreate() {
@@ -80,13 +84,12 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         });
     }
 
-    public ServiceCallType findOrCreateChildType() {
-
+    private ServiceCallType findOrCreateChildType() {
+        serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
         return serviceCallService.findServiceCallType(CHILD_NAME, CHILD_VERSION).orElseGet(() -> {
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportChildCustomPropertySet.CUSTOM_PROPERTY_SET_CHILD_ID)));
 
-            serviceCallService.addServiceCallHandler(ServiceCallHandler.DUMMY, ImmutableMap.of("name", CHILD_NAME));
             return serviceCallService.createServiceCallType(CHILD_NAME, CHILD_VERSION, APPLICATION)
                     .handler(CHILD_NAME)
                     .logLevel(LogLevel.FINEST)
@@ -119,17 +122,18 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data){
-        data.forEach(item->createChild(parent,
+    public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data) {
+        data.forEach(item -> createChild(parent,
                 item.getDomainObject().getName(),
-                item.getReadingType().getMRID()));
+                item.getReadingType().getMRID(),
+                item.getId()));
     }
 
-
-    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID){
+    private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
         WebServiceDataExportChildDomainExtension childSrvCallProperties = new WebServiceDataExportChildDomainExtension();
         childSrvCallProperties.setDeviceName(deviceName);
         childSrvCallProperties.setReadingTypeMRID(readingTypeMrID);
+        childSrvCallProperties.setDataSourceId(itemId);
 
         ServiceCallType srvCallChildType = findOrCreateChildType();
 
@@ -221,8 +225,26 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         return new ServiceCallStatusImpl(serviceCallService, serviceCall);
     }
 
+    @Override
+    public List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls) {
+        return ServiceCallStatusImpl.from(serviceCallService, serviceCalls);
+    }
+
     private ServiceCall lock(ServiceCall serviceCall) {
         return serviceCallService.lockServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
+    }
+
+    @Override
+    public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall) {
+        Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
+                .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
+                .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
+                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
+        return ormService.getDataModel(DataExportService.COMPONENTNAME)
+                .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
+                .stream(ReadingTypeDataExportItem.class)
+                .filter(ListOperator.IN.contains(dataSourceIds, "id"))
+                .collect(Collectors.toSet());
     }
 }

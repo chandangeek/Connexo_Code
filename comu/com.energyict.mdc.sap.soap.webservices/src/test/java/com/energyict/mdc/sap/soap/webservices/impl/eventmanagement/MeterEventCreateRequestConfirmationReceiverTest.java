@@ -5,6 +5,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.eventmanagement;
 
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractInboundWebserviceTest;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -13,8 +14,13 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbu
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UUID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilsSmrtMtrEvtERPBulkCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilsSmrtMtrEvtERPCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation.UtilsSmrtMtrEvtERPCrteConfUtilsSmrtMtrEvt;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,10 +55,23 @@ public class MeterEventCreateRequestConfirmationReceiverTest extends AbstractInb
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
         message.setLog(log);
 
+        UtilsSmrtMtrEvtERPCrteConfMsg confMsg = new UtilsSmrtMtrEvtERPCrteConfMsg();
+        UtilsSmrtMtrEvtERPCrteConfUtilsSmrtMtrEvt event = new UtilsSmrtMtrEvtERPCrteConfUtilsSmrtMtrEvt();
+        UtilitiesDeviceID utilitiesDeviceID = new UtilitiesDeviceID();
+        utilitiesDeviceID.setValue("1");
+        event.setUtilitiesDeviceID(utilitiesDeviceID);
+        confMsg.setUtilitiesSmartMeterEvent(event);
+        message.getUtilitiesSmartMeterEventERPCreateConfirmationMessage().add(confMsg);
+
         service.utilitiesSmartMeterEventERPBulkCreateConfirmationCIn(message);
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(),
+                "1");
 
         verify(webServicesService).passOccurrence(webServiceCallOccurrence.getId());
         verify(webServiceCallOccurrence).log(LogLevel.INFO, "Confirmed smart meter event creation request with UUID " + REF_UUID + ".");
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test

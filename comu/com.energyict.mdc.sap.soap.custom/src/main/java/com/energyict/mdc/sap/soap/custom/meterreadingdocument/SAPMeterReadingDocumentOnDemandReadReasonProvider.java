@@ -110,19 +110,20 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private boolean hasCommunicationConnection(ServiceCall serviceCall, String deviceName, boolean isRegular,
                                                Instant scheduledReadingDate) {
-        ComTaskExecution comTaskExecution = findLastTaskExecution(deviceName, isRegular);
-        if(comTaskExecution != null) {
-            return hasLastTaskExecutionTimestamp(comTaskExecution, scheduledReadingDate)
-                    ? checkTaskStatus(serviceCall, comTaskExecution)
-                    : runTask(serviceCall, comTaskExecution);
+        Optional<ComTaskExecution> comTaskExecution = findLastTaskExecution(deviceName, isRegular);
+
+        if(comTaskExecution.isPresent()) {
+            return hasLastTaskExecutionTimestamp(comTaskExecution.get(), scheduledReadingDate)
+                    ? checkTaskStatus(serviceCall, comTaskExecution.get())
+                    : runTask(serviceCall, comTaskExecution.get());
         }else{
-            serviceCall.log(LogLevel.SEVERE, "A comtask to execute the device messages could not be located");
+            serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages couldn't be located");
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
             return false;
         }
     }
 
-    private ComTaskExecution findLastTaskExecution(String deviceName, boolean isRegular) {
+    private Optional<ComTaskExecution> findLastTaskExecution(String deviceName, boolean isRegular) {
         return deviceService
                 .findDeviceByName(deviceName)
                 .map(Device::getComTaskExecutions)
@@ -135,8 +136,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                                 ? protocolTask instanceof LoadProfilesTask
                                 : protocolTask instanceof RegistersTask))
                 .min(Comparator.nullsLast((e1, e2) -> e2.getLastSuccessfulCompletionTimestamp()
-                        .compareTo(e1.getLastSuccessfulCompletionTimestamp())))
-                .orElse(null);
+                        .compareTo(e1.getLastSuccessfulCompletionTimestamp())));
     }
 
     private boolean hasLastTaskExecutionTimestamp(ComTaskExecution comTaskExecution, Instant scheduledReadingDate) {

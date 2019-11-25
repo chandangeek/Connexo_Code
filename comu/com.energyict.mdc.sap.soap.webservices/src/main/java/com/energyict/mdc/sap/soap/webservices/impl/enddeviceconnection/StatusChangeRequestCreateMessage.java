@@ -63,8 +63,8 @@ public class StatusChangeRequestCreateMessage {
     }
 
     public boolean isValid() {
-        return id != null && categoryCode != null && plannedProcessingDateTime != null &&
-               !deviceConnectionStatus.isEmpty();
+        return (id != null || uuid != null) && categoryCode != null && plannedProcessingDateTime != null &&
+                !deviceConnectionStatus.isEmpty();
     }
 
     public static Builder builder() {

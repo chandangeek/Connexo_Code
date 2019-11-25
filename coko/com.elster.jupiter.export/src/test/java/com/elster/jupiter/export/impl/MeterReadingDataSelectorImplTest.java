@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -156,8 +157,12 @@ public class MeterReadingDataSelectorImplTest {
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel) {
             @Override
             public long getId() {
-                return this.hashCode();
+                return hashCode();
+            }
 
+            @Override
+            public int hashCode() {
+                return Objects.hash(getReadingContainer(), getReadingType());
             }
         })
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);

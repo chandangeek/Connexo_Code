@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem {
@@ -161,5 +162,17 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void clearCachedReadingContainer() {
         readingContainer.clearCachedObject();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this
+                || obj instanceof ReadingTypeDataExportItemImpl
+                && ((ReadingTypeDataExportItemImpl) obj).id == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
