@@ -188,7 +188,6 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     /* Prepare list of time serieses that should be sent */
     @Override
     List<UtilsTmeSersERPItmChgReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
-        System.out.println("prepareTimeSeries!!!!!!!");
         ReadingType readingType = item.getItem().getReadingType();
         TemporalAmount interval = readingType.getIntervalLength()
                 .orElse(Duration.ZERO);

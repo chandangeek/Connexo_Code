@@ -147,12 +147,10 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             List<TS> timeSeriesListFromMeterData = prepareTimeSeries(meterReadingData, now);
             /* Calculate number of readings that should be sent for this meterReadingData */
             long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
-            System.out.println("numberOfItemsToSend  = !!!!!!!!!!!"+numberOfItemsToSend );
 
             if (numberOfItemsToSend >= numberOfReadingsPerMsg) {
                 /*It means that number of readings in one meterReadingData is more than allowable size.
                 /* Just send it. But actually shouldn't happen */
-                System.out.println("SEND PART OF DATA 0!!!!");
                 sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, Collections.singletonList(meterReadingData), now, timeout)
                         .ifPresent(srvCallList::add);
                 now = null;
@@ -167,7 +165,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                     timeSeriesListToSend.addAll(timeSeriesListFromMeterData);
                     meterReadingDataNr += numberOfItemsToSend;
                     if (!iterator.hasNext()) {
-                        System.out.println("SEND PART OF DATA 1!!!!");
                         sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout)
                                 .ifPresent(srvCallList::add);
                         meterReadingDataNr = 0;
@@ -176,7 +173,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                         readingDataToSend.clear();
                     }
                 } else {
-                    System.out.println("SEND PART OF DATA 2!!!!");
                     sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout)
                             .ifPresent(srvCallList::add);
                     meterReadingDataNr = numberOfItemsToSend;
@@ -187,7 +183,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
                     if (!iterator.hasNext()) {
                         /* These were last readings. Just send them*/
-                        System.out.println("SEND PART OF DATA 3!!!!");
                         sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout)
                                 .ifPresent(srvCallList::add);
                     }
@@ -195,7 +190,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 }
 
             } else {
-                System.out.println("SEND PART OF DATA 4!!!!");
                 sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout)
                         .ifPresent(srvCallList::add);
                 meterReadingDataNr = 0;
@@ -216,7 +210,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             SetMultimap<String, String> values = HashMultimap.create();
             MSG message = createMessageFromTimeSeries(timeSerieses, uuid, values, now);
             if (message != null) {
-                System.out.println("SEND!!!!!!!!!");
                 Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                         .toEndpoints(endPointConfiguration)
                         .withRelatedAttributes(values)
@@ -225,7 +218,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 if (!processedEndpoints.contains(endPointConfiguration)) {
                     throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
                 }
-                System.out.println("SEND PART OF DATA OK");
                 return Optional.ofNullable(timeout)
                         .map(TimeDuration::getMilliSeconds)
                         .map(millis -> dataExportServiceCallType.startServiceCallAsync(uuid, millis, exportData.stream().map(MeterReadingData::getItem).collect(Collectors.toList())));
