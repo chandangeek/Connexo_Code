@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointException;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.SetMultimap;
@@ -168,24 +169,28 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         private EP getEndpoint(EndPointConfiguration endPointConfiguration) {
-            // TODO use here publish that throws exceptions to distinguish authorization error & unavailability
-            if (endPointConfiguration.isActive()) {
-                publish(endPointConfiguration);
-                EP endpoint = endpoints.get(endPointConfiguration.getId());
-                if (endpoint == null) {
-                    long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
-                    String message = thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
-                    WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
-                    eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
-                }
-                return endpoint;
-            } else {
-                long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
-                String message = thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
-                WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
-                eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
+            if (!getName().equals(endPointConfiguration.getWebServiceName())) {
+                processUnavailableEndpoint(endPointConfiguration, MessageSeeds.WRONG_WEB_SERVICE_ENDPOINT_CONFIGURATION, endPointConfiguration.getName(), getName());
                 return null;
             }
+            if (!endPointConfiguration.isActive()) {
+                processUnavailableEndpoint(endPointConfiguration, MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT, endPointConfiguration.getName());
+                return null;
+            }
+            // TODO use here publish that throws exceptions to distinguish authorization error & unavailability
+            publish(endPointConfiguration);
+            EP endpoint = endpoints.get(endPointConfiguration.getId());
+            if (endpoint == null) {
+                processUnavailableEndpoint(endPointConfiguration, MessageSeeds.NO_WEB_SERVICE_ENDPOINT, endPointConfiguration.getName());
+            }
+            return endpoint;
+        }
+
+        private void processUnavailableEndpoint(EndPointConfiguration endPointConfiguration, MessageSeed messageSeed, Object... args) {
+            long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
+            String message = thesaurus.getSimpleFormat(messageSeed).format(args);
+            WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
+            eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
         }
 
         private Map<EndPointConfiguration, EP> getEndpoints() {

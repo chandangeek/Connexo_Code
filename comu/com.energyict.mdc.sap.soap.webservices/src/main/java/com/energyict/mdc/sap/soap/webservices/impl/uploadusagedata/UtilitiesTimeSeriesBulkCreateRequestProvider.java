@@ -39,7 +39,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
