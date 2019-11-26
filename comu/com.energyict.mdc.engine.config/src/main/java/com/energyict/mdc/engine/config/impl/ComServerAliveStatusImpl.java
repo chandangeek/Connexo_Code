@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.ComServerAliveStatus;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 
 import javax.inject.Inject;
 import java.time.Instant;

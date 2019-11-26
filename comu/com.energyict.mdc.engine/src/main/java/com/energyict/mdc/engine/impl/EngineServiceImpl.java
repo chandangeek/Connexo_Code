@@ -45,7 +45,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.config.impl.EngineConfigurationServiceImpl;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
@@ -77,7 +76,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.Bundle;
@@ -106,7 +104,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
-import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.engine",
         service = {EngineService.class, ServerEngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
@@ -380,6 +377,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
         keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 
@@ -688,12 +686,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 //    }
 
     private void createOrUpdateComServerAliveStatusTask() {
-        String property = bundleContext.getProperty(EngineConfigurationServiceImpl.COM_SERVER_STATUS_ALIVE_FREQ_PROP);
         createOrUpdateActionTask(ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION,
                 COM_SERVER_STATUS_TASK_RETRY_DELAY,
                 TranslationKeys.COM_SERVER_STATUS_TASK_NAME_TRANSLATION,
                 COM_SERVER_STATUS_TASK_NAME,
-                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFreq()).minutes().at(0).build());
+                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFrequency()).minutes().at(0).build());
     }
 
     private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
