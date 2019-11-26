@@ -45,14 +45,10 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
                     var me = this;
                     //check if store is empty otherwise we trying to load it on each combo expand
                     var propsStore = Ext.getStore('Uni.property.store.DynamicComboboxData') || Ext.create('Uni.property.store.DynamicComboboxData');
-                    if (propsStore.getCount() == 0) {
-                         propsStore.load(function(records, operation, success) {
-                             if (propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
-                             success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
-                         });
-                    }else{
-                        if (!me.store && propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
-                    }
+                    propsStore.load(function(records, operation, success) {
+                         if (propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
+                         success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+                    });
                 }
             }
         }
