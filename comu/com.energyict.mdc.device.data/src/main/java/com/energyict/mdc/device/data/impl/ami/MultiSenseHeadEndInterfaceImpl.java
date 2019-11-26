@@ -400,11 +400,12 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .findFirst()
                 .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get());
 
-        device.getComTaskExecutions().stream()
-                .filter(cte -> !cte.isOnHold())
+        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
-                .findFirst()
-                .orElseThrow(() -> NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get());
+                .findFirst();
+        if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
+                throw NoSuchElementException.comTaskExecutionCouldNotBeLocated(thesaurus).get();
+        }
     }
 
     private void checkStatusInformationComTask(Device device) throws NoSuchElementException {
@@ -417,11 +418,12 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .findFirst()
                 .orElseThrow(() -> NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get());
 
-        device.getComTaskExecutions().stream()
-                .filter(cte -> !cte.isOnHold())
+        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
-                .findFirst()
-                .orElseThrow(() -> NoSuchElementException.statusInformationComTaskExecutionCouldNotBeLocated(thesaurus).get());
+                .findFirst();
+        if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
+            throw NoSuchElementException.statusInformationComTaskExecutionCouldNotBeLocated(thesaurus).get();
+        }
     }
 
     private void scheduleDeviceCommandsComTaskEnablement(Device device, List<DeviceMessage> deviceMessages) {

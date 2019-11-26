@@ -154,11 +154,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         switch (operation) {
             case CREATE:
                 method = "createdMeterConfig";
-                message = createStatusResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
+                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case UPDATE:
                 method = "changedMeterConfig";
-                message = createStatusResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
+                message = createStatusResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
                 method = "replyMeterConfig";

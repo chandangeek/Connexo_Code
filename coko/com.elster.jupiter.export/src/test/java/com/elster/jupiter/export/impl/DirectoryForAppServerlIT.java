@@ -13,13 +13,13 @@ import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataFormatter;
-import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -34,7 +34,6 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -43,14 +42,11 @@ import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
@@ -64,7 +60,6 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
-import javax.validation.ValidatorFactory;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -72,13 +67,12 @@ import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -86,60 +80,34 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DirectoryForAppServerlIT {
-
-    private AppServer appServer;
-    @Mock
-    private Group group;
-    @Mock
-    private HttpService httpService;
-
-    private class MockModule extends AbstractModule {
-
+    private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(LogService.class).toInstance(logService);
-            bind(HttpService.class).toInstance(httpService);
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
 
-    public static final String FORMATTER = "formatter";
-
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
+
+    private static Injector injector;
+    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static DataExportServiceImpl dataExportService;
+    private static AppService appService;
+    private static AppServer appServer;
+    private static TransactionService transactionService;
 
     @Rule
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
-    private Injector injector;
+    @Rule
+    public TestRule transactional = new TransactionalRule(transactionService);
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private EventAdmin eventAdmin;
-    @Mock
-    private ValidatorFactory validatorFactory;
-    @Mock
-    private PropertySpec min, max, consZero;
-    @Mock
-    private LogService logService;
-    @Mock
-    private DataFormatterFactory dataFormatterFactory;
-    @Mock
-    private DataFormatter dataFormatter;
-    @Mock
-    private PropertySpec propertySpec;
-    @Mock
-    private User user;
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    private DataExportServiceImpl dataExportService;
-    private AppService appService;
-    private TransactionService transactionService;
-
-    @Before
-    public void setUp() throws SQLException {
+    @BeforeClass
+    public static void setUp() throws SQLException {
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -182,9 +150,6 @@ public class DirectoryForAppServerlIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-//        when(userService.createUser(any(), any())).thenReturn(user);
-//        when(userService.createGroup(anyString(), anyString())).thenReturn(mock(Group.class));
-//        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
@@ -195,56 +160,39 @@ public class DirectoryForAppServerlIT {
         });
     }
 
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void testSetPathForAppServer() {
         Path path = Paths.get("/usr/export");
 
-        try (TransactionContext context = transactionService.getContext()) {
-            dataExportService.setExportDirectory(appServer, path);
-
-            context.commit();
-        }
+        dataExportService.setExportDirectory(appServer, path);
 
         assertThat(dataExportService.getExportDirectory(appServer)).contains(path);
     }
 
     @Test
+    @Transactional
     public void testUpdatePathForAppServer() {
         Path path = Paths.get("/usr/export");
 
-        try (TransactionContext context = transactionService.getContext()) {
-            dataExportService.setExportDirectory(appServer, Paths.get("/usr/wrong"));
-
-            context.commit();
-        }
-
-        try (TransactionContext context = transactionService.getContext()) {
-            dataExportService.setExportDirectory(appServer, path);
-
-            context.commit();
-        }
+        dataExportService.setExportDirectory(appServer, Paths.get("/usr/wrong"));
+        dataExportService.setExportDirectory(appServer, path);
 
         assertThat(dataExportService.getExportDirectory(appServer)).contains(path);
     }
 
     @Test
+    @Transactional
     public void testRemovePathForAppServer(){
         Path path = Paths.get("/usr/export");
 
-        try (TransactionContext context = transactionService.getContext()) {
-            dataExportService.setExportDirectory(appServer, path);
-            context.commit();
-        }
-
-        try (TransactionContext context = transactionService.getContext()) {
-            dataExportService.removeExportDirectory(appServer);
-            context.commit();
-        }
+        dataExportService.setExportDirectory(appServer, path);
+        dataExportService.removeExportDirectory(appServer);
 
         assertThat(dataExportService.getExportDirectory(appServer).isPresent()).isFalse();
     }

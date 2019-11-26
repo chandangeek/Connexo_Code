@@ -211,16 +211,6 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName())
                     .notNull()
                     .add();
-            /*table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
-                    .varChar()
-                    .notNull()
-                    .upTo(version(10,7))
-                    .add();
-            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.databaseName())
-                    .varChar()
-                    .notNull()
-                    .upTo(version(10,7))
-                    .add();*/
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.javaName())
