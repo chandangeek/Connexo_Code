@@ -155,6 +155,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.comWindow = comWindow == null || comWindow.isEmpty() ? null : comWindow;
     }
 
+    @XmlAttribute
+    public Boolean getStrategyChange() {
+        return strategyChange;
+    }
+
     @Override
     @XmlAttribute
     public ConnectionStrategy getConnectionStrategy() {
