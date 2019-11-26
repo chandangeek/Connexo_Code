@@ -35,6 +35,7 @@ Ext.define('Uni.service.Search', {
     changedFiltersNotYetApplied: false,
     previouslyAppliedFiltersAsString: undefined,
     previouslyAppliedState: undefined,
+    bulkActionCancel: undefined,
 
     constructor: function (config) {
         var me = this;

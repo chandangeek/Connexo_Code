@@ -210,7 +210,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
             };
 
-        if (search.service.changedFiltersNotYetApplied) {
+        if (search.service.changedFiltersNotYetApplied &&  search.service.bulkActionCancel !== true) {
             var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
                 secondConfirmText: Uni.I18n.translate('general.dontApply', 'MDC', "Don't apply"),
@@ -234,6 +234,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     "Some search criteria haven't been applied. Do you want to apply them?")
             });
         } else {
+            search.service.bulkActionCancel = false;
             goOnWithTheCurrentSearchResults();
         }
     },
@@ -622,7 +623,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 restore: true
             };
         }
-
+        search.service.bulkActionCancel = true;
         router.getRoute('search').forward(null, queryParams);
     }
     ,
