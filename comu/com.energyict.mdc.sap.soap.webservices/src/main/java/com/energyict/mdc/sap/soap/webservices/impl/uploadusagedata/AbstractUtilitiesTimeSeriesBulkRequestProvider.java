@@ -137,7 +137,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         List<MeterReadingData> readingDataList = data.filter(MeterReadingData.class::isInstance)
                 .map(MeterReadingData.class::cast)
                 .collect(Collectors.toList());
-
         for (Iterator iterator = readingDataList.iterator(); iterator.hasNext(); ) {
             MeterReadingData meterReadingData = (MeterReadingData) iterator.next();
 
@@ -148,6 +147,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             List<TS> timeSeriesListFromMeterData = prepareTimeSeries(meterReadingData, now);
             /* Calculate number of readings that should be sent for this meterReadingData */
             long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
+
             if (numberOfItemsToSend >= numberOfReadingsPerMsg) {
                 /*It means that number of readings in one meterReadingData is more than allowable size.
                 /* Just send it. But actually shouldn't happen */
@@ -218,7 +218,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 if (!processedEndpoints.contains(endPointConfiguration)) {
                     throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
                 }
-
                 return Optional.ofNullable(timeout)
                         .map(TimeDuration::getMilliSeconds)
                         .map(millis -> dataExportServiceCallType.startServiceCallAsync(uuid, millis, exportData.stream().map(MeterReadingData::getItem).collect(Collectors.toList())));
