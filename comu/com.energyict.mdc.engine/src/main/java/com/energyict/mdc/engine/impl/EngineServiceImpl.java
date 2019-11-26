@@ -6,6 +6,8 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -17,11 +19,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.common.protocol.DeviceMessage;
@@ -43,6 +50,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
+import com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
@@ -93,6 +101,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 
@@ -108,6 +117,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
                 immediate = true)
 public class EngineServiceImpl implements ServerEngineService, TranslationKeyProvider, MessageSeedProvider {
 
+    private static final Logger LOGGER = Logger.getLogger(EngineService.class.getName());
     public static final String COMSERVER_USER = "comserver";
     public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
     private volatile DataModel dataModel;
@@ -144,11 +154,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile SecurityManagementService securityManagementService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private volatile TimeOfUseCampaignService timeOfUseCampaignService;
+    private volatile MessageService messageService;
+    private volatile TaskService taskService;
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
     private Properties engineProperties = new Properties();
     private BundleContext bundleContext = null;
+
+    private static final String COM_SERVER_STATUS_TASK_NAME = "ComServerAliveStatusTask";
+    private static final int COM_SERVER_STATUS_TASK_RETRY_DELAY = 60;
 
     public EngineServiceImpl() {
     }
@@ -362,6 +377,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
         keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 
@@ -438,6 +454,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setSecurityManagementService(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
     }
@@ -459,6 +485,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 bind(StatusService.class).toInstance(statusService);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
                 bind(UserService.class).toInstance(userService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(TaskService.class).toInstance(taskService);
             }
         };
     }
@@ -472,7 +500,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
-
+            createOrUpdateComServerAliveStatusTask();
             this.launchComServer();
         } catch(Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
@@ -656,6 +684,46 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 //    public RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder() {
 //        return dataModel.getInstance(RemoteComServerImpl.RemoteComServerBuilderImpl.class);
 //    }
+
+    private void createOrUpdateComServerAliveStatusTask() {
+        createOrUpdateActionTask(ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION,
+                COM_SERVER_STATUS_TASK_RETRY_DELAY,
+                TranslationKeys.COM_SERVER_STATUS_TASK_NAME_TRANSLATION,
+                COM_SERVER_STATUS_TASK_NAME,
+                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFrequency()).minutes().at(0).build());
+    }
+
+    private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
+                                          TranslationKey subscriberSpecName, String taskName, ScheduleExpression scheduleExpression) {
+
+        threadPrincipalService.set(() -> "Activator");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(taskName);
+            if (taskOptional.isPresent()) {
+                RecurrentTask task = taskOptional.get();
+                task.setScheduleExpression(scheduleExpression);
+                task.save();
+            } else {
+                DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                        .get()
+                        .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+                destination.activate();
+                destination.subscribe(subscriberSpecName, EngineService.COMPONENTNAME, Layer.DOMAIN);
+
+                taskService.newBuilder()
+                        .setApplication("Admin")
+                        .setName(taskName)
+                        .setScheduleExpression(scheduleExpression)
+                        .setDestination(destination)
+                        .setPayLoad("payload")
+                        .scheduleImmediately(true)
+                        .build();
+            }
+            context.commit();
+        } catch (Exception e) {
+            LOGGER.severe(e.getMessage());
+        }
+    }
 
     private static class OptionalIdentificationService implements IdentificationService {
         private AtomicReference<Optional<IdentificationService>> identificationService = new AtomicReference<>(Optional.empty());

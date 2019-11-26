@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-package com.elster.jupiter.webservices.demo.meterreadings;
+package com.elster.jupiter.webservices.demo.impl;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.events.LocalEvent;
@@ -9,6 +9,8 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.StorerProcess;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import org.osgi.service.component.annotations.Component;
@@ -24,14 +26,16 @@ public class MeterReadingsEventHandler implements TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(MeterReadingsEventHandler.class.getName());
     private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     public MeterReadingsEventHandler() {
     }
 
     @Inject
-    public MeterReadingsEventHandler(SendMeterReadingsProvider sendMeterReadingsProvider) {
+    public MeterReadingsEventHandler(SendMeterReadingsProvider sendMeterReadingsProvider, EndPointConfigurationService endPointConfigurationService) {
         this();
         setSendMeterReadingsProvider(sendMeterReadingsProvider);
+        setEndPointConfigurationService(endPointConfigurationService);
     }
 
     @Reference
@@ -39,11 +43,21 @@ public class MeterReadingsEventHandler implements TopicHandler {
         this.sendMeterReadingsProvider = sendMeterReadingsProvider;
     }
 
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
     @Override
     public void handle(LocalEvent localEvent) {
         try {
-            ReadingStorer readingStorer = (ReadingStorer) localEvent.getSource();
-            sendMeterReadingsProvider.call(readingStorer.getReadings(), readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT) ? HeaderType.Verb.CREATED : HeaderType.Verb.CHANGED);
+            if (endPointConfigurationService
+                    .getEndPointConfigurationsForWebService(SendMeterReadingsProvider.NAME)
+                    .stream()
+                    .anyMatch(EndPointConfiguration::isActive)) {
+                ReadingStorer readingStorer = (ReadingStorer) localEvent.getSource();
+                sendMeterReadingsProvider.call(readingStorer.getReadings(), readingStorer.getStorerProcess().equals(StorerProcess.DEFAULT) ? HeaderType.Verb.CREATED : HeaderType.Verb.CHANGED);
+            }
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
         }

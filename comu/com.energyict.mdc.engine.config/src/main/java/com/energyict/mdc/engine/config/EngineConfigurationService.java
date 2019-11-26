@@ -271,4 +271,10 @@ public interface EngineConfigurationService {
     ComServer lockComServer(ComServer comServer);
 
     ComPort lockComPort(ComPort comPort);
+
+    ComServerAliveStatus findOrCreateAliveStatus(ComServer comServer);
+
+    Optional<ComServerAliveStatus> getAliveStatus(ComServer comServer);
+
+    Integer getComServerStatusAliveFrequency();
 }

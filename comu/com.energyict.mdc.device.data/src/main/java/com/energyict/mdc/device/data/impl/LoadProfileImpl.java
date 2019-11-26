@@ -360,11 +360,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
                                     .filter(channel -> channel.getReadingTypes().contains(this.getReadingType())))
                     .filter(channel -> channel.getLastDateTime() != null)
                     .findAny();
-            if (channelWithLastDateTime.isPresent()) {
-                return Optional.of(channelWithLastDateTime.get().getLastDateTime());
-            } else {
-                return Optional.empty();
-            }
+            return channelWithLastDateTime.map(com.elster.jupiter.metering.Channel::getLastDateTime);
         }
 
         @Override
