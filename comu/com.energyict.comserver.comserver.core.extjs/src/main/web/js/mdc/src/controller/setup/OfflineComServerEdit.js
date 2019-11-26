@@ -224,14 +224,14 @@ Ext.define('Mdc.controller.setup.OfflineComServerEdit', {
             case 'create':
                 switch (comServerType) {
                     case 'Offline':
-                        messageText = Uni.I18n.translate('comServer.acknowledge.createSuccess', 'MDC', 'Mobile communication server added');
+                        messageText = Uni.I18n.translate('offline.comServer.acknowledge.createSuccess', 'MDC', 'Mobile communication server added');
                         break;
                 }
                 break;
             case 'update':
                 switch (comServerType) {
                     case 'Offline':
-                        messageText = Uni.I18n.translate('comServer.acknowledge.updateSuccess', 'MDC', 'Mobile communication server saved');
+                        messageText = Uni.I18n.translate('offline.comServer.acknowledge.updateSuccess', 'MDC', 'Mobile communication server saved');
                         break;
                 }
                 break;

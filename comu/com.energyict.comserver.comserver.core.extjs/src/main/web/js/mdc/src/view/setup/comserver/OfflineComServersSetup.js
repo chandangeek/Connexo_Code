@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.comserver.OfflineComServersSetup', {
 
     content: {
         ui: 'large',
-        title: Uni.I18n.translate('general.comServers', 'MDC', 'Mobile communication servers'),
+        title: Uni.I18n.translate('general.offline.comServers', 'MDC', 'Mobile communication servers'),
         items: [
             {
                 xtype: 'preview-container',
