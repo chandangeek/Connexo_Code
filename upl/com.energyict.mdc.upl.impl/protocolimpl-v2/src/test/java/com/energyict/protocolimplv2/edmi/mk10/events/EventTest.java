@@ -712,17 +712,17 @@ public class EventTest {
 
     @Test
     public void testUpsStateEvent() {
-        assertEventCode(SYSTEM, 0xB200, 0);
-        assertEventCode(SYSTEM, 0xB201, 0);
+        assertEventCode(SYSTEM, 0xB200, 219);
+        assertEventCode(SYSTEM, 0xB201, 220);
         assertEventDescription(SYSTEM, 0xB200, "Meter running full powered from the UPS battery.");
         assertEventDescription(SYSTEM, 0xB201, "Mains power restored while running on the UPS.");
     }
 
     @Test
     public void testInputAlarmsEvent() {
-        assertEventCode(SYSTEM, 0xB212, 0);
-        assertEventCode(SYSTEM, 0xB213, 0);
-        assertEventCode(SYSTEM, 0xB214, 0);
+        assertEventCode(SYSTEM, 0xB212, 221);
+        assertEventCode(SYSTEM, 0xB213, 221);
+        assertEventCode(SYSTEM, 0xB214, 221);
         assertEventDescription(SYSTEM, 0xB212, "Latched alarm from input 1");
         assertEventDescription(SYSTEM, 0xB213, "Unlatched alarm from input 1");
         assertEventDescription(SYSTEM, 0xB214, "Momentary pulse alarm from input 1");
@@ -730,7 +730,7 @@ public class EventTest {
 
     @Test
     public void testUdpAlarmFailedEvent() {
-        assertEventCode(SYSTEM, 0xB210, 0);
+        assertEventCode(SYSTEM, 0xB210, 222);
         assertEventDescription(SYSTEM, 0xB210, "Attempted to send a UDP alarm but never got an ACK from the server.");
     }
 
