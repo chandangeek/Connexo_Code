@@ -3,8 +3,8 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.*;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -363,8 +363,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public Duration getPollingDelay() {
-        // Return the default value, 100 ms.
-        return Duration.ofMillis(100);
+        return properties.getTypedProperty(DlmsSessionProperties.POLLING_DELAY, Duration.ofMillis(0));
     }
 
     @Override
