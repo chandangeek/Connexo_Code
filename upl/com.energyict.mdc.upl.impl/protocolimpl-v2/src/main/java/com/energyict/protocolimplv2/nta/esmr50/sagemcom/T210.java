@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.esmr50.sagemcom;
 
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.*;
@@ -22,8 +23,14 @@ import java.util.logging.Level;
 public class T210 extends ESMR50Protocol implements SerialNumberSupport {
 
 
-    public T210(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+    public T210(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService,
+                NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
+                TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor,
+                LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor,
+                DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor,
+                deviceMasterDataExtractor);
     }
 
     @Override
