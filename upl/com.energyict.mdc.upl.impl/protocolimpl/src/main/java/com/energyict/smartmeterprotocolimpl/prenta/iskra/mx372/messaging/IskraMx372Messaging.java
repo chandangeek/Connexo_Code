@@ -261,7 +261,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
      * @param messageEntries a list of {@link MessageEntry}s
      * @throws java.io.IOException if a logical error occurs
      */
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
     }
 
     /**

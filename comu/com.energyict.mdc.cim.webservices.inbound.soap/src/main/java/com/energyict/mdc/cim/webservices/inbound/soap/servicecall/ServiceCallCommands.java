@@ -87,13 +87,19 @@ import java.util.stream.Collectors;
 public class ServiceCallCommands {
 
     public enum ServiceCallTypes {
-        MASTER_METER_CONFIG(MeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigMasterServiceCallHandler.VERSION, MeterConfigMasterServiceCallHandler.APPLICATION, MeterConfigMasterCustomPropertySet.class.getName()),
+        MASTER_METER_CONFIG(MeterConfigMasterServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigMasterServiceCallHandler.VERSION, MeterConfigMasterServiceCallHandler.APPLICATION, MeterConfigMasterCustomPropertySet.class
+                .getName()),
         METER_CONFIG(MeterConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME, MeterConfigServiceCallHandler.VERSION, MeterConfigServiceCallHandler.APPLICATION, MeterConfigCustomPropertySet.class.getName()),
-        GET_END_DEVICE_EVENTS(GetEndDeviceEventsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetEndDeviceEventsServiceCallHandler.VERSION, GetEndDeviceEventsServiceCallHandler.APPLICATION, GetEndDeviceEventsCustomPropertySet.class.getName()),
-        PARENT_GET_METER_READINGS(ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ParentGetMeterReadingsServiceCallHandler.VERSION, ParentGetMeterReadingsServiceCallHandler.APPLICATION, ParentGetMeterReadingsCustomPropertySet.class.getName()),
-        SUBPARENT_GET_METER_READINGS(SubParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, SubParentGetMeterReadingsServiceCallHandler.VERSION, SubParentGetMeterReadingsServiceCallHandler.APPLICATION, SubParentGetMeterReadingsCustomPropertySet .class.getName()),
-        DEVICE_MESSAGE_GET_METER_READINGS(DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DeviceMessageServiceCallHandler.VERSION, DeviceMessageServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet.class.getName()),
-        COMTASK_EXECUTION_GET_METER_READINGS(ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ComTaskExecutionServiceCallHandler.VERSION, ComTaskExecutionServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet .class.getName());
+        GET_END_DEVICE_EVENTS(GetEndDeviceEventsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, GetEndDeviceEventsServiceCallHandler.VERSION, GetEndDeviceEventsServiceCallHandler.APPLICATION, GetEndDeviceEventsCustomPropertySet.class
+                .getName()),
+        PARENT_GET_METER_READINGS(ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ParentGetMeterReadingsServiceCallHandler.VERSION, ParentGetMeterReadingsServiceCallHandler.APPLICATION, ParentGetMeterReadingsCustomPropertySet.class
+                .getName()),
+        SUBPARENT_GET_METER_READINGS(SubParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME, SubParentGetMeterReadingsServiceCallHandler.VERSION, SubParentGetMeterReadingsServiceCallHandler.APPLICATION, SubParentGetMeterReadingsCustomPropertySet.class
+                .getName()),
+        DEVICE_MESSAGE_GET_METER_READINGS(DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DeviceMessageServiceCallHandler.VERSION, DeviceMessageServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet.class
+                .getName()),
+        COMTASK_EXECUTION_GET_METER_READINGS(ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ComTaskExecutionServiceCallHandler.VERSION, ComTaskExecutionServiceCallHandler.APPLICATION, ChildGetMeterReadingsCustomPropertySet.class
+                .getName());
 
         private final String typeName;
         private final String typeVersion;
@@ -355,9 +361,7 @@ public class ServiceCallCommands {
 
         if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay)) {
             Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
-            boolean isComTaskExists = false;
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
-                isComTaskExists = true;
                 if (start != null && actualEnd.isBefore(start)) {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
                             MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
@@ -388,13 +392,13 @@ public class ServiceCallCommands {
                     // wait next task execution
                 }
             }
-            if(isComTaskExists) {
-                subParentServiceCall.requestTransition(DefaultState.WAITING);
-            }else {
-                subParentServiceCall.requestTransition(DefaultState.FAILED);
-                subParentServiceCall.log(LogLevel.SEVERE,"No proper communication task execution has been found on device.");
-            }
             meterReadingRunning = true;
+        }
+        if (!subParentServiceCall.findChildren().paged(0, 0).find().isEmpty()) {
+            subParentServiceCall.requestTransition(DefaultState.WAITING);
+        } else {
+            subParentServiceCall.requestTransition(DefaultState.FAILED);
+            subParentServiceCall.log(LogLevel.SEVERE, "No child service calls have been created.");
         }
         return meterReadingRunning;
     }
@@ -415,6 +419,9 @@ public class ServiceCallCommands {
             }
             Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
             loadProfiles.forEach(loadProfile -> {
+                if (start.isBefore(loadProfile.getLastReading().toInstant())) {
+                    device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update();
+                }
                 ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
                         ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, deviceMessagesComTaskExecution, trigger, start, end);
                 DeviceMessage deviceMessage = createDeviceMessage(device, childServiceCall, loadProfile, trigger, start, end);

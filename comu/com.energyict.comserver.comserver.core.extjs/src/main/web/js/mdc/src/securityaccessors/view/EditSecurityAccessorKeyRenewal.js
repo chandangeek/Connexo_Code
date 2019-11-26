@@ -52,7 +52,7 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                     },
                     {
                         xtype: 'radiogroup',
-                        fieldLabel: Uni.I18n.translate('keyRenewal.without.keyRenewal', 'MDC', 'Key renewal'),
+                        fieldLabel: Uni.I18n.translate('keyRenewal.without.keyRenewal', 'MDC', 'Without key renewal'),
                         itemId: 'key-renewal-radio',
                         columns: 1,
                         labelWidth: 200,
@@ -93,7 +93,7 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                             {
                                 xtype: 'combobox',
                                 name: 'command',
-                                fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Command'),
+                                fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
                                 itemId: 'key-renewal-command-combo',
                                 emptyText: Uni.I18n.translate('keyRenewal.selectACommand', 'MDC', 'Select a command...'),
                                 store: 'Mdc.securityaccessors.store.SecurityCategoryCommands',
@@ -109,7 +109,7 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'key-renewal-no-command',
-                                fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Command'),
+                                fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
                                 value: Uni.I18n.translate('keyRenewal.noCommands', 'MDC', 'No commands are available'),
                                 fieldStyle: {
                                     color: '#EB5642'

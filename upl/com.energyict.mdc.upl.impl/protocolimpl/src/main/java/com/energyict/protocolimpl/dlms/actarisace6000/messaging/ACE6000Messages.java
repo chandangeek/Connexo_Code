@@ -63,7 +63,7 @@ public class ACE6000Messages extends ProtocolMessages {
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
 
     }
 

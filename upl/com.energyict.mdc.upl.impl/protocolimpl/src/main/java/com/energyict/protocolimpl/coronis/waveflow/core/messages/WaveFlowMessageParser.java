@@ -232,7 +232,7 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
         return value.getValue();
     }
 
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
     }
 
     private static final int MAX_SAMPLING_INTERVAL_SECONDS = 63 * 30 * 60;  //See documentation, largest interval possible is 31,5 hours.

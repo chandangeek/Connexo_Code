@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.CollectedLoadProfileHelper;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
@@ -59,9 +60,9 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
         loadProfileLogBooksData = ((MeterProtocolAdapter) deviceProtocol).getLoadProfileLogBooksData(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(),
                 legacyLoadProfileLogBooksCommand.getLogBookReaders());
 
-        removeUnwantedChannels(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(), loadProfileLogBooksData);
+        CollectedLoadProfileHelper.removeUnwantedChannels(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(), loadProfileLogBooksData);
         verifyReceivedChannelInfo();
-        addReadingTypesToChannelInfos(loadProfileLogBooksData, legacyLoadProfileLogBooksCommand.getLoadProfileReaders());
+        CollectedLoadProfileHelper.addReadingTypesToChannelInfos(loadProfileLogBooksData, legacyLoadProfileLogBooksCommand.getLoadProfileReaders());
 
         this.legacyLoadProfileLogBooksCommand.addListOfCollectedDataItems(loadProfileLogBooksData);
     }

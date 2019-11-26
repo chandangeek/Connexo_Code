@@ -558,11 +558,15 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         Optional.ofNullable(getEngineProperty(SERVER_NAME_PROPERTY_NAME)).ifPresent(HostName::setCurrent);
     }
 
-    private void updatePortNumber() {
-        transactionService.execute(() -> {
+    private void updatePortNumber(boolean needsTransaction) {
+        if (needsTransaction) {
+            transactionService.execute(() -> {
+                updatePortNumberForComServer(getEngineProperty(PORT_PROPERTY_NUMBER));
+                return null;
+            });
+        } else {
             updatePortNumberForComServer(getEngineProperty(PORT_PROPERTY_NUMBER));
-            return null;
-        });
+        }
     }
 
     private void updatePortNumberForComServer(String portNumber) {
@@ -577,21 +581,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 });
     }
 
-    private void tryStartComServer() {
-        String serverType = getEngineProperty(SERVER_TYPE_PROPERTY_NAME);
-        if (serverType == null || serverType.toLowerCase().equals("online")) {
-            this.launcher = new ComServerLauncher(new RunningComServerServiceProvider());
-            this.setHostNameIfOverruled();
-            this.updatePortNumber();
-            this.protocolDeploymentListenerRegistration = this.protocolPluggableService.register(this.launcher);
-            this.launcher.startComServer();
-            if (this.launcher.isStarted()) {
-                System.out.println("ComServer " + HostName.getCurrent() + " started!");
-            } else {
-                System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured, not active or start is delayed because not all required services are active yet (see OSGi log service)");
-            }
+    private void tryStartComServer(boolean needsTransaction) {
+        updatePortNumber(needsTransaction);
+        launcher = new ComServerLauncher(new RunningComServerServiceProvider());
+        setHostNameIfOverruled();
+        protocolDeploymentListenerRegistration = protocolPluggableService.register(launcher);
+        launcher.startComServer();
+        if (launcher.isStarted()) {
+            System.out.println("ComServer " + HostName.getCurrent() + " started!");
         } else {
-            System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured to run on this installation");
+            System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured, not active or start is delayed because not all required services are active yet (see OSGi log service)");
         }
     }
 
@@ -621,8 +620,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 
     @SuppressWarnings("unused")
     public void launchComServer() {
-        if (this.launcher == null || !this.launcher.isStarted()) {
-            if(bundleContext != null) {
+        launchComServer(true);
+    }
+
+    public void activateComServer() {
+        launchComServer(false);
+    }
+
+    private void launchComServer(boolean needsTransaction) {
+        if (launcher == null || !launcher.isStarted()) {
+            if (bundleContext != null) {
                 ClassLoader original = Thread.currentThread().getContextClassLoader();
                 Bundle bundleJetty = getJettyBundle(bundleContext);
                 if(bundleJetty != null) {
@@ -630,7 +637,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                     Thread.currentThread().setContextClassLoader(jettyClassLoader);
                 }
             }
-            this.tryStartComServer();
+            tryStartComServer(needsTransaction);
         } else {
             System.out.println("ComServer " + HostName.getCurrent() + " is already running");
         }

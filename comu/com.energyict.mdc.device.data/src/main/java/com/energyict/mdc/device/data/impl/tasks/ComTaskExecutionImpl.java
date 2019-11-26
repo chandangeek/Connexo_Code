@@ -1812,6 +1812,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.comTaskExecution.comSchedule = ValueReference.absent();
             this.comTaskExecution.setNextExecutionSpecsFrom(temporalExpression);
             this.comTaskExecution.behavior = new ManualBehavior();
+            connectionTaskSchedulingMayHaveChanged = true;
             return this;
         }
 

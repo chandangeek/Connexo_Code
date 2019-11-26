@@ -43,6 +43,7 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -169,8 +170,8 @@ public abstract class AbstractMessageExecutor {
         return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
-    protected CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLoadProfile);
+    protected CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
+        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLoadProfile, loadProfileReader);
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> collectedRegisters) {

@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.security.Privileges;
 
@@ -39,15 +40,17 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ComServerResource {
 
     private final EngineConfigurationService engineConfigurationService;
+    private final EngineService engineService;
     private final Provider<ComServerComPortResource> comServerComPortResourceProvider;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ResourceHelper resourceHelper;
     private final ComServerInfoFactory comServerInfoFactory;
 
     @Inject
-    public ComServerResource(EngineConfigurationService engineConfigurationService,
+    public ComServerResource(EngineConfigurationService engineConfigurationService, EngineService engineService,
                              Provider<ComServerComPortResource> comServerComPortResourceProvider, ConcurrentModificationExceptionFactory conflictFactory, ComServerInfoFactory comServerInfoFactory, ResourceHelper resourceHelper) {
         this.engineConfigurationService = engineConfigurationService;
+        this.engineService = engineService;
         this.comServerComPortResourceProvider = comServerComPortResourceProvider;
         this.conflictFactory = conflictFactory;
         this.comServerInfoFactory = comServerInfoFactory;
@@ -166,6 +169,9 @@ public class ComServerResource {
                             .supplier());
             comServer.setActive(info.active);
             comServer.update();
+            if (comServer.isActive()) {
+                engineService.activateComServer();
+            }
         }
         return comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
     }

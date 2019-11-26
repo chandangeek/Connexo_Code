@@ -321,7 +321,7 @@ Ext.define('Isu.controller.AddDeviceGroupFromIssues', {
                 if (records.length) {
                     Ext.suspendLayouts(true);
                     errorPopup.show();
-                    groupNameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name must be unique'));
+                    groupNameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'ISU', 'Name must be unique'));
                     Ext.resumeLayouts(true);
                 } else {
                     errorPopup.hide();
