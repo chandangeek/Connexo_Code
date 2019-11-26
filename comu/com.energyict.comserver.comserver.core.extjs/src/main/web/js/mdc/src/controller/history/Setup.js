@@ -2846,6 +2846,31 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         }
+                    },
+                    commsettings: {
+                        title: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
+                        route: 'commsettings',
+                        controller: 'Cfg.properties.controller.ConfigProperties',
+                        action: 'showOverview',
+                        privileges: Mdc.privileges.Communication.view,
+                        scope: 'COMMUNICATION',
+                        items: {
+                            edit: {
+                                title: Uni.I18n.translate('general.communicationSettings.edit', 'MDC', 'Edit'),
+                                scopeTitle: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
+                                route: 'edit',
+                                controller: 'Cfg.properties.controller.ConfigProperties',
+                                privileges: Mdc.privileges.Communication.admin,
+                                action: 'editProperties',
+                                scope: 'COMMUNICATION',
+                                callback: function (route) {
+                                    this.getApplication().on('configPropertiesLoaded', function (name) {
+                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
+                                    }, {single: true});
+                                    return this;
+                                }
+                            }
+                        }
                     }
                 }
             },
