@@ -7,7 +7,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.MeterReadingData;
-import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalBlock;
@@ -40,7 +39,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchange
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -113,7 +111,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     }
 
     @Reference
-    public void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider){
+    public void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
         super.setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
     }
 
@@ -162,7 +160,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         msg.setMessageHeader(createMessageHeader(uuid, now));
         msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().addAll(timeSeriesList);
         if (!msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().isEmpty()) {
-            msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().forEach(message->{
+            msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage().forEach(message -> {
                 values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
                         message.getUtilitiesTimeSeries().getID().getValue());
             });
@@ -205,12 +203,12 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, RangeSets::union));
         return profileRanges.entrySet().stream()
                 .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
-                        meterReading, interval, unit, now, item.getValidationData()))
+                        meterReading, interval, unit, now, item.getReadingStatuses()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    long calculateNumberOfReadingsInTimeSeries(List<UtilsTmeSersERPItmChgReqMsg> list){
+    long calculateNumberOfReadingsInTimeSeries(List<UtilsTmeSersERPItmChgReqMsg> list) {
         long count = 0;
         for (UtilsTmeSersERPItmChgReqMsg msg : list) {
             count = count + msg.getUtilitiesTimeSeries().getItem().size();
@@ -219,25 +217,25 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     }
 
 
-    private static UtilsTmeSersERPItmChgReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now, MeterReadingValidationData validationStatuses) {
+    private static UtilsTmeSersERPItmChgReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now, Map<Instant, String> readingStatuses) {
         UtilsTmeSersERPItmChgReqMsg msg = new UtilsTmeSersERPItmChgReqMsg();
         msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
-        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, validationStatuses));
+        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, readingStatuses));
         return msg;
     }
 
-    private static UtilsTmeSersERPItmChgReqUtilsTmeSers createTimeSeries(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, MeterReadingValidationData validationStatuses) {
+    private static UtilsTmeSersERPItmChgReqUtilsTmeSers createTimeSeries(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Map<Instant, String> readingStatuses) {
         UtilsTmeSersERPItmChgReqUtilsTmeSers timeSeries = new UtilsTmeSersERPItmChgReqUtilsTmeSers();
         timeSeries.setID(createTimeSeriesID(profileId));
         meterReading.getIntervalBlocks().stream()
                 .map(IntervalBlock::getIntervals)
                 .flatMap(List::stream)
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
-                .map(reading -> createItem(reading, interval, unit, asString(validationStatuses.getValidationStatus(reading.getTimeStamp()).getValidationResult())))
+                .map(reading -> createItem(reading, interval, unit, readingStatuses != null ? readingStatuses.get(reading.getTimeStamp()) : "0"))
                 .forEach(timeSeries.getItem()::add);
         meterReading.getReadings().stream()
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
-                .map(reading -> createItem(reading, unit, asString(validationStatuses.getValidationStatus(reading.getTimeStamp()).getValidationResult())))
+                .map(reading -> createItem(reading, unit, readingStatuses != null ? readingStatuses.get(reading.getTimeStamp()) : "0"))
                 .forEach(timeSeries.getItem()::add);
         return timeSeries;
     }
