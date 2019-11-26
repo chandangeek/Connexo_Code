@@ -56,8 +56,6 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String referenceUuid;
     private Instant confirmationTime;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String resultURL;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Boolean bulk;
 
