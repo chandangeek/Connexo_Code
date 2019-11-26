@@ -217,11 +217,6 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.javaName())
                     .add();
-            /*table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.databaseName())
-                    .varChar()
-                    .notNull()
-                    .upTo(version(10,7))
-                    .add();*/
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.BULK.javaName())
