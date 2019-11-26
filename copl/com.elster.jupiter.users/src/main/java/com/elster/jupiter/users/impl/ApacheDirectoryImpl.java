@@ -30,7 +30,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -348,15 +347,13 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         if (attributes.get("uid") != null) {
             LdapUser ldapUser = new LdapUserImpl();
             String userName = attributes.get("uid").get().toString();
-            if (isUserValid(userName)) {
-                ldapUser.setUsername(userName);
-                ldapUser.setStatus(true);
-                if (attributes.get("pwdAccountLockedTime") != null
-                        && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
-                    ldapUser.setStatus(false);
-                }
-                ldapUsers.add(ldapUser);
+            ldapUser.setUsername(userName);
+            ldapUser.setStatus(true);
+            if (attributes.get("pwdAccountLockedTime") != null
+                    && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
+                ldapUser.setStatus(false);
             }
+            ldapUsers.add(ldapUser);
         }
     }
 
