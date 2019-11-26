@@ -122,19 +122,7 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void updateConnectionTaskJournalTable() {
-        executeSqlStatement("ALTER TABLE DDC_CONNECTIONTASKJRNL RENAME COLUMN COMSERVER TO COMPORT");
+        execute(dataModel, "ALTER TABLE DDC_CONNECTIONTASKJRNL RENAME COLUMN COMSERVER TO COMPORT");
     }
 
-    private void executeSqlStatement(String sqlStatement) {
-        try (Connection connection = dataModel.getConnection(true)) {
-            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-                Logger.getAnonymousLogger().info("Executing: " + sqlStatement);
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
 }

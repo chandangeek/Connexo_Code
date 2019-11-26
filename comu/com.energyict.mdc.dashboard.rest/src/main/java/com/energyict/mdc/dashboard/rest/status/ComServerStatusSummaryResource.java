@@ -6,7 +6,7 @@ package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.ComServerAliveStatus;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;

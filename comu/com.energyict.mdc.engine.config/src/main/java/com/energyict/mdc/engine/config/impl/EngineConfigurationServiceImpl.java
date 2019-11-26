@@ -32,7 +32,7 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.ComServerAliveStatus;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
@@ -605,7 +605,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         if (comServerAliveOptional.isPresent()) {
             return comServerAliveOptional.get();
         } else {
-            ComServerAliveStatusImpl comServerAlive = this.dataModel.getInstance(ComServerAliveStatusImpl.class).initialize(comServer, clock.instant(), getComServerStatusAliveFreq());
+            ComServerAliveStatusImpl comServerAlive = this.dataModel.getInstance(ComServerAliveStatusImpl.class).initialize(comServer, clock.instant(), getComServerStatusAliveFrequency());
             comServerAlive.save();
             return comServerAlive;
         }
@@ -622,7 +622,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public Integer getComServerStatusAliveFreq() {
+    public Integer getComServerStatusAliveFrequency() {
         try {
             String val = bundleContext.getProperty(COM_SERVER_STATUS_ALIVE_FREQ_PROP);
             return val == null ? ComServerAliveStatusImpl.DEFAULT_FREQUENCY_MINUTES : Integer.valueOf(val);

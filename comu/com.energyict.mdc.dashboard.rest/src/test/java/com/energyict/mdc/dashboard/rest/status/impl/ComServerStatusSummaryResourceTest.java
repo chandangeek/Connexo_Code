@@ -6,7 +6,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.ComServerAliveStatus;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfo;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryInfo;
