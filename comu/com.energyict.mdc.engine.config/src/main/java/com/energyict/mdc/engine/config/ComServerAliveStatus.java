@@ -1,14 +1,16 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.common.comserver;
+package com.energyict.mdc.engine.config;
 
-import aQute.bnd.annotation.ConsumerType;
+import com.energyict.mdc.common.comserver.ComServer;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.Optional;
 
-@ConsumerType
+@ProviderType
 public interface ComServerAliveStatus {
 
     ComServer getComServer();

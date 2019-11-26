@@ -500,11 +500,11 @@ Ext.define('Dal.view.creationrules.EditForm', {
             priorityValue = 100;
         }
 
-        priorityLabel = (priority <= 2) ? Uni.I18n.translate('alarm.priority.veryLow', 'DAL', 'Very low') :
-            (priority <= 4) ? Uni.I18n.translate('alarm.priority.low', 'DAL', 'Low') :
-                (priority <= 6) ? Uni.I18n.translate('alarm.priority.medium', 'DAL', 'Medium') :
-                    (priority <= 8) ? Uni.I18n.translate('alarm.priority.high', 'DAL', 'High') :
-                        Uni.I18n.translate('alarm.priority.veryHigh', 'DAL', 'Very high');
+        priorityLabel = (priority <= 2) ? Uni.I18n.translate('alarm.priority.veryLow', 'DAL', 'Very low') :
+            (priority <= 4) ? Uni.I18n.translate('alarm.priority.low', 'DAL', 'Low') :
+                (priority <= 6) ? Uni.I18n.translate('alarm.priority.medium', 'DAL', 'Medium') :
+                    (priority <= 8) ? Uni.I18n.translate('alarm.priority.high', 'DAL', 'High') :
+                        Uni.I18n.translate('alarm.priority.veryHigh', 'DAL', 'Very high');
 
 
         labelPriority.setText(priorityLabel + ' (' + priorityValue + ')');

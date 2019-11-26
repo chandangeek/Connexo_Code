@@ -168,7 +168,7 @@ public enum TableSpecs {
 
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
-            table.index("IX_DDC_DEVICE_SERIALNUMBER").on(serialNumber).add();
+            table.index("IX_DDC_DEVICE_SERIALNUMBER").on(serialNumber).add().since(version(10, 7, 1));
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
             table.audit(DDC_DEVICE.name())
                     .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
