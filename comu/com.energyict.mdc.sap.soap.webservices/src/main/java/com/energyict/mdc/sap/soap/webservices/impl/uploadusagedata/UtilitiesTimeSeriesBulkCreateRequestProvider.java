@@ -74,8 +74,8 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     public UtilitiesTimeSeriesBulkCreateRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                         SAPCustomPropertySets sapCustomPropertySets,
-                                                        BundleContext bundleContext) {
-        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, bundleContext);
+                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider);
     }
 
     @Override

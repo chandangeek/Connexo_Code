@@ -32,7 +32,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
-import org.osgi.framework.BundleContext;
+
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -66,12 +66,13 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     AbstractUtilitiesTimeSeriesBulkRequestProvider(PropertySpecService propertySpecService,
                                                    DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                    SAPCustomPropertySets sapCustomPropertySets,
-                                                   BundleContext bundleContext) {
+                                                   ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
         setPropertySpecService(propertySpecService);
         setDataExportServiceCallType(dataExportServiceCallType);
         setThesaurus(thesaurus);
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
+        setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
     }
 
 
