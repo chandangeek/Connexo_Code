@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -16,6 +17,7 @@ import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,6 +64,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
                 this.forcedDelayPropertySpec(),
+                this.pollingDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
                 this.bulkRequestPropertySpec(),
                 this.cipheringTypePropertySpec(),
@@ -128,6 +131,15 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
                 .named(FORCED_DELAY, PropertyTranslationKeys.V2_ELSTER_FORCED_DELAY)
                 .describedAs(PropertyTranslationKeys.V2_ELSTER_FORCED_DELAY_DESCRIPTION)
                 .setDefaultValue(DEFAULT_FORCED_DELAY)
+                .finish();
+    }
+
+    private PropertySpec pollingDelayPropertySpec() {
+        return this.propertySpecService
+                .durationSpec()
+                .named(DlmsSessionProperties.POLLING_DELAY, PropertyTranslationKeys.V2_DLMS_POLLING_DELAY)
+                .describedAs(PropertyTranslationKeys.V2_DLMS_POLLING_DELAY_DESCRIPTION)
+                .setDefaultValue(Duration.ofMillis(0))
                 .finish();
     }
 
