@@ -49,7 +49,8 @@ abstract class AbstractDataSelector implements DataSelector {
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
         Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
-        Map<Long, Optional<Instant>> lastRuns = activeItems.stream().collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastRun));
+        Map<Long, Optional<Instant>> previousSuccessfulRuns = activeItems.stream()
+                .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedDate));
         CustomMeterReadingItemDataSelector itemDataSelector = getItemDataSelector();
 
         try {
@@ -57,8 +58,9 @@ abstract class AbstractDataSelector implements DataSelector {
             Map<Long, Optional<MeterReadingData>> updateData = new HashMap<>();
             for (ReadingTypeDataExportItem activeItem : activeItems) {
                 selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, activeItem));
-                if (lastRuns.containsKey(activeItem.getId()) && lastRuns.get(activeItem.getId()).isPresent()) {
-                    updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, activeItem, lastRuns.get(activeItem.getId()).get()));
+                Optional<Instant> lastSuccessfulRun = previousSuccessfulRuns.getOrDefault(activeItem.getId(), Optional.empty());
+                if (lastSuccessfulRun.isPresent()) {
+                    updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, activeItem, lastSuccessfulRun.get()));
                 } else {
                     updateData.put(activeItem.getId(), Optional.empty());
                 }
@@ -67,7 +69,7 @@ abstract class AbstractDataSelector implements DataSelector {
 
             long numberOfItemsCreatedOrUpdated = activeItems.stream()
                     .filter(i -> (selectedData.get(i.getId()).isPresent() || updateData.get(i.getId()).isPresent()))
-                    .collect(Collectors.counting());
+                    .count();
             long numberOfItemsSkipped = activeItems.size() - numberOfItemsCreatedOrUpdated;
 
             occurrence.summarize(
@@ -79,7 +81,8 @@ abstract class AbstractDataSelector implements DataSelector {
                     .flatMap(item -> Stream.of(
                             item.getValue(),
                             updateData.get(item.getKey())))
-                    .flatMap(Functions.asStream()).collect(Collectors.toList());
+                    .flatMap(Functions.asStream())
+                    .collect(Collectors.toList());
             return collect.stream();
         } finally {
             if (itemDataSelector.getExportCount() == 0 && itemDataSelector.getUpdateCount() == 0) {

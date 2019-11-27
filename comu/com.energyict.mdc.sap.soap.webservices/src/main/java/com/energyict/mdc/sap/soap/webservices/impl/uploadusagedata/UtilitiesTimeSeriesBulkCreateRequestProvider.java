@@ -6,7 +6,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
-import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -26,7 +25,6 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.Quantity;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesERPItemBulkCreateRequestCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesERPItemBulkCreateRequestCOutService;
@@ -41,8 +39,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -61,7 +57,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateRequestProvider",
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
@@ -78,13 +73,8 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     public UtilitiesTimeSeriesBulkCreateRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                         SAPCustomPropertySets sapCustomPropertySets,
-                                                        BundleContext bundleContext) {
-        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, bundleContext);
-    }
-
-    @Activate
-    public void activate(BundleContext bundleContext) {
-        initNumberOfReadingsPerMsg(bundleContext);
+                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider);
     }
 
     @Override
@@ -118,6 +108,11 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     @Reference(target = "(name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME + ")")
     public void setInboundPart(InboundSoapEndPointProvider inboundPart) {
         // need to know that response from SAP can be processed correctly
+    }
+
+    @Reference
+    public void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider){
+        super.setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -161,11 +156,11 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
 
     @Override
-    UtilsTmeSersERPItmBulkCrteReqMsg createMessageFromTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, String uuid, SetMultimap<String, String> values, Instant now) {
+    UtilsTmeSersERPItmBulkCrteReqMsg createMessageFromTimeSeries(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, String uuid, SetMultimap<String, String> values, Instant now) {
         UtilsTmeSersERPItmBulkCrteReqMsg msg = new UtilsTmeSersERPItmBulkCrteReqMsg();
         msg.setMessageHeader(createMessageHeader(uuid, now));
         msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().addAll(timeSeriesList);
-        if (msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().size() > 0) {
+        if (!msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().isEmpty()) {
             msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage().forEach(message->{
                 values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
                         message.getUtilitiesTimeSeries().getID().getValue());
@@ -190,13 +185,13 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Override
-    void prepareTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> timeSeriesList, MeterReadingData item, Instant now) {
+    List<UtilsTmeSersERPItmCrteReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
         ReadingType readingType = item.getItem().getReadingType();
         TemporalAmount interval = readingType.getIntervalLength()
                 .orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
-        final Range<Instant> allReadingsRange = getRange(meterReading);
+        Range<Instant> allReadingsRange = getRange(meterReading);
         Map<String, RangeSet<Instant>> profileRanges = item.getItem().getReadingContainer().getChannelsContainers().stream()
                 .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(allReadingsRange))
                 .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(allReadingsRange)))
@@ -205,15 +200,15 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
                 .flatMap(channelAndRange -> getTimeSlicedProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
-                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), RangeSets::union));
-
-        profileRanges.entrySet().stream().map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
-                meterReading, interval, unit, now, item.getValidationData()))
-                .forEach(timeSeriesList::add);
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, RangeSets::union));
+        return profileRanges.entrySet().stream()
+                .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
+                        meterReading, interval, unit, now, item.getValidationData()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    long calculateNumberOfReadingsInTimeSerieses(List<UtilsTmeSersERPItmCrteReqMsg> list){
+    long calculateNumberOfReadingsInTimeSeries(List<UtilsTmeSersERPItmCrteReqMsg> list){
         long count = 0;
         for (UtilsTmeSersERPItmCrteReqMsg msg : list) {
             count = count + msg.getUtilitiesTimeSeries().getItem().size();

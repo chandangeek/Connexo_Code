@@ -91,7 +91,6 @@ public class MasterMeterRegisterChangeRequestCustomPropertySet implements Custom
                         .stringSpec()
                         .named(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.ID)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()

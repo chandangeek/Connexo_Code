@@ -16,6 +16,7 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -46,6 +48,33 @@ public class UpgraderV10_7_1 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, version(10, 7, 1));
         createNewlyAddedServiceCallTypes();
         updateEndpointNames();
+        dropOldUrlColumns();
+    }
+
+    private void dropOldUrlColumns() {
+        List<String> oldColumnsSql = ImmutableList.<String>builder()
+                .add("ALTER TABLE T01_SAP_C01 DROP COLUMN CONFIRMATION_URL")
+                .add("ALTER TABLE T01_SAP_C01JRNL DROP COLUMN CONFIRMATION_URL")
+                .add("ALTER TABLE SAP_CPS_MR2 DROP COLUMN CONFIRMATION_URL")
+                .add("ALTER TABLE SAP_CPS_MR2 DROP COLUMN RESULT_URL")
+                .add("ALTER TABLE SAP_CPS_MR2JRNL DROP COLUMN CONFIRMATION_URL")
+                .add("ALTER TABLE SAP_CPS_MR2JRNL DROP COLUMN RESULT_URL")
+                .add("ALTER TABLE SAP_CPS_MR3 DROP COLUMN RESULT_URL")
+                .add("ALTER TABLE SAP_CPS_MR3JRNL DROP COLUMN RESULT_URL")
+                .build();
+
+        try (Connection connection = this.dataModel.getConnection(true);
+            Statement statement = connection.createStatement()) {
+            oldColumnsSql.forEach(oldColumn -> {
+                try {
+                    execute(statement, oldColumn);
+                } catch (Exception e) {
+                    // no action if column already not exists
+                }
+            });
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     private void updateEndpointNames() {

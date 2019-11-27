@@ -18,9 +18,14 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
+import com.elster.jupiter.export.impl.NullDataFormatterFactory;
+import com.elster.jupiter.export.impl.ReadingDataSelectorConfigImpl;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
@@ -33,6 +38,13 @@ import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
@@ -52,6 +64,10 @@ import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.servicecall.impl.ServiceCallStateChangeTopicHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.RelativeDate;
+import com.elster.jupiter.time.RelativeField;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -60,9 +76,11 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.impl.ValidationModule;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -71,9 +89,12 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
-import java.util.ArrayList;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
@@ -87,7 +108,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -103,6 +123,7 @@ public class DataExportServiceCallIT {
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
+            bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
         }
     }
 
@@ -110,9 +131,9 @@ public class DataExportServiceCallIT {
     private static final String UUID = "facade3e-c632-11e8-a355-529269fb1459";
     private static final String ANOTHER_UUID = "4ff58443-1234-4aed-ae6e-d1cd4db81f21";
     private static final String DEVICE_NAME_1 = "DEVICE_1";
-    private static final String MRID_1 = "MRID_1";
+    private static final String MRID_1 = "0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static final String DEVICE_NAME_2 = "DEVICE_2";
-    private static final String MRID_2 = "MRID_2";
+    private static final String MRID_2 = "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0";
     private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
@@ -121,7 +142,9 @@ public class DataExportServiceCallIT {
     private static ServiceCallHandler serviceCallHandler;
     private static CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
     private static TransactionService transactionService;
-    private static List<ReadingTypeDataExportItem> itemList = new ArrayList<>();
+    private static long dataSourceId1;
+    private static long dataSourceId2;
+    private static List<ReadingTypeDataExportItem> itemList;
 
     @Rule
     public TestRule transactional = new TransactionalRule(transactionService);
@@ -137,7 +160,7 @@ public class DataExportServiceCallIT {
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
                     new CalendarModule(),
-                    new MeteringModule("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"),
+                    new MeteringModule(MRID_1, MRID_2),
                     new PartyModule(),
                     new DataVaultModule(),
                     new EventsModule(),
@@ -186,16 +209,49 @@ public class DataExportServiceCallIT {
             serviceCallHandler = new WebServiceDataExportServiceCallHandler(thesaurus, dataExportServiceCallType, serviceCallCPS);
             serviceCallService.addServiceCallHandler(serviceCallHandler, ImmutableMap.of("name", WebServiceDataExportServiceCallHandler.NAME));
 
-            ReadingTypeDataExportItem exportItem1 = mock(ReadingTypeDataExportItem.class, RETURNS_DEEP_STUBS);
-            when(exportItem1.getDomainObject().getName()).thenReturn(DEVICE_NAME_1);
-            when(exportItem1.getReadingType().getMRID()).thenReturn(MRID_1);
+            MeteringService meteringService = injector.getInstance(MeteringService.class);
+            AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+            Meter meter1 = amrSystem.newMeter(DEVICE_NAME_1, DEVICE_NAME_1).create();
+            Meter meter2 = amrSystem.newMeter(DEVICE_NAME_2, DEVICE_NAME_2).create();
+            ReadingType readingType1 = meteringService.getReadingType(MRID_1).get();
+            ReadingType readingType2 = meteringService.getReadingType(MRID_2).get();
+            meter1.activate(Instant.now()).getChannelsContainer().createChannel(readingType1);
+            meter2.activate(Instant.now()).getChannelsContainer().createChannel(readingType2);
+            EndDeviceGroup group = injector.getInstance(MeteringGroupsService.class).createEnumeratedEndDeviceGroup(meter1, meter2).setName("group").create();
+            DataFormatterFactory nullFormatterFactory = injector.getInstance(NullDataFormatterFactory.class);
+            dataExportService.addFormatter(nullFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
+            TimeService timeService = injector.getInstance(TimeService.class);
+            RelativePeriod relativePeriod = timeService
+                    .createRelativePeriod("Name", RelativeDate.NOW.with(RelativeField.MONTH.minus(1)), RelativeDate.NOW, timeService.getRelativePeriodCategories());
+            ExportTask exportTask = dataExportService.newBuilder()
+                    .setName("Export task")
+                    .setApplication("Admin")
+                    .setScheduleExpression(Never.NEVER)
+                    .selectingMeterReadings()
+                    .fromExportPeriod(relativePeriod)
+                    .fromEndDeviceGroup(group)
+                    .fromReadingType(readingType1)
+                    .fromReadingType(readingType2)
+                    .endSelection()
+                    .setDataFormatterFactoryName(nullFormatterFactory.getName())
+                    .create();
+            ReadingDataSelectorConfigImpl selectorConfig = (ReadingDataSelectorConfigImpl) exportTask.getReadingDataSelectorConfig().get();
+            selectorConfig.addExportItem(meter1, readingType1);
+            selectorConfig.addExportItem(meter2, readingType2);
+            selectorConfig.save();
 
-            ReadingTypeDataExportItem exportItem2 = mock(ReadingTypeDataExportItem.class, RETURNS_DEEP_STUBS);
-            when(exportItem2.getDomainObject().getName()).thenReturn(DEVICE_NAME_2);
-            when(exportItem2.getReadingType().getMRID()).thenReturn(MRID_2);
+            dataSourceId1 = selectorConfig.getExportItems().stream()
+                    .filter(item -> item.getReadingType().getMRID().equals(MRID_1))
+                    .findAny()
+                    .get()
+                    .getId();
+            dataSourceId2 = selectorConfig.getExportItems().stream()
+                    .filter(item -> item.getReadingType().getMRID().equals(MRID_2))
+                    .findAny()
+                    .get()
+                    .getId();
 
-            itemList.add(exportItem1);
-            itemList.add(exportItem2);
+            itemList = selectorConfig.getExportItems();
 
             return null;
         });
@@ -212,17 +268,25 @@ public class DataExportServiceCallIT {
         ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         assertProperties(serviceCall, DefaultState.ONGOING, UUID, TIMEOUT, null);
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+
+        assertThat(srvCallChild.stream().filter(srvCallChd->{
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd->{
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -232,16 +296,41 @@ public class DataExportServiceCallIT {
 
         assertThat(serviceCall.getOrigin()).contains("Pulse");
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.ONGOING, UUID, TIMEOUT, null);
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+
+        assertThat(srvCallChild.stream().filter(srvCallChd->{
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd->{
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
+
+        // clear what was created in another transaction
+        transactionService.runInIndependentTransaction(serviceCall::delete);
+    }
+
+    @Test
+    @Transactional
+    public void testStartAsyncWithNoDataSources() {
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(UUID, TIMEOUT, Collections.emptyList());
+
+        assertThat(serviceCall.getOrigin()).contains("Pulse");
+        assertThat(serviceCall.findChildren().stream().collect(Collectors.toList())).isEmpty();
+
+        assertProperties(serviceCall, DefaultState.ONGOING, UUID, TIMEOUT, null);
+
+        // clear what was created in another transaction
+        transactionService.runInIndependentTransaction(serviceCall::delete);
     }
 
     @Test
@@ -252,18 +341,26 @@ public class DataExportServiceCallIT {
         ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(dataExportServiceCallType.findServiceCall(UUID)).contains(serviceCall);
         assertThat(dataExportServiceCallType.findServiceCall(ANOTHER_UUID)).isEmpty();
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -273,8 +370,6 @@ public class DataExportServiceCallIT {
         ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.FAILED, UUID, TIMEOUT, error);
 
@@ -287,10 +382,19 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -300,8 +404,6 @@ public class DataExportServiceCallIT {
         dataExportServiceCallType.tryPassingServiceCall(serviceCall);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, TIMEOUT, null);
 
@@ -313,10 +415,19 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -326,8 +437,6 @@ public class DataExportServiceCallIT {
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.ONGOING);
@@ -338,10 +447,19 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -352,8 +470,6 @@ public class DataExportServiceCallIT {
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
 
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.SUCCESSFUL);
@@ -364,10 +480,19 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -378,8 +503,6 @@ public class DataExportServiceCallIT {
         dataExportServiceCallType.tryFailingServiceCall(serviceCall, error);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.FAILED);
@@ -390,10 +513,19 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -403,8 +535,6 @@ public class DataExportServiceCallIT {
         serviceCall.requestTransition(DefaultState.PAUSED);
         ServiceCallStatus status = dataExportServiceCallType.getStatus(serviceCall);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertThat(status.getServiceCall()).isEqualTo(serviceCall);
         assertThat(status.getState()).isSameAs(DefaultState.PAUSED);
@@ -415,10 +545,32 @@ public class DataExportServiceCallIT {
 
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+    }
+
+    @Test
+    @Transactional
+    public void testGetStatuses() {
+        ServiceCall serviceCall1 = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        dataExportServiceCallType.tryFailingServiceCall(serviceCall1, "Fail!");
+        ServiceCall serviceCall2 = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, itemList);
+        Map<ServiceCall, ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(ImmutableSet.of(serviceCall1, serviceCall2)).stream()
+                .collect(Collectors.toMap(ServiceCallStatus::getServiceCall, Function.identity()));
+
+        assertThat(statuses.keySet()).containsOnly(serviceCall1, serviceCall2);
+        ServiceCallStatus status = statuses.get(serviceCall1);
+        assertThat(status).isNotNull();
+        assertThat(status.getState()).isSameAs(DefaultState.FAILED);
+        assertThat(status.isOpen()).isFalse();
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isSuccessful()).isFalse();
+        assertThat(status.getErrorMessage()).contains("Fail!");
+        status = statuses.get(serviceCall2);
+        assertThat(status).isNotNull();
+        assertThat(status.getState()).isSameAs(DefaultState.ONGOING);
+        assertThat(status.isOpen()).isTrue();
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isSuccessful()).isFalse();
+        assertThat(status.getErrorMessage()).isEmpty();
     }
 
     @Test
@@ -472,16 +624,23 @@ public class DataExportServiceCallIT {
         ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, timeout, itemList);
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.FAILED, UUID, timeout, "No data export confirmation has been received in the configured timeout.");
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -492,16 +651,23 @@ public class DataExportServiceCallIT {
         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
         List<ServiceCall> srvCallChild = serviceCall.findChildren().stream().collect(Collectors.toList());
-        WebServiceDataExportChildDomainExtension extension1 = srvCallChild.get(0).getExtension(WebServiceDataExportChildDomainExtension.class).get();
-        WebServiceDataExportChildDomainExtension extension2 = srvCallChild.get(1).getExtension(WebServiceDataExportChildDomainExtension.class).get();
 
         assertProperties(serviceCall, DefaultState.SUCCESSFUL, UUID, timeout, null);
         assertThat(srvCallChild.get(0).getState()).isEqualTo(DefaultState.SUCCESSFUL);
         assertThat(srvCallChild.get(1).getState()).isEqualTo(DefaultState.SUCCESSFUL);
-        assertThat(extension1.getDeviceName()).isEqualTo(DEVICE_NAME_1);
-        assertThat(extension1.getReadingTypeMRID()).isEqualTo(MRID_1);
-        assertThat(extension2.getDeviceName()).isEqualTo(DEVICE_NAME_2);
-        assertThat(extension2.getReadingTypeMRID()).isEqualTo(MRID_2);
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_1) &&
+                    properties.getReadingTypeMRID().equals(MRID_1) &&
+                    properties.getDataSourceId() == dataSourceId1;
+        }).findFirst()).isPresent();
+
+        assertThat(srvCallChild.stream().filter(srvCallChd -> {
+            WebServiceDataExportChildDomainExtension properties = srvCallChd.getExtension(WebServiceDataExportChildDomainExtension.class).get();
+            return properties.getDeviceName().equals(DEVICE_NAME_2) &&
+                    properties.getReadingTypeMRID().equals(MRID_2) &&
+                    properties.getDataSourceId() == dataSourceId2;
+        }).findFirst()).isPresent();
     }
 
     @Test
@@ -511,6 +677,17 @@ public class DataExportServiceCallIT {
         serviceCallHandler.onStateChange(null, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
         serviceCallHandler.onStateChange(null, DefaultState.ONGOING, DefaultState.FAILED);
         serviceCallHandler.onStateChange(null, DefaultState.ONGOING, DefaultState.CANCELLED);
+    }
+
+    @Test
+    @Transactional
+    public void testGetDataSources() {
+        ServiceCall serviceCall = dataExportServiceCallType.startServiceCall(UUID, TIMEOUT, itemList);
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall)).containsOnly(itemList.toArray(new ReadingTypeDataExportItem[itemList.size()]));
+        serviceCall = dataExportServiceCallType.startServiceCall(ANOTHER_UUID, TIMEOUT, Collections.emptyList());
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall)).isEmpty();
+        serviceCall = dataExportServiceCallType.startServiceCall("UUID", TIMEOUT, itemList.subList(0, 1));
+        assertThat(dataExportServiceCallType.getDataSources(serviceCall)).containsOnly(itemList.get(0));
     }
 
     private static void assertProperties(ServiceCall serviceCall, DefaultState state, String uuid, long timeout, String error) {
