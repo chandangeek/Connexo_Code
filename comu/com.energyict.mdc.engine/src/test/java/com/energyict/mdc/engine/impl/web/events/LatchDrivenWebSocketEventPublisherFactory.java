@@ -27,14 +27,24 @@ public class LatchDrivenWebSocketEventPublisherFactory extends WebSocketEventPub
     }
 
     @Override
+    public WebSocketEventPublisher newWebSocketEventPublisher(EventAPIStatistics eventAPIStatistics) {
+        return new LatchDrivenWebSocketEventPublisher(this.latch, comServer, serviceProvider, eventPublisher, eventAPIStatistics);
+    }
+
+    @Override
     public WebSocketEventPublisher newWebSocketEventPublisher(EventAPIStatistics eventAPIStatistics, WebSocketCloseEventListener webSocketCloseEventListener) {
         return new LatchDrivenWebSocketEventPublisher(this.latch, comServer, serviceProvider, eventPublisher, eventAPIStatistics, webSocketCloseEventListener);
     }
 
     private class LatchDrivenWebSocketEventPublisher extends WebSocketEventPublisher {
         private CountDownLatch latch;
-        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, EventAPIStatistics eventAPIStatistics, WebSocketCloseEventListener closeEventListener) {
 
+        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, EventAPIStatistics eventAPIStatistics) {
+            super(comServer, serviceProvider, eventPublisher, eventAPIStatistics);
+            this.latch = latch;
+        }
+
+        private LatchDrivenWebSocketEventPublisher(CountDownLatch latch, RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, EventAPIStatistics eventAPIStatistics, WebSocketCloseEventListener closeEventListener) {
             super(comServer, serviceProvider, eventPublisher, eventAPIStatistics, closeEventListener);
             this.latch = latch;
         }
