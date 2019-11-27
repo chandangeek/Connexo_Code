@@ -11,7 +11,6 @@ import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
-import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
@@ -30,8 +29,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -115,7 +112,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                 instant = instant.plus(1, ChronoUnit.HOURS);
             }
 
-            Map<Instant, DataValidationStatus> validationStatuses = new HashMap<>();
+            Map<Instant, String> readingStatuses = new HashMap<>();
             List<IntervalBlock> intervalBlocks = new ArrayList<>();
             intervalBlocks.add(buildIntervalBlock(item, readings));
             for (IntervalBlock intervalBlock : intervalBlocks) {
@@ -123,10 +120,10 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                     Optional<IntervalReading> readingOpt = intervalBlock.getIntervals().stream()
                             .filter(r -> r.getTimeStamp().equals(time)).findAny();
                     if (readingOpt.isPresent()) {
-                        validationStatuses.put(time, new SimpleDataValidationStatusImpl(time, ValidationResult.ACTUAL));
+                        readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
                     } else {
                         readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
-                        validationStatuses.put(time, new SimpleDataValidationStatusImpl(time, ValidationResult.INVALID));
+                        readingStatuses.put(time, ReadingStatus.INVALID.getValue());
                     }
                 }
             }
@@ -134,7 +131,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarker(currentExportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -281,10 +278,10 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
             readings = filterReadings(readings);
             MeterReadingImpl meterReading = asMeterReading(item, readings);
-            Map<Instant, DataValidationStatus> validationStatuses = new HashMap<>();
-            readings.stream().forEach(r -> validationStatuses.put(r.getTimeStamp(), new SimpleDataValidationStatusImpl(r.getTimeStamp(), ValidationResult.ACTUAL)));
+            Map<Instant, String> readingStatuses = new HashMap<>();
+            readings.stream().forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
             updateCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarkerForUpdate()));
+            return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
