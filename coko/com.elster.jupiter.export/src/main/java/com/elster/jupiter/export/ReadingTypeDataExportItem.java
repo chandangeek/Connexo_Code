@@ -30,6 +30,8 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     Optional<Instant> getLastExportedDate();
 
+    Optional<Instant> getLastExportedPeriodEnd();
+
     boolean isActive();
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
@@ -41,6 +43,8 @@ public interface ReadingTypeDataExportItem extends HasId {
     void setLastRun(Instant lastRun);
 
     void setLastExportedDate(Instant lastExportedDate);
+
+    void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd);
 
     void update();
 
