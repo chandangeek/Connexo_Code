@@ -30,7 +30,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.jetty.jaas.spi.UserInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +78,6 @@ public class RemoteJSONTypeMapper implements ObjectMapperServiceImpl.JSONTypeMap
         add(OfflineDeviceForComTaskGroup.class);
         add(TypedProperties.class);
         add(DeviceOfflineFlags.class);
-        add(UserInfo.class);
         add(HexString.class);
         add(EndDeviceEventType.class);
         add(SpatialCoordinates.class);

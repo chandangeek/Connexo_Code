@@ -30,7 +30,6 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.inject.Inject;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -48,6 +47,7 @@ public class WebSocketQueryApiService {
     public static final String ERROR_PREFIX = "Error: ";
     public static final String FAILURE_TO_DECODE_REQUEST = "failure to decompress and decode request: ";
     public static final String MESSAGE_NOT_UNDERSTOOD = "message not understood: ";
+    public static final int DEFAULT_MAX_BINARY_MESSAGE_SIZE = 500000;
 
 
     private final Logger logger;
@@ -213,6 +213,7 @@ public class WebSocketQueryApiService {
             comServerProperties.load(comserverPropertiesStream);
         } catch (IOException e) {
             logger.severe("Could not read properties file: " + e.getMessage());
+            return DEFAULT_MAX_BINARY_MESSAGE_SIZE;
         }
         RemoteProperties remoteProperties = new RemoteProperties(comServerProperties);
         return remoteProperties.getMaxMessageSize();
