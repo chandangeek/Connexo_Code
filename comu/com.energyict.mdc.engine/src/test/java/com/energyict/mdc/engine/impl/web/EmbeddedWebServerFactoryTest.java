@@ -119,7 +119,6 @@ public class EmbeddedWebServerFactoryTest {
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
-        assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
     }
 
 

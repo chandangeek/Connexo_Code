@@ -189,7 +189,7 @@ public class CollectedRegisterListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: device having id 1; nr of collected registers: 1}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 1; nr of collected registers: 1}");
     }
 
     private DeviceRegisterList getDeviceRegisterList() {

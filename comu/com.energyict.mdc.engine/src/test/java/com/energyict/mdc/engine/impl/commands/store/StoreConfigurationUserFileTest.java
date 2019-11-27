@@ -70,6 +70,6 @@ public class StoreConfigurationUserFileTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: device having id 97; file name: " + FILE_NAME + "; file extension: " + FILE_EXTENSION + "}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 97; file name: " + FILE_NAME + "; file extension: " + FILE_EXTENSION + "}");
     }
 }

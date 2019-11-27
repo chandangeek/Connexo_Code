@@ -268,7 +268,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
         command.execute(deviceProtocol, executionContext);
         String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
-        assertEquals("Create meter events from load profile reading qualities {No events created from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+        assertEquals("Create meter events from load profile reading qualities {No events created from profile deviceIdentifier = null and ObisCode = 0.0.99.98.0.255}", journalMessage);
     }
 
     @Test
@@ -285,7 +285,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         initializeDeviceLoadProfileWith(ProtocolReadingQualities.DEVICE_ERROR);
         command.execute(deviceProtocol, executionContext);
         String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
-        assertEquals("Create meter events from load profile reading qualities {Created 1 event(s) from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+        assertEquals("Create meter events from load profile reading qualities {Created 1 event(s) from profile deviceIdentifier = null and ObisCode = 0.0.99.98.0.255}", journalMessage);
     }
 
     @Test

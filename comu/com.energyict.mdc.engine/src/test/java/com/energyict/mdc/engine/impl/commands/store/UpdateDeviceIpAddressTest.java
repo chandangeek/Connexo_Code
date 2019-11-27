@@ -37,6 +37,6 @@ public class UpdateDeviceIpAddressTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("Update device connection property {deviceIdentifier: device having id 1; connection property name: connectionTaskPropertyName; connection property value: 10.0.1.50:4059}");
+        assertThat(journalMessage).contains("Update device connection property {deviceIdentifier: id 1; connection property name: connectionTaskPropertyName; connection property value: 10.0.1.50:4059}");
     }
 }

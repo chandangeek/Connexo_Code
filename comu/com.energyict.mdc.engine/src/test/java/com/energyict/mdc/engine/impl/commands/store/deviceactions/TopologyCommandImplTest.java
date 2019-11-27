@@ -78,8 +78,8 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         CollectedData collectedData = topologyCommand.getCollectedData().get(0);
         assertThat(collectedData).isInstanceOf(CollectedTopology.class);
         assertThat(description).isEqualTo("Executed topology protocol task" +
-                " {topologyAction: UPDATE; updatedTopologyMaster: device having id 1; originalSlaves: None; receivedSlaves: device having id 2, device having id 3;" +
-                " additionalDeviceInfo: DeviceProtocolProperty {deviceIdentifier: device having id 1; property: myProperty; value: myPropertyValue}}"
+                " {topologyAction: UPDATE; updatedTopologyMaster: id 1; originalSlaves: None; receivedSlaves: id 2, id 3;" +
+                " additionalDeviceInfo: DeviceProtocolProperty {deviceIdentifier: id 1; property: myProperty; value: myPropertyValue}}"
         );
     }
 
@@ -109,7 +109,7 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         assertThat(topologyCommand.getCollectedData()).hasSize(1);
         CollectedData collectedData = topologyCommand.getCollectedData().get(0);
         assertThat(collectedData).isInstanceOf(CollectedTopology.class);
-        assertThat(description).isEqualTo("Executed topology protocol task {topologyAction: UPDATE; updatedTopologyMaster: device having id 1; originalSlaves: None; receivedSlaves: device having id 2, device having id 3}");
+        assertThat(description).isEqualTo("Executed topology protocol task {topologyAction: UPDATE; updatedTopologyMaster: id 1; originalSlaves: None; receivedSlaves: id 2, id 3}");
     }
 
     @Test

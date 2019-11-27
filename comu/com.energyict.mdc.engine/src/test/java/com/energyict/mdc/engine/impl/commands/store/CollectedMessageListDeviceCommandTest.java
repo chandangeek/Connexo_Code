@@ -111,8 +111,8 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 12, message status: confirmed, sent date: " + getClock().instant() +
-                ", protocolInfo: null; messageIdentifier: message having id 32, message status: indoubt, sent date: " + getClock().instant() + ", protocolInfo: null}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed, sent date: " + getClock().instant() +
+                ", protocolInfo: null; messageIdentifier: messageId = 32, message status: indoubt, sent date: " + getClock().instant() + ", protocolInfo: null}");
     }
 
     @Test
@@ -138,7 +138,7 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 12, message status: confirmed; messageIdentifier: message having id 32, message status: indoubt}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed; messageIdentifier: messageId = 32, message status: indoubt}");
     }
 
     @Test

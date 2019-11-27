@@ -51,7 +51,7 @@ public class UpdateDeviceMessageTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 1; message status: confirmed}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 1; message status: confirmed}");
     }
 
     @Test
@@ -68,6 +68,6 @@ public class UpdateDeviceMessageTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 1; message status: confirmed; sent date: " + sentDate.toString() + "; protocolInfo: Additional ProtocolInfo}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 1; message status: confirmed; sent date: " + sentDate.toString() + "; protocolInfo: Additional ProtocolInfo}");
     }
 }
