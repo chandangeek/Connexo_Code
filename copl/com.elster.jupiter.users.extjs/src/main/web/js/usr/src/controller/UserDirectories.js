@@ -439,12 +439,12 @@ Ext.define('Usr.controller.UserDirectories', {
                     if (typeof users === 'string') {
                         users = [users];
                     }
-                    users.forEach(function (user) {
-                        var rowIndex = userDirectoryExtUsersStore.findExact('name', user);
-                        if (rowIndex != -1) {
-                            userDirectoryExtUsersStore.removeAt(rowIndex);
-                        }
-                    });
+                    // users.forEach(function (user) {
+                    //     var rowIndex = userDirectoryExtUsersStore.findExact('name', user);
+                    //     if (rowIndex != -1) {
+                    //         userDirectoryExtUsersStore.removeAt(rowIndex);
+                    //     }
+                    // });
                 }
 
                 allUsersView.setLoading(false);
@@ -582,6 +582,7 @@ Ext.define('Usr.controller.UserDirectories', {
                 if (userDirectoryUsersStore.findExact('name', record.get('name')) == -1) {
                     var user = Ext.create('Usr.model.MgmUserDirectoryUser');
                     user.set('name', record.get('name'));
+                    user.set('dn', record.get('dn'));
                     user.set('status', false);
                     user.set('statusDisplay', Uni.I18n.translate('userDirectories.userStatus.inactive', 'USR', 'Inactive'));
                     userDirectoryUsersStore.add(user);
