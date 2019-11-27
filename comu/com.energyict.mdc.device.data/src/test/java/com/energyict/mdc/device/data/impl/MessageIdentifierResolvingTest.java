@@ -48,6 +48,8 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     Device device;
 
+    Device realDevice;
+
     DeviceIdentifier deviceIdentifier;
 
     @BeforeClass
@@ -66,9 +68,9 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
     }
 
     private Device createDevice() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
-        device.save();
-        return device;
+        realDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        realDevice.save();
+        return realDevice;
     }
 
     @Test
@@ -101,6 +103,6 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
     public void testProtocolDeviceMessageIdentifierByDeviceAndProtocolInfoParts() throws Exception {
         DeviceMessageServiceImpl spiedService = spy(deviceMessageService);
         spiedService.findDeviceMessageByIdentifier(new DeviceMessageIdentifierByDeviceAndProtocolInfoParts(deviceIdentifier, "part_A", "part_B"));
-        verify(spiedService).findByDeviceAndProtocolInfoParts(device, "part_A", "part_B");
+        verify(spiedService).findByDeviceAndProtocolInfoParts(realDevice, "part_A", "part_B");
     }
 }

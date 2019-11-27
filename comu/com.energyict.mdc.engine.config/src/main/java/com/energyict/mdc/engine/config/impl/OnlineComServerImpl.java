@@ -23,12 +23,14 @@ import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
 import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,7 +138,8 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
-    @XmlElement
+    @JsonIgnore
+    @XmlTransient
     public String getQueryApiPostUriIfSupported () {
         if (Checks.is(this.getQueryApiPostUri()).emptyOrOnlyWhiteSpace()) {
             return super.getQueryApiPostUriIfSupported();
