@@ -10,7 +10,9 @@ import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +88,8 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
         // No post processing by default
     }
 
+    @JsonIgnore
+    @XmlTransient
     public ComTaskExecution getComTaskExecution() {
         return comTaskExecution;
     }

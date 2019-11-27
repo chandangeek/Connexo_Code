@@ -10,15 +10,20 @@ import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Range;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +40,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     /**
      * The unique identifier of the LoadProfile for this collected data.
      */
-    private final LoadProfileIdentifier loadProfileIdentifier;
+    private LoadProfileIdentifier loadProfileIdentifier;
 
     /**
      * The collected intervals for the LoadProfile.
@@ -71,6 +76,10 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
      */
     private boolean allowIncompleteLoadProfileData = false;
 
+    public DeviceLoadProfile() {
+        super();
+    }
+
     public DeviceLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         super();
         this.loadProfileIdentifier = loadProfileIdentifier;
@@ -101,7 +110,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     @Override
     public List<ChannelInfo> getChannelInfo() {
         if (this.deviceChannelInfo == null) {
-            return Collections.emptyList();
+            this.deviceChannelInfo = new ArrayList<ChannelInfo>();
         }
         return deviceChannelInfo;
     }
@@ -116,6 +125,11 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         this.doStoreOlderValues = doStoreOlderValues;
     }
 
+    @XmlElements( {
+            @XmlElement(type = LoadProfileIdentifierById.class),
+            @XmlElement(type = LoadProfileIdentifierByObisCodeAndDevice.class),
+            @XmlElement(type = LoadProfileIdentifierFirstOnDevice.class),
+    })
     @Override
     public LoadProfileIdentifier getLoadProfileIdentifier() {
         return this.loadProfileIdentifier;

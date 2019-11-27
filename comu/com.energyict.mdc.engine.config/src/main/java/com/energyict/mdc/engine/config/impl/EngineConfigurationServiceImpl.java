@@ -23,6 +23,7 @@ import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_6_1SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -234,6 +235,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public Finder<ComServer> filterComServers(Condition condition) {
+        return DefaultFinder.of(ComServer.class, condition.and(where("obsoleteDate").isNull()), dataModel);
+    }
+
+    @Override
     public Optional<ComServer> findComServerBySystemName() {
         return this.findComServer(HostName.getCurrent());
     }
@@ -257,6 +263,15 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
                         .and(where("onlineComServer").isEqualTo(onlineComServer))
                         .and(where("obsoleteDate").isNull());
         return convertComServerListToRemoteComServers(getComServerDataMapper().select(condition));
+    }
+
+    @Override
+    public List<OfflineComServer> findOfflineComServersForOnlineComServer(OnlineComServer onlineComServer) {
+        Condition condition =
+                where("class").isEqualTo(OFFLINE_COMSERVER_DISCRIMINATOR)
+                        .and(where("onlineComServer").isEqualTo(onlineComServer))
+                        .and(where("obsoleteDate").isNull());
+        return convertComServerListToOfflineComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
@@ -287,7 +302,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder() {
+    public OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> newOfflineComServerBuilder() {
         return dataModel.getInstance(OfflineComServerImpl.OfflineComServerBuilderImpl.class);
     }
 

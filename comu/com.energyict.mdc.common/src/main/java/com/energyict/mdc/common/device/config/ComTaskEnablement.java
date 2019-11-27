@@ -13,6 +13,7 @@ import com.energyict.mdc.common.tasks.TaskPriorityConstants;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Optional;
 
 /**
@@ -149,4 +150,10 @@ public interface ComTaskEnablement extends HasId {
     int getMaxNumberOfTries ();
 
     void setMaxNumberOfTries(int maxNumberOfTries);
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 }

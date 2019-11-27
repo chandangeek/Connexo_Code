@@ -25,7 +25,10 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.json</artifactId>
+        </dependency>
         <!-- Jupiter modules -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -135,10 +138,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.json</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -347,6 +346,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.zone</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

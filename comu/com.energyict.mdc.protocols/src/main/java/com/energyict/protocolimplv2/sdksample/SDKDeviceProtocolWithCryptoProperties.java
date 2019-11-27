@@ -213,9 +213,9 @@
 //        List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>();
 //        // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
 //        for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-//            this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getProfileObisCode());
-//            CollectedLoadProfileConfiguration loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
-//            if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
+//            this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getLoadProfileObisCode());
+//            CollectedLoadProfileConfiguration loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getLoadProfileObisCode(), loadProfileReader.getDeviceIdentifier());
+//            if (!loadProfileReader.getLoadProfileObisCode().equals(getIgnoredObisCode())) {
 //                loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
 //            } else {
 //                this.logger.log(Level.INFO, "Marking loadProfile as not supported due to the value of the " + SDKLoadProfileDialectProperties.ActualFields.NOT_SUPPORTED_LOAD_PROFILE.propertySpecName() + " property");

@@ -13,6 +13,6 @@ package com.energyict.mdc.engine.impl.web.events;
  */
 interface WebSocketCloseEventListener {
 
-    void closedFrom(WebSocketEventPublisher webSocketEventPublisher);
+    public void cleanUpClosedPublishers();
 
 }

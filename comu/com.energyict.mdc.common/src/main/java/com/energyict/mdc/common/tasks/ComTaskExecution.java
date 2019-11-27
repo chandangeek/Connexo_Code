@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -116,6 +117,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return The Device for which tasks are executed
      */
     Device getDevice();
+
+    void setDevice(Device ignore);
 
     /**
      * Gets the {@link ComPort} that is currently
@@ -412,6 +415,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     ComTask getComTask();
 
+    void setComTask(ComTask ignore);
+
     Optional<ComSchedule> getComSchedule();
 
     /**
@@ -423,4 +428,10 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     Optional<ConnectionFunction> getConnectionFunction();
 
     void setConnectionFunction(ConnectionFunction connectionFunction);
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 }

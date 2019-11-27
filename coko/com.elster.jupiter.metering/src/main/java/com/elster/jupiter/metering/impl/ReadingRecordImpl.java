@@ -9,6 +9,9 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+
 public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingRecord {
 
 	ReadingRecordImpl(ChannelContract channel, TimeSeriesEntry entry) {

@@ -29,6 +29,13 @@ public interface ComSessionJournalEntry {
     ComSession getComSession();
 
     /**
+     * Set the {@link ComSession} to which this entry belongs.
+     *
+     * @arg The ComSession
+     */
+    void setComSession (ComSession comSession);
+
+    /**
      * Gets the Date on which this ComSessionJournalEntry was created,
      * i.e. the Date on which the event that caused this ComSessionJournalEntry
      * to be created occurred.

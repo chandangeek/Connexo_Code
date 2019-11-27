@@ -41,7 +41,6 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
             for (Map.Entry<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
                 comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
             }
-
             comServerDAO.updateLastDataSourceReadingsFor(lastReadings, lastLogBooks);
         }
         catch (RuntimeException e) {

@@ -8,6 +8,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.system.SystemModeService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -45,6 +46,7 @@ public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeSe
     private volatile DeviceService deviceService;
     private volatile UpgradeService upgradeService;
     private volatile DataVaultService dataVaultService;
+    private volatile SystemModeService systemModeService;
     private volatile ProtocolPluggableService pluggableServicedeviceService;
 
     private volatile boolean installed = false;
@@ -55,13 +57,14 @@ public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeSe
     }
 
     // For unit testing purposes
-    public DeviceProtocolUpgradeServiceImpl(OrmService ormService, SecurityManagementService securityManagementService, DeviceService deviceService, UpgradeService upgradeService, DataVaultService dataVaultService, ProtocolPluggableService pluggableServicedeviceService) {
+    public DeviceProtocolUpgradeServiceImpl(OrmService ormService, SecurityManagementService securityManagementService, DeviceService deviceService, UpgradeService upgradeService, DataVaultService dataVaultService, SystemModeService systemModeService, ProtocolPluggableService pluggableServicedeviceService) {
         this();
         setOrmService(ormService);
         setSecurityManagementService(securityManagementService);
         setDeviceService(deviceService);
         setUpgradeService(upgradeService);
         setDataVaultService(dataVaultService);
+        setSystemModeService(systemModeService);
         setProtocolPluggableService(pluggableServicedeviceService);
     }
 
@@ -91,6 +94,11 @@ public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeSe
     }
 
     @Reference
+    public void setSystemModeService(SystemModeService systemModeService) {
+        this.systemModeService = systemModeService;
+    }
+
+    @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.pluggableServicedeviceService = protocolPluggableService;
     }
@@ -111,6 +119,7 @@ public class DeviceProtocolUpgradeServiceImpl implements DeviceProtocolUpgradeSe
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
+                bind(SystemModeService.class).toInstance(systemModeService);
                 bind(ProtocolPluggableService.class).toInstance(pluggableServicedeviceService);
             }
         };

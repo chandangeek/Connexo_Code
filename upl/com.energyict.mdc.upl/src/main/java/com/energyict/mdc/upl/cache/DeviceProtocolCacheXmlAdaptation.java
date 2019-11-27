@@ -45,7 +45,8 @@ public class DeviceProtocolCacheXmlAdaptation {
             Base64.Encoder encoder = Base64.getEncoder();
             return encoder.encodeToString(out.toByteArray());
         } catch (IOException e) {
-            return null;
+            e.printStackTrace();
+            throw new RuntimeException("Error when serializing the device protocol cache: " + e.getMessage());
         }
     }
 
@@ -55,7 +56,8 @@ public class DeviceProtocolCacheXmlAdaptation {
             ObjectInputStream deSerializer = new ServerObjectInputStream(in);
             return (DeviceProtocolCache) deSerializer.readObject();
         } catch (IOException | ClassNotFoundException | ClassCastException e) {
-            return null;
+            e.printStackTrace();
+            throw new RuntimeException("Error when deserializing the device protocol cache: " + e.getMessage());
         }
     }
 

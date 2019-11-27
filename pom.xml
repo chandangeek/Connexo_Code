@@ -372,7 +372,7 @@
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>bundle-version-maven-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>1.6-SNAPSHOT</version>
                 </plugin>
                 <plugin>
                     <groupId>com.elster.plugin</groupId>

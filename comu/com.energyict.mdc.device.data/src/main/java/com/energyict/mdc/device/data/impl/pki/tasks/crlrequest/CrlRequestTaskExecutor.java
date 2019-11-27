@@ -110,7 +110,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
             throw new CRLRequestTaskException(MessageSeeds.CA_WITH_NAME_NOT_CONFIGURED, caName);
         }
         SecurityAccessor<?> securityAccessor = crlRequestTaskProperty.getSecurityAccessor();
-        CertificateWrapper certificateWrapper = securityAccessor.getActualValue()
+        CertificateWrapper certificateWrapper = securityAccessor.getActualPassphraseWrapperReference()
                 .filter(CertificateWrapper.class::isInstance)
                 .map(CertificateWrapper.class::cast)
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));

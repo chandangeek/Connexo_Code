@@ -18,7 +18,7 @@ import com.energyict.protocol.meteridentification.IdentificationFactory;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
 import java.math.BigDecimal;

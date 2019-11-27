@@ -47,9 +47,11 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.*;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
@@ -63,9 +65,15 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @since 2012-04-16 (11:07)
  */
 @ValidNextExecutionSpecsWithMinimizeConnectionsStrategy(groups = {Save.Create.class, Save.Update.class})
+@XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask> implements ScheduledConnectionTask, PersistenceAware {
 
-    private final SchedulingService schedulingService;
+    private SchedulingService schedulingService;
     private ComWindow comWindow;
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED + "}")
@@ -80,9 +88,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private int maxNumberOfTries = -1;
     private UpdateStrategy updateStrategy = new Noop();
     private boolean calledByComtaskExecution = false;
-    private final ServerCommunicationTaskService communicationTaskService;
-    private final CustomPropertySetService customPropertySetService;
+    private ServerCommunicationTaskService communicationTaskService;
+    private CustomPropertySetService customPropertySetService;
     private boolean strategyChange = false;
+    private TaskStatus taskStatus;
+
+    protected ScheduledConnectionTaskImpl() {
+        super();
+    }
 
     @Inject
     protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService,  CustomPropertySetService customPropertySetService) {
@@ -114,6 +127,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    @XmlAttribute
     public NextExecutionSpecs getNextExecutionSpecs() {
         return this.updateStrategy.getNextExecutionSpecs();
     }
@@ -141,7 +155,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.comWindow = comWindow == null || comWindow.isEmpty() ? null : comWindow;
     }
 
+    @XmlAttribute
+    public Boolean getStrategyChange() {
+        return strategyChange;
+    }
+
     @Override
+    @XmlAttribute
     public ConnectionStrategy getConnectionStrategy() {
         return connectionStrategy;
     }
@@ -494,6 +514,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    @XmlAttribute
     public Instant getPlannedNextExecutionTimestamp() {
         return this.plannedNextExecutionTimestamp;
     }
@@ -509,6 +530,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    @XmlAttribute
     public int getNumberOfSimultaneousConnections() {
         return numberOfSimultaneousConnections;
     }
@@ -519,8 +541,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    @XmlAttribute
     public TaskStatus getTaskStatus() {
-        return ServerConnectionTaskStatus.getApplicableStatusFor(this, this.now());
+        if (this.now() != null) {
+            taskStatus = ServerConnectionTaskStatus.getApplicableStatusFor(this, this.now());
+        }
+        return taskStatus;
     }
 
     private Instant doAsSoonAsPossibleSchedule(Instant when, PostingMode postingMode) {
@@ -642,6 +668,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    @XmlAttribute
     public int getMaxNumberOfTries() {
         if (getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
             return DEFAULT_MAX_NUMBER_OF_TRIES;
@@ -669,6 +696,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
+    @XmlTransient
     public List<ComTaskExecution> getScheduledComTasks() {
         return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this).find();
     }

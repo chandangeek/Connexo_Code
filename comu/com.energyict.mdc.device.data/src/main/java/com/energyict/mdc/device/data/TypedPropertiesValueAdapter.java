@@ -107,11 +107,11 @@ public class TypedPropertiesValueAdapter {
     private static Object adaptKeyAccessorTypeToUPLValue(Device device, SecurityAccessorType securityAccessorType) {
         Optional<SecurityAccessor> optionalKeyAccessor = device.getSecurityAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType.getId())
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getId() == securityAccessorType.getId())
                 .findFirst();
 
-        if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
-            Object actualValue = optionalKeyAccessor.get().getActualValue().get();
+        if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualPassphraseWrapperReference().isPresent()) {
+            Object actualValue = optionalKeyAccessor.get().getActualPassphraseWrapperReference().get();
             return adaptActualValueToUPLValue(actualValue, securityAccessorType);
         }
         return null; // Return value as-is
@@ -138,8 +138,8 @@ public class TypedPropertiesValueAdapter {
             }
         } else if (actualValue instanceof PlaintextPassphrase) {
             PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) actualValue;
-            if (plaintextPassphrase.getPassphrase().isPresent()) {
-                return plaintextPassphrase.getPassphrase().get();
+            if (plaintextPassphrase.getEncryptedPassphrase().isPresent()) {
+                return plaintextPassphrase.getEncryptedPassphrase().get();
             }
         } else if (actualValue instanceof CertificateWrapper) {
             //Also include the trust store of this CertificateWrapper (if it's present)
