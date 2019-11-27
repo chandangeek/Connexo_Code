@@ -10,6 +10,11 @@ Ext.define('Dxp.model.DataSource', {
             name: 'lastExportedDate',
             dateFormat: 'time',
             type: 'date'
+        },
+        {
+            name: 'lastExportedPeriodEnd',
+            dateFormat: 'time',
+            type: 'date'
         }
     ]
 });
