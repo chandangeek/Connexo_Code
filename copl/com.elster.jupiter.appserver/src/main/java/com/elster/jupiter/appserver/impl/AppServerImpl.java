@@ -70,6 +70,7 @@ class AppServerImpl implements AppServer {
     private final Provider<EndPointForAppServerImpl> webServiceForAppServerProvider;
     private final EventService eventService;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final IAppService iAppService;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = APP_SERVER_NAME_SIZE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 + "}")
@@ -98,7 +99,8 @@ class AppServerImpl implements AppServer {
                   MessageService messageService, JsonService jsonService, Thesaurus thesaurus,
                   TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
                   Provider<EndPointForAppServerImpl> webServiceForAppServerProvider,
-                  WebServicesService webServicesService, EventService eventService, EndPointConfigurationService endPointConfigurationService) {
+                  WebServicesService webServicesService, EventService eventService, EndPointConfigurationService endPointConfigurationService,
+                  IAppService iAppService) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileImportService = fileImportService;
@@ -111,6 +113,7 @@ class AppServerImpl implements AppServer {
         this.webServicesService = webServicesService;
         this.eventService = eventService;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.iAppService = iAppService;
     }
 
     static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
@@ -381,6 +384,7 @@ class AppServerImpl implements AppServer {
         public SubscriberExecutionSpecImpl createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
             SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.newActive(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
             getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
+            iAppService.registerQueue(subscriberExecutionSpec);
             return subscriberExecutionSpec;
         }
 
@@ -388,6 +392,7 @@ class AppServerImpl implements AppServer {
         public SubscriberExecutionSpecImpl createInactiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
             SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.newInactive(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
             getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
+            iAppService.registerQueue(subscriberExecutionSpec);
             return subscriberExecutionSpec;
         }
 

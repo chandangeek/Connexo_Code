@@ -169,6 +169,14 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tou.campaign</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
 
         <!-- Web libraries -->
         <!-- will be embedded in the bundle -->
@@ -294,22 +302,12 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>messaging</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>tasks</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

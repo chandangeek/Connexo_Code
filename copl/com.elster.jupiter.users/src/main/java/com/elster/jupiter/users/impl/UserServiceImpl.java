@@ -175,7 +175,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class, version(10, 4), UpgraderV10_4.class
+                    version(10, 2), UpgraderV10_2.class,
+                    version(10, 3), UpgraderV10_3.class,
+                    version(10, 4), UpgraderV10_4.class,
+                    version(10, 4, 8), UpgraderV10_4_8.class
             ));
         }
     }
