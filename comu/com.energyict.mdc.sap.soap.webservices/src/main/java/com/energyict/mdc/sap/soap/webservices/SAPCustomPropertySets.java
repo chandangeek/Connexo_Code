@@ -13,6 +13,7 @@ import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+@ProviderType
 public interface SAPCustomPropertySets {
 
     Thesaurus getThesaurus();
