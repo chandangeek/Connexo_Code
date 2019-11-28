@@ -133,7 +133,6 @@ public class BasicComCommandBehavior implements CanProvideDescriptionTitle {
             case Ok: {
                 return this.defaultJournalingLogLevel();
             }
-            case DataWarning:
             case ConfigurationWarning: {
                 return LogLevel.WARN;
             }
