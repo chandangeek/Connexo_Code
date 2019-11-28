@@ -112,6 +112,8 @@ public class AppServerImplTest {
     private Provider<EndPointForAppServerImpl> webServiceForAppServerProvider;
     @Mock
     private EndPointConfigurationService endPointConfigurationService;
+    @Mock
+    private IAppService iAppService;
 
     @Before
     public void setUp() {
@@ -119,7 +121,7 @@ public class AppServerImplTest {
         when(dataModel.mapper(SubscriberExecutionSpecImpl.class)).thenReturn(subscriberExecutionSpecFactory);
         when(dataModel.mapper(ImportScheduleOnAppServerImpl.class)).thenReturn(importScheduleOnAppServerFactory);
         when(subscriberSpec.getDestination()).thenReturn(destination);
-        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService, webServiceForAppServerProvider, webServicesService, eventService, endPointConfigurationService));
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService, webServiceForAppServerProvider, webServicesService, eventService, endPointConfigurationService, iAppService));
 
         when(dataModel.getInstance(SubscriberExecutionSpecImpl.class)).thenReturn(new SubscriberExecutionSpecImpl(dataModel, messageService));
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);

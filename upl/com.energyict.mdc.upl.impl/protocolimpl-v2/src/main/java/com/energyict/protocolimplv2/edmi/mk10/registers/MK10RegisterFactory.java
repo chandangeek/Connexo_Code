@@ -12,7 +12,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
 import com.energyict.protocolimpl.edmi.common.command.CommandResponseException;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -10,12 +10,19 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 
 import com.google.common.base.Joiner;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
 
+@XmlRootElement
 public final class ReadingQualityType {
 
-    private final String code;
+    private String code;
+
+    // for serialization only
+    public ReadingQualityType() {
+    }
 
     public ReadingQualityType(String code) {
         this.code = Objects.requireNonNull(code);
@@ -29,6 +36,7 @@ public final class ReadingQualityType {
         return new ReadingQualityType(Joiner.on('.').join(system.ordinal(), category.ordinal(), index));
     }
 
+    @XmlAttribute
     public String getCode() {
         return code;
     }

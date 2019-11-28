@@ -41,6 +41,8 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -80,7 +82,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         }
     }
 
-    private final ProtocolPluggableService protocolPluggableService;
+    private ProtocolPluggableService protocolPluggableService;
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -116,6 +118,10 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    public PartialConnectionTaskImpl() {
+        super(PartialConnectionTask.class);
+    }
 
     @Inject
     PartialConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService) {
@@ -159,6 +165,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getConfiguration() {
         return this.configuration.get();
     }
@@ -243,14 +250,20 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         }
     }
 
+    private TypedProperties typedProperties;
+
     @Override
+    @XmlElement
     public TypedProperties getTypedProperties() {
-        TypedProperties typedProperties = TypedProperties.inheritingFrom(this.getPluggableClass().getProperties(getPropertySpecs()));
-        this.getProperties()
-                .stream()
-                .filter(p -> p.getValue() != null)
-                .forEach(p -> typedProperties.setProperty(p.getName(), p.getValue()));
-        return new UnmodifiableTypedProperties(typedProperties);
+        if (typedProperties == null && protocolPluggableService != null) {
+            TypedProperties typedProps = TypedProperties.inheritingFrom(this.getPluggableClass().getProperties(getPropertySpecs()));
+            this.getProperties()
+                    .stream()
+                    .filter(p -> p.getValue() != null)
+                    .forEach(p -> typedProps.setProperty(p.getName(), p.getValue()));
+            typedProperties = new UnmodifiableTypedProperties(typedProps);
+        }
+        return typedProperties;
     }
 
     private List<PropertySpec> getPropertySpecs() {
@@ -258,11 +271,13 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
+    @XmlTransient
     public ConnectionType getConnectionType() {
         return this.getPluggableClass().getConnectionType();
     }
 
     @Override
+    @XmlTransient
     public ConnectionTypePluggableClass getPluggableClass() {
         if (pluggableClass == null && pluggableClassId != 0) {
             pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId).get();
@@ -437,14 +452,14 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
 
         @Override
         public List<PropertySpec> getPropertySpecs() {
-            return this.connectionType.getPropertySpecs().stream().
+            return getInnerConnectionType().getPropertySpecs().stream().
                     map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getSecurityAccessorTypes(), ps)).
                     collect(Collectors.toList());
         }
 
         @Override
         public Optional<PropertySpec> getPropertySpec(String name) {
-            return this.connectionType.getPropertySpec(name).
+            return getInnerConnectionType().getPropertySpec(name).
                     map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getConfiguration().getDeviceType().getSecurityAccessorTypes(), ps));
         }
     }

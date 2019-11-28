@@ -1,0 +1,31 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<html><body><h1>com.elster.jupiter.orm</h1>
+<p>This bundle provides object relational mapping.
+The main interface is DataModel.
+DataModel provides support for both generating the DDL to create the schema, as well for mapping Java objects to tuples
+A DataModel is identified by a unique three letter acronym. This acronym is typically used to prefix all the tables in the DataModel.
+This bundle uses ORM for its own DataModel instance.
+In contrast to persistence units in JPA, DataModels can depend on other DataModels, 
+that is a table in one DataModel can specify a foreign key to a table in an other DataModel.
+The set of all DataModels in an application form a DAG (Directed Acyclic Graph)</p> 
+<h2>Release History</h2>
+<h3>Version 1.1.0</h3>
+<ul><li>Added DataMapper.at().find() api for time travel queries</li>
+<li>Increased fetch size to 100 for dataMapper find  with no where clause</li>
+</ul>
+<h3>Version 1.0.1</h3>
+<p>initial version</p>
+<h2>Exported Packages</h2>
+<table>
+<tr><th>package</th><th>version</th><th>description</th></tr>
+<tr><td>com.elster.jupiter.orm</td><td>1.1.0</td><td>Public Api</td></tr>
+<tr><td>com.elster.jupiter.orm.associations</td><td>1.0.0</td><td>Classes and Interfaces for Associations</td></tr>
+<tr><td>com.elster.jupiter.orm.callback</td><td>1.0.0</td><td>Callback Interfaces</td></tr>
+<tr><td>com.elster.jupiter.orm.schema</td><td>1.0.0</td><td>Interfaces for Schema Migration</td></tr>
+</table>
+<h2>Provided Services</h2>
+<ul><li>com.elster.jupiter.orm.OrmService</li></ul>
+</body></html>

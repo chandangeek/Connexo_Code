@@ -12,7 +12,7 @@ public class Register {
     /**
      * Holds the ID of the AMR system his register
      */
-    private final int rtuRegisterId;
+    private final long rtuRegisterId;
 
     /**
      * The serial number of the rtu
@@ -31,7 +31,7 @@ public class Register {
      * @param obisCode      the obisCode of the Register
      * @param serialNumber  the serialNumber of the device containing the Register
      */
-    public Register(final int rtuRegisterId, final ObisCode obisCode, final String serialNumber) {
+    public Register(final long rtuRegisterId, final ObisCode obisCode, final String serialNumber) {
         this.rtuRegisterId = rtuRegisterId;
         this.obisCode = obisCode;
         this.serialNumber = serialNumber;
@@ -60,7 +60,7 @@ public class Register {
      *
      * @return the requested ID
      */
-    public int getRtuRegisterId() {
+    public long getRtuRegisterId() {
         return this.rtuRegisterId;
     }
 

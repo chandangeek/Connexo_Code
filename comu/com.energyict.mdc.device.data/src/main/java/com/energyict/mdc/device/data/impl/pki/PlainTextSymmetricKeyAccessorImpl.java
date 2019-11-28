@@ -13,6 +13,11 @@ import com.google.inject.Inject;
 
 public class PlainTextSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
+    public PlainTextSymmetricKeyAccessorImpl(){
+        super();
+
+    }
+
     @Inject
     public PlainTextSymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super(dataModel, securityManagementService, thesaurus);
@@ -27,7 +32,7 @@ public class PlainTextSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl 
     }
 
     private void doRenewValue() {
-        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(getKeyAccessorType());
+        PlaintextSymmetricKey symmetricKeyWrapper = (PlaintextSymmetricKey) securityManagementService.newSymmetricKeyWrapper(getKeyAccessorTypeReference());
         symmetricKeyWrapper.generateValue();
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();

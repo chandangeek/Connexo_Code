@@ -31,4 +31,22 @@ public interface Request {
 
     void applyTo(EventPublisher eventPublisher);
 
+    /**
+     * Marks the request to produce binary events
+     * when publishing to the interested party
+     * that posted this Request.
+     *
+     * @param flag The flag value
+     */
+    public void setBinaryEvents (boolean flag);
+
+    /**
+     * Tests if this Request was marked to produce
+     * binary events when publishing to the interested
+     * party that posted this Request.
+     *
+     * @return <code>true</code> iff this Request was marked to produce binary events
+     */
+    public boolean useBinaryEvents ();
+
 }

@@ -4,11 +4,6 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventOrAction;
-import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
-import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
@@ -21,7 +16,6 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
 import com.elster.jupiter.metering.impl.upgraders.GasDayRelativePeriodCreator;
 import com.elster.jupiter.nls.Layer;
@@ -34,23 +28,16 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -60,8 +47,7 @@ public class InstallerImpl implements FullInstaller {
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final int SLOT_COUNT = 8;
-    private static final String IMPORT_FILE_NAME = "enddeviceeventtypes.csv";
-    private static final String NOT_APPLICABLE = "n/a";
+
 
     private final ServerMeteringService meteringService;
     private final TimeService timeService;
@@ -78,6 +64,7 @@ public class InstallerImpl implements FullInstaller {
     private final InstallerV10_2Impl installerV10_2;
     private final InstallerV10_3Impl installerV10_3;
     private final PrivilegesProviderV10_3 privilegesProviderV10_3;
+    private final DefaultDeviceEventTypesInstaller defaultDeviceEventTypesInstaller;
 
     @Inject
     public InstallerImpl(BundleContext bundleContext,
@@ -93,7 +80,8 @@ public class InstallerImpl implements FullInstaller {
                          MeteringDataModelServiceImpl meteringDataModelService,
                          InstallerV10_2Impl installerV10_2,
                          InstallerV10_3Impl installerV10_3,
-                         PrivilegesProviderV10_3 privilegesProviderV10_3) {
+                         PrivilegesProviderV10_3 privilegesProviderV10_3,
+                         DefaultDeviceEventTypesInstaller defaultDeviceEventTypesInstaller) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
@@ -109,6 +97,7 @@ public class InstallerImpl implements FullInstaller {
         this.createAllReadingTypes = meteringDataModelService.isCreateAllReadingTypes();
         this.requiredReadingTypes = meteringDataModelService.getRequiredReadingTypes();
         this.clock = clock;
+        this.defaultDeviceEventTypesInstaller = defaultDeviceEventTypesInstaller;
     }
 
     @Override
@@ -152,7 +141,7 @@ public class InstallerImpl implements FullInstaller {
         );
         doTry(
                 "Create default End Device Event Types",
-                () -> createEndDeviceEventTypes(meteringService, getClass(), logger),
+                () -> defaultDeviceEventTypesInstaller.installIfNotPresent(logger),
                 logger
         );
         doTry(
@@ -201,91 +190,6 @@ public class InstallerImpl implements FullInstaller {
     private void createEventTypes() {
         for (EventType eventType : EventType.values()) {
             eventType.install(eventService);
-        }
-    }
-
-    static void createEndDeviceEventTypes(ServerMeteringService meteringService, Class clazz, Logger logger) {
-        try (InputStream resourceAsStream = clazz.getClassLoader()
-                .getResourceAsStream(clazz.getPackage().getName().replace('.', '/') + '/' + IMPORT_FILE_NAME)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
-            for (String line : new BufferedReaderIterable(reader)) {
-                String[] fields = line.split(",");
-
-                for (EndDeviceType deviceType : endDeviceTypes(fields[0])) {
-                    for (EndDeviceDomain domain : domains(fields[1])) {
-                        for (EndDeviceSubDomain subDomain : subDomains(fields[2])) {
-                            for (EndDeviceEventOrAction eventOrAction : eventOrActions(fields[3])) {
-                                String code = EndDeviceEventTypeCodeBuilder
-                                        .type(deviceType)
-                                        .domain(domain)
-                                        .subDomain(subDomain)
-                                        .eventOrAction(eventOrAction)
-                                        .toCode();
-                                if (meteringService.getEndDeviceEventType(code).isPresent()) {
-                                    logger.finer("Skipping code " + code + ": already exists");
-                                } else {
-                                    logger.finer("adding code " + code);
-                                    meteringService.createEndDeviceEventType(code);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    static Iterable<EndDeviceEventOrAction> eventOrActions(String field) {
-        if ("*".equals(field)) {
-            return Arrays.asList(EndDeviceEventOrAction.values());
-        } else {
-            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
-                return Collections.singletonList(EndDeviceEventOrAction.NA);
-            } else {
-                return Collections.singletonList(EndDeviceEventOrAction.valueOf(sanitized(field)));
-            }
-        }
-    }
-
-    private static String sanitized(String field) {
-        return field.toUpperCase().replaceAll("[\\-%]", "");
-    }
-
-    static Iterable<EndDeviceSubDomain> subDomains(String field) {
-        if ("*".equals(field)) {
-            return Arrays.asList(EndDeviceSubDomain.values());
-        } else {
-            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
-                return Collections.singletonList(EndDeviceSubDomain.NA);
-            } else {
-                return Collections.singletonList(EndDeviceSubDomain.valueOf(sanitized(field)));
-            }
-        }
-    }
-
-    static Iterable<EndDeviceDomain> domains(String field) {
-        if ("*".equals(field)) {
-            return Arrays.asList(EndDeviceDomain.values());
-        } else {
-            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
-                return Collections.singletonList(EndDeviceDomain.NA);
-            } else {
-                return Collections.singletonList(EndDeviceDomain.valueOf(sanitized(field)));
-            }
-        }
-    }
-
-    static Iterable<EndDeviceType> endDeviceTypes(String field) {
-        if ("*".equals(field)) {
-            return Arrays.asList(EndDeviceType.values());
-        } else {
-            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
-                return Collections.singletonList(EndDeviceType.NA);
-            } else {
-                return Collections.singletonList(EndDeviceType.valueOf(sanitized(field)));
-            }
         }
     }
 

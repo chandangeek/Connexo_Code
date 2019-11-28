@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Optional;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public interface LogBookIdentifier extends Identifier {
      *
      * @return The ObisCode
      */
-    @XmlAttribute
+    @XmlElement
     ObisCode getLogBookObisCode();
 
     DeviceIdentifier getDeviceIdentifier();

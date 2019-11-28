@@ -49,9 +49,11 @@ Ext.define('Bpm.processes.view.EditProcess', {
                             change: function(combobox, newValue) {
                                 var store = combobox.getStore();
 
-                                if (store.findRecord('type', newValue).raw.properties && Ext.isEmpty(store.findRecord('type', newValue).raw.properties )) {
+                                if (store.findRecord('type', newValue) && store.findRecord('type', newValue).properties() && store.findRecord('type', newValue).properties().count()) {
+                                    me.down('#custom-form').show()
+                                } else {
                                     me.down('#custom-form').hide()
-                                } else me.down('#custom-form').show()
+                                }
                             }
                         }
 

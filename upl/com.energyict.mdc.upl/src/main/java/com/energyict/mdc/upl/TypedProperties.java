@@ -228,6 +228,13 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
             } else {
                 return defaultValue;
             }
+        } else if (propertyName.equals("ForcedDelay")) {
+            if (valueFromThisLevel instanceof HashMap) {
+                valueFromThisLevel = ((HashMap) valueFromThisLevel).values().stream().findFirst().get();
+                return (T) Duration.ofMillis(((Integer) valueFromThisLevel).longValue());
+            } else {
+                return (T) valueFromThisLevel;
+            }
         } else {
             return (T) valueFromThisLevel;
         }

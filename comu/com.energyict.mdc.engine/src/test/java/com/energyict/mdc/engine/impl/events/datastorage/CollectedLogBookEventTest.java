@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;

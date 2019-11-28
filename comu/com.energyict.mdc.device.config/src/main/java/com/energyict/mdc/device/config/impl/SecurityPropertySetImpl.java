@@ -38,13 +38,21 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySe
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -72,6 +80,7 @@ import static java.util.stream.Collectors.toSet;
 @ValidClient(groups = {Save.Create.class, Save.Update.class})
 @ValidConfigurationSecurityProperties(groups = {Save.Create.class, Save.Update.class})
 //Do not remove the public access modifier: CXO-2786
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -80,9 +89,9 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private DeviceProtocol deviceProtocol;
     private int authenticationLevelId;
-    private AuthenticationDeviceAccessLevel authenticationLevel;
+    private AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel;
     private int encryptionLevelId;
-    private EncryptionDeviceAccessLevel encryptionLevel;
+    private EncryptionDeviceAccessLevel encryptionDeviceAccessLevel;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String clientDbValue;
     private Object client;
@@ -96,8 +105,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     @Valid
     private List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
-    private final ThreadPrincipalService threadPrincipalService;
-    private final ProtocolPluggableService protocolPluggableService;
+    private ThreadPrincipalService threadPrincipalService;
+    private ProtocolPluggableService protocolPluggableService;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -106,6 +115,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    public SecurityPropertySetImpl() {
+        super();
+    }
 
     @Inject
     public SecurityPropertySetImpl(
@@ -117,6 +130,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -219,15 +233,16 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    @XmlElement(type = UPLAuthenticationLevelAdapter.class)
     public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel() {
-        if (this.authenticationLevel == null) {
+        if (this.authenticationDeviceAccessLevel == null) {
             if (this.authenticationLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.authenticationLevel = new NoAuthentication();
+                this.authenticationDeviceAccessLevel = new NoAuthentication();
             } else {
-                this.authenticationLevel = this.findAuthenticationLevel(this.authenticationLevelId);
+                this.authenticationDeviceAccessLevel = this.findAuthenticationLevel(this.authenticationLevelId);
             }
         }
-        return this.authenticationLevel;
+        return this.authenticationDeviceAccessLevel;
     }
 
     /**
@@ -239,24 +254,28 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an AuthenticationDeviceAccessLevel with the specified id
      */
     private AuthenticationDeviceAccessLevel findAuthenticationLevel(int id) {
-        return this.getDeviceProtocol().getAuthenticationAccessLevels().stream()
-                .filter(level -> level.getId() == id)
-                .findAny()
-                .map(this.protocolPluggableService::adapt)
-                .map(AuthenticationDeviceAccessLevel.class::cast)
-                .orElse(new NoAuthentication());
+        if (this.getDeviceProtocol() != null) {
+            return this.getDeviceProtocol().getAuthenticationAccessLevels().stream()
+                    .filter(level -> level.getId() == id)
+                    .findAny()
+                    .map(this.protocolPluggableService::adapt)
+                    .map(AuthenticationDeviceAccessLevel.class::cast)
+                    .orElse(new NoAuthentication());
+        }
+        return null;
     }
 
     @Override
+    @XmlElement(type = UPLEncryptionLevelAdapter.class)
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel() {
-        if (this.encryptionLevel == null) {
+        if (this.encryptionDeviceAccessLevel == null) {
             if (this.encryptionLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.encryptionLevel = new NoEncryption();
+                this.encryptionDeviceAccessLevel = new NoEncryption();
             } else {
-                this.encryptionLevel = this.findEncryptionLevel(this.encryptionLevelId);
+                this.encryptionDeviceAccessLevel = this.findEncryptionLevel(this.encryptionLevelId);
             }
         }
-        return this.encryptionLevel;
+        return this.encryptionDeviceAccessLevel;
     }
 
     /**
@@ -268,11 +287,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private EncryptionDeviceAccessLevel findEncryptionLevel(int id) {
-        return this.getDeviceProtocol().getEncryptionAccessLevels().stream()
-                .filter(level -> level.getId() == id)
-                .findAny()
-                .map(this.protocolPluggableService::adapt)
-                .orElse(new NoEncryption());
+        if (this.getDeviceProtocol() != null) {
+            return this.getDeviceProtocol().getEncryptionAccessLevels().stream()
+                    .filter(level -> level.getId() == id)
+                    .findAny()
+                    .map(this.protocolPluggableService::adapt)
+                    .orElse(new NoEncryption());
+        }
+        return null;
     }
 
     @Override
@@ -287,13 +309,19 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    @XmlTransient
+    @JsonIgnore
     public Optional<PropertySpec> getClientSecurityPropertySpec() {
-        return getDeviceProtocol().getClientSecurityPropertySpec().isPresent()
-                ? Optional.of(UPLToConnexoPropertySpecAdapter.adaptTo(getDeviceProtocol().getClientSecurityPropertySpec().get()))
-                : Optional.empty();
+        if (this.getDeviceProtocol() != null) {
+            return getDeviceProtocol().getClientSecurityPropertySpec().isPresent()
+                    ? Optional.of(UPLToConnexoPropertySpecAdapter.adaptTo(getDeviceProtocol().getClientSecurityPropertySpec().get()))
+                    : Optional.empty();
+        }
+        return Optional.empty();
     }
 
     @Override
+    @JsonIgnore
     public SecuritySuite getSecuritySuite() {
         if (this.securitySuite == null) {
             if (this.securitySuiteId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
@@ -325,6 +353,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    @JsonIgnore
     public RequestSecurityLevel getRequestSecurityLevel() {
         if (this.requestSecurityLevel == null) {
             if (this.requestSecurityLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
@@ -372,6 +401,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    @JsonIgnore
     public ResponseSecurityLevel getResponseSecurityLevel() {
         if (this.responseSecurityLevel == null) {
             if (this.responseSecurityLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
@@ -413,11 +443,15 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
-        DeviceType deviceType = getDeviceConfiguration().getDeviceType();
-        return deviceType.getDeviceProtocolPluggableClass().orElseThrow(UnsupportedOperationException::new);
+        if (getDeviceConfiguration()  != null) {
+            DeviceType deviceType = getDeviceConfiguration().getDeviceType();
+            return deviceType.getDeviceProtocolPluggableClass().orElseThrow(UnsupportedOperationException::new);
+        }
+        return null;
     }
 
     @Override
+    @XmlElement(type = ConfigurationSecurityPropertyImpl.class)
     public List<ConfigurationSecurityProperty> getConfigurationSecurityProperties() {
         return Collections.unmodifiableList(configurationSecurityProperties);
     }
@@ -449,10 +483,18 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public Set<PropertySpec> getPropertySpecs() {
         Map<String, PropertySpec> result = new HashMap<>();
-        this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findAuthenticationLevel(this.authenticationLevelId).getSecurityProperties());
-        this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findEncryptionLevel(this.encryptionLevelId).getSecurityProperties());
-        this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findRequestSecurityLevel(this.requestSecurityLevelId).getSecurityProperties());
-        this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findResponseSecurityLevel(this.responseSecurityLevelId).getSecurityProperties());
+        if (this.findAuthenticationLevel(this.authenticationLevelId) != null) {
+            this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findAuthenticationLevel(this.authenticationLevelId).getSecurityProperties());
+        }
+        if (this.findEncryptionLevel(this.encryptionLevelId) != null) {
+            this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findEncryptionLevel(this.encryptionLevelId).getSecurityProperties());
+        }
+        if (this.findRequestSecurityLevel(this.requestSecurityLevelId) != null) {
+            this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findRequestSecurityLevel(this.requestSecurityLevelId).getSecurityProperties());
+        }
+        if (this.findResponseSecurityLevel(this.responseSecurityLevelId) != null) {
+            this.addMissingSecurityPropertiesAndAvoidDuplicates(result, this.findResponseSecurityLevel(this.responseSecurityLevelId).getSecurityProperties());
+        }
 
         return result.values()
                 .stream()
@@ -469,20 +511,24 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceConfiguration.get();
+        if (deviceConfiguration.isPresent()) {
+            return this.deviceConfiguration.get();
+        }
+        return null;
     }
 
     @Override
     public void setAuthenticationLevelId(int authenticationLevelId) {
         this.authenticationLevelId = authenticationLevelId;
-        this.authenticationLevel = null;
+        this.authenticationDeviceAccessLevel = null;
     }
 
     @Override
     public void setEncryptionLevelId(int encryptionLevelId) {
         this.encryptionLevelId = encryptionLevelId;
-        this.encryptionLevel = null;
+        this.encryptionDeviceAccessLevel = null;
     }
 
     @Override
@@ -543,6 +589,17 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         public int hashCode() {
             return getId();
         }
+
+        @Override
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+            //Ignore, only used for JSON
+        }
     }
 
     private static class NoEncryption implements EncryptionDeviceAccessLevel {
@@ -573,6 +630,17 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         @Override
         public int hashCode() {
             return getId();
+        }
+
+        @Override
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+            //Ignore, only used for JSON
         }
     }
 
@@ -625,6 +693,17 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         public int hashCode() {
             return getId();
         }
+
+        @Override
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+            //Ignore, only used for JSON
+        }
     }
 
     private static class NoRequestSecurity implements RequestSecurityLevel {
@@ -656,6 +735,17 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         public int hashCode() {
             return getId();
         }
+
+        @Override
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+            //Ignore, only used for JSON
+        }
     }
 
     private static class NoResponseSecurity implements ResponseSecurityLevel {
@@ -686,6 +776,17 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         @Override
         public int hashCode() {
             return getId();
+        }
+
+        @Override
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+            //Ignore, only used for JSON
         }
     }
 

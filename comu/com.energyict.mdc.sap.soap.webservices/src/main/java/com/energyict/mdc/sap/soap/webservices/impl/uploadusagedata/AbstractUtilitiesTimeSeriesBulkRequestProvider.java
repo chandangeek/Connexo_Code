@@ -275,15 +275,4 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     Map<String, RangeSet<Instant>> getTimeSlicedProfileId(Channel channel, Range<Instant> range) {
         return sapCustomPropertySets.getProfileId(channel, range);
     }
-
-    static String asString(ValidationResult validationResult) {
-        switch (validationResult) {
-            case ACTUAL:
-                return "ACTL";
-            case INVALID:
-                return "INVL";
-            default:
-                return "0";
-        }
-    }
 }

@@ -32,7 +32,9 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     LOG_ON_FAILED(112, Keys.LOG_ON_FAILED, "The logical connect to a device failed: {0}", Level.SEVERE),
     DISCONNECT_FAILED(113, Keys.DISCONNECT_FAILED, "Disconnect of connection failed: {0}", Level.SEVERE),
     INVALID_INBOUND_SERVLET_PROTOCOL(114, Keys.INVALID_INBOUND_SERVLET_PROTOCOL, "Inbound protocol ''{0}'', that is linked to the inbound servlet port, should support servlet communication", Level.SEVERE),
-    FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET(115, Keys.FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET, "Failed to fetch the device owning security property set {0}", Level.SEVERE),;
+    FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET(115, Keys.FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET, "Failed to fetch the device owning security property set {0}", Level.SEVERE),
+    JSON_PARSING_ERROR(116, Keys.JSON_PARSING_ERROR, "Unexpected JSON Object parsing error\\: {0}", Level.SEVERE),
+    UNEXPECTED_WEBSOCKET_ERROR(117, Keys.UNEXPECTED_WEBSOCKET_ERROR, "Unexpected websocket exception\\: {0}", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -88,5 +90,7 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
         public static final String DISCONNECT_FAILED = "disconnectFailed";
         public static final String INVALID_INBOUND_SERVLET_PROTOCOL = "invalidInboundServletProtocol";
         public static final String FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET = "failedToFetchDeviceForSecSet";
+        public static final String JSON_PARSING_ERROR = "jsonParsingError";
+        public static final String UNEXPECTED_WEBSOCKET_ERROR = "unexpectedWebSocketError";
     }
 }

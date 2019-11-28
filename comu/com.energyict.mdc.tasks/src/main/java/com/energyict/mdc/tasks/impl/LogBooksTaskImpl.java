@@ -10,6 +10,7 @@ import com.energyict.mdc.common.tasks.LogBooksTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,11 @@ class LogBooksTaskImpl extends ProtocolTaskImpl implements LogBooksTask {
     }
 
     private List<LogBookTypeUsageInProtocolTask> logBookTypeUsageInProtocolTasks = new ArrayList<>();
+
+    public LogBooksTaskImpl() {
+        super();
+        setFlags(FLAGS);
+    }
 
     @Inject
     LogBooksTaskImpl(DataModel dataModel) {
@@ -85,4 +91,8 @@ class LogBooksTaskImpl extends ProtocolTaskImpl implements LogBooksTask {
         }
     }
 
+    @XmlAttribute
+    public DeviceOfflineFlags getFlags() {
+        return FLAGS;
+    }
 }

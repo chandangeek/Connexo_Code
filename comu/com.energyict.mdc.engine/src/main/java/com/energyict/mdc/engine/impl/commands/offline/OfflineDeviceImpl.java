@@ -19,15 +19,19 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.identifiers.*;;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.core.remote.MapXmlMarshallAdapter;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.DeviceProtocolPluggableClassImpl;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -42,6 +46,11 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,12 +69,14 @@ import java.util.stream.Collectors;
  * @author gna
  * @since 12/04/12 - 13:58
  */
+@XmlRootElement
 public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     /**
      * The Device which is going offline
      */
-    private final Device device;
+    private Device device;
+    private DeviceIdentifier deviceIdentifier;
     private ServiceProvider serviceProvider;
 
     /**
@@ -86,44 +97,44 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     /**
      * Contains all Offline Slave devices.
      */
-    private List<OfflineDevice> slaveDevices = Collections.emptyList();
+    private List<OfflineDevice> slaveDevices = new ArrayList<>();
 
     /**
      * Contains the {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}.
      */
-    private List<OfflineLoadProfile> masterLoadProfiles = Collections.emptyList();
+    private List<OfflineLoadProfile> masterLoadProfiles = new ArrayList<>();
 
     /**
      * Contains all {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice} <b>AND</b> OR any slave device.
      */
-    private List<OfflineLoadProfile> allLoadProfiles = Collections.emptyList();
+    private List<OfflineLoadProfile> allOfflineLoadProfiles = new ArrayList<>();
 
     /**
      * Contains all {@link OfflineLogBook offlineLogBooks} which are owned by this {@link OfflineDevice}.
      */
-    private List<OfflineLogBook> allLogBooks = Collections.emptyList();
+    private List<OfflineLogBook> allOfflineLogBooks = new ArrayList<>();
 
     /**
      * Contains all {@link OfflineRegister rtuRegisters} which are owned by this {@link OfflineDevice} or a slave which has the
      * {@link DeviceType#isLogicalSlave() rtuType.isLogicalSlave} checked.
      */
-    private List<OfflineRegister> allOfflineRegisters = Collections.emptyList();
+    private List<OfflineRegister> allOfflineRegisters = new ArrayList<>();
 
     /**
      * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}.
      */
-    private List<OfflineDeviceMessage> pendingDeviceMessages = Collections.emptyList();
+    private List<OfflineDeviceMessage> pendingDeviceMessages = new ArrayList<>();
 
     /**
      * Contains all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}
      * that have become invalid since their creation.
      */
-    private List<OfflineDeviceMessage> pendingInvalidDeviceMessages = Collections.emptyList();
+    private List<OfflineDeviceMessage> pendingInvalidDeviceMessages = new ArrayList<>();
 
     /**
      * Contains all {@link DeviceMessageStatus#SENT sent} {@link OfflineDeviceMessage}.
      */
-    private List<OfflineDeviceMessage> sentDeviceMessages = Collections.emptyList();
+    private List<OfflineDeviceMessage> sentDeviceMessages = new ArrayList<>();
 
     /**
      * The used DeviceProtocolPluggableClass.
@@ -135,7 +146,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      */
     private DeviceProtocolCache deviceProtocolCache;
 
-    private List<OfflineCalendar> calendars = Collections.emptyList();
+    private List<OfflineCalendar> calendars = new ArrayList<>();
 
     private Map<Device, List<Device>> deviceTopologies = new HashMap<>();
 
@@ -144,9 +155,14 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private String location = "";
     private String usagePoint = "";
     private MacException macException;
-    private List<OfflineKeyAccessor> keyAccessors = Collections.emptyList();
+    private List<OfflineKeyAccessor> keyAccessors = new ArrayList<>();
     private HashMap<String, TypedProperties> securityPropertySetAttributeToKeyAccessorTypeMapping;
     private String mRid;
+    private TimeZone timeZone;
+
+    public OfflineDeviceImpl() {
+        super();
+    }
 
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
         this.device = device;
@@ -166,13 +182,12 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         setUsagePoint(device.getUsagePoint().map(Object::toString).orElse(""));
         setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
-        setmRid(this.device.getmRID());
+        setmRID(this.device.getmRID());
         addProperties(this.device.getDeviceProtocolProperties());
 
         if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
             setDeviceProtocolPluggableClass(this.device.getDeviceProtocolPluggableClass().get());
         }
-
         if (context.needsSlaveDevices()) {
             List<Device> downstreamDevices = getPhysicalConnectedDevices(this.device);
             setSlaveDevices(convertToOfflineRtus(downstreamDevices));
@@ -259,7 +274,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private void setDeviceCache(ServiceProvider serviceProvider) {
         Optional<DeviceCache> deviceProtocolCache = serviceProvider.findProtocolCacheByDevice(device);
         if (deviceProtocolCache.isPresent()) {
-            Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
+            Serializable cacheObject = deviceProtocolCache.get().getCacheObject();
             if (cacheObject != null) {
                 this.deviceProtocolCache = (DeviceProtocolCache) cacheObject;
                 this.deviceProtocolCache.setContentChanged(false); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed
@@ -358,6 +373,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public long getId() {
         return id;
     }
@@ -367,11 +383,20 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public TimeZone getTimeZone() {
-        return this.device.getTimeZone();
+        if (this.device != null) {
+            timeZone = this.device.getTimeZone();
+        }
+        return timeZone;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 
     @Override
+    @XmlAttribute
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -381,11 +406,12 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public String getmRID() {
         return mRid;
     }
 
-    public void setmRid(String mRid) {
+    public void setmRID(String mRid) {
         this.mRid = mRid;
     }
 
@@ -395,6 +421,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public String getLocation() {
         return location;
     }
@@ -402,8 +429,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     public void setLocation(String location) {
         this.location = location;
     }
-
     @Override
+
+    @XmlAttribute
     public String getUsagePoint() {
         return usagePoint;
     }
@@ -418,26 +446,31 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public List<OfflineDevice> getAllSlaveDevices() {
         return slaveDevices;
     }
 
     @Override
+    @XmlElement(type = OfflineLoadProfileImpl.class)
     public List<OfflineLoadProfile> getMasterOfflineLoadProfiles() {
         return this.masterLoadProfiles;
     }
 
     @Override
+    @XmlElement(type = OfflineLoadProfileImpl.class)
     public List<OfflineLoadProfile> getAllOfflineLoadProfiles() {
-        return this.allLoadProfiles;
+        return this.allOfflineLoadProfiles;
     }
 
     @Override
+    @XmlElement(type = OfflineLogBookImpl.class)
     public List<OfflineLogBook> getAllOfflineLogBooks() {
-        return this.allLogBooks;
+        return this.allOfflineLogBooks;
     }
 
     @Override
+    @XmlElement(type = OfflineRegisterImpl.class)
     public List<OfflineRegister> getAllOfflineRegisters() {
         return allOfflineRegisters;
     }
@@ -470,16 +503,21 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
+    @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllPendingDeviceMessages() {
         return this.pendingDeviceMessages;
     }
 
     @Override
+    @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllInvalidPendingDeviceMessages() {
         return Collections.unmodifiableList(this.pendingInvalidDeviceMessages);
     }
 
     @Override
+    @XmlAttribute
+    @XmlElement(type = OfflineDeviceMessageImpl.class)
     public List<OfflineDeviceMessage> getAllSentDeviceMessages() {
         return this.sentDeviceMessages;
     }
@@ -563,6 +601,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
                 ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().get().getDeviceProtocol(),  //Downcast to CXO Device
                 serviceProvider.identificationService(),
                 serviceProvider.protocolPluggableService(),
+                serviceProvider.deviceMessageSpecificationService(),
                 this);
     }
 
@@ -575,11 +614,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     private void setAllLoadProfiles(final List<OfflineLoadProfile> allLoadProfiles) {
-        this.allLoadProfiles = allLoadProfiles;
+        this.allOfflineLoadProfiles = allLoadProfiles;
     }
 
     private void setAllLogBooks(List<OfflineLogBook> allLogBooks) {
-        this.allLogBooks = allLogBooks;
+        this.allOfflineLogBooks = allLogBooks;
     }
 
     private void setAllPendingMessages(final List<OfflineDeviceMessage> allPendingMessages) {
@@ -594,6 +633,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         this.sentDeviceMessages = allSentMessages;
     }
 
+    @XmlElement(type = DeviceProtocolPluggableClassImpl.class)
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         return deviceProtocolPluggableClass;
     }
@@ -607,9 +647,19 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         return deviceProtocolCache;
     }
 
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(device);
+        if (deviceIdentifier == null && this.serviceProvider.identificationService() != null)
+            deviceIdentifier = this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(getId(), getmRID());
+        return deviceIdentifier;
     }
 
     @Override
@@ -646,8 +696,14 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlElement
+    @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
     public Map<String, TypedProperties> getSecurityPropertySetAttributeToKeyAccessorTypeMapping() {
         return securityPropertySetAttributeToKeyAccessorTypeMapping;
+    }
+
+    public void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(HashMap<String, TypedProperties> securityPropertySetAttributeToKeyAccessorTypeMapping) {
+        this.securityPropertySetAttributeToKeyAccessorTypeMapping = securityPropertySetAttributeToKeyAccessorTypeMapping;
     }
 
     private void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(Device device) {
@@ -667,6 +723,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         Thesaurus thesaurus();
 
         ProtocolPluggableService protocolPluggableService();
+
+        DeviceMessageSpecificationService deviceMessageSpecificationService();
 
         TopologyService topologyService();
 

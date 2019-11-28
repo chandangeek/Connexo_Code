@@ -6,9 +6,9 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.time.format.DateTimeFormatter;
@@ -70,6 +70,6 @@ public class StoreConfigurationUserFileTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: device having id 97; file name: " + FILE_NAME + "; file extension: " + FILE_EXTENSION + "}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 97; file name: " + FILE_NAME + "; file extension: " + FILE_EXTENSION + "}");
     }
 }

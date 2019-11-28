@@ -9,7 +9,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -58,7 +58,10 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
                         Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdDateForChannelOnDevice(endDeviceEntry.getMember()
                                 .getId(), item.getReadingType().getMRID());
                         if (lastProfileIdInterval.isPresent()) {
-                            return item.getLastExportedDate().isPresent() && item.getLastExportedDate().get().isAfter(lastProfileIdInterval.get().getEnd());
+                            if (lastProfileIdInterval.get().getEnd() == null) {
+                                return false;
+                            }
+                            return item.getLastExportedPeriodEnd().isPresent() && item.getLastExportedPeriodEnd().get().isAfter(lastProfileIdInterval.get().getEnd());
                         }
                         return true;
                     });

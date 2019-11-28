@@ -2,7 +2,9 @@ package com.energyict.mdc.upl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Optional;
 import java.util.Set;
 
