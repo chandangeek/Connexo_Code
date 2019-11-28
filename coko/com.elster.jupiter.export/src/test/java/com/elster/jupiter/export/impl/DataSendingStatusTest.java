@@ -14,7 +14,6 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -25,15 +24,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataSendingStatusTest {
     private static final Thesaurus THESAURUS = NlsModule.FakeThesaurus.INSTANCE;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     private ReadingTypeDataExportItem m1r1, m2r2;
 
     @Before
     public void setUp() {
-        when(m1r1.getDomainObject().getName()).thenReturn("m1");
-        when(m1r1.getReadingType().getMRID()).thenReturn("r1");
-        when(m2r2.getDomainObject().getName()).thenReturn("m2");
-        when(m2r2.getReadingType().getMRID()).thenReturn("r2");
+        when(m1r1.getDescription()).thenReturn("m1:r1");
+        when(m2r2.getDescription()).thenReturn("m2:r2");
     }
 
     @Test
@@ -75,7 +72,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailed(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export the following data sources to one or more destinations: [m1:r1].");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -86,7 +83,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailed(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export the following data sources to one or more destinations: [m2:r2].");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -108,7 +105,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailed(m2r2)).isFalse();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export the following data sources to one or more destinations: [m1:r1].");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>.");
     }
 
     @Test
@@ -119,7 +116,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailed(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export the following data sources to one or more destinations: [m2:r2].");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m2:r2>.");
     }
 
     @Test
@@ -130,7 +127,7 @@ public class DataSendingStatusTest {
         assertThat(status.isFailed(m2r2)).isTrue();
         assertThatThrownBy(() -> status.throwExceptionIfFailed(THESAURUS))
                 .isInstanceOf(DestinationFailedException.class)
-                .hasMessage("Failed to export the following data sources to one or more destinations: [m1:r1], [m2:r2].");
+                .hasMessage("Failed to export the following data sources to one or more destinations: <m1:r1>, <m2:r2>.");
     }
 
     @Test
