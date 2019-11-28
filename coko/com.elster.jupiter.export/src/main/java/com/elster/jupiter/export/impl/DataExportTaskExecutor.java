@@ -140,6 +140,7 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
+        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
         if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
@@ -150,12 +151,9 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
 
         DataFormatter dataFormatter = getDataFormatter(task, occurrence);
-
         loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger)).run();
-
         ItemExporter itemExporter = new LazyItemExporter(dataFormatter, logger);
 
-        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
         CompositeDataExportDestination destination = occurrence.getRetryTime()
                 .map(task::getCompositeDestination)
                 .orElseGet(task::getCompositeDestination);

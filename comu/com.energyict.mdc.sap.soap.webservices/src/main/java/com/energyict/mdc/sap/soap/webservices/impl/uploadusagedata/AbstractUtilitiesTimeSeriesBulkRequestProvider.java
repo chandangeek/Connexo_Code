@@ -23,7 +23,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
@@ -32,7 +31,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
-
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -150,8 +148,15 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
 
             if (numberOfItemsToSend >= numberOfReadingsPerMsg) {
-                /*It means that number of readings in one meterReadingData is more than allowable size.
-                /* Just send it. But actually shouldn't happen */
+                /* It means that number of readings in one meterReadingData is more than or equal to allowed size.
+                /* Just send them and also previously kept readings */
+                if (meterReadingDataNr != 0) {
+                    sendPartOfData(endPointConfiguration, timeSeriesListToSend, readingDataToSend, now, timeout)
+                            .ifPresent(srvCallList::add);
+                    meterReadingDataNr = 0;
+                    timeSeriesListToSend.clear();
+                    readingDataToSend.clear();
+                }
                 sendPartOfData(endPointConfiguration, timeSeriesListFromMeterData, Collections.singletonList(meterReadingData), now, timeout)
                         .ifPresent(srvCallList::add);
                 now = null;
@@ -159,7 +164,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             }
 
             if (meterReadingDataNr < numberOfReadingsPerMsg) {
-                if (numberOfReadingsPerMsg - meterReadingDataNr > numberOfItemsToSend) {
+                if (numberOfReadingsPerMsg - meterReadingDataNr >= numberOfItemsToSend) {
                     /* If we have enough space in message for readings add it to message. If no send message without current readings.
                      * Current readings will be sent in next message */
                     readingDataToSend.add(meterReadingData);

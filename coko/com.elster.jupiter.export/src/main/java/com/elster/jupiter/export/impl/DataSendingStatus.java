@@ -60,7 +60,7 @@ public class DataSendingStatus {
                 throw new DestinationFailedException(thesaurus, MessageSeeds.DATA_SENDING_FAILED_ALL_DATA_SOURCES);
             } else {
                 String dataSourcesString = failedDataSources.stream()
-                        .map(dataSource -> '[' + dataSource.getDomainObject().getName() + ':' + dataSource.getReadingType().getMRID() + ']')
+                        .map(dataSource -> '<' + dataSource.getDescription() + '>')
                         .distinct()
                         .sorted()
                         .collect(Collectors.joining(", "));
