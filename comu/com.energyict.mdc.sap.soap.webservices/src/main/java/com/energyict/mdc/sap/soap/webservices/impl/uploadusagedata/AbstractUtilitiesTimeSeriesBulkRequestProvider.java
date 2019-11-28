@@ -159,7 +159,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             }
 
             if (meterReadingDataNr < numberOfReadingsPerMsg) {
-                if (numberOfReadingsPerMsg - meterReadingDataNr > numberOfItemsToSend) {
+                if (numberOfReadingsPerMsg - meterReadingDataNr >= numberOfItemsToSend) {
                     /* If we have enough space in message for readings add it to message. If no send message without current readings.
                      * Current readings will be sent in next message */
                     readingDataToSend.add(meterReadingData);
