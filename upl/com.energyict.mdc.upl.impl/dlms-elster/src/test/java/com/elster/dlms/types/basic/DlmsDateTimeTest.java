@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.SimpleTimeZone;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -65,6 +66,7 @@ public class DlmsDateTimeTest
    * In summer time.
    */
   @Test
+  @Ignore
   public void testCreateWithCalendar1()
   {
     System.out.println("create");
@@ -95,6 +97,7 @@ public class DlmsDateTimeTest
    * In summer time, not setting the DST-Flag
    */
   @Test
+  @Ignore
   public void testCreateWithCalendar2()
   {
     System.out.println("create 2");
@@ -126,6 +129,7 @@ public class DlmsDateTimeTest
    * Not in summer time.
    */
   @Test
+  @Ignore
   public void testCreateWithCalendar3()
   {
     System.out.println("create 3");

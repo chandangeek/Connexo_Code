@@ -6,6 +6,7 @@ import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelRemoteAddress;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
@@ -27,7 +28,6 @@ import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2Properties;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
