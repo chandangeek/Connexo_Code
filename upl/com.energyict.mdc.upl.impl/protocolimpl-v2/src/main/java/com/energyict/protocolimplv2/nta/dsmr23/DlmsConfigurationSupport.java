@@ -155,12 +155,9 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
         return this.bigDecimalSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.V2_ELSTER_MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
-
-
     protected PropertySpec bulkRequestPropertySpec() {
         return this.booleanSpecBuilder(BULK_REQUEST, PropertyTranslationKeys.V2_ELSTER_BULK_REQUEST).finish();
     }
-
 
     protected PropertySpec replayAttackPreventionPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(REPLAY_ATTACK_PREVENTION, false, PropertyTranslationKeys.V2_NTA_REPLAY_ATTACK_PREVENTION, getPropertySpecService()::booleanSpec).finish();

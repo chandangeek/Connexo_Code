@@ -164,7 +164,7 @@ public class ConnectionPropertiesAreValidTest {
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
-        when(securityAccessor.getActualValue()).thenReturn(Optional.of("someValue"));
+        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of("someValue"));
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
@@ -247,7 +247,7 @@ public class ConnectionPropertiesAreValidTest {
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
-        when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);

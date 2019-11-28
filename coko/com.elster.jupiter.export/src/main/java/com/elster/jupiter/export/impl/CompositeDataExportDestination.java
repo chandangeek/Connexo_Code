@@ -44,18 +44,25 @@ class CompositeDataExportDestination implements FormattedFileDestination, DataDe
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
-        fileDestinations.forEach(component -> component.send(files, tagReplacerFactory, logger, thesaurus));
+    public DataSendingStatus send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
+        return fileDestinations.stream()
+                .map(component -> component.send(files, tagReplacerFactory, logger, thesaurus))
+                .reduce(DataSendingStatus::merge)
+                .orElseGet(DataSendingStatus::success);
     }
 
     @Override
-    public void send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger) {
-        dataDestinations.forEach(component -> component.send(data, tagReplacerFactory, logger));
+    public DataSendingStatus send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger) {
+        return dataDestinations.stream()
+                .map(component -> component.send(data, tagReplacerFactory, logger))
+                .reduce(DataSendingStatus::merge)
+                .orElseGet(DataSendingStatus::success);
     }
 
-    public void send(List<ExportData> data, Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
-        send(files, tagReplacerFactory, logger, thesaurus);
-        send(data, tagReplacerFactory, logger);
+    public DataSendingStatus send(List<ExportData> data, Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
+        return DataSendingStatus.merge(
+                send(files, tagReplacerFactory, logger, thesaurus),
+                send(data, tagReplacerFactory, logger));
     }
 
     public boolean hasFileDestinations() {

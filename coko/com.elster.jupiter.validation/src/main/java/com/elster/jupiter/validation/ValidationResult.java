@@ -12,7 +12,7 @@ import java.util.EnumSet;
 
 public enum ValidationResult {
 
-    VALID, SUSPECT, NOT_VALIDATED, ACTUAL, INVALID;
+    VALID, SUSPECT, NOT_VALIDATED;
 
     public static ValidationResult getValidationResult(Collection<? extends ReadingQuality> qualities) {
     	EnumSet<ValidationResult> results = qualities.stream()

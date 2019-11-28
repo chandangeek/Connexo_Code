@@ -76,6 +76,7 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
             case Ok: {
                 return ComServer.LogLevel.INFO;
             }
+            case DataWarning:
             case ConfigurationWarning: {
                 return ComServer.LogLevel.WARN;
             }

@@ -124,6 +124,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>events</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.h2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter.bundles</groupId>

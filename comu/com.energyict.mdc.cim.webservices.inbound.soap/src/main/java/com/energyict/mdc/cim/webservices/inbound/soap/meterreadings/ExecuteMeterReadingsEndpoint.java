@@ -6,6 +6,8 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingTypeFilter;
@@ -56,9 +58,11 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.base.Strings;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeRangeSet;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -154,6 +158,29 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                             .orElse(false);
                     syncReplyIssue.setAsyncFlag(async);
                 }
+
+                SetMultimap<String, String> values = HashMultimap.create();
+                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice().forEach(device->{
+                    if (!device.getNames().isEmpty()){
+
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
+                    }
+                    if (device.getMRID() != null){
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
+                    }
+
+                });
+                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(usp->{
+                    if (!usp.getNames().isEmpty()){
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                    }
+                    if (usp.getMRID() != null){
+                        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+                    }
+                });
+
+                saveRelatedAttributes(values);
+
                 checkGetMeterReading(getMeterReadings, async);
                 // run async
                 if (async) {

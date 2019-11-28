@@ -5,10 +5,8 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.InboundComPort;
-import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
-import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.*;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -26,22 +24,26 @@ import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
+import com.energyict.mdc.engine.impl.web.EmbeddedJettyServer;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.io.SocketService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Clock;
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertNotNull;
@@ -221,6 +223,13 @@ public class ComPortListenerFactoryImplTest {
         when(comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(1));
         when(comPort.isActive()).thenReturn(true);
         when(comPort.isServletBased()).thenReturn(true);
+        InboundComPortPool portPool = mock(InboundComPortPool.class);
+        InboundDeviceProtocolPluggableClass pluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(EmbeddedJettyServer.MAX_IDLE_TIME, EmbeddedJettyServer.MAX_IDLE_TIME_DEFAULT_VALUE);
+        when(comPort.getComPortPool()).thenReturn(portPool);
+        when(((InboundComPortPool) portPool).getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(pluggableClass.getProperties(Mockito.any(List.class))).thenReturn(typedProperties);
         return comPort;
     }
 

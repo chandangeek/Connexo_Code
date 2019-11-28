@@ -69,6 +69,7 @@
 	<modules>
 		<module>protocol-api</module>
 		<module>dlms</module>
+		<module>dlms-elster</module>
 		<module>protocolcommon</module>
 		<module>protocolimpl</module>
 		<module>protocolimpl-v2</module>

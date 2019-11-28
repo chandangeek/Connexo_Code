@@ -57,7 +57,7 @@ public class SecurityAccessorRemovalEventHandler implements TopicHandler {
         SecurityAccessor source = (SecurityAccessor) localEvent.getSource();
         Optional<CrlRequestTaskProperty> crlRequestTaskProperty = crlRequestTaskPropertiesService.findCrlRequestTaskProperties()
                 .stream()
-                .filter(property -> property.getSecurityAccessor().getKeyAccessorType().getId() == source.getKeyAccessorType().getId())
+                .filter(property -> property.getSecurityAccessor().getKeyAccessorTypeReference().getId() == source.getKeyAccessorTypeReference().getId())
                 .findAny();
         if (crlRequestTaskProperty.isPresent()) {
             RecurrentTask recurrentTask = crlRequestTaskProperty.get().getRecurrentTask();

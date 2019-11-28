@@ -147,6 +147,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>

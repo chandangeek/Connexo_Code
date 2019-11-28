@@ -25,6 +25,11 @@ class StatusInformationTaskImpl extends ProtocolTaskImpl implements StatusInform
 
     private static final DeviceOfflineFlags FLAGS = new DeviceOfflineFlags(SLAVE_DEVICES_FLAG, REGISTERS_FLAG, TOU_CALENDAR_FLAG, FIRMWARE_VERSIONS_FLAG);
 
+    public StatusInformationTaskImpl() {
+        super();
+        setFlags(FLAGS);
+    }
+
     @Inject
     StatusInformationTaskImpl(DataModel dataModel) {
         super(dataModel);

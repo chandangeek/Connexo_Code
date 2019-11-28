@@ -65,13 +65,6 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
      * Resolve the given identifiers to compare the messages.
      */
     private boolean compareDeviceMessages(MessageIdentifier messageIdentifier1, MessageIdentifier messageIdentifier2) {
-        Optional<DeviceMessage> deviceMessage1 = deviceMessageService.findDeviceMessageByIdentifier(messageIdentifier1);
-        Optional<DeviceMessage> deviceMessage2 = deviceMessageService.findDeviceMessageByIdentifier(messageIdentifier2);
-
-        if (deviceMessage1.isPresent() && deviceMessage2.isPresent()) {
-            return deviceMessage1.get().getId() == deviceMessage2.get().getId();
-        } else {
-            return false;
-        }
+        return messageIdentifier1.equals(messageIdentifier2);
     }
 }

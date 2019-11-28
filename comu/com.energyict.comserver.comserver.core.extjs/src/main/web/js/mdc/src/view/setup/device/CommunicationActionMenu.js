@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 action: 'runNowWithPriority',
                 visible: function () {
                     return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask
-                        && Uni.Auth.hasAnyPrivilege(this.record.get('comTask').privileges);
+                        && Uni.Auth.hasAnyPrivilege(this.record.get('comTask').privileges) && Uni.Auth.checkPrivileges(Mdc.privileges.Device.runWithPriority);
                 },
                 section: this.SECTION_ACTION
             },

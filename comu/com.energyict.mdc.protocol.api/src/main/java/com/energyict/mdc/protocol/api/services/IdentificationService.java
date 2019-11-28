@@ -43,7 +43,7 @@ public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierByCallHomeId(String callHomeId);
 
-    DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(Device device);
+    DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(long deviceId, String deviceMrId);
 
     RegisterIdentifier createRegisterIdentifierByAlreadyKnownRegister(Register register);
 
@@ -65,6 +65,6 @@ public interface IdentificationService {
 
     LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier);
 
-    MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage);
+    MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(long id, DeviceIdentifier deviceIdentifier);
 
 }

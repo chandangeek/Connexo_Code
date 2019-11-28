@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
@@ -51,9 +51,9 @@ public class CollectedMessageListEventTest {
 
     @Test
     public void testToString(){
-        DeviceMessageIdentifierForAlreadyKnownMessage firstIdentifier = mock(DeviceMessageIdentifierForAlreadyKnownMessage.class);
+        DeviceMessageIdentifierById firstIdentifier = mock(DeviceMessageIdentifierById.class);
         when(firstIdentifier.toString()).thenReturn( "messageId = 1");
-        DeviceMessageIdentifierForAlreadyKnownMessage secondIdentifier = mock(DeviceMessageIdentifierForAlreadyKnownMessage.class);
+        DeviceMessageIdentifierById secondIdentifier = mock(DeviceMessageIdentifierById.class);
         when(secondIdentifier.toString()).thenReturn( "messageId = 2");
 
         CollectedMessage firstMessage = mock(CollectedMessage.class);

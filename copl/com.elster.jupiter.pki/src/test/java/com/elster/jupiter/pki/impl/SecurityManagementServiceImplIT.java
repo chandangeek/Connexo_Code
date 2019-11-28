@@ -416,9 +416,9 @@ public class SecurityManagementServiceImplIT {
                 .newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
-        assertThat(passphraseWrapper.getPassphrase()).isPresent();
-        assertThat(passphraseWrapper.getPassphrase().get()).isNotEmpty();
-        assertThat(passphraseWrapper.getPassphrase().get()).hasSize(20);
+        assertThat(passphraseWrapper.getEncryptedPassphrase()).isPresent();
+        assertThat(passphraseWrapper.getEncryptedPassphrase().get()).isNotEmpty();
+        assertThat(passphraseWrapper.getEncryptedPassphrase().get()).hasSize(20);
         assertThat(passphraseWrapper.getProperties()).hasSize(1);
         assertThat(passphraseWrapper.getProperties()).containsKey("passphrase");
         assertThat(((String) passphraseWrapper.getProperties().get("passphrase"))).hasSize(20);
@@ -658,8 +658,8 @@ public class SecurityManagementServiceImplIT {
         PlaintextPassphrase passphraseWrapper = (PlaintextPassphrase) securityManagementService.newPassphraseWrapper(securityAccessorType);
         passphraseWrapper.generateValue();
 
-        assertThat(passphraseWrapper.getPassphrase()).isPresent();
-        String password = passphraseWrapper.getPassphrase().get();
+        assertThat(passphraseWrapper.getEncryptedPassphrase()).isPresent();
+        String password = passphraseWrapper.getEncryptedPassphrase().get();
         assertThat(password).hasSize(120);
         assertThat(password).matches(Pattern.compile("[a-zA-Z]{120}"));
     }

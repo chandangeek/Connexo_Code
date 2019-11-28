@@ -16,6 +16,7 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.TimeZone;
 
 /**
@@ -232,6 +233,17 @@ public class OctetString extends AbstractDataType {
     public static OctetString fromString(String string, int size, boolean fixed) {
         return new OctetString(string.getBytes(), size, (fixed ? 1 : 0));
     }
+
+	public static OctetString fromString(String string, Charset charSet) {
+		if (string == null) {
+			return OctetString.fromByteArray(new byte[0]);
+		} else if (charSet != null) {
+			byte[] bytes = string.getBytes(charSet);
+			return OctetString.fromByteArray(bytes);
+		} else {
+			return fromString(string);
+		}
+	}
 
     /**
      * Create an OctetString with the content of an IP-address

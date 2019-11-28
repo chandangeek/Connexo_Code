@@ -119,7 +119,7 @@ public class DeviceCertificatesImportProcessorTest {
         DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
-        when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
+        when(builder.getSecurityAccessor().getActualPassphraseWrapperReference()).thenReturn(Optional.of(builder.getCertificateWrapper()));
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
@@ -132,7 +132,7 @@ public class DeviceCertificatesImportProcessorTest {
         DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
-        when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
+        when(builder.getSecurityAccessor().getActualPassphraseWrapperReference()).thenReturn(Optional.of(builder.getCertificateWrapper()));
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.empty());
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
@@ -146,12 +146,12 @@ public class DeviceCertificatesImportProcessorTest {
         DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
-        when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.empty());
+        when(builder.getSecurityAccessor().getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
         verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
-        verify(builder.getSecurityAccessor()).setActualValue(any(SecurityValueWrapper.class));
+        verify(builder.getSecurityAccessor()).setActualPassphraseWrapperReference(any(SecurityValueWrapper.class));
         verify(builder.getSecurityAccessor()).save();
     }
 
@@ -160,12 +160,12 @@ public class DeviceCertificatesImportProcessorTest {
         DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
         FileImportZipEntry importZipEntry = builder.getImportZipEntry();
-        when(builder.getSecurityAccessor().getActualValue()).thenReturn(Optional.empty());
+        when(builder.getSecurityAccessor().getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
 
         processor.process(builder.getZipFile(), importZipEntry, logger);
         verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
-        verify(builder.getSecurityAccessor()).setActualValue(any(SecurityValueWrapper.class));
+        verify(builder.getSecurityAccessor()).setActualPassphraseWrapperReference(any(SecurityValueWrapper.class));
         verify(builder.getSecurityAccessor()).save();
     }
 

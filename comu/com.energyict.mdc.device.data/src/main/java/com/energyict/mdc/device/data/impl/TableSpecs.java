@@ -60,7 +60,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
@@ -433,7 +433,7 @@ public enum TableSpecs {
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
-            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionDbValue").since(Version.version(10, 4)).add();
+            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionId").since(Version.version(10, 4)).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT")
                     .on(comPort)

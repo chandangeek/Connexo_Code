@@ -9,56 +9,40 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.comserver.ComPort;
-import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.HighPriorityComJob;
-import com.energyict.mdc.common.comserver.InboundComPort;
-import com.energyict.mdc.common.comserver.OutboundCapableComServer;
-import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.*;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
-import com.energyict.mdc.common.tasks.ConnectionTask;
-import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.common.tasks.OutboundConnectionTask;
-import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.*;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
+import com.energyict.mdc.engine.config.LookupEntry;
 import com.energyict.mdc.engine.impl.PropertyValueType;
+import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
+import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
+import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
-import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
+import com.energyict.protocol.ProfileData;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Models the behavior of a component that provides access to the data
@@ -85,6 +69,11 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     ComServer getThisComServer();
 
     /**
+     * Fetch some information about the users from the database (user name, allowedToUseMobileComServer, salt and hash of the password)
+     */
+    List<OfflineUserInfo> getUsersCredentialInformation();
+
+    /**
      * Gets the {@link DeviceProtocolSecurityPropertySet} that has been
      * created against the Device that is currently connected to the ComServer
      * via the specified {@link InboundComPort}.
@@ -94,6 +83,12 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @return The DeviceProtocolSecurityPropertySet or null if the Device is not ready for inbound communication
      */
     DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+
+    com.energyict.mdc.upl.properties.TypedProperties getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+
+
+   List<DeviceMasterDataExtractor.SecurityProperty> getPropertiesFromSecurityPropertySet(DeviceIdentifier deviceIdentifier, Long securityPropertySetId);
 
     /**
      * Returns the dialect properties of the first comtask of a given device or <code>null</code>.
@@ -175,7 +170,6 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param comServer The ComServer
      * @param currentHighPriorityLoadPerComPortPool A map containing the number of the high priority tasks which are currently executed per ComPortPool
      * @return The List of {@link ComJob}s that represent all the ComTaskExecutions that are ready to be executed
-     * @see OutboundCapableComServer#findExecutableHighPriorityComTasks(Map)
      */
     List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool);
 
@@ -190,7 +184,6 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param currentHighPriorityLoadPerComPortPool A map containing the number of the high priority tasks which are currently executed per ComPortPool
      * @param date the date for when {@link HighPriorityComJob}s should be searched
      * @return The List of {@link ComJob}s that represent all the ComTaskExecutions that are ready to be executed
-     * @see OutboundCapableComServer#findExecutableHighPriorityComTasks(Map, Date)
      */
     List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date);
 
@@ -227,6 +220,31 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @return The List of ConnectionTaskProperty
      */
     List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask);
+
+    /**
+     * Finds the ComTaskEnablement that enables the execution of the specified ComTask against the given Device.
+     *
+     * @param deviceIdentifier The identifier of the device
+     * @param comTaskId The ID of the ComTask
+     */
+    ComTaskEnablement findComTaskEnablementByDeviceAndComTask(DeviceIdentifier deviceIdentifier, long comTaskId);
+
+    /**
+     * Finds all the {@link SecurityPropertySet}s owned by the specified {@link Device}
+     *
+     * @param deviceIdentifier The identifier of the device to search the SecurityPropertySets for
+     * @return all SecurityPropertySets owned by the Device
+     */
+    List<SecurityPropertySet> findAllSecurityPropertySetsForDevice(DeviceIdentifier deviceIdentifier);
+
+    /**
+     * Gets the protocol dialect properties  for the given {@link ComTaskExecution}
+     * Note that for a slave comtask, the dialect of the master connection is used.
+     *
+     * @param comTaskExecutionId The ID of the ComTaskExecution
+     * @return The TypedProperties of the protocol dialect properties
+     */
+    TypedProperties findProtocolDialectPropertiesFor(long comTaskExecutionId);
 
     /**
      * Attempts to lock the ScheduledConnectionTask for
@@ -423,12 +441,57 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator);
 
     /**
+     * Creates a new {@link UpdatedDeviceCache} from the specifications laid
+     * out in the {@link DeviceProtocolCache} or updates the DeviceCache
+     * that already exists for the {@link Device}
+     * with the specified identifier.
+     *
+     * @param deviceIdentifier
+     * @param cache The DeviceProtocolCache
+     */
+    void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache);
+
+    /**
      * Stores the given list of Reading readings on the Meter.
      *
      * @param deviceIdentifier the identifier of the Device
      * @param meterReading     the readings to store
      */
     void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading);
+
+ /**
+  * Stores the collected {@link ProfileData} in the {@link LoadProfile}
+  * which is specified by the given {@link LoadProfileIdentifier}
+  *  @param loadProfileIdentifier The LoadProfileIdentifier which uniquely identifies the LoadProfile
+  * @param collectedLoadProfile The collectedLoadProfile, containing the collected ProfileData
+  * @param currentDate
+  */
+ void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate);
+
+ /**
+  * Stores the {@link CollectedLogBook} in the specified {@link  LogBook}
+  * which is uniquely identified by the given {@link LogBookIdentifier}
+  *  @param logBookIdentifier The LogBookIdentifier which uniquely identifies the LogBook
+  * @param collectedLogBook The CollectedLogBook, containing the list of collected MeterProtocolEvents
+  * @param currentDate
+  */
+ void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook, Instant currentDate);
+
+ /**
+  * Updates the last reading date of a {@link LogBook} which is uniquely identified by
+  * the given {@link LogBookIdentifier}
+  * @param logBookIdentifier
+  * @param lastExecutionStartTimestamp
+  */
+ public void updateLogBookLastReading(LogBookIdentifier logBookIdentifier, Date lastExecutionStartTimestamp);
+
+    /**
+     * Updates the last reading date of a {@link LogBook} which is uniquely identified by
+     * the given {@link LogBookIdentifier} with the start time from the com task execution identified by its id
+     * @param logBookIdentifier
+     * @param comTaskExecutionId
+     */
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, long comTaskExecutionId);
 
     /**
      * Finds the OfflineDevice that is uniquely identified
@@ -500,6 +563,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      */
     void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
+    void addTrustedCertificates(List<CollectedCertificateWrapper> collectedCertificates);
+
     /**
      * Add/update the given sub-CA or root-CA certificate in the persisted DLMS trust store, for the given alias.
      */
@@ -510,6 +575,10 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * Returns the database ID of the created {@link com.energyict.mdc.upl.security.CertificateWrapper}
      */
     long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper);
+
+    void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue, ComTaskExecution comTaskExecution);
+
+    void activateSecurityAccessorPassiveValue(DeviceIdentifier deviceIdentifier, String propertyName, ComTaskExecution comTaskExecution);
 
     /**
      * Updates the gateway device of the Device device
@@ -632,6 +701,11 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @return the onHold property vale
      */
     Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+    /**
+     * Fetch the lookup table "comServerMobile_completionCodes"
+     */
+    List<LookupEntry> getCompletionCodeLookupEntries();
 
     /**
      * Request cleanup of all outdated {@link ComTaskExecutionTrigger}s<br/>

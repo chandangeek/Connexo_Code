@@ -2479,7 +2479,7 @@ Ext.define('Dxp.controller.Tasks', {
                         var suspendUntilExportVar = record.get('suspendUntilExport');
                         if (startOnDate < suspendUntilExportVar)
                         {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.suspended', 'DES', 'Export task saved, but task is already suspended'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.suspended', 'DES', 'Export task saved, but next run WILL NOT BE CHANGED because task is suspended'));
                         }
                         else {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.saved', 'DES', 'Export task saved'));

@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
@@ -24,6 +25,8 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
@@ -40,11 +43,16 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
     private ExecuteEndDeviceEventsEndpoint executeEndDeviceEventsEndpoint;
+
+    private SetMultimap<String, String> values = HashMultimap.create();
+
+
 
     @Before
     public void setUp() throws Exception {
@@ -83,6 +91,9 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         when(logBookService.findByDeviceAndObisCode(any(Device.class), any(ObisCode.class))).thenReturn(Optional.of(logBook));
 
         mockEndDeviceEvent();
+
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), END_DEVICE_NAME);
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), END_DEVICE_MRID);
     }
 
     @Test
@@ -100,6 +111,8 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
         // Business method
         EndDeviceEventsResponseMessageType response = executeEndDeviceEventsEndpoint.createdEndDeviceEvents(endDeviceEventsRequest);
+
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
@@ -126,7 +139,7 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
         // Business method
         EndDeviceEventsResponseMessageType response = executeEndDeviceEventsEndpoint.createdEndDeviceEvents(endDeviceEventsRequest);
-
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         // Asserts
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CREATED);
         assertThat(response.getHeader().getNoun()).isEqualTo("EndDeviceEvents");
@@ -153,6 +166,7 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         try {
             // Business method
             executeEndDeviceEventsEndpoint.createdEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -180,6 +194,7 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         try {
             // Business method
             executeEndDeviceEventsEndpoint.createdEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts

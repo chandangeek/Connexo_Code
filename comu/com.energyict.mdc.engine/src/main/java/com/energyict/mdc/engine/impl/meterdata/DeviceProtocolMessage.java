@@ -7,11 +7,15 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.time.Instant;
 
 public class DeviceProtocolMessage extends CollectedDeviceData implements CollectedMessage {
@@ -32,6 +36,11 @@ public class DeviceProtocolMessage extends CollectedDeviceData implements Collec
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = DeviceMessageIdentifierById.class),
+            @XmlElement(type = DeviceMessageIdentifierByDeviceAndProtocolInfoParts.class),
+
+    })
     public MessageIdentifier getMessageIdentifier() {
         return this.deviceMessageIdentifier;
     }

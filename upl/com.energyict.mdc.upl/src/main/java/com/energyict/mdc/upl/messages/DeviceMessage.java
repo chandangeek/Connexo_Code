@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.messages;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import java.util.List;
 
 /**
@@ -12,6 +14,11 @@ public interface DeviceMessage {
      * Gets the globally unique identifier of the related DeviceMessageSpec.
      */
     long getMessageId();
+
+    /**
+     * Gets the device identifier of the related DeviceMessage.
+     */
+    DeviceIdentifier getDeviceIdentifier();
 
     /**
      * Gets the {@link DeviceMessageAttribute}s of this DeviceMessage.

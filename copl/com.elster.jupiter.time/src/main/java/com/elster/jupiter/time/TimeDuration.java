@@ -8,30 +8,20 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.impl.MessageSeeds;
 import com.elster.jupiter.time.impl.TimeDurationUnitTranslationKeys;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Period;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.IsoFields;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalField;
-import java.time.temporal.TemporalUnit;
+import java.time.temporal.*;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.DAYS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.HOURS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.MILLISECONDS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.MINUTES;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.MONTHS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.SECONDS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.WEEKS;
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.YEARS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.*;
 
 /**
  * represents a relative period in time
@@ -41,7 +31,7 @@ import static com.elster.jupiter.time.TimeDuration.TimeUnit.YEARS;
  *
  * @author Karel
  */
-@XmlJavaTypeAdapter(TimeDurationXmlMarshallAdapter.class)
+//@XmlJavaTypeAdapter(TimeDurationXmlMarshallAdapter.class)
 public class TimeDuration implements Comparable<TimeDuration>, Serializable {
 
     public static final TimeDuration NONE = TimeDuration.seconds(0);
@@ -67,16 +57,19 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     private static final int MILLIS_PER_SECOND = 1000;
     private static final int MINUTES_PER_HOUR = 60;
 
+    @XmlAttribute
     private int count;
+    @XmlAttribute
     private TimeUnit timeUnit;
+    @XmlAttribute
     private int timeUnitCode;
 
     /**
      * Creates a new TimeDuration of zero seconds.
      */
-    private TimeDuration() {
+    public TimeDuration() {
         count = 0;
-        timeUnitCode = -1;
+        timeUnitCode = Calendar.MILLISECOND;
     }
 
     /**
@@ -99,10 +92,14 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         }
     }
 
+    @JsonIgnore
+    @XmlTransient
     public TemporalUnit getTemporalUnit() {
         return getTimeUnit().getTemporalUnit();
     }
 
+    @JsonIgnore
+    @XmlTransient
     public TemporalField getTemporalField() {
         return getTimeUnit().getTemporalField();
     }
@@ -362,6 +359,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @return true if the receiver's length is zero
      */
+    @JsonIgnore
+    @XmlTransient
     public boolean isEmpty() {
         return count == 0;
     }
@@ -499,6 +498,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @return the number of seconds in the TimeDuration
      */
+    @JsonIgnore
+    @XmlTransient
     public int getSeconds() {
         switch (getTimeUnit()) {
             case MILLISECONDS:
@@ -516,6 +517,8 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      *
      * @return the number of milliseconds in the TimeDuration
      */
+    @JsonIgnore
+    @XmlTransient
     public long getMilliSeconds() {
         switch (getTimeUnit()) {
             case MILLISECONDS:

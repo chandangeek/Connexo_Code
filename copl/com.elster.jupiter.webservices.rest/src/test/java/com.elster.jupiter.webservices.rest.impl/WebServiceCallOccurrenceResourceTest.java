@@ -18,8 +18,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallOccurrenceImpl;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedAttributeImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
 import com.jayway.jsonpath.JsonModel;
@@ -37,6 +39,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -269,6 +275,31 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(occurrence).retry();
     }
+
+    @Test
+    public void testRelatedAttributes() throws Exception {
+        List<WebServiceCallRelatedAttribute> listRelatedObjects = new ArrayList<>();
+        WebServiceCallRelatedAttributeImpl attribute1 = new WebServiceCallRelatedAttributeImpl(dataModel).init("key1", "value1");
+        WebServiceCallRelatedAttributeImpl attribute2 = new WebServiceCallRelatedAttributeImpl(dataModel).init("key2", "value2");
+        listRelatedObjects.add(attribute1);
+        listRelatedObjects.add(attribute2);
+
+        Finder<WebServiceCallRelatedAttribute> finderMock = mock(Finder.class);
+        when(finderMock.paged(anyInt(), anyInt())).thenReturn(finderMock);
+        when(finderMock.find()).thenReturn(listRelatedObjects);
+
+        when(webServiceCallOccurrenceService.getRelatedAttributesByValueLike(anyString())).thenReturn(finderMock);
+
+        Response response = target("/occurrences/relatedattributes").queryParam("like", "").request().get();
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(jsonModel.<String>get("$.[0].displayValue")).isEqualTo("value1 (null)");
+        assertThat(jsonModel.<Integer>get("$.[0].id")).isEqualTo(0);
+        assertThat(jsonModel.<String>get("$.[1].displayValue")).isEqualTo("value2 (null)");
+        assertThat(jsonModel.<Integer>get("$.[1].id")).isEqualTo(0);
+    }
+
+
 
     private WebServiceCallOccurrence createOccurrence(Instant time, String request, String application, EndPointConfiguration endPointConfiguration) {
         return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService)

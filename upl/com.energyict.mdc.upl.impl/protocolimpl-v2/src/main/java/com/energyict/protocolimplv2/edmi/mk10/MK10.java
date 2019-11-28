@@ -58,7 +58,7 @@ import com.energyict.protocolimplv2.edmi.mk10.profiles.MK10LoadProfileBuilder;
 import com.energyict.protocolimplv2.edmi.mk10.properties.MK10ConfigurationSupport;
 import com.energyict.protocolimplv2.edmi.mk10.properties.MK10Properties;
 import com.energyict.protocolimplv2.edmi.mk10.registers.MK10RegisterFactory;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
 import java.util.ArrayList;
