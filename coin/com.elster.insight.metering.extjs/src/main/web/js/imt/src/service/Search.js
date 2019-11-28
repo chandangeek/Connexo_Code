@@ -5,6 +5,7 @@
 Ext.define('Imt.service.Search', {
     extend: 'Uni.service.Search',
 
+    bulkActionCancel: undefined,
     init: function() {
         var me = this;
         me.defaultColumns = {

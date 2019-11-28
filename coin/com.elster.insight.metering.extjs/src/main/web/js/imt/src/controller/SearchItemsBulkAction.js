@@ -87,7 +87,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 }
             };
 
-        if (search.service.changedFiltersNotYetApplied) {
+        if (search.service.changedFiltersNotYetApplied && search.service.bulkActionCancel !== true) {
             var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('general.apply', 'IMT', 'Apply'),
                 secondConfirmText: Uni.I18n.translate('general.dontApply', 'IMT', "Don't apply"),
@@ -111,6 +111,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                     "Some search criteria haven't been applied. Do you want to apply them?")
             });
         } else {
+            search.service.bulkActionCancel = false;
             goOnWithTheCurrentSearchResults();
         }
     },
@@ -264,7 +265,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 restore: true
             };
         }
-
+        search.service.bulkActionCancel = true;
         router.getRoute('search').forward(null, queryParams);
     },
 
