@@ -88,6 +88,10 @@ public class StateTransitionPropertiesProviderImpl implements StateTransitionPro
         return result;
     }
 
+    public String getMeterMRID(long id){
+        return meteringService.findMeterById(id).map(IdentifiedObject::getMRID).orElseThrow(() -> new NoSuchElementException("MRID of device with id " + id +" not found."));
+    }
+
     public String getDeviceMRID(long id){
         return meteringService.findEndDeviceById(id).map(IdentifiedObject::getMRID).orElseThrow(() -> new NoSuchElementException("MRID of device with id " + id +" not found."));
     }
