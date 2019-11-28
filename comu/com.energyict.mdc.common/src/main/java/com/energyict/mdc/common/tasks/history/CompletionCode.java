@@ -39,7 +39,7 @@ public enum CompletionCode {
     InitError(EnumSet.noneOf(ResultType.class), 9),
     TimeoutError(EnumSet.noneOf(ResultType.class), 10),
     Rescheduled(EnumSet.of(ResultType.Rescheduled), 3),
-    DataWarning(EnumSet.of(ResultType.DataWarning), 1),;
+    DataWarning(EnumSet.of(ResultType.DataWarning), 12);
 
     private Set<ResultType> relatedResultTypes;
     private final int priority;
