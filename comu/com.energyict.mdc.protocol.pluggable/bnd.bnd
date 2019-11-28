@@ -12,7 +12,7 @@ Export-Package:  \
 	com.energyict.mdc.protocol.pluggable.security,\
 	com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel,\
 	com.energyict.mdc.protocol.pluggable.adapters.upl.cps,\
-	com.energyict.mdc.protocol.pluggable.adapters.upl,\
+	com.energyict.mdc.protocol.pluggable.adapters.upl
 Include-Resource: \
 	capabilitymappings.properties\=src/main/resources/capabilitymappings.properties,\
 	messagemappings.properties\=src/main/resources/messagemappings.properties,\
