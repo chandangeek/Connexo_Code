@@ -111,6 +111,11 @@ public class ConsoleUser implements User {
     }
 
     @Override
+    public Integer getSalt() {
+        return null;
+    }
+
+    @Override
     public String getDigestHa1() {
         return null;
     }

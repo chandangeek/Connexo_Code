@@ -1075,7 +1075,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 if (actualValue instanceof CertificateWrapper && (tempValue == null || tempValue instanceof CertificateWrapper)) {
                     AbstractSecurityAccessorImpl<T> certificateAccessor = (AbstractSecurityAccessorImpl<T>) dataModel.getInstance(CertificateAccessorImpl.class);
                     certificateAccessor.init(securityAccessorType);
-                    certificateAccessor.setActualValue(actualValue);
+                    certificateAccessor.setActualPassphraseWrapperReference(actualValue);
                     certificateAccessor.setTempValue(tempValue);
                     Save.CREATE.save(dataModel, certificateAccessor);
                     return certificateAccessor;

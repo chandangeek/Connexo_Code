@@ -100,7 +100,6 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         model.set('storeTaskQueueSize', 50);
         model.set('numberOfStoreTaskThreads', 1);
         model.set('storeTaskThreadPriority', 5);
-
         model.set('eventRegistrationPort', 8888);
 
         model.endEdit();

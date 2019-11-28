@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
@@ -41,7 +41,7 @@ public class UpdateDeviceMessageTest {
 
     @Test
     public void testToJournalMessageDescriptionOnInfoLogLevel() throws Exception {
-        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
+        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage.getId(), deviceMessage.getDeviceIdentifier());
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");
@@ -51,13 +51,13 @@ public class UpdateDeviceMessageTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 1; message status: confirmed}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 1; message status: confirmed}");
     }
 
     @Test
     public void testToJournalMessageDescriptionOnDebugLogLevel() throws Exception {
         Instant sentDate = Instant.now();
-        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
+        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage.getId(), deviceMessage.getDeviceIdentifier());
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");
@@ -68,6 +68,6 @@ public class UpdateDeviceMessageTest {
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 1; message status: confirmed; sent date: " + sentDate.toString() + "; protocolInfo: Additional ProtocolInfo}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 1; message status: confirmed; sent date: " + sentDate.toString() + "; protocolInfo: Additional ProtocolInfo}");
     }
 }

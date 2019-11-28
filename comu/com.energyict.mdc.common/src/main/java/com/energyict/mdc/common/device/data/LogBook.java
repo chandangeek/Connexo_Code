@@ -21,8 +21,6 @@ import java.util.Optional;
 @ConsumerType
 public interface LogBook extends com.energyict.mdc.upl.meterdata.LogBook, HasId {
 
-    ObisCode getDeviceObisCode();
-
     Device getDevice();
 
     Optional<Instant> getLastLogBook();

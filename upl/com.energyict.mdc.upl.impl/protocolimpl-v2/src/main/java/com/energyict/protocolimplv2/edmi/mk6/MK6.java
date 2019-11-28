@@ -63,7 +63,7 @@ import com.energyict.protocolimplv2.edmi.mk6.profiles.MK6LoadProfileBuilder;
 import com.energyict.protocolimplv2.edmi.mk6.properties.MK6ConfigurationSupport;
 import com.energyict.protocolimplv2.edmi.mk6.properties.MK6Properties;
 import com.energyict.protocolimplv2.edmi.mk6.registers.MK6RegisterFactory;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
 import java.util.ArrayList;

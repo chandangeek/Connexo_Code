@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.nta.esmr50.messages;
 
+import com.energyict.common.CommonCryptoMessageExecutor;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -8,9 +11,6 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.common.CommonCryptoMessageExecutor;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50MessageExecutor;
@@ -20,11 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CryptoESMR50MessageExecutor extends ESMR50MessageExecutor {
-    private final CommonCryptoMessageExecutor commonCryptoMessageExecutor;
 
-    public CryptoESMR50MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor);
+    private final CommonCryptoMessageExecutor commonCryptoMessageExecutor;
+    private final DeviceMasterDataExtractor deviceMasterDataExtractor;
+
+    public CryptoESMR50MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
+                                       IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor,
+                                       DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor, deviceMasterDataExtractor);
         this.commonCryptoMessageExecutor = new CommonCryptoMessageExecutor(protocol, collectedDataFactory, issueFactory);
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
 
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
@@ -80,6 +85,7 @@ public class CryptoESMR50MessageExecutor extends ESMR50MessageExecutor {
 
     @Override
     protected CryptoESMR50MbusMessageExecutor getMbusMessageExecutor() {
-        return new CryptoESMR50MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
+        return new CryptoESMR50MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory(),
+                this.deviceMasterDataExtractor);
     }
 }

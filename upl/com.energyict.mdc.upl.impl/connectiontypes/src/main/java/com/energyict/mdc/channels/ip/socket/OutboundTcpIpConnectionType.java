@@ -21,6 +21,10 @@ import java.util.Set;
 @XmlRootElement
 public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
 
+    public OutboundTcpIpConnectionType() {
+        super();
+    }
+
     public OutboundTcpIpConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
@@ -36,6 +40,7 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
+
     public boolean supportsComWindow() {
         return true;
     }

@@ -31,6 +31,8 @@ import com.energyict.obis.ObisCode;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +74,7 @@ class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.get();
     }

@@ -15,7 +15,7 @@ public final class KeyValue {
 		this.key = values;
 	}
 
-	static KeyValue of(Object[] key) {
+	public static KeyValue of(Object[] key) {
 		return new KeyValue(Objects.requireNonNull(key));
 	}
 

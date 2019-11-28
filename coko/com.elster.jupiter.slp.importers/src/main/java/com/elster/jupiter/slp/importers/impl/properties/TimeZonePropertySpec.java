@@ -24,6 +24,10 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
 
     private Thesaurus thesaurus;
 
+    public TimeZonePropertySpec() {
+        super(new StringFactory());
+    }
+
     public TimeZonePropertySpec(Thesaurus thesaurus, Clock clock) {
         super(new StringFactory());
         setPossibleValues(new PropertySpecPossibleValuesImpl(getDefaultTimeZone(clock), false));

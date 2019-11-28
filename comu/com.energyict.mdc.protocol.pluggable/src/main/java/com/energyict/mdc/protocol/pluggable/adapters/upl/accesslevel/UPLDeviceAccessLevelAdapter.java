@@ -4,7 +4,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,8 +20,14 @@ import java.util.stream.Collectors;
  */
 public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
 
-    protected final com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel;
-    private final Thesaurus thesaurus;
+    protected com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel;
+    private Thesaurus thesaurus;
+    private int id;
+    private String translation;
+
+    public UPLDeviceAccessLevelAdapter() {
+        super();
+    }
 
     public UPLDeviceAccessLevelAdapter(com.energyict.mdc.upl.security.DeviceAccessLevel uplDeviceAccessLevel, Thesaurus thesaurus) {
         this.uplDeviceAccessLevel = uplDeviceAccessLevel;
@@ -32,7 +40,10 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
 
     @Override
     public int getId() {
-        return uplDeviceAccessLevel.getId();
+        if (uplDeviceAccessLevel != null) {
+            id = uplDeviceAccessLevel.getId();
+        }
+        return id;
     }
 
     protected Thesaurus getThesaurus() {
@@ -41,12 +52,15 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
 
     @Override
     public String getTranslation() {
-        return thesaurus != null
-                ? thesaurus.getString(uplDeviceAccessLevel.getTranslationKey(), uplDeviceAccessLevel.getDefaultTranslation())
-                : uplDeviceAccessLevel.getDefaultTranslation(); // Should only be the case for unit tests
+        if (thesaurus != null || uplDeviceAccessLevel != null)
+            translation = thesaurus != null
+                    ? thesaurus.getString(uplDeviceAccessLevel.getTranslationKey(), uplDeviceAccessLevel.getDefaultTranslation())
+                    : uplDeviceAccessLevel.getDefaultTranslation(); // Should only be the case for unit tests
+        return translation;
     }
 
     @Override
+    @JsonIgnore
     public List<PropertySpec> getSecurityProperties() {
         return uplDeviceAccessLevel.getSecurityProperties().stream()
                 .map(UPLToConnexoPropertySpecAdapter::adaptTo)
@@ -65,5 +79,16 @@ public class UPLDeviceAccessLevelAdapter implements DeviceAccessLevel {
         } else {
             return uplDeviceAccessLevel.equals(obj);
         }
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

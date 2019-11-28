@@ -7,10 +7,10 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.engine.impl.DeviceIdentifierByDeviceName;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.identifiers.DeviceIdentifierByDeviceName;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +71,7 @@ class DeviceRequest extends IdBusinessObjectRequest {
     private Device findDeviceByIdOrThrowException(long id) {
         return this.deviceService
                 .findDeviceById(id)
-                .orElseThrow(() -> CanNotFindForIdentifier.device(DeviceIdentifierById.from(id), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
+                .orElseThrow(() -> CanNotFindForIdentifier.device(new DeviceIdentifierById(id), MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
     }
 
     private Device findDeviceByNameOrThrowException(String deviceName) {

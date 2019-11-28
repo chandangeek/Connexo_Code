@@ -193,14 +193,14 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
     MBUS_TRANSFER_FUAK(24020, "Set M-Bus Firmware Update Authentication Key (FUAK)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
-            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.FUAKeyAttributeName, DeviceMessageConstants.FUAKeyAttributeDefaultTranslation));
+            return Collections.emptyList();
         }
     },
     //from eiserver 8.11
     MBUS_TRANSFER_P2KEY(24021, "Set M-Bus UserKey (P2)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
-            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.P2KeyAttributeName, DeviceMessageConstants.P2KeyAttributeDefaultTranslation));
+            return Collections.emptyList();
         }
     },
     //from eiserver 8.11

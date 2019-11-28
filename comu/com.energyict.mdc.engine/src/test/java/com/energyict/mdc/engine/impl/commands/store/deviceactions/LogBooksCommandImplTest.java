@@ -9,7 +9,7 @@ import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.LogBooksTask;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;

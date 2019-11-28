@@ -56,4 +56,10 @@ public interface ComServerLauncherLogger {
     @Configuration(format = "Failure to load properties for remote ComServer", logLevel = LogLevel.ERROR)
     void failedToLoadRemoteComServerProperties(IOException e);
 
+    @Configuration(format = "The ComServerLauncher is configured to start an offline ComServer. This is a {0}", logLevel = LogLevel.ERROR)
+    void notAnOfflineComeServer(String comServerClassName);
+
+    @Configuration(format = "Failure to load properties for offline ComServer", logLevel = LogLevel.ERROR)
+    void failedToLoadOfflineComServerProperties(IOException e);
+
 }

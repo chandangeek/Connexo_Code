@@ -14,7 +14,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.util.Date;

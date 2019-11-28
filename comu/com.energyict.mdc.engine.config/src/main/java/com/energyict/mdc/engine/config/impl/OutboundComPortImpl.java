@@ -29,10 +29,14 @@ import java.util.List;
  */
 public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort {
 
-    private final EngineConfigurationService engineConfigurationService;
+    private EngineConfigurationService engineConfigurationService;
 
     @Range(min = 1, max = MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}")
     private int numberOfSimultaneousConnections;
+
+    protected OutboundComPortImpl() {
+        super();
+    }
 
     @Inject
     protected OutboundComPortImpl(DataModel dataModel, EngineConfigurationService engineConfigurationService, Thesaurus thesaurus) {
@@ -40,6 +44,7 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
         this.engineConfigurationService = engineConfigurationService;
     }
 
+    @Override
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
         this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
     }
@@ -81,10 +86,12 @@ public class OutboundComPortImpl extends ComPortImpl implements OutboundComPort 
      */
     private void validatePoolType(ComPortType newType) {
         if (newType != this.getComPortType()) {
-         List<OutboundComPortPool> comPortPools = engineConfigurationService.findContainingComPortPoolsForComPort(this);
-         if (!comPortPools.isEmpty()) {
-             throw new TranslatableApplicationException(thesaurus, MessageSeeds.OUTBOUND_COMPORT_STILL_IN_POOL);
-         }
+            if (engineConfigurationService != null) {
+                List<OutboundComPortPool> comPortPools = engineConfigurationService.findContainingComPortPoolsForComPort(this);
+                if (!comPortPools.isEmpty()) {
+                    throw new TranslatableApplicationException(thesaurus, MessageSeeds.OUTBOUND_COMPORT_STILL_IN_POOL);
+                }
+            }
         }
     }
 

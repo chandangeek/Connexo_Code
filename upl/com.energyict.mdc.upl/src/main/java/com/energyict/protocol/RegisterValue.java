@@ -27,7 +27,7 @@ import java.util.Date;
 public class RegisterValue implements Serializable {
 
     private ObisCode obisCode; // as support for the toString()
-    private int rtuRegisterId; // to find back the Register to which this RegisterValue belongs
+    private long rtuRegisterId; // to find back the Register to which this RegisterValue belongs
 
     private Quantity quantity;
     private Date readTime;
@@ -140,31 +140,31 @@ public class RegisterValue implements Serializable {
         this(offlineRegister, quantity, eventTime, fromTime, toTime, readTime, 0);
     }
 
-    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId) {
+    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long rtuRegisterId) {
         this(obisCode, quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, null);
     }
 
-    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId) {
+    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long rtuRegisterId) {
         this(register, quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, null);
     }
 
-    public RegisterValue(OfflineRegister offlineRegister, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId) {
+    public RegisterValue(OfflineRegister offlineRegister, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long rtuRegisterId) {
         this(offlineRegister, quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, null);
     }
 
-    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
+    public RegisterValue(ObisCode obisCode, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long rtuRegisterId, String text) {
         this(new Register(rtuRegisterId, obisCode, null), quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, text);
     }
 
-    public RegisterValue(OfflineRegister offlineRegister, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
+    public RegisterValue(OfflineRegister offlineRegister, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long rtuRegisterId, String text) {
         this(offlineRegister.getObisCode(), offlineRegister.getSerialNumber(), quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, text);
     }
 
-    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
+    public RegisterValue(Register register, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long rtuRegisterId, String text) {
         this(register.getObisCode(), register.getSerialNumber(), quantity, eventTime, fromTime, toTime, readTime, rtuRegisterId, text);
     }
 
-    public RegisterValue(ObisCode obisCode, String rtuSerialNumber, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, int rtuRegisterId, String text) {
+    public RegisterValue(ObisCode obisCode, String rtuSerialNumber, Quantity quantity, Date eventTime, Date fromTime, Date toTime, Date readTime, long rtuRegisterId, String text) {
         this.obisCode = obisCode;
         this.rtuSerialNumber = rtuSerialNumber;
         this.quantity = quantity;
@@ -275,7 +275,7 @@ public class RegisterValue implements Serializable {
      * @return Value of property rtuRegisterId.
      */
     @XmlAttribute
-    public int getRtuRegisterId() {
+    public long getRtuRegisterId() {
         return rtuRegisterId;
     }
 
@@ -284,7 +284,7 @@ public class RegisterValue implements Serializable {
      *
      * @param rtuRegisterId New value of property rtuRegisterId.
      */
-    public void setRtuRegisterId(int rtuRegisterId) {
+    public void setRtuRegisterId(long rtuRegisterId) {
         this.rtuRegisterId = rtuRegisterId;
     }
 

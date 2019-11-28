@@ -38,7 +38,7 @@ import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
@@ -143,7 +143,7 @@ public class UsagePointSearchTest {
                 new EventsModule(),
                 new InMemoryMessagingModule(),
                 new DomainUtilModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),

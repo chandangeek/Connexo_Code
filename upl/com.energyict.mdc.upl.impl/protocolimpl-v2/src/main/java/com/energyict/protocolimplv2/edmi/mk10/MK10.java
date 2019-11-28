@@ -58,7 +58,7 @@ import com.energyict.protocolimplv2.edmi.mk10.profiles.MK10LoadProfileBuilder;
 import com.energyict.protocolimplv2.edmi.mk10.properties.MK10ConfigurationSupport;
 import com.energyict.protocolimplv2.edmi.mk10.properties.MK10Properties;
 import com.energyict.protocolimplv2.edmi.mk10.registers.MK10RegisterFactory;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
 import java.util.ArrayList;
@@ -277,7 +277,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-03-14 14:27:09 +0100$";
+        return "$Date: 2019-11-22$";
     }
 
     @Override

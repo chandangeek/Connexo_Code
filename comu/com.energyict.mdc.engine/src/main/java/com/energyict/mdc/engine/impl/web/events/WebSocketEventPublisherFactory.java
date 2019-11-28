@@ -4,9 +4,6 @@
 
 package com.energyict.mdc.engine.impl.web.events;
 
-import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 
 /**
@@ -15,27 +12,8 @@ import com.energyict.mdc.engine.monitor.EventAPIStatistics;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-25 (17:25)
  */
-public class WebSocketEventPublisherFactory {
+public interface WebSocketEventPublisherFactory {
 
-    private static WebSocketEventPublisherFactory soleInstance;
-
-    public static WebSocketEventPublisherFactory getInstance () {
-        if (soleInstance == null) {
-            soleInstance = new WebSocketEventPublisherFactory();
-        }
-        return soleInstance;
-    }
-
-    public static void setInstance (WebSocketEventPublisherFactory factory) {
-        soleInstance = factory;
-    }
-
-    public WebSocketEventPublisher newWebSocketEventPublisher ( WebSocketCloseEventListener closeEventListener) {
-        return null;
-    }
-
-
-    // Hide utility class constructor
-    protected WebSocketEventPublisherFactory () {}
+    WebSocketEventPublisher newWebSocketEventPublisher(EventAPIStatistics eventAPIStatistics);
 
 }

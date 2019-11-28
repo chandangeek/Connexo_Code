@@ -39,7 +39,7 @@ import java.util.logging.Level;
 
 public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     //Firmware
-    protected static final ObisCode ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_METER_CORE;
+    protected static final ObisCode ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.1.0.2.0.255");
     public static final ObisCode ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.2.0.2.0.255");
 
     protected static final ObisCode MODEM_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.2.0.2.8.255");

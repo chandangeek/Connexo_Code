@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>2.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -385,6 +385,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

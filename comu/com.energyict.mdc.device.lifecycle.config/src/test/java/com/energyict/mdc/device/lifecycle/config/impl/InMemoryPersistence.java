@@ -24,7 +24,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -108,7 +108,7 @@ public class InMemoryPersistence {
                 new DataVaultModule(),
                 new PartyModule(),
                 new TransactionModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new TaskModule(),
                 new CalendarModule(),
                 new IdsModule(),

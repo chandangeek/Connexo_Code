@@ -1,7 +1,13 @@
 -classpath: target/classes
 -dsannotations: *
-
-Export-Package: com.energyict.protocols.naming
+Export-Package: com.energyict.dlms,\
+               com.energyict.protocolimplv2.dlms.idis.am540,\
+               com.energyict.protocols.naming,\
+               com.energyict.mdc.protocols.tasks,\
+               com.energyict.mdc.channels.ip.*,\
+               com.energyict.mdc.channels.serial.*,\
+               com.energyict.protocolimplv2.security,\
+               com.energyict.protocolimplv2.messages
 Import-Package: !test.wsdl.import2.types,\
     !org.apache.bsf,\
     !org.apache.commons.httpclient.*,\
