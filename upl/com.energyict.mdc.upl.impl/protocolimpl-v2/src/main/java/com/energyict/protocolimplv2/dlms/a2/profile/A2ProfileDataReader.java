@@ -116,7 +116,7 @@ public class A2ProfileDataReader {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                         String message = String.join(" ","Load profile was probably already read today, try modifying the 'last reading' date in the load profile properties.", e.getMessage());
                         Issue problem = issueFactory.createWarning(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, message);
-                        collectedLoadProfile.setFailureInformation(ResultType.DataWarning, problem);
+                        collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
                     }
                 }
                 catch (IOException e) {

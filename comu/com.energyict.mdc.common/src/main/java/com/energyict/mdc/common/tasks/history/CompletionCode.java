@@ -38,8 +38,7 @@ public enum CompletionCode {
     ConnectionError(EnumSet.noneOf(ResultType.class), 11),
     InitError(EnumSet.noneOf(ResultType.class), 9),
     TimeoutError(EnumSet.noneOf(ResultType.class), 10),
-    Rescheduled(EnumSet.of(ResultType.Rescheduled), 3),
-    DataWarning(EnumSet.of(ResultType.DataWarning), 12);
+    Rescheduled(EnumSet.of(ResultType.Rescheduled), 3);
 
     private Set<ResultType> relatedResultTypes;
     private final int priority;
