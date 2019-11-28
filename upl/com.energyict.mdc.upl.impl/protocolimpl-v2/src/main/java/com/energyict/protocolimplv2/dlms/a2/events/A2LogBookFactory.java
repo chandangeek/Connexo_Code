@@ -72,7 +72,7 @@ public class A2LogBookFactory implements DeviceLogBookSupport {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                             String message = String.join(" ","Logbook was probably already read today, try modifying the 'last reading' date in the logbook properties.", e.getMessage());
                             Issue problem = issueFactory.createWarning(logBookReader, "loadProfileXBlockingIssue", logBookReader.getLogBookObisCode().toString(), message);
-                            collectedLogBook.setFailureInformation(ResultType.DataWarning, problem);
+                            collectedLogBook.setFailureInformation(ResultType.DataIncomplete, problem);
                         }
                     } catch (IOException e) {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {

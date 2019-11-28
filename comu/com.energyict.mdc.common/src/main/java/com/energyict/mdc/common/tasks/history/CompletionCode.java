@@ -28,18 +28,17 @@ import java.util.Set;
  */
 public enum CompletionCode {
     Ok(EnumSet.of(ResultType.Supported), 0),
-    DataWarning(EnumSet.of(ResultType.DataWarning), 1),
-    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch), 2),
-    NotExecuted(EnumSet.noneOf(ResultType.class), 3),
-    Rescheduled(EnumSet.of(ResultType.Rescheduled), 4),
-    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible), 5),
-    ConfigurationError(EnumSet.of(ResultType.ConfigurationError), 6),
-    IOError(EnumSet.noneOf(ResultType.class), 7),
-    UnexpectedError(EnumSet.of(ResultType.Other), 8),
-    TimeError(EnumSet.noneOf(ResultType.class), 9),
-    InitError(EnumSet.noneOf(ResultType.class), 10),
-    TimeoutError(EnumSet.noneOf(ResultType.class), 11),
-    ConnectionError(EnumSet.noneOf(ResultType.class), 12);
+    NotExecuted(EnumSet.noneOf(ResultType.class), 2),
+    ConfigurationWarning(EnumSet.of(ResultType.NotSupported, ResultType.ConfigurationMisMatch), 1),
+    ProtocolError(EnumSet.of(ResultType.DataIncomplete, ResultType.InCompatible), 4),
+    TimeError(EnumSet.noneOf(ResultType.class), 8),
+    ConfigurationError(EnumSet.of(ResultType.ConfigurationError), 5),
+    IOError(EnumSet.noneOf(ResultType.class), 6),
+    UnexpectedError(EnumSet.of(ResultType.Other), 7),
+    ConnectionError(EnumSet.noneOf(ResultType.class), 11),
+    InitError(EnumSet.noneOf(ResultType.class), 9),
+    TimeoutError(EnumSet.noneOf(ResultType.class), 10),
+    Rescheduled(EnumSet.of(ResultType.Rescheduled), 3);
 
     private Set<ResultType> relatedResultTypes;
     private final int priority;
