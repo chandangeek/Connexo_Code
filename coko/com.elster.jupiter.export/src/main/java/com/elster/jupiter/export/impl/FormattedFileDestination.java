@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 interface FormattedFileDestination extends Destination {
-    void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus);
+    DataSendingStatus send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus);
 
     @Override
     default Type getType() {

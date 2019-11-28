@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem {
@@ -36,6 +37,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private long id;
     private Instant lastRun;
     private Instant lastExportedDate;
+    private Instant lastExportedPeriodEnd;
     private String readingTypeMRId;
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
@@ -92,6 +94,11 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
+    public Optional<Instant> getLastExportedPeriodEnd() {
+        return Optional.ofNullable(lastExportedPeriodEnd);
+    }
+
+    @Override
     public ReadingDataSelectorConfig getSelector() {
         return selector.orElseThrow(IllegalStateException::new);
     }
@@ -104,6 +111,11 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void setLastExportedDate(Instant lastExportedDate) {
         this.lastExportedDate = lastExportedDate;
+    }
+
+    @Override
+    public void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd) {
+        this.lastExportedPeriodEnd = lastExportedPeriodEnd;
     }
 
     @Override
@@ -161,5 +173,17 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void clearCachedReadingContainer() {
         readingContainer.clearCachedObject();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this
+                || obj instanceof ReadingTypeDataExportItemImpl
+                && ((ReadingTypeDataExportItemImpl) obj).id == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

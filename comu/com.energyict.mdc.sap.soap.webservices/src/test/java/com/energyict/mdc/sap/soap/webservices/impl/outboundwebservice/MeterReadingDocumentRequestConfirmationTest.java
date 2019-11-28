@@ -4,36 +4,27 @@
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateConfirmationProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.mockito.Matchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class MeterReadingDocumentRequestConfirmationTest extends AbstractOutboundWebserviceTest {
-
-    @Mock
-    private SmartMeterMeterReadingDocumentERPCreateConfirmationCOut port;
-    @Mock
-    private SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage;
+public class MeterReadingDocumentRequestConfirmationTest extends AbstractOutboundWebserviceTest<SmartMeterMeterReadingDocumentERPCreateConfirmationCOut> {
+    private SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = new SmrtMtrMtrRdngDocERPCrteConfMsg();
     @Mock
     private MeterReadingDocumentRequestConfirmationMessage outboundMessage;
 
@@ -41,48 +32,35 @@ public class MeterReadingDocumentRequestConfirmationTest extends AbstractOutboun
 
     @Before
     public void setUp() {
-        provider = spy(new MeterReadingDocumentCreateConfirmationProvider());
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
-        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
-        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
-        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(outboundMessage.getUrl()).thenReturn(getURL());
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
         when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
-        when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+
+        provider = getProviderInstance(MeterReadingDocumentCreateConfirmationProvider.class);
     }
 
     @Test
     public void testCall() {
-        when(provider.using(anyString())).thenReturn(requestSender);
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(WebServiceActivator.URL_PROPERTY, getURL());
-        properties.put("epcId", 1l);
-
-        provider.addRequestConfirmationPort(port, properties);
         provider.call(outboundMessage);
 
-        verify(provider).using("smartMeterMeterReadingDocumentERPCreateConfirmationCOut");
-        verify(requestSender).send(confirmationMessage);
+        verify(endpoint).smartMeterMeterReadingDocumentERPCreateConfirmationCOut(confirmationMessage);
     }
 
     @Test
     public void testCallWithoutPort() {
-        inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
-        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
-        expectedException.expect(LocalizedException.class);
-        expectedException.expectMessage("No web service endpoints are available to send the request using 'SapMeterReadingRequestConfirmation'.");
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(Collections.emptyList());
 
-        provider.call(outboundMessage);
+        assertThatThrownBy(() -> provider.call(outboundMessage))
+                .isInstanceOf(LocalizedException.class)
+                .hasMessage("No web service endpoints are available to send the request using 'SAP MeterReadingRequestConfirmation'.");
     }
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), SmartMeterMeterReadingDocumentERPCreateConfirmationCOut.class);
+        assertThat(provider.getService()).isSameAs(SmartMeterMeterReadingDocumentERPCreateConfirmationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), SmartMeterMeterReadingDocumentERPCreateConfirmationCOutService.class);
+        assertThat(provider.get()).isInstanceOf(SmartMeterMeterReadingDocumentERPCreateConfirmationCOutService.class);
     }
 }

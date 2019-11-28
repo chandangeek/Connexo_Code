@@ -21,6 +21,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestServiceCallHandler;
@@ -33,6 +36,12 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequest;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequest;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 
 import java.util.Optional;
 
@@ -97,7 +106,25 @@ public enum ServiceCallTypes {
             UtilitiesDeviceCreateRequestCallHandler.VERSION,
             UtilitiesDeviceCreateRequestCallHandler.APPLICATION,
             UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName(),
-            UtilitiesDeviceCreateRequestDomainExtension.class.getName())
+            UtilitiesDeviceCreateRequestDomainExtension.class.getName()),
+    MASTER_METER_REGISTER_CHANGE_REQUEST(
+            MasterMeterRegisterChangeRequest.NAME,
+            MasterMeterRegisterChangeRequest.VERSION,
+            MasterMeterRegisterChangeRequest.APPLICATION,
+            MasterMeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
+            MasterMeterRegisterChangeRequestDomainExtension.class.getName()),
+    METER_REGISTER_CHANGE_REQUEST(
+            MeterRegisterChangeRequest.NAME,
+            MeterRegisterChangeRequest.VERSION,
+            MeterRegisterChangeRequest.APPLICATION,
+            MeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
+            MeterRegisterChangeRequestDomainExtension.class.getName()),
+    MASTER_CONNECTION_STATUS_CHANGE(
+            MasterConnectionStatusChangeServiceCallHandler.NAME,
+            MasterConnectionStatusChangeServiceCallHandler.VERSION,
+            MasterConnectionStatusChangeServiceCallHandler.APPLICATION,
+            MasterConnectionStatusChangeCustomPropertySet.class.getSimpleName(),
+            MasterConnectionStatusChangeDomainExtension.class.getName())
     ;
 
     private final String typeName;

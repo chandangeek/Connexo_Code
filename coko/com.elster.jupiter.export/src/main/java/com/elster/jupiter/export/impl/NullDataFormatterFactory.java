@@ -12,16 +12,18 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-class NullDataFormatterFactory implements DataFormatterFactory {
+public class NullDataFormatterFactory implements DataFormatterFactory {
     private static final String KEY = "No operation data formatter";
     private static final String DEFAULT_DISPLAY_NAME = "Not applicable (for ''Web service'' destination)";
     private static final TranslationKey NAME = new SimpleTranslationKey(KEY, DEFAULT_DISPLAY_NAME);
     private final Thesaurus thesaurus;
 
+    @Inject
     NullDataFormatterFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
