@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 public enum CompletionCodeTranslationKeys implements TranslationKey {
 
     OK(CompletionCode.Ok, "Successful"),
+    DATA_WARNING(CompletionCode.DataWarning, "Data warning"),
     CONFIGURATION_WARNING(CompletionCode.ConfigurationWarning, "Configuration warning"),
     NOT_EXECUTED(CompletionCode.NotExecuted, "Not executed"),
     PROTOCOL_ERROR(CompletionCode.ProtocolError, "Protocol error"),

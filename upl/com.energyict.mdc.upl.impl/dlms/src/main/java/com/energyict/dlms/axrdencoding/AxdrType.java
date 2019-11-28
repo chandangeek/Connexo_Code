@@ -32,6 +32,7 @@ public enum AxdrType {
     FLOAT64(0x18),
     DATE_TIME(0x19),
     DATE(0x1A),
+    TIME27(0x1B), // TIME type with tag 0x0B (11) in IEC 61334-4-41:1996 not usable in DLMS/COSEM
     INVALID(0xFF);
 
     private final byte tag;
