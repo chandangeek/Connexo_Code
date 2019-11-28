@@ -340,73 +340,11 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters,
                                         @BeanParam JsonQueryFilter filter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
-        IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
-        String id = null;
-        List<IssueType> issueTypes = getIssueService().query(IssueType.class)
-                .select(Condition.TRUE)
-                .stream()
-                .filter(issueType -> !issueType.getPrefix().equals("ALM"))
-                .filter(issueType -> (appKey.compareToIgnoreCase("INS") == 0 && issueType.getPrefix().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION.getPrefix())) ||
-                        (appKey.compareToIgnoreCase("MDC") == 0 && !issueType.getPrefix().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION.getPrefix())))
-                .collect(Collectors.toList());
-        List<String> issueTypesKeys = issueTypes.stream()
-                .map(IssueType::getKey)
-                .collect(Collectors.toList());
-        if (filter.getString(IssueRestModuleConst.ID) != null) {
-            String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
-            if (issueIdPart.length == 2) {
-                if (isNumericValue(issueIdPart[1])) {
-                    if (issueTypes.stream()
-                            .anyMatch(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))) {
-                        issueTypesKeys = issueTypes.stream()
-                                .filter(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))
-                                .map(IssueType::getKey)
-                                .collect(Collectors.toList());
-                        id = issueIdPart[1];
-                    } else {
-                        id = "-1";
-                    }
-                } else {
-                    id = "-1";
-                }
-            } else {
-                id = "-1";
-            }
-        }
-        groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
-                .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
-                .withId(id)
-                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)
-                        .isEmpty() ? issueTypesKeys : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
-                .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
-                .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
-                .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
-                .setAscOrder(false) // Sorting (descending direction)
-                .from(params.getFrom()).to(params.getTo()); // Pagination
-        filter.getLongList(IssueRestModuleConst.ASSIGNEE)
-                .stream()
-                .filter(el -> el != null)
-                .forEach(groupFilter::withUserAssignee);
-        filter.getLongList(IssueRestModuleConst.WORKGROUP)
-                .stream()
-                .filter(el -> el != null)
-                .forEach(groupFilter::withWorkGroupAssignee);
-        filter.getStringList(IssueRestModuleConst.LOCATION)
-                .stream()
-                .filter(el -> el != null)
-                .forEach(lId -> locationService.findLocationById(Long.valueOf(lId)).ifPresent(loc -> getMeteringService().findMetersByLocation(loc).forEach(m -> groupFilter.withMeter(m.getId()))));
-        issueResourceHelper.getDueDates(filter)
-                .stream()
-                .forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
 
-        List<IssueGroupInfo> infos = null;
-        if (filter.getLongList(IssueRestModuleConst.DEVICE_GROUP).size() == 0) {
-            List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
-            infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
-        } else {
-            infos = getDeviceGroupList(filter, groupFilter);
-        }
-
+        Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
+        List<? extends Issue> issues = finder.find();
+        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length()-1);
+        List<IssueGroupInfo> infos = getIssueGroupList(issues, value);
 
         if(filter.getString(IssueRestModuleConst.FIELD).equals(IssueRestModuleConst.LOCATION)) {
             // replace location id with location name for group name
@@ -701,13 +639,10 @@ public class IssueResource extends BaseResource {
         return response;
     }
 
-    private List<IssueGroupInfo> getDeviceGroupList(JsonQueryFilter filter, IssueGroupFilter groupFilter) {
+    private List<IssueGroupInfo> getIssueGroupList( List<? extends Issue> issues, String value) {
         List<IssueGroupInfo> infos = new ArrayList<>();
         Map<?, ? extends List<?>> l = null;
-        Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
-        List<? extends Issue> issues = finder.find();
-
-        switch (groupFilter.getGroupBy()) {
+        switch (value) {
             case "issueType":
                 l = issues.stream().collect(Collectors.groupingBy(Issue::getType));
                 for (int i = 0; i < l.keySet().size(); i++) {
@@ -731,34 +666,32 @@ public class IssueResource extends BaseResource {
                 break;
             case "userAssignee":
                 l = issues.stream().collect(Collectors.groupingBy(Issue::getAssignee));
-                List<IssueAssignee> users = new ArrayList<>();
+                List<User> users = new ArrayList<>();
                 for (int i = 0; i < l.keySet().size(); i++) {
-                    users.add(((IssueAssignee) l.keySet().toArray()[i]));
+                    users.add(((IssueAssignee) l.keySet().toArray()[i]).getUser());
                 }
-                long userUnassignedCount = users.stream().filter(item -> item.getUser() == null).count();
-                Map<?, ? extends List<?>> map = users.stream().filter(item -> item.getUser() != null).collect(Collectors.groupingBy(IssueAssignee::getUser));
+                long userUnassignedCount = users.stream().filter(item -> item == null).count();
+                Map<?, ? extends List<?>> map = users.stream().filter(item -> item != null).collect(Collectors.groupingBy(User::getDescription));
                 for (int i = 0; i < map.keySet().size(); i++) {
-                    User user = (User) map.keySet().toArray()[i];
-                    long workGroupId = user == null ? -1l : user.getId();
-                    String description = user == null ? "Unassigned" : user.getDescription();
+                    //User user = (User) map.keySet().toArray()[i];
+                    long workGroupId = ((User)((List) (map.values().toArray()[i])).get(0)).getId();
+                    String description = (String) map.keySet().toArray()[0];
                     infos.add(new IssueGroupInfo(workGroupId, description, ((List) (map.values().toArray()[i])).size()));
-
                 }
                 if (userUnassignedCount != 0)
                     infos.add(new IssueGroupInfo(-1l, "Unassigned", userUnassignedCount));
                 break;
             case "workGroupAssignee":
                 l = issues.stream().collect(Collectors.groupingBy(Issue::getAssignee));
-                List<IssueAssignee> workGroups = new ArrayList<>();
+                List<WorkGroup> workGroups = new ArrayList<>();
                 for (int i = 0; i < l.keySet().size(); i++) {
-                    workGroups.add(((IssueAssignee) l.keySet().toArray()[i]));
+                    workGroups.add(((IssueAssignee) l.keySet().toArray()[i]).getWorkGroup());
                 }
-                long workgroupUnassignedCount = workGroups.stream().filter(item -> item.getWorkGroup() == null).count();
-                Map<?, ? extends List<?>> map1 = workGroups.stream().filter(item -> item.getWorkGroup() != null).collect(Collectors.groupingBy(IssueAssignee::getWorkGroup));
+                long workgroupUnassignedCount = workGroups.stream().filter(item -> item == null).count();
+                Map<?, ? extends List<?>> map1 = workGroups.stream().filter(item -> item != null).collect(Collectors.groupingBy(WorkGroup::getDescription));
                 for (int i = 0; i < map1.keySet().size(); i++) {
-                    WorkGroup workGroup = (WorkGroup) map1.keySet().toArray()[i];
-                    long workGroupId = workGroup == null ? -1l : workGroup.getId();
-                    String description = workGroup == null ? "Unassigned" : workGroup.getDescription();
+                    long workGroupId = ((WorkGroup)((List) (map1.values().toArray()[i])).get(0)).getId();
+                    String description = (String) map1.keySet().toArray()[0];
                     infos.add(new IssueGroupInfo(workGroupId, description, ((List) (map1.values().toArray()[i])).size()));
                 }
                 if (workgroupUnassignedCount != 0)

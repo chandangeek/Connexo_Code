@@ -8,6 +8,7 @@ import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
@@ -314,58 +315,12 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
-        String id = null;
-        List<IssueType> issueTypes = getIssueService().query(IssueType.class)
-                .select(Condition.TRUE)
-                .stream()
-                .filter(issueType -> issueType.getPrefix().equals("ALM"))
-                .collect(Collectors.toList());
-        List<String> issueTypesKeys = issueTypes.stream()
-                .map(IssueType::getKey)
-                .collect(Collectors.toList());
-        if(filter.getString(IssueRestModuleConst.ID) != null) {
-            String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
-            if (issueIdPart.length == 2) {
-                if (isNumericValue(issueIdPart[1])) {
-                    if (issueTypes.stream()
-                            .anyMatch(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))) {
-                        issueTypesKeys = issueTypes.stream()
-                                .filter(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))
-                                .map(IssueType::getKey)
-                                .collect(Collectors.toList());
-                        id = issueIdPart[1];
-                    } else{
-                        id = "-1";
-                    }
-                } else{
-                    id = "-1";
-                }
-            } else{
-                id = "-1";
-            }
-        }
-        groupFilter.using(getQueryApiClass(filter))
-                .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))
-                .withId(id)
-                .withIssueTypes(issueTypesKeys)
-                .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS))
-                .withClearedStatuses(filter.getStringList("cleared"))
-                .withMeterName(filter.getString(IssueRestModuleConst.METER))
-                .groupBy(filter.getString(IssueRestModuleConst.FIELD))
-                .setAscOrder(false)
-                .from(params.getFrom()).to(params.getTo());
-        filter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().filter(el -> el != null).forEach(groupFilter::withUserAssignee);
-        filter.getLongList(IssueRestModuleConst.WORKGROUP).stream().filter(el -> el != null).forEach(groupFilter::withWorkGroupAssignee);
-        getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
+        DeviceAlarmFilter alarmFilter = buildFilterFromQueryParameters(filter);
+        Finder<? extends DeviceAlarm> finder = getDeviceAlarmService().findAlarms(alarmFilter);
+        List<? extends DeviceAlarm> issues = finder.find();
+        String value = filter.getPropertyList("field").get(0).substring(1, filter.getPropertyList("field").get(0).length()-1);
+        List<IssueGroupInfo> infos = getIssueGroupList(issues, value);
 
-        List<IssueGroupInfo> infos = null;
-        if (filter.getLongList(IssueRestModuleConst.DEVICE_GROUP).size() == 0) {
-            List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
-            infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
-        } else {
-            infos = getDeviceGroupList(filter, groupFilter);
-        }
 
         return PagedInfoList.fromPagedList("alarmGroups", infos, queryParameters);
     }
@@ -762,14 +717,10 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }).collect(Collectors.toList());
     }
 
-    private List<IssueGroupInfo> getDeviceGroupList(JsonQueryFilter filter, IssueGroupFilter groupFilter) {
+    private List<IssueGroupInfo> getIssueGroupList( List<? extends Issue> issues, String value) {
         List<IssueGroupInfo> infos = new ArrayList<>();
         Map<?, ? extends List<?>> l = null;
-        DeviceAlarmFilter alarmFilter = buildFilterFromQueryParameters(filter);
-        Finder<? extends DeviceAlarm> finder = getDeviceAlarmService().findAlarms(alarmFilter);
-        List<? extends DeviceAlarm> issues = finder.find();
-
-        switch (groupFilter.getGroupBy()) {
+        switch (value) {
             case "issueType":
                 l = issues.stream().collect(Collectors.groupingBy(Issue::getType));
                 for (int i = 0; i < l.keySet().size(); i++) {
@@ -793,16 +744,15 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 break;
             case "userAssignee":
                 l = issues.stream().collect(Collectors.groupingBy(Issue::getAssignee));
-                List<IssueAssignee> users = new ArrayList<>();
+                List<User> users = new ArrayList<>();
                 for (int i = 0; i < l.keySet().size(); i++) {
-                    users.add(((IssueAssignee) l.keySet().toArray()[i]));
+                    users.add(((IssueAssignee) l.keySet().toArray()[i]).getUser());
                 }
-                long userUnassignedCount = users.stream().filter(item -> item.getUser() == null).count();
-                Map<?, ? extends List<?>> map = users.stream().filter(item -> item.getWorkGroup() != null).collect(Collectors.groupingBy(IssueAssignee::getUser));
+                long userUnassignedCount = users.stream().filter(item -> item == null).count();
+                Map<?, ? extends List<?>> map = users.stream().filter(item -> item != null).collect(Collectors.groupingBy(User::getDescription));
                 for (int i = 0; i < map.keySet().size(); i++) {
-                    User user = (User) map.keySet().toArray()[i];
-                    long workGroupId = user == null ? -1l : user.getId();
-                    String description = user == null ? "Unassigned" : user.getDescription();
+                    long workGroupId = ((User)((List) (map.values().toArray()[i])).get(0)).getId();
+                    String description = (String) map.keySet().toArray()[0];
                     infos.add(new IssueGroupInfo(workGroupId, description, ((List) (map.values().toArray()[i])).size()));
 
                 }
@@ -811,16 +761,15 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 break;
             case "workGroupAssignee":
                 l = issues.stream().collect(Collectors.groupingBy(Issue::getAssignee));
-                List<IssueAssignee> workGroups = new ArrayList<>();
+                List<WorkGroup> workGroups = new ArrayList<>();
                 for (int i = 0; i < l.keySet().size(); i++) {
-                    workGroups.add(((IssueAssignee) l.keySet().toArray()[i]));
+                    workGroups.add(((IssueAssignee) l.keySet().toArray()[i]).getWorkGroup());
                 }
-                long workgroupUnassignedCount = workGroups.stream().filter(item -> item.getWorkGroup() == null).count();
-                Map<?, ? extends List<?>> map1 = workGroups.stream().filter(item -> item.getWorkGroup() != null).collect(Collectors.groupingBy(IssueAssignee::getWorkGroup));
+                long workgroupUnassignedCount = workGroups.stream().filter(item -> item == null).count();
+                Map<?, ? extends List<?>> map1 = workGroups.stream().filter(item -> item != null).collect(Collectors.groupingBy(WorkGroup::getDescription));
                 for (int i = 0; i < map1.keySet().size(); i++) {
-                    WorkGroup workGroup = (WorkGroup) map1.keySet().toArray()[i];
-                    long workGroupId = workGroup == null ? -1l : workGroup.getId();
-                    String description = workGroup == null ? "Unassigned" : workGroup.getDescription();
+                    long workGroupId = ((WorkGroup)((List) (map1.values().toArray()[i])).get(0)).getId();
+                    String description = (String) map1.keySet().toArray()[0];
                     infos.add(new IssueGroupInfo(workGroupId, description, ((List) (map1.values().toArray()[i])).size()));
                 }
                 if (workgroupUnassignedCount != 0)
@@ -832,5 +781,4 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
         return infos;
     }
-
 }
