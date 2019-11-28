@@ -2137,7 +2137,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ConfigProperty> table = dataModel.addTable(name(), ConfigProperty.class);
-            table.since(version(10, 7));
+            table.since(version(10, 7, 1));
             table.map(ConfigPropertyImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.setJournalTableName("MTR_CONFIG_PROPERTYJRNL");
