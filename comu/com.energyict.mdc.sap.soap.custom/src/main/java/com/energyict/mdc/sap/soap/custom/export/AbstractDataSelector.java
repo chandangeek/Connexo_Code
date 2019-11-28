@@ -100,9 +100,11 @@ abstract class AbstractDataSelector implements DataSelector {
             activeItems = getSelectorConfig().getActiveItems(occurrence);
             getSelectorConfig().getExportItems().stream()
                     .filter(item -> !activeItems.contains(item))
-                    .peek(item -> item.deactivate())
-                    .forEach(item -> item.update());
-            activeItems.forEach(ReadingTypeDataExportItem::activate);
+                    .peek(ReadingTypeDataExportItem::deactivate)
+                    .forEach(ReadingTypeDataExportItem::update);
+            activeItems.stream()
+                    .peek(ReadingTypeDataExportItem::activate)
+                    .forEach(ReadingTypeDataExportItem::update);
             warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
             context.commit();
         }
