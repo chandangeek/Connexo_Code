@@ -24,6 +24,8 @@ import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -81,6 +83,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private final TaskService taskService;
     private final Clock clock;
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
+    private final DataModel ddcDataModel;
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
@@ -95,6 +98,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         super();
         this.firmwareService = firmwareService;
         this.dataModel = firmwareService.getDataModel();
+        this.ddcDataModel = firmwareService.getOrmService().getDataModel(DeviceDataServices.COMPONENT_NAME).get();
         this.thesaurus = thesaurus;
         this.serviceCallService = dataModel.getInstance(ServiceCallService.class);
         this.taskService = dataModel.getInstance(TaskService.class);
@@ -245,9 +249,31 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     .format(getDevice().getName(), getDevice().getDeviceType().getName()));
             failed = true;
         }
+        Optional<ComTaskExecution> firmwareComTaskExecution = findOrCreateFirmwareComTaskExecution();
+        if (firmwareComTaskExecution.isPresent()) {
+            if (!firmwareComTaskExecution.get().getConnectionTask().isPresent()) {
+                getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                        .format(firmwareComTaskExecution.get().getComTask().getName()));
+                failed = true;
+            }
+        } else {
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            failed = true;
+        }
         if (!doesConnectionWindowOverlap()) {
             getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY)
                     .format(getDevice().getName()));
+            failed = true;
+        }
+        Optional<ComTaskExecution> verificationComTaskExecution = findOrCreateVerificationComTaskExecution();
+        if (verificationComTaskExecution.isPresent()) {
+            if (!verificationComTaskExecution.get().getConnectionTask().isPresent()) {
+                getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                        .format(verificationComTaskExecution.get().getComTask().getName()));
+                failed = true;
+            }
+        } else {
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
             failed = true;
         }
         if (doesAnyFirmwareRankingCheckFail(getFirmwareCampaign(), getDevice())) {
@@ -319,15 +345,18 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     private boolean doesConnectionWindowOverlap() {
-        Optional<ConnectionTask<?, ?>> connectionTask = getFirmwareComTaskExec().getConnectionTask();
-        if (connectionTask.isPresent() && connectionTask.get() instanceof ScheduledConnectionTask) {
-            ComWindow connectionTaskComWindow = ((ScheduledConnectionTask) connectionTask.get()).getCommunicationWindow();
-            if (connectionTaskComWindow != null) {
-                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                connectionTaskComWindow.getStart().copyTo(calendar);
-                FirmwareCampaign firmwareCampaign = getFirmwareCampaign();
-                ComWindow comWindow = firmwareCampaign.getComWindow();
-                return comWindow.includes(calendar);
+        Optional<ComTaskExecution> firmwareComTaskExec = findOrCreateFirmwareComTaskExecution();
+        if (firmwareComTaskExec.isPresent()) {
+            Optional<ConnectionTask<?, ?>> connectionTask = firmwareComTaskExec.get().getConnectionTask();
+            if (connectionTask.isPresent() && connectionTask.get() instanceof ScheduledConnectionTask) {
+                ComWindow connectionTaskComWindow = ((ScheduledConnectionTask) connectionTask.get()).getCommunicationWindow();
+                if (connectionTaskComWindow != null) {
+                    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                    connectionTaskComWindow.getStart().copyTo(calendar);
+                    FirmwareCampaign firmwareCampaign = getFirmwareCampaign();
+                    ComWindow comWindow = firmwareCampaign.getComWindow();
+                    return comWindow.includes(calendar);
+                }
             }
         }
         return true;
@@ -357,48 +386,70 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     private void scheduleFirmwareTask() {
-        ComTaskExecution firmwareComTaskExec = getFirmwareComTaskExec();
-        Instant appliedStartDate = parent.get().getExtension(FirmwareCampaignDomainExtension.class).get().getUploadPeriodStart();
-        Optional<? extends FirmwareCampaign> campaign = getServiceCall().getParent().get().getExtension(FirmwareCampaignDomainExtension.class);
-        ConnectionStrategy connectionStrategy;
-        boolean isFirmwareComTaskStart = false;
-        if (campaign.isPresent()) {
-            if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
-                    firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
-                connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
-                if (firmwareComTaskExec.getConnectionTask().get().isActive() && (!campaign.get().getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign.get()
-                        .getFirmwareUploadConnectionStrategy()
-                        .get())) {
-                    firmwareComTaskExec.schedule(appliedStartDate);
-                    isFirmwareComTaskStart = true;
-                } else {
-                    serviceCallService.lockServiceCall(getServiceCall().getId());
-                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                            .format(campaign.get().getFirmwareUploadConnectionStrategy().get().name(), firmwareComTaskExec.getComTask().getName()));
-                    getServiceCall().requestTransition(DefaultState.REJECTED);
-                    return;
-                }
+        FirmwareCampaign campaign = getFirmwareCampaign();
+        Optional<ComTaskExecution> optionalFirmwareComTaskExec = findOrCreateFirmwareComTaskExecution();
+        if (optionalFirmwareComTaskExec.isPresent()) {
+            ComTaskExecution firmwareComTaskExec = optionalFirmwareComTaskExec.get();
+            Instant appliedStartDate = campaign.getUploadPeriodStart();
+            ConnectionStrategy connectionStrategy;
+            connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
+            if (firmwareComTaskExec.getConnectionTask().get().isActive() && (!campaign.getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign
+                    .getFirmwareUploadConnectionStrategy()
+                    .get())) {
+                firmwareComTaskExec.schedule(appliedStartDate);
+            } else {
+                serviceCallService.lockServiceCall(getServiceCall().getId());
+                getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                        .format(campaign.getFirmwareUploadConnectionStrategy().get().name(), firmwareComTaskExec.getComTask().getName()));
+                getServiceCall().requestTransition(DefaultState.REJECTED);
             }
-        }
-        if (!isFirmwareComTaskStart) {
+        } else {
             serviceCallService.lockServiceCall(getServiceCall().getId());
-            getServiceCall().log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format(firmwareComTaskExec.getComTask().getName()));
+            getServiceCall().log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             getServiceCall().requestTransition(DefaultState.REJECTED);
         }
     }
 
-    private ComTaskExecution getFirmwareComTaskExec() {
-        ComTask firmwareComTask = taskService.findFirmwareComTask().get();
-        Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.getId();
-        return getDevice().getComTaskExecutions().stream()
-                .filter(executionContainsFirmwareComTask)
-                .findFirst()
-                .orElseGet(() -> {
-                    ComTaskEnablement comTaskEnablement = getDevice().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask).get();
-                    ComTaskExecution firmwareComTaskExecution = getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
-                    getDevice().save();
-                    return firmwareComTaskExecution;
-                });
+    @Override
+    public Optional<ComTaskExecution> findOrCreateFirmwareComTaskExecution() {
+        Optional<ComTask> optionalComTask = taskService.findFirmwareComTask();
+        if (optionalComTask.isPresent()) {
+            ComTask firmwareComTask = optionalComTask.get();
+            Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.getId();
+            return Optional.ofNullable(getDevice().getComTaskExecutions().stream()
+                    .filter(executionContainsFirmwareComTask)
+                    .findFirst()
+                    .orElseGet(() -> {
+                        ComTaskEnablement comTaskEnablement = getDevice().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask).get();
+                        ComTaskExecution firmwareComTaskExecution = getDevice().newFirmwareComTaskExecution(comTaskEnablement).add();
+                        setDevice(ddcDataModel.mapper(Device.class).getOptional(getDevice().getId()).get()); // to re-fetch connection task & com task executions after update
+                        return firmwareComTaskExecution;
+                    }));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution() {
+        Device device = getDevice();
+        return device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == getFirmwareCampaign().getValidationComTaskId())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
+                        .anyMatch(task -> task instanceof StatusInformationTask))
+                .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
+                .filter(comTaskEnablement -> (firmwareCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
+                        || (!firmwareCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
+                .findAny()
+                .map(comTaskEnablement -> device.getComTaskExecutions().stream()
+                        .filter(comTaskExecution -> comTaskExecution.getComTask().equals(comTaskEnablement.getComTask()))
+                        .findAny()
+                        .orElseGet(() -> {
+                            ComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement).add();
+                            setDevice(ddcDataModel.mapper(Device.class).getOptional(device.getId()).get()); // to re-fetch connection task & com task executions after update
+                            return comTaskExecution;
+                        }));
     }
 
     @Override

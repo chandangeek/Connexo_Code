@@ -34,7 +34,7 @@ import java.util.List;
  * @since 2013, Dec 2 (09:07)
  */
 public class PluggableClassImpl implements PluggableClass {
-    private final Provider<PluggableClassProperty> pluggableClassPropertyProvider;
+    private Provider<PluggableClassProperty> pluggableClassPropertyProvider;
 
     private long id;
     @NotNull
@@ -55,6 +55,10 @@ public class PluggableClassImpl implements PluggableClass {
     private EventService eventService;
     private Thesaurus thesaurus;
     private Clock clock;
+
+    public PluggableClassImpl() {
+        super();
+    }
 
     @Inject
     public PluggableClassImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, Provider<PluggableClassProperty> pluggableClassPropertyProvider) {

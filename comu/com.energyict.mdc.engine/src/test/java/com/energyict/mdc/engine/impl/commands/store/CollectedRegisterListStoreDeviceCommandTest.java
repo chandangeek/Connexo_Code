@@ -23,8 +23,8 @@ import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.RegisterService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.RegisterIdentifierByAlreadyKnownRegister;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
@@ -117,7 +117,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         long deviceId = device.getId();
 
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID())).thenReturn(deviceIdentifier);
         when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
 
         Register register = createMockedRegister(ObisCode.fromString(registerObisCode1), device);
@@ -169,7 +169,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         long deviceId = dataLogger.getId();
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger)).thenReturn(deviceIdentifier);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger.getId(), dataLogger.getmRID())).thenReturn(deviceIdentifier);
         when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(dataLogger));
         when(serviceProvider.topologyService()).thenReturn(topologyService);
 
@@ -235,7 +235,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         long dataLoggerId = dataLogger.getId();
 
         DeviceIdentifier dataLoggerIdentifier = new DeviceIdentifierById(dataLoggerId);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger)).thenReturn(dataLoggerIdentifier);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger.getId(), dataLogger.getmRID())).thenReturn(dataLoggerIdentifier);
         when(this.deviceService.findDeviceByIdentifier(dataLoggerIdentifier)).thenReturn(Optional.of(dataLogger));
         when(serviceProvider.topologyService()).thenReturn(topologyService);
 
@@ -249,7 +249,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .create(justBeforeRegisterReadEventTime1);
         long slaveId = slave.getId();
         DeviceIdentifier slaveIdentifier = new DeviceIdentifierById(slaveId);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(slave)).thenReturn(slaveIdentifier);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(slave.getId(), slave.getmRID())).thenReturn(slaveIdentifier);
         when(this.deviceService.findDeviceByIdentifier(slaveIdentifier)).thenReturn(Optional.of(slave));
 
         // Linked slave register
@@ -344,7 +344,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
-        RegisterIdentifierByAlreadyKnownRegister registerIdentifier = new RegisterIdentifierByAlreadyKnownRegister(register);
+        RegisterDataIdentifierByObisCodeAndDevice registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(register);
         doReturn(Optional.of(device)).when(this.registerService).findByIdentifier(registerIdentifier);
         return register;
     }

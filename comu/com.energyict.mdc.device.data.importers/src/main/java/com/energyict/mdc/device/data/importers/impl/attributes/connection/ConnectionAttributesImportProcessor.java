@@ -220,11 +220,11 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
             // TODO: try refactoring further code with DeviceSecretImporter
             SecurityAccessor<SecurityValueWrapper> securityAccessor = device.getSecurityAccessor(securityAccessorType)
                     .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-            SecurityValueWrapper securityValueWrapper = securityAccessor.getActualValue()
+            SecurityValueWrapper securityValueWrapper = securityAccessor.getActualPassphraseWrapperReference()
                     .orElse(isKey(securityAccessorType) ?
                             securityManagementService.newSymmetricKeyWrapper(securityAccessorType) :
                             securityManagementService.newPassphraseWrapper(securityAccessorType));
-            securityAccessor.setActualValue(securityValueWrapper);
+            securityAccessor.setActualPassphraseWrapperReference(securityValueWrapper);
             Map<String, Object> properties = new HashMap<>();
             properties.put(isKey(securityAccessorType)?"key":"passphrase", value);
             securityValueWrapper.setProperties(properties);

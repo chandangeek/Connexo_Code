@@ -10,6 +10,7 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 
 public class OrmClientImpl implements OrmClient {
 
@@ -32,6 +33,11 @@ public class OrmClientImpl implements OrmClient {
     @Override
     public DataMapper<ComPortPool> getComPortPoolDataMapper() {
         return dataModel.mapper(ComPortPool.class);
+    }
+
+    @Override
+    public DataMapper<ComServerAliveStatus> getComServerAliveDataMapper() {
+        return dataModel.mapper(ComServerAliveStatus.class);
     }
 
     @Override

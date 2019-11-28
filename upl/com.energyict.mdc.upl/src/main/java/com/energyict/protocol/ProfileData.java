@@ -27,7 +27,7 @@ public class ProfileData implements Serializable {
     /**
      * The id of the load profile
      */
-    private int loadProfileId;
+    private long loadProfileId;
 
     /**
      * List of events we received from the meter
@@ -58,15 +58,15 @@ public class ProfileData implements Serializable {
      *
      * @param loadProfileId the id of the load profile
      */
-    public ProfileData(int loadProfileId) {
+    public ProfileData(long loadProfileId) {
         this.loadProfileId = loadProfileId;
     }
 
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return loadProfileId;
     }
 
-    public void setLoadProfileId(int loadProfileId) {
+    public void setLoadProfileId(long loadProfileId) {
         this.loadProfileId = loadProfileId;
     }
 

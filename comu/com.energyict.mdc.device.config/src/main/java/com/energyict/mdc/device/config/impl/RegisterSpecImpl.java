@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,7 @@ abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObje
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return deviceConfig.get();
     }

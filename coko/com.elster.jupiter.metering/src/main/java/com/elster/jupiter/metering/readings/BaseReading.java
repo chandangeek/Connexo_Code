@@ -8,15 +8,22 @@ import com.elster.jupiter.metering.ReadingQualityType;
 
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+@XmlRootElement
 public interface BaseReading {
+	@XmlAttribute
 	BigDecimal getSensorAccuracy();
+	@XmlAttribute
 	Instant getTimeStamp();
+	@XmlAttribute
 	Instant getReportedDateTime();
+	@XmlAttribute
 	BigDecimal getValue();
 	String getSource();
 	Optional<Range<Instant>> getTimePeriod();

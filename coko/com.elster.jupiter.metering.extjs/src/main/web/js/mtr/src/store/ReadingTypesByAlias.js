@@ -16,7 +16,7 @@ Ext.define('Mtr.store.ReadingTypesByAlias', {
         },
 
         setUrl: function (aliasName) {
-            this.url = this.urlTpl.replace('{aliasName}', aliasName);
+            this.url = this.urlTpl.replace('{aliasName}', encodeURIComponent(aliasName));
         }
     }
 });

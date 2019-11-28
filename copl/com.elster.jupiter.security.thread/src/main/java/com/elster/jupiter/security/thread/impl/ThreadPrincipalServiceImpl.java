@@ -18,6 +18,11 @@ import static oracle.jdbc.OracleConnection.*;
 @Component (name = "com.elster.jupiter.security.thread")
 public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 	private ThreadLocal<ThreadContext> threadContexts = new ThreadLocal<>();
+
+	@Override
+	public void runAs(Principal user, Runnable runnable) {
+		runAs(user, runnable, getLocale());
+	}
 			
 	@Override
 	public void runAs(Principal user, Runnable runnable, Locale locale) {

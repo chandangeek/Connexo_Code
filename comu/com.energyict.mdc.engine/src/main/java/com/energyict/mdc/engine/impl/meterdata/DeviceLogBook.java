@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
@@ -14,7 +18,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.protocol.MeterProtocolEvent;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,18 +35,36 @@ import java.util.List;
  */
 public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBook {
 
+    private boolean awareOfPushedEvents;
+
     private LogBookIdentifier logBookIdentifier;
 
     private List<MeterProtocolEvent> meterEvents;
 
+    public DeviceLogBook() {
+        super();
+    }
+
     public DeviceLogBook(final LogBookIdentifier logBookIdentifier) {
         super();
         this.logBookIdentifier = logBookIdentifier;
+        this.awareOfPushedEvents = false;
+    }
+
+    public DeviceLogBook(final LogBookIdentifier logBookIdentifier, boolean awareOfPushedEvents) {
+        super();
+        this.logBookIdentifier = logBookIdentifier;
+        this.awareOfPushedEvents = awareOfPushedEvents;
     }
 
     @Override
     public boolean isConfiguredIn (DataCollectionConfiguration configuration) {
         return configuration.isConfiguredToCollectEvents();
+    }
+
+    @XmlAttribute
+    public boolean isAwareOfPushedEvents() {
+        return awareOfPushedEvents;
     }
 
     @Override
@@ -56,6 +80,12 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
         return this.meterEvents;
     }
 
+    @XmlElements( {
+            @XmlElement(type = LogBookIdentifierById.class),
+            @XmlElement(type = LogBookIdentifierByObisCodeAndDevice.class),
+            @XmlElement(type = LogBookIdentifierByDeviceAndObisCode.class),
+            @XmlElement(type = LogBookIdentifierForAlreadyKnowLogBook.class),
+    })
     @Override
     public LogBookIdentifier getLogBookIdentifier() {
         return logBookIdentifier;
@@ -78,14 +108,5 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
             this.meterEvents = new ArrayList<>();
         }
         this.meterEvents = meterEvents;
-    }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getSimpleName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
     }
 }

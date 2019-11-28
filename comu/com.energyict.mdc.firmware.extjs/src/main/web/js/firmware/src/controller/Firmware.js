@@ -568,7 +568,7 @@ Ext.define('Fwc.controller.Firmware', {
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             container = this.getContainer();
 
-        container.setLoading();
+        container.setLoading(true);
         model.load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -588,10 +588,11 @@ Ext.define('Fwc.controller.Firmware', {
             supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes'),
             firmwareStore = Ext.getStore('Fwc.store.Firmwares'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            view;
+            view,
+            container = this.getContainer();
 
         model.getProxy().setUrl(deviceTypeId);
-        viewport.setLoading(true);
+        container.setLoading(true);
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             Ext.getStore('Fwc.store.SupportedFirmwareTypes').getProxy().setUrl(deviceType.getId());
             Ext.getStore('Fwc.store.FirmwareStatuses').clearFilter(true);
@@ -617,7 +618,7 @@ Ext.define('Fwc.controller.Firmware', {
                         firmwareStore.getProxy().setUrl(deviceType.getId());
                         var options = {
                             callback: function () {
-                                viewport.setLoading(false);
+                                container.setLoading(false);
                             }
                         }
                         firmwareStore.load(options);

@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.inbound.general.frames;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.mdc.identifiers.CallHomeIdPlaceHolder;
 
 /**
  * Copyrights EnergyICT

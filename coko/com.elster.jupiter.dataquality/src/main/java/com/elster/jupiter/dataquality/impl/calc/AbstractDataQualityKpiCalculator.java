@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -108,11 +107,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
     abstract DataQualityKpiSqlBuilder sqlBuilder();
 
     void calculateInTransaction() {
-        try {
-            transactionService.run(this::calculate);
-        } catch (Exception ex) {
-            transactionService.run(() -> logger.log(Level.WARNING, "Failed to calculate data quality KPI. Error: " + ex.getLocalizedMessage(), ex));
-        }
+        transactionService.run(this::calculate);
     }
 
     private void calculate() {

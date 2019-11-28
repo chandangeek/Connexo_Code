@@ -14,6 +14,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -181,7 +182,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
-
+    private BundleContext bundleContext;
+    private ConfigPropertiesService configPropertiesService;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -204,7 +206,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
             LockService lockService, DataVaultService dataVaultService,
             SecurityManagementService securityManagementService, MeteringZoneService meteringZoneService,
-            CalendarService calendarService,MeteringTranslationService meteringTranslationService) {
+            CalendarService calendarService,MeteringTranslationService meteringTranslationService,
+            ConfigPropertiesService configPropertiesService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -245,6 +248,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setMeteringZoneService(meteringZoneService);
         setCalendarService(calendarService);
         setMeteringTranslationService(meteringTranslationService);
+        setConfigPropertiesService(configPropertiesService);
         activate(bundleContext);
     }
 
@@ -339,6 +343,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
         this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
+    public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService){
+        this.configPropertiesService = configPropertiesService;
     }
 
     @Reference
@@ -639,12 +648,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(MeteringZoneService.class).toInstance(meteringZoneService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
+                bind(ConfigPropertiesService.class).toInstance(configPropertiesService);
             }
         };
     }
 
     @Activate
     public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         this.createRealServices();
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel, dataVaultService);
@@ -674,7 +685,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
         connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
         priorityComTaskService = new PriorityComTaskServiceImpl(this, engineConfigurationService, connectionTaskService);
-        communicationTaskService = new CommunicationTaskServiceImpl(this, priorityComTaskService);
+        communicationTaskService = new CommunicationTaskServiceImpl(this, configPropertiesService, bundleContext, priorityComTaskService);
         communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);
         registerService = new RegisterServiceImpl(this);

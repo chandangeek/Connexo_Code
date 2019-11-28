@@ -14,7 +14,7 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100AbstractEventLog;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONObject;
 
