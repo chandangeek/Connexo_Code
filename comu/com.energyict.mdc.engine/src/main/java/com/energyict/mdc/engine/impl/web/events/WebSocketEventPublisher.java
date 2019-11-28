@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.energyict.mdc.engine.impl.web.events;
 
 import com.energyict.mdc.common.comserver.ComPort;
@@ -18,11 +14,14 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.web.events.commands.Request;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParseException;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
-
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
@@ -37,21 +36,38 @@ import java.util.Set;
 public class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocketListener {
 
     private final WebSocketCloseEventListener closeEventListener;
+    private EventAPIStatistics eventAPIStatistics;
     private EventPublisher eventPublisher;
     private Session session;
     private RequestParser parser;
+    private boolean sendBinary;
     private boolean closed;
 
-    WebSocketEventPublisher(RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
+    WebSocketEventPublisher(RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, EventAPIStatistics eventAPIStatistics) {
         super();
-        this.closeEventListener = closeEventListener;
         this.eventPublisher = eventPublisher;
+        this.eventAPIStatistics = eventAPIStatistics;
+        this.parser = new RequestParser(comServer, serviceProvider);
+        this.closeEventListener = new WebSocketCloseEventListener() {
+
+            @Override
+            public void cleanUpClosedPublishers() {
+
+            }
+        };
+    }
+
+    WebSocketEventPublisher(RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, EventAPIStatistics eventAPIStatistics, WebSocketCloseEventListener webSocketCloseEventListener) {
+        super();
+        this.eventPublisher = eventPublisher;
+        this.eventAPIStatistics = eventAPIStatistics;
+        this.closeEventListener = webSocketCloseEventListener;
         this.parser = new RequestParser(comServer, serviceProvider);
     }
 
     @Override
-    public void receive (ComServerEvent event) {
-        this.publish(event);
+    public void receive(ComServerEvent event) {
+        sendEvent(event);
     }
 
     public void answerPing(){
@@ -63,26 +79,50 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
         this.sendEvent(event);
     }
 
-    private void sendMessage (String message) {
+    private void sendMessage(String message) {
         try {
-            if (this.isConnected()) {
-                this.session.getRemote().sendString(message);
+            if (isConnected()) {
+                if (sendBinary) {
+                    sendBinary(message);
+                } else {
+                    session.getRemote().sendString(message);
+                }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace(System.err);
         }
     }
 
-    private void sendEvent (ComServerEvent event) {
+    private void sendEvent(ComServerEvent event) {
         try {
-            if (this.isConnected()) {
-                this.session.getRemote().sendString(event.toString());
+            if (isConnected()) {
+                if (sendBinary) {
+                    sendBinary(event);
+                } else {
+                    session.getRemote().sendString(event.toString());
+                }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace(System.err);
         }
+    }
+
+    private void sendBinary(Serializable object) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(object);
+            oos.flush();
+            oos.close();
+            byte[] bytes = baos.toByteArray();
+            session.getRemote().sendBytes(ByteBuffer.wrap(bytes));
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    private boolean isConnected() {
+        return session != null;
     }
 
     public boolean isClosed() {
@@ -91,36 +131,6 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
 
     public void setClosed(boolean closed) {
         this.closed = closed;
-    }
-
-
-    private boolean isConnected () {
-        return this.session != null;
-    }
-
-    @Override
-    public void onWebSocketText (String message) {
-        try {
-            Request request = this.parser.parse(message);
-            request.applyTo(this);
-            this.sendMessage("Copy " + message);  //No sense to send the message back  - just to debug
-        }
-        catch (RequestParseException e) {
-            this.sendMessage("Message not understood:" + e.getMessage());
-        }
-    }
-
-    @Override
-    public void onWebSocketConnect (Session session) {
-        this.session = session;
-    }
-
-    @Override
-    public void onWebSocketClose (int closeCode, String message) {
-        this.session = null;
-        this.eventPublisher.unregisterAllInterests(this);
-        this.closeEventListener.closedFrom(this);
-        setClosed(true);
     }
 
     @Override
@@ -133,13 +143,39 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
             e.printStackTrace(System.err);
         }
     }
+
+    @Override
+    public void onWebSocketText(String message) {
+        try {
+            Request request = this.parser.parse(message);
+            request.applyTo(this);
+            this.sendMessage("Copy " + message);  //No sense to send the message back  - just to debug
+        }
+        catch (RequestParseException e) {
+            this.sendMessage("Message not understood:" + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onWebSocketConnect(Session session) {
+        this.session = session;
+    }
+
+    @Override
+    public void onWebSocketClose(int statusCode, String reason) {
+        this.session = null;
+        this.eventPublisher.unregisterAllInterests(this);
+        this.closeEventListener.cleanUpClosedPublishers();
+        setClosed(true);
+    }
+
     @Override
     public void onWebSocketError(Throwable cause) {
         cause.printStackTrace(System.err);
     }
 
     @Override
-    public void unregisterAllInterests (EventReceiver receiver) {
+    public void unregisterAllInterests(EventReceiver receiver) {
         // Unregistering only happens via onClose
     }
 
@@ -217,5 +253,4 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     public void widenToAllLogLevels (EventReceiver receiver) {
         this.eventPublisher.widenToAllLogLevels(this);
     }
-
 }

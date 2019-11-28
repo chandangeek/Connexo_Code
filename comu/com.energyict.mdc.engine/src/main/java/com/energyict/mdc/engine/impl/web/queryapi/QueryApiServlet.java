@@ -4,17 +4,14 @@
 
 package com.energyict.mdc.engine.impl.web.queryapi;
 
-import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
-
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,30 +23,40 @@ import java.util.Map;
  */
 public class QueryApiServlet extends WebSocketServlet {
 
-    private RunningOnlineComServer comServer;
     private QueryAPIStatistics queryAPIStatistics;
-
-    private final ComServerDAO comServerDAO;
-    private final EngineConfigurationService engineConfigurationService;
-    private final ConnectionTaskService connectionTaskService;
-    private final CommunicationTaskService communicationTaskService;
-    private final TransactionService transactionService;
+    private RunningOnlineComServer runningOnlineComServer;
     private Map<String, WebSocketQueryApiService> queryApiServices = new HashMap<>();
 
-    public QueryApiServlet (RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
+    public QueryApiServlet (RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
         super();
-        this.comServer = comServer;
-        this.comServerDAO = comServerDAO;
-        this.engineConfigurationService = engineConfigurationService;
-        this.connectionTaskService = connectionTaskService;
-        this.communicationTaskService = communicationTaskService;
-        this.transactionService = transactionService;
+        this.runningOnlineComServer = comServer;
+        this.queryAPIStatistics = queryAPIStatistics;
+    }
+
+    public OnlineComServer getOnlineComServer() {
+        return runningOnlineComServer.getComServer();
     }
 
     @Override
     public void configure(WebSocketServletFactory webSocketServletFactory) {
-        webSocketServletFactory.setCreator(new WebSocketQueryApiCreator(comServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService));
+        webSocketServletFactory.setCreator(new WebSocketQueryApiCreator(runningOnlineComServer, queryAPIStatistics));
     }
 
+    public WebSocketQueryApiService findOrCreateQueryApiService (HttpServletRequest request) {
+        HttpSession httpSession = request.getSession(true);
+        String httpSessionId = httpSession.getId();
+        WebSocketQueryApiService queryApiService = this.queryApiServices.get(httpSessionId);
+        if (queryApiService == null) {
+            queryApiService = this.createQueryApiService();
+            this.queryApiServices.put(httpSessionId, queryApiService);
+        }
+        return queryApiService;
+    }
+
+    private WebSocketQueryApiService createQueryApiService () {
+        WebSocketQueryApiService queryApiService = this.runningOnlineComServer.newWebSocketQueryApiService();
+        this.runningOnlineComServer.queryApiClientRegistered();
+        return queryApiService;
+    }
 
 }

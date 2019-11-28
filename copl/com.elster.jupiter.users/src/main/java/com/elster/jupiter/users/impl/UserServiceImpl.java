@@ -45,6 +45,8 @@ import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
+import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -173,7 +175,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
         synchronized (privilegeProviderRegistrationLock) {
             upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                    version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class, version(10, 4), UpgraderV10_4.class
+                    version(10, 2), UpgraderV10_2.class,
+                    version(10, 3), UpgraderV10_3.class,
+                    version(10, 4), UpgraderV10_4.class,
+                    version(10, 4, 8), UpgraderV10_4_8.class
             ));
         }
     }
@@ -227,6 +232,14 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return dataModel.mapper(User.class).find()
                 .stream()
                 .filter(s -> s.getUserDirectoryId() == id)
+                .sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return dataModel.mapper(User.class).find()
+                .stream()
                 .sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
                 .collect(Collectors.toList());
     }

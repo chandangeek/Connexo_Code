@@ -13,6 +13,8 @@ import com.energyict.mdc.device.command.ICommandRuleCounter;
 import com.google.inject.Inject;
 
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 public class CommandRuleCounter implements ICommandRuleCounter {
 
@@ -40,7 +42,7 @@ public class CommandRuleCounter implements ICommandRuleCounter {
     private Instant from;
     private Instant to;
     private long count;
-    CounterType counterType;
+    private Optional<CounterType> counterType = Optional.empty();
     private Reference<CommandRule> commandRule = Reference.empty();
 
     @Inject
@@ -52,7 +54,7 @@ public class CommandRuleCounter implements ICommandRuleCounter {
         this.from = from;
         this.to = to;
         this.count = count;
-        this.counterType = counterType;
+        this.counterType = Optional.of(counterType);
         return this;
     }
 
@@ -108,7 +110,16 @@ public class CommandRuleCounter implements ICommandRuleCounter {
 
     @Override
     public CounterType getCounterType() {
-        return counterType;
+        return counterType.orElseGet(() -> {
+            long differenceInMillis = getTo().toEpochMilli() - getFrom().toEpochMilli();
+            if (differenceInMillis <= TimeUnit.DAYS.toMillis(1)) {
+                return CounterType.DAY;
+            } else if (differenceInMillis <= TimeUnit.DAYS.toMillis(7)) {
+                return CounterType.WEEK;
+            } else {
+                return CounterType.MONTH;
+            }
+        });
     }
 
 

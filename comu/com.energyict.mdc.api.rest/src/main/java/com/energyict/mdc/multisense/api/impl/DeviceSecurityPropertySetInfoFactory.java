@@ -120,7 +120,7 @@ public class DeviceSecurityPropertySetInfoFactory extends SelectableFieldFactory
         return device.getSecurityAccessors().stream()
                 .filter(keyAccessor ->
                         securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
-                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorType().getId()
+                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorTypeReference().getId()
                         )
                 )
                 .collect(Collectors.toList());

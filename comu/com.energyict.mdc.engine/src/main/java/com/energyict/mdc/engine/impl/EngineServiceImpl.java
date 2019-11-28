@@ -5,7 +5,10 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -17,11 +20,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.common.protocol.DeviceMessage;
@@ -43,10 +51,13 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
+import com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory;
+import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
@@ -68,6 +79,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.Bundle;
@@ -86,15 +98,17 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
+import static com.elster.jupiter.appserver.AppService.SERVER_TYPE_PROPERTY_NAME;
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.engine",
         service = {EngineService.class, ServerEngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
@@ -108,6 +122,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
                 immediate = true)
 public class EngineServiceImpl implements ServerEngineService, TranslationKeyProvider, MessageSeedProvider {
 
+    private static final Logger LOGGER = Logger.getLogger(EngineService.class.getName());
     public static final String COMSERVER_USER = "comserver";
     public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
     private volatile DataModel dataModel;
@@ -115,6 +130,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
+    private volatile OrmService ormService;
     private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -127,6 +143,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile LogBookService logBookService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
+    private volatile DataVaultService dataVaultService;
     private volatile RegisterService registerService;
     private volatile LoadProfileService loadProfileService;
     private volatile TopologyService topologyService;
@@ -136,6 +153,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
@@ -144,11 +162,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile SecurityManagementService securityManagementService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private volatile TimeOfUseCampaignService timeOfUseCampaignService;
+    private volatile MessageService messageService;
+    private volatile TaskService taskService;
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
     private Properties engineProperties = new Properties();
     private BundleContext bundleContext = null;
+
+    private static final String COM_SERVER_STATUS_TASK_NAME = "ComServerAliveStatusTask";
+    private static final int COM_SERVER_STATUS_TASK_RETRY_DELAY = 60;
 
     public EngineServiceImpl() {
     }
@@ -162,7 +185,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, PriorityComTaskService priorityComTaskService,
             LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
             RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
-            ProtocolPluggableService protocolPluggableService, StatusService statusService,
+            DataVaultService dataVaultService,
+            ProtocolPluggableService protocolPluggableService, DeviceMessageSpecificationService deviceMessageSpecificationService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
             SerialComponentService serialATComponentService,
@@ -182,6 +206,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setThreadPrincipalService(threadPrincipalService);
         setIssueService(issueService);
         setDeviceService(deviceService);
+        setDataVaultService(dataVaultService);
         setTopologyService(topologyService);
         setRegisterService(registerService);
         setLoadProfileService(loadProfileService);
@@ -194,6 +219,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
         setProtocolPluggableService(protocolPluggableService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setSocketService(socketService);
         setSerialATComponentService(serialATComponentService);
         setStatusService(statusService);
@@ -204,6 +230,12 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setUpgradeService(upgradeService);
         setTimeOfUseCampaignService(timeOfUseCampaignService);
         activate(componentContext.getBundleContext());
+    }
+
+    @Override
+    public boolean isOnlineMode() {
+        String serverType = getEngineProperty(SERVER_TYPE_PROPERTY_NAME);
+        return serverType == null || serverType.equalsIgnoreCase("online");
     }
 
     @Override
@@ -292,6 +324,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Reference
+    public void setDataVaultService(DataVaultService deviceVaultService) {
+        this.dataVaultService = deviceVaultService;
+    }
+
+    @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
     }
@@ -362,6 +399,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
         keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 
@@ -379,6 +417,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+        this.ormService = ormService;
         this.dataModel = dataModel;
     }
 
@@ -405,6 +444,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference
@@ -438,6 +482,16 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
     public void setSecurityManagementService(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
     }
@@ -459,6 +513,9 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 bind(StatusService.class).toInstance(statusService);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
                 bind(UserService.class).toInstance(userService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(TaskService.class).toInstance(taskService);
             }
         };
     }
@@ -468,11 +525,13 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         try{
             this.bundleContext = bundleContext;
             dataModel.register(this.getModule());
-            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                    version(10, 4, 7), Upgrader_V10_4_7.class));
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
+            setEngineProperty(SERVER_TYPE_PROPERTY_NAME, bundleContext.getProperty(SERVER_TYPE_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
-
+            createOrUpdateComServerAliveStatusTask();
             this.launchComServer();
         } catch(Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
@@ -657,6 +716,46 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 //        return dataModel.getInstance(RemoteComServerImpl.RemoteComServerBuilderImpl.class);
 //    }
 
+    private void createOrUpdateComServerAliveStatusTask() {
+        createOrUpdateActionTask(ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION,
+                COM_SERVER_STATUS_TASK_RETRY_DELAY,
+                TranslationKeys.COM_SERVER_STATUS_TASK_NAME_TRANSLATION,
+                COM_SERVER_STATUS_TASK_NAME,
+                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFrequency()).minutes().at(0).build());
+    }
+
+    private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
+                                          TranslationKey subscriberSpecName, String taskName, ScheduleExpression scheduleExpression) {
+
+        threadPrincipalService.set(() -> "Activator");
+        try (TransactionContext context = transactionService.getContext()) {
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(taskName);
+            if (taskOptional.isPresent()) {
+                RecurrentTask task = taskOptional.get();
+                task.setScheduleExpression(scheduleExpression);
+                task.save();
+            } else {
+                DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                        .get()
+                        .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+                destination.activate();
+                destination.subscribe(subscriberSpecName, EngineService.COMPONENTNAME, Layer.DOMAIN);
+
+                taskService.newBuilder()
+                        .setApplication("Admin")
+                        .setName(taskName)
+                        .setScheduleExpression(scheduleExpression)
+                        .setDestination(destination)
+                        .setPayLoad("payload")
+                        .scheduleImmediately(true)
+                        .build();
+            }
+            context.commit();
+        } catch (Exception e) {
+            LOGGER.severe(e.getMessage());
+        }
+    }
+
     private static class OptionalIdentificationService implements IdentificationService {
         private AtomicReference<Optional<IdentificationService>> identificationService = new AtomicReference<>(Optional.empty());
 
@@ -709,10 +808,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(com.energyict.mdc.upl.meterdata.Device device) {
+        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(long deviceId, String deviceMrId) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(device))
+                    .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(deviceId, deviceMrId))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -797,10 +896,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
+        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(long id, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(deviceMessage))
+                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(id, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -859,6 +958,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return deviceMessageSpecificationService;
+        }
+
+        @Override
         public SocketService socketService() {
             return socketService;
         }
@@ -906,6 +1010,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public DeviceService deviceService() {
             return deviceService;
+        }
+
+        @Override
+        public OrmService ormService() {
+            return ormService;
         }
 
         @Override

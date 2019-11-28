@@ -3,7 +3,7 @@ package com.energyict.mdc.channels.sms;
 import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.protocols.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;

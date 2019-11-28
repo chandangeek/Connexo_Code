@@ -80,18 +80,18 @@ public class Event {
             this.eiServerEventCode = MeterEvent.POWERUP;
             this.eventDescription += "The meter powered up. Reason: 0x" + ProtocolUtils.buildStringHex(eventType & 0x000F, 2);
         } else if ((eventType & 0xFFF0) == 0x1020) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.PARAMETER_RESTORED;
             description = "Recovered some parameters. Parameters: 0x" + ProtocolUtils.buildStringHex(eventType & 0x000F, 2);
-            description += mapParameterRecoveryReason(eventType, description);
+            description += mapParameterRecoveryReason(eventType);
             this.eventDescription += description;
         } else if ((eventType & 0xFFF0) == 0x1030) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.PARAMETER_INITIALIZED;
             description = "Battery backed up copy AND flash copy of some parameters was lost. Parameters: 0x" + ProtocolUtils.buildStringHex(eventType & 0x000F, 2);
-            description += mapParameterRecoveryReason(eventType, description);
+            description += mapParameterRecoveryReason(eventType);
             this.eventDescription += description;
         } else if ((eventType & 0xFFF0) == 0x1040) {
-            this.eiServerEventCode = MeterEvent.OTHER;
-            description = "Meter runtime statistics changed. " + ProtocolUtils.buildStringHex(eventType & 0x000F, 2);
+            this.eiServerEventCode = MeterEvent.STATUS_CHANGED;
+            description = "Meter runtime statistics changed. 0x" + ProtocolUtils.buildStringHex(eventType & 0x000F, 2);
             if ((eventType & 0x000F) == RUNTIME_STATISTICS_ON_TIME) {
                 description += " - ON time changed.";
             }
@@ -109,12 +109,35 @@ public class Event {
             this.eiServerEventCode = MeterEvent.OTHER;
             this.eventDescription += "A ripple code listed in the meter setup was received. Index: 0x " + ProtocolUtils.buildStringHex(eventType & 0x000F, 2);
         } else if ((eventType & 0xF000) == 0x1000) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            boolean relayEnabled = ((eventType & 0x0080) == 0x0080);
+            boolean relayConnected = ((eventType & 0x0040) == 0x0040);
             int relayNumber = (eventType & 0x0F00) >> 8;
+
             description = "- Relay number: " + relayNumber;
             description += ", status: ";
-            description += ((eventType & 0x0080) == 0x0080) ? "enabled" : "disabled";
-            description += ((eventType & 0x0040) == 0x0040) ? " - connected" : " - disconnected";
+
+            if (relayEnabled) {
+                description += "enabled";
+                if (relayConnected) {
+                    description+=" - connected";
+                    this.eiServerEventCode = MeterEvent.RELAY_CONNECTED;
+                }
+                else {
+                    description+=" - disconnected";
+                    this.eiServerEventCode = MeterEvent.RELAY_DISCONNECTED;
+                }
+            }
+            else {
+                description += "disabled";
+                if (relayConnected) {
+                    description+=" - connected";
+                    this.eiServerEventCode = MeterEvent.RELAY_CONNECT_FAILED;
+                }
+                else {
+                    description+=" - disconnected";
+                    this.eiServerEventCode = MeterEvent.RELAY_DISCONNECT_FAILED;
+                }
+            }
 
             int reasonCode = eventType & 0x003F;
             if (reasonCode < 57) {
@@ -142,31 +165,31 @@ public class Event {
                 this.eventDescription += "Relay changed. Relay Stuck recorded" + description;
             }
         } else if ((eventType & 0xFFC0) == 0x2000) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_STARTED;
             this.eventDescription += "User " + (eventType & USER_NUMBER_MASK) + " logged on." + getPortString(eventType);
         } else if ((eventType & 0xFFCC) == 0x2040) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.CONFIGURATION_PARAMETER_CHANGED;
             this.eventDescription += "User changed setup " + ((eventType & CHANGED_SETUP_MASK) + 1) + "." + getPortString(eventType);
         } else if ((eventType & 0xFFCF) == 0x2080) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_DISALLOWED;
             this.eventDescription += "User access denied. Bad password." + getPortString(eventType);
         } else if ((eventType & 0xFFCF) == 0x2081) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_STOPPED;
             this.eventDescription += "User logged off. X command received." + getPortString(eventType);
         } else if ((eventType & 0xFFCF) == 0x2082) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_EXPIRED;
             this.eventDescription += "User logged off. Inactivity timeout." + getPortString(eventType);
         } else if ((eventType & 0xFFCF) == 0x2083) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_TERMINATED;
             this.eventDescription += "User logged off. Lost connection." + getPortString(eventType);
         } else if ((eventType & 0xFFCF) == 0x2084) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_SUBSTITUTED;
             this.eventDescription += "User logged off. Login under another name." + getPortString(eventType);
         } else if ((eventType & 0xFFCF) == 0x2085) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_ABORTED;
             this.eventDescription += "User logged off. Logoff via register write." + getPortString(eventType);
         } else if ((eventType & 0xFFCF) == 0x2086) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.SESSION_ABORTED;
             this.eventDescription += "User logged off. Logoff via register write for firmware update." + getPortString(eventType);
         } else if ((eventType & 0xF000) == 0xA000) {
             this.eiServerEventCode = MeterEvent.CONFIGURATIONCHANGE;
@@ -255,7 +278,7 @@ public class Event {
                     this.eventDescription += "Setup change: Spare. Mask: 0x" + ProtocolUtils.buildStringHex((eventType & 0x0F00) >> 8, 2);
                     break;
             }
-        } else if ((eventType & 0xFFFF) == 0x20CF) {
+        } else if ((eventType & 0xFFCF) == 0x20CF) {
             this.eiServerEventCode = MeterEvent.SETCLOCK_AFTER;
             this.eventDescription += "System time changed " + getTimeChangeReason(eventType) + getPortString(eventType);
         } else if ((eventType & 0xFFC0) == 0x20C0) {
@@ -425,33 +448,34 @@ public class Event {
             if ((eventType & 0x0080) == 0x80) {
                 this.eiServerEventCode = MeterEvent.VOLTAGE_SAG;
                 this.eventDescription += "Voltage sag change start";
-                this.eventDescription += mapPhase(eventType & 0x300, 0x300);
+                this.eventDescription += mapPhase((eventType & 0x300)>>8, 0);
             } else {
                 this.eiServerEventCode = MeterEvent.VOLTAGE_SWELL;
                 this.eventDescription += "Voltage swell change start";
-                this.eventDescription += mapPhase(eventType & 0x300, 0x300);
+                this.eventDescription += mapPhase((eventType & 0x300)>>8, 0);
             }
         } else if ((eventType & 0xF800) == 0x6800) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.VOLTAGE_IMBALANCE;
             this.eventDescription += "THD/Unbalance trigger.";
         } else if ((eventType & 0xFFFF) == 0xB210) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.MODEM_SESSION_FAILED;
             this.eventDescription += "Attempted to send a UDP alarm but never got an ACK from the server.";
         } else if ((eventType & 0xFFF0) == 0xB200) {
-            this.eiServerEventCode = MeterEvent.OTHER;
             if ((eventType & 0x000F) == 0) {
+                this.eiServerEventCode = MeterEvent.BATTERY_STATUS_ENABLED;
                 this.eventDescription += "Meter running full powered from the UPS battery.";
             } else if ((eventType & 0x000F) == 1) {
+                this.eiServerEventCode = MeterEvent.BATTERY_STATUS_DISABLED;
                 this.eventDescription += "Mains power restored while running on the UPS.";
             }
         } else if ((eventType & 0xFF00) == 0xB200) {
-            this.eiServerEventCode = MeterEvent.OTHER;
+            this.eiServerEventCode = MeterEvent.ASS_DEVICE_INPUT_ERROR;
             if ((eventType & 0x000F) == 2) {
-                this.eventDescription += "Latched alarm from input " + (eventType & 0x00F0);
+                this.eventDescription += "Latched alarm from input " + ((eventType & 0x00F0) >> 4);
             } else if ((eventType & 0x000F) == 3) {
-                this.eventDescription += "Unlatched alarm from input " + (eventType & 0x00F0);
+                this.eventDescription += "Unlatched alarm from input " + ((eventType & 0x00F0) >> 4);
             } else if ((eventType & 0x000F) == 4) {
-                this.eventDescription += "Momentary pulse alarm from input " + (eventType & 0x00F0);
+                this.eventDescription += "Momentary pulse alarm from input " + ((eventType & 0x00F0) >> 4);
             }
         } else if ((eventType & 0xFFF0) == 0xB300) {
             this.eiServerEventCode = MeterEvent.POWERUP;
@@ -474,7 +498,8 @@ public class Event {
         }
     }
 
-    private String mapParameterRecoveryReason(int eventType, String description) {
+    private String mapParameterRecoveryReason(int eventType) {
+        String description = "";
         if ((eventType & FLASH_BACKUP_BAD) == FLASH_BACKUP_BAD) {
             description += " - Flash backup bad";
         }

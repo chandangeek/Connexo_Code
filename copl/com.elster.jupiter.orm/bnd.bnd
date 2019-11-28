@@ -1,15 +1,15 @@
 -classpath: target/classes
 -dsannotations: *
 Include-Resource: README.HTML
-Private-Package: com.elster.jupiter.orm.impl,\
-	com.elster.jupiter.orm.internal,\
-	com.elster.jupiter.orm.query.impl,\
-	com.elster.jupiter.orm.fields.impl,\
-	com.elster.jupiter.orm.schema.h2,\
-	com.elster.jupiter.orm.schema.oracle,\
-	com.elster.jupiter.orm.associations.impl
+Private-Package:
 Export-Package: com.elster.jupiter.orm,\
+    com.elster.jupiter.orm.impl,\
+    com.elster.jupiter.orm.internal,\
 	com.elster.jupiter.orm.callback,\
 	com.elster.jupiter.orm.associations, \
 	com.elster.jupiter.orm.audit, \
-	com.elster.jupiter.orm.schema
+	com.elster.jupiter.orm.schema,\
+	com.elster.jupiter.orm.query.impl,\
+	com.elster.jupiter.orm.fields.impl,\
+	com.elster.jupiter.orm.associations.impl,\
+	com.elster.jupiter.orm.associations.references

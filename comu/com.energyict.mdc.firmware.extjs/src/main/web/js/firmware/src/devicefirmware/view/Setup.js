@@ -58,7 +58,7 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
                         itemId: 'no-usage-found',
-                        text: Uni.I18n.translate('relativeperiod.usage.empty', 'FWC', 'No device firmware history')
+                        text: Uni.I18n.translate('relativeperiod.usage.empty', 'FWC', 'No device firmware history')
                     }
                 }
             ]

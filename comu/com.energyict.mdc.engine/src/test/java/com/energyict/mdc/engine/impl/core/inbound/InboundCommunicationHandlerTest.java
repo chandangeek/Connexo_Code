@@ -36,7 +36,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.commands.offline.ServerOfflineDevice;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -57,6 +56,7 @@ import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortMonitorImpl;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortOperationalStatisticsImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -212,6 +212,7 @@ public class InboundCommunicationHandlerTest {
         when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.serviceProvider.engineService()).thenReturn(this.engineService);
         when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(this.engineService.isOnlineMode()).thenReturn(true);
         when(this.engineService.findDeviceCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
         when(this.serviceProvider.transactionService()).thenReturn(this.transactionService);
         when(this.protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName(anyString())).thenReturn(Collections.<InboundDeviceProtocolPluggableClass>emptyList());
@@ -430,7 +431,6 @@ public class InboundCommunicationHandlerTest {
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<>(0));
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method
@@ -455,7 +455,7 @@ public class InboundCommunicationHandlerTest {
     }
 
     private void testComSessionShadowWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
-        DeviceIdentifierById deviceIdentifier = DeviceIdentifierById.from(DEVICE_ID);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         Device device = getMockedDevice();
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.DATA);
@@ -472,7 +472,6 @@ public class InboundCommunicationHandlerTest {
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).thenReturn(this.comSessionBuilder);
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method
@@ -584,7 +583,7 @@ public class InboundCommunicationHandlerTest {
         List<CollectedData> collectedData = new ArrayList<>();
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData()).thenReturn(collectedData);
-        DeviceIdentifier deviceIdentifier = DeviceIdentifierById.from(DEVICE_ID);
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         Device device = getMockedDevice();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getId()).thenReturn(DEVICE_ID);
@@ -608,7 +607,6 @@ public class InboundCommunicationHandlerTest {
         when(this.connectionTaskService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).thenReturn(this.comSessionBuilder);
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method
@@ -677,7 +675,6 @@ public class InboundCommunicationHandlerTest {
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method

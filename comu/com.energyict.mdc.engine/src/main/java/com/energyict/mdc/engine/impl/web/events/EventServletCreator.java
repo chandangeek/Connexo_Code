@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * ported from eiserver for jetty upgrade
+ * Created by H216758 on 5/30/2017.
  */
 public class EventServletCreator implements WebSocketCreator, WebSocketCloseEventListener {
     private EventAPIStatistics statistics;
@@ -26,14 +26,18 @@ public class EventServletCreator implements WebSocketCreator, WebSocketCloseEven
 
     @Override
     public Object createWebSocket(ServletUpgradeRequest servletUpgradeRequest, ServletUpgradeResponse servletUpgradeResponse) {
-        WebSocketEventPublisher newEventPublisher = webSocketEventPublisherFactory.newWebSocketEventPublisher(this);
+        WebSocketEventPublisher newEventPublisher = webSocketEventPublisherFactory.newWebSocketEventPublisher(this.statistics);
         eventPublishers.add(newEventPublisher);
         return newEventPublisher;
     }
 
-
     @Override
-    public void closedFrom(WebSocketEventPublisher webSocketEventPublisher) {
-        eventPublishers.remove(webSocketEventPublisher);
+    public void cleanUpClosedPublishers() {
+        for (Iterator<WebSocketEventPublisher> it = this.eventPublishers.iterator(); it.hasNext(); ) {
+            WebSocketEventPublisher eventPublisher = it.next();
+            if (eventPublisher.isClosed()) {
+                it.remove();
+            }
+        }
     }
 }

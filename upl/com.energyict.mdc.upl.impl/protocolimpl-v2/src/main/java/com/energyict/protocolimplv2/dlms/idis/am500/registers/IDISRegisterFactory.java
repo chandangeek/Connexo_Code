@@ -36,7 +36,7 @@ import com.energyict.protocolimpl.dlms.idis.registers.SFSKPhyMacSetupMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.SFSKReportingSystemListMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.SFSKSyncTimeoutsMapper;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.math.BigDecimal;

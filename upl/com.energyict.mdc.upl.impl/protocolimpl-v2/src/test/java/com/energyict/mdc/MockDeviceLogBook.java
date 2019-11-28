@@ -60,6 +60,10 @@ public class MockDeviceLogBook implements CollectedLogBook {
         return comTask.isConfiguredToCollectEvents();
     }
 
+    public boolean isAwareOfPushedEvents() {
+        return false;
+    }
+
     @Override
     @XmlAttribute
     public List<MeterProtocolEvent> getCollectedMeterEvents() {

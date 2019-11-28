@@ -52,5 +52,8 @@ Ext.define('Dxp.privileges.DataExport', {
     },
     canUpdateSchedule:function(){
         return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.updateSchedule);
+    },
+    canAdministrate:function(){
+        return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.admin);
     }
 });

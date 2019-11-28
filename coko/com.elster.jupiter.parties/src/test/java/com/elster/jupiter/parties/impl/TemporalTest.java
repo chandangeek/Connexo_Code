@@ -11,7 +11,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
@@ -73,7 +73,7 @@ public class TemporalTest {
                 new EventsModule(),
                 new InMemoryMessagingModule(),
                 new DomainUtilModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),

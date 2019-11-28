@@ -15,7 +15,11 @@ import javax.inject.Inject;
 /**
  * Serves as an implementation for a ComTask that is defined by the User
  */
-class ComTaskDefinedByUserImpl extends ComTaskImpl {
+public class ComTaskDefinedByUserImpl extends ComTaskImpl {
+
+    public ComTaskDefinedByUserImpl() {
+        super();
+    }
 
     @Inject
     ComTaskDefinedByUserImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider,

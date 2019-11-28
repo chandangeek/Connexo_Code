@@ -4,8 +4,8 @@ import com.energyict.mdc.protocol.inbound.general.frames.parsing.InboundParamete
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
+import com.energyict.mdc.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.mdc.identifiers.DialHomeIdPlaceHolderDeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.impl.PluggableClassUsagePropertyImpl;
 
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 
 /**
@@ -22,7 +23,11 @@ import java.time.Instant;
  */
 public class ConnectionTaskPropertyImpl extends PluggableClassUsagePropertyImpl<ConnectionType> implements ConnectionTaskProperty {
 
-    private final ConnectionTaskImpl connectionTask;
+    private ConnectionTaskImpl connectionTask;
+
+    public ConnectionTaskPropertyImpl() {
+        super();
+    }
 
     public ConnectionTaskPropertyImpl(ConnectionTaskImpl connectionTask, String name) {
         super(name);
@@ -38,6 +43,7 @@ public class ConnectionTaskPropertyImpl extends PluggableClassUsagePropertyImpl<
         return this.connectionTask.getId() == connectionTask.getId();
     }
 
+    @XmlTransient
     public ConnectionTask getConnectionTask() {
         return connectionTask;
     }

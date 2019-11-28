@@ -25,7 +25,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -96,7 +96,7 @@ public class InMemoryIntegrationPersistence {
         modules.add(new BpmModule());
         modules.add(new EventsModule());
         modules.add(new DomainUtilModule());
-        modules.add(new OrmModule());
+        modules.add(new H2OrmModule());
         modules.add(new ThreadSecurityModule());
         modules.add(new TransactionModule());
         modules.add(new NlsModule());

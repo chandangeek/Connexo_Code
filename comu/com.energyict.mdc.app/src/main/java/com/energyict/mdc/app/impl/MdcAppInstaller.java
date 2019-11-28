@@ -148,6 +148,9 @@ public class MdcAppInstaller {
                     //Business processes
                     com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
 
+                    //Mobile Comserver
+                    com.energyict.mdc.engine.security.Privileges.Constants.OPERATE_MOBILE_COMSERVER,
+
                     //Communication
                     com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
                     com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE,

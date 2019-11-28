@@ -22,7 +22,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -130,7 +130,7 @@ public class RecurrentTaskIT {
                     new InMemoryMessagingModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new UtilModule(clock),
                     new ThreadSecurityModule(),
                     new PubSubModule(),

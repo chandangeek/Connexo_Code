@@ -10,6 +10,7 @@ import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -25,6 +26,7 @@ import java.util.Optional;
      @JsonSubTypes.Type(value = OnlineComServerInfo.class, name = "Online"),
      @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "Offline"),
      @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote") })
+@JsonIgnoreProperties( {"onlineComServerName"})
 public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C extends ComServer> {
 
     public long id;
@@ -67,6 +69,7 @@ public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C exten
         this.version = comServer.getVersion();
         this.serverMonitorUrl = comServer.getServerMonitorUrl();
     }
+
 
     /**
      * Creates info object containing both ComServer properties and comports

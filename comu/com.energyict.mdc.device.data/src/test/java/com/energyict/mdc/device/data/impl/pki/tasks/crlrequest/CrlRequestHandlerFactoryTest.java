@@ -102,7 +102,7 @@ public class CrlRequestHandlerFactoryTest {
         when(caService.getPkiCaNames()).thenReturn(caNames);
         when(crlRequestTaskProperty.getCaName()).thenReturn(CA_NAME);
         when(crlRequestTaskProperty.getSecurityAccessor()).thenReturn(securityAccessor);
-        when(securityAccessor.getActualValue()).thenReturn(Optional.of(certificateWrapper));
+        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(certificateWrapper));
         when(certificateWrapper.getCertificate()).thenReturn(Optional.of(x509Certificate));
         when(x509Certificate.getNotAfter()).thenReturn(new Date());
         when(x509Certificate.getPublicKey()).thenReturn(publicKey);

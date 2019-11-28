@@ -46,7 +46,7 @@ import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 import test.com.energyict.protocolimplv2.coronis.common.WaveFlowConnect;
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.CommonObisCodeMapper;
@@ -406,7 +406,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     public int getProfileInterval() {
-        return (int) Temporals.toSeconds(offlineDevice.getAllOfflineLoadProfiles().get(0).interval());
+        return (int) Temporals.toSeconds(offlineDevice.getAllOfflineLoadProfiles().get(0).getInterval());
     }
 
     public CommonObisCodeMapper getCommonObisCodeMapper() {
