@@ -32,7 +32,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -153,7 +153,7 @@ public class DirectoryForAppServerlIT {
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new UtilModule(Clock.fixed(NOW.toInstant(), ZoneId.systemDefault())),
                     new ThreadSecurityModule(),
                     new PubSubModule(),

@@ -15,25 +15,14 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.comserver.ComPort;
-import com.energyict.mdc.common.comserver.ComPortPool;
-import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.HighPriorityComJob;
-import com.energyict.mdc.common.comserver.IPBasedInboundComPort;
-import com.energyict.mdc.common.comserver.InboundCapable;
-import com.energyict.mdc.common.comserver.InboundComPort;
-import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
-import com.energyict.mdc.common.comserver.OnlineComServer;
-import com.energyict.mdc.common.comserver.OutboundCapable;
-import com.energyict.mdc.common.comserver.OutboundCapableComServer;
-import com.energyict.mdc.common.comserver.OutboundComPort;
-import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.comserver.*;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -58,6 +47,7 @@ import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -165,7 +155,6 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         registerAsMBean();
         this.eventMechanism = new EventMechanism(embeddedWebServerFactory, operationalMonitor.getEventApiStatistics());
         this.comServerDAO = comServerDAO;
-
         this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
@@ -216,8 +205,53 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
+    RunningComServerImpl(OfflineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super();
+        this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
+        this.comServer = comServer;
+        this.comServerDAO = comServerDAO;
+        registerAsMBean();
+        EventPublisher eventPublisher = new EventPublisherImpl(this);
+        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
+                new WebSocketEventPublisherFactoryImpl(
+                        this,
+                        serviceProvider.connectionTaskService(),
+                        serviceProvider.communicationTaskService(),
+                        serviceProvider.deviceService(),
+                        serviceProvider.engineConfigurationService(),
+                        serviceProvider.identificationService(),
+                        eventPublisher);
+        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory), operationalMonitor.getEventApiStatistics());
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
+        this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
+        this.addOutboundComPorts(comServer.getOutboundComPorts());
+        this.addInboundComPorts(comServer.getInboundComPorts());
+    }
+
+    RunningComServerImpl(OfflineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
+        super();
+        this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
+        this.comServer = comServer;
+        registerAsMBean();
+        this.eventMechanism = new EventMechanism(embeddedWebServerFactory, operationalMonitor.getEventApiStatistics());
+        this.comServerDAO = comServerDAO;
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
+        this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
+        this.addOutboundComPorts(comServer.getOutboundComPorts());
+        this.addInboundComPorts(comServer.getInboundComPorts());
+    }
+
     private Thesaurus getThesaurus(NlsService nlsService) {
-        return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
+        if (nlsService != null) {
+            return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
+        }
+        return null;
     }
 
     private void initialize(ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory) {
@@ -377,8 +411,16 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.status = ServerProcessStatus.STARTED;
     }
 
+    @Override
+    public void restartAllComPorts() {
+        this.scheduledComPorts.forEach(ScheduledComPort::shutdown);
+        this.scheduledComPorts.forEach(ScheduledComPort::start);
+    }
+
     private void registerAsMBean() {
-        this.operationalMonitor = (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+        if (this.serviceProvider.managementBeanFactory() != null) {
+            this.operationalMonitor = (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+        }
     }
 
     private void unregisterAsMBean() {
@@ -1052,7 +1094,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     @Override
     public void eventClientRegistered() {
         ComServerMonitor monitor = this.getOperationalMonitor();
-        monitor.getEventApiStatistics().clientRegistered();
+        if (monitor != null) {
+            monitor.getEventApiStatistics().clientRegistered();
+        }
     }
 
     @Override
@@ -1064,7 +1108,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     @Override
     public void eventWasPublished() {
         ComServerMonitor monitor = this.getOperationalMonitor();
-        ((ServerEventAPIStatistics) monitor.getEventApiStatistics()).eventWasPublished();
+        if (monitor != null) {
+            ((ServerEventAPIStatistics) monitor.getEventApiStatistics()).eventWasPublished();
+        }
     }
 
     private ComServerLogger getLogger() {
@@ -1226,7 +1272,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private class EventMechanism {
         private final EmbeddedWebServerFactory embeddedWebServerFactory;
-        private final EmbeddedWebServer embeddedWebServer;
+        private EmbeddedWebServer embeddedWebServer;
         private final EventPublisher eventPublisher;
 
         private EventMechanism(EmbeddedWebServerFactory embeddedWebServerFactory, EventAPIStatistics eventAPIStatistics) {
@@ -1316,6 +1362,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return serviceProvider.protocolPluggableService();
+        }
+
+        @Override
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return serviceProvider.deviceMessageSpecificationService();
         }
 
         @Override
@@ -1559,6 +1610,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         @Override
         public TimeOfUseCampaignService touService() {
             return serviceProvider.touService();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
         }
 
     }

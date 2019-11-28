@@ -81,4 +81,6 @@ public interface RunningComServer extends ServerProcess {
      */
     void executeWithHighPriority(HighPriorityComJob job);
 
+    public void restartAllComPorts();
+
 }

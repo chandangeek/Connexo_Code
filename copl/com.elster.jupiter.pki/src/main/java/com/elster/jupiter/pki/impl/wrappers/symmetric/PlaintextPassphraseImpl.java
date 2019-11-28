@@ -21,6 +21,8 @@ import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -41,11 +43,11 @@ import static java.util.stream.Collectors.toList;
  */
 public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
 
-    protected final DataVaultService dataVaultService;
-    protected final PropertySpecService propertySpecService;
-    private final DataModel dataModel;
-    private final Thesaurus thesaurus;
-    private final Clock clock;
+    protected DataVaultService dataVaultService;
+    protected PropertySpecService propertySpecService;
+    private DataModel dataModel;
+    private Thesaurus thesaurus;
+    private Clock clock;
 
     public enum Fields {
         PASSPHRASE("encryptedPassphrase"),
@@ -70,6 +72,10 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
 
+    PlaintextPassphraseImpl() {
+        super();
+    }
+
     @Inject
     PlaintextPassphraseImpl(DataVaultService dataVaultService, PropertySpecService propertySpecService, DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         this.dataVaultService = dataVaultService;
@@ -92,7 +98,11 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
     }
 
     @Override
-    public Optional<String> getPassphrase() {
+    @XmlElement
+    public Optional<String> getEncryptedPassphrase() {
+        if (dataVaultService == null) {
+            return Optional.of(encryptedPassphrase);
+        }
         if (Checks.is(this.encryptedPassphrase).emptyOrOnlyWhiteSpace()) {
             return Optional.empty();
         }
@@ -105,12 +115,17 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
     }
 
     @Override
-    public void setPassphrase(String plainTextPassphrase) {
-        this.encryptedPassphrase=dataVaultService.encrypt(plainTextPassphrase.getBytes());
-        this.save();
+    public void setEncryptedPassphrase(String plainTextPassphrase) {
+        if (dataVaultService == null) {
+            encryptedPassphrase = plainTextPassphrase;
+        } else {
+            this.encryptedPassphrase = dataVaultService.encrypt(plainTextPassphrase.getBytes());
+            this.save();
+        }
     }
 
     @Override
+    @XmlTransient
     public Optional<Instant> getExpirationTime() {
         return Optional.ofNullable(expirationTime);
     }
@@ -135,7 +150,7 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
         for (int i=0; i<keyType.getPasswordLength(); i++) {
             password+=possibleChars.charAt((int) (random.nextDouble()*possibleChars.length()));
         }
-        setPassphrase(password);
+        setEncryptedPassphrase(password);
         this.save();
     }
 
@@ -174,6 +189,7 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
     }
 
     @Override
+    @XmlTransient
     public List<PropertySpec> getPropertySpecs() {
         return EnumSet.allOf(Properties.class)
                 .stream().map(properties -> properties.asPropertySpec(propertySpecService)).collect(toList());
@@ -200,13 +216,13 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
             @Override
             void copyFromMap(Map<String, Object> properties, PlaintextPassphraseImpl plaintextPassphrase) {
                 if (properties.containsKey(getPropertyName())) {
-                    plaintextPassphrase.setPassphrase((String) properties.get(getPropertyName()));
+                    plaintextPassphrase.setEncryptedPassphrase((String) properties.get(getPropertyName()));
                 }
             }
 
             @Override
             void copyToMap(Map<String, Object> properties, PlaintextPassphraseImpl plaintextPassphrase) {
-                properties.put(getPropertyName(), plaintextPassphrase.getPassphrase().orElse(null));
+                properties.put(getPropertyName(), plaintextPassphrase.getEncryptedPassphrase().orElse(null));
             }
         },
         ;

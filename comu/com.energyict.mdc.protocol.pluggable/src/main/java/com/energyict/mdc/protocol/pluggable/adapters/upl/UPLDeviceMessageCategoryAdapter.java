@@ -3,7 +3,12 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
+import com.energyict.protocolimplv2.messages.DeviceMessageCategoryImpl;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class UPLDeviceMessageCategoryAdapter implements DeviceMessageCategory {
 
-    private final com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory;
+    private com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory;
 
     public static DeviceMessageCategory adaptTo(com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory) {
         if (uplDeviceMessageCategory instanceof ConnexoDeviceMessageCategoryAdapter) {
@@ -27,30 +32,45 @@ public class UPLDeviceMessageCategoryAdapter implements DeviceMessageCategory {
         }
     }
 
+    public UPLDeviceMessageCategoryAdapter() {
+    }
+
     private UPLDeviceMessageCategoryAdapter(com.energyict.mdc.upl.messages.DeviceMessageCategory uplDeviceMessageCategory) {
         this.uplDeviceMessageCategory = uplDeviceMessageCategory;
     }
 
+    @XmlElements ({
+            @XmlElement(type = DeviceMessageCategoryImpl.class),
+            @XmlElement(type = ConnexoDeviceMessageCategoryAdapter.class),
+    })
     public com.energyict.mdc.upl.messages.DeviceMessageCategory getUplDeviceMessageCategory() {
         return uplDeviceMessageCategory;
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public String getName() {
         return uplDeviceMessageCategory.getName();
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public String getDescription() {
         return uplDeviceMessageCategory.getDescription();
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public int getId() {
         return uplDeviceMessageCategory.getId();
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public List<DeviceMessageSpec> getMessageSpecifications() {
         return uplDeviceMessageCategory.getMessageSpecifications().stream()
                 .map(UPLDeviceMessageSpecAdapter::adaptTo)

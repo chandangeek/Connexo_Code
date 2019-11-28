@@ -32,28 +32,18 @@ import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.common.tasks.ServerComTaskExecution;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.common.tasks.history.TaskExecutionSummary;
-import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDelegate;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
+import com.energyict.mdc.device.config.impl.ProtocolDialectConfigurationPropertiesImpl;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
-import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
-import com.energyict.mdc.device.data.impl.ConnectionTaskSuccessIndicatorTranslationKeys;
-import com.energyict.mdc.device.data.impl.CreateEventType;
-import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.PropertyCache;
-import com.energyict.mdc.device.data.impl.PropertyFactory;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
-import com.energyict.mdc.device.data.impl.ValidPluggableClassId;
+import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.device.data.impl.*;
 import com.energyict.mdc.device.data.impl.configchange.ServerConnectionTaskForConfigChange;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
+import com.energyict.mdc.engine.config.impl.OutboundComPortPoolImpl;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.TypedProperties;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -61,14 +51,10 @@ import javax.validation.ConstraintViolationException;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -134,16 +120,25 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    private final Clock clock;
+    private Clock clock;
     private DataModel dataModel;
     private EventService eventService;
     private Thesaurus thesaurus;
-    private final ServerConnectionTaskService connectionTaskService;
-    private final ServerCommunicationTaskService communicationTaskService;
-    private final ProtocolPluggableService protocolPluggableService;
+    private ServerConnectionTaskService connectionTaskService;
+    private ServerCommunicationTaskService communicationTaskService;
+    private ProtocolPluggableService protocolPluggableService;
 
     private boolean allowIncomplete = true;
     private boolean doNotTouchParentDevice = true;
+    private boolean obsolete;
+    private boolean executing;
+    private ConnectionType connectionType;
+    private String name;
+    private List<ConnectionTaskProperty> properties = new ArrayList<ConnectionTaskProperty>();
+
+    protected ConnectionTaskImpl() {
+        super();
+    }
 
     protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
         super();
@@ -184,6 +179,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlAttribute
     public long getId() {
         return id;
     }
@@ -286,6 +282,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlElement(type = ProtocolDialectConfigurationPropertiesImpl.class, name = "protocolDialectConfigurationProperties")
     public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
         return this.protocolDialectConfigurationProperties.orNull();
     }
@@ -301,8 +298,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.clearPropertyCache();
     }
 
+    private Instant now;
+
+    @XmlAttribute
     protected Instant now() {
-        return clock.instant();
+        if (clock != null) {
+            now = clock.instant();
+        }
+        return now;
     }
 
     @Override
@@ -347,6 +350,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         if (!doNotTouchParentDevice) {
             this.dataModel.touch(device.get());
         }
+        this.notifyUpdated();
+    }
+
+    protected void update(DataModel dataModel, String... fieldNames) {
+        dataModel.update(this, fieldNames);
         this.notifyUpdated();
     }
 
@@ -422,11 +430,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         updatedFields.add(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
     }
 
+    @XmlAttribute
     public String getName() {
-        return getPartialConnectionTask().getName();
+        if (getPartialConnectionTask() != null) {
+            name = getPartialConnectionTask().getName();
+        }
+        return name;
     }
 
     @Override
+    @XmlElement(type = DeviceImpl.class, name = "device")
     public Device getDevice() {
         return this.device.get();
     }
@@ -440,6 +453,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.getPluggableClass().getConnectionType();
     }
 
+    @XmlTransient
     public ConnectionTypePluggableClass getPluggableClass() {
         if (this.pluggableClass == null) {
             this.loadPluggableClass();
@@ -448,18 +462,24 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void loadPluggableClass() {
-        this.pluggableClass = this.findConnectionTypePluggableClass(this.pluggableClassId).get();
+        if (this.findConnectionTypePluggableClass(this.pluggableClassId).isPresent()) {
+            this.pluggableClass = this.findConnectionTypePluggableClass(this.pluggableClassId).get();
+        }
     }
 
     private Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long connectionTypePluggableClassId) {
-        return this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId).
-                map(PluggableClassWithPossibleValues::new);
+        if (this.protocolPluggableService != null) {
+            return this.protocolPluggableService.findConnectionTypePluggableClass(connectionTypePluggableClassId).
+                    map(PluggableClassWithPossibleValues::new);
+        }
+        return Optional.empty();
     }
 
     private void clearPropertyCache() {
         this.cache.clear();
     }
 
+    @XmlTransient
     public List<ConnectionTaskProperty> getAllProperties() {
         return this.getAllProperties(clock.instant());
     }
@@ -535,6 +555,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlElement(type = OutboundComPortPoolImpl.class, name = "comPortPool")
     public CPPT getComPortPool() {
         return this.comPortPool.orNull();
     }
@@ -550,8 +571,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public PCTT getPartialConnectionTask() {
-        return this.partialConnectionTask.get();
+        if (this.partialConnectionTask.isPresent())
+            return this.partialConnectionTask.get();
+        return null;
+    }
+
+    public void setPartialConnectionTask(PCTT partialConnectionTask) {
+        this.partialConnectionTask.set(partialConnectionTask);
     }
 
     @Override
@@ -582,7 +611,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     private void setLastSessionAndUpdate(ComSession session) {
         this.setLastSession(session);
-        this.update(ConnectionTaskFields.LAST_SESSION.fieldName(),
+        this.update(session.getDataModel(), ConnectionTaskFields.LAST_SESSION.fieldName(),
                 ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
                 ConnectionTaskFields.LAST_SESSION_STATUS.fieldName(),
                 ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
@@ -632,6 +661,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlTransient
     public boolean isDefault() {
         return this.isDefault;
     }
@@ -662,8 +692,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlAttribute
     public boolean isObsolete() {
-        return this.obsoleteDate != null;
+        obsolete = this.obsoleteDate != null;
+        return obsolete;
     }
 
     @Override
@@ -681,8 +713,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlElement(type = ConnectionTaskPropertyImpl.class)
     public List<ConnectionTaskProperty> getProperties() {
-        return this.getProperties(this.now());
+        if (clock != null) {
+            this.properties = this.getProperties(this.now());
+        }
+        return this.properties;
     }
 
     @Override
@@ -742,7 +778,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected List<ConnectionTaskProperty> adaptToUPLValues(List<ConnectionTaskProperty> connectionTaskProperties) {
         return connectionTaskProperties.stream().map(property -> new ConnectionTaskPropertyImpl(
-                (ConnectionTaskImpl) property.getConnectionTask(),
+                property.getConnectionTask() == null ? this : (ConnectionTaskImpl)property.getConnectionTask(),
                 property.getName(),
                 TypedPropertiesValueAdapter.adaptToUPLValue(getDevice(), property.getValue()),
                 property.getActivePeriod(),
@@ -796,8 +832,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlAttribute
     public boolean isExecuting() {
-        return this.comPort.isPresent();
+        executing = this.comPort.isPresent();
+        return executing;
     }
 
     @Override
@@ -824,9 +862,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    @XmlElement
+    @XmlElement(type = ConnectionTypeWithPossibleValues.class, name = "connectionType")
     public ConnectionType getConnectionType() {
-        return this.getPluggableClass().getConnectionType();
+        if (this.getPluggableClass() != null) {
+            connectionType = this.getPluggableClass().getConnectionType();
+        }
+        return connectionType;
     }
 
     protected TimeZone getUTCTimeZone() {
@@ -868,6 +909,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @XmlAttribute
     public long getVersion() {
         return this.version;
     }
@@ -962,6 +1004,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
 
         @Override
+        @XmlTransient
         public Optional<PropertySpec> getPropertySpec(String name) {
             return super.getPropertySpec(name).
                     map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getSecurityAccessorTypes(), ps));
@@ -969,30 +1012,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
         @Override
         public ConnectionType getConnectionType() {
-            return new ConnectionTypeWithPossibleValues(super.getConnectionType());
-        }
-    }
-
-    /**
-     * The wrapper is used to add additional PossibleValue to KeyAccessorType possible values
-     */
-    private class ConnectionTypeWithPossibleValues extends AbstractConnectionTypeDelegate {
-
-        private ConnectionTypeWithPossibleValues(ConnectionType connectionType) {
-            super(connectionType);
-        }
-
-        @Override
-        public List<PropertySpec> getPropertySpecs() {
-            return connectionType.getPropertySpecs().stream().
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getSecurityAccessorTypes(), ps)).
-                    collect(Collectors.toList());
-        }
-
-        @Override
-        public Optional<PropertySpec> getPropertySpec(String name) {
-            return connectionType.getPropertySpec(name).
-                    map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getSecurityAccessorTypes(), ps));
+            return new ConnectionTypeWithPossibleValues(super.getConnectionType(), getDevice());
         }
     }
 }

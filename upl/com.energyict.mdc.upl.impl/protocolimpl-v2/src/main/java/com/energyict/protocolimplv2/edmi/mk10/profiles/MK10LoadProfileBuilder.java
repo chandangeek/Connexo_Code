@@ -13,7 +13,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
 import com.energyict.protocolimpl.edmi.common.command.CommandResponseException;
 import com.energyict.protocolimpl.edmi.common.command.TimeInfo;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 
 import java.util.ArrayList;
 import java.util.Date;

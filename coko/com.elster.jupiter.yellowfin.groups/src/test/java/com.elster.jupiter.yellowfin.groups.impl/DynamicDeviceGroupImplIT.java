@@ -27,7 +27,7 @@ import com.elster.jupiter.metering.groups.impl.SimpleEndDeviceQueryProvider;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.search.enddevice.EndDeviceSearchDomain;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -125,7 +125,7 @@ public class DynamicDeviceGroupImplIT {
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new UtilModule(),
                     new ThreadSecurityModule(),
                     new PubSubModule(),

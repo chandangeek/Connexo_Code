@@ -108,6 +108,5 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIRMWARE_VERSION_MISSING = "firmwareVersionMissing";
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";
 
-        public static final TranslationKey FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY = new SimpleTranslationKey("FirmwareActionCheckVersionNow", "Check firmware version/image now");
     }
 }

@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.meterdata.LoadProfile;
 
 import com.energyict.obis.ObisCode;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,7 +31,8 @@ import java.util.Set;
  */
 public interface LoadProfileIdentifier extends Identifier {
 
-    ObisCode getProfileObisCode();
+    @XmlElement
+    ObisCode getLoadProfileObisCode();
 
     DeviceIdentifier getDeviceIdentifier();
 

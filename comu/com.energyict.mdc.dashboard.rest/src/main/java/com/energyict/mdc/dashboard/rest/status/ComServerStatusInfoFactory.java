@@ -6,7 +6,7 @@ package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.energyict.mdc.common.comserver.ComServerAliveStatus;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 import com.energyict.mdc.dashboard.rest.status.impl.ComServerTypeAdapter;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;

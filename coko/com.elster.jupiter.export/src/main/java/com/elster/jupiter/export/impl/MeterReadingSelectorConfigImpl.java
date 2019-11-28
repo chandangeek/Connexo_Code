@@ -26,6 +26,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,11 +66,11 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
 
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
-          return findEndDeviceGroupById();
+        return findEndDeviceGroupById();
     }
 
     @Override
-    public long getEndDeviceGroupId(){
+    public long getEndDeviceGroupId() {
         return endDeviceGroup;
     }
 
@@ -87,20 +88,22 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
 
     @Override
     public Set<ReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+        Range<Instant> range = occurrence.getDefaultSelectorOccurrence()
+                .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                .orElse(Range.all());
         return decorate(getEndDeviceGroup()
-                .getMembers(occurrence.getDefaultSelectorOccurrence()
-                        .map(DefaultSelectorOccurrence::getExportedDataInterval)
-                        .orElse(Range.all()))
+                .getMembers(range)
                 .stream())
                 .map(Membership::getMember)
                 .filterSubType(Meter.class)
-                .flatMap(rt -> this.readingTypeDataExportItems(rt, occurrence))
+                .flatMap(rt -> this.readingTypeDataExportItems(rt, occurrence, range))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<ReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, DataExportOccurrence occurrence) {
+    private Stream<ReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, DataExportOccurrence occurrence, Range<Instant> range) {
         Set<ReadingType> readingTypeSet = occurrence.getRetryTime()
                 .isPresent() ? getReadingTypes(occurrence.getRetryTime().get()) : getReadingTypes();
+        readingTypeSet.retainAll(readingContainer.getReadingTypes(range));
         return readingTypeSet.stream()
                 .map(r -> getExportItems().stream()
                         .map(ReadingTypeDataExportItem.class::cast)

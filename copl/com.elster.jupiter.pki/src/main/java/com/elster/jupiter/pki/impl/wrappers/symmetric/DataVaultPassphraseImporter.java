@@ -23,7 +23,7 @@ public class DataVaultPassphraseImporter extends AbstractDataVaultImporter {
 
     public PlaintextPassphrase createPlaintextWrapper(byte[] bytes) {
         PlaintextPassphrase instance = (PlaintextPassphrase) securityManagementService.newPassphraseWrapper(securityAccessorType);
-        instance.setPassphrase(new String(bytes));
+        instance.setEncryptedPassphrase(new String(bytes));
         return instance;
     }
 

@@ -15,8 +15,8 @@ public class CrlRequestTaskInfoFactory {
 
     public CrlRequestTaskPropertyInfo asInfo(CrlRequestTaskProperty crlRequestTaskProperty) {
         CrlRequestTaskPropertyInfo info = new CrlRequestTaskPropertyInfo();
-        info.securityAccessor = new IdWithNameInfo(crlRequestTaskProperty.getSecurityAccessor().getKeyAccessorType().getId(), crlRequestTaskProperty.getSecurityAccessor()
-                .getKeyAccessorType()
+        info.securityAccessor = new IdWithNameInfo(crlRequestTaskProperty.getSecurityAccessor().getKeyAccessorTypeReference().getId(), crlRequestTaskProperty.getSecurityAccessor()
+                .getKeyAccessorTypeReference()
                 .getName());
         info.caName = crlRequestTaskProperty.getCaName();
         int logLevel = crlRequestTaskProperty.getRecurrentTask().getLogLevel();

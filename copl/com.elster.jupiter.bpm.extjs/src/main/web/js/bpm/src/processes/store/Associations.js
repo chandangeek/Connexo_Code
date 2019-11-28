@@ -4,10 +4,7 @@
 
 Ext.define('Bpm.processes.store.Associations', {
     extend: 'Ext.data.Store',
-    fields: [
-        {name: 'type', type: 'string'},
-        {name: 'name', type: 'string'}
-    ],
+    model: 'Bpm.processes.model.Association',
     sorters: [{
         property: 'name',
         direction: 'ASC'

@@ -6,6 +6,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -47,5 +48,14 @@ public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
                 throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
         }
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

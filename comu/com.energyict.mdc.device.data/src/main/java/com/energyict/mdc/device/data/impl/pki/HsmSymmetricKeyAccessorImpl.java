@@ -18,6 +18,10 @@ import java.util.Optional;
 
 public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
+    public HsmSymmetricKeyAccessorImpl() {
+        super();
+    }
+
     @Inject
     public HsmSymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super(dataModel, securityManagementService, thesaurus);
@@ -25,7 +29,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
     @Override
     public void renew() {
-        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorType());
+        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorTypeReference());
 
         if (!wrappingSecurityAccessorType.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_DEFINED);
@@ -38,7 +42,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
         }
         SecurityAccessor wrapperSecAccessor = securityAccessor.get();
 
-        Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualValue();
+        Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualPassphraseWrapperReference();
         if (!actualValueWrapperAccessor.isPresent()) {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
         }
@@ -56,7 +60,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
     }
 
     private void doRenewValue(HsmKey masterKey) {
-        SecurityAccessorType keyAccessorType = getKeyAccessorType();
+        SecurityAccessorType keyAccessorType = getKeyAccessorTypeReference();
         HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
         symmetricKeyWrapper.generateValue(keyAccessorType, masterKey);
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);

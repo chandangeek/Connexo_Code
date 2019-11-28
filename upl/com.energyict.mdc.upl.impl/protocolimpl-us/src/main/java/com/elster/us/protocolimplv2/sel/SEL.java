@@ -43,7 +43,7 @@ import com.elster.us.protocolimplv2.sel.profiles.LoadProfileBuilder;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.io.IOException;

@@ -36,7 +36,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.PkiModule;
@@ -243,7 +243,7 @@ public class InMemoryPersistence {
                         "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new DataVaultModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),

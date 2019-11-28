@@ -37,7 +37,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.ReactivePowerCha
 import com.energyict.protocolimplv2.abnt.common.structure.field.SoftwareVersionField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.TariffConfigurationField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

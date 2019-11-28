@@ -18,7 +18,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannel;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.StartOfGasDayParser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;

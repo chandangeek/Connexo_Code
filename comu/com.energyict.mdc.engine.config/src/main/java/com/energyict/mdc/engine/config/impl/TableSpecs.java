@@ -13,7 +13,7 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.ComServerAliveStatus;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
@@ -196,13 +196,13 @@ public enum TableSpecs {
     MDC_COMALIVE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<ComServerAliveStatus> table = dataModel.addTable(name(), ComServerAliveStatus.class);
+            Table<ComServerAliveStatus> table = dataModel.addTable(name(), ComServerAliveStatus.class).since(Version.version(10,7, 1));
             table.map(ComServerAliveStatusImpl.class);
             Column comServerColumn = table.column("COMSERVERID").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("ACTIVETIME").number().notNull().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.LAST_ACTIVE_TIME.getName()).add();
             table.column("BLOCKED_SINCE").number().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.BLOCKED_SINCE.getName()).add();
-            table.column("BLOCK_TIME").number().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.BLOCK_TIME.getName()).add();
-            table.column("UPDATE_FREQ").number().notNull().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.UPDATE_FREQ.getName()).add();
+            table.column("BLOCK_TIME").number().map(ComServerAliveStatusImpl.FieldNames.BLOCK_TIME.getName()).add();
+            table.column("UPDATE_FREQ").number().notNull().map(ComServerAliveStatusImpl.FieldNames.UPDATE_FREQ.getName()).add();
             table.primaryKey("PK_MDC_COMALIVE_COMSERVER").on(comServerColumn).add();
             table.foreignKey("FK_MDC_COMALIVE_COMSERVER")
                     .map("comServer")

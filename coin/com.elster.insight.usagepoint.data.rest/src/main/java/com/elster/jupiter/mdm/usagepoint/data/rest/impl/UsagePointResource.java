@@ -439,6 +439,8 @@ public class UsagePointResource {
         }
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
 
+        State oldLifeCycleState = usagePoint.getState();
+
         ChangeUsagePointLifeCycleInfo changeUsagePointLifeCycleInfo = new ChangeUsagePointLifeCycleInfo();
         changeUsagePointLifeCycleInfo.usagePointName = usagePoint.getName();
         changeUsagePointLifeCycleInfo.newUsagePointLifeCycle = meteringService.findUsagePointLifeCycle(newLifeCycle)
@@ -451,17 +453,21 @@ public class UsagePointResource {
                 .filter(state -> thesaurus.getString(state.getName(), state.getName()).equals(thesaurus.getString(usagePoint.getState().getName(), usagePoint.getState().getName())))
                 .findAny()
                 .isPresent()) {
+            changeUsagePointLifeCycleInfo.errorCode = exceptionFactory.newException(MessageSeeds.NO_STATE_FOR_LIFECYCLE,changeUsagePointLifeCycleInfo.usagePointName,changeUsagePointLifeCycleInfo.usagePointState).getErrorCode();
             return Response.status(Response.Status.BAD_REQUEST).entity(changeUsagePointLifeCycleInfo).build();
         }
 
         usagePoint.setLifeCycle(newLifeCycle);
-
-        State initialState = usagePoint.getLifeCycle().getStates()
-                .stream()
-                .filter(State::isInitial)
-                .findFirst()
-                .get();
-        usagePoint.setState(initialState, Instant.now());
+        List<State> states = usagePoint.getLifeCycle().getStates();
+        if(states.stream().anyMatch(state -> state.getName().equals(oldLifeCycleState.getName()))){
+            usagePoint.setState(oldLifeCycleState, Instant.now());
+        }else{
+            State initialState = states.stream()
+                    .filter(State::isInitial)
+                    .findFirst()
+                    .get();
+            usagePoint.setState(initialState, Instant.now());
+        }
         usagePoint.update();
         return Response.ok(usagePointInfoFactory.from(usagePoint)).build();
     }

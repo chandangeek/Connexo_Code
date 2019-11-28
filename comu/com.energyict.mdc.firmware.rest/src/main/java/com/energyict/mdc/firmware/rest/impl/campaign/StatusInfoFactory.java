@@ -14,6 +14,16 @@ public class StatusInfoFactory {
         switch (defaultState) {
             case REJECTED:
                 return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_CONFIGURATION_ERROR).format());
+            case ONGOING:
+                return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_ONGOIND).format());
+            case CANCELLED:
+                return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_CANCELED).format());
+            case PENDING:
+                return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_PENDING).format());
+            case FAILED:
+                return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_FAILED).format());
+            case SUCCESSFUL:
+                return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_SUCCESSFUL).format());
             default:
                 return new IdWithNameInfo(defaultState.name(), defaultState.getDisplayName(thesaurus));
         }
@@ -23,6 +33,10 @@ public class StatusInfoFactory {
         switch (defaultState) {
             case SUCCESSFUL:
                 return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_COMPLETED).format());
+            case ONGOING:
+                return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_ONGOIND).format());
+            case CANCELLED:
+                return new IdWithNameInfo(defaultState.name(), thesaurus.getFormat(TranslationKeys.STATUS_CANCELED).format());
             default:
                 return new IdWithNameInfo(defaultState.name(), defaultState.getDisplayName(thesaurus));
         }

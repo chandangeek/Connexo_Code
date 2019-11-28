@@ -64,11 +64,6 @@ public class SpatialCoordinates {
         setLongitude((Longitude) calculateDecimalDegrees(sign, degrees, minutes, seconds));
     }
 
-    public void setElevation(BigDecimal value) {
-        setElevation(elevation);
-    }
-
-
     @Override
     public String toString() {
         return latitude.toString() + " : " + longitude.toString() + " : " + elevation.toString();
