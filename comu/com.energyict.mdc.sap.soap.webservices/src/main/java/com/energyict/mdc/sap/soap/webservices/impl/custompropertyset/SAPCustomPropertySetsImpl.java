@@ -706,7 +706,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Range<Instant> range) {
-        lockLoadProfileTypeOrThrowException(channel.getLoadProfile());
+        lockLoadProfileTypeOrThrowException(channel);
         lockChannelSpecOrThrowException(channel.getChannelSpec());
 
         addChannelCustomPropertySetVersioned(channel, DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
@@ -760,23 +760,23 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     private void lockRegisterTypeOrThrowException(RegisterType registerType) {
         masterDataService
                 .findAndLockRegisterTypeById(registerType.getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_TYPE_FOUND, registerType.getObisCode()));
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_TYPE_FOUND, registerType.getReadingType().getFullAliasName()));
     }
 
-    private void lockLoadProfileTypeOrThrowException(LoadProfile loadProfile) {
+    private void lockLoadProfileTypeOrThrowException(com.energyict.mdc.common.device.data.Channel channel) {
         masterDataService
-                .findAndLockLoadProfileTypeById(loadProfile.getLoadProfileTypeId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfile.getLoadProfileTypeObisCode()));
+                .findAndLockLoadProfileTypeById(channel.getLoadProfile().getLoadProfileTypeId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, channel.getReadingType().getFullAliasName()));
     }
 
     private void lockRegisterSpecOrThrowException(RegisterSpec registerSpec) {
         deviceConfigurationService.findAndLockRegisterSpecById(registerSpec.getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, registerSpec.getObisCode()));
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, registerSpec.getReadingType().getFullAliasName()));
     }
 
     private void lockChannelSpecOrThrowException(ChannelSpec channelSpec) {
         deviceConfigurationService.findAndLockChannelSpecById(channelSpec.getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getObisCode()));
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getReadingType().getFullAliasName()));
     }
 
     private void setDeviceCPSProperty(Device device, String property, String value) {
@@ -800,7 +800,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (!setValuesVersionFor(registerInfo,
                 register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_ALREADY_HAS_LRN,
-                    register.getObisCode(), range.toString());
+                    register.getReadingType().getFullAliasName(), range.toString());
         }
 
         register.getRegisterSpec().save();
@@ -815,7 +815,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (!setValuesVersionFor(channelInfo,
                 channel.getChannelSpec(), channel.getDevice().getId(), channel.getObisCode(), property, value, range)) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
-                    channel.getObisCode(), range.toString());
+                    channel.getReadingType().getFullAliasName(), range.toString());
         }
 
         channel.getChannelSpec().save();
