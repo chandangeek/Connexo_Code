@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -31,21 +32,36 @@ public class CommunicationSettings extends AbstractConfigPropertiesProvider impl
     static final String SCOPE_NAME = "COMMUNICATION";
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
+    private volatile MeteringService meteringService;
+    private volatile OrmService ormService;
 
     public CommunicationSettings(){
     }
 
     @Inject
-    public CommunicationSettings(NlsService nlsService, OrmService ormService, PropertySpecService propertySpecService) {
+    public CommunicationSettings(NlsService nlsService, OrmService ormService, PropertySpecService propertySpecService,
+                                 MeteringService meteringService) {
         this();
         setOrmService(ormService);
         setPropertySpecService(propertySpecService);
         setThesaurus(nlsService);
+        setMeteringService(meteringService);
+    }
+
+    @Activate
+    public void activate(){
+        dataModel = ormService.getDataModel(MeteringService.COMPONENTNAME).get();
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        dataModel = ormService.getDataModel(MeteringService.COMPONENTNAME).get();
+        this.ormService = ormService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        //for hard reference
+        this.meteringService = meteringService;
     }
 
     @Reference
