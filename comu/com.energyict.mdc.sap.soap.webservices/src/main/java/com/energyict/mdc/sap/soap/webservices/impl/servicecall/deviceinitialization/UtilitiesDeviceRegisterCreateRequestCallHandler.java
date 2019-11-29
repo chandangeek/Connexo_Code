@@ -6,7 +6,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializa
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -68,14 +67,14 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         if (device.isPresent()) {
             String recurrence = extension.getRecurrenceCode();
             String obis = extension.getObis();
-            String deviceCategory = extension.getDivisionCategory();
+            String divisionCategory = extension.getDivisionCategory();
             MeasurementKind measurementKind = null;
 
             if (recurrence == null) {
                 recurrence = "0";
             }
 
-            if (obis == null && deviceCategory == null) {
+            if (obis == null && divisionCategory == null) {
                 failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
                 return;
             }
@@ -87,10 +86,10 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 return;
             }
 
-            if (deviceCategory != null) {
-                measurementKind = webServiceActivator.getDivisionCategoryCodeMap().get(deviceCategory);
+            if (divisionCategory != null) {
+                measurementKind = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
                 if (measurementKind == null) {
-                    failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, deviceCategory,
+                    failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
                             WebServiceActivator.REGISTER_DIVISION_CATEGORY_CODE);
                     return;
                 }
@@ -172,11 +171,13 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         String strPeriod = convertPeriodToString(period);
 
         if (obis == null) {
-            failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_KIND, strPeriod, measurementKind.getDescription());
+            failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
+                    measurementKind.getDescription(), measurementKind.getId());
         } else if (measurementKind == null) {
-            failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_OBIS, strPeriod, obis);
+            failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_OBIS, strPeriod, period.getFirst().getId(), period.getLast().getId(), obis);
         } else {
-            failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_OBIS_AND_KIND, strPeriod, measurementKind.getDescription(), obis);
+            failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_OBIS_OR_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
+                    measurementKind.getDescription(), measurementKind.getId(), obis);
         }
     }
 
@@ -185,11 +186,13 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         String strPeriod = convertPeriodToString(period);
 
         if (obis == null) {
-            failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_KIND, strPeriod, measurementKind.getDescription());
+            failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
+                    measurementKind.getDescription(), measurementKind.getId());
         } else if (measurementKind == null) {
-            failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS, strPeriod, obis);
+            failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS, strPeriod, period.getFirst().getId(), period.getLast().getId(), obis);
         } else {
-            failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS_AND_KIND, strPeriod, measurementKind.getDescription(), obis);
+            failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS_OR_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
+                    measurementKind.getDescription(), measurementKind.getId(), obis);
         }
     }
 
@@ -200,7 +203,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         } else if (period.getLast() != TimeAttribute.NOTAPPLICABLE) {
             strPeriod = period.getLast().getDescription();
         } else {
-            strPeriod = "No";
+            strPeriod = "Empty";
         }
         return strPeriod;
     }
