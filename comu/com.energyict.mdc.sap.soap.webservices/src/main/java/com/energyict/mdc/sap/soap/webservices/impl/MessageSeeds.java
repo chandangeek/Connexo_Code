@@ -60,8 +60,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_OBIS_OR_READING_TYPE_KIND(4024, "NoObisOrReadingTypeKind", "UtilitiesObjectIdentificationSystemCodeText (reading type OBIS code) or UtilitiesDivisionCategoryCode (reading type kind) must be specified"),
     NO_UTILITIES_MEASUREMENT_RECURRENCE_CODE_MAPPING(4025, "NoUtilitiesMeasurementRecurrenceCodeMapping",
             "There is no mapping of UtilitiesMeasurementRecurrenceCode ''{0}'' to a reading type period in the configuration property ''{1}''"),
-    NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING(4025, "NoUtilitiesDivisionCategoryCodeMapping",
-            "There is no mapping of UtilitiesDivisionCategoryCode = ''{0}'' to a reading type kind  in the configuration property ''{1}''"),
     SEVERAL_DATA_SOURCES_WITH_OBIS(4026, "SeveralDataSourcesWithObis",
             "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period and OBIS code ''{3}'' are found. Please check the device configuration or precise the request"),
     SEVERAL_DATA_SOURCES_WITH_KIND(4027, "SeveralDataSourcesWithKind",
@@ -74,6 +72,8 @@ public enum MessageSeeds implements MessageSeed {
             "Data sources with ''{0}'' (''{1}'',''{2}'') period and ''{3}'' (''{4}'') kind aren''t found. Please check the device configuration or precise the request"),
     NO_DATA_SOURCES_WITH_OBIS_OR_KIND(4031, "NoDataSourcesWithObisAndKind",
             "Data sources with ''{0}'' (''{1}'',''{2}'') period, ''{3}'' (''{4}'') kind or OBIS code ''{5}'' aren''t found. Please check the device configuration or precise the request"),
+    NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING(4032, "NoUtilitiesDivisionCategoryCodeMapping",
+            "There is no mapping of UtilitiesDivisionCategoryCode = ''{0}'' to a reading type kind  in the configuration property ''{1}''"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
