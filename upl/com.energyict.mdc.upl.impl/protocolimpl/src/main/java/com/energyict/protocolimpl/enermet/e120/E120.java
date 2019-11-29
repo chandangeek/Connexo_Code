@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * A 100 Mile high overview of the E120 protocol:
@@ -77,11 +77,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     /**
      * Property keys specific for E120 protocol.
      */
-    private static final String PK_TIMEOUT = PROP_TIMEOUT;
-    private static final String PK_RETRIES = PROP_RETRIES;
-    private static final String PK_EXTENDED_LOGGING = PROP_EXTENDED_LOGGING;
     private static final String PK_USER_ID = "UserId";
-    private static final String PK_PASSWORD = PASSWORD.getName();
     private static final String PK_CHANNEL_MAP = "ChannelMap";
 
     private String pUserId;
@@ -167,13 +163,13 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
         pUserId = properties.getTypedProperty(PK_USER_ID);
-        pPassword = properties.getTypedProperty(PK_PASSWORD);
+        pPassword = properties.getTypedProperty(PASSWORD.getName());
         pChannelMap = properties.getTypedProperty(PK_CHANNEL_MAP);
-        if (propertyExists(properties, PK_RETRIES)) {
-            pRetries = properties.getTypedProperty(PK_RETRIES);
+        if (propertyExists(properties, RETRIES.getName())) {
+            pRetries = properties.getTypedProperty(RETRIES.getName());
         }
-        if (propertyExists(properties, PK_EXTENDED_LOGGING)) {
-            pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (propertyExists(properties, EXTENDED_LOGGING.getName())) {
+            pExtendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName());
         }
     }
 

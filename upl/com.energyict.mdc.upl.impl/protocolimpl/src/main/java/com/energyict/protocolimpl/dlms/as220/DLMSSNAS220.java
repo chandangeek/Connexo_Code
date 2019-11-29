@@ -63,15 +63,12 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private static final String PR_DATA_AUTH_KEY = LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
     private static final String PR_CONNECTION = "Connection";
     private static final String PR_ADDRESSING_MODE = "AddressingMode";
-    private static final String PR_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PR_SRV_LOW_MACADDR = "ServerLowerMacAddress";
     private static final String PR_SRV_UP_MACADDR = "ServerUpperMacAddress";
     private static final String PR_CLIENT_MAC_ADDRESS = "ClientMacAddress";
     private static final String PR_SECURITY_LEVEL = "SecurityLevel";
     private static final String PR_REQUEST_TIME_ZONE = "RequestTimeZone";
-    private static final String PR_RETRIES = RETRIES.getName();
     private static final String PR_FORCED_DELAY = "ForcedDelay";
-    private static final String PR_TIMEOUT = TIMEOUT.getName();
     private static final String PR_CIPHERING_TYPE = "CipheringType";
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
     private static final String PR_READ_PLC_LOG = "ReadPlcLog";
@@ -395,13 +392,13 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return Arrays.asList(
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
-                this.integerSpec(PR_EXTENDED_LOGGING, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec(PR_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec(PR_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
                 this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, MAX_ADDRESS_LENGTH),
-                this.integerSpec(PR_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(PR_FORCED_DELAY, PropertyTranslationKeys.DLMS_FORCED_DELAY),
-                this.integerSpec(PR_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec(PR_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
                 this.integerSpec(PR_SRV_UP_MACADDR, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
@@ -447,14 +444,14 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         try {
             nodeId = properties.getTypedProperty(Property.NODEID.getName(), "");
             serialNumber = properties.getTypedProperty(Property.SERIALNUMBER.getName(), "");
-            extendedLogging = properties.getTypedProperty(PR_EXTENDED_LOGGING, 0);
+            extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
             addressingMode = properties.getTypedProperty(PR_ADDRESSING_MODE, -1);
             connectionMode = properties.getTypedProperty(PR_CONNECTION, 0); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
             strID = properties.getTypedProperty(Property.ADDRESS.getName());
             strPassword = properties.getTypedProperty(Property.PASSWORD.getName(), "00000000");
-            iTimeoutProperty = properties.getTypedProperty(PR_TIMEOUT, 10000);
+            iTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
             iForcedDelay = properties.getTypedProperty(PR_FORCED_DELAY, 10);
-            iProtocolRetriesProperty = properties.getTypedProperty(PR_RETRIES, 5);
+            iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
             iRequestTimeZone = properties.getTypedProperty(PR_REQUEST_TIME_ZONE, 0);
             setRoundtripCorrection(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0));
 

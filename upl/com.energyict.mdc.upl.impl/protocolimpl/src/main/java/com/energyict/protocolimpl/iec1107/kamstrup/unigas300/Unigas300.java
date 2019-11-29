@@ -37,9 +37,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * Copyrights EnergyICT
@@ -159,15 +157,15 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
-                this.integerSpec("Timeout", PropertyTranslationKeys.IEC1107_TIMEOUT),
-                this.integerSpec("Retries", PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec("RoundtripCorrection", PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
                 this.integerSpec("ProfileInterval", PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER));
     }
 
@@ -185,18 +183,18 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-        strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-        iIEC1107TimeoutProperty = properties.getTypedProperty("Timeout", 20000);
-        iProtocolRetriesProperty = properties.getTypedProperty("Retries", 5);
-        iRoundtripCorrection = properties.getTypedProperty("RoundtripCorrection", 0);
-        iSecurityLevel = properties.getTypedProperty("SecurityLevel", 1);
-        nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        iIEC1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 20000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
         iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
         iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
         iProfileInterval = properties.getTypedProperty("ProfileInterval", 3600);
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
     }
 

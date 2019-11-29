@@ -19,8 +19,6 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
  */
 public class MK10Properties {
 
-    public static final String TIMEOUT = "Timeout";
-    public static final String RETRIES = "Retries";
     public static final String FORCED_DELAY = "ForcedDelay";
 
     TypedProperties properties = TypedProperties.empty();
@@ -60,11 +58,11 @@ public class MK10Properties {
     }
 
     public int getTimeout() {
-        return (int) ((Duration) properties.getTypedProperty(TIMEOUT)).toMillis();
+        return (int) ((Duration) properties.getTypedProperty(MeterProtocol.Property.TIMEOUT.getName())).toMillis();
     }
 
     public int getMaxRetries() {
-        return ((BigDecimal) properties.getTypedProperty(RETRIES)).intValue();
+        return ((BigDecimal) properties.getTypedProperty(MeterProtocol.Property.RETRIES.getName())).intValue();
     }
 
     public long getforcedDelay() {

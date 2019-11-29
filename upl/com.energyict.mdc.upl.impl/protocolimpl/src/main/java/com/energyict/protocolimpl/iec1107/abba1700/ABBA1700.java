@@ -60,12 +60,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.TimeDateKey;
 
@@ -219,10 +214,10 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec("MeterType", PropertyTranslationKeys.IEC1107_METER_TYPE),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.stringSpec("BreakBeforeConnect", PropertyTranslationKeys.IEC1107_BREAK_BEFORE_CONNECT),
 
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.IEC1107_ADDRESSING_MODE),
@@ -264,14 +259,14 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
         iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
         iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 0);
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
 
         // 0 = 16 TOU registers type (most in the UK)
         // 1 = 32 TOU registers type (Portugal, etc...)
         // -1 = use identification string from signon later...
         abba1700MeterType = new ABBA1700MeterType(properties.getTypedProperty("MeterType", -1));
         forcedDelay = properties.getTypedProperty("ForcedDelay", 300);
-        this.soft7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.soft7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         this.breakBeforeConnect = !"0".equalsIgnoreCase(properties.getTypedProperty("BreakBeforeConnect", "0"));
     }
 
