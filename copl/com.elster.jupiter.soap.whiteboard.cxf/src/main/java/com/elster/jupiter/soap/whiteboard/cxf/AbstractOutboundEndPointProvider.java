@@ -11,8 +11,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointException;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.SetMultimap;
 import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 import org.osgi.service.component.annotations.Reference;
@@ -41,7 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -52,6 +53,7 @@ import java.util.stream.Collectors;
  * Creation of related web service call occurrences and (if needed) web service issues is implemented inside.
  * <b>NB:</b> During the implementation please don't forget to introduce explicit dependency on {@link WebServicesService} in the subclass,
  * otherwise the provider may not register on whiteboard and thus may work incorrectly (e.g. some fields below won't be injected).
+ *
  * @param <EP> The type of web service endpoint (port).
  */
 @ConsumerType
@@ -72,6 +74,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     /**
      * Must be overridden or re-implemented as a reference addition method in any subclass to inject endpoints; addition should be delegated to this method.
+     *
      * @param endpoint An endpoint injected with the help of multiple/dynamic {@link Reference}.
      * @param properties Properties of the injected endpoint.
      */
@@ -81,6 +84,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     /**
      * Must be overridden or re-implemented as a reference removal method in any subclass to remove injected endpoints; removal should be delegated to this method.
+     *
      * @param endpoint An endpoint to remove; previously injected with the help of multiple/dynamic {@link Reference}.
      */
     protected void doRemoveEndpoint(EP endpoint) {
@@ -94,6 +98,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     /**
      * Checks if there're any endpoints registered in this provider (i.e. published and ready for communication).
+     *
      * @return
      */
     protected boolean hasEndpoints() {
@@ -102,12 +107,14 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     /**
      * Returns the {@link Class} representing considered endpoints (ports).
+     *
      * @return The {@link Class} representing considered endpoints (ports).
      */
     protected abstract Class<EP> getService();
 
     /**
      * Returns the web service name.
+     *
      * @return The web service name.
      */
     protected abstract String getName();
@@ -123,7 +130,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         return properties == null ? null : (Long) properties.get(ENDPOINT_CONFIGURATION_ID_PROPERTY);
     }
 
-    protected List<EndPointConfiguration> getEndPointConfigurationsForWebService(){
+    protected List<EndPointConfiguration> getEndPointConfigurationsForWebService() {
         return endPointConfigurationService.getEndPointConfigurationsForWebService(getName());
     }
 
@@ -131,9 +138,17 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         private final String methodName;
         private String payload;
         private Collection<EndPointConfiguration> endPointConfigurations;
+        private SetMultimap<String, String> values;
+
 
         private RequestSenderImpl(String methodName) {
             this.methodName = methodName;
+        }
+
+
+        public RequestSenderImpl withRelatedAttributes(SetMultimap<String, String> values) {
+            this.values = values;
+            return this;
         }
 
         @Override
@@ -154,29 +169,33 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         private EP getEndpoint(EndPointConfiguration endPointConfiguration) {
-            // TODO use here publish that throws exceptions to distinguish authorization error & unavailability
-            if (endPointConfiguration.isActive()) {
-                publish(endPointConfiguration);
-                EP endpoint = endpoints.get(endPointConfiguration.getId());
-                if (endpoint == null) {
-                    long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
-                    String message = thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
-                    WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
-                    eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
-                }
-                return endpoint;
-            } else {
-                long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
-                String message = thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
-                WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
-                eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
+            if (!getName().equals(endPointConfiguration.getWebServiceName())) {
+                processUnavailableEndpoint(endPointConfiguration, MessageSeeds.WRONG_WEB_SERVICE_ENDPOINT_CONFIGURATION, endPointConfiguration.getName(), getName());
                 return null;
             }
+            if (!endPointConfiguration.isActive()) {
+                processUnavailableEndpoint(endPointConfiguration, MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT, endPointConfiguration.getName());
+                return null;
+            }
+            // TODO use here publish that throws exceptions to distinguish authorization error & unavailability
+            publish(endPointConfiguration);
+            EP endpoint = endpoints.get(endPointConfiguration.getId());
+            if (endpoint == null) {
+                processUnavailableEndpoint(endPointConfiguration, MessageSeeds.NO_WEB_SERVICE_ENDPOINT, endPointConfiguration.getName());
+            }
+            return endpoint;
+        }
+
+        private void processUnavailableEndpoint(EndPointConfiguration endPointConfiguration, MessageSeed messageSeed, Object... args) {
+            long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
+            String message = thesaurus.getSimpleFormat(messageSeed).format(args);
+            WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
+            eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
         }
 
         private Map<EndPointConfiguration, EP> getEndpoints() {
             if (endPointConfigurations == null) {
-                endPointConfigurations = endPointConfigurationService.getEndPointConfigurationsForWebService(getName()).stream()
+                endPointConfigurations = getEndPointConfigurationsForWebService().stream()
                         .filter(EndPointConfiguration::isActive)
                         .collect(Collectors.toSet());
                 if (endPointConfigurations.isEmpty()) {
@@ -237,6 +256,9 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         long id = webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
+                            if (values != null) {
+                                webServicesService.getOngoingOccurrence(id).saveRelatedAttributes(values);
+                            }
                             Object response = method.invoke(port, request);
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);

@@ -215,7 +215,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         String startTime = getMessageAttributeValue(pendingMessage, DeviceMessageConstants.startTime);
         final GatewaySetup gatewaySetup = this.session.getCosemObjectFactory().getGatewaySetup();
         final AXDRTime axdrTime = new AXDRTime();
-        axdrTime.setTime(startTime);
+        axdrTime.decode(startTime);
         gatewaySetup.writeOperatingWindowStartTime(axdrTime.getOctetString());
     }
 
@@ -223,7 +223,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         String startTime = getMessageAttributeValue(pendingMessage, DeviceMessageConstants.endTime);
         final GatewaySetup gatewaySetup = this.session.getCosemObjectFactory().getGatewaySetup();
         final AXDRTime axdrTime = new AXDRTime();
-        axdrTime.setTime(startTime);
+        axdrTime.decode(startTime);
         gatewaySetup.writeOperatingWindowStartTime(axdrTime.getOctetString());
     }
 

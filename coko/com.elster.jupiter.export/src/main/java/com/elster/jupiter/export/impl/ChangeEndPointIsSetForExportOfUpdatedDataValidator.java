@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.WebServiceDestination;
 
 import javax.validation.ConstraintValidator;
@@ -20,7 +21,7 @@ public class ChangeEndPointIsSetForExportOfUpdatedDataValidator implements Const
     @Override
     public boolean isValid(ExportTaskImpl exportTask, ConstraintValidatorContext context) {
         if (exportTask.getReadingDataSelectorConfig()
-                .map(ReadingDataSelectorConfigImpl::isExportUpdate)
+                .map(ReadingDataSelectorConfig::isExportUpdate)
                 .filter(Boolean::booleanValue)
                 .isPresent()
                 && exportTask.getDestinations().stream()

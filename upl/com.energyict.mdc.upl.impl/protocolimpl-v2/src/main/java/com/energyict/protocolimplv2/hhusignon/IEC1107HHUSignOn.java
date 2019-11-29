@@ -71,7 +71,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
      * 5. Ack and set serial parameters
      * 6. Receive meter acknowledgement
      */
-    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) {
+    protected MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) {
         int attempt = 0;
         while (true) {
             try {
@@ -146,7 +146,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
     /**
      * Switch the baud rate and change the line control to 7E1 or 8N1.
      */
-    private void switchBaudrate(int baudrateIndex, int protocol) {
+    protected void switchBaudrate(int baudrateIndex, int protocol) {
         int baudRate = baudrates[baudrateIndex];
         SerialPortConfiguration configuration = comChannel.getSerialPortConfiguration();
         if (protocol == PROTOCOL_NORMAL) {     //Apply baud rate & 7E1
@@ -235,7 +235,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
         }
     }
 
-    private int readIn() {
+    protected int readIn() {
         if (comChannel.available() != 0) {
             return comChannel.read();
         } else {
@@ -264,6 +264,18 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
         //Not supported yet
     }
 
+    protected long getTimeout() {
+        return timeout;
+    }
+
+    protected int getRetries() {
+        return retries;
+    }
+
+    protected SerialPortComChannel getComChannel() {
+        return comChannel;
+    }
+
     @Override
     public byte[] getDataReadout() {
         //Not supported yet
@@ -284,7 +296,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
         sendOut(breakRequest);
     }
 
-    private void delay(long lDelay) {
+    protected void delay(long lDelay) {
         try {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
@@ -297,7 +309,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
         sendOut(new byte[]{request});
     }
 
-    private void sendOut(byte[] request) {
+    protected void sendOut(byte[] request) {
         delay(300);       //Forced delay
         comChannel.startWriting();
         comChannel.write(request);

@@ -17,6 +17,7 @@ public class MeterReadingDocumentCreateRequestMessage {
     private boolean bulk;
     private BigDecimal attemptNumber = BigDecimal.ZERO;
     private String id;
+    private String uuid;
     private List<MeterReadingDocumentCreateMessage> meterReadingDocumentCreateMessages = new ArrayList<>();
 
     private MeterReadingDocumentCreateRequestMessage() {
@@ -24,6 +25,10 @@ public class MeterReadingDocumentCreateRequestMessage {
 
     public String getId() {
         return id;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public BigDecimal getAttemptNumber() {
@@ -35,7 +40,7 @@ public class MeterReadingDocumentCreateRequestMessage {
     }
 
     public boolean isValid() {
-        return id != null;
+        return id != null || uuid != null;
     }
 
     public boolean isBulk() {
@@ -56,6 +61,7 @@ public class MeterReadingDocumentCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setId(getId(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
             meterReadingDocumentCreateMessages.add(MeterReadingDocumentCreateMessage
                     .builder()
@@ -69,6 +75,7 @@ public class MeterReadingDocumentCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setId(getId(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
             requestMessage.getSmartMeterMeterReadingDocumentERPCreateRequestMessage()
                     .forEach(message ->
@@ -81,6 +88,11 @@ public class MeterReadingDocumentCreateRequestMessage {
 
         public MeterReadingDocumentCreateRequestMessage.Builder setId(String id) {
             MeterReadingDocumentCreateRequestMessage.this.id = id;
+            return this;
+        }
+
+        public MeterReadingDocumentCreateRequestMessage.Builder setUuid(String uuid) {
+            MeterReadingDocumentCreateRequestMessage.this.uuid = uuid;
             return this;
         }
 
@@ -102,5 +114,18 @@ public class MeterReadingDocumentCreateRequestMessage {
                     .orElse(null);
         }
 
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.BusinessDocumentMessageHeader meterReadingDocument) {
+            return Optional.ofNullable(meterReadingDocument.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader meterReadingDocument) {
+            return Optional.ofNullable(meterReadingDocument.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
     }
 }

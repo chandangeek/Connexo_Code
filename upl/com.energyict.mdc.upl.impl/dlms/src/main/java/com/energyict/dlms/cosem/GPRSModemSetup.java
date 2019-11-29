@@ -3,17 +3,11 @@
  */
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Float32;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributeobjects.QualityOfService;
 import com.energyict.dlms.cosem.attributeobjects.QualityOfServiceElement;
 import com.energyict.dlms.cosem.attributes.GprsModemSetupAttributes;
@@ -160,6 +154,11 @@ public class GPRSModemSetup extends AbstractCosemObject {
             readPinCode();    // do a dummy read
         }
         return this.pincode;
+    }
+
+    // In A2 devices the pin code is a Unsigned16 not a Unsigned32
+    public void writePinCode(Unsigned16 pincode) throws IOException {
+        write(GprsModemSetupAttributes.PIN_CODE, pincode.getBEREncodedByteArray());
     }
 
     /**

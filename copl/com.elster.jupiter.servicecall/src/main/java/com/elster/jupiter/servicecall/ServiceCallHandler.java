@@ -12,6 +12,10 @@ import aQute.bnd.annotation.ConsumerType;
 @ConsumerType
 public interface ServiceCallHandler {
 
+    ServiceCallHandler DUMMY = (serviceCall, oldState, newState) -> {
+        // does nothing
+    };
+
     default String getDisplayName() {
         return this.getClass().getSimpleName();
     }

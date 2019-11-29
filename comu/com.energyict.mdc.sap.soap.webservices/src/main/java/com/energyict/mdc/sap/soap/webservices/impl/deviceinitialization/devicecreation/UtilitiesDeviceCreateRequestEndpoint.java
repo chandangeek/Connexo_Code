@@ -6,13 +6,11 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilitiesDeviceERPSmartMeterCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
+
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -29,15 +27,15 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractCreateRequestE
     @Override
     public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceCreateConfirmation.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage.builder()
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                                UtilitiesDeviceCreateRequestMessage message = UtilitiesDeviceCreateRequestMessage.builder()
+                                        .from(requestMessage)
+                                        .build();
+
+                                handleRequestMessage(message);
+                            }
+                    );
             return null;
         });
     }

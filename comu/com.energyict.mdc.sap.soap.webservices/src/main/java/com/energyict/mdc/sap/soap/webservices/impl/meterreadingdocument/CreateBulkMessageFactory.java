@@ -14,9 +14,13 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcre
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.UUID;
 
 import java.time.Instant;
 import java.util.List;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateBulkMessageFactory {
 
@@ -45,9 +49,12 @@ public class CreateBulkMessageFactory {
     private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
         BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
         id.setValue(requestMessage.getId());
+        UUID uuid = OBJECT_FACTORY.createUUID();
+        uuid.setValue(requestMessage.getUuid());
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         messageHeader.setReferenceID(id);
+        messageHeader.setReferenceUUID(uuid);
         messageHeader.setCreationDateTime(now);
 
         return messageHeader;
@@ -89,10 +96,10 @@ public class CreateBulkMessageFactory {
 
     private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
         LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
-        logItemCategoryCode.setValue("PRE");
+        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = OBJECT_FACTORY.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 

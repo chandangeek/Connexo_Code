@@ -37,6 +37,9 @@ public class AutoConnect extends AbstractCosemObject {
 	private Unsigned16 repetitionDelay = null; // The time delay, expressed in seconds until an unsuccessful dial attempt can be repeated
 	private Array callingWindow = null; // contains the start and end date/time stamp when the window becomes active or inactive
 	private Array destinationList = null; // contains a list of destinations(phone numbers, email addresses, combination) where the message have to be sent
+	private Unsigned16 dayMap = null;
+	private Unsigned16 cosemSessionTimeout = null;
+	private Unsigned16 gsmRegistrationTimeout = null;
 
 	/** Attribute numbers */
 	private static final int ATTRB_MODE = 2;
@@ -44,6 +47,10 @@ public class AutoConnect extends AbstractCosemObject {
 	private static final int ATTRB_REPETITION_DELAY = 4;
 	private static final int ATTRB_CALLING_WINDOW = 5;
 	private static final int ATTRB_DESTINATION_LIST = 6;
+	private static final int ATTRB_DAY_MAP = 8;
+	private static final int ATTRB_GSM_REGISTRATION_TIMEOUT = 8;
+	private static final int ATTRB_COSEM_SESION_TIMEOUT = 10;
+
     private static final int ATTRB_CALLING_WINDOW_LENGTH = -1;
     private static final int ATTRB_IDLE_TIMEOUT = -2;
 
@@ -384,4 +391,157 @@ public class AutoConnect extends AbstractCosemObject {
             throw new IOException("Could not write the given wakeup idle timeout length. " + e.getMessage());
         }
     }
+
+	/**
+	 * Read the day map from the device
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	public Unsigned16 readDayMap() throws IOException {
+		try {
+			return this.dayMap = new Unsigned16(getLNResponseData(ATTRB_DAY_MAP), 0);
+		} catch (IOException e) {
+			throw new NestedIOException(e, "Could not read the day map. " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Get the dayMap, if it's not read yet, read it from the device
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	public Unsigned16 getDayMap() throws IOException {
+		if (this.dayMap == null) {
+			return readDayMap();
+		}
+		return this.dayMap;
+	}
+
+	/**
+	 * Write the given dayMap to the device
+	 *
+	 * @param dayMap
+	 * @throws java.io.IOException
+	 */
+	public void writeDayMap(Unsigned32 dayMap) throws IOException {
+		try {
+			write(ATTRB_DAY_MAP, dayMap.getBEREncodedByteArray());
+		} catch (IOException e) {
+			throw new NestedIOException(e, "Could not write the day map. " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Write the given dayMap to the device
+	 *
+	 * @param dayMap
+	 * @throws java.io.IOException
+	 */
+	public void writeDayMap(long dayMap) throws IOException {
+		writeDayMap(new Unsigned32(dayMap));
+	}
+
+	/**
+	 * Read the GSM registration timeout from the device
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	public Unsigned16 readGSMRegistrationTimeout() throws IOException {
+		try {
+			return this.gsmRegistrationTimeout = new Unsigned16(getLNResponseData(ATTRB_GSM_REGISTRATION_TIMEOUT), 0);
+		} catch (IOException e) {
+			throw new NestedIOException(e, "Could not read the GSM registration timeout. " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Get the GSM registration timeout, if it's not read yet, read it from the device
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	public Unsigned16 getGSMRegistrationTimeout() throws IOException {
+		if (this.gsmRegistrationTimeout == null) {
+			return readGSMRegistrationTimeout();
+		}
+		return this.gsmRegistrationTimeout;
+	}
+
+	/**
+	 * Write the given GSM registration timeout to the device
+	 *
+	 * @param gsmRegistrationTimeout
+	 * @throws java.io.IOException
+	 */
+	public void writeGSMRegistrationTimeout(Unsigned16 gsmRegistrationTimeout) throws IOException {
+		try {
+			write(ATTRB_GSM_REGISTRATION_TIMEOUT, gsmRegistrationTimeout.getBEREncodedByteArray());
+		} catch (IOException e) {
+			throw new NestedIOException(e, "Could not write the GSM registration timeout. " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Write the given GSM registration timeout to the device
+	 *
+	 * @param gsmRegistrationTimeout
+	 * @throws java.io.IOException
+	 */
+	public void writeGSMRegistrationTimeout(int gsmRegistrationTimeout) throws IOException {
+		writeGSMRegistrationTimeout(new Unsigned16(gsmRegistrationTimeout));
+	}
+
+	/**
+	 * Read the cosem session timeout from the device
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	public Unsigned16 readCosemSessionTimeout() throws IOException {
+		try {
+			return this.cosemSessionTimeout = new Unsigned16(getLNResponseData(ATTRB_COSEM_SESION_TIMEOUT), 0);
+		} catch (IOException e) {
+			throw new NestedIOException(e, "Could not read the cosem session timeout. " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Get the cosem session timeout, if it's not read yet, read it from the device
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	public Unsigned16 getCosemSessionTimeout() throws IOException {
+		if (this.cosemSessionTimeout == null) {
+			return readCosemSessionTimeout();
+		}
+		return this.cosemSessionTimeout;
+	}
+
+	/**
+	 * Write the given cosem session timeout to the device
+	 *
+	 * @param cosemSessionTimeout
+	 * @throws java.io.IOException
+	 */
+	public void writeCosemSessionTimeout(Unsigned16 cosemSessionTimeout) throws IOException {
+		try {
+			write(ATTRB_COSEM_SESION_TIMEOUT, cosemSessionTimeout.getBEREncodedByteArray());
+		} catch (IOException e) {
+			throw new NestedIOException(e, "Could not write the cosem session timeout. " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Write the given cosem session timeout to the device
+	 *
+	 * @param cosemSessionTimeout
+	 * @throws java.io.IOException
+	 */
+	public void writeCosemSessionTimeout(int cosemSessionTimeout) throws IOException {
+		writeCosemSessionTimeout(new Unsigned16(cosemSessionTimeout));
+	}
 }
