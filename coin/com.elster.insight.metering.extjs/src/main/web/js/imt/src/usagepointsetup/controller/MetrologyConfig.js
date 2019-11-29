@@ -156,7 +156,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                     usagePoint.activateMeters(callback, failure);
                 } else if (button === 'cancel') {
                     if (page) {
-                        window.location.href = "#/usagepoints/Test/metrologyconfiguration/activatemeters";
+                        window.location.href = page.returnLink + '/activatemeters';
                     }
                 }
             }

@@ -28,13 +28,10 @@ import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -241,7 +238,12 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                         .getId());
                 if (bpmProcess.isPresent() && isProcessAvailableForDeviceTransition(bpmProcess.get())) {
                     Map<String, Object> expectedParams = new HashMap<>();
-                    expectedParams.put("deviceId", usagePointProvider.getDeviceMRID(Long.valueOf(sourceId)));
+                    if (sourceType.equals(DEVICE)){
+                        expectedParams.put("deviceId", usagePointProvider.getMeterMRID(Long.valueOf(sourceId)));
+                    }
+                    else if (sourceType.equals(END_DEVICE)){
+                        expectedParams.put("deviceId", usagePointProvider.getDeviceMRID(Long.valueOf(sourceId)));
+                    }
                     bpmService.startProcess(bpmProcess.get(), expectedParams);
                 }
             } else if (sourceType.equals(USAGEPOINT)) {

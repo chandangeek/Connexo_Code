@@ -302,7 +302,7 @@ public class InboundCommunicationHandler {
                 this.handOverToDeviceProtocol(singleToken);
             } else {
                 //Note that the provideResponse method is called in the storing service. Depending on the result of the storing, either success or failure is returned.
-                this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice, false);    //TODO port COMMUNICATION-1587
+                this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice, inboundDeviceProtocol.hasSupportForRequestsOnInbound());    //TODO port COMMUNICATION-1587
             }
         }
     }

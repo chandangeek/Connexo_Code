@@ -1,0 +1,580 @@
+com	"com" in the first column means the row is for comment.
+com	This worksheet includes all electricity related OBIS codes.
+com	Value group							IC  	Alt IC 	Reference	Comments
+com	A	B	C	D	E	F	Meaning	class	class
+com		b=    0-64				f = 0-99, 101-126				[1] 5.3.2, 5.4.1	Value  group  A  defines  the characteristic  of  the  data  item  to  be  identified  (abstract  data, energy type). For electricity related objects, A = 1.
+com										[1] 5.3.3, 5.4.2	Group B defines channels 0...64. Values 65...127 are available for utility specific use.
+com										[1] 5.3.4, 5.5.1.1	The standard range of value group C is 0...127, 200-239 and 241-254.
+com										[1] 5.3.5, 5.5.1.2	The standard range of value group D is 0...127.
+com										[1] 5.3.6, 5.4.5.2, 5.5.1.3, 	Group E is generally used for further classification. When it is used to identify tariff rates, the standard range is 0...63. When it is used to identify harmonics, the standard range is 0...127.
+com										[1] 5.3.7, 5.4.6, 5.5.1.4, 5.7.3	Group F generally is used for historical values. The standard range is 0...99 and 101...126.
+com										[1] 5.3.8	In group B the range 128...199, in group C the range 128...199 and 240, in groups D, E and F the range 128...254 is available for manufacturer specific purposes, unless otherwise specified.
+com										[1] 4.6.2	In all groups the value 255 means "not used".  All codes not specified are reserved.
+com	Range definitions
+com	"def" in the first marks a row defining a range of values valid for groups A,B,C,D,E, or F for the lines below that row.
+def	b=0-64									[1] 5.4.2 Table 4
+com	1	b	255	255	255	255	Electricity related objects				In the "com" lines starting new code ranges, 255 is used as a wildcard.
+com	1	b	255	255	255	255	Electricity related general purpose objects			[1] 5.6.3.1 Table 28
+com	1	b	0	255	255	255	Free ID-numbers for utilities			[1] 4.6.1.2.3
+	1	b	0	0	0-9	255	Electricity ID 1-10	1	3,4		The electricity ID numbers are instances of the IC Data, with data type octet-string. If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+	1	b	0	0	255	255	Complete combined electricity ID	7	61		If more than one Electricity ID-s are used, it is allowed to combine them into one instance of the IC = 7 "Profile generic" or IC = 61 "Register table".
+com	1	b	0	1	255	255	Billing period values / reset counter entries objects (first biling period scheme if there are two)			[1] 4.6.1.2.2, 4.6.1.2.4	These values are represented by instances of the interface class "Data", with data types unsigned.  If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	1	b	0	1	0	VZ	Billing period counter object (1), VZ	1	3,4
+	1	b	0	1	0	0-99, 255	Billing period counter object (1)	1	3,4
+	1	b	0	1	1	255	Number of available billing periods object (1)	1	3,4
+com	1	b	0	1	2	255	Time stamps of the billing periods objects (first billing period scheme if there are two)				These values are represented by instances of the interface class "Data", with data types octet-string, formatted as date_time. If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	1	b	0	1	2	VZ	Time stamp of the billing period (1) VZ (last reset)	1	3,4		VZ means the status of the billing period counter, 0-99 readable under code 0.1.x.0.1.0.255.
+com	1	b	0	1	2	VZ-1	Time stamp of the billing period (1) VZ-1	1	3,4		Idem
+com	1	b	0	1	2	VZ-n	Time stamp of the billing period (1) VZ-n	1	3,4		Idem
+	1	b	0	1	2	0-99	Time stamp of the billing period (1)	1	3,4		Idem
+	1	b	0	1	2	255	Time stamp of the most recent billing period (1) closed	1	3,4		Idem. The current time stamp is the time stamp of the last billing period closed.
+com	1	b	0	1	255	255	Billing period values / reset counter entries objects (second biling period scheme)			[1] 4.6.1.2.2, 4.6.1.2.4	These values are represented by instances of the interface class "Data", with data types unsigned.  If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	1	b	0	1	3	VZ	Billing period counter object (2), VZ	1	3,4
+	1	b	0	1	3	0-99, 255	Billing period counter object (2), VZ	1	3,4
+	1	b	0	1	4	255	Number of available billing periods object (2)	1	3,4
+com	1	b	0	1	5	255	Time stamps of the billing periods objects (second billing period scheme)			[1] 4.6.1.2.4	These values are represented by instances of the interface class "Data", with data types octet-string, formatted as date_time. If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	1	b	0	1	5	VZ	Time stamp of the billing period (2) VZ (last reset)	1	3,4		VZ means the status of the billing period counter, 0-99 readable under code 0.1.x.0.1.0.255.
+com	1	b	0	1	5	VZ-1	Time stamp of the billing period (2) VZ-1	1	3,4		Idem
+com	1	b	0	1	5	VZ-n	Time stamp of the billing period (2) VZ-n	1	3,4		Idem
+	1	b	0	1	5	0-99	Time stamp of the billing period (2)	1	3,4		Idem
+	1	b	0	1	5	255	Time stamp of the most recent billing period (2) closed	1	3,4		The current time stamp is the time stamp of the last billing period closed.
+com	1	b	0	2	255	255	Program entries objects			[1] 4.6.1.2.5	These values are represented by instances of the IC "Data", with data type unsigned, long-unsigned or octet-string.  If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+	1	b	0	2	0	255	Configuration program version number	1	3,4
+	1	b	0	2	1	255	Parameter record number	1	3,4
+	1	b	0	2	1	1	Parameter number, line 1	1	3,4
+	1	b	0	2	1	2-127	Reserved	1	3,4
+	1	b	0	2	2	255	Time switch program number	1	3,4
+	1	b	0	2	3	255	RCR program number	1	3,4
+	1	b	0	2	4	255	Meter connection diagram ID	1	3,4
+	1	b	0	2	7	255	Passive calendar name	1	3,4	[1] 4.2.11	For display only. Corresponds to "Activity calendar" attribute 6.
+com	1	b	0	3	255	255	Output pulse constants objects			[1] 4.6.1.2.6	These values are represented by instances of the interface classIC = 1 "Data",  IC3 = "Register"  IC = 4 "Extended Register" with simple data types for the attribute value.
+	1	b	0	3	0	255	Active energy metrological LED	1	3,4
+	1	b	0	3	1	255	Reactive energy metrological LED	1	3,4
+	1	b	0	3	2	255	Apparent energy metrological LED	1	3,4
+	1	b	0	3	3	255	Active energy output pulse	1	3,4
+	1	b	0	3	4	255	Reactive energy output pulse	1	3,4
+	1	b	0	3	5	255	Apparent energy output pulse	1	3,4
+	1	b	0	3	6	255	Volt-squared hours, metrological LED 	1	3,4
+	1	b	0	3	7	255	Ampere-squared hours, metrological LED	1	3,4
+	1	b	0	3	8	255	Volt-squared hours, output pulse	1	3,4
+	1	b	0	3	9	255	Ampere-squared hours, output pulse	1	3,4
+com	1	b	0	4	255	255	Ratios objects			[1] 4.6.1.2.7, Table 28, Note a	If a transformer ratio is expressed as a fraction the ratio is the numerator divided by the denominator. If the transformer ratio is expressed by an integer or real figure, only the numerator is used.
+	1	b	0	4	0	255	Reading factor for power	1	3,4
+	1	b	0	4	1	255	Reading factor for energy	1	3,4
+	1	b	0	4	2	0-99, 255	Transformer ratio - current (numerator)	1	3,4
+	1	b	0	4	3	0-99, 255	Transformer ratio - voltage (numerator)	1	3,4
+	1	b	0	4	4	0-99, 255	Overall transformer ratio (numerator)	1	3,4
+	1	b	0	4	5	0-99, 255	Transformer ratio - current (denominator)	1	3,4
+	1	b	0	4	6	0-99, 255	Transformer ratio - voltage (denominator)	1	3,4
+	1	b	0	4	7	0-99, 255	Overall transformer ratio -  (denominator)	1	3,4
+com							Excess consumption				Reserved for Germany. See EDIS, DIN 43693, VDEW 2.1.2 10.1.2.11
+	1	b	0	5	1	1-4	Demand limits 1...4	3	4
+	1	b	0	5	2	1-9	Demand limits, tariff 1...9	3	4
+com	1	b	0	6	255	255	Nominal values objects			[1] 4.6.1.2.6
+	1	b	0	6	0	255	Voltage	3	4
+	1	b	0	6	1	255	Basic/nominal current	3	4
+	1	b	0	6	2	255	Frequency	3	4
+	1	b	0	6	3	255	Maximum current	3	4
+	1	b	0	6	4	0-99, 255	Reference voltage for power quality measurement	3	4
+com	1	b	0	7	255	255	Input pulse values or constants objects			[1] 4.6.1.2.6	These values are represented by instances of the interface class IC = 3 "Register"  IC = 4 "Extended Register" with simple data types for the attribute value.
+	1	b	0	7	0	255	Active energy	3	4
+	1	b	0	7	1	255	Reactive energy	3	4
+	1	b	0	7	2	255	Apparent energy	3	4
+	1	b	0	7	3	255	Volt-squared hours	3	4
+	1	b	0	7	4	255	Ampere-squared hours	3	4
+	1	b	0	7	5	255	Unitless quantities	1	4
+	1	b	0	7	10	255	Active energy, export	3	4
+	1	b	0	7	11	255	Reactive energy, export	3	4
+	1	b	0	7	12	255	Apparent energy, export	3	4
+com	1	b	0	8	255	255	Measurement-/registration period duration objects			[1] 4.6.1.2.8	Time entry values are represented by instances of IC = 1 "Data", IC = 3 "Register" or IC = 4 "Extended register" with the data type of the value attribute unsigned, long-unsigned or double-long-unsigned.
+	1	b	0	8	0	255	Measurement period 1, for average value 1	3	1,4	[1] 4.2.4	Attribute 8 of a "Demand register". Object. If IC = 1 "Data" is used, the default unit is sec.
+	1	b	0	8	1	255	Measurement period 2, for average value 2	3	1,4	[1] 4.2.4	If IC = 1 "Data" is used, the default unit is the secundum.
+	1	b	0	8	2	255	Measurement period 3, for instantaneous value	1	1,4	[1] 4.2.4	Idem
+	1	b	0	8	3	255	Measurement period 4, for test value 	3	1,4		Idem
+	1	b	0	8	4	255	Recording interval 1, for load profile	3	1,4		Idem
+	1	b	0	8	5	255	Recording interval 2, for load profile	3	1,4		Idem
+	1	b	0	8	6	255	Billing period (Billing period 1 if there are two billing periods)	3	1,4		Idem
+	1	b	0	8	7	255	Billing period 2	3	1,4		Idem.
+com	1	b	0	9	255	255	Time entries objects			[1] 4.6.1.2.8	Time entry values shall be represented by instances if IC=1 "Data", IC=3 "Register" or IC=4 "Extended register" with the data type of the value attribute octet_string, formatted as date_time.
+	1	b	0	9	0	255	Time expired since last end of billing period	3	1,4		If IC = 1 "Data" is used, the default unit is the secundum.
+	1	b	0	9	1	255	Local time	1	3,4	[1] 4.2.7	For display only. For communication use Attribute 2 of a Clock object
+	1	b	0	9	2	255	Local date	1	3,4		Idem
+	1	b	0	9	3	255	Reserved for Germany	1	3,4
+	1	b	0	9	4	255	Reserved for Germany	1	3,4
+	1	b	0	9	5	255	Week day (0...7)	1	3,4
+	1	b	0	9	6	255	Time of last reset	1	3,4
+	1	b	0	9	7	255	Date of last reset	1	3,4
+	1	b	0	9	8	255	Output pulse duration	3	1,4		If IC = 1 "Data" is used, the default unit is seconds.
+	1	b	0	9	9	255	Clock synchronisation window	3	4,1	[1] 4.2.7	Part of method 5 of IC = 8 Clock. If IC = 1 "Data" is used, the default unit is sec.
+	1	b	0	9	10	255	Clock synchronisation method	3	4,1	[1] 4.2.7	The synchronisation method is enumerated (methods of the clock object).
+com	1	b	0	10	255	255	Coefficients objects			[1] 5.5.1.3.4
+	1	b	0	10	0	255	Transformer magnetic losses, Xm	3	4
+	1	b	0	10	1	255	Transformer iron losses, RFe	3	4
+	1	b	0	10	2	255	Line resistance losses, RCu	3	4
+	1	b	0	10	3	255	Line reactance losses, Xs	3	4
+com	1	b	0	11	255	255	Measurement algorithm objects				These values are represented by instances of the interface class IC=1 "Data", with data types unsigned. If IC = 3 "Register" is used, scaler = 0 and unit = 255.
+	1	b	0	11	1	255	Algorithm for active power	1	3	[1] 4.6.1.2.9	The algorithms are enumerated.
+	1	b	0	11	2	255	Algorithm for active energy	1	3	[1] 4.6.1.2.10	Idem
+	1	b	0	11	3	255	Algorithm for reactive power	1	3	[1] 4.6.1.2.11	Idem
+	1	b	0	11	4	255	Algorithm for reactive energy	1	3	[1] 4.6.1.2.12	Idem
+	1	b	0	11	5	255	Algorithm for apparent power	1	3	[1] 4.6.1.2.13	Idem
+	1	b	0	11	6	255	Algorithm for apparent energy	1	3	[1] 4.6.1.2.14	Idem
+	1	b	0	11	7	255	Algorithm for power factor	1	3	[1] 4.6.1.2.15	Idem
+com	1	b	c = 1-20, 21-40, 41-60, 61-80, 82, 84-87, 88, 89	255	255	255	Electrical energy related objects, except transformer & line loss quantities			[1] Table 8, 9, 10, 11,12, 13, 14
+com	Range definition
+def	c = 1-20, 21-40, 41-60, 61-80, 82, 84-87, 88, 89									[1] Table 9
+com	1	b	1	255	255	255	S Li Active power+ (QI+QIV)
+com	1	b	2	255	255	255	 S Li Active power- (QII+QIII)
+com	1	b	3	255	255	255	S Li  Reactive power+ (QI+QII)
+com	1	b	4	255	255	255	S Li Reactive power- (QIII+QIV)
+com	1	b	5	255	255	255	S Li Reactive power QI
+com	1	b	6	255	255	255	S Li Reactive power QII
+com	1	b	7	255	255	255	S Li Reactive power QIII
+com	1	b	8	255	255	255	S Li Reactive power QIV
+com	1	b	9	255	255	255	S Li Apparent  power+ (QI+QIV)			[1] Table 9 Note 3
+com	1	b	10	255	255	255	S Li Apparent  power- (QII+QIII)
+com	1	b	11	255	255	255	Current: any phase
+com	1	b	12	255	255	255	Voltage: any phase
+com	1	b	13	255	255	255	S Li Power factor			[1] Table 9 Note 4
+com	1	b	14	255	255	255	Supply frequency
+com	1	b	15	255	255	255	S LI Active power (abs(QI+QIV)+abs(QII+QIII))
+com	1	b	16	255	255	255	S LI Active power               (abs(QI+QIV)-abs(QII+QIII))
+com	1	b	17	255	255	255	S Li Active power QI
+com	1	b	18	255	255	255	S Li Active power QII
+com	1	b	19	255	255	255	S Li Active power QIII
+com	1	b	20	255	255	255	S Li Active power QIV
+com	1	b	21	255	255	255	L1 Active power+ (QI+QIV)
+com	1	b	22	255	255	255	 L1 Active power- (QII+QIII)
+com	1	b	23	255	255	255	L1  Reactive power+ (QI+QII)
+com	1	b	24	255	255	255	L1 Reactive power- (QIII+QIV)
+com	1	b	25	255	255	255	L1 Reactive power QI
+com	1	b	26	255	255	255	L1 Reactive power QII
+com	1	b	27	255	255	255	L1 Reactive power QIII
+com	1	b	28	255	255	255	L1 Reactive power QIV
+com	1	b	29	255	255	255	L1 Apparent  power+ (QI+QIV)			[1] Table 9 Note 3
+com	1	b	30	255	255	255	L1 Apparent  power- (QII+QIII)
+com	1	b	31	255	255	255	L1 current
+com	1	b	32	255	255	255	L1 voltage
+com	1	b	33	255	255	255	L1 Power factor			[1] Table 9 Note 4
+com	1	b	34	255	255	255	L1 Supply frequency
+com	1	b	35	255	255	255	L1 Active power (abs(QI+QIV)+abs(QII+QIII))
+com	1	b	36	255	255	255	L1 Active power                  (abs(QI+QIV)-abs(QII+QIII))
+com	1	b	37	255	255	255	L1 Active power QI
+com	1	b	38	255	255	255	L1 Active power QII
+com	1	b	39	255	255	255	L1 Active power QIII
+com	1	b	40	255	255	255	L1 Active power QIV
+com	1	b	41	255	255	255	L2 Active power+ (QI+QIV)
+com	1	b	42	255	255	255	 L2 Active power- (QII+QIII)
+com	1	b	43	255	255	255	L2  Reactive power+ (QI+QII)
+com	1	b	44	255	255	255	L2 Reactive power- (QIII+QIV)
+com	1	b	45	255	255	255	L2 Reactive power QI
+com	1	b	46	255	255	255	L2 Reactive power QII
+com	1	b	47	255	255	255	L2 Reactive power QIII
+com	1	b	48	255	255	255	L2 Reactive power QIV
+com	1	b	49	255	255	255	L2 Apparent  power+ (QI+QIV)			[1] Table 9 Note 3
+com	1	b	50	255	255	255	L2 Apparent  power- (QII+QIII)
+com	1	b	51	255	255	255	L2 current
+com	1	b	52	255	255	255	L2 voltage
+com	1	b	53	255	255	255	L2 Power factor			[1] Table 9 Note 4
+com	1	b	54	255	255	255	L2 Supply frequency
+com	1	b	55	255	255	255	L2 Active power (abs(QI+QIV)+abs(QII+QIII))
+com	1	b	56	255	255	255	L2 Active power                 (abs(QI+QIV)-abs(QI+QIII))
+com	1	b	57	255	255	255	L2 Active power QI
+com	1	b	58	255	255	255	L2 Active power QII
+com	1	b	59	255	255	255	L2 Active power QIII
+com	1	b	60	255	255	255	L2 Active power QIV
+com	1	b	61	255	255	255	L3 Active power+ (QI+QIV)
+com	1	b	62	255	255	255	 L3 Active power- (QII+QIII)
+com	1	b	63	255	255	255	L3  Reactive power+ (QI+QII)
+com	1	b	64	255	255	255	L3 Reactive power- (QIII+QIV)
+com	1	b	65	255	255	255	L3 Reactive power QI
+com	1	b	66	255	255	255	L3 Reactive power QII
+com	1	b	67	255	255	255	L3 Reactive power QIII
+com	1	b	68	255	255	255	L3Reactive power QIV
+com	1	b	69	255	255	255	L3 Apparent  power+ (QI+QIV)			[1] Table 8 Note 3
+com	1	b	70	255	255	255	L3 Apparent  power- (QII+QIII)
+com	1	b	71	255	255	255	L3 current
+com	1	b	72	255	255	255	L3 voltage
+com	1	b	73	255	255	255	L3 Power factor			[1] Table 9 Note 4
+com	1	b	74	255	255	255	L3 Supply frequency
+com	1	b	75	255	255	255	L3 Active power (abs(QI+QIV)+abs(QII+QIII))
+com	1	b	76	255	255	255	L3 Active power                 (abs(QI+QIV)-abs(QI+QIII))
+com	1	b	77	255	255	255	L3 Active power QI
+com	1	b	78	255	255	255	L3 Active power QII
+com	1	b	79	255	255	255	L3 Active power QIII
+com	1	b	80	255	255	255	L3 Active power QIV
+com	1	b	82	255	255	255	Unitless quantities (pulses or pieces)
+com	1	b	84	255	255	255	S Li Power factor-			[1] Table 9 Note 4
+com	1	b	85	255	255	255	L1 Power factor-			Idem
+com	1	b	86	255	255	255	L2 Power factor-			Idem
+com	1	b	87	255	255	255	L3 Power factor-			Idem
+com	1	b	88	255	255	255	S Li A2h QI+QII+QIII+QIV
+com	1	b	89	255	255	255	S Li A2h QI+QII+QIII+QIV
+	1	b	c	0	0	255	Billing period average (since last reset), total	3	4,5	[1] Table 10	If IC = 4 "Extended register" or IC =5 "Demand register" are used, the unused attributes shall have no access.
+com	1	b	c	0	1	255	Billing period average (since last reset), tariff 1	3	4,5		Idem
+com	1	b	c	0	63	255	Billing period average (since last reset), tariff 63	3	4,5		Idem
+	1	b	c	0	1-63	255	Billing period average (since last reset), per tariff, current billing period	3	4,5		Idem
+com	1	b	c	0	0-63	VZ	Billing period average (since last reset), per tariff, value of a single past billing period	7		[1] 4.6.1.2.2, 5.4.6, 5.5.1.4, 5.7.3	The value that is represented after reaching the limit of the billing period counter, contains the billing period value code 0 for modulo-100 and 1 for other e.g.modulo-12.
+com	1	b	c	0	0-63	VZ-1	Idem, value of single older billing period/old	7			Idem
+	1	b	c	0	0-63	0-99	Idem, value of a single historical billing period	3,4,5	7
+com	1	b	c	0	0-63	101	Idem, value of the last billing period	3,4,5	7
+com	1	b	c	0	0-63	102	Idem, value of the second last billing period	3,4,5
+com	1	b	c	0	0-63	102	Idem, value of the two last billing periods		7
+com	1	b	c	0	0-63	101-125	Idem, value of the (f-100)th last billing period	3,4,5
+com	1	b	c	0	0-63	101-125	Idem, value of the (f-100) last billing periods		7
+	1	b	c	0	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4,5	7
+ 	1	b	c	0	0-63	126, 255	Unspecified number of most recent values		7		F = 255 means wildcard
+	1	b	c	1	0	255	Cumulative minimum 1 total	3,4		[1] 4.6.1.2.1, 5.5.1.2.1 Table 10	D = 1-6: Averaging scheme 1. The typical usage is for billing purposes. Cumulative values are represented by IC = 3 "Register" or IC = 4 "Extended register" objects.
+	1	b	c	1	1-63	255	Cumulative minimum 1 per tariff, current billing period	3,4
+	1	b	c	1	0-63	0-99	Idem, value of a single historical billing period	3,4	7
+	1	b	c	1	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	1	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	2	0	255	Cumulative maximum 1 total	3,4
+	1	b	c	2	1-63	255	Cumulative maximum 1 per tariff, current billing period	3,4
+	1	b	c	2	0-63	0-99	Idem, value of a single historical billing period	3,4	7
+	1	b	c	2	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	2	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	3	0	255	Minimum 1	3,4	7	[1]  4.6.1.2.1	IC = 3 "Register" or IC = 4 "Extended register" is used if only one single value is captured. IC = 7 is used if several minimum values are captured.
+	1	b	c	3	1-63	255	Minimum 1, per tariff, current billing period	3,4	7
+	1	b	c	3	0-63	0-99	Idem, value of a single historic billing period	3,4	7
+	1	b	c	3	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	3	0-63	126	Idem, value of an unspecified number of last billing periods		7
+	1	b	c	4	0-63	255	Current average 1	5	3,4	[1] 4.2.4, 4.6.1.2.1, 5.5.1.2.1 Table 10	Attribute 2 of an IC = 5 "Demand register" object. It is also the logical name of the "Demand register" object. With IC = 3 "Register" or IC = 4 " Extendd register" for display purposes only.
+	1	b	c	5	0-63	255	Last average 1	3, 4		[1] 4.6.1.2.1, 5.5.1.2.1 Table 10	Attribute 3 of an IC = 5 "Demand register" object. With IC = 3 "Register" or IC = 4 "Extended register" for display purposes only. In case of sliding demand, another last average register (e.g. D =15) with block demand (number_of _intervals = 1) could be used for displaying last subinterval average.
+	1	b	c	6	0	255	Maximum 1	3,4	7	[1]  4.6.1.2.1	Same as for Minimum 1.
+	1	b	c	6	1-63	255	Maximum 1, per tariff, current billing period	3,4	7
+	1	b	c	6	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	6	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	6	0-63	126	Idem, value of an unspecified number of last billing periods		7
+	1	b	1-13, 15-20, 21-33, 35-40, 41-53, 55-60, 61-73, 75-80, 84-89, 91,92	7	0	255	Instantaneous value (except for frequency)	3	4		The averaging time is not specified. For active energy,  voltages and currents, E = 0 means rms value (fundamental + all harmonics). See also Harmonic measurement.
+	1	b	14, 34, 54, 74	7	0,255	255	Instantaneous value of frequency	3	4		No need for further classification of instantaneous value of frequency.
+	1	b	c	8	0	255	Time integral 1, total, current billing period	3	4	[1] Table 10	For a current billing period (F=255): Time integral of the quantity calculated from the origin (first start of measurement) to the instantaneous time point. For a historical billing period: Time integral of the quantity calculated from the origin to the end of the billing period given by the billing period code.
+	1	b	c	8	1-63	255	Time integral 1, per tariff, current billing period	3	4	[1] 4.6.1.2.1
+	1	b	c	8	0-63	0-99	Idem, value of a single historic period	3,4	7		Idem
+	1	b	c	8	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	8	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	9	0	255	Time integral 2, total, current billing period	3	4	[1] Table 10	For a current billing period (F=255): Time integral of the quantity calculated from the beginning of the current billing period to the instantaneous time point.For a historical billing period: Time integral of the quantity calculated over the billing period given by the billing period code.
+	1	b	c	9	1-63	255	Time integral 2, per tariff, current billing period	3	4
+	1	b	c	9	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	9	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	9	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	10	0	255	Time integral 3, total, current billing period	3	4	[1] Table 10	Time integral of the positive difference between the quantity and a prescribed threshold value.
+	1	b	c	10	1-63	255	Time integral 3, per tariff, current billing period	3	4
+	1	b	c	10	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	10	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	10	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	11	0	255	Cumulative minimum 2 total	3	4	[1] Table 10	D = 11-16, Averaging scheme 2. The typical usage is for billing purposes.
+	1	b	c	11	1-63	255	Cumulative minimum 2 per tariff, current billing period	3	4
+	1	b	c	11	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	11	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	11	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	12	0	255	Cumulative maximum 2 total	3	4	[1] Table 10
+	1	b	c	12	1-63	255	Cumulative maximum 2 per tariff, current billing period	3	4
+	1	b	c	12	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	12	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	12	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	13	0	255	Minimum 2	3,4	7	[1]  4.6.1.2.1
+	1	b	c	13	1-63	255	Minimum 2, per tariff, current billing period	3,4	7
+	1	b	c	13	0-63	0-99	Idem, value of a single historic billing period	3,4	7
+	1	b	c	13	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	13	0-63	126	Idem, value of an unspecified number of last billing periods		7
+	1	b	c	14	0-63	255	Current average 2	5	3,4	[1] Table 10
+	1	b	c	15	0-63	255	Last average 2	3,4		[1] Table 10
+	1	b	c	16	0	255	Maximum 2	3,4	7	[1]  4.6.1.2.1
+	1	b	c	16	1-63	255	Maximum 2, per tariff, current billing period	3,4	7
+	1	b	c	16	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	16	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	16	0-63	126	Idem, value of an unspecified number of last billing periods		7
+	1	b	c	17	0	255	Time integral 7	3		[1] Table 10	Time integral of the quantity calculated from the origin (first start of measurement) up to the end of the last recording period with recording period 1.
+	1	b	c	18	0	255	Time integral 8	3		[1] Table 10	Time integral of the quantity calculated from the origin (first start of measurement) up to the end of the last recording period with recording period 2.
+	1	b	c	19	0	255	Time integral 9	3		[1] Table 10	Time integral of the quantity calculated from the beginning of the current billing period up to the end of the last recording period with recording period 1.
+	1	b	c	20	0	255	Time integral 10	3		[1] Table 10	Time integral of the quantity calculated from the beginning of the current billing period up to the end of the last recording period with recording period 2.
+	1	b	c	21	0	255	Cumulative minimum 3 total	3,4		[1] Table 10	D = 21-26, Averaging scheme 3. The typical usage is for instantaneous values.
+	1	b	c	21	1-63	255	Cumulative minimum 3 per tariff, current billing period	3,4
+	1	b	c	21	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	21	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	21	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	22	0	255	Cumulative maximum 3 total	3,4		[1] Table 10
+	1	b	c	22	1-63	255	Cumulative maximum 3 per tariff, current billing period	3,4
+	1	b	c	22	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	22	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	22	0-63	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	1	b	c	23	0	255	Minimum 3	3,4	7	[1]  4.6.1.2.1
+	1	b	c	23	1-63	255	Minimum 3, per tariff, current billing period	3,4	7
+	1	b	c	23	0-63	0-99	Idem, value of a single historic billing period	3,4	7
+	1	b	c	23	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	23	0-63	126	Idem, value of an unspecified number of last billing periods		7
+	1	b	1-13, 15-20, 21-33, 35-40, 41-53, 55-60, 61-73, 75-80, 84-89, 91,92	24	0	255	Current average 3	5	3,4	[1] Table 10	For active energy,  voltages and currents, E = 0 means rms value (fundamental + all harmonics) See also Harmonic measurement.
+	1	b	c	25	0,63	255	Last average 3	3,4		[1] Table 10
+	1	b	c	26	0	255	Maximum 3	3,4	7	[1] Table 10
+	1	b	c	26	1-63	255	Maximum 3, per tariff, current billing period	3,4	7
+	1	b	c	26	0-63	0-99	Idem, value of a single historic period	3,4	7
+	1	b	c	26	0-63	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	1	b	c	26	0-63	126	Idem, value of an unspecified number of last billing periods		7
+	1	b	c	27	0, 255	255	Current average 5	5		[1] Table 10	The value of the energy accumulated over the last integration period, divided by the length of the integration period, using recording interval 1.
+	1	b	c	28	0, 255	255	Current average 6	5		[1] Table 10	The value of the energy accumulated over the last integration period, divided by the length of the integration period, using recording interval 2.
+	1	b	c	29	0, 255	255	Time integral 5	3	4	[1] Table 10	Used as a base for load profile recording: Time integral of the quantity calculated from the beginning of the current recording interval to the instantaneous time point for recording period 1.
+	1	b	c	30	0, 255	255	Time integral 6	3	4	[1] Table 10	Used as a base for load profile recording: Time integral of the quantity calculated from the beginning of the current recording interval to the instantaneous time point for recording period 2.
+	1	b	c	55	0, 255	255	Test Average	3	5	[1] Table 10
+	1	b	c	58	0, 255	255	Time integral 4	3	4	[1] Table 10	Test time integral
+com			c1 = 1-80, 82, 84-89, 91, 92		  		Threshold objects for instantaneous values			[1] 4.6.1.2.19, Table 10, 5.5.1.4.2
+com	Range definition
+def	c1 = 1-80, 82, 84-89, 91, 92
+	1	b	c1  	31	0-63	0-99, 255	Under limit threshold	3	4		Value group E can be used for per tariff values. Value group F contains the reference into several threshold levels (if applicable). As there can be several thresholds, the use of 0-99 in value group F is also allowed for the occurence counter, duration and magnitude objects.
+com	1	b	c1	32	0-63	0-99, 255	Under limit occurrence counter	1	3		This application of simple counting of under limit occurences is overlapping with the more sophisticated application of UNIPEDE dip classification. As overlapping OBIS codes are not allowed, this line has been "commented out". The overlap can be avoided if the UNIPEDE dip classification is hold by a register table object.
+	1	b	c1	33	0-63	0-99, 255	Under limit duration	3	4		Idem
+	1	b	c1	34	0-63	0-99, 255	Under limit magnitude	3	4		Idem
+	1	b	c1	35	0-63	0-99, 255	Over limit threshold	3	4		Idem
+	1	b	c1	36	0-63	0-99, 255	Over limit occurrence counter	1	3		Idem
+	1	b	c1	37	0-63	0-99, 255	Over limit duration	3	4		Idem
+	1	b	c1	38	0-63	0-99, 255	Over limit magnitude	3	4		Idem
+	1	b	c1	39	0-63	0-99, 255	Missing threshold	3	4		Idem
+	1	b	c1	40	0-63	0-99, 255	Missing occurrence counter	1	3		Idem
+	1	b	c1	41	0-63	0-99, 255	Missing duration	3	4		Idem
+	1	b	c1	42	0-63	0-99, 255	Missing magnitude	3	4		Idem
+com			c1		  		Register monitor objects for instantaneous values of current, voltage and frequency	21		[1] 4.2.15, 4.6.1.2.20	For monitoring instantaneous values, the logical name of the "Register monitor" object may be the OBIS identifier of the threshold.
+com	Range definition
+	1	b	c1	31, 35, 39	0-63	255	Register monitor objects for under limit, over limit and missing instantaneous current and voltage	21
+com	1	b	c1	255	255	255	Register monitor objects for current and last average demand values 	21		[1] 4.6.1.2.20	For monitoring current average and last average values, the logical name of the "Register monotr" object may be the OBIS identifier of the demand value monitored.
+com	Range definition
+	1	b	c1	4, 14, 24	0-63	255	Register monitor objects for current demand values 	21
+	1	b	c1	5, 15, 25	0-63	255	Register monitor objects for last average demand values, per tariff	21
+com							Harmonic measurement			[1] 5.5.1.3.2, Table 11
+def	c3 = 11, 12, 15, 31, 32, 35, 51, 52, 55, 71, 72, 75, 91, 92
+com	1	b	c3 	7	0	255	Instantaneous values, fundamental + all harmonics	3	4
+com	1	b	c3	7	1	255	Instantaneous values, 1st harmonic	3	4
+com	1	b	c3	7	120	255	Instantaneous values, 120th harmonic	3	4
+	1	b	c3	7	1-120	255	Instantaneous values, nth harmonic	3	4
+	1	b	c3	7	124	255	Total Harmonic Distortion (THD)	3	4
+	1	b	c3	7	125	255	Total Demand Distortion (TDD)	3	4
+	1	b	c3	7	126	255	Instantaneous values, all harmonics value	3	4
+	1	b	c3	7	127	255	All harmonics to nominal value ratio	3	4
+com	1	b	c3 	24	0	255	Instantaneous values, total	3	4		When D = 24 is used for instantaneous values. Same as Line 300.
+com	1	b	c3	24	1	255	Instantaneous values, 1st harmonic	3	4
+com	1	b	c3	24	120	255	Instantaneous values, 120th harmonic	3	4
+	1	b	c3	24	1-120	255	Instantaneous values, nth harmonic	3	4
+	1	b	c3	24	124	255	Total Harmonic Distortion (THD)	3	4
+	1	b	c3	24	125	255	Total Demand Distortion (TDD)	3	4
+	1	b	c3	24	126	255	Instantaneous values, all harmonics value	3	4
+	1	b	c3	24	127	255	All harmonics to nominal value ratio	3	4
+com	1	b	81	7	255	255	Angle measurement			[1] 5.5.1.3.3 Table 12
+	1	b	81	7	0	255	U(L1) - U(L1)	3			The reference is U(L1). No meaning.
+	1	b	81	7	1	255	U(L2) - U(L1)	3			The reference is U(L1).
+	1	b	81	7	2	255	U(L3) - U(L1)	3			Idem
+	1	b	81	7	4	255	I(L1) - U(L1)	3			Idem
+	1	b	81	7	5	255	I(L2) - U(L1)	3			Idem
+	1	b	81	7	6	255	I(L3) - U(L1)	3			Idem
+	1	b	81	7	7	255	I(L0) - U(L1)	3			Idem
+	1	b	81	7	10	255	U(L1) - U(L2)	3			The reference is U(L2).
+	1	b	81	7	11	255	U(L2) - U(L2)	3			No meaning
+	1	b	81	7	12	255	U(L3) - U(L2)	3
+	1	b	81	7	14	255	I(L1) - U(L2)	3
+	1	b	81	7	15	255	I(L2) - U(L2)	3
+	1	b	81	7	16	255	I(L3) - U(L2)	3
+	1	b	81	7	17	255	I(L0) - U(L2)	3
+	1	b	81	7	20	255	U(L1) - U(L3)	3			The reference is U(L3)
+	1	b	81	7	21	255	U(L2) - U(L3)	3
+	1	b	81	7	22	255	U(L3) - U(L3)	3			No meaning
+	1	b	81	7	24	255	I(L1) - U(L3)	3
+	1	b	81	7	25	255	I(L2) - U(L3)	3
+	1	b	81	7	26	255	I(L3) - U(L3)	3
+	1	b	81	7	27	255	I(L0) - U(L3)	3
+	1	b	81	7	40	255	U(L1) - I(L1)	3			The reference is I(L1)
+	1	b	81	7	41	255	U(L2) - I(L1)	3
+	1	b	81	7	42	255	U(L3) - I(L1)	3
+	1	b	81	7	44	255	I(L1) - I(L1)	3			No meaning
+	1	b	81	7	45	255	I(L2) - I(L1)	3
+	1	b	81	7	46	255	I(L3) - I(L1)	3
+	1	b	81	7	47	255	I(L0) - I(L1)	3
+	1	b	81	7	50	255	U(L1) - I(L2)	3			The reference is I(L2)
+	1	b	81	7	51	255	U(L2) - I(L2)	3
+	1	b	81	7	52	255	U(L3) - I(L2)	3
+	1	b	81	7	54	255	I(L1) - I(L2)	3
+	1	b	81	7	55	255	I(L2) - I(L2)	3			No meaning
+	1	b	81	7	56	255	I(L3) - I(L2)	3
+	1	b	81	7	57	255	I(L0) - I(L2)	3
+	1	b	81	7	60	255	U(L1) - I(L3)	3			The reference is I(L3)
+	1	b	81	7	61	255	U(L2) - I(L3)	3
+	1	b	81	7	62	255	U(L3) - I(L3)	3
+	1	b	81	7	64	255	I(L1) - I(L3)	3
+	1	b	81	7	65	255	I(L2) - I(L3)	3
+	1	b	81	7	66	255	I(L3) - I(L3)	3			No meaning
+	1	b	81	7	67	255	I(L0) - I(L3)	3
+	1	b	81	7	70	255	U(L1) - I(L0)	3			The reference is I(L0)
+	1	b	81	7	71	255	U(L2) - I(L0)	3
+	1	b	81	7	72	255	U(L3) - I(L0)	3
+	1	b	81	7	74	255	I(L1) - I(L0)	3
+	1	b	81	7	75	255	I(L2) - I(L0)	3
+	1	b	81	7	76	255	I(L3) - I(L0)	3
+	1	b	81	7	77	255	I(L0) - I(L0)	3			No meaning
+	1	b	81	7	255	255	Summary of phase angles	61		[1] 5.6.3.5, Table 32	The phase angle values used can be captured to an instance of the IC "Register table"
+com							UNIPEDE voltage dips			[1] 5.5.1.3.5, Table 14
+def	c4 = 12, 32, 52, 72
+	1	b	c4	32	0	255	10...<15%, 10ms...<100ms	1	3		% is depth of the dip
+	1	b	c4	32	1	255	10...<15%, 100ms...<500ms	1	3
+	1	b	c4	32	2	255	10...<15%, 500ms...<1000ms	1	3
+	1	b	c4	32	3	255	10...<15%, 1s...<3s	1	3
+	1	b	c4	32	4	255	10...<15%, 3s...<20s	1	3
+	1	b	c4	32	5	255	10...<15%, 20s...<60s	1	3
+	1	b	c4	32	10	255	15...<30%, 10...<100ms	1	3
+	1	b	c4	32	11	255	15...<30%, 100...<500ms	1	3
+	1	b	c4	32	12	255	15...<30%, 500...<1000ms	1	3
+	1	b	c4	32	13	255	15...<30%, 1s...<3s	1	3
+	1	b	c4	32	14	255	15...<30%, 3s...<20s	1	3
+	1	b	c4	32	15	255	15...<30%, 20s...<60s	1	3
+	1	b	c4	32	20	255	30...<60%, 10...<100ms	1	3
+	1	b	c4	32	21	255	30...<60%, 100...<500ms	1	3
+	1	b	c4	32	22	255	30...<60%, 500...<1000ms	1	3
+	1	b	c4	32	23	255	30...<60%, 1s...<3s	1	3
+	1	b	c4	32	24	255	30...<60%, 3s...<20s	1	3
+	1	b	c4	32	25	255	30...<60%, 20s...<60s	1	3
+	1	b	c4	32	30	255	60...<90%, 10...<100ms	1	3
+	1	b	c4	32	31	255	60...<90%, 100...<500ms	1	3
+	1	b	c4	32	32	255	60...<90%, 500...<1000ms	1	3
+	1	b	c4	32	33	255	60...<90%, 1s...<3s	1	3
+	1	b	c4	32	34	255	60...<90%, 3s...<20s	1	3
+	1	b	c4	32	35	255	60...<90%, 20s...<60s	1	3
+	1	b	c4	32	40	255	90...<99%, 10...<100ms	1	3
+	1	b	c4	32	41	255	90...<99%, 100...<500ms	1	3
+	1	b	c4	32	42	255	90...<99%, 500...<1000ms	1	3
+	1	b	c4	32	43	255	90...<99%, 1s...<3s	1	3
+	1	b	c4	32	44	255	90...<99%, 3s...<20s	1	3
+	1	b	c4	32	45	255	90...<99%, 20s...<90s	1	3
+	1	b	c4	32	255	255	Summary of voltage dips	61		[1] 5.6.3.5, Table 32
+com							Line and transformer loss measurement				Currently only D = 8  "Time integral 1" is required. Other values will be added as needed.	Phases	Quadrants	Unit
+	1	b	83	8	1	255	Summa Li Active line losses +	3	4		OLA+ = (CuA1+) + (CuA2+) + (CuA3+). The positive quantity is calculated when the active energy is positive.	L1...L3	QI+QIV	Wh
+	1	b	83	8	2	255	Summa Li Active line losses -	3	4		OLA- = (CuA1-) + (CuA2-) + (CuA3-). The negative quantity is calculated when the active energy is negative.	L1...L3	QII+QIII	Wh
+	1	b	83	8	3	255	Summa Li Active line losses 	3	4	On Load Active	OLA = (CuA1) + (CuA2) + (CuA3)	L1...L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	4	255	Summa Li Active transformer losses +	3	4		NLA+ = (FeA1+) + (FeA2+) + (FeA3+)	L1...L3	QI+QIV	Wh
+	1	b	83	8	5	255	Summa Li Active transformer losses -	3	4		NLA- = (FeA1-) + (FeA2-) + (-FeA3-)	L1...L3	QII+QIII	Wh
+	1	b	83	8	6	255	Summa Li Active transformer losses 	3	4	No Load Active	NLA = (FeA1) + (FeA2) + (FeA3)	L1...L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	7	255	Summa Li Active losses +	3	4		TLA+ = (OLA+) + (NLA+)	L1...L3	QI+QIV	Wh
+	1	b	83	8	8	255	Summa Li Active losses -	3	4		TLA- = (OLA-) + (NLA-)	L1...L3	QII+QIII	Wh
+	1	b	83	8	9	255	Summa Li Active losses	3	4	Total Losses Active	TLA=OLA + NLA=TLA1 + TLA2 + TLA3 	L1...L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	10	255	Summa Li Reactive line losses +	3	4		OLR+ = (CuR1+) + (CuR2+) + (CuR3+)	L1...L3	QI+QII	varh
+	1	b	83	8	11	255	Summa Li Reactive line losses -	3	4		OLR- = (CuR1-) + (CuR2-) + (CuR3-)	L1...L3	QIII+QIV	varh
+	1	b	83	8	12	255	Summa Li Reactive line losses 	3	4	On Load Reactive	OLR = (CuR1) + (CuR2) + (CuR3)	L1...L3	QI+QII+QIII+QIV	varh
+	1	b	83	8	13	255	Summa Li Reactive transformer losses +	3	4		NLR+ = (FeR1+) + (FeR2+) + (FeR3+)	L1...L3	QI+QII	varh
+	1	b	83	8	14	255	Summa Li Reactive transformer losses -	3	4		NLR- = (FeR1-) + (FeR2-) + (FeR3-)	L1...L3	QIII+QIV	varh
+	1	b	83	8	15	255	Summa Li Reactive transformer losses 	3	4	No Load Reactive	NLR = (FeR1) + (FeR2) + (FeR3)	L1...L3	QI+QII+QIII+QIV	varh
+	1	b	83	8	16	255	Summa Li Reactive losses +	3	4		TLR+ = (OLR+) + (NLR+)	L1...L3	QI+QII	varh
+	1	b	83	8	17	255	Summa Li Reactive losses -	3	4		TLR- = (OLR-) + (NLR-)	L1...L3	QIII+QIV	varh
+	1	b	83	8	18	255	Summa Li Reactive losses	3	4	Total Losses Reactive	TLR = OLR + NLR = TLR1 + TLR2 + TLR3	L1...L3	QI+QII+QIII+QIV	varh
+	1	b	83	8	19	255	Total transformer losses with normalised RFE = 1 MOhm	3	4	U2h	1/RFe x (U2hL1 + U2hL2 + U2hL3)	L1...L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	20	255	Total line losses with normalised RCU = 10 Ohm	3	4	I2h	RCu x (I2hL1 + I2hL2 + I2hL3)	L1...L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	21	255	Compensated active brutto +	3	4	CA+ brutto	CA+ = (A+) + (TLA+); A+ = 1.1.1.8.0.255	L1...L3	QI+QIV	Wh
+	1	b	83	8	22	255	Compensated active netto +	3	4	CA+ netto	CA+ = (A+) - (TLA+);	L1...L3	QI+QIV	Wh
+	1	b	83	8	23	255	Compensated active brutto -	3	4	CA- brutto	CA- = (A-) + (TLA-); A- = 1.1.2.8.0.255	L1...L3	QII+QIII	Wh
+	1	b	83	8	24	255	Compensated active netto - 	3	4	CA - netto	CA- = (A-) - (TLA-);	L1...L3	QII+QIII	Wh
+	1	b	83	8	25	255	Compensated reactive brutto +	3	4	CR+ brutto	CR+ = (R+) + (TLR+); R+ = 1.x.3.8.0.255	L1...L3	QI+QII	varh
+	1	b	83	8	26	255	Compensated reactive netto +	3	4	CR+ netto	CR+ = (R+) - (TLR+)	L1...L3	QI+QII	varh
+	1	b	83	8	27	255	Compensated reactive brutto -	3	4	CR- brutto	CR- = (R-) + (TLR-);  R-  = 1.x.4.8.0.255	L1...L3	QIII+QIV	varh
+	1	b	83	8	28	255	Compensated reactive netto - 	3	4	CR- netto	CR- = (R-) - (TLR-)	L1...L3	QIII+QIV	varh
+com	1	b	83	8	29	255	Reserved		4
+com	1	b	83	8	30	255	Reserved		4
+	1	b	83	8	31	255	L1 Active line losses +	3	4		CuA1+ = I2hL1 x RCu; RCu = 1.x.0.10.2.V-y	L1	QI+QIV	Wh
+	1	b	83	8	32	255	L1 Active line losses -	3	4		CuA1- = I2hL1 x RCu	L1	QII+QIII	Wh
+	1	b	83	8	33	255	L1 Active line losses 	3	4	CUA1	CuA1 = I2hL1 x Rcu	L1	QI+QII+QIII+QIV	Wh
+	1	b	83	8	34	255	L1 Active transformer losses +	3	4		FeA1+ = U2hL1/RFe; RFe = 1.x.0.10.1.V-y	L1	QI+QIV	Wh
+	1	b	83	8	35	255	L1 Active transformer losses -	3	4		FeA1-  = U2hL1/RFe	L1	QII+QIII	Wh
+	1	b	83	8	36	255	L1 Active transformer losses 	3	4	FEA1	FeA1 = U2hL1/Rfe	L1	QI+QII+QIII+QIV	Wh
+	1	b	83	8	37	255	L1 Active losses +	3	4		TLA1+ = (CuA1+) + (FeA1+)	L1	QI+QIV	Wh
+	1	b	83	8	38	255	L1 Active losses -	3	4		TLA1- = (CuA1-) + (FeA1-)	L1	QII+QIII	Wh
+	1	b	83	8	39	255	L1 Active losses	3	4	TLA1	TLA1 = CuA1+ FeA1	L1	QI+QII+QIII+QIV	Wh
+	1	b	83	8	40	255	L1 Reactive line losses +	3	4		CuR1+ =  I2hL1 x Xs; Xs = 1.x.0.10.3.V-y	L1	QI+QII	varh
+	1	b	83	8	41	255	L1 Reactive line losses -	3	4		CuR1- = I2hL1 x Xs	L1	QIII+QIV	varh
+	1	b	83	8	42	255	L1 Reactive line losses 	3	4	CUR1	CuR1  = I2hL1 x Xs	L1	QI+QII+QIII+QIV	varh
+	1	b	83	8	43	255	L1 Reactive transformer losses +	3	4		FeR1+ = U2hL1/Xm; Xm = 1.x.0.10.0.V-y	L1	QI+QII	varh
+	1	b	83	8	44	255	L1 Reactive transformer losses -	3	4		FeR1- = U2hL1/Xm	L1	QIII+QIV	varh
+	1	b	83	8	45	255	L1 Reactive transformer losses 	3	4	FER1	FeR1 = U2hL1/Xm.  Xm = 1.x.0.10.0.V-y	L1	QI+QII+QIII+QIV	varh
+	1	b	83	8	46	255	L1 Reactive losses +	3	4		TLR1+  = (CuR1+) + (FeR1+)	L1	QI+QII	varh
+	1	b	83	8	47	255	L1 Reactive losses -	3	4		TLR1- = (CuR1-) + (FeR1-)	L1	QIII+QIV	varh
+	1	b	83	8	48	255	L1 Reactive losses	3	4	TLR1	TLR1 = CuR1+ FeR1	L1	QI+QII+QIII+QIV	varh
+	1	b	83	8	49	255	L1 A2h	3	4		A2hL1	L1	QI+QII+QIII+QIV	A2h
+	1	b	83	8	50	255	L1 V2h	3	4		U2hL1	L1	QI+QII+QIII+QIV	V2h
+	1	b	83	8	51	255	L2 Active line losses +	3	4		CuA2+ = I2hL2 x RCu; RCu = 1.x.0.10.2.V-y	L2	QI+QIV	Wh
+	1	b	83	8	52	255	L2 Active line losses -	3	4		CuA2- = I2hL2 x RCu	L2	QII+QIII	Wh
+	1	b	83	8	53	255	L2 Active line losses 	3	4	CUA2	CuA2 = I2hL2 x Rcu	L2	QI+QII+QIII+QIV	Wh
+	1	b	83	8	54	255	L2 Active transformer losses +	3	4		FeA2+ = U2hL2/RFe; RFe = 1.x.0.10.1.V-y	L2	QI+QIV	Wh
+	1	b	83	8	55	255	L2 Active transformer losses -	3	4		FeA2-  = U2hL2/RFe	L2	QII+QIII	Wh
+	1	b	83	8	56	255	L2 Active transformer losses 	3	4	FEA2	FeA2 = U2hL2/Rfe	L2	QI+QII+QIII+QIV	Wh
+	1	b	83	8	57	255	L2 Active losses +	3	4		TLA2+ = (CuA2+) + (FeA2+)	L2	QI+QIV	Wh
+	1	b	83	8	58	255	L2 Active losses -	3	4		TLA2- = (CuA2-) + (FeA2-)	L2	QII+QIII	Wh
+	1	b	83	8	59	255	L2 Active losses	3	4	TLA2	TLA2 = CuA2+ FeA2	L2	QI+QII+QIII+QIV	Wh
+	1	b	83	8	60	255	L2 Reactive line losses +	3	4		CuR2+ =  I2hL2 x Xs; Xs = 1.x.0.10.3.V-y	L2	QI+QII	varh
+	1	b	83	8	61	255	L2 Reactive line losses -	3	4		CuR2- = I2hL2 x Xs	L2	QIII+QIV	varh
+	1	b	83	8	62	255	L2 Reactive line losses 	3	4	CUR2	CuR2  = I2hL2 x Xs	L2	QI+QII+QIII+QIV	varh
+	1	b	83	8	63	255	L2 Reactive transformer losses +	3	4		FeR2+ = U2hL2/Xm; Xm = 1.x.0.10.0.V-y	L2	QI+QII	varh
+	1	b	83	8	64	255	L2 Reactive transformer losses -	3	4		FeR2- = U2hL2/Xm	L2	QIII+QIV	varh
+	1	b	83	8	65	255	L2 Reactive transformer losses 	3	4	FER2	FeR2 = U2hL2/Xm.  Xm = 1.x.0.10.0.V-y	L2	QI+QII+QIII+QIV	varh
+	1	b	83	8	66	255	L2 Reactive losses +	3	4		TLR2+  = (CuR2+) + (FeR2+)	L2	QI+QII	varh
+	1	b	83	8	67	255	L2 Reactive losses -	3	4		TLR2- = (CuR2-) + (FeR2-)	L2	QIII+QIV	varh
+	1	b	83	8	68	255	L2 Reactive losses	3	4	TLR2	TLR2 = CuR2+ FeR2	L2	QI+QII+QIII+QIV	varh
+	1	b	83	8	69	255	L2 A2h	3	4		A2hL2	L2	QI+QII+QIII+QIV	A2h
+	1	b	83	8	70	255	L2 V2h	3	4		U2hL2	L2	QI+QII+QIII+QIV	V2h
+	1	b	83	8	71	255	L3 Active line losses +	3	4		CuA3+ = I2hL2 x RCu; RCu = 1.x.0.10.2.V-y	L3	QI+QIV	Wh
+	1	b	83	8	72	255	L3 Active line losses -	3	4		CuA3- = I2hL2 x RCu	L3	QII+QIII	Wh
+	1	b	83	8	73	255	L3 Active line losses 	3	4	CUA3	CuA3 = I2hL2 x Rcu	L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	74	255	L3 Active transformer losses +	3	4		FeA3+ = U2hL2/RFe; RFe = 1.x.0.10.1.V-y	L3	QI+QIV	Wh
+	1	b	83	8	75	255	L3 Active transformer losses -	3	4		FeA3-  = U2hL2/RFe	L3	QII+QIII	Wh
+	1	b	83	8	76	255	L3 Active transformer losses 	3	4	FEA3	FeA3 = U2hL2/Rfe	L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	77	255	L3 Active losses +	3	4		TLA3+ = (CuA3+) + (FeA3+)	L3	QI+QIV	Wh
+	1	b	83	8	78	255	L3 Active losses -	3	4		TLA3- = (CuA3-) + (FeA3-)	L3	QII+QIII	Wh
+	1	b	83	8	79	255	L3 Active losses	3	4	TLA3	TLA3 = CuA3+ FeA3	L3	QI+QII+QIII+QIV	Wh
+	1	b	83	8	80	255	L3 Reactive line losses +	3	4		CuR3+ =  I2hL2 x Xs; Xs = 1.x.0.10.3.V-y	L3	QI+QII	varh
+	1	b	83	8	81	255	L3 Reactive line losses -	3	4		CuR3- = I2hL2 x Xs	L3	QIII+QIV	varh
+	1	b	83	8	82	255	L3 Reactive line losses 	3	4	CUR3	CuR3  = I2hL2 x Xs	L3	QI+QII+QIII+QIV	varh
+	1	b	83	8	83	255	L3 Reactive transformer losses +	3	4		FeR3+ = U2hL2/Xm; Xm = 1.x.0.10.0.V-y	L3	QI+QII	varh
+	1	b	83	8	84	255	L3 Reactive transformer losses -	3	4		FeR3- = U2hL2/Xm	L3	QIII+QIV	varh
+	1	b	83	8	85	255	L3 Reactive transformer losses 	3	4	FER3	FeR3 = U2hL2/Xm.  Xm = 1.x.0.10.0.V-y	L3	QI+QII+QIII+QIV	varh
+	1	b	83	8	86	255	L3 Reactive losses +	3	4		TLR3+  = (CuR3+) + (FeR3+)	L3	QI+QII	varh
+	1	b	83	8	87	255	L3 Reactive losses -	3	4		TLR3- = (CuR3-) + (FeR3-)	L3	QIII+QIV	varh
+	1	b	83	8	88	255	L3 Reactive losses	3	4	TLR3	TLR3 = CuR3+ FeR3	L3	QI+QII+QIII+QIV	varh
+	1	b	83	8	89	255	L3 A2h	3	4		A2hL3	L3	QI+QII+QIII+QIV	A2h
+	1	b	83	8	90	255	L3 V2h	3	4		U2hL3	L3	QI+QII+QIII+QIV	V2h
+com	1	b	83	8	91... 127	255	Reserved
+com	1	b	96	1	255	255	Metering point ID			[1] 4.6.1.2.16
+	1	b	96	1	0-9	255	Metering point ID 1-10	1	3
+	1	b	96	1	255	255	Metering point ID, combined	7	61
+com	1	b	96	255	255	255	Electricity related status data			[1] 4.6.1.2.17
+	1	b	96	5	0	255	Internal operating status, global	1,3,4,63	7,61
+	1	b	96	5	1	255	Internal operating status, statusword 1	1,3,4,63
+	1	b	96	5	2	255	Internal operating status, statusword 2	1,3,4,63
+	1	b	96	5	3	255	Internal operating status, statusword 3	1,3,4,63
+	1	b	96	5	4	255	Internal operating status, statusword 4	1,3,4,63
+	1	b	96	5	5	255	Meter started status flag	1	3, 4
+	1	b	96	10	0	255	Status information missing voltage	1	3, 4
+	1	b	96	10	1	255	Status information missing current	1	3, 4
+	1	b	96	10	2	255	Status information current without voltage	1	3, 4
+	1	b	96	10	3	255	Status information auxiliary power supply	1	3, 4
+com	1	b	96	50	255	255	Manufacturer specific electricity related objects, general service entries			[1] 5.6.3.1 Table 28	In the manufacturer specific objects, only those values which are not represented by another defined code, but need representation on the display as well shall be placed. If this is not required, the code shall use the possibilities of a value group D > 127.
+	1	b	96	50-99	0-255	0-255	Manufacturer specific abstract objects	1,3,4,7, 61, 63
+com	1	b	98	1	255	255	Electricity related list objects			[1] 4.6.1.2.18, 5.6.3.3
+	1	b	98	1	0-127, 255	0-99, 101-126, 255	Data of billing period (with billing period scheme 1 if there are two schemes available)	7		[1] 5.7.3	F = 255 means wildcard. F = 0-99 and 101 means direct access to data of previous billing periods. Value of F = 102-125 means access to data of last 2-25 billing periods. F = 126 means access to data of an unspecified number of billing periods.
+	1	b	98	2	0-127, 255	0-99, 101-126, 255	Data of billing period (with billing period scheme 2)	7		[1] 5.7.3	Idem.
+com	1	b	98	10	255	255	Register table objects, general use, electricity related			[1] 4.2.18, 5.6.3.5 Table 32
+	1	b	98	10	0-127	0-99, 101-126, 255	Register table objects, general use	61
+com	1	b	99	255	255	255	Electricity profile objects			[1] 5.6.3.1.3
+	1	b	99	1	0-127	255	Load profile with recording period 1	7			If only one object is instantiated, the value of E shall be 0.
+	1	b	99	2	0-127	255	Load profile with recording period 2	7			If only one object is instantiated, the value of E shall be 0.
+	1	b	99	3	0	255	Load profile during test	7
+	1	b	99	10	1	255	Dips voltage profile	7
+	1	b	99	10	2	255	Swells voltage profile	7
+	1	b	99	10	3	255	Cuts voltage profile	7
+	1	b	99	11	1-125	255	Voltage harmonic profile	7			n-th voltage harmonic profile
+	1	b	99	12	1-125	255	Current harmonic profile	7			n-th current harmonic profile
+	1	b	99	13	0	255	Voltage unbalance profile	7
+	1	b	99	97	0-127	255	Power failure event log	7
+	1	b	99	98	0-127	255	Event log	7			If only one object is instantiated, the value of E shall be 0.
+	1	b	99	99	0-127	255	Certification data log	7			If only one object is instantiated, the value of E shall be 0.
+com	1	255	255	255	255	255	Manufacturer electricity related objects			[1] 5.3.8	If any group B to F contains a value in the manufacturer specific range, the whole code is considered as manufacturer specific and even the other value groups, (with the exception of group A) are not necessarily bearing any meaning defined by this standard. In all groups, the value 255 means "not used". Manufacturer specific objects can be of any class. The manufacturer must ensure that each and every COSEM object within the logical device can be uniquely identified by the combination of its OBIS name and interface class.
+def	b=0-199, 255
+def	c=0-199, 255
+def	d=0-255
+def	e=0-255
+def	f=0-255
+	1	128-199	c	d	e	f	Manufacturer specific electricity related objects, Group B=128...199	*			Objects that are already defined in [1] and [2] shall not be re-defined as manufacturer specific.
+	1	b	128-199, 240	d	e	f	Manufacturer specific electricity related objects, Group C=128...199	*			Idem
+	1	b	c	128-254	e	f	Manufacturer specific electricity related objects, Group D=128-254	*			Idem
+	1	b	c	d	128-254	f	Manufacturer specific electricity related objects, Group E=128...254	*			Idem
+	1	b	c	d	e	128-254	Manufacturer specific electricity related objects, Group F=18...254	*			Idem

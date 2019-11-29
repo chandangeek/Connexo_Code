@@ -49,7 +49,7 @@ Ext.define('Dxp.view.tasks.Add', {
                 ui: 'large',
                 width: '100%',
                 style: {
-                    'margin': me.onNewPage ? '0px' : '-16px 0px 0px -16px'
+                    'margin': (me.onNewPage || me.edit) ? '0px' : '-16px 0px 0px -16px'
                 },
                 defaults: {
                     labelWidth: 250
@@ -845,7 +845,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         ui: 'actions',
                         fieldLabel: '&nbsp',
                         layout: 'hbox',
-                        hidden: !me.onNewPage,
+                        hidden: (!me.onNewPage && !me.edit),
                         items: [
                             {
                                 xtype: 'button',

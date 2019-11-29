@@ -450,7 +450,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         }
     }
 
-    private HDLCFrame decodeFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException {
+    protected HDLCFrame decodeFrame(byte[] byteReceiveBuffer) throws DLMSConnectionException {
         return new HDLCFrame(byteReceiveBuffer);
     }
 
@@ -594,7 +594,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
     /**
      * Add the 0x7E at the start and the end of the frame
      */
-    protected byte[] addHDLCFrameFlags(byte[] byteBuffer) {
+    public byte[] addHDLCFrameFlags(byte[] byteBuffer) {
         int iLength = getLength(byteBuffer);
         byte[] data = new byte[iLength + 2];
         data[0] = HDLC_FLAG;
@@ -825,7 +825,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         throw new IOException("receiveInformationField> Timeout and retry count exceeded when receiving data [" + iMaxRetries + " x " + iProtocolTimeout + " ms]");
     }
 
-    private boolean updateNS(HDLCFrame frame) {
+    protected boolean updateNS(HDLCFrame frame) {
         if (nextSequence(NS) == frame.NR) {
             NS = frame.NR;
             return true;
@@ -861,7 +861,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         return new int[]{iCRCHeader, iCRCFrame};
     }
 
-    private int writeCRC(byte[] buffer, int length) {
+    protected int writeCRC(byte[] buffer, int length) {
         int crc = 0xFFFF;
 
         for (int i = 0; i < (length - 2); i++) {
@@ -896,7 +896,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         return new int[]{iCRCHeader, iCRCFrame};
     }
 
-    private int nextSequence(int in) {
+    protected int nextSequence(int in) {
         return (in + 1) % 8;
     }
 
@@ -1060,6 +1060,26 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
                 throw new DLMSConnectionException("HDLCFrame> Frame source address error");
             }
             bSource = (byteReceiveBuffer[protocolParameters[frameSource]] & 0xFF) >> 1;
+        }
+
+        public int getNR() {
+            return NR;
+        }
+
+        public int getbControl() {
+            return bControl;
+        }
+
+        public byte[] getInformationBuffer() {
+            return informationBuffer;
+        }
+
+        public int getsFrameFormat() {
+            return sFrameFormat;
+        }
+
+        public boolean isBoolControlPFBit() {
+            return boolControlPFBit;
         }
     }
 

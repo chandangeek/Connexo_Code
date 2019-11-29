@@ -12,16 +12,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.scriptNumber;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.scriptNumberDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorValveEnablePassword;
 
 /**
  * Provides a summary of all <i>Contactor</i> related messages
@@ -190,8 +182,23 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                     this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation)
             );
         }
+    },
+    CONTACTOR_CLOSE_AND_CLOSE_INVOICING_PERIOD_WITH_ACTIVATION_DATE(1020, "Change valve enable password") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.dateTimeSpec(service, contactorActivationDateAttributeName, contactorActivationDateAttributeDefaultTranslation)
+            );
+        }
+    },
+    CHANGE_VALVE_ENABLE_PASSWORD(1021, "Change valve enable password") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, contactorValveEnablePassword, contactorActivationDateAttributeDefaultTranslation)
+            );
+        }
     };
-
     private final long id;
     private final String defaultNameTranslation;
 
