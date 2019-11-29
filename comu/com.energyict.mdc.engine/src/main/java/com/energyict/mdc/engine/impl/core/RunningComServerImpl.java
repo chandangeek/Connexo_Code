@@ -544,142 +544,54 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     @Override
     public void run() {
-        ComPort comPort = null;
-        while (continueRunning.get()) {
-            try {
-                comPort = this.forceRefreshQueue.poll(this.comServer.getChangesInterPollDelay().getMilliSeconds(), TimeUnit.MILLISECONDS);
-                while (comPort != null) {
-                    refreshComPort(comPort);
-                    comPort = this.forceRefreshQueue.poll();
-                }
-                this.monitorChanges();
-            } catch (PersistenceException e) {
-                getLogger().databaseErrorOccurredDuringUpdatingChanges(comServer, e.getMessage());
-                // DatabaseExceptions are caught and swallowed in ComPorts:
-                //      ScheduledComPortImpl#run
-                //      ComPortListenerImpl#run
-                if (comPort != null) {
-                    // database exception while refreshing a port, for safety will add it again for refresh
-                    refresh(comPort);
-                } else {
-                    findZombies();
-                }
-                sleepAfterDatabaseException();
-            } catch (InterruptedException e) {
-                // don't set interrupted flag otherwise the blocking poll will immediately throw another InterruptedException
-                getLogger().comServerExecutionInterrupted(comServer, e.getMessage());
-            } catch (Throwable e) {
-                // any other unexpected exception
-                getLogger().otherComServerException(comServer, e.getMessage());
-                addAllComServerPortsToRefreshQueue();
-                sleepAfterDatabaseException();
-            }
+        while (continueRunning.get() && !Thread.currentThread().isInterrupted()) {
+            monitorChanges();
         }
-        self.interrupt();
-        this.status = ServerProcessStatus.SHUTDOWN;
-    }
-
-    private void findZombies() {
-        //TODO: alternative clean-up method if everything fails, get from the database only the zombie tasks&ports and unlock them
-        /*
-        select
-            mdccomtaskexec.comport as comport,
-            mdcconnectiontask.comserver as comserver
-        from  mdccomtaskexec right join mdcconnectiontask
-        ON MDCcomTaskExec.connectiontask = mdcconnectiontask.id
-        where
-            (comport is not null and comserver is null)
-            or
-            (comserver is not null and comport is null);
-         */
-    }
-
-    private void addAllComServerPortsToRefreshQueue() {
-        for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
-            refresh(scheduledComPort.getComPort());
-        }
-        for (ComPortListener comPortListener : this.comPortListeners) {
-            refresh(comPortListener.getComPort());
-        }
-    }
-
-    private void sleepAfterDatabaseException() {
-        try {
-            Thread.sleep(getSchedulingInterPollDelayMillis());
-        } catch (InterruptedException e1) {
-            // don't set interrupted flag otherwise the blocking poll will immediately throw another InterruptedException
-        }
-    }
-
-    private void refreshComPort(ComPort comPort) {
-        // first check if we have database access
-        ComPort refreshedComPort = getComServerDAO().refreshComPort(comPort);
-        getLogger().tryToRefreshComPortAfterDatabaseException(comPort);
-        if (!refreshedComPort.isInbound()) {
-            refreshScheduledComPort((OutboundComPort) refreshedComPort);
-        } else {
-            refreshComPortListener((InboundComPort) refreshedComPort);
-        }
-        // releasing the connectionTasks which are busy by this comport
-        getComServerDAO().releaseTasksFor(comPort);
-        getLogger().successfullyRestartedComport(comPort);
-    }
-
-    private void refreshComPortListener(InboundComPort refreshedComPort) {
-        Optional<ComPortListener> comPortListener = getListenerFor(refreshedComPort);
-        if (comPortListener.isPresent()) {
-            comPortListener.get().shutdown();
-            this.comPortListeners.remove(comPortListener.get());
-        }
-        Optional<ComPortListener> rescheduled = this.add(refreshedComPort);
-        if (rescheduled.isPresent()) {
-            rescheduled.get().start();
-        }
-    }
-
-    private void refreshScheduledComPort(OutboundComPort refreshedComPort) {
-        Optional<ScheduledComPort> previouslyScheduledComPort = this.getSchedulerFor(refreshedComPort);
-        if (previouslyScheduledComPort.isPresent()) {
-            previouslyScheduledComPort.get().shutdown();
-            this.scheduledComPorts.remove(previouslyScheduledComPort.get());
-        }
-        Optional<ScheduledComPort> refreshed = this.add(refreshedComPort);
-        if (refreshed.isPresent()) {
-            refreshed.get().start();
-        }
+        status = ServerProcessStatus.SHUTDOWN;
     }
 
     private void monitorChanges() {
         try {
-            this.getLogger().monitoringChanges(this.getComServer());
-            ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
-            this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
+            Thread.sleep(getChangesInterPollDelayMillis());
+            getLogger().monitoringChanges(this.getComServer());
+            ComServer newVersion = comServerDAO.refreshComServer(comServer);
+            operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(serviceProvider.clock().instant()));
             if (newVersion == null) {
                 // ComServer was deleted or made obsolete, shutdown
-                this.shutdown();
-            } else if (newVersion == this.comServer) {
+                shutdown();
+            } else if (newVersion == comServer) {
                 // No changes found
             } else {
                 if (!newVersion.isActive()) {
                     // ComServer is no longer active, shutdown
-                    this.shutdown();
+                    shutdown();
                 } else {
                     comPortPoolsComPortBelongsToCache = new HashMap<>(); // Flush the cache
-                    this.resetLoggerHolder(newVersion);
-                    this.applyChanges((InboundCapable) newVersion);
-                    this.applyChanges((OutboundCapable) newVersion);
-                    this.applyDelayChanges(newVersion);
-                    this.notifyChangesApplied();
-                    String oldComServerName = this.comServer.getName();
-                    this.comServer = newVersion;
+                    resetLoggerHolder(newVersion);
+                    applyChanges((InboundCapable) newVersion);
+                    applyChanges((OutboundCapable) newVersion);
+                    applyDelayChanges(newVersion);
+                    notifyChangesApplied();
+                    String oldComServerName = comServer.getName();
+                    comServer = newVersion;
                     if (!oldComServerName.equals(newVersion.getName())) {
                         // Name changed, notify the ManagementBeanFactory
-                        this.serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
+                        serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
                     }
                 }
             }
         } catch (UnderlyingSQLFailedException e) {
-            this.getLogger().monitorChangesFailed(this.comServer, e.getCause());
+            getLogger().monitorChangesFailed(comServer, e.getCause());
+        } catch (InterruptedException e) {
+            getLogger().comServerExecutionInterrupted(comServer, e.getMessage());
+            Thread.currentThread().interrupt();
+        } catch (PersistenceException e) {
+            getLogger().databaseErrorOccurredDuringUpdatingChanges(comServer, e.getMessage());
+            // DatabaseExceptions are caught and swallowed in ComPorts:
+            //      ScheduledComPortImpl#run
+            //      ComPortListenerImpl#run
+        } catch (Throwable e) {
+            getLogger().otherComServerException(comServer, e.getMessage());
         }
     }
 
