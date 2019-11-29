@@ -470,12 +470,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         return getTable1().getTypeMaximumValues().getClockCalendar().toDate();
     }
 
-    /**
-     * Send the time delta in milliseconds.
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.MeterProtocol#setTime()
-     */
+
     @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);
