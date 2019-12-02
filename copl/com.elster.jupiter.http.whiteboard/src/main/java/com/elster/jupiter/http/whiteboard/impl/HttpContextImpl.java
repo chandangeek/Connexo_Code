@@ -34,7 +34,7 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public String getMimeType(String arg0) {
-        return MimeTypesExt.getByFile(arg0);
+        return MimeTypesExt.get().getByFile(arg0);
     }
 
     @Override

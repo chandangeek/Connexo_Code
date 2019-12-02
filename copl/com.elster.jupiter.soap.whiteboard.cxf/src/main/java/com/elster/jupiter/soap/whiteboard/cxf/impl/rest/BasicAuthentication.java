@@ -66,6 +66,6 @@ public class BasicAuthentication implements HttpContext {
 
     @Override
     public String getMimeType(String s) {
-        return MimeTypesExt.getByFile(s);
+        return MimeTypesExt.get().getByFile(s);
     }
 }
