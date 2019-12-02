@@ -46,6 +46,13 @@ import java.util.List;
  */
 @ConsumerType
 public interface ComServer extends HasId, HasName {
+
+    /**
+     * The system property that is used to assign the ComServer's name.
+     * if not provided the system's computer name is used
+     */
+    public final static String SYSTEM_NAME_PROPERTY = "servername";
+
     String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
     String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
 
@@ -174,7 +181,7 @@ public interface ComServer extends HasId, HasName {
      *
      * @return The timestamp of the last modification
      */
-    Instant getModificationDate();
+    Instant getModTime();
 
     long getVersion();
 

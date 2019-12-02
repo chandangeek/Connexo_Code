@@ -14,7 +14,6 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 
 import com.energyict.protocol.ChannelInfo;
 
@@ -43,39 +42,17 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
-        if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() != null || !channelInfo.getReadingTypeMRID().isEmpty())) {
-            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
-            if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
-                preStoredLoadProfile.updateCommand(this.meterDataStoreCommand);
-            } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)) {
-                final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
-                this.addIssue(
-                        CompletionCode.Ok,
-                        this.getIssueService().newWarning(
-                                this,
-                                MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED,
-                                optionalLoadProfile.get().getObisCode().toString(),
-                                optionalLoadProfile.get().getLastReading()));
-            } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
-                final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
-                this.addIssue(
-                        CompletionCode.ConfigurationError,
-                        this.getIssueService().newProblem(
-                                this,
-                                MessageSeeds.LOAD_PROFILE_CONFIGURATION_MISMATCH,
-                                optionalLoadProfile.get().getObisCode().toString(),
-                                optionalLoadProfile.get().interval().toString()));
-            } else {
-                this.addIssue(
-                        CompletionCode.ConfigurationWarning,
-                        this.getIssueService().newWarning(
-                                this,
-                                MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
-                                comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
-                                        .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
-                                        .orElse("")));
-            }
+        if (comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier()) != null) {
+            comServerDAO.storeLoadProfile(collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, this.getClock().instant());
+        } else {
+            this.addIssue(
+                    CompletionCode.ConfigurationWarning,
+                    this.getIssueService().newWarning(
+                            this,
+                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
+                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
+                                    .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
+                                    .orElse("")));
         }
     }
 

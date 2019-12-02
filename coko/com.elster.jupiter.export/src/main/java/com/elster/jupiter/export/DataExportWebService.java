@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 
 import aQute.bnd.annotation.ConsumerType;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -25,7 +26,7 @@ public interface DataExportWebService extends EndPointProp {
      * @return Must return a service call created with the help of {@link DataExportServiceCallType} for response tracking in case of async response foreseen;
      * {@code Optional.empty()} in case the response is synchronous and treated inside the implementation, or if we don't care about the response.
      */
-    Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data);
+    List<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data);
 
     /**
      * @return The <b>unique</b> name of the web service.

@@ -45,6 +45,10 @@ public class NoLogBooksForDevice extends CollectedDeviceData implements NoLogBoo
         return false;
     }
 
+    public boolean isAwareOfPushedEvents() {
+        return false;
+    }
+
     @Override
     public List<MeterProtocolEvent> getCollectedMeterEvents() {
         return Collections.emptyList();

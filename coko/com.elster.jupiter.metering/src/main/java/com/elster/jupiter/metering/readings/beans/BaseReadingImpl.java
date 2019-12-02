@@ -10,6 +10,9 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,14 +20,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+@XmlRootElement
 public abstract class BaseReadingImpl implements BaseReading {
 
-    private final BigDecimal value;
-    private final Instant timeStamp;
+    private BigDecimal value;
+    private Instant timeStamp;
     private Optional<Range<Instant>> timePeriod = Optional.empty();
     private String source;
     private BigDecimal sensorAccuracy;
     private final List<ReadingQuality> readingQualities = new ArrayList<>();
+
+    public BaseReadingImpl() {
+    }
 
     BaseReadingImpl(Instant timeStamp, BigDecimal value) {
         this.timeStamp = timeStamp;
@@ -47,6 +54,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     @Override
+    @XmlTransient
     public Instant getReportedDateTime() {
         return Instant.now();
     }
@@ -93,6 +101,7 @@ public abstract class BaseReadingImpl implements BaseReading {
         addQuality(readingQualityType.getCode());
     }
 
+    @XmlElement(type = ReadingQualityImpl.class)
     public List<? extends ReadingQuality> getReadingQualities() {
     	return Collections.unmodifiableList(readingQualities);
     }

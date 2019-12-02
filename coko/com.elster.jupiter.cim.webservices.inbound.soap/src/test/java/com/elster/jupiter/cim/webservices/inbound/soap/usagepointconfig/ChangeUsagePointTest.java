@@ -10,6 +10,7 @@ import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
@@ -48,7 +49,9 @@ import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigFaultMessageTyp
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigResponseMessageType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.SetMultimap;
 
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
@@ -595,6 +598,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_USAGE_POINT_STATE_WITH_NAME.getErrorCode(),
                 "No usage point state 'Drunk' is found in current life cycle.");
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -624,6 +631,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                         MessageSeeds.TRANSITION_ACTION_FAILED.getErrorCode(),
                         "Transition can't be performed due to failed transition action 'Ordinary action': This action acts ordinarily."
                 ));
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -649,6 +660,11 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
                 ImmutableMap.of(connectionStatePropertySpec.getName(), logicallyDisconnectedValue));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -693,6 +709,9 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
 
         verify(usagePointLifeCycleService).performTransition(usagePoint, customTransition, "INS", Collections.emptyMap());
         verify(usagePoint).setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED);
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -741,6 +760,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePointLifeCycleService).performTransition(usagePoint, deactivate, "INS", Collections.emptyMap());
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -783,6 +806,9 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePoint, never()).setName(anyString());
         verify(usagePoint, never()).update();
         verify(usagePoint).setConnectionState(ConnectionState.PHYSICALLY_DISCONNECTED);
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         assertKeptDetails();
 
@@ -828,6 +854,11 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         verify(usagePoint, never()).update();
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class), any(Instant.class));
         verify(usagePoint, never()).setConnectionState(any(ConnectionState.class));
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         assertKeptDetails();
 
@@ -877,6 +908,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 "ERRORCODE",
                 "ErrorMessage");
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -899,6 +934,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.changeUsagePointConfig(usagePointConfigRequest),
                 null,
                 "ErrorMessage");
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), ANOTHER_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
@@ -906,7 +945,7 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
         // Prepare request
         UsagePointConfig usagePointConfig = new UsagePointConfig();
         ch.iec.tc57._2011.usagepointconfig.UsagePoint usagePointInfo
-                = createUsagePoint("\t\n\r ", USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
+                = createUsagePoint(USAGE_POINT_MRID, USAGE_POINT_NAME, PhaseCode.S_1, UsagePointConnectedKind.LOGICALLY_DISCONNECTED);
         usagePointConfig.getUsagePoint().add(usagePointInfo);
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
         usagePointConfigRequest.getHeader().setAsyncReplyFlag(true);
@@ -916,6 +955,10 @@ public class ChangeUsagePointTest extends AbstractMockActivator {
 
         // Assert service call
         verify(serviceCall).requestTransition(com.elster.jupiter.servicecall.DefaultState.PENDING);
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), USAGE_POINT_NAME);
+        values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), USAGE_POINT_MRID);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     private ch.iec.tc57._2011.usagepointconfig.UsagePoint createUsagePoint(String mRID, String name, PhaseCode phaseCode,

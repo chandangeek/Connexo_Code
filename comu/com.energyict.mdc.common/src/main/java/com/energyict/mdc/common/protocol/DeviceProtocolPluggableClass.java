@@ -7,7 +7,11 @@ package com.energyict.mdc.common.protocol;
 import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,6 +22,11 @@ import java.util.List;
  * Date: 3/07/12
  * Time: 8:58
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface DeviceProtocolPluggableClass extends PluggableClass {
 
     /**
@@ -58,4 +67,10 @@ public interface DeviceProtocolPluggableClass extends PluggableClass {
                 .flatMap(Collection::stream)
                 .anyMatch(propertySpec -> propertySpec.getValueFactory().getValueTypeName().equalsIgnoreCase(com.energyict.mdc.upl.properties.DeviceMessageFile.class.getName()));
     }
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 }

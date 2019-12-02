@@ -23,6 +23,7 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
         DOMAIN("serviceCall", "serviceCall"),
         REQUEST_UUID("requestUUID", "request_uuid"),
         REFERENCE_ID("referenceID", "reference_id"),
+        REFERENCE_UUID("referenceUuid", "REFERENCE_UUID"),
         CONFIRMATION_TIME("confirmationTime", "confirmation_time"),
         RESULT_URL("resultURL", "result_url"), // up to 10.7
         BULK("bulk", "bulk");
@@ -52,9 +53,9 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String referenceID;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String referenceUuid;
     private Instant confirmationTime;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String resultURL;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Boolean bulk;
 
@@ -78,6 +79,14 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
         this.referenceID = referenceID;
     }
 
+    public String getReferenceUuid() {
+        return referenceUuid;
+    }
+
+    public void setReferenceUuid(String referenceUuid) {
+        this.referenceUuid = referenceUuid;
+    }
+
     public Instant getConfirmationTime() {
         return confirmationTime;
     }
@@ -99,6 +108,7 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
         this.serviceCall.set(serviceCall);
         this.setRequestUUID((String) propertyValues.getProperty(FieldNames.REQUEST_UUID.javaName()));
         this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
+        this.setReferenceUuid((String) propertyValues.getProperty(FieldNames.REFERENCE_UUID.javaName()));
         this.setConfirmationTime((Instant) propertyValues.getProperty(FieldNames.CONFIRMATION_TIME.javaName()));
         this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
     }
@@ -107,6 +117,7 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.REQUEST_UUID.javaName(), this.getRequestUUID());
         propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());
+        propertySetValues.setProperty(FieldNames.REFERENCE_UUID.javaName(), this.getReferenceUuid());
         propertySetValues.setProperty(FieldNames.CONFIRMATION_TIME.javaName(), this.getConfirmationTime());
         propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
     }

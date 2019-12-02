@@ -6,6 +6,8 @@ package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.users.User;
@@ -26,6 +28,8 @@ import ch.iec.tc57._2011.receiveenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -42,8 +46,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
     @Mock
@@ -59,6 +63,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
     private final String CORRELATION_ID = "CorrelationID";
     private ExecuteEndDeviceEventsEndpoint executeEndDeviceEventsEndpoint;
+    private SetMultimap<String, String> values = HashMultimap.create();
 
     @Before
     public void setUp() throws Exception {
@@ -95,6 +100,8 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         when(closedAlarm.getDevice()).thenReturn(endDevice);
 
         mockEndDeviceEvent();
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), END_DEVICE_NAME);
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), END_DEVICE_MRID);
     }
 
     @Test
@@ -112,6 +119,8 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         endDeviceEventsRequest.getHeader().setCorrelationID(CORRELATION_ID);
         // Business method
         EndDeviceEventsResponseMessageType response = executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
+
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CLOSED);
@@ -140,6 +149,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
         // Business method
         EndDeviceEventsResponseMessageType response = executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Asserts
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CLOSED);
@@ -170,6 +180,9 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         try {
             // Business method
             executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+
+
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -197,6 +210,9 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         try {
             // Business method
             executeEndDeviceEventsEndpoint.closedEndDeviceEvents(endDeviceEventsRequest);
+
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
+
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts

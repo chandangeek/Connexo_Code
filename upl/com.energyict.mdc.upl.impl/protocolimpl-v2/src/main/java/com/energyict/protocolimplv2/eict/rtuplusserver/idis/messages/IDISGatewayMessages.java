@@ -34,7 +34,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -215,7 +215,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         String startTime = getMessageAttributeValue(pendingMessage, DeviceMessageConstants.startTime);
         final GatewaySetup gatewaySetup = this.session.getCosemObjectFactory().getGatewaySetup();
         final AXDRTime axdrTime = new AXDRTime();
-        axdrTime.setTime(startTime);
+        axdrTime.decode(startTime);
         gatewaySetup.writeOperatingWindowStartTime(axdrTime.getOctetString());
     }
 
@@ -223,7 +223,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
         String startTime = getMessageAttributeValue(pendingMessage, DeviceMessageConstants.endTime);
         final GatewaySetup gatewaySetup = this.session.getCosemObjectFactory().getGatewaySetup();
         final AXDRTime axdrTime = new AXDRTime();
-        axdrTime.setTime(startTime);
+        axdrTime.decode(startTime);
         gatewaySetup.writeOperatingWindowStartTime(axdrTime.getOctetString());
     }
 

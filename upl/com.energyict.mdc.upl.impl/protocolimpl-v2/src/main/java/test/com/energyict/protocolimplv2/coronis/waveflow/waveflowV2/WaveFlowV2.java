@@ -12,7 +12,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
 /**

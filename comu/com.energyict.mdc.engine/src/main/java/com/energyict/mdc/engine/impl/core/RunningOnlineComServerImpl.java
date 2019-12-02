@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.comserver.OfflineComServer;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
@@ -56,13 +57,14 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
 
     private void startQueryApiListenerIfNecessary () {
         List<RemoteComServer> remoteComServers = getServiceProvider().engineConfigurationService().findRemoteComServersForOnlineComServer(getComServer());
-        if (!remoteComServers.isEmpty()) {
+        List<OfflineComServer> offlineComServers = getServiceProvider().engineConfigurationService().findOfflineComServersForOnlineComServer(getComServer());
+        if (!remoteComServers.isEmpty() || !offlineComServers.isEmpty()) {
             this.startQueryApiListener();
         }
     }
 
     private void startQueryApiListener () {
-        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this, getComServerDAO(),serviceProvider.engineConfigurationService() ,serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
+        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this, getOperationalMonitor().getQueryApiStatistics());
         this.remoteQueryApi.start();
     }
 
@@ -101,7 +103,9 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
                 this.getServiceProvider().engineConfigurationService(),
                 this.getServiceProvider().connectionTaskService(),
                 this.getServiceProvider().communicationTaskService(),
-                this.getServiceProvider().transactionService());
+                this.getServiceProvider().transactionService(),
+                this.getServiceProvider().threadPrincipalService(),
+                this.getServiceProvider().userService());
     }
 
     @Override

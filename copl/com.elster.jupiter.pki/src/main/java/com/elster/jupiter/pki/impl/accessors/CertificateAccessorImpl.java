@@ -40,12 +40,12 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
     }
 
     @Override
-    public Optional<CertificateWrapper> getActualValue() {
+    public Optional<CertificateWrapper> getActualPassphraseWrapperReference() {
         return actualCertificate.getOptional();
     }
 
     @Override
-    public void setActualValue(CertificateWrapper newWrapperValue) {
+    public void setActualPassphraseWrapperReference(CertificateWrapper newWrapperValue) {
         this.actualCertificate.set(newWrapperValue);
     }
 
@@ -108,14 +108,14 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
 
     private void doRenewCertificate() throws CertificateEncodingException { // TODO can NOT renew non-ClientCertificate types
         ClientCertificateWrapper clientCertificateWrapper = getSecurityManagementService()
-                .newClientCertificateWrapper(getKeyAccessorType().getKeyType(), getKeyAccessorType().getKeyEncryptionMethod())
+                .newClientCertificateWrapper(getKeyAccessorTypeReference().getKeyType(), getKeyAccessorTypeReference().getKeyEncryptionMethod())
                 .alias(actualCertificate.get().getAlias() + "-new)")
                 .add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
-        X500Name x500Name = getDNFromCertificate(getActualValue().get());
+        X500Name x500Name = getDNFromCertificate(getActualPassphraseWrapperReference().get());
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
-                .generateCSR(x500Name, getKeyAccessorType().getKeyType().getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest, getKeyAccessorType().getKeyType().getKeyUsages(), getKeyAccessorType().getKeyType().getExtendedKeyUsages());
+                .generateCSR(x500Name, getKeyAccessorTypeReference().getKeyType().getSignatureAlgorithm());
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest, getKeyAccessorTypeReference().getKeyType().getKeyUsages(), getKeyAccessorTypeReference().getKeyType().getExtendedKeyUsages());
         clientCertificateWrapper.save();
         tempCertificate.set(clientCertificateWrapper);
         this.save();

@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
@@ -24,7 +25,6 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.*;
 import com.energyict.protocolimplv2.dlms.hon.as300n.AS300N;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.math.BigDecimal;

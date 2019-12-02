@@ -11,8 +11,12 @@ import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
  * @since 2016-11-30 (09:43)
  */
 public class TranslationKeyImpl implements TranslationKey {
-    private final String key;
-    private final String defaultFormat;
+
+    private String key;
+    private String defaultFormat;
+
+    public TranslationKeyImpl() {
+    }
 
     public TranslationKeyImpl(String key, String defaultFormat) {
         this.key = key;

@@ -34,6 +34,7 @@ public class JsonQueryParameters implements QueryParameters {
     private static final String EXTJS_DIRECTION = "direction";
     private static final String EXTJS_FIELD = "property";
     private static final String EXTJS_LIKE = "like";
+    private static final String EXTJS_FILTER = "filter";
 
     private final MultivaluedMap<String, String> queryParameters;
 
@@ -113,4 +114,10 @@ public class JsonQueryParameters implements QueryParameters {
         return queryParameters.getFirst(EXTJS_LIKE);
     }
 
+    public Optional<JsonQueryFilter> getFilter() {
+        String filter = queryParameters.getFirst(EXTJS_FILTER);
+        if (filter != null && !filter.isEmpty())
+            return Optional.of(new JsonQueryFilter(filter));
+        return Optional.empty();
+    }
 }

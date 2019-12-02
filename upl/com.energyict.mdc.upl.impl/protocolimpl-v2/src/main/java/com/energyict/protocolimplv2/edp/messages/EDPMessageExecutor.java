@@ -419,7 +419,7 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
      */
     private OctetString parseTimeFromString(String dateString) throws IOException {
         AXDRTime axdrTime = new AXDRTime();
-        axdrTime.setTime(dateString);
+        axdrTime.decode(dateString);
         return axdrTime.getOctetString();
     }
 

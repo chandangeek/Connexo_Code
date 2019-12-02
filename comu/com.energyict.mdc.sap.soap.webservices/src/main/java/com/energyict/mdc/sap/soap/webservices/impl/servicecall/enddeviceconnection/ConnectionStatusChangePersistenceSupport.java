@@ -10,12 +10,14 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+
 import com.google.inject.Module;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class ConnectionStatusChangePersistenceSupport implements PersistenceSupport<ServiceCall, ConnectionStatusChangeDomainExtension> {
@@ -61,21 +63,28 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        table.column(ConnectionStatusChangeDomainExtension.FieldNames.ID.databaseName())
+        Column oldIdColumn = table.column(ConnectionStatusChangeDomainExtension.FieldNames.ID.databaseName())
                 .varChar()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName())
                 .notNull()
+                .upTo(Version.version(10, 7, 1))
+                .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.ID.databaseName())
+                .varChar()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName())
+                .since(Version.version(10, 7, 1))
+                .previously(oldIdColumn)
+                .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.UUID.databaseName())
+                .varChar(NAME_LENGTH)
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName())
+                .since(Version.version(10, 7, 1))
                 .add();
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.databaseName())
                 .varChar()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName())
                 .notNull()
                 .add();
-        /*table.column(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
-                .varChar()
-                .notNull()
-                .upTo(Version.version(10, 7))
-                .add();*/
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.databaseName())
                 .varChar()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName())
@@ -84,6 +93,18 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
                 .number()
                 .conversion(ColumnConversion.NUMBER2INSTANT)
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName())
+                .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.BULK.databaseName())
+                .bool()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName())
+                .installValue("'N'")
+                .since(Version.version(10, 7, 1))
+                .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.databaseName())
+                .bool()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
+                .installValue("'N'")
+                .since(Version.version(10, 7, 1))
                 .add();
     }
 

@@ -9,7 +9,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.junit.Before;

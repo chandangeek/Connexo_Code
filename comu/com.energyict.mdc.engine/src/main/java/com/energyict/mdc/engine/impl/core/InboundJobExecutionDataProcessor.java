@@ -45,6 +45,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -241,10 +242,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         }
 
         if (executePendingTaskOnInboundConnection) {
-            //TODO port COMMUNICATION-1587
             //execute remaining pending tasks on same inbound connection
-            //return super.prepareAll(comTaskExecutions, root, groupedDeviceCommand, false);
-            return root;
+            return super.prepareAll(comTaskExecutions, false);
         } else {
             return root;
         }
@@ -265,7 +264,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
             commandCreator.createCommands(
                     groupedDeviceCommand,
-                    getProtocolDialectTypedProperties(getConnectionTask().getDevice(), getConnectionTask().getProtocolDialectConfigurationProperties()),
+                    getProtocolDialectTypedProperties(getComServerDAO(), getConnectionTask(), comTaskExecution),
                     super.preparationContext.getComChannelPlaceHolder(),
                     protocolTasks,
                     deviceProtocolSecurityPropertySet,
@@ -504,6 +503,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         @Override
         public DeviceMessageService deviceMessageService() {
             return serviceProvider.deviceMessageService();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
         }
     }
 }

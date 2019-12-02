@@ -133,7 +133,7 @@ public class QueryMethodTest {
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(comServer.getModificationDate()).thenReturn(now);
+        when(comServer.getModTime()).thenReturn(now);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
 
         // Business method
@@ -154,7 +154,7 @@ public class QueryMethodTest {
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getId()).thenReturn(COMSERVER_ID);
-        when(comServer.getModificationDate()).thenReturn(modificationDateAfterChanges);
+        when(comServer.getModTime()).thenReturn(modificationDateAfterChanges);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.of(comServer));
 
         // Business method
@@ -183,7 +183,7 @@ public class QueryMethodTest {
         QueryMethod.ExecutionStarted.execute(parameters, serviceProvider);
 
         // Asserts
-        verify(comServerDAO).executionStarted(comTaskExecution, comPort, true);
+        verify(comServerDAO).executionStarted(comTaskExecution, comPort, false);
     }
 
     @Test

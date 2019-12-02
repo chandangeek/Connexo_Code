@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.DifferencesListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class DifferencesLogListener implements DifferencesListener {
+public class DifferencesLogListener implements DifferencesListener {
     private static final Logger LOGGER = Logger.getLogger(DifferencesLogListener.class.getName());
 
     private DifferencesListener state = difference -> {

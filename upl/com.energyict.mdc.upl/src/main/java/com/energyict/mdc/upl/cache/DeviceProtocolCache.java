@@ -1,11 +1,13 @@
 package com.energyict.mdc.upl.cache;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
 /**
  * Defines an <i>object</i> that represents a generic cache for a DeviceProtocol.
  */
+@XmlRootElement
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public interface DeviceProtocolCache extends Serializable {
 

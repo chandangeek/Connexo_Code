@@ -14,8 +14,10 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
+
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +28,8 @@ import java.util.Optional;
 public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterReadingDocumentCollectionData {
 
     private final MeteringService meteringService;
+    private final Clock clock;
+    private final Map<AdditionalProperties, Integer> properties;
 
     private Integer readindCollectionInterval;
     private Integer readingDateWindow;
@@ -36,12 +40,15 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     private String deviceName;
     private boolean pastCase;
 
-    private SAPMeterReadingDocumentCollectionDataBuilder(MeteringService meteringService) {
+    private SAPMeterReadingDocumentCollectionDataBuilder(MeteringService meteringService, Clock clock, Map<AdditionalProperties, Integer> properties) {
         this.meteringService = meteringService;
+        this.clock = clock;
+        this.properties = properties;
     }
 
-    public static SAPMeterReadingDocumentCollectionDataBuilder.Builder builder(MeteringService meteringService) {
-        return new SAPMeterReadingDocumentCollectionDataBuilder(meteringService).new Builder();
+    public static SAPMeterReadingDocumentCollectionDataBuilder.Builder builder(MeteringService meteringService, Clock clock,
+                                                                               Map<AdditionalProperties, Integer> properties) {
+        return new SAPMeterReadingDocumentCollectionDataBuilder(meteringService, clock, properties).new Builder();
     }
 
     public Integer getReadindCollectionInterval() {
@@ -80,19 +87,29 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
 
     public void calculate() {
         Optional<BaseReadingRecord> closestReadingRecord = getBaseReadingRecord(getReadings());
-        serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
-                .ifPresent(domainExtension -> {
-                    closestReadingRecord.ifPresent(record -> {
-                        domainExtension.setReading(record.getValue());
-                        domainExtension.setActualReadingDate(record.getTimeStamp());
-                        serviceCall.update(domainExtension);
-                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                    });
-                    if (!closestReadingRecord.isPresent()) {
-                        serviceCall.log(LogLevel.SEVERE, "The reading is not found");
-                        serviceCall.requestTransition(DefaultState.FAILED);
-                    }
-                });
+        MeterReadingDocumentCreateResultDomainExtension domainExtension = serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
+        long currentAttempt = domainExtension.getReadingAttempt() + 1;
+        domainExtension.setReadingAttempt(currentAttempt);
+
+        if(closestReadingRecord.isPresent() && closestReadingRecord.get().getValue() != null) {
+            domainExtension.setReading(closestReadingRecord.get().getValue());
+            domainExtension.setActualReadingDate(closestReadingRecord.get().getTimeStamp());
+            serviceCall.update(domainExtension);
+            serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+        }else {
+            serviceCall.log(LogLevel.WARNING, "The reading isn't found.");
+            long attempts = properties.get(AdditionalProperties.CHECK_SCHEDULED_READING_ATTEMPTS);
+
+            if (currentAttempt != attempts) {
+                domainExtension.setNextReadingAttemptDate(clock.instant()
+                        .plusSeconds(properties.get(AdditionalProperties.CHECK_SCHEDULED_READING_INTERVAL) * 60));
+                serviceCall.update(domainExtension);
+                serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
+            } else {
+                serviceCall.update(domainExtension);
+                serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+            }
+        }
     }
 
     public ServiceCall getServiceCall() {
@@ -114,7 +131,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
 
     private List<BaseReadingRecord> getReadings(CimChannel cimChannel) {
         return cimChannel.getReadings(Range
-                .open(scheduledReadingDate.minusSeconds(getReadingDateWindow() * 60),
+                .closed(scheduledReadingDate,
                         scheduledReadingDate.plusSeconds(getReadingDateWindow() * 60)));
     }
 
@@ -133,8 +150,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
         private Builder() {
         }
 
-        public SAPMeterReadingDocumentCollectionDataBuilder.Builder from(ServiceCall serviceCall,
-                                                                         Map<AdditionalProperties, Integer> properties) {
+        public SAPMeterReadingDocumentCollectionDataBuilder.Builder from(ServiceCall serviceCall) {
             setServiceCall(serviceCall);
             serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class)
                     .ifPresent(domainExtension -> {

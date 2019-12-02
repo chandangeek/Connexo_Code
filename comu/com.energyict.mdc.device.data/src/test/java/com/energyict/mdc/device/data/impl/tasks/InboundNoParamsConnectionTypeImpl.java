@@ -4,10 +4,23 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public class InboundNoParamsConnectionTypeImpl extends NoParamsConnectionType {
 
     @Override
     public ConnectionTypeDirection getDirection() {
         return ConnectionTypeDirection.INBOUND;
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

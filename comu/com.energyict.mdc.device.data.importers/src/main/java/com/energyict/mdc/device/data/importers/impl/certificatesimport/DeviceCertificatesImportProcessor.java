@@ -69,11 +69,11 @@ public class DeviceCertificatesImportProcessor implements FileImportZipProcessor
 
     private void save(SecurityAccessor accessor, ClientCertificateWrapper wrapper) {
         boolean valueChange = false;
-        if (!accessor.getActualValue().isPresent()) {
-            accessor.setActualValue(wrapper);
+        if (!accessor.getActualPassphraseWrapperReference().isPresent()) {
+            accessor.setActualPassphraseWrapperReference(wrapper);
             valueChange = true;
         } else if (!accessor.getTempValue().isPresent()) {
-            if (accessor.getActualValue().isPresent()) {
+            if (accessor.getActualPassphraseWrapperReference().isPresent()) {
                 accessor.setTempValue(wrapper);
                 valueChange = true;
             }

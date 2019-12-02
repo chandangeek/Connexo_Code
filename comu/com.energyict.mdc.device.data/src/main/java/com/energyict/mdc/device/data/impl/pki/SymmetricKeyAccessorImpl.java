@@ -20,12 +20,17 @@ import java.util.Optional;
  * Created by bvn on 2/28/17.
  */
 public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
-    final DataModel dataModel;
-    final SecurityManagementService securityManagementService;
-    final Thesaurus thesaurus;
+
+    DataModel dataModel;
+    SecurityManagementService securityManagementService;
+    Thesaurus thesaurus;
 
     private RefAny actualSymmetricKeyWrapperReference;
     RefAny tempSymmetricKeyWrapperReference;
+
+    SymmetricKeyAccessorImpl() {
+        super();
+    }
 
     SymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super(securityManagementService);
@@ -35,7 +40,7 @@ public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAcc
     }
 
     @Override
-    public Optional<SymmetricKeyWrapper> getActualValue() {
+    public Optional<SymmetricKeyWrapper> getActualPassphraseWrapperReference() {
         if (actualSymmetricKeyWrapperReference==null) {
             return Optional.empty();
         }
@@ -43,7 +48,7 @@ public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAcc
     }
 
     @Override
-    public void setActualValue(SymmetricKeyWrapper newWrapperValue) {
+    public void setActualPassphraseWrapperReference(SymmetricKeyWrapper newWrapperValue) {
         actualSymmetricKeyWrapperReference = dataModel.asRefAny(newWrapperValue);
     }
 
@@ -74,7 +79,7 @@ public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAcc
 
     @Override
     public void clearActualValue() {
-        if (getActualValue().isPresent()) {
+        if (getActualPassphraseWrapperReference().isPresent()) {
             SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.actualSymmetricKeyWrapperReference.get();
             this.actualSymmetricKeyWrapperReference = null;
             symmetricKeyWrapper.delete();

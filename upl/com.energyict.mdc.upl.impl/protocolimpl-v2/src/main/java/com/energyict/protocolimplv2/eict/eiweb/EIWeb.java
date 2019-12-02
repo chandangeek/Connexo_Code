@@ -44,7 +44,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 

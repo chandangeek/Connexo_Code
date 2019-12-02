@@ -12,7 +12,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.LogBooksTask;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -351,13 +351,13 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile1.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile1.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile2.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile2.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile3.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile3.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile4.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile4.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfilesTask, mock(LogBooksTask.class), comTaskExecution);

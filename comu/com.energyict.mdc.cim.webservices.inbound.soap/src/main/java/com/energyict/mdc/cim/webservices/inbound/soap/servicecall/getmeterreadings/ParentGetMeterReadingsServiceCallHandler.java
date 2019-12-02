@@ -234,7 +234,9 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     private Set<LoadProfile> getLoadProfilesForReadingTypes(Device device, Set<String> readingTypes) {
         return device.getLoadProfiles().stream()
                 .filter(lp -> lp.getLoadProfileSpec().getChannelSpecs().stream()
-                        .anyMatch(c -> readingTypes.contains(c.getReadingType().getMRID()))
+                        .anyMatch(c -> readingTypes.contains(c.getReadingType().getMRID())
+                        || (c.getReadingType().getCalculatedReadingType().isPresent()
+                                        && readingTypes.contains(c.getReadingType().getCalculatedReadingType().get().getMRID())))
                 )
                 .collect(Collectors.toSet());
     }
@@ -246,7 +248,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     }
 
     private int calculateRegisterUpperBoundShift() {
-        //To make sure the latest register value is included
+        // CXO-10805: To make sure the latest register value is included
         return actualRecurrentTaskFrequency + actualRecurrentTaskReadOutDelay + 5;
     }
 

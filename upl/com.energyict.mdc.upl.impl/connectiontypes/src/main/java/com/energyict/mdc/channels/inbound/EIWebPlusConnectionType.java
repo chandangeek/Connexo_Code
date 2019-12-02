@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.upl.TypedProperties;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -99,5 +100,16 @@ public class EIWebPlusConnectionType implements ConnectionType {
     @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.properties = TypedProperties.copyOf(properties);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

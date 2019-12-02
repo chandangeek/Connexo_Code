@@ -1,5 +1,11 @@
 package com.energyict.mdc.upl.messages;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 
 /**
@@ -8,6 +14,10 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:03)
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public interface DeviceMessageCategory {
 
     /**
@@ -45,5 +55,12 @@ public interface DeviceMessageCategory {
      * @return The DeviceMessageSpecs that are part of this DeviceMessageCategory
      */
     List<DeviceMessageSpec> getMessageSpecifications();
+
+    @XmlElement(name = "type")
+    default String getXmlType() {
+        return getClass().getName();
+    }
+
+    default void setXmlType(String ignore) {}
 
 }

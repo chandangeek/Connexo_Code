@@ -12,7 +12,6 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultDomainExtension;
 
@@ -23,7 +22,7 @@ public class CheckConfirmationTimeoutHandler implements TaskExecutor {
     private final Clock clock;
     private final ServiceCallService serviceCallService;
 
-    public CheckConfirmationTimeoutHandler(Clock clock, ServiceCallService serviceCallService, SAPCustomPropertySets sapCustomPropertySets) {
+    public CheckConfirmationTimeoutHandler(Clock clock, ServiceCallService serviceCallService) {
         this.clock = clock;
         this.serviceCallService = serviceCallService;
     }
@@ -36,9 +35,16 @@ public class CheckConfirmationTimeoutHandler implements TaskExecutor {
                     MasterMeterReadingDocumentCreateResultDomainExtension extension = serviceCall.getExtension(MasterMeterReadingDocumentCreateResultDomainExtension.class)
                             .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
                     if (extension.getConfirmationTime() != null && extension.getConfirmationTime().isBefore(clock.instant())) {
-                        serviceCall.log(LogLevel.SEVERE, "No confirmation request received within the configured timeout");
-                        serviceCall.requestTransition(DefaultState.ONGOING);
-                        serviceCall.requestTransition(DefaultState.FAILED);
+                        serviceCall.findChildren().stream().forEach(child -> {
+                            child.log(LogLevel.SEVERE, "No confirmation request received within the configured timeout");
+                            if (child.canTransitionTo(DefaultState.ONGOING)) {
+                                child = serviceCallService.lockServiceCall(child.getId()).get();
+                                if (child.canTransitionTo(DefaultState.ONGOING)) {
+                                    child.requestTransition(DefaultState.ONGOING);
+                                    child.requestTransition(DefaultState.FAILED);
+                                }
+                            }
+                        });
                     }
                 });
     }

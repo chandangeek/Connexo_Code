@@ -91,6 +91,8 @@ public class DefaultAppServerCreatorTest {
     private EndPointConfigurationService endPointConfigurationService;
     @Mock
     private EventService eventService;
+    @Mock
+    private IAppService iAppService;
 
     @Before
     public void setUp() {
@@ -99,7 +101,7 @@ public class DefaultAppServerCreatorTest {
         when(queueTableSpec.createDestinationSpec(anyString(), anyInt())).thenReturn(newDestination);
         when(messageService.getDestinationSpec(AppService.ALL_SERVERS)).thenReturn(Optional.of(allServersDestination));
         when(messageService.getDestinationSpec("AppServer_" + NAME.toUpperCase())).thenReturn(Optional.<DestinationSpec>empty());
-        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService, webServicesForAppServerProvider, webServicesService, eventService, endPointConfigurationService));
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService, webServicesForAppServerProvider, webServicesService, eventService, endPointConfigurationService, iAppService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(javaxValidator);
         when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<ConstraintViolation<Validator>>());
