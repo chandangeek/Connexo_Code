@@ -6,6 +6,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.http.whiteboard.Resolver;
+import com.elster.jupiter.rest.util.MimeTypesExt;
 
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.event.Event;
@@ -33,7 +34,7 @@ public class HttpContextImpl implements HttpContext {
 
     @Override
     public String getMimeType(String arg0) {
-        return null;
+        return MimeTypesExt.getByFile(arg0);
     }
 
     @Override
@@ -44,6 +45,7 @@ public class HttpContextImpl implements HttpContext {
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
         fireHttpEvent(request);
+        response.addHeader("X-Content-Type-Options", "nosniff");
         return authenticationService.handleSecurity(request, response);
     }
 

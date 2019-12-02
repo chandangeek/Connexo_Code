@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
+import com.elster.jupiter.rest.util.MimeTypesExt;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -40,6 +41,7 @@ public class BasicAuthentication implements HttpContext {
     public boolean handleSecurity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws
             IOException {
         String authentication = httpServletRequest.getHeader("Authorization");
+        httpServletResponse.addHeader("X-Content-Type-Options", "nosniff");
         if (authentication == null) {
             httpServletResponse.setStatus(Response.Status.UNAUTHORIZED.getStatusCode());
             return false;
@@ -64,6 +66,6 @@ public class BasicAuthentication implements HttpContext {
 
     @Override
     public String getMimeType(String s) {
-        return null;
+        return MimeTypesExt.getByFile(s);
     }
 }
