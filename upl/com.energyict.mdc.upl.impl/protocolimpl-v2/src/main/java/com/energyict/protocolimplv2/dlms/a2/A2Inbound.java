@@ -198,7 +198,7 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-03-08 10:00:00 +0200 (Fri, 08 Mar 2019) $";
+        return "$Date: 2019-11-29 12:00:00 +0200 (Fri, 29 Sep 2019) $";
     }
 
     @Override
