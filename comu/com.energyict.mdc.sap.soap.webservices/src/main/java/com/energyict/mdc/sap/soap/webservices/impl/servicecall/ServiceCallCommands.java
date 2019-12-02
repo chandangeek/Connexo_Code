@@ -100,10 +100,10 @@ public class ServiceCallCommands {
                     createChildServiceCall(serviceCallType, message, parent);
                 });
             } else {
-                sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages);
+                sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages, message);
             }
         } else {
-            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages);
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages, message);
         }
     }
 
@@ -505,6 +505,14 @@ public class ServiceCallCommands {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                         .from(message, messageSeed.translate(thesaurus), clock.instant())
+                        .build();
+        sendMessage(confirmationMessage);
+    }
+
+    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message) {
+        StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
+                StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
+                        .from(messages, message, messageSeed.translate(thesaurus), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }

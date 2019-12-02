@@ -68,16 +68,23 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(StatusChangeRequestBulkCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(message, now));
+        public Builder from(StatusChangeRequestBulkCreateMessage messages, String exceptionMessage, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(messages.getId(), messages.getUuid(), now));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(messages, now));
+            confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            return this;
+        }
+
+        public Builder from(StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(messages.getId(), messages.getUuid(), now));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(message, now));
             confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
 
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
-            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message);
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message, now);
             msg.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
             return this;
@@ -156,9 +163,10 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     }).collect(Collectors.toList());
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(StatusChangeRequestCreateMessage message) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(StatusChangeRequestCreateMessage message, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
 
+            messageBody.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
             messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(message.getId());
             messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(message.getCategoryCode());
 
