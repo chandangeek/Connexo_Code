@@ -75,6 +75,11 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
                 .since(Version.version(10, 7, 1))
                 .previously(oldIdColumn)
                 .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                .varChar()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName())
+                .since(Version.version(10, 7, 1))
+                .add();
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.UUID.databaseName())
                 .varChar(NAME_LENGTH)
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName())

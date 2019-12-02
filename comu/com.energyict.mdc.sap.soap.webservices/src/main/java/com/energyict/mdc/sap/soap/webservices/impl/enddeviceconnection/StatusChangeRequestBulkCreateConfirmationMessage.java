@@ -64,19 +64,19 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
             confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(subParent, children));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(subParent, children, now));
             return this;
         }
 
         public Builder from(StatusChangeRequestBulkCreateMessage message, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(message));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(message, now));
             confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
 
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
+            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message);
             msg.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
@@ -132,11 +132,12 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return messageBody;
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(ServiceCall parent, List<ServiceCall> children) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(ServiceCall parent, List<ServiceCall> children, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
 
             ConnectionStatusChangeDomainExtension extension = parent.getExtension(ConnectionStatusChangeDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+            messageBody.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), now));
             messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(extension.getId());
             messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(extension.getCategoryCode());
             children.stream().forEach(serviceCall -> messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
@@ -144,11 +145,11 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return messageBody;
         }
 
-        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBodies(StatusChangeRequestBulkCreateMessage message) {
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBodies(StatusChangeRequestBulkCreateMessage message, Instant now) {
             return message.getRequests().stream()
                     .map(m -> {
                         SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
-
+                        messageBody.setMessageHeader(createHeader(m.getRequestId(), m.getUuid(), now));
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(m.getId());
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(m.getCategoryCode());
                         return messageBody;
