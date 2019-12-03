@@ -23,7 +23,7 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 public class ConnectionStatusChangePersistenceSupport implements PersistenceSupport<ServiceCall, ConnectionStatusChangeDomainExtension> {
 
     public static final String COMPONENT_NAME = "CS1";
-    public static final String TABLE_NAME = WebServiceActivator.COMPONENT_NAME + "_" + COMPONENT_NAME + "_T01";
+    public static final String TABLE_NAME = WebServiceActivator.COMPONENT_NAME + "_" + COMPONENT_NAME + "_CR_SC_CPS";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
 
     @Override
