@@ -3,8 +3,6 @@
  */
 package com.elster.jupiter.rest.util;
 
-import org.apache.felix.http.base.internal.util.MimeTypes;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -12,7 +10,7 @@ import java.util.Optional;
 public class MimeTypesExt {
 
     private static final MimeTypesExt INSTANCE = new MimeTypesExt();
-    private final Map<String, String> extMap = new HashMap();
+    private final Map<String, String> extMap = new HashMap<>();
 
     private MimeTypesExt() {
         this.extMap.put("ttf", "font/ttf");
@@ -21,15 +19,10 @@ public class MimeTypesExt {
         this.extMap.put("woff2", "font/woff2");
      }
 
+    // return null provide org.apache.felix.http.base.internal.util.MimeTypes.getByFile execution
     public String getByFile(String file){
-        String value = MimeTypes.get().getByFile(file);
-        if (value == null) {
-            Optional<String> fileExtension = getFileExtension(file);
-            if (fileExtension.isPresent()) {
-                value = extMap.get(fileExtension.get());
-            }
-        }
-        return value == null ? "nosniff" : value;
+        Optional<String> fileExtension = getFileExtension(file);
+        return fileExtension.map(extMap::get).orElse(null);
     }
 
     private Optional<String> getFileExtension(String filename) {
