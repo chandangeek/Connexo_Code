@@ -10,16 +10,16 @@ import java.util.Optional;
 public class MimeTypesExt {
 
     private static final MimeTypesExt INSTANCE = new MimeTypesExt();
-    private final Map<String, String> extMap = new HashMap<>();
+    private Map<String, String> extMap = new HashMap<>();
 
     private MimeTypesExt() {
         this.extMap.put("ttf", "font/ttf");
         this.extMap.put("otf", "font/opentype");
         this.extMap.put("woff", "font/woff");
         this.extMap.put("woff2", "font/woff2");
-     }
+    }
 
-    // return null provide org.apache.felix.http.base.internal.util.MimeTypes.getByFile execution
+    // returned null leads to org.apache.felix.http.base.internal.util.MimeTypes.getByFile execution
     public String getByFile(String file){
         Optional<String> fileExtension = getFileExtension(file);
         return fileExtension.map(extMap::get).orElse(null);
