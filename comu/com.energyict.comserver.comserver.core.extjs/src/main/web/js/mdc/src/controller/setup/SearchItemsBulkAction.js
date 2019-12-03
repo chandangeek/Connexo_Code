@@ -110,6 +110,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'manualIssueForm',
             selector: 'issue-manually-creation-rules-item-add issue-manually-creation-rules-item'
+        },
+        {
+            ref: 'bulkStartProcessesPanel',
+            selector: '#bulk-start-processes-panel'
         }
     ],
 
@@ -821,7 +825,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
             } else {
                 if (response.status == 400) {
-                    var json = Ext.decode(operation.response.responseText, true);
+                    var json = Ext.decode(response.responseText, true);
                     if (json && json.errors) {
                         formErrorsPanel.show();
                         propertyForm.markInvalid(json.errors);
@@ -1114,6 +1118,23 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             propertyForm = processStartContent.down('property-form'),
                             formErrorsPanel = startProcessPanel.down('#start-process-form').down('#form-errors'),
                             businessObject = {};
+
+
+                        /*if (me.processRecord) me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);
+
+                        var processValuesProperties = me.processValues && me.processValues.properties;
+                        propertyForm.updateRecord();
+                        var propertyFormIsValid = propertyForm.isValid();
+
+                        if (propertyFormIsValid){
+                            Ext.Array.each(processValuesProperties, function (property){
+                                if (property.required && !property.propertyValueInfo){
+                                    propertyFormIsValid = false;
+                                    propertyForm.getPropertyField(property.key).markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                                }
+                            });
+                        }*/
+
                         if (propertyForm.isValid() && startProcessRecord) {
                             me.validation = true;
                             if (!formErrorsPanel.isHidden()) {
@@ -1668,6 +1689,19 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     processComboChange: function(combo){
-        this.processRecord = combo.lastSelection[0].data
+        this.processRecord = combo.lastSelection[0].data;
+        var firstDeviceData;
+        if (this.allDevices){
+            var store = this.getDevicesGrid().getStore();
+            var jsonData = store.getProxy().getReader().jsonData;
+            var devicesData = jsonData && jsonData.searchResults;
+            firstDeviceData = devicesData && devicesData.length && devicesData[0];
+        } else {
+            firstDeviceData = this.devices[0].data
+        }
+        if (firstDeviceData){
+            var propertyForm = this.getBulkStartProcessesPanel() && this.getBulkStartProcessesPanel().down('property-form');
+            if (propertyForm) propertyForm.context = {'id' : firstDeviceData.name};
+        }
     }
 });

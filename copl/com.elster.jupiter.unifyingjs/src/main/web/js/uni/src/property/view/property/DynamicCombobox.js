@@ -13,7 +13,7 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
 
     initComponent: function() {
         var me = this,
-            entityType = me.parentForm.context.id,
+            entityType = me.parentForm && me.parentForm.context && me.parentForm.context.id,
             url = me.getProperty().getPropertyType().raw.valueProviderUrl || '',
             re = /\{.*?\}/g;
 
@@ -21,7 +21,7 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
 
         me.callParent();
         //check if url is empty otherwise mark combo with an error
-        if (!Ext.isEmpty(url)) {
+        if (!Ext.isEmpty(url) && entityType) {
             url = url.replace(re, entityType);
             me.store.getProxy().setUrl(url);
         } else this.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
