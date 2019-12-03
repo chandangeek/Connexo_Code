@@ -8,6 +8,7 @@ import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -898,6 +899,12 @@ public enum DeviceMessageId {
                 .filter(dmi -> dmi.dbValue() == dbId)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId)));
+    }
+
+    public static Optional<DeviceMessageId> find(long dbId) {
+        return Arrays.stream(DeviceMessageId.values())
+                .filter(dmi -> dmi.dbValue() == dbId)
+                .findFirst();
     }
 
     public static Set<DeviceMessageId> fileManagementRelated() {

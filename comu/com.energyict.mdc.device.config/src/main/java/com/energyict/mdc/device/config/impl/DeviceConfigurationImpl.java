@@ -1321,6 +1321,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 }
             }
             java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = getDeviceMessageEnablements().stream()
+                    .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                     .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
                             .equals(deviceMessageId))
                     .findAny();
@@ -1357,7 +1358,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
         this.getDeviceMessageEnablements()
                 .stream()
-                .map(DeviceMessageEnablement::getDeviceMessageId)
+                .map(DeviceMessageEnablement::getDeviceMessageDbValue)
+                .map(DeviceMessageId::find)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .forEach(enabledDeviceMessageIds::add);
 
         return category.getMessageSpecifications()
