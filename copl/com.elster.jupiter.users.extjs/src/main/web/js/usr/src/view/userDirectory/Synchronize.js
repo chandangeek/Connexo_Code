@@ -46,11 +46,6 @@ Ext.define('Usr.view.userDirectory.Synchronize', {
                                         {
                                             header: Uni.I18n.translate('general.userName', 'USR', 'User name'),
                                             dataIndex: 'name',
-                                            flex: 4
-                                        },
-                                        {
-                                            header: Uni.I18n.translate('userDirectories.dn', 'USR', 'LDAP name'),
-                                            dataIndex: 'dn',
                                             flex: 3
                                         },
                                         {

@@ -439,12 +439,12 @@ Ext.define('Usr.controller.UserDirectories', {
                     if (typeof users === 'string') {
                         users = [users];
                     }
-                    // users.forEach(function (user) {
-                    //     var rowIndex = userDirectoryExtUsersStore.findExact('name', user);
-                    //     if (rowIndex != -1) {
-                    //         userDirectoryExtUsersStore.removeAt(rowIndex);
-                    //     }
-                    // });
+                     users.forEach(function (user) {
+                         var rowIndex = userDirectoryExtUsersStore.findExact('name', user);
+                         if (rowIndex != -1) {
+                             userDirectoryExtUsersStore.removeAt(rowIndex);
+                         }
+                     });
                 }
 
                 allUsersView.setLoading(false);
@@ -550,10 +550,58 @@ Ext.define('Usr.controller.UserDirectories', {
 		});
     },
 
+    validateSelectedUsers: function(addedUsers, existUsers) {
+        var me = this;
+        var existUserSet = new Set();
+        for (key in existUsers) {
+            existUserSet.add(existUsers[key].data.name);
+        }
+
+        var addedUserSet = new Set();
+        for (key in addedUsers) {
+            addedUserSet.add(addedUsers[key].data.name);
+        }
+
+        function intersection(addedUserSet, existUserSet) {
+            var intersectionSet = new Set();
+            var name;
+            addedUserSet.forEach(function(name){
+                if (existUserSet.has(name)) {
+                    intersectionSet.add(name);
+                }
+            });
+            return intersectionSet;
+        }
+
+        if (addedUserSet.size !== addedUsers.length || Boolean(intersection(addedUserSet, existUserSet).size)){
+            return false;
+        } else {
+            return true;
+        }
+    },
+
     addExtUsers: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers');
+        var addedUsers = me.getAddExtUsersGrid().getSelectedItems();
+        var existUsers = userDirectoryUsersStore.getRange();
+
+        if (!me.validateSelectedUsers(addedUsers, existUsers)) {
+            var errorWindow = Ext.create('Uni.view.window.Confirmation', {
+                noConfirmBtn: true
+            });
+            errorWindow.show({
+                title: Uni.I18n.translate('userDirectories.title.error', 'USR', "Couldn't perform your action"),
+                msg: Uni.I18n.translate(
+                    'userDirectories.add.user.error.msg',
+                    'USR',
+                    "The users can't be added since their names must be unique within the domain"
+                )
+            });
+            return;
+        }
+
 
         if (!me.userDirectoryUsersStoreLoaded) {
             userDirectoryUsersStore.getProxy().setUrl(router.arguments.userDirectoryId);
