@@ -1120,22 +1120,22 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             businessObject = {};
 
 
-                        /*if (me.processRecord) me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);
+                        propertyForm.updateRecord();
+                        if (me.processRecord) me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);
 
                         var processValuesProperties = me.processValues && me.processValues.properties;
-                        propertyForm.updateRecord();
                         var propertyFormIsValid = propertyForm.isValid();
 
                         if (propertyFormIsValid){
                             Ext.Array.each(processValuesProperties, function (property){
-                                if (property.required && !property.propertyValueInfo){
+                                if (property.required && !(property.propertyValueInfo && property.propertyValueInfo.value)){
                                     propertyFormIsValid = false;
                                     propertyForm.getPropertyField(property.key).markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
                                 }
                             });
-                        }*/
+                        }
 
-                        if (propertyForm.isValid() && startProcessRecord) {
+                        if (propertyFormIsValid && startProcessRecord) {
                             me.validation = true;
                             if (!formErrorsPanel.isHidden()) {
                                 formErrorsPanel.hide();

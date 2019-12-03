@@ -49,6 +49,9 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
                          if (propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
                          success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
                     });
+                },
+                change: function(combo){
+                    combo.clearInvalid();
                 }
             }
         }
