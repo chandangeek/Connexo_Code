@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.offline;
 
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
@@ -8,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.temporal.TemporalAmount;
 import java.util.Date;
 import java.util.List;
@@ -59,8 +63,8 @@ public interface OfflineLoadProfile extends Offline {
      *
      * @return the integration period.
      */
-    @XmlAttribute(name = "loadProfileInterval")
-    TemporalAmount interval();
+    @XmlAttribute
+    TemporalAmount getInterval();
 
     /**
      * return the end time of the last interval read from the device.
@@ -116,6 +120,7 @@ public interface OfflineLoadProfile extends Offline {
 
     LoadProfileIdentifier getLoadProfileIdentifier();
 
+    @XmlTransient
     default boolean isDataLoggerSlaveLoadProfile() {
         return false;
     }

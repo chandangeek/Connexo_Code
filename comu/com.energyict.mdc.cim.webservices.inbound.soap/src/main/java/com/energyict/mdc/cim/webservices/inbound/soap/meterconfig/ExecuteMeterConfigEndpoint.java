@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -38,7 +39,9 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
+import com.google.common.collect.HashMultimap;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -94,11 +97,26 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
+                SetMultimap<String, String> values = HashMultimap.create();
+                meterConfig.getMeter().stream().forEach(meter -> {
+                    if (!meter.getNames().isEmpty()){
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    }
+                    if (meter.getMRID() != null){
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    }
+                    if (meter.getSerialNumber() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                    }
+                });
+                saveRelatedAttributes(values);
+
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
+
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
@@ -107,9 +125,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst().orElseThrow(faultMessageFactory
                             .meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
+                    meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
+
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.CREATE);
-                    meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
 
                     Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
@@ -150,6 +169,21 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
+
+                SetMultimap<String, String> values = HashMultimap.create();
+                meterConfig.getMeter().stream().forEach(meter -> {
+                    if (!meter.getNames().isEmpty()){
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    }
+                    if (meter.getMRID() != null){
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    }
+                    if (meter.getSerialNumber() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                    }
+                });
+                saveRelatedAttributes(values);
+
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
@@ -163,9 +197,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst().orElseThrow(faultMessageFactory
                             .meterConfigFaultMessageSupplier(meterName, MessageSeeds.EMPTY_LIST, METER_ITEM));
+                    meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.UPDATE);
-                    meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
+
                     Device changedDevice = deviceBuilder.prepareChangeFrom(meterInfo).build();
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
                 }
@@ -292,6 +327,21 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return runInTransactionWithOccurrence(() -> {
             try {
                 MeterConfig meterConfig = meterConfigRequestMessageType.getPayload().getMeterConfig();
+                SetMultimap<String, String> values = HashMultimap.create();
+
+                meterConfig.getMeter().stream().forEach(meter -> {
+                    if (!meter.getNames().isEmpty()){
+                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+                    }
+                    if (meter.getMRID() != null){
+                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+                    }
+                    if (meter.getSerialNumber() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+                    }
+                });
+                saveRelatedAttributes(values);
+
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously

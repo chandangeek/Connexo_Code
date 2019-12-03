@@ -656,11 +656,11 @@ Ext.define('Isu.view.creationrules.EditForm', {
             priorityValue = 100;
         }
 
-        priorityLabel = (priority <= 2) ? Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low') :
-            (priority <= 4) ? Uni.I18n.translate('issue.priority.low', 'ISU', 'Low') :
-                (priority <= 6) ? Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium') :
-                    (priority <= 8) ? Uni.I18n.translate('issue.priority.high', 'ISU', 'High') :
-                        Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high');
+        priorityLabel = (priority <= 2) ? Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low') :
+            (priority <= 4) ? Uni.I18n.translate('issue.priority.low', 'ISU', 'Low') :
+                (priority <= 6) ? Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium') :
+                    (priority <= 8) ? Uni.I18n.translate('issue.priority.high', 'ISU', 'High') :
+                        Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high');
 
 
         labelPriority.setText(priorityLabel + ' (' + priorityValue +')');

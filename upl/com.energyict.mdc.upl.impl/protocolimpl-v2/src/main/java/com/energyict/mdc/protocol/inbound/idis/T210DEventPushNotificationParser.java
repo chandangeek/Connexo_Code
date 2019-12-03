@@ -53,9 +53,9 @@ import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DDisconn
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DMBusEventLog;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DMeterAlarmParser;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DStandardEventLog;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierLikeSerialNumber;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

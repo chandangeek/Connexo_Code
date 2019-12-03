@@ -20,6 +20,10 @@ public class DateFormatPropertySpec extends BasicPropertySpec {
 
     private Thesaurus thesaurus;
 
+    public DateFormatPropertySpec(){
+        super(new StringFactory());
+    }
+
     public DateFormatPropertySpec(Thesaurus thesaurus) {
         super(new StringFactory());
         setPossibleValues(new PropertySpecPossibleValuesImpl(DEFAULT, false));

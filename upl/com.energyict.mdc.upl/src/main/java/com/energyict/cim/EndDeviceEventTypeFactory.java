@@ -1321,4 +1321,84 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getPulsAStored() {
         return new EndDeviceEventType("0.20.31.58");
     }
+
+    public static EndDeviceEventType getParameterRestored() {
+        return new EndDeviceEventType("0.17.75.216");
+    }
+
+    public static EndDeviceEventType getParameterInitialized() {
+        return new EndDeviceEventType("0.17.75.33");
+    }
+
+    public static EndDeviceEventType getStatusChanged() {
+        return new EndDeviceEventType("0.17.17.24");
+    }
+
+    public static EndDeviceEventType getRelayConnected() {
+        return new EndDeviceEventType("0.39.91.42");
+    }
+
+    public static EndDeviceEventType getRelayDisconnected() {
+        return new EndDeviceEventType("0.39.91.68");
+    }
+
+    public static EndDeviceEventType getRelayConnectFailed() {
+        return new EndDeviceEventType("0.39.91.67");
+    }
+
+    public static EndDeviceEventType getRelayDisconnectFailed() {
+        return new EndDeviceEventType("0.39.91.84");
+    }
+
+    public static EndDeviceEventType getSessionStarted() {
+        return new EndDeviceEventType("0.17.129.242");
+    }
+
+    public static EndDeviceEventType getConfigurationParameterChanged() {
+        return new EndDeviceEventType("0.7.75.24");
+    }
+
+    public static EndDeviceEventType getSessionStopped() {
+        return new EndDeviceEventType("0.17.129.243");
+    }
+
+    public static EndDeviceEventType getSessionTerminated() {
+        return new EndDeviceEventType("0.17.129.59");
+    }
+
+    public static EndDeviceEventType getSessionExpired() {
+        return new EndDeviceEventType("0.17.129.64");
+    }
+
+    public static EndDeviceEventType getSessionDisallowed() {
+        return new EndDeviceEventType("0.17.129.161");
+    }
+
+    public static EndDeviceEventType getSessionSubstituted() {
+        return new EndDeviceEventType("0.17.129.56");
+    }
+
+    public static EndDeviceEventType getSessionAborted() {
+        return new EndDeviceEventType("0.17.129.1");
+    }
+
+    public static EndDeviceEventType getBatteryStatusEnabled() {
+        return new EndDeviceEventType("0.2.17.76");
+    }
+
+    public static EndDeviceEventType getBatteryStatusDisabled() {
+        return new EndDeviceEventType("0.2.17.66");
+    }
+
+    public static EndDeviceEventType getAssociatedDeviceInputError() {
+        return new EndDeviceEventType("0.39.55.79");
+    }
+
+    public static EndDeviceEventType getModemSessionFailed() {
+        return new EndDeviceEventType("0.19.129.85");
+    }
+
+
+
+
 }

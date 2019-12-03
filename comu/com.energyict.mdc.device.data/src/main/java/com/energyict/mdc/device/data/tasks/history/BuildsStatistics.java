@@ -32,4 +32,12 @@ public interface BuildsStatistics<S> {
     long getSentPackets();
 
     long getReceivedPackets();
+
+    void setSentBytes(long sentBytes);
+
+    void setReceivedBytes(long receivedBytes);
+
+    void setSentPackets(long sentPackets);
+
+    void setReceivedPackets(long receivedPackets);
 }

@@ -6,13 +6,12 @@ package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import org.junit.BeforeClass;
 
 import java.util.Arrays;
-
-import org.junit.BeforeClass;
 
 import static org.mockito.Mockito.mock;
 

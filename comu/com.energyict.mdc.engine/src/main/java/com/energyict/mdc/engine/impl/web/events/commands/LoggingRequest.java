@@ -19,7 +19,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:48)
  */
-class LoggingRequest implements Request {
+class LoggingRequest extends RequestImpl {
 
     private LogLevel level;
     private EnumSet<Category> categories;

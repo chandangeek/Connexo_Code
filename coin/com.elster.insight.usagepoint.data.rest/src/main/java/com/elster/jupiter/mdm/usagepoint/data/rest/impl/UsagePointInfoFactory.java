@@ -453,7 +453,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .ifPresent(metrologyConfiguration -> metrologyConfiguration.getMeterRoles()
-                        .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole))));
+                        .forEach(meterRole -> {
+                            MeterRoleInfo value = new MeterRoleInfo(meterRole);
+                            value.required = true;
+                            mandatoryMeterRoles.put(meterRole, value);
+                        }));
 
         Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = new HashMap<>();
 

@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.tasks.history;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
@@ -12,6 +14,7 @@ import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -22,6 +25,8 @@ import java.util.Optional;
 public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ConnectionTask getConnectionTask();
+
+    void setConnectionTask(ConnectionTask connectionTask);
 
     ComSessionBuilder connectDuration(Duration duration);
 
@@ -58,6 +63,8 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
     Optional<ComTaskExecutionSessionBuilder> findFor(ComTaskExecution comTaskExecution);
 
     List<? extends ComTaskExecutionSessionBuilder> getComTaskExecutionSessionBuilders();
+
+    void injectServices (DataModel dataModel, ConnectionTaskService connectionTaskService, Thesaurus thesaurus);
 
     EndedComSessionBuilder endSession(Instant stopTime, ComSession.SuccessIndicator successIndicator);
 

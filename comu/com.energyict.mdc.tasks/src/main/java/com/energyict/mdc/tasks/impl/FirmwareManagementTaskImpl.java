@@ -17,7 +17,12 @@ import javax.inject.Inject;
  */
 public class FirmwareManagementTaskImpl extends ProtocolTaskImpl implements FirmwareManagementTask {
 
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+    public FirmwareManagementTaskImpl() {
+        super();
+        setFlags(new DeviceOfflineFlags(DeviceOfflineFlags.PENDING_MESSAGES_FLAG, DeviceOfflineFlags.SENT_MESSAGES_FLAG));
+    }
 
     @Inject
     FirmwareManagementTaskImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService) {
@@ -35,11 +40,5 @@ public class FirmwareManagementTaskImpl extends ProtocolTaskImpl implements Firm
     void deleteDependents() {
         // currently no dependents to delete
     }
-
-    @Override
-    public boolean isValidFirmwareCommand(DeviceMessageSpec deviceMessageSpec) {
-        return this.deviceMessageSpecificationService.getFirmwareCategory().getId() == deviceMessageSpec.getCategory().getId();
-    }
-
 
 }

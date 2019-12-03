@@ -33,7 +33,7 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 
 import java.util.Collections;
 import java.util.Date;

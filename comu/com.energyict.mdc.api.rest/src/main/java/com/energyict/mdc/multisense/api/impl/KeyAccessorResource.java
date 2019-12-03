@@ -93,7 +93,7 @@ public class KeyAccessorResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
 
         List<KeyAccessorInfo> infos = device.getSecurityAccessors().stream()
-                .sorted(Comparator.comparing(accessor -> accessor.getKeyAccessorType().getName()))
+                .sorted(Comparator.comparing(accessor -> accessor.getKeyAccessorTypeReference().getName()))
                 .map(accessor -> keyAccessorInfoFactory.from(accessor, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
 
@@ -229,11 +229,11 @@ public class KeyAccessorResource {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor securityAccessor = getSecurityAccessor(keyAccessorName, device);
-        if (securityAccessor.getKeyAccessorType().keyTypeIsHSM()) {
+        if (securityAccessor.getKeyAccessorTypeReference().keyTypeIsHSM()) {
             String value = info.get("value");
             Map<String, Object> properties = new HashMap<>();
             properties.put(KEY_PROPERTY, value);
-            properties.put(LABEL_PROPERTY, securityAccessor.getKeyAccessorType().getHsmKeyType().getLabel());
+            properties.put(LABEL_PROPERTY, securityAccessor.getKeyAccessorTypeReference().getHsmKeyType().getLabel());
 
             Optional<SecurityValueWrapper> currentTempValue = securityAccessor.getTempValue();
             if (currentTempValue.isPresent()) {
@@ -241,7 +241,7 @@ public class KeyAccessorResource {
                 tempValueWrapper.setProperties(properties);
             } else if (!value.isEmpty()) {
                 SecurityValueWrapper securityValueWrapper = securityManagementService.newSymmetricKeyWrapper(securityAccessor
-                        .getKeyAccessorType());
+                        .getKeyAccessorTypeReference());
                 securityValueWrapper.setProperties(properties);
                 securityAccessor.setTempValue(securityValueWrapper);
                 securityAccessor.save();
@@ -270,7 +270,7 @@ public class KeyAccessorResource {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor securityAccessor = getSecurityAccessor(name, device);
-        if (!securityAccessor.getActualValue().isPresent()) {
+        if (!securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
             return Response.noContent().build();
         }
         return Response.ok().build();
@@ -278,7 +278,7 @@ public class KeyAccessorResource {
 
     private SecurityAccessor getSecurityAccessor(String name, Device device) {
         return device.getSecurityAccessors().stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(name))
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getName().equals(name))
                 .findAny()
                 .orElseThrow(() -> device.getDeviceType().getSecurityAccessorTypes().stream().anyMatch(sat -> sat.getName().equals(name)) ?
                         exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE) :

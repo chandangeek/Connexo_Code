@@ -8,11 +8,20 @@ import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public class MeterReadingImpl implements MeterReading {
 
     private List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();
@@ -82,5 +91,14 @@ public class MeterReadingImpl implements MeterReading {
 
     public void addEndDeviceEvent(EndDeviceEvent endDeviceEvent) {
         this.endDeviceEvents.add(endDeviceEvent);
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

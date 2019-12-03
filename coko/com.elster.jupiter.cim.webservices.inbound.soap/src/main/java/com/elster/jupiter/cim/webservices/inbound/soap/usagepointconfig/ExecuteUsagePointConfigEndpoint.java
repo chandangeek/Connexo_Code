@@ -8,6 +8,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -26,6 +27,8 @@ import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigResponseMessageType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -98,6 +101,19 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
                             .usagePointConfigFaultMessageSupplier(messageSeed, MessageSeeds.MISSING_ELEMENT, "Header")
                             .get();
                 }
+
+                SetMultimap<String, String> values = HashMultimap.create();
+                Optional.ofNullable(message.getPayload()).map(UsagePointConfigPayloadType::getUsagePointConfig).ifPresent(uspConfig->uspConfig.getUsagePoint().forEach(usagePoint -> {
+                        if (!usagePoint.getNames().isEmpty()){
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usagePoint.getNames().get(0).getName());
+                        }
+                        if (usagePoint.getMRID() != null){
+                            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usagePoint.getMRID());
+                        }
+                }));
+
+                saveRelatedAttributes(values);
+
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     return processAsynchronously(message, action);
                 }
@@ -230,6 +246,17 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
         return runInTransactionWithOccurrence(() -> {
             List<UsagePoint> usagePoints = retrieveUsagePoints(getUsagePointConfigRequestMessage.getPayload(),
                     MessageSeeds.UNABLE_TO_GET_USAGE_POINT);
+
+            SetMultimap<String, String> values = HashMultimap.create();
+            usagePoints.forEach(usp->{
+                if (!usp.getNames().isEmpty()) {
+                    values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
+                }
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
+            });
+
+            saveRelatedAttributes(values);
+
             UsagePoint usagePoint = usagePoints.stream().findFirst()
                     .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_GET_USAGE_POINT,
                             MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));

@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory;
 
@@ -30,7 +29,4 @@ public enum TranslationKeys implements TranslationKey {
         return this.defaultFormat;
     }
 
-    public String getTranslated(Thesaurus thesaurus) {
-        return thesaurus.getFormat(this).format();
-    }
 }

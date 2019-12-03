@@ -64,7 +64,7 @@ public class FirmwareManagementCommandImpl extends SimpleComCommand implements F
     }
 
     private boolean isValidFirmwareCommand(OfflineDeviceMessage offlineDeviceMessage) {
-        return this.firmwareManagementTask.isValidFirmwareCommand(offlineDeviceMessage.getSpecification());
+        return offlineDeviceMessage.isFirmwareMessage();
     }
 
     private boolean isTheMessageForThisComTask(OfflineDeviceMessage offlineDeviceMessage) {

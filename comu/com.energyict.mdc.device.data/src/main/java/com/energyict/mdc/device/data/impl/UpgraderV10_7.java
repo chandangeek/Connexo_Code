@@ -56,7 +56,6 @@ public class UpgraderV10_7 implements Upgrader {
         createMessageHandlerLP();
         updateServiceCallTypes();
         updateConnectionTaskJournalTable();
-        createSerialNumberIndex();
     }
 
     private void deleteOldDestinations() {
@@ -123,14 +122,7 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void updateConnectionTaskJournalTable() {
-        executeSqlStatement("ALTER TABLE DDC_CONNECTIONTASKJRNL RENAME COLUMN COMSERVER TO COMPORT");
-    }
-
-    private void createSerialNumberIndex() {
-        executeSqlStatement("CREATE INDEX IX_DDC_DEVICE_SERIALNUMBER ON DDC_DEVICE (SERIALNUMBER)");
-    }
-
-    private void executeSqlStatement(String sqlStatement) {
+        String sqlStatement = "ALTER TABLE DDC_CONNECTIONTASKJRNL RENAME COLUMN COMSERVER TO COMPORT";
         try (Connection connection = dataModel.getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
                 Logger.getAnonymousLogger().info("Executing: " + sqlStatement);
@@ -142,4 +134,5 @@ public class UpgraderV10_7 implements Upgrader {
             throw new UnderlyingSQLFailedException(e);
         }
     }
+
 }

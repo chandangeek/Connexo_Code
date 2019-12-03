@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -45,17 +46,18 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.config.impl.EngineConfigurationServiceImpl;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
 import com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory;
+import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
@@ -96,7 +98,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -106,6 +107,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
+import static com.elster.jupiter.appserver.AppService.SERVER_TYPE_PROPERTY_NAME;
 import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.engine",
@@ -128,6 +130,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
+    private volatile OrmService ormService;
     private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -140,6 +143,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile LogBookService logBookService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
+    private volatile DataVaultService dataVaultService;
     private volatile RegisterService registerService;
     private volatile LoadProfileService loadProfileService;
     private volatile TopologyService topologyService;
@@ -149,6 +153,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile UserService userService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
@@ -180,7 +185,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, PriorityComTaskService priorityComTaskService,
             LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
             RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
-            ProtocolPluggableService protocolPluggableService, StatusService statusService,
+            DataVaultService dataVaultService,
+            ProtocolPluggableService protocolPluggableService, DeviceMessageSpecificationService deviceMessageSpecificationService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
             SerialComponentService serialATComponentService,
@@ -200,6 +206,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setThreadPrincipalService(threadPrincipalService);
         setIssueService(issueService);
         setDeviceService(deviceService);
+        setDataVaultService(dataVaultService);
         setTopologyService(topologyService);
         setRegisterService(registerService);
         setLoadProfileService(loadProfileService);
@@ -212,6 +219,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
         setProtocolPluggableService(protocolPluggableService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setSocketService(socketService);
         setSerialATComponentService(serialATComponentService);
         setStatusService(statusService);
@@ -222,6 +230,12 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setUpgradeService(upgradeService);
         setTimeOfUseCampaignService(timeOfUseCampaignService);
         activate(componentContext.getBundleContext());
+    }
+
+    @Override
+    public boolean isOnlineMode() {
+        String serverType = getEngineProperty(SERVER_TYPE_PROPERTY_NAME);
+        return serverType == null || serverType.equalsIgnoreCase("online");
     }
 
     @Override
@@ -310,6 +324,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Reference
+    public void setDataVaultService(DataVaultService deviceVaultService) {
+        this.dataVaultService = deviceVaultService;
+    }
+
+    @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
     }
@@ -380,6 +399,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
         keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         return keys;
     }
 
@@ -397,6 +417,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+        this.ormService = ormService;
         this.dataModel = dataModel;
     }
 
@@ -423,6 +444,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference
@@ -487,6 +513,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 bind(StatusService.class).toInstance(statusService);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
                 bind(UserService.class).toInstance(userService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(TaskService.class).toInstance(taskService);
             }
@@ -498,9 +525,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         try{
             this.bundleContext = bundleContext;
             dataModel.register(this.getModule());
-            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                    version(10, 4, 7), Upgrader_V10_4_7.class));
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
+            setEngineProperty(SERVER_TYPE_PROPERTY_NAME, bundleContext.getProperty(SERVER_TYPE_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
             createOrUpdateComServerAliveStatusTask();
             this.launchComServer();
@@ -688,12 +717,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 //    }
 
     private void createOrUpdateComServerAliveStatusTask() {
-        String property = bundleContext.getProperty(EngineConfigurationServiceImpl.COM_SERVER_STATUS_ALIVE_FREQ_PROP);
         createOrUpdateActionTask(ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION,
                 COM_SERVER_STATUS_TASK_RETRY_DELAY,
                 TranslationKeys.COM_SERVER_STATUS_TASK_NAME_TRANSLATION,
                 COM_SERVER_STATUS_TASK_NAME,
-                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFreq()).minutes().at(0).build());
+                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFrequency()).minutes().at(0).build());
     }
 
     private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
@@ -780,10 +808,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(com.energyict.mdc.upl.meterdata.Device device) {
+        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(long deviceId, String deviceMrId) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(device))
+                    .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(deviceId, deviceMrId))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -868,10 +896,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(DeviceMessage deviceMessage) {
+        public MessageIdentifier createMessageIdentifierForAlreadyKnownMessage(long id, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(deviceMessage))
+                    .map(s -> s.createMessageIdentifierForAlreadyKnownMessage(id, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -930,6 +958,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return deviceMessageSpecificationService;
+        }
+
+        @Override
         public SocketService socketService() {
             return socketService;
         }
@@ -977,6 +1010,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public DeviceService deviceService() {
             return deviceService;
+        }
+
+        @Override
+        public OrmService ormService() {
+            return ormService;
         }
 
         @Override

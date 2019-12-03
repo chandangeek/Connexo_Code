@@ -63,7 +63,7 @@ import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 
 import java.util.Arrays;

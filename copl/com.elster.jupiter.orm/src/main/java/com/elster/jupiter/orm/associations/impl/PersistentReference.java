@@ -14,11 +14,15 @@ import com.elster.jupiter.orm.impl.KeyValue;
 
 public class PersistentReference<T> implements Reference<T> {
 	
-	private final DataMapperImpl<T> dataMapper;
-	private final Class<?>[] eagers;
+	private DataMapperImpl<T> dataMapper;
+	private Class<?>[] eagers;
 	private KeyValue primaryKey;
 	private Optional<T> value;
-	
+
+	public PersistentReference() {
+
+	}
+
 	public PersistentReference(KeyValue primaryKey , DataMapperImpl<T> dataMapper, Class<?>[] eagers) {
 		this.primaryKey = primaryKey;
 		this.dataMapper = dataMapper;

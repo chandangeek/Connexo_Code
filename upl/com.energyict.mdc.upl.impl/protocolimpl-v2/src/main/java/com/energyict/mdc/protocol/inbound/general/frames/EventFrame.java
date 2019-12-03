@@ -7,8 +7,8 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
 import java.util.List;

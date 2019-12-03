@@ -19,6 +19,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -111,6 +112,17 @@ public class IpConnectionType implements ConnectionType {
     @Override
     public boolean equals (Object obj) {
         return obj instanceof IpConnectionType || super.equals(obj);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 
 }

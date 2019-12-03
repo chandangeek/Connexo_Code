@@ -21,7 +21,9 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_6_1SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -31,7 +33,7 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.ComServerAliveStatus;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
@@ -203,7 +205,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
                 version(10, 2), UpgraderV10_2.class,
                 version(10, 3), V10_3SimpleUpgrader.class,
                 version(10, 4, 3), V10_4_3SimpleUpgrader.class,
-                version(10, 6, 1), V10_6_1SimpleUpgrader.class));
+                version(10, 6, 1), V10_6_1SimpleUpgrader.class,
+                version(10, 7, 1), V10_7_1SimpleUpgrader.class));
     }
 
     public DataModel getDataModel() {
@@ -232,6 +235,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public Finder<ComServer> filterComServers(Condition condition) {
+        return DefaultFinder.of(ComServer.class, condition.and(where("obsoleteDate").isNull()), dataModel);
+    }
+
+    @Override
     public Optional<ComServer> findComServerBySystemName() {
         return this.findComServer(HostName.getCurrent());
     }
@@ -255,6 +263,15 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
                         .and(where("onlineComServer").isEqualTo(onlineComServer))
                         .and(where("obsoleteDate").isNull());
         return convertComServerListToRemoteComServers(getComServerDataMapper().select(condition));
+    }
+
+    @Override
+    public List<OfflineComServer> findOfflineComServersForOnlineComServer(OnlineComServer onlineComServer) {
+        Condition condition =
+                where("class").isEqualTo(OFFLINE_COMSERVER_DISCRIMINATOR)
+                        .and(where("onlineComServer").isEqualTo(onlineComServer))
+                        .and(where("obsoleteDate").isNull());
+        return convertComServerListToOfflineComServers(getComServerDataMapper().select(condition));
     }
 
     @Override
@@ -285,7 +302,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder() {
+    public OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> newOfflineComServerBuilder() {
         return dataModel.getInstance(OfflineComServerImpl.OfflineComServerBuilderImpl.class);
     }
 
@@ -603,7 +620,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         if (comServerAliveOptional.isPresent()) {
             return comServerAliveOptional.get();
         } else {
-            ComServerAliveStatusImpl comServerAlive = this.dataModel.getInstance(ComServerAliveStatusImpl.class).initialize(comServer, clock.instant(), getComServerStatusAliveFreq());
+            ComServerAliveStatusImpl comServerAlive = this.dataModel.getInstance(ComServerAliveStatusImpl.class).initialize(comServer, clock.instant(), getComServerStatusAliveFrequency());
             comServerAlive.save();
             return comServerAlive;
         }
@@ -620,7 +637,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public Integer getComServerStatusAliveFreq() {
+    public Integer getComServerStatusAliveFrequency() {
         try {
             String val = bundleContext.getProperty(COM_SERVER_STATUS_ALIVE_FREQ_PROP);
             return val == null ? ComServerAliveStatusImpl.DEFAULT_FREQUENCY_MINUTES : Integer.valueOf(val);

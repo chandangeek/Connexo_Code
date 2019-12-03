@@ -14,6 +14,8 @@ import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -34,14 +36,25 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
     private String stackTrace;
     private Instant modDate;
 
+    public ComSessionJournalEntryImpl() {
+        super(ComSessionJournalEntry.class);
+    }
+
     @Inject
     ComSessionJournalEntryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ComSessionJournalEntry.class, dataModel, eventService, thesaurus);
     }
 
     @Override
+    @XmlTransient
     public ComSession getComSession () {
-        return comSession.get();
+        if (comSession.isPresent())
+            return comSession.get();
+        return null;
+    }
+
+    public void setComSession (ComSession comSession) {
+        this.comSession.set(comSession);
     }
 
     @Override

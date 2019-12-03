@@ -24,7 +24,7 @@ import com.energyict.mdc.common.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.common.device.data.LoadProfileReading;
 import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import com.energyict.cbo.Unit;
@@ -32,6 +32,7 @@ import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -131,10 +132,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDevice(this.getDevice().getId(), this.getDevice().getmRID());
     }
 
     @Override
+    @XmlTransient
     public Device getDevice() {
         return this.device.get();
     }
@@ -360,11 +362,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
                                     .filter(channel -> channel.getReadingTypes().contains(this.getReadingType())))
                     .filter(channel -> channel.getLastDateTime() != null)
                     .findAny();
-            if (channelWithLastDateTime.isPresent()) {
-                return Optional.of(channelWithLastDateTime.get().getLastDateTime());
-            } else {
-                return Optional.empty();
-            }
+            return channelWithLastDateTime.map(com.elster.jupiter.metering.Channel::getLastDateTime);
         }
 
         @Override

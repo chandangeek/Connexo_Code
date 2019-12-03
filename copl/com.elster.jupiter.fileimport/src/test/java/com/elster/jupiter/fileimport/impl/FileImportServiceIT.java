@@ -29,7 +29,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -203,7 +203,7 @@ public class FileImportServiceIT {
             injector = Guice.createInjector(
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new ThreadSecurityModule(),
                     new DomainUtilModule(),
                     new PubSubModule(),

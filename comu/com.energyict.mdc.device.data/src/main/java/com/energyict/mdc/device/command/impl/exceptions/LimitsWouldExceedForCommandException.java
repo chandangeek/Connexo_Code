@@ -15,7 +15,7 @@ import java.util.List;
 public class LimitsWouldExceedForCommandException extends LimitsExceededForCommandException {
 
     public LimitsWouldExceedForCommandException(Thesaurus thesaurus, List<ExceededCommandRule> exceededCommandRules) {
-        super(thesaurus, exceededCommandRules);
+        super(thesaurus, exceededCommandRules, null);
     }
 
     protected String getFancyLimits(ExceededCommandRule exceededCommandRule, String and) {

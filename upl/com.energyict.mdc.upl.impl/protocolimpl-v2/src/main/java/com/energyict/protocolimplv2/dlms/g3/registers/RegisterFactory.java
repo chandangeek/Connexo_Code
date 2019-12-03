@@ -19,7 +19,7 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;

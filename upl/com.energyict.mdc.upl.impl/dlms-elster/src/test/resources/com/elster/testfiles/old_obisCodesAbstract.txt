@@ -1,0 +1,298 @@
+com	"com" in the first column means the row is for comment.
+com	This worksheet includes all OBIS codes used to identify abstract objects. These codes are common for all energy type/media.
+com	In column of value group A, "&" means that the value can be 0 or a value corresponding to the relevant energy type.
+com	For example, where "&" is shown, the value can be 0 and/or 1 in an electricity metering device, and 0 and/or 7 in a gas metering device.
+com	Value group							IC  	Alt IC 	Reference	Comments
+com	A	B	C	D	E	F	Meaning	class	class
+com										[1] 5.3.2, 5.4.1	Value  group  A  defines  the media (energy type) that the metering is related to. For abstract objects, A = 0. Standard abstract objects are the same for all energy types (media).
+com										[1] 5.3.3, 5.4.2	Group B defines channels 0...64. Values 65...127 are available for utility specific use.
+com										[1] 5.3.4, 5.4.3	The standard range of value group C is 0...127, 200-239 and 241-254.
+com										[1] 5.3.5, 5.4.4	The standard range of value group D is 0...127.
+com										[1] 5.3.6, 5.4.5	Group E is generally used for further classification.
+com										[1] 5.3.7, 5.4.6.1, 5.7.3	Group F generally is used for historical values. The standard range is 0...99 and 101...126.
+com										[1] 5.3.8	In group B the range 128...199, in group C the range 128...199 and 240, in groups D, E and F the range 128...254 is available for manufacturer specific purposes, unless otherwise specified.
+com										[1] 4.6.2	In all groups the value 255 means "not used".  All codes not specified are reserved.
+com	Range definitions
+com	"def" in the first column marks a row defining a range of values valid for groups A,B,C,D,E, or F for the lines following.
+def	b=0-64									[1] 5.4.2	If channel information is not essential, the value 0 shall be assigned.
+com	0	b	255	255	255	255	Abstract objects			[1] 4.6.1.1, 5.6.2	In the "com" lines starting new code ranges, 255 is used as a wildcard.
+com											Billing period values / reser counter / time stamp objects are generally media related. Using such objects with A = 0 are used if non-media related objects or objects related to more than one media are captured. However, use of abstract related or media related codes are exclusive: only one of them can be used.
+com	0	b	0	1	255	255	Billing period values / reset counter entries objects (first biling period scheme if there are two)			[1] 4.6.1.2.2, 4.6.1.2.4	These values are represented by instances of the interface class "Data", with data types unsigned.  If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	0	b	0	1	0	VZ	Billing period counter object (1), VZ	1	3,4
+	0	b	0	1	0	0-99, 255	Billing period counter object (1)	1	3,4
+	0	b	0	1	1	255	Number of available billing periods object (1)	1	3,4
+com	0	b	0	1	2	255	Time stamps of the billing periods objects (first billing period scheme if there are two)				These values are represented by instances of the interface class "Data", with data types octet-string, formatted as date_time. If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	0	b	0	1	2	VZ	Time stamp of the billing period (1) VZ (last reset)	1	3,4		VZ means the status of the billing period counter, 0-99 readable under code 0.1.x.0.1.0.255.
+com	0	b	0	1	2	VZ-1	Time stamp of the billing period (1) VZ-1	1	3,4		Idem
+com	0	b	0	1	2	VZ-n	Time stamp of the billing period (1) VZ-n	1	3,4		Idem
+	0	b	0	1	2	0-99	Time stamp of the billing period (1)	1	3,4		Idem
+	0	b	0	1	2	255	Time stamp of the most recent billing period (1) closed	1	3,4		Idem. The current time stamp is the time stamp of the last billing period closed.
+com	0	b	0	1	255	255	Billing period values / reset counter entries objects (second biling period scheme)			[1] 4.6.1.2.2, 4.6.1.2.4	These values are represented by instances of the interface class "Data", with data types unsigned.  If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	0	b	0	1	3	VZ	Billing period counter object (2), VZ	1	3,4
+	0	b	0	1	3	0-99, 255	Billing period counter object (2), VZ	1	3,4
+	0	b	0	1	4	255	Number of available billing periods object (2)	1	3,4
+com	0	b	0	1	5	255	Time stamps of the billing periods objects (second billing period scheme)			[1] 4.6.1.2.4	These values are represented by instances of the interface class "Data", with data types octet-string, formatted as date_time. If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+com	0	b	0	1	5	VZ	Time stamp of the billing period (2) VZ (last reset)	1	3,4		VZ means the status of the billing period counter, 0-99 readable under code 0.1.x.0.1.0.255.
+com	0	b	0	1	5	VZ-1	Time stamp of the billing period (2) VZ-1	1	3,4		Idem
+com	0	b	0	1	5	VZ-n	Time stamp of the billing period (2) VZ-n	1	3,4		Idem
+	0	b	0	1	5	0-99	Time stamp of the billing period (2)	1	3,4		Idem
+	0	b	0	1	5	255	Time stamp of the most recent billing period (2) closed	1	3,4		The current time stamp is the time stamp of the last billing period closed.
+com	0	b	1	255	255	255	Clock objects
+	0	b	1	0	0	255	Clock object, first instance	8		[1] 4.6.1.1.1, 4.6.1.2.8, 5.6.3.1	 The Clock may be channel related (value group B). If just one object is instantiated, value E shall be 0. For display purposes, attribute 2 "time" has separate OBIS codes: "local time " 1.b.0.9.1.255 and "local date" 1.b.0.9.2.255. For other media, these identifiers are not defined. There is also a clock synchronization method object,  1.b.0.9.10.255, IC = 1 "Data" or IC = 3 "Register".
+	0	b	1	0	1-127	255	Clock object, nth instance	8		[1] 4.6.1.1.1	If more than one object is instantiated in the same physical device, the value group E shall number the instantiations.
+com	0	b	2	255	255	255	Modem configuration objects
+	0	b	2	0	0	255	Modem configuration	27		[1] 4.6.1.1.2	If more than one object is instantiated in the same physical device, the value group B shall number the communication channel.
+	0	b	2	1	0	255	Auto connect	29		[1] 4.6.1.1.3	Idem
+	0	b	2	2	0	255	Auto answer	28		[1] 4.6.1.1.4	Idem
+com	0	b	10	255	255	255	Script table objects			[1] 4.6.1.1.5
+	0	b	10	0	0	255	Global meter reset	9
+	0	b	10	1-127	0	255	Global meter reset, implementation specific	9			Implementation specific instances should use values different from 0 in value group D.
+	0	b	10	0	1	255	MDI reset / End of billing period	9
+	0	b	10	1-127	1	255	MDI reset / End of billing period, implementation specific	9			Idem
+	0	b	10	0	100	255	Tariffication script table	9			Defines entry point into tariffication by standardizing utility-wide how to invoke the activation of certain tariff conditions.
+	0	b	10	1-127	100	255	Tariffication script table, implementation specific	9			Implementation specific instances should use values different from 0 in value group D.
+	0	b	10	0	101	255	Activate test mode	9
+	0	b	10	1-127	101	255	Activate test mode, implementation specific	9			Idem
+	0	b	10	0	102	255	Activate normal mode	9
+	0	b	10	1-127	102	255	Activate normal mode, implementation specific	9			Idem
+	0	b	10	0	103	255	Set output signals	9
+	0	b	10	1-127	103	255	Set output signals, implementation specific	9			Idem
+	0	b	10	0	104	255	Switch optical test output	9
+	0	b	10	1-127	104	255	Switch optical test output, implementation specific	9			Idem
+	0	b	10	0	105	255	Power quality measurement management	9
+	0	b	10	1-127	105	255	Power quality measurement management, implementation specific	9			Idem
+	0	b	10	0	125	255	Broadcast script table	9			Allows standardizing utility wide the entry point into regularly needed function.
+	0	b	10	1-127	125	255	Broadcast script table, implementation specific	9			Implementation specific instances should use values different from 0 in value group D.
+com	0	b	11	255	255	255	Special days table objects			[1] 4.6.1.1.6	Defines and controls the behaviour of the device regarding calendar functions on special days for clock control.
+	0	b	11	0	0	255	Special days table	11
+com	0	b	12	255	255	255	Schedule objects			[1] 4.6.1.1.7	Controls the behaviour of the device in a sequenced way.
+	0	b	12	0	0	255	Schedule, first instance	10			If just one object is instantiated, value E shall be 0.
+	0	b	12	0	1-127	255	Schedule, nth instance	10			If more than one object is instantiated in the same physical device, the value group E shall number the instantiations.
+com	0	b	13	255	255	255	Activity calendar objects			[1] 4.6.1.1.8	Defines and controls the device in a calendar-based way.
+	0	b	13	0	0	255	Activity calendar	20
+com	0	b	14	255	255	255	Register activation objects			[1] 4.6.1.1.9	Handles different tariffication structures.
+	0	b	14	0	0	255	Register activation, first instance	6
+	0	b	14	0	1-127	255	Register activation, nth instance	6			If more than one object is instantiated in the same physical device, the value group E shall number the instantiations.
+com	0	b	15	255	255	255	Single action schedule objects			[1] 4.6.1.1.10	Controls the behaviour of the device.
+	0	b	15	0	0	255	End of billing period	22			This is the only standard instance.
+	0	b	15	1-127	0	255	End of billing period, implementation specific	22			 Implementation specific instances should use values different from 0 in value group D.
+com	0	b	16	255	255	255	Register monitor objects			[1] 4.6.1.1.11	Controls the register monitoring function  of the device. See also [1] 4.6.1.2.20 for electricity related instances.
+	0	b	16	0	0	255	Register monitor	21			If just one object is instantiated, value E shall be 0.
+	0	b	16	0	1-127	255	Register monitor	21			If more than one object is instantiated in the same physical device, the value group E shall number the instantiations.
+com	0	b	20	255	255	255	IEC local port setup objects			[1] 4.6.1.1.12	These COSEM objects define and control the behaviour of the device regarding the communication parameters on the local port according to IEC 62056-21.
+	0	b	20	0	0	255	IEC optical port setup	19			If more than one object is instantiated in the same physical device, value group B shall number the communication channel.
+	0	b	20	0	1	255	IEC electrical port setup	19			Idem
+com	0	b	21	255	255	255	Standard readout profiles			[1] 4.6.1.1.13	These COSEM objects are defined to carry the standard readout as it would appear with IEC 62056-21 (modes A to D). Standard readout objects can also be related to energy type (value A) and to channel (value B).
+	&	b	21	0	0	255	General local port readout	7
+	&	b	21	0	1	255	General display readout	7
+	&	b	21	0	2	255	Alternate display readout	7
+	&	b	21	0	3	255	Service display readout	7
+	&	b	21	0	4	255	List of configurable meter data	7
+	&	b	21	0	5	255	Additional readout profile 1	7
+	&	b	21	0	6-127	255	Additional readout profiles 2 to 123	7
+	&	b	21	0	0	255	Standard readout parametrization object.	1			These "Data" objects can be used for the parametrization of the standard readout lists.
+	&	b	21	0	1-127	255	Standard readout parametrization object, nth instance	1
+com	0	b	22	255	255	255	IEC HDLC setup objects			[1] 4.6.1.1.14	These COSEM objects define and control the behaviour of the device at the association negotiation instant using HDLC protocol.
+	0	b	22	0	0	255	IEC HDLC setup object 	23			If more than one object is instantiated in the same physical device, value group B shall number the communication channel.
+com	0	b	23	255	255	255	IEC twisted pair (1) setup objects			[1] 4.6.1.1.15	These COSEM objects define and control the behaviour of the device regarding the communication parameters according to IEC 62056-31.
+	0	b	23	0	0	255	IEC twisted pair (1) setup objects	24			If more than one object is instantiated in the same physical device, value group B shall number the communication channel.
+com	0	b	24	255	255	255	MBUS setup objects			[1] 4.6.1.1.16	These COSEM objects define the operational parameters for communication using the EN13757-2 interfaces.
+	0	b	24	0	0	255	MBUS setup objects	25			If more than one object is instantiated in the same physical device, value group B shall number the communication channel.
+com	0	b	25	255	255	255	Internet setup objects
+	0	b	25	0	0	255	TCP-UDP setup	41		[1] 4.6.1.1.17	If more than one object is instantiated in the same physical device, the value group B shall number the communication channel.
+	0	b	25	1	0	255	IPv4 setup	42		[1] 4.6.1.1.18	Idem
+	0	b	25	2	0	255	Ethernet setup	43		[1] 4.6.1.1.19	Idem
+	0	b	25	3	0	255	PPP setup	44		[1] 4.6.1.1.20	Idem
+	0	b	25	4	0	255	GPRS setup	45		[1] 4.6.1.1.21	Idem
+	0	b	25	5	0	255	SMTP setup	46		[1] 4.6.1.1.22	Idem
+com	0	b	40	255	255	255	Association objects			[1] 4.6.1.1.23	A logical device may support both SN and LN associations.
+	0	0	40	0	0	255	Current association	12	15		Class 12 is SN referencing and Class 15 is LN referencing.
+	0	0	40	0	1	255	Association instance 1	12	15		Idem
+	0	0	40	0	2-127	255	Association instance 2-127	12	15		Idem
+com	0	0	41	255	255	255	SAP Assignment objects			[1] 4.6.1.1.24
+	0	0	41	0	0	255	SAP Assignment object	17			SAP assignment within the physical device.
+com	0	0	42	255	255	255	COSEM Logical device name objects			[1] 4.6.1.1.25	Unique identifier of each COSEM logical device worldwide.
+	0	0	42	0	0	255	COSEM Logical device name	1	3		The COSEM LDN is held by the value attribute with data type octet-string. If IC = 3 "Register"  is used, Scaler = 0, Unit = 255.
+com	0	b	65	255	255	255	Utility tables objects			[1] 4.6.1.1.26	A = 0 to specify abstract object. Value B identifies instance of table set. Value D is the group selector. Value E is the table number within the group. Use F = 255 for data of current billing period.
+	0	b	65	0	0-127	255	Standard tables 0-127	26
+	0	b	65	1-15	0-127	255	Standard tables 128-2047	26
+	0	b	65	16	0-127	255	Manufacturer tables 0-127	26
+	0	b	65	17-31	0-127	255	Manufacturer tables 128-2047	26
+	0	b	65	32	0-127	255	Std pending tables 0-127	26
+	0	b	65	33-47	0-127	255	Std pending tables 128-2047	26
+	0	b	65	48	0-127	255	Mfg pending tables 0-127	26
+	0	b	65	49-63	0-127	255	Mfg pending tables 128-2047	26
+com	&	b	93	255	255	255	Consortia specific identifiers			[1] 5.4.3.2, 5.4.4.2
+com	&	b	93	1	0-255	0-255	SELMA consortium specific identifiers	*			The detailed codes will be added later.
+com	&	b	94	0	y =       0-255	y =       0-255 	Country specific objects			[1] 5.4.4.3 Table 7	With C = 94, there are no reserved ranges for manufacturer specific codes. The usage of value group E and F are defined in country specific documents. All other values of Group D are reserved. The type of Interface classes used depends on values of E and F. Objects that are already identified in this document but not included in 5.4.2. must not be re-identified by a country specific identifier.
+com	Range definitions
+def	y=0-255
+	&	b	94	0	y	y	Finnish identifiers	*
+	&	b	94	1	y	y	USA identifiers	*
+	&	b	94	2	y	y	Canadian identifiers	*
+	&	b	94	7	y	y	Russian identifiers	*
+	&	b	94	10	y	y	Czech identifiers	*
+	&	b	94	11	y	y	Bulgarian identifiers	*
+	&	b	94	12	y	y	Croatian identifiers	*
+	&	b	94	13	y	y	Irish identifiers	*
+	&	b	94	14	y	y	Israeli identifiers	*
+	&	b	94	15	y	y	Ukraine identifiers	*
+	&	b	94	16	y	y	Yugoslavian identifiers	*
+	&	b	94	27	y	y	South African identifiers	*
+	&	b	94	30	y	y	Greek identifiers	*
+	&	b	94	31	y	y	Dutch identifiers	*
+	&	b	94	32	y	y	Belgian identifiers	*
+	&	b	94	33	y	y	French identifiers	*
+	&	b	94	34	y	y	Spanish identifiers	*
+	&	b	94	35	y	y	Portuguese identifiers	*
+	&	b	94	36	y	y	Hungarian identifiers	*
+	&	b	94	38	y	y	Slovenian identifiers	*
+	&	b	94	39	y	y	Italian identifiers	*
+	&	b	94	40	y	y	Romanian identifiers	*
+	&	b	94	41	y	y	Swiss identifiers	*
+	&	b	94	42	y	y	Slovakian identifiers 	*
+	&	b	94	43	y	y	Austrian identifiers	*
+	&	b	94	44	y	y	United Kingdom identifiers	*
+	&	b	94	45	y	y	Danish identifiers	*
+	&	b	94	46	y	y	Swedish identifiers	*
+	&	b	94	47	y	y	Norwegian identifiers	*
+	&	b	94	48	y	y	Polish identifiers	*
+	&	b	94	49	y	y	German identifiers	*
+	&	b	94	55	y	y	Brazilian identifiers	*
+	&	b	94	61	y	y	Australian identifiers	*
+	&	b	94	62	y	y	Indonesian identifiers	*
+	&	b	94	64	y	y	New Zeeland identifiers	*
+	&	b	94	65	y	y	Singapore identifiers	*
+	&	b	94	81	y	y	Japanese identifiers	*
+	&	b	94	86	y	y	Chinese identifiers	*
+	&	b	94	90	y	y	Turkish identifiers	*
+	&	b	94	91	y	y	Indian identifiers	*
+com	0	b	96	1	255	255	Device ID objects			[1] 4.6.1.1.27, 5.6.2.1 Table 23	Non energy/channel related.
+	0	b	96	1	0	255	Device ID 1, manufacturing number	1	3		Held by the value attribute of instances of IC=1 "Data", with data type octet-string. If IC = 3 "Register" is used, scaler = 0, unit = 255.
+	0	b	96	1	1-9	255	Device ID 2-10	1	3		Idem
+	0	b	96	1	255	255	Complete device ID	7	61		If more than one Device ID-s are used, it is allowed to combine them into one instance of the IC = 7 "Profile generic" or IC = 61 "Register table".
+	0	b	96	1	10	255	Metering point ID	1	3	[1] 4.6.1.1.28	Held by the value attribute of IC = 1 "Data" with data type octet-string. If IC = 3 "Register"  is used, scaler = 0, unit = 255.
+com	0	b	96	2	255	255	Parameter changes, calibration and access objects			[1] 4.6.1.1.29, 5.6.2.1 Table 23
+	0	b	96	2	0	255	Number of configuration program changes	1	3, 4		If IC = 3 "Register" or IC = 4 "Extended register"  is used, scaler = 0, unit = 255.
+	0	b	96	2	1	255	Date of last configuration program change	1	3, 4		This object may hold the date only, the time only or both.
+	0	b	96	2	2	255	Date of last time switch program change	1	3,4		Idem
+	0	b	96	2	3	255	Date of last ripple control program change	1	3,4		Idem
+	0	b	96	2	4	255	Status of security switches	1	3,4
+	0	b	96	2	5	255	Date of last calibration	1	3,4
+	0	b	96	2	6	255	Date of next configuration program change	1	3,4
+	0	b	96	2	7	255	Date of activation of the passive calendar	1	3,4	[1] 4.2.11	Corresponds to "Activity calendar", IC = 20, attribute 10.
+	0	b	96	2	10	255	Number of protected configuration program changes	1	3,4
+	0	b	96	2	11	255	Date of last protected configuration program change	1	3,4
+	0	b	96	2	12	255	Date (corrected) of last clock synchronisation/setting	1	3,4
+com	0	b	96	3	255	255	Input/output control signals objects			[1] 4.6.1.1.30, 5.6.2.1, Table 23
+	0	b	96	3	0	255	State of input/output control signals, global	1,3,4,63	7,61		If IC = 3 "Register" or IC = 4 "Extended register"  is used, scaler = 0, unit = 255. IC = 63 "Status mapping" object holds holds the status word and the mapping of its bits to a reference table. Status words can be combined into global "Register table" or profile generic" obejcts.
+	0	b	96	3	1	255	State of the input control signals (statusword 1)	1,3,4,63			Idem
+	0	b	96	3	2	255	State of the output control signals (statusword 2)	1,3,4,63			Idem
+	0	b	96	3	3	255	State of input/output control signals, (statusword 3)	1,3,4,63			Idem
+	0	b	96	3	4	255	State of input/output control signals, (statusword 4)	1,3,4,63			Idem
+com	0	b	96	4	255	255	State of internal control signals objects			[1] 4.6.1.1.31, 5.6.2.1, Table 23
+	0	b	96	4	0	255	State of the internal control signals, global	1,3,4,63	7,61		Idem
+	0	b	96	4	1	255	State of the internal control signals, statusword 1	1,3,4,63			Idem
+	0	b	96	4	2	255	State of the internal control signals, statusword 2	1,3,4,63			Idem
+	0	b	96	4	3	255	State of the internal control signals, statusword 3	1,3,4,63			Idem
+	0	b	96	4	4	255	State of the internal control signals, statusword 4	1,3,4,63			Idem
+com	&	b	96	5	255	255	Internal operating status objects			[1] 4.6.1.1.31, 5.6.2.1, Table 23	Internal operating status obejcts can also be releted to an energy type.
+	&	b	96	5	0	255	Internal operating status, global	1,3,4,63	7,61		Idem
+	&	b	96	5	1	255	Internal operating status, statusword 1	1,3,4,63			Idem
+	&	b	96	5	2	255	Internal operating status, statusword 2	1,3,4,63			Idem
+	&	b	96	5	3	255	Internal operating status, statusword 3	1,3,4,63			Idem
+	&	b	96	5	4	255	Internal operating status, statusword 4	1,3,4,63			Idem
+com	0	b	96	6	0	0	Battery entries objects			[1] 4.6.1.1.32, 5.6.2.1, Table 23
+	0	b	96	6	0	255	Battery use time counter	3	1,4
+	0	b	96	6	1	255	Battery charge display	3	1,4
+	0	b	96	6	2	255	Date of next change	3	1,4
+	0	b	96	6	3	255	Battery voltage	3	1,4
+com	0	b	96	7	255	255	Number of power failures objects			[1] 4.6.1.1.33, 5.6.2.1, Table 23	For simple counting of events, IC = 1 Data may be used.
+	0	b	96	7	0	255	In all three phases	1	3,4
+	0	b	96	7	1	255	In phase L1	1	3,4
+	0	b	96	7	2	255	In phase L2	1	3,4
+	0	b	96	7	3	255	In phase L3	1	3,4
+	0	b	96	7	4	255	Auxiliary power supply	1	3,4
+com							Number of long power failures
+	0	b	96	7	5	255	In all three phases	1	3,4
+	0	b	96	7	6	255	In phase L1	1	3,4
+	0	b	96	7	7	255	In phase L2	1	3,4
+	0	b	96	7	8	255	In phase L3	1	3,4
+	0	b	96	7	9	255	In any phase	1	3,4
+com							Time of power failure				Time of power failure is recorded when eiether a short or a long power failure ocurs.
+	0	b	96	7	10	255	In all three phases	1	3,4
+	0	b	96	7	11	255	In phase L1	1	3,4
+	0	b	96	7	12	255	In phase L2	1	3,4
+	0	b	96	7	13	255	In phase L2	1	3,4
+	0	b	96	7	14	255	In any phase	1	3,4
+com							Duration of long power failure				Duration of power failure holds the duration of the long power failure. If IC = 1 "Data" is used, the scaler = 0 and the unit shall the second by default.
+	0	b	96	7	15	255	In all three phases	1	3,4
+	0	b	96	7	16	255	In phase L1	1	3,4
+	0	b	96	7	17	255	In phase L2	1	3,4
+	0	b	96	7	18	255	In phase L3	1	3,4
+	0	b	96	7	19	255	In any phase	1	3,4
+com							Time threshold for long of power failure
+	0	b	96	7	20	255	Time threshold for long of power failure	1	3,4
+com	0	b	96	8	255	255	Operating time objects			[1] 4.6.1.1.34, 5.6.2.1 Table 23
+	0	b	96	8	0	255	Time of operation	3	4, 1		Data type shall be unsigned, long unsigned or double long unsigned and the unit second, or minutes, hours or day. If IC =1 "Data" is used, the scaler = 0 and the unit shall the second by default.
+	0	b	96	8	1-63	255	Time of registration rate 1 to 63	3	4,1		Idem
+com	0	b	96	9	255	255	Environment related parameters objects			[1] 5.6.2.1 Table 23
+	0	b	96	9	0	255	Ambient temperature	3	4		Unit oC or K
+com	0	b	96	10	255	255	Status register objects			[1] 4.6.1.1.35
+	0	b	96	10	1	255	Status register 1	1	3,4,63		If IC = 3 "Register" or IC = 4 "Extended register"  is used, scaler = 0, unit = 255. IC = 63 "Status mapping" object holds holds the status word and the mapping of its bits to a reference table.
+	0	b	96	10	2	255	Status register 2	1	3,4,63		Idem
+	0	b	96	10	3	255	Status register 3	1	3,4,63		Idem
+	0	b	96	10	4	255	Status register 4	1	3,4,63		Idem
+	0	b	96	10	5	255	Status register 5	1	3,4,63		Idem
+	0	b	96	10	6	255	Status register 6	1	3,4,63		Idem
+	0	b	96	10	7	255	Status register 7	1	3,4,63		Idem
+	0	b	96	10	8	255	Status register 8	1	3,4,63		Idem
+	0	b	96	10	9	255	Status register 9	1	3,4,63		Idem
+	0	b	96	10	10	255	Status register 10	1	3,4,63		Idem
+com	0	b	96	12	255	255	Communication port parameters			[1] 4.6.1.1.36, 5.6.2.1 Table 23
+	0	b	96	12	0	255	Reserved	1	3,4
+	0	b	96	12	1	255	Number of connections	1	3,4
+	0	b	96	12	2	255	Reserved	1	3,4
+	0	b	96	12	3	255	Reserved	1	3,4
+	0	b	96	12	4	255	Communication parameter 1	1	3,4
+	0	b	96	12	5	255	Reserved	1	3,4
+com	0	b	96	50	255	255	Manufacturer specific abstract objects, general service entries			[1] 5.6.2.1 Table 23	In the manufacturer specific objects, only those values which are not represented by another defined code, but need representation on the display as well shall be placed. If this is not required, the code should use the possibilities of a value group D > 127.
+	0	b	96	50-99	0-255	0-255	Manufacturer specific abstract objects	1,3,4,7, 61, 63
+com	&	b	97	97	255	255	Error values objects			[1] 4.6.1.1.37, 5.6.2.2 Table 24	Error code objects can also be related to an energy type (value A) and to a channel (value B).
+	&	b	97	97	0	255	Error 1 object	1	3,4		If IC = 3 "Data" or IC = 4 "Extended register"  is used, scaler = 0 and unit = 255.
+	&	b	97	97	1	255	Error 2 object	1	3,4		Idem
+	&	b	97	97	2	255	Error 3 object	1	3,4		Idem
+	&	b	97	97	3	255	Error 4 object	1	3,4		Idem
+	&	b	97	97	4	255	Error 5 object	1	3,4		Idem
+	&	b	97	97	5	255	Error 6 object	1	3,4		Idem
+	&	b	97	97	6	255	Error 7 object	1	3,4		Idem
+	&	b	97	97	7	255	Error 7 object	1	3,4		Idem
+	&	b	97	97	8	255	Error 9 object	1	3,4		Idem
+	&	b	97	97	9	255	Error 10 object	1	3,4		Idem
+	&	b	97	97	255	255	Error profile object	7	61		If more than one error value objects are used, it is allowed to combine them into one instance of the IC "Profile generic" or "Register table".
+com	0	b	98	1	255	255	General list objects			[1] 4.6.1.1.38, 5.6.2.3, Table 25
+	0	b	98	1	0-127, 255	0-99, 101-126, 255	Data of billing period (with billing period scheme 1 if there are two schemes available)	7		[1] 5.7.3	F = 255 means wildcard. F = 0-99 and 101 means direct access to data of previous billing periods. Value of F = 102-125 means access to data of last 2-25 billing periods. F = 126 means access to data of an unspecified number of billing periods.
+	0	b	98	2	0-127, 255	0-99, 101-126, 255	Data of billing period (with billing period scheme 2)	7		[1] 5.7.3	Idem.
+com	0	b	98	10	255	255	Register table objects, general use			[1] 4.2.18, 5.6.2.5 Table 27
+	0	b	98	10	0-127	0-99, 101-126, 255	Register table objects, general use	61
+com	0	b	99	255	255	255	Abstract data profiles			[1] 5.6.2.4, Table 26
+	0	b	99	1	0-127	255	Load profile with recording period 1	7			If only one object is instantiated, the value of E shall be 0.
+	0	b	99	2	0-127	255	Load profile with recording period 2	7			If only one object is instantiated, the value of E shall be 0.
+	0	b	99	3	0	255	Load profile during test	7
+	0	b	99	12	0-127	255	Connection profile	7
+	0	b	99	98	0-127	255	Event log	7			If only one object is instantiated, the value of E shall be 0.
+com	0	b	127	255	255	255	Inactive objects			[1] 5.4.3.2 Table 5
+	&	b	127	0-255	0-255	0-255		*			Inactive objects are present in the meter, but have no assigned functionality. They can be of any interface class. They can be energy type and channel related.
+com							Utility specific objects
+	0-255	65-127	0-255	0-255	0-255	0-254	Utility specific objects	*		[1] 5.4.2 Table 4
+com	0	255	255	255	255	255	Manufacturer specific abstract objects			[1] 5.3.8	If any group B to F contains a value in the manufacturer specific range, the whole code is considered as manufacturer specific and even the other value groups, (with the exception of group A) are not necessarily bearing any meaning defined by this standard. In all groups, the value 255 means "not used". Manufacturer specific objects can be of any class. The manufacturer must ensure that each and every COSEM object within the logical device can be uniquely identified by the combination of its OBIS name and interface class.
+def	b=0-199, 255
+def	c=0-199, 255
+def	d=0-255
+def	e=0-255
+def	f=0-255
+	0	128-199	c	d	e	f	Manufacturer specific abstract objects, Group B=128...199	*			Objects that are already defined in [1] and [2] shall not be re-defined as manufacturer specific.
+	0	b	128-199, 240	d	e	f	Manufacturer specific abstract objects, Group C=128...199	*			Idem
+	0	b	c	128-254	e	f	Manufacturer specific abstract objects, Group D=128-254	*			Idem
+	0	b	c	d	128-254	f	Manufacturer specific abstract objects, Group E=128...254	*			Idem
+	0	b	c	d	e	128-254	Manufacturer specific abstract objects, Group F=128...254	*			Idem

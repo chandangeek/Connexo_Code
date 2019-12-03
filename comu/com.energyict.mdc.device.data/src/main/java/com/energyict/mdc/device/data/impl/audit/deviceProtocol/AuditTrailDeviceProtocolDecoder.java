@@ -27,7 +27,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceProtocolPropertyImpl;
 

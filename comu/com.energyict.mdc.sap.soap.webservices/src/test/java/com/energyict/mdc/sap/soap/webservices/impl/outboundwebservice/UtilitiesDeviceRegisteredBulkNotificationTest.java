@@ -4,85 +4,80 @@
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilsDvceERPSmrtMtrRegedBulkNotifMsg;
 
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import com.google.inject.AbstractModule;
 
-import org.junit.Assert;
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutboundWebserviceTest {
-
-    @Mock
-    private UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut port;
+public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutboundWebserviceTest<UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> {
     @Mock
     private Clock clock;
 
     private List<String> deviceIds;
-    UtilitiesDeviceRegisteredBulkNotificationProvider provider;
+    private UtilitiesDeviceRegisteredBulkNotificationProvider provider;
 
     @Before
     public void setUp() {
-        provider = spy(new UtilitiesDeviceRegisteredBulkNotificationProvider(clock));
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
-        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
-        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
-        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
         deviceIds = Arrays.asList("100000000524205", "100000000524206", "100000000524207");
-        when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+
+        provider = getProviderInstance(UtilitiesDeviceRegisteredBulkNotificationProvider.class, new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(Clock.class).toInstance(clock);
+            }
+        });
     }
 
     @Test
     public void testCall() {
-        when(provider.using(anyString())).thenReturn(requestSender);
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(WebServiceActivator.URL_PROPERTY, getURL());
-        properties.put("epcId", 1l);
-
-        provider.addRequestConfirmationPort(port, properties);
         provider.call(deviceIds);
 
-        verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut");
-        verify(requestSender).send(any(UtilsDvceERPSmrtMtrRegedBulkNotifMsg.class));
+        SetMultimap<String, String> values = HashMultimap.create();
+        deviceIds.forEach(deviceId -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), deviceId));
+
+        verify(endpoint).utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut(any(UtilsDvceERPSmrtMtrRegedBulkNotifMsg.class));
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
     public void testCallWithoutPort() {
-        inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
-        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
-        expectedException.expect(LocalizedException.class);
-        expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out'.");
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(Collections.emptyList());
 
-        provider.call(deviceIds);
+        assertThatThrownBy(() -> provider.call(deviceIds))
+                .isInstanceOf(LocalizedException.class)
+                .hasMessage("No web service endpoints are available to send the request using 'SAP SmartMeterRegisteredBulkNotification'.");
     }
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut.class);
+        assertThat(provider.getService()).isSameAs(UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService.class);
+        assertThat(provider.get()).isInstanceOf(UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService.class);
     }
 }

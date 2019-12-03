@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.properties.impl;
 
+import com.elster.jupiter.properties.impl.BoundedBigDecimalPropertySpecImpl;
 import com.elster.jupiter.properties.InvalidValueException;
 
 import java.math.BigDecimal;

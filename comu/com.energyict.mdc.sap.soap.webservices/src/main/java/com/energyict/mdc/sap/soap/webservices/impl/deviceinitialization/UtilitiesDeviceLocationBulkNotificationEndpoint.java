@@ -11,16 +11,21 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationPointID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilitiesDeviceERPSmartMeterLocationBulkNotificationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocBulkNotifMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -54,6 +59,10 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
 
     private void handleMessage(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
         LocationBulkMessage bulkMsg = new LocationBulkMessage(msg);
+        SetMultimap<String, String> values = HashMultimap.create();
+        bulkMsg.locationMessages.forEach(message -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.deviceId));
+        saveRelatedAttributes(values);
+
         if (bulkMsg.isValid()) {
             bulkMsg.locationMessages.forEach(message -> {
                 if (message.isValid()) {
@@ -78,10 +87,12 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
 
     private class LocationBulkMessage {
         private String requestId;
+        private String uuid;
         private List<LocationMessage> locationMessages = new ArrayList<>();
 
         private LocationBulkMessage(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
             requestId = getRequestId(msg);
+            uuid = getUuid(msg);
             msg.getUtilitiesDeviceERPSmartMeterLocationNotificationMessage()
                     .forEach(message -> {
                         LocationMessage locationMsg = new LocationMessage(message);
@@ -90,13 +101,21 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
         }
 
         private boolean isValid() {
-            return requestId != null;
+            return requestId != null || uuid != null;
         }
 
         private String getRequestId(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
             return Optional.ofNullable(msg.getMessageHeader())
                     .map(BusinessDocumentMessageHeader::getID)
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(UtilsDvceERPSmrtMtrLocBulkNotifMsg msg) {
+            return Optional.ofNullable(msg.getMessageHeader())
+                    .map(BusinessDocumentMessageHeader::getUUID)
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

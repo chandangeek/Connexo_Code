@@ -648,6 +648,7 @@ Ext.define('Usr.controller.UserDirectories', {
             items: [
                 {
                     xtype: 'container',
+                    padding: '0 0 0 5',
                     html: Uni.I18n.translate('userDirectories.userInfoContent', 'USR', 'An LDAP username with sufficient privileges to view the sections of the directory that contain the information for LDAP users.')
                 }
             ]

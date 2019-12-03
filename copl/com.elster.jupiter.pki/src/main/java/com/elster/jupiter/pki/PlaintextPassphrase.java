@@ -11,11 +11,11 @@ public interface PlaintextPassphrase extends PassphraseWrapper {
      * Plaintext passphrase exposes the actual passphrase. The passphrase is stored encrypted, but can be shown in decrypted from to the user.
      * @return If the wrapper contains a passphrase, the plaintext (decrypted) passphrase is returned, if not, Optional.empty()
      */
-    Optional<String> getPassphrase();
+    Optional<String> getEncryptedPassphrase();
 
     /**
      * Set the plaintxt value of the passphrase. The passphrase will be encrypted prior to storage in the db.
      * @param plainTextPassphrase The plaintext Passphrase to store.
      */
-    void setPassphrase(String plainTextPassphrase);
+    void setEncryptedPassphrase(String plainTextPassphrase);
 }

@@ -33,7 +33,7 @@ public interface OfflineDeviceMessage extends Offline {
      */
     DeviceMessageSpec getSpecification();
 
-    MessageIdentifier getIdentifier();
+    MessageIdentifier getMessageIdentifier();
 
     /**
      * Returns a freeform string that contains extra context information that was prepared by the protocol implementation.
@@ -123,6 +123,14 @@ public interface OfflineDeviceMessage extends Offline {
      */
     @XmlAttribute
     List<? extends OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
+
+    /**
+     * Indication for a firmware message
+     *
+     * @return the creationDate of this message
+     */
+    @XmlAttribute
+    public boolean isFirmwareMessage();
 
     @XmlElement(name = "type")
     default String getXmlType() {

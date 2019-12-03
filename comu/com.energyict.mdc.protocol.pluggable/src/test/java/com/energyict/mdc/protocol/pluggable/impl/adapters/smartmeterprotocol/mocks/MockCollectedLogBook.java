@@ -87,6 +87,11 @@ public class MockCollectedLogBook implements CollectedLogBook {
         return false;
     }
 
+    @Override
+    public boolean isAwareOfPushedEvents() {
+        return false;
+    }
+
     @XmlElement(name = "type")
     public String getXmlType() {
         return this.getClass().getSimpleName();

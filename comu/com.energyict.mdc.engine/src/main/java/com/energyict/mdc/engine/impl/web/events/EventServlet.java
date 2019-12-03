@@ -1,11 +1,6 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.energyict.mdc.engine.impl.web.events;
 
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
-
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
@@ -16,7 +11,7 @@ import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
  * Every new client will have its dedicated component
  * that pushes the events through the established WebSocket.
  *
- * @author Rudi Vankeirsbilck (rudi)
+ * @author Rudi Vankeirsbilck (rudi), geert
  * @since 2012-11-02 (16:30)
  */
 public class EventServlet extends WebSocketServlet {
