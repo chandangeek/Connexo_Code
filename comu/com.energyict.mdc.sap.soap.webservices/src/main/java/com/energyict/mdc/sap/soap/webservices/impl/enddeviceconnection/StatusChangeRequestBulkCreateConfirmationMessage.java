@@ -77,8 +77,12 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
 
         public Builder from(StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(messages.getId(), messages.getUuid(), now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(message, now));
-            confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message, now);
+            msg.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
+            if (messages.getRequests().size() == 1) {
+                confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            }
             return this;
         }
 
