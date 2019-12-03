@@ -160,6 +160,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.continueRunning = new AtomicBoolean(true);
         self = this.threadFactory.newThread(this);
         self.setName(this.getThreadName());
+        cleanupBusyTasks(); // do the cleanup asynchronously, to not clash with the cleanup started by the TimeOutMonitor, for example
         self.start();
         this.status = ServerProcessStatus.STARTED;
     }
@@ -214,14 +215,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     public void run() {
         setThreadPrinciple();
 
-        try {
-            comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
-        } catch (PersistenceException e) {
-            exceptionLogger.unexpectedError(e);
-            runningComServer.refresh(getComPort());
-            continueRunning.set(false);
-        }
-
         while (continueRunning()) {
             try {
                 doRun();
@@ -232,6 +225,16 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             }
         }
         status = ServerProcessStatus.SHUTDOWN;
+    }
+
+    private void cleanupBusyTasks() {
+        try {
+            comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+        } catch (PersistenceException e) {
+            exceptionLogger.unexpectedError(e);
+            runningComServer.refresh(getComPort());
+            continueRunning.set(false);
+        }
     }
 
     protected boolean continueRunning() {

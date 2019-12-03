@@ -82,8 +82,8 @@ import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +94,7 @@ import java.util.stream.Collectors;
  */
 public class RunningComServerImpl implements RunningComServer, Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(RunningComServerImpl.class.getName());
     /**
      * The default queue size of the DeviceCommandExecutor
      * that is used for non {@link OnlineComServer}s.
@@ -364,12 +365,19 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     protected void continueStartupAfterDAOStart() {
         this.startEventMechanism();
+        LOGGER.info("Event mechanism started");
         this.startDeviceCommandExecutor();
-        this.startOutboundComPorts();
-        this.startInboundComPorts();
-        startHighPriorityTaskScheduler();
+        LOGGER.info("DeviceCommandExecutor started");
         this.timeOutMonitor.start();
+        LOGGER.info("TimeOutMonitor started");
+        this.startOutboundComPorts();
+        LOGGER.info("OutboundComPorts started");
+        this.startInboundComPorts();
+        LOGGER.info("InboundComPorts started");
+        startHighPriorityTaskScheduler();
+        LOGGER.info("High priority task scheduler started");
         this.cleanupProcess.start();
+        LOGGER.info("Cleanup process started");
         self = this.threadFactory.newThread(this);
         self.setName("Changes monitor for " + this.comServer.getName());
         self.start();
