@@ -423,7 +423,7 @@ public class DeviceValidationResource {
 
             result &= device.getLoadProfiles().stream()
                     .flatMap(l -> l.getChannels().stream())
-                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r));
 
             result &= lpStatuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
