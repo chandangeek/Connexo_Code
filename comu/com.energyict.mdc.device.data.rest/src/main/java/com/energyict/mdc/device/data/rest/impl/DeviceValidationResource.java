@@ -435,7 +435,7 @@ public class DeviceValidationResource {
                 .collect(Collectors.toList());
 
             result &= device.getRegisters().stream()
-                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r));
 
             result &= rgStatuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
