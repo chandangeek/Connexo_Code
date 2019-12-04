@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public enum Privileges implements TranslationKey {
     //Privileges
     VIEW_TOU_CAMPAIGNS(Constants.VIEW_TOU_CAMPAIGNS, "View campaigns"),
-    ADMINISTER_TOU_CAMPAIGNS(Constants.ADMINISTER_TOU_CAMPAIGNS, "Administer campaigns");
+    ADMINISTER_TOU_CAMPAIGNS(Constants.ADMINISTER_TOU_CAMPAIGNS, "Administrate campaigns");
 
     private final String key;
     private final String description;

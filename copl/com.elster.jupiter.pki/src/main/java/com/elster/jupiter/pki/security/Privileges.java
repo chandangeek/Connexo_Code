@@ -26,7 +26,7 @@ public enum Privileges implements TranslationKey {
 
     // Security accessor privileges
     VIEW_SECURITY_ACCESSORS(Constants.VIEW_SECURITY_ACCESSORS, "View"),
-    EDIT_SECURITY_ACCESSORS(Constants.EDIT_SECURITY_ACCESSORS, "Administer"),
+    EDIT_SECURITY_ACCESSORS(Constants.EDIT_SECURITY_ACCESSORS, "Administrate"),
 
     // Privileges for security accessor attributes
     VIEW_SECURITY_PROPERTIES_1(Constants.VIEW_SECURITY_PROPERTIES_1, "View level 1"),
