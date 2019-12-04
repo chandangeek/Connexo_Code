@@ -4,14 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.IllegalTableMappingException;
-import com.elster.jupiter.orm.Index;
-import com.elster.jupiter.orm.MappingException;
-import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalAspect;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -340,7 +333,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         this.predecessor = (ForeignKeyConstraintImpl) predecessor;
     }
 
-    static class BuilderImpl implements ForeignKeyConstraint.Builder {
+    public static class BuilderImpl implements ForeignKeyConstraint.Builder {
         private final ForeignKeyConstraintImpl constraint;
 
         BuilderImpl(TableImpl<?> table, String name) {

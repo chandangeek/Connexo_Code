@@ -17,7 +17,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.G
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.IDISGatewaySFSKMacCountersMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.MasterboardSetupMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.mappings.NetworkManagementMapping;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 

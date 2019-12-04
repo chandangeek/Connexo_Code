@@ -1,0 +1,7 @@
+-classpath: target/classes
+-dsannotations: *
+Include-Resource: README.HTML
+Private-Package: com.elster.jupiter.offline.services.*
+Import-Package: !com.elster.jupiter.transaction.impl,\
+    !com.elster.jupiter.bootstrap.validation.impl,\
+	*

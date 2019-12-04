@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -16,6 +17,7 @@ import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,6 +64,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
                 this.forcedDelayPropertySpec(),
+                this.pollingDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
                 this.bulkRequestPropertySpec(),
                 this.cipheringTypePropertySpec(),
@@ -131,6 +134,15 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
                 .finish();
     }
 
+    private PropertySpec pollingDelayPropertySpec() {
+        return this.propertySpecService
+                .durationSpec()
+                .named(DlmsSessionProperties.POLLING_DELAY, PropertyTranslationKeys.V2_DLMS_POLLING_DELAY)
+                .describedAs(PropertyTranslationKeys.V2_DLMS_POLLING_DELAY_DESCRIPTION)
+                .setDefaultValue(Duration.ofMillis(0))
+                .finish();
+    }
+
     protected PropertySpec conformanceBlockValuePropertySpec() {
         return this.bigDecimalSpec(CONFORMANCE_BLOCK_VALUE, false, PropertyTranslationKeys.V2_ELSTER_CONFORMANCE_BLOCK_VALUE, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
     }
@@ -143,12 +155,9 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
         return this.bigDecimalSpec(MAX_REC_PDU_SIZE, false, PropertyTranslationKeys.V2_ELSTER_MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
-
-
     protected PropertySpec bulkRequestPropertySpec() {
         return this.booleanSpecBuilder(BULK_REQUEST, PropertyTranslationKeys.V2_ELSTER_BULK_REQUEST).finish();
     }
-
 
     protected PropertySpec replayAttackPreventionPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(REPLAY_ATTACK_PREVENTION, false, PropertyTranslationKeys.V2_NTA_REPLAY_ATTACK_PREVENTION, getPropertySpecService()::booleanSpec).finish();

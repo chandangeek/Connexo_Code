@@ -12,17 +12,15 @@ import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.StageSetBuilder;
 import com.elster.jupiter.transaction.TransactionService;
-
 import com.google.common.base.Strings;
-
-import java.sql.SQLException;
-import java.util.Optional;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+
+import java.sql.SQLException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

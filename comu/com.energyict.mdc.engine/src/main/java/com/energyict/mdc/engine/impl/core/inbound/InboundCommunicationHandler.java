@@ -59,6 +59,7 @@ import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonit
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -301,7 +302,7 @@ public class InboundCommunicationHandler {
                 this.handOverToDeviceProtocol(singleToken);
             } else {
                 //Note that the provideResponse method is called in the storing service. Depending on the result of the storing, either success or failure is returned.
-                this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice, false);    //TODO port COMMUNICATION-1587
+                this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice, inboundDeviceProtocol.hasSupportForRequestsOnInbound());    //TODO port COMMUNICATION-1587
             }
         }
     }
@@ -613,6 +614,8 @@ public class InboundCommunicationHandler {
 
         ProtocolPluggableService protocolPluggableService();
 
+        DeviceMessageSpecificationService deviceMessageSpecificationService();
+
         EventPublisher eventPublisher();
 
         UserService userService();
@@ -633,6 +636,11 @@ public class InboundCommunicationHandler {
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return serviceProvider.protocolPluggableService();
+        }
+
+        @Override
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return serviceProvider.deviceMessageSpecificationService();
         }
 
         @Override

@@ -4,10 +4,17 @@
 
 package com.elster.jupiter.export.webservicecall;
 
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.servicecall.ServiceCall;
 
-import java.util.Optional;
+import aQute.bnd.annotation.ProviderType;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+@ProviderType
 public interface DataExportServiceCallType {
     /**
      * Creates and starts a new service call in current transaction, or in a new transaction if there's no transaction in context.
@@ -16,7 +23,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCall(String uuid, long timeout);
+    ServiceCall startServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
 
     /**
      * Creates and starts a new service call in a new thread.
@@ -25,7 +32,8 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
+
 
     /**
      * @param uuid UUID identifying the service call.
@@ -54,4 +62,8 @@ public interface DataExportServiceCallType {
      * @return {@link ServiceCallStatus} containing info about actual service call state.
      */
     ServiceCallStatus getStatus(ServiceCall serviceCall);
+
+    List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls);
+
+    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall);
 }

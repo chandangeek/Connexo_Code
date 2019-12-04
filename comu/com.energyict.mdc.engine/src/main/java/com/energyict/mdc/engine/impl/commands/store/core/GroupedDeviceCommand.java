@@ -18,6 +18,7 @@ import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.AlreadyExecutedComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
@@ -76,9 +77,14 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDiff
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLSmartMeterProtocolAdapter;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -86,10 +92,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.elster.jupiter.appserver.AppService.SERVER_TYPE_PROPERTY_NAME;
+
 public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommandImpl>, CanProvideDescriptionTitle {
 
     private final OfflineDevice offlineDevice;
-    private final DeviceProtocol deviceProtocol;
+    private DeviceProtocol deviceProtocol;
     private final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     /**
@@ -143,6 +151,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     public void execute(ExecutionContext executionContext) {
+        createDeviceProtocolForMobileInstance();
         basicCheckCommand = getBasicCheckCommandIfPresent(); // initialize it if present
         for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : comTaskExecutionComCommands.values()) {
             try {
@@ -179,6 +188,38 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
                     successIndicator = ComTaskExecutionSession.SuccessIndicator.Success;
                 }
                 executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), successIndicator);
+            }
+        }
+    }
+
+    private boolean isEngineOffline() {
+        Bundle bundle = FrameworkUtil.getBundle(EngineService.class);
+        if (bundle != null) {
+            String serverType = bundle.getBundleContext().getProperty(SERVER_TYPE_PROPERTY_NAME);
+            return serverType != null && serverType.equalsIgnoreCase("offline");
+        }
+        return false;
+    }
+
+    /**
+     * Used only for com sever mobile for creating the actual device protocol
+     * DON'T USE THIS METHOD FOR ANOTHER PURPOSE!!
+     */
+    private void createDeviceProtocolForMobileInstance() {
+        if (isEngineOffline()) {
+            Object protocol = this.getServiceProvider().protocolPluggableService().createProtocol(offlineDevice.getDeviceProtocolPluggableClass().getJavaClassName());
+            if (protocol instanceof DeviceProtocol) {
+                deviceProtocol = (DeviceProtocol) protocol;
+            } else if (protocol instanceof com.energyict.mdc.upl.DeviceProtocol) {
+                //Adapt it from UPL to CXO DeviceProtocol if necessary
+                deviceProtocol = UPLDeviceProtocolAdapter.adapt((com.energyict.mdc.upl.DeviceProtocol) protocol).with(null);
+            } else {
+                // Must be a lecagy pluggable class
+                if (protocol instanceof com.energyict.mdc.upl.MeterProtocol) {
+                    protocol = new UPLMeterProtocolAdapter((com.energyict.mdc.upl.MeterProtocol) protocol);
+                } else if (protocol instanceof com.energyict.mdc.upl.SmartMeterProtocol) {
+                    protocol = new UPLSmartMeterProtocolAdapter((com.energyict.mdc.upl.SmartMeterProtocol) protocol);
+                }
             }
         }
     }

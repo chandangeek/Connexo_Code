@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageID;
@@ -21,6 +22,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotific
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsPtDeliv;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UtilitiesPointOfDeliveryPartyID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.UUID;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -52,6 +54,7 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
 
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
         PodMessage podMsg = new PodMessage(msg);
+        saveRelatedAttribute(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), podMsg.deviceId);
         if (podMsg.isValid()) {
             Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
             if (device.isPresent()) {
@@ -70,23 +73,33 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
 
     private class PodMessage {
         private String requestId;
+        private String uuid;
         private String deviceId;
         private String podId;
 
         private PodMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             requestId = getRequestId(msg);
+            uuid = getUuid(msg);
             deviceId = getDeviceId(msg);
             podId = getPodId(msg);
         }
 
         private boolean isValid() {
-            return requestId != null && deviceId != null && podId != null;
+            return (requestId != null || uuid != null) && deviceId != null && podId != null;
         }
 
         private String getRequestId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             return Optional.ofNullable(msg.getMessageHeader())
                     .map(BusinessDocumentMessageHeader::getID)
                     .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
+            return Optional.ofNullable(msg.getMessageHeader())
+                    .map(BusinessDocumentMessageHeader::getUUID)
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

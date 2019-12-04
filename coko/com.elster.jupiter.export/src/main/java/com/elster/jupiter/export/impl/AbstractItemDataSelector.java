@@ -144,7 +144,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, currentExportInterval);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarker(currentExportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -447,7 +447,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
             updateCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarkerForUpdate()));
         }
 
         try (TransactionContext context = transactionService.getContext()) {

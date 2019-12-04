@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -95,6 +96,14 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
     private volatile KieResources resourceFactoryService;
+    private volatile AtomicReference<RuleRefreshState> ruleRefreshState = new AtomicReference<>(RuleRefreshState.DONE);
+
+    private enum RuleRefreshState {
+        REQUIRED,
+        IN_PROGRESS,
+        READY,
+        DONE,
+    }
 
     //for test purpose only
     public IssueCreationServiceImpl() {
@@ -360,6 +369,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public boolean reReadRules() {
+        this.ruleRefreshState.set(RuleRefreshState.REQUIRED);
         return createKnowledgeBase();
     }
 
@@ -374,7 +384,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         return query;
     }
 
-    boolean createKnowledgeBase() {
+    private KnowledgeBase createRefreshedKnowledgeBase() {
+        KnowledgeBase knowledgeBase = null;
         try {
             ClassLoader rulesClassloader = getRulesClassloader();
             KnowledgeBuilderConfiguration kbConf = knowledgeBuilderFactoryService.newKnowledgeBuilderConfiguration(null, rulesClassloader);
@@ -394,9 +405,24 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             knowledgeBase.addKnowledgePackages(kbuilder.getKnowledgePackages());
         } catch (IllegalStateException | DroolsValidationException ex) {
             LOG.warning(ex.getMessage());
+        }
+        return knowledgeBase;
+    }
+
+
+    boolean createKnowledgeBase() {
+        if (knowledgeBase == null) {
+            knowledgeBase = createRefreshedKnowledgeBase();
+        } else if (RuleRefreshState.REQUIRED.equals(ruleRefreshState.get()) && ruleRefreshState.compareAndSet(RuleRefreshState.REQUIRED, RuleRefreshState.IN_PROGRESS)) {
+            KnowledgeBase refreshedKnowledgeBase = createRefreshedKnowledgeBase();
+            ruleRefreshState.compareAndSet(RuleRefreshState.IN_PROGRESS, RuleRefreshState.READY);
+            if (refreshedKnowledgeBase != null && ruleRefreshState.compareAndSet(RuleRefreshState.READY, RuleRefreshState.DONE)) {
+                knowledgeBase = refreshedKnowledgeBase;
+                return true;
+            }
             return false;
         }
-        return true;
+        return knowledgeBase != null;
     }
 
     private ClassLoader getRulesClassloader() {

@@ -253,6 +253,15 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                 },
                 {
                     xtype: 'numberfield',
+                    itemId: 'query-api-port',
+                    fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.event.queryApi.port', 'MDC', 'Remote connection port'),
+                    name: 'queryAPIPort',
+                    required: false,
+                    minValue: 0,
+                    width: 415
+                },
+                {
+                    xtype: 'numberfield',
                     itemId: 'num-event-uri-port',
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.event.registration.port', 'MDC', 'Event registration port'),
                     name: 'eventRegistrationPort',

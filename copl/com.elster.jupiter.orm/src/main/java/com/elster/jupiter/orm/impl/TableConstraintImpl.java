@@ -4,11 +4,7 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.IllegalTableMappingException;
-import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Ranges;

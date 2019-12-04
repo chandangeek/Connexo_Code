@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.BusinessDocumentMessageHeader;
@@ -19,6 +20,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulk
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilsDvceERPSmrtMtrRegedNotifSmrtMtr;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilsDvceERPSmrtMtrRegedNotifUtilsDvce;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -32,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Component(name = UtilitiesDeviceRegisteredBulkNotification.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider",
         service = {UtilitiesDeviceRegisteredBulkNotification.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisteredBulkNotification.NAME})
@@ -41,7 +44,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
     private final ObjectFactory objectFactory = new ObjectFactory();
 
-    private volatile  Clock clock;
+    private volatile Clock clock;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
@@ -79,7 +82,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> getService() {
         return UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut.class;
     }
 
@@ -99,11 +102,15 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         UtilsDvceERPSmrtMtrRegedBulkNotifMsg notificationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegedBulkNotifMsg();
         notificationMessage.setMessageHeader(createMessageHeader(createTime));
 
+        SetMultimap<String, String> values = HashMultimap.create();
+
         deviceIds.forEach(deviceId -> {
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), deviceId);
             notificationMessage.getUtilitiesDeviceERPSmartMeterRegisteredNotificationMessage().add(createChildMessage(deviceId, createTime));
         });
 
         using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
+                .withRelatedAttributes(values)
                 .send(notificationMessage);
     }
 

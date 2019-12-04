@@ -197,7 +197,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, dataLoadProfile, notValidatedData, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, dataLoadProfile, notValidatedData, null, TestDefaultStructureMarker.createRoot(clock, "root"))));
         List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(2);
@@ -206,7 +206,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
-        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.dataLoadProfile, notValidatedData, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.dataLoadProfile, notValidatedData, null, TestDefaultStructureMarker.createRoot(clock, "root"))));
         lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(2);
@@ -220,7 +220,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, data, suspectData, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        FormattedData formattedData = processor.processData(Stream.of(new MeterReadingData(item, data, suspectData, null, TestDefaultStructureMarker.createRoot(clock, "root"))));
         List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(3);
@@ -230,7 +230,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
-        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.data, suspectData, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        formattedData = processor.processData(Stream.of(new MeterReadingData(item1, this.data, suspectData, null, TestDefaultStructureMarker.createRoot(clock, "root"))));
         lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(3);
@@ -245,7 +245,7 @@ public class StandardCsvDataFormatterTest {
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
-        processor.processData(Stream.of(new MeterReadingData(item, data, notValidatedData, TestDefaultStructureMarker.createRoot(clock, "root"))));
+        processor.processData(Stream.of(new MeterReadingData(item, data, notValidatedData, null, TestDefaultStructureMarker.createRoot(clock, "root"))));
         processor.endItem(item1);
     }
 

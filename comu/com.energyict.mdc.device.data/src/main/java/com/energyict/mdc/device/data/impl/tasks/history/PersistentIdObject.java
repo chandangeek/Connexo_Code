@@ -10,14 +10,25 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 abstract class PersistentIdObject<T> {
 
     private long id;
+    protected Class<T> domainClass;
 
-    protected final Class<T> domainClass;
-    protected final DataModel dataModel;
-    protected final EventService eventService;
-    protected final Thesaurus thesaurus;
+    protected DataModel dataModel;
+    protected EventService eventService;
+    protected Thesaurus thesaurus;
+
+    public PersistentIdObject() {
+    }
+
+    public PersistentIdObject(Class<T> domainClass) {
+        this.domainClass = domainClass;
+    }
 
     protected PersistentIdObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         this.domainClass = domainClass;
@@ -82,11 +93,21 @@ abstract class PersistentIdObject<T> {
      */
     protected abstract void validateDelete();
 
+    @XmlAttribute
     public long getId() {
         return id;
     }
 
     public void setId(long id){
         this.id = id;
+    }
+
+    @XmlTransient
+    public Class<T> getDomainClass() {
+        return domainClass;
+    }
+
+    public void setDomainClass(Class<T> domainClass) {
+        this.domainClass = domainClass;
     }
 }

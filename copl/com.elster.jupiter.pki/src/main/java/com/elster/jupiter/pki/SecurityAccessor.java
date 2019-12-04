@@ -26,14 +26,14 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends HasNam
     /**
      * Get the KeyAccessorType this value belongs to
      */
-    SecurityAccessorType getKeyAccessorType();
+    SecurityAccessorType getKeyAccessorTypeReference();
 
     /**
      * Returns the name of the security accessor.
      */
     @Override
     default String getName() {
-        return getKeyAccessorType().getName();
+        return getKeyAccessorTypeReference().getName();
     }
 
     /**
@@ -41,21 +41,21 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends HasNam
      */
     @Override
     default long getId() {
-        return getKeyAccessorType().getId();
+        return getKeyAccessorTypeReference().getId();
     }
 
     /**
      * The actual value is the value to be used at present. A KeyAccessor could also exist with only a tempValue, without
      * actual.
-     * @return The current value
+     * @return The current valueactualPassphraseWrapperReference
      */
-    Optional<T> getActualValue();
+    Optional<T> getActualPassphraseWrapperReference();
 
     /**
      * Sets a new current value.
      * @param newWrapperValue The new wrapper to use as current value
      */
-    void setActualValue(T newWrapperValue);
+    void setActualPassphraseWrapperReference(T newWrapperValue);
 
     /**
      * Whenever this security element is in the process of being renewed. The future value is saved in the temp field.

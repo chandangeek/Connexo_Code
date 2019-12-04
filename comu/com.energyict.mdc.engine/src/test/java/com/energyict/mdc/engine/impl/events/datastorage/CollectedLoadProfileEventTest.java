@@ -5,9 +5,9 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 

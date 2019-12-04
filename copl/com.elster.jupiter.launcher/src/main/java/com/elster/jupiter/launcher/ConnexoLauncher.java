@@ -37,7 +37,7 @@ public class ConnexoLauncher {
             logger.severe("Could not determine valid installation directory !!");
             System.exit(1);
         }
-
+        System.setProperty("connexo.home", installDir.getAbsolutePath());
         Map<String, String> configMap = null;
         try {
             configMap = loadConfig(installDir);

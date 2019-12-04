@@ -266,7 +266,7 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     private Predicate<SecurityAccessor> forSignatureCheck() {
         return securityAccessor -> {
-            Optional actual = securityAccessor.getActualValue();
+            Optional actual = securityAccessor.getActualPassphraseWrapperReference();
             if (actual.isPresent()) {
                 Object object = actual.get();
                 if (object instanceof CertificateWrapper) {
@@ -286,7 +286,7 @@ public class CSRImporterFactory implements FileImporterFactory {
     private Predicate<SecurityAccessor> forSigning() {
         return securityAccessor -> {
             try {
-                Optional actual = securityAccessor.getActualValue();
+                Optional actual = securityAccessor.getActualPassphraseWrapperReference();
                 if (actual.isPresent()) {
                     Object object = actual.get();
                     if (object instanceof CertificateWrapper && ((CertificateWrapper) object).hasPrivateKey() && object instanceof ClientCertificateWrapper) {

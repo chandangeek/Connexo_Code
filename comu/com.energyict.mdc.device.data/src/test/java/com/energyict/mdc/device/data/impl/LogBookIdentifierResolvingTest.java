@@ -5,13 +5,18 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceAndObisCode;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -48,9 +53,9 @@ import static org.mockito.Mockito.when;
 public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     private static final ObisCode LOGBOOK_OBIS_CODE = ObisCode.fromString("0.0.96.1.0.255");
+
     private static LogBookServiceImpl logBookService;
 
-    @Mock
     Device device;
 
     DeviceIdentifier deviceIdentifier;
@@ -62,7 +67,14 @@ public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device);
+        device = createDevice();
+        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+    }
+
+    private Device createDevice() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        device.save();
+        return device;
     }
 
     @Test
@@ -83,20 +95,8 @@ public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testDeviceDataLogBookIdentifierForAlreadyKnowLogBook() throws Exception {
-        LogBookService spiedService = spy(logBookService);
-        LogBook myLogBook = mock(LogBook.class);
-        when(myLogBook.getDevice()).thenReturn(device);
-        Optional<LogBook> foundLogBook = spiedService.findByIdentifier(new LogBookIdentifierForAlreadyKnowLogBook(myLogBook, deviceIdentifier));
-        assertThat(foundLogBook).isPresent();
-        assertThat(foundLogBook.get()).isEqualTo(myLogBook);
-    }
-
-    @Test
-    @Transactional
     public void testDeviceDataLogBookIdentifierById() throws Exception {
         LogBookService spiedService = spy(logBookService);
-
         spiedService.findByIdentifier(new LogBookIdentifierById(1L, LOGBOOK_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findById(1L);
     }
@@ -105,7 +105,6 @@ public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void testDeviceDataLogBookIdentifierByDeviceAndObisCode() throws Exception {
         LogBookServiceImpl spiedService = spy(logBookService);
-
         spiedService.findByIdentifier(new LogBookIdentifierByDeviceAndObisCode(deviceIdentifier, LOGBOOK_OBIS_CODE));
         verify(spiedService).findByDeviceAndObisCode(device, LOGBOOK_OBIS_CODE);
     }
@@ -115,7 +114,7 @@ public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
     public void testProtocolLogBookIdentifierByObisCodeAndDevice() throws Exception {
         LogBookServiceImpl spiedService = spy(logBookService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, LOGBOOK_OBIS_CODE));
+        spiedService.findByIdentifier(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, LOGBOOK_OBIS_CODE));
         verify(spiedService).findByDeviceAndObisCode(device, LOGBOOK_OBIS_CODE);
     }
 }

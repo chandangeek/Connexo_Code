@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents;
 
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -20,6 +21,8 @@ import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -81,8 +84,15 @@ public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointP
     @Override
     public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents, String correlationId) {
         GetEndDeviceEventsRequestMessageType message = createResponseMessage(createEndDeviceEvents(endDeviceEvents), correlationId);
+        SetMultimap<String, String> values = HashMultimap.create();
+        endDeviceEvents.forEach(event->{
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), event.getEndDevice().getName());
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getEndDevice().getMRID());
+        });
+
         using("getEndDeviceEvents")
                 .toEndpoints(endPointConfiguration)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 

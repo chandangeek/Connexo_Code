@@ -80,10 +80,16 @@ public interface ThreadPrincipalService {
      * Runs the given Runnable as the given Principal.
      * @param principal
      * @param runnable
+     */
+    void runAs(Principal principal, Runnable runnable);
+
+    /**
+     * Runs the given Runnable as the given Principal.
+     * @param principal
+     * @param runnable
      * @param locale
      */
     void runAs(Principal principal, Runnable runnable, Locale locale);
-
 
     void setEndToEndMetrics(Connection connection) throws SQLException;
 

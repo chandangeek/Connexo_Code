@@ -42,6 +42,11 @@ class TopologyTaskImpl extends ProtocolTaskImpl implements TopologyTask {
     @NotNull(groups = { Save.Create.class, Save.Update.class}, message = "{"+ TaskServiceKeys.CAN_NOT_BE_EMPTY +"}")
     private TopologyAction topologyAction;
 
+    public TopologyTaskImpl() {
+        super();
+        setFlags(FLAGS);
+    }
+
     @Inject
     public TopologyTaskImpl(DataModel dataModel) {
         super(dataModel);

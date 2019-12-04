@@ -18,6 +18,7 @@ import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.ports.ComPortType;
 
 import aQute.bnd.annotation.ProviderType;
@@ -51,6 +52,13 @@ public interface EngineConfigurationService {
     Finder<ComServer> findAllComServers();
 
     /**
+     * Filter all ComServers including the ones that were made obsolete.
+     *
+     * @return All the ComServers, including the obsolete ones that comply with the condition
+     */
+    public Finder<ComServer> filterComServers(Condition condition);
+
+    /**
      * Finds the ComServer with the name of the system that is currently running this software.
      *
      * @return the ComServer or <code>null</code> if no such ComServer exists
@@ -80,6 +88,14 @@ public interface EngineConfigurationService {
     List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer);
 
     /**
+     * Finds all {@link OfflineComServer}s that rely on the {@link OnlineComServer}.
+     *
+     * @param onlineComServer The OnlineComServer
+     * @return a List of {@link} OfflineComServer offlineComServers}
+     */
+    List<OfflineComServer> findOfflineComServersForOnlineComServer(OnlineComServer onlineComServer);
+
+    /**
      * Finds all {@link OfflineComServer}s.
      *
      * @return a List of OfflineComServer
@@ -106,7 +122,7 @@ public interface EngineConfigurationService {
 
     OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
 
-    ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder();
+    OfflineComServer.OfflineComServerBuilder<? extends OfflineComServer> newOfflineComServerBuilder();
 
     RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder();
 
@@ -271,4 +287,10 @@ public interface EngineConfigurationService {
     ComServer lockComServer(ComServer comServer);
 
     ComPort lockComPort(ComPort comPort);
+
+    ComServerAliveStatus findOrCreateAliveStatus(ComServer comServer);
+
+    Optional<ComServerAliveStatus> getAliveStatus(ComServer comServer);
+
+    Integer getComServerStatusAliveFrequency();
 }

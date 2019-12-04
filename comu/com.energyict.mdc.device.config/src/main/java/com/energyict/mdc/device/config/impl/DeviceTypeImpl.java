@@ -68,6 +68,7 @@ import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConfl
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -75,6 +76,10 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -92,6 +97,7 @@ import java.util.stream.Stream;
 
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
+@XmlRootElement
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
     enum Fields {
         DEVICE_PROTOCOL_PLUGGABLE_CLASS("deviceProtocolPluggableClassId"),
@@ -159,10 +165,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
     private boolean deviceTypePurposeChanged = false;
 
+    private boolean logicalSlave;
+
     /**
      * The DeviceProtocol of this DeviceType, only for local usage.
      */
     private DeviceProtocol localDeviceProtocol;
+
+    public DeviceTypeImpl() {
+        super();
+    }
 
     @Inject
     public DeviceTypeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, CustomPropertySetService customPropertySetService) {
@@ -283,6 +295,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -319,6 +332,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public DeviceLifeCycle getDeviceLifeCycle() {
         return this.deviceLifeCycle
                 .effective(this.clock.instant())
@@ -417,6 +432,18 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         return toBeRemoved != null;
+    }
+
+    /**
+     * Only used for JSON serializing
+     */
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 
     private void validateSecurityAccessorTypeRemoval(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
@@ -958,7 +985,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public boolean isLogicalSlave() {
-        return getProtocolBehavior().isLogicalSlave();
+        if (getProtocolBehavior() != null) {
+            logicalSlave = getProtocolBehavior().isLogicalSlave();
+        }
+        return logicalSlave;
     }
 
     @Override
@@ -1250,7 +1280,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         private Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long deviceProtocolPluggableClassId) {
-            return DeviceTypeImpl.this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
+            if (DeviceTypeImpl.this.protocolPluggableService != null) {
+                return DeviceTypeImpl.this.protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId);
+            }
+            return Optional.empty();
         }
     }
     // Specific behaviour for device types lacking a protocol = no communication  (data logger slaves, multi-element submeter)

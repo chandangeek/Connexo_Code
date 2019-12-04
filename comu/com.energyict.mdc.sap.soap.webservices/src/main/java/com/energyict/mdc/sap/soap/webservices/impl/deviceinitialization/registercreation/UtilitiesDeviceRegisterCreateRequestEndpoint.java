@@ -7,10 +7,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterCreateConfirmation;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilitiesDeviceERPSmartMeterRegisterCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg;
@@ -30,23 +26,15 @@ public class UtilitiesDeviceRegisterCreateRequestEndpoint extends AbstractRegist
     @Override
     public void utilitiesDeviceERPSmartMeterRegisterCreateRequestCIn(UtilsDvceERPSmrtMtrRegCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceRegisterCreateConfirmation.NAME);
-            }
-
-            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredNotification.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                        UtilitiesDeviceRegisteredNotification.NAME);
-            }
-
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage.builder()
-                            .from(requestMessage)
-                            .build()));
+                    .ifPresent(requestMessage -> {
+                        UtilitiesDeviceRegisterCreateRequestMessage message = UtilitiesDeviceRegisterCreateRequestMessage.builder()
+                                .from(requestMessage)
+                                .build();
+
+                        handleRequestMessage(message);
+                    });
             return null;
         });
     }
-
-
 }

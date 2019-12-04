@@ -12,6 +12,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.SetMultimap;
 import org.apache.cxf.interceptor.Fault;
 
 import javax.annotation.Resource;
@@ -140,6 +141,16 @@ public abstract class AbstractInboundEndPoint {
 
     protected void log(String message, Exception exception) {
         webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
+    }
+
+    protected void saveRelatedAttribute(String type, String value){
+        if (value != null && !value.isEmpty()) {
+            webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttribute(type, value);
+        }
+    }
+
+    protected void saveRelatedAttributes(SetMultimap<String, String> values){
+        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).saveRelatedAttributes(values);
     }
 
     private String getApplicationName() {

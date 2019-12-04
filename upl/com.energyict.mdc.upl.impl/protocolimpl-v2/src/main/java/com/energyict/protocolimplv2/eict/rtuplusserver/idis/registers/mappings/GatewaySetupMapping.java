@@ -71,12 +71,12 @@ public class GatewaySetupMapping extends RegisterMapping {
 
             // Operating window start time
             case 3:
-                final String windowStartTime = new AXDRTime((OctetString) abstractDataType).getTime();
+                final String windowStartTime = new AXDRTime((OctetString) abstractDataType).encode();
                 return new RegisterValue(obisCode, windowStartTime);
 
             // Operating window end time
             case 4:
-                final String windowEndTime = new AXDRTime((OctetString) abstractDataType).getTime();
+                final String windowEndTime = new AXDRTime((OctetString) abstractDataType).encode();
                 return new RegisterValue(obisCode, windowEndTime);
 
             // Whitelist is active

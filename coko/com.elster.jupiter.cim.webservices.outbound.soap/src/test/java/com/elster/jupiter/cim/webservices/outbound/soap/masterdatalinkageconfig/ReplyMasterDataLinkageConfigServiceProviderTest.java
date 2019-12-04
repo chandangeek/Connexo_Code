@@ -5,6 +5,8 @@ package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig
 
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
@@ -26,7 +28,9 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.SetMultimap;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -46,6 +50,7 @@ import org.mockito.stubbing.Answer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -95,7 +100,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url, "epcId", 1l));
         when(provider.using(anyString())).thenReturn(requestSender);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-
+        when(requestSender.withRelatedAttributes(anyObject())).thenReturn(requestSender);
         when(endPointConfiguration.getUrl()).thenReturn(url);
 
         when(failedLinkage.getErrorCode()).thenReturn(ERROR_CODE);
@@ -147,8 +152,24 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
 
+        SetMultimap<String,String> values = HashMultimap.create();
+        successfulLinkages.forEach(link->{
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+        });
+
+        failedLinkages.forEach(link->{
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+        });
+
         verify(provider).using("createdMasterDataLinkageConfig");
         verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
@@ -179,9 +200,24 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                         });
 
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
+        SetMultimap<String,String> values = HashMultimap.create();
+        successfulLinkages.forEach(link->{
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+        });
+
+        failedLinkages.forEach(link->{
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+        });
 
         verify(provider).using("closedMasterDataLinkageConfig");
         verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
@@ -227,9 +263,24 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                         });
 
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
+        SetMultimap<String,String> values = HashMultimap.create();
+        successfulLinkages.forEach(link->{
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+        });
+
+        failedLinkages.forEach(link->{
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), link.getMeterMrid());
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), link.getMeterName());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), link.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), link.getUsagePointName());
+        });
 
         verify(provider).using("closedMasterDataLinkageConfig");
         verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).withRelatedAttributes(values);
         verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 

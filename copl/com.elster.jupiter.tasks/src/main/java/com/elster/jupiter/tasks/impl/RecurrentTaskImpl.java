@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.tasks.impl;
 
-import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -254,6 +253,12 @@ class RecurrentTaskImpl implements RecurrentTask {
     public void setScheduleExpression(ScheduleExpression scheduleExpression) {
         this.scheduleExpression = scheduleExpression;
         this.cronString = scheduleExpression.encoded();
+    }
+
+    @Override
+    public void setScheduleExpressionString(String expression) {
+        this.cronString = expression;
+        this.scheduleExpression = scheduleExpressionParser.parse(cronString).orElseThrow(IllegalArgumentException::new);
     }
 
     @Override

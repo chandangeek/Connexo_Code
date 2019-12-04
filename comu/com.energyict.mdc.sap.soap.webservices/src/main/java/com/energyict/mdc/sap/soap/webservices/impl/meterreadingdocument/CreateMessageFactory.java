@@ -13,8 +13,12 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.UUID;
 
 import java.time.Instant;
+
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateMessageFactory {
 
@@ -59,6 +63,9 @@ public class CreateMessageFactory {
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         messageHeader.setReferenceID(messageID);
+        UUID uuid = OBJECT_FACTORY.createUUID();
+        uuid.setValue(requestMessage.getUuid());
+        messageHeader.setReferenceUUID(uuid);
         messageHeader.setCreationDateTime(now);
 
         return messageHeader;
@@ -77,10 +84,10 @@ public class CreateMessageFactory {
 
     private Log createLog(MessageSeeds messageSeeds, Object... args) {
         LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
-        logItemCategoryCode.setValue("PRE");
+        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = OBJECT_FACTORY.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
+        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 

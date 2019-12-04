@@ -13,4 +13,6 @@ public interface LogBook {
 
     Date getLastReading();
 
+    ObisCode getDeviceObisCode();
+
 }

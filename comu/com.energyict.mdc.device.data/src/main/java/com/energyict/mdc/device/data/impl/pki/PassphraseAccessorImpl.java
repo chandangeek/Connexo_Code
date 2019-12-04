@@ -8,25 +8,32 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
+import com.elster.jupiter.orm.associations.references.RefAnyImpl;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextPassphraseImpl;
 import com.energyict.mdc.device.data.PassphraseAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import com.google.inject.Inject;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Optional;
 
 /**
  * Created by bvn on 2/28/17.
  */
 public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<PassphraseWrapper> implements PassphraseAccessor {
-    private final DataModel dataModel;
-    private final SecurityManagementService securityManagementService;
-    private final Thesaurus thesaurus;
+    private DataModel dataModel;
+    private SecurityManagementService securityManagementService;
+    private Thesaurus thesaurus;
 
     private RefAny actualPassphraseWrapperReference;
     private RefAny tempPassphraseWrapperReference;
+
+    public PassphraseAccessorImpl() {
+        super();
+    }
 
     @Inject
     public PassphraseAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
@@ -37,7 +44,8 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
     }
 
     @Override
-    public Optional<PassphraseWrapper> getActualValue() {
+    @XmlElement(type = PlaintextPassphraseImpl.class)
+    public Optional<PassphraseWrapper> getActualPassphraseWrapperReference() {
         if (actualPassphraseWrapperReference==null) {
             return Optional.empty();
         }
@@ -45,8 +53,13 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
     }
 
     @Override
-    public void setActualValue(PassphraseWrapper newWrapperValue) {
-        actualPassphraseWrapperReference = dataModel.asRefAny(newWrapperValue);
+    public void setActualPassphraseWrapperReference(PassphraseWrapper newWrapperValue) {
+        if (dataModel != null) {
+            actualPassphraseWrapperReference = dataModel.asRefAny(newWrapperValue);
+        } else {
+            actualPassphraseWrapperReference = new RefAnyImpl(null, null);
+            ((RefAnyImpl) actualPassphraseWrapperReference).setOptional(Optional.ofNullable(newWrapperValue));
+        }
     }
 
     @Override
@@ -71,7 +84,7 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
     }
 
     private void doRenewValue() {
-        PassphraseWrapper passphraseWrapper = securityManagementService.newPassphraseWrapper(getKeyAccessorType());
+        PassphraseWrapper passphraseWrapper = securityManagementService.newPassphraseWrapper(getKeyAccessorTypeReference());
         passphraseWrapper.generateValue();
         tempPassphraseWrapperReference = dataModel.asRefAny(passphraseWrapper);
         this.save();
@@ -90,7 +103,7 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
 
     @Override
     public void clearActualValue() {
-        if (getActualValue().isPresent()) {
+        if (getActualPassphraseWrapperReference().isPresent()) {
             PassphraseWrapper passphraseWrapper = (PassphraseWrapper) this.actualPassphraseWrapperReference.get();
             this.actualPassphraseWrapperReference = null;
             passphraseWrapper.delete();
