@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
