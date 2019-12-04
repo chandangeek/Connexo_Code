@@ -63,17 +63,14 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        Column oldIdColumn = table.column(ConnectionStatusChangeDomainExtension.FieldNames.ID.databaseName())
-                .varChar()
-                .map(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName())
-                .notNull()
-                .upTo(Version.version(10, 7, 1))
-                .add();
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.ID.databaseName())
                 .varChar()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName())
-                .since(Version.version(10, 7, 1))
-                .previously(oldIdColumn)
+                .notNull()
+                .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                .varChar()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName())
                 .add();
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.UUID.databaseName())
                 .varChar(NAME_LENGTH)

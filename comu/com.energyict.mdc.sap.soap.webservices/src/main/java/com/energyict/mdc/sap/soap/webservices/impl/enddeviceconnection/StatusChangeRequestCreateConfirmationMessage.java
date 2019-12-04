@@ -10,6 +10,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.LogItemCategoryCode;
@@ -21,6 +22,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UtilitiesConnectionStatusChangeRequestID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UtilitiesConnectionStatusChangeResultCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UUID;
 
 import java.time.Instant;
 import java.util.List;
@@ -65,13 +67,13 @@ public class StatusChangeRequestCreateConfirmationMessage {
         public Builder from(ServiceCall parent, List<ServiceCall> childs, Instant now) {
             ConnectionStatusChangeDomainExtension extension = parent.getExtension(ConnectionStatusChangeDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            confirmationMessage.setMessageHeader(createHeader(extension.getUuid(), now));
+            confirmationMessage.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(parent, childs));
             return this;
         }
 
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getUuid(), now));
+            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
             confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
@@ -98,8 +100,9 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(String uuid, Instant now) {
+        private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+            header.setReferenceID(createID(requestId));
             header.setReferenceUUID(createUUID(uuid));
             header.setCreationDateTime(now);
 
@@ -183,9 +186,14 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return log;
         }
 
-        private com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UUID createUUID(String uuid) {
-            com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UUID messageUUID
-                    = OBJECT_FACTORY.createUUID();
+        private BusinessDocumentMessageID createID(String id) {
+            BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
+            messageID.setValue(id);
+            return messageID;
+        }
+
+        private UUID createUUID(String uuid) {
+            UUID messageUUID = OBJECT_FACTORY.createUUID();
             messageUUID.setValue(uuid);
             return messageUUID;
         }
