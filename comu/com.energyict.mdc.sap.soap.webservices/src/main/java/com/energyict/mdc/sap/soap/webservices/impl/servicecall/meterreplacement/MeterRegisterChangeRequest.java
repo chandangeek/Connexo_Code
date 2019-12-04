@@ -71,7 +71,7 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         if (device.isPresent()) {
             try {
-                sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), getZonedDate(extension.getEndDate(), extension.getTimeZone()));
+                sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), WebServiceActivator.getZonedDate(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } catch (SAPWebServiceException sapEx) {
                 failServiceCallWithException(extension, sapEx);
@@ -104,18 +104,5 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
         extension.setErrorMessage(e.getLocalizedMessage());
         serviceCall.update(extension);
         serviceCall.requestTransition(DefaultState.FAILED);
-    }
-
-    private Instant getZonedDate(Instant date, String timeZone) {
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId zoneId = utcZoneId;
-        try {
-            if (timeZone != null) {
-                zoneId = ZoneId.of(timeZone);
-            }
-        } catch (DateTimeException e) {
-            // No action, just use UTC zone
-        }
-        return date.atZone(zoneId).withZoneSameLocal(utcZoneId).toInstant();
     }
 }

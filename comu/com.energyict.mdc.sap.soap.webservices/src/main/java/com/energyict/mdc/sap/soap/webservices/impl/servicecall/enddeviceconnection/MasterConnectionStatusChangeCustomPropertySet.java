@@ -29,7 +29,7 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class MasterConnectionStatusChangeCustomPropertySet implements CustomPropertySet<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
-    public static final String MODEL_NAME = "C02";
+    public static final String MODEL_NAME = "CS2";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -101,8 +101,8 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterConnectionStatusChangeDomainExtension> {
-        private final String TABLE_NAME = "SAP_C02_MASTER_CR_SC_CPS";
-        private final String FK = "FK_SAP_C02_MASTER_CR_SC_CPS";
+        private final String TABLE_NAME = "SAP_CS2_MASTER_CR_SC_CPS";
+        private final String FK = "FK_SAP_CS2_MASTER_CR_SC_CPS";
 
         @Override
         public String componentName() {

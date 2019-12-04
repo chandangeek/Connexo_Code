@@ -336,7 +336,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                 view = 'retry-process';
                 widget = Ext.widget(view, {
                     labelWidth: 120,
-                    controlsWidth: 500
+                    controlsWidth: 850
                 });
                 break;
         }

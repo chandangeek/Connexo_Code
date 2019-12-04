@@ -48,8 +48,8 @@ public enum MessageSeeds implements MessageSeed {
     LRN_NOT_FOUND_FOR_CHANNEL(4003, "LRNNotFoundForChannel", "Logical Register Number isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
     SEVERAL_DEVICES(4005, "SeveralDevices", "There are several devices with serial id ''{0}''."),
     REGISTER_NOT_FOUND(4007, "RegisterNotFound", "Register ''{0}'' not found"),
-    FAILED_DATA_SOURCE(4009, "FailedDataSources", "The following data sources are failed: {0}."),
-    NO_ANY_LRN_ON_DEVICE(4010,"NoAnyLrnOnDevice", "No any LRN on device ''{0}''."),
+    FAILED_DATA_SOURCE(4009, "FailedDataSources", "The following LRN are not set: {0}."),
+    NO_ANY_LRN_ON_DEVICE(4010, "NoAnyLrnOnDevice", "No any LRN on device ''{0}''."),
     DEVICE_NOT_IN_OPERATIONAL_STAGE(4011, "DeviceNotInOperationalStage", "Device {0} isn''t in operational stage."),
     CHANNEL_NOT_FOUND(4012, "ChannelNotFound", "Channel ''{0}'' not found on ''{1}-min'' interval"),
     SEVERAL_CHANNELS(4013, "SeveralChannels", "There are several channels with obis code ''{0}''"),
@@ -57,6 +57,23 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEFAULT_DEVICE_CONFIGURATION(4021, "NoDefaultDeviceConfiguration", "No default device configuration for device type ''{0}''."),
     SAP_DEVICE_IDENTIFIER_MUST_BE_UNIQUE(4022, "sapDeviceIdentifierMustBeUnique", "SAP device identifier must be unique."),
     DEVICE_TYPE_IS_NOT_MAPPED(4023, "DeviceTypeIsNotMapped", "There is no device type mapped to material id ''{0}''. Please check com.elster.jupiter.sap.device.types.mapping property."),
+    NO_OBIS_OR_READING_TYPE_KIND(4024, "NoObisOrReadingTypeKind", "UtilitiesObjectIdentificationSystemCodeText (reading type OBIS code) or UtilitiesDivisionCategoryCode (reading type kind) must be specified"),
+    NO_UTILITIES_MEASUREMENT_RECURRENCE_CODE_MAPPING(4025, "NoUtilitiesMeasurementRecurrenceCodeMapping",
+            "There is no mapping of UtilitiesMeasurementRecurrenceCode ''{0}'' to a reading type period in the configuration property ''{1}''"),
+    SEVERAL_DATA_SOURCES_WITH_OBIS(4026, "SeveralDataSourcesWithObis",
+            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period and OBIS code ''{3}'' are found. Please check the device configuration or precise the request"),
+    SEVERAL_DATA_SOURCES_WITH_KIND(4027, "SeveralDataSourcesWithKind",
+            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period and ''{3}'' (''{4}'') kind are found. Please check the device configuration or precise the request"),
+    SEVERAL_DATA_SOURCES_WITH_OBIS_OR_KIND(4028, "SeveralDataSourcesWithObisAndKind",
+            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period, ''{3}'' (''{4}'') kind or OBIS code ''{5}'' are found. Please check the device configuration or precise the request"),
+    NO_DATA_SOURCES_WITH_OBIS(4029, "NoDataSourcesWithObis",
+            "Data sources with ''{0}'' (''{1}'',''{2}'') period and OBIS code ''{3}'' aren''t found. Please check the device configuration or precise the request"),
+    NO_DATA_SOURCES_WITH_KIND(4030, "NoDataSourcesWithKind",
+            "Data sources with ''{0}'' (''{1}'',''{2}'') period and ''{3}'' (''{4}'') kind aren''t found. Please check the device configuration or precise the request"),
+    NO_DATA_SOURCES_WITH_OBIS_OR_KIND(4031, "NoDataSourcesWithObisAndKind",
+            "Data sources with ''{0}'' (''{1}'',''{2}'') period, ''{3}'' (''{4}'') kind or OBIS code ''{5}'' aren''t found. Please check the device configuration or precise the request"),
+    NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING(4032, "NoUtilitiesDivisionCategoryCodeMapping",
+            "There is no mapping of UtilitiesDivisionCategoryCode = ''{0}'' to a reading type kind  in the configuration property ''{1}''"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -89,7 +106,7 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_NO_ERROR_MESSAGE_PROVIDED(8002, "EventNoErrorMessageProvided", "No message provided."),
 
     // Micro checks
-    AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "No LRN has been set on the device.");
+    AT_LEAST_ONE_LRN_WAS_SET(10001, "AtLeastOneLrnWasSet", "No LRN has been set on the device.");
 
     private final int number;
     private final String key;

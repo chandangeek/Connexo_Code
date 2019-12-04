@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -97,11 +98,10 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .stringSpec()
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.javaName(), TranslationKeys.OBIS)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.INTERVAL.javaName(), TranslationKeys.INTERVAL)
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.RECURRENCE_CODE.javaName(), TranslationKeys.RECURRENCE_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -118,6 +118,16 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.END_DATE.javaName(), TranslationKeys.END_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TIME_ZONE.javaName(), TranslationKeys.TIME_ZONE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DIVISION_CATEGORY.javaName(), TranslationKeys.DIVISION_CATEGORY)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -180,14 +190,21 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
                     .add();
-            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.databaseName())
+            Column oldOBISColumn = table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7, 1))
                     .add();
-            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.INTERVAL.databaseName())
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.databaseName())
                     .varChar(NAME_LENGTH)
-                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.INTERVAL.javaName())
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .previously(oldOBISColumn)
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.RECURRENCE_CODE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.RECURRENCE_CODE.javaName())
                     .add();
             table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.LRN.databaseName())
                     .varChar(NAME_LENGTH)
@@ -203,6 +220,16 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.END_DATE.javaName())
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TIME_ZONE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TIME_ZONE.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DIVISION_CATEGORY.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DIVISION_CATEGORY.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)
