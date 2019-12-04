@@ -27,15 +27,13 @@ import java.util.Optional;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class ReadingQualityRecordImpl implements ReadingQualityRecord {
-
-    @SuppressWarnings("unused")
-    private long id;
     private String comment;
     private Instant readingTimestamp;
     private String typeCode;
     private boolean actual;
 
     private transient ReadingQualityType type;
+    // null means not fetched; empty optional means no matching reading record
     private transient Optional<BaseReadingRecord> baseReadingRecord;
     private Reference<Channel> channel = ValueReference.absent();
     private Reference<IReadingType> readingType = ValueReference.absent();
@@ -142,11 +140,6 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
     @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
     public Optional<BaseReadingRecord> getBaseReadingRecord() {
         if (baseReadingRecord == null) {
             baseReadingRecord = getChannel().getReading(getReadingTimestamp());
@@ -164,16 +157,10 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         notifyUpdated();
     }
 
-    void doSave() {
-        if (id == 0) {
-            dataModel.mapper(ReadingQualityRecord.class).persist(this);
-            notifyCreated();
-        } else {
-            dataModel.mapper(ReadingQualityRecord.class).update(this);
-            notifyUpdated();
-        }
+    void save() {
+        dataModel.mapper(ReadingQualityRecord.class).persist(this);
+        notifyCreated();
     }
-
 
     static void saveAll(DataModel model, List<ReadingQualityRecord> records) {
         List<ReadingQualityRecord> myRecords = new ArrayList<>(records);
@@ -249,12 +236,17 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public boolean equals(Object o) {
-        return this == o || o != null && getClass() == o.getClass() && id == ((ReadingQualityRecordImpl) o).id;
+        return this == o
+                || o instanceof ReadingQualityRecordImpl
+                && Objects.equals(getChannel(), ((ReadingQualityRecordImpl) o).getChannel())
+                && Objects.equals(getReadingTimestamp(), ((ReadingQualityRecordImpl) o).getReadingTimestamp())
+                && Objects.equals(getType(), ((ReadingQualityRecordImpl) o).getType())
+                && Objects.equals(getReadingType(), ((ReadingQualityRecordImpl) o).getReadingType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(getChannel(), getReadingTimestamp(), getType(), getReadingType());
     }
 
     void copy(ReadingQualityRecord source) {

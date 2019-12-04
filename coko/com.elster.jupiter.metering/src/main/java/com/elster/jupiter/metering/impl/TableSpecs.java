@@ -316,7 +316,12 @@ public enum TableSpecs {
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
-            Column lifeCycle = table.column("LIFECYCLE").number().notNull().installValue(String.valueOf(usagePointLifeCycleConfigurationService.getDefaultLifeCycle().getId())).since(version(10, 3)).add();
+            Column lifeCycle = table.column("LIFECYCLE")
+                    .number()
+                    .notNull()
+                    .installValue(String.valueOf(usagePointLifeCycleConfigurationService.getDefaultLifeCycle().getId()))
+                    .since(version(10, 3))
+                    .add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
@@ -786,7 +791,7 @@ public enum TableSpecs {
                     .notNull()
                     .conversion(CHAR2BOOLEAN)
                     .map(MetrologyConfigurationImpl.Fields.ALLOW_GAPS.fieldName())
-                    .since(version(10,3))
+                    .since(version(10, 3))
                     .installValue("'N'")
                     .add();
             table.column(MetrologyConfigurationImpl.Fields.STATUS.name())
@@ -1253,7 +1258,7 @@ public enum TableSpecs {
             table.column(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.name())
                     .varChar(NAME_LENGTH)
                     .conversion(CHAR2ENUM)
-                    .since(version(10,3))
+                    .since(version(10, 3))
                     .map(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.fieldName())
                     .add();
             table.addAuditColumns();
@@ -1266,7 +1271,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingTypeTemplateAttribute> table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
             table.map(ReadingTypeTemplateAttributeImpl.class);
-            table.since(version(10 ,2));
+            table.since(version(10, 2));
             table.setJournalTableName("MTR_RT_TEMPLATE_ATTR_JNRL").since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
@@ -1915,16 +1920,17 @@ public enum TableSpecs {
             Table<ReadingQualityRecord> table = dataModel.addTable(name(), ReadingQualityRecord.class);
             table.map(ReadingQualityRecordImpl.class);
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
-            Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").varChar(64).notNull().map("typeCode").add();
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
+            Column idColumn = table.addAutoIdColumn().upTo(version(10, 7, 1));
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
             table.partitionOn(timestampColumn);
             table.column("COMMENTS").varChar(4000).map("comment").add();
-            table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).add();
+            table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).upTo(version(10, 7, 1)).add();
+
             table.foreignKey("FK_MTR_RQ_CHANNEL")
                     .references(Channel.class)
                     .onDelete(DeleteRule.RESTRICT)
@@ -1939,9 +1945,13 @@ public enum TableSpecs {
                     .add();
             table.unique("MTR_U_READINGQUALITY")
                     .on(channelColumn, timestampColumn, typeColumn, readingTypeColumn)
+                    .upTo(version(10, 7, 1))
                     .add();
-            table
-                    .index("MTR_READINGQUALITY_VAL_OVERVW")
+            table.primaryKey("PK_MTR_READINGQUALITY")
+                    .on(channelColumn, timestampColumn, typeColumn, readingTypeColumn)
+                    .since(version(10, 7, 1))
+                    .add();
+            table.index("MTR_READINGQUALITY_VAL_OVERVW")
                     .on(channelColumn, typeColumn, actual)
                     .add();
         }
@@ -2087,7 +2097,7 @@ public enum TableSpecs {
                     .add();
         }
     },
-    MTR_SYNTHETICLOADPROFILE{
+    MTR_SYNTHETICLOADPROFILE {
         @Override
         void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<SyntheticLoadProfile> table = dataModel.addTable(name(), SyntheticLoadProfile.class);
@@ -2140,7 +2150,7 @@ public enum TableSpecs {
             table.since(version(10, 7, 1));
             table.map(ConfigPropertyImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.setJournalTableName("MTR_CONFIG_PROPERTYJRNL");
+            table.setJournalTableName("MTR_CONFIG_PROPERTYJRNL").since(version(10, 7, 1));
             table.column("SCOPE").varChar(NAME_LENGTH).map("scope").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
