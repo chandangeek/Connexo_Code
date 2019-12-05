@@ -14,4 +14,8 @@ public interface LdapUser {
     void setStatus(boolean status);
 
     boolean getStatus();
+
+    String getDN();
+
+    void setDN(String userDN);
 }
