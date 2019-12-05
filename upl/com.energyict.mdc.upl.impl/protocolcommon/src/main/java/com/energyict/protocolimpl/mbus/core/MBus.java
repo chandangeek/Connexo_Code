@@ -28,6 +28,7 @@ import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
 import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
+import org.omg.CORBA.TIMEOUT;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +36,8 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
 
 /**
  *
@@ -103,8 +106,8 @@ public abstract class MBus extends AbstractProtocol {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "3000").trim()));
-        setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(PROP_RETRIES, 2));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(Property.TIMEOUT.getName(), "3000").trim()));
+        setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(RETRIES.getName(), 2));
         setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 0));
         setSecondaryAddressing(properties.getTypedProperty("SecondaryAddressing", 0));
         setUseZeroBased(properties.getTypedProperty("DataQuantitiesAreZeroBased", 0) == 1);

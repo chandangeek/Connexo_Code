@@ -39,11 +39,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -82,10 +78,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      * Property keys
      */
     private static final String PK_NODE_PREFIX = "NodeIdPrefix";
-    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
-    private static final String PK_RETRIES = Property.RETRIES.getName();
     private static final String PK_SHOULD_DISCONNECT = "ShouldDisconnect";
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_FORCE_DELAY = "ForceDelay";
     private static final String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
     private static final String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
@@ -172,12 +165,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
                 this.stringSpecOfExactLength(NODEID.getName(), 7, PropertyTranslationKeys.QUAD4_NODEID),
                 UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, PropertyTranslationKeys.QUAD4_PROFILEINTERVAL, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_NODE_PREFIX, false, PropertyTranslationKeys.QUAD4_NODE_PREFIX, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.QUAD4_TIMEOUT, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.QUAD4_RETRIES, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, PropertyTranslationKeys.QUAD4_TIMEOUT, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, PropertyTranslationKeys.QUAD4_RETRIES, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.QUAD4_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, PropertyTranslationKeys.QUAD4_CORRECTTIME, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_FORCE_DELAY, false, PropertyTranslationKeys.QUAD4_FORCE_DELAY, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, PropertyTranslationKeys.QUAD4_EXTENDED_LOGGING, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(EXTENDED_LOGGING.getName(), false, PropertyTranslationKeys.QUAD4_EXTENDED_LOGGING, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_SHOULD_DISCONNECT, false, PropertyTranslationKeys.QUAD4_SHOULD_DISCONNECT, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_READ_UNIT1_SERIALNUMBER, false, PropertyTranslationKeys.QUAD4_READ_UNIT1_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, false, PropertyTranslationKeys.QUAD4_READ_PROFILE_DATA_BEFORE_CONFIG_CHANGE, this.propertySpecService::stringSpec).finish());
@@ -220,12 +213,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             pPassword[3] = pwd.getBytes()[3];
         }
 
-        if (p.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        if (p.getTypedProperty(TIMEOUT.getName()) != null) {
+            pTimeout = p.getTypedProperty(TIMEOUT.getName());
         }
 
-        if (p.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = p.getTypedProperty(PK_RETRIES);
+        if (p.getTypedProperty(RETRIES.getName()) != null) {
+            pRetries = p.getTypedProperty(RETRIES.getName());
         }
 
         if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
@@ -240,8 +233,8 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             pForceDelay = p.getTypedProperty(PK_FORCE_DELAY);
         }
 
-        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            pExtendedLogging = p.getTypedProperty(EXTENDED_LOGGING.getName());
         }
 
         if (p.getTypedProperty(PK_SHOULD_DISCONNECT) != null) {
@@ -477,12 +470,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
         return getTable1().getTypeMaximumValues().getClockCalendar().toDate();
     }
 
-    /**
-     * Send the time delta in milliseconds.
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.MeterProtocol#setTime()
-     */
+
     @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);

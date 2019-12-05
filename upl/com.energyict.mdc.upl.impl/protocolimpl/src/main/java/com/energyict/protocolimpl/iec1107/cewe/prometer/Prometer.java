@@ -43,6 +43,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.EXTENDED_LOGGING;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SOFTWARE7E1;
+
 /** <pre>
 
  * An overview of the Prometer protocol:
@@ -85,7 +88,6 @@ import java.util.logging.Level;
 public class Prometer extends AbstractProtocol implements SerialNumberSupport {
 
     /** Property keys specific for CewePrometer protocol. */
-    private static final String PK_EXTENDED_LOGGING = AbstractProtocol.PROP_EXTENDED_LOGGING;
     private static final String PK_LOGGER = "Logger";
 
     /** By default the load profile of logger 1 is fetched */
@@ -526,7 +528,7 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
+        propertySpecs.add(this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
         propertySpecs.add(this.integerSpec(PK_LOGGER, PropertyTranslationKeys.IEC1107_LOGGER, false));
         return propertySpecs;
     }
@@ -539,12 +541,12 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        Integer extendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        Integer extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName());
         pExtendedLogging = (extendedLogging == null) ? 0 : extendedLogging;
 
         Integer logger = properties.getTypedProperty(PK_LOGGER);
         pLogger = (logger == null) ? PD_LOGGER : logger;
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override

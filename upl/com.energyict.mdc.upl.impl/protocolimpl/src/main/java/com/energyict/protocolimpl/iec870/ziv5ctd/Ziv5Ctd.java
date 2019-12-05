@@ -41,12 +41,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -60,9 +55,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     /**
      * Property keys
      */
-    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
-    private static final String PK_RETRIES = Property.RETRIES.getName();
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
+
     private static final String PK_FETCH_PROGRAM_PROFILE = "FetchProgramProfile";
     private static final String PK_CUMULATIVE_PROFILE = "CumulativeProfile";
 
@@ -130,11 +123,11 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC870_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC870_SERIALNUMBER),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC870_PROFILEINTERVAL),
-                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC870_TIMEOUT),
-                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC870_RETRIES),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC870_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC870_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC870_ROUNDTRIPCORRECTION),
                 this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC870_CORRECTTIME),
-                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC870_EXTENDED_LOGGING),
+                this.stringSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC870_EXTENDED_LOGGING),
                 this.stringSpec(PK_FETCH_PROGRAM_PROFILE, PropertyTranslationKeys.IEC870_FETCH_PROGRAM_PROFILE),
                 this.stringSpec(PK_CUMULATIVE_PROFILE, PropertyTranslationKeys.IEC870_CUMULATIVE_PROFILE));
     }
@@ -174,12 +167,12 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
                 pPassword = p.getTypedProperty(Property.PASSWORD.getName());
             }
 
-            if (p.getTypedProperty(PK_TIMEOUT) != null) {
-                pTimeout = p.getTypedProperty(PK_TIMEOUT);
+            if (p.getTypedProperty(TIMEOUT.getName()) != null) {
+                pTimeout = p.getTypedProperty(TIMEOUT.getName());
             }
 
-            if (p.getTypedProperty(PK_RETRIES) != null) {
-                pRetries = p.getTypedProperty(PK_RETRIES);
+            if (p.getTypedProperty(RETRIES.getName()) != null) {
+                pRetries = p.getTypedProperty(RETRIES.getName());
             }
 
             if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
@@ -190,8 +183,8 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
                 pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
             }
 
-            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+            if (p.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+                pExtendedLogging = p.getTypedProperty(EXTENDED_LOGGING.getName());
             }
 
             if (p.getTypedProperty(PK_FETCH_PROGRAM_PROFILE) != null) {

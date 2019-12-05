@@ -50,12 +50,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 // KV 06092005 WVEM
 
@@ -448,7 +443,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         specs.add(this.stringSpec(ADDRESS.getName()));
         specs.add(this.stringSpec("MeterClass"));
         specs.add(this.stringSpec(NODEID.getName()));
-        specs.add(this.stringSpec("Software7E1"));
+        specs.add(this.stringSpec(SOFTWARE7E1.getName()));
         return specs;
     }
 
@@ -524,7 +519,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         nrOfChannels = properties.getTypedProperty("ChannelMap", 6);
         timeSetMethod = properties.getTypedProperty("TimeSetMethod", 0);
         wakeupMeter = !"0".equals(properties.getTypedProperty("SendWakeUp", "0"));
-        software7E1 = !"0".equals(properties.getTypedProperty("Software7E1", "0"));
+        software7E1 = !"0".equals(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override
