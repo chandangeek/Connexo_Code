@@ -1061,6 +1061,7 @@ public class MultiThreadedScheduledComPortTest {
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
         when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
+        when(comServerDAOMock.attemptLock(simultaneousConnectionTask1, comPort)).thenReturn(null);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, deviceMessageService, this.hexService, eventPublisher);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> noWork = new ArrayList<>(0);

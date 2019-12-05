@@ -78,6 +78,13 @@ public class SingleThreadedComPortListenerTest {
     private ThreadPrincipalService threadPrincipalService;
 
     private Clock clock = Clock.systemDefaultZone();
+    private InboundComPort inboundComPort;
+    private ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider;
+    private CountDownLatch startLatch;
+    private InboundComPortConnector connector;
+    private ComServerDAO comServerDAO;
+    private ThreadFactory threadFactory;
+    private CountDownLatch progressLatch;
 
     private Thread mockedThread() {
         return mock(Thread.class);
@@ -91,32 +98,32 @@ public class SingleThreadedComPortListenerTest {
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
         when(this.userService.findUser(EngineServiceImpl.COMSERVER_USER)).thenReturn(Optional.of(user));
         when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));
-    }
 
-    @Test(timeout = 5000)
-    public void testSimulatedVoidComChannelWithNoHandOver() throws InterruptedException {
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch progressLatch = new CountDownLatch(1);
-        InboundComPortConnector connector = spy(new LatchDrivenTimeOutInboundComPortConnector(startLatch, progressLatch));
+        startLatch = new CountDownLatch(1);
+        progressLatch = new CountDownLatch(1);
+        connector = spy(new LatchDrivenTimeOutInboundComPortConnector(startLatch, progressLatch));
 
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getName()).thenReturn("testSimulatedVoidComChannelWithNoHandOver");
-        ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
+        threadFactory = new ComServerThreadFactory(comServer);
 
-        InboundComPort inboundComPort = this.mockComPort("testSimulatedVoidComChannelWithNoHandOver");
+        inboundComPort = this.mockComPort("testSimulatedVoidComChannelWithNoHandOver");
         InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
         when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
-        ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider = mock(ComChannelBasedComPortListenerImpl.ServiceProvider.class);
+        serviceProvider = mock(ComChannelBasedComPortListenerImpl.ServiceProvider.class);
 
         when(serviceProvider.threadFactory()).thenReturn(threadFactory);
         when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
         when(serviceProvider.clock()).thenReturn(this.clock);
         when(serviceProvider.userService()).thenReturn(this.userService);
         when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
-        ComServerDAO mockedComServerDAO = getMockedComServerDAO();
-        when(serviceProvider.comServerDAO()).thenReturn(mockedComServerDAO);
+        comServerDAO = getMockedComServerDAO();
+        when(serviceProvider.comServerDAO()).thenReturn(comServerDAO);
         when(serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
+    }
 
+    @Test(timeout = 5000)
+    public void testSimulatedVoidComChannelWithNoHandOver() throws InterruptedException {
         SingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new SingleThreadedComPortListener(runningComServer, inboundComPort, this.deviceCommandExecutor, serviceProvider));
         // business method
@@ -136,29 +143,9 @@ public class SingleThreadedComPortListenerTest {
 
     @Test(timeout = 5000)
     public void testStartupCleansInterruptedTasks() throws InterruptedException {
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch progressLatch = new CountDownLatch(1);
         VoidTestComChannel voidTestComChannel = new VoidTestComChannel();
         ComPortRelatedComChannel comPortRelatedComChannel = mock(ComPortRelatedComChannel.class);
         when(comPortRelatedComChannel.getActualComChannel()).thenReturn(voidTestComChannel);
-        InboundComPortConnector connector = spy(new LatchDrivenTimeOutInboundComPortConnector(startLatch, progressLatch));
-
-        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
-        when(comServer.getName()).thenReturn("testStartupCleansInterruptedTasks");
-        ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
-
-        InboundComPort inboundComPort = this.mockComPort("testStartupCleansInterruptedTasks");
-        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
-        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
-        ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider = mock(ComChannelBasedComPortListenerImpl.ServiceProvider.class);
-        when(serviceProvider.threadFactory()).thenReturn(threadFactory);
-        when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
-        when(serviceProvider.clock()).thenReturn(this.clock);
-        when(serviceProvider.userService()).thenReturn(this.userService);
-        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
-        ComServerDAO comServerDAO = getMockedComServerDAO();
-        when(serviceProvider.comServerDAO()).thenReturn(comServerDAO);
-        when(serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
 
         SingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new SingleThreadedComPortListener(runningComServer, inboundComPort, this.deviceCommandExecutor, serviceProvider));
@@ -175,14 +162,7 @@ public class SingleThreadedComPortListenerTest {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
-        InboundComPort inboundComPort = this.mockComPort("testStart");
-        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
-        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(mock(InboundComPortConnector.class));
-        ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider = mock(ComChannelBasedComPortListenerImpl.ServiceProvider.class);
         when(serviceProvider.threadFactory()).thenReturn(threadFactory);
-        when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
-        when(serviceProvider.clock()).thenReturn(this.clock);
-        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
         SingleThreadedComPortListener singleThreadedComPortListener =
                 new SingleThreadedComPortListener(
                         runningComServer,
@@ -204,14 +184,7 @@ public class SingleThreadedComPortListenerTest {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread mockedThread = this.mockedThread();
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
-        InboundComPort inboundComPort = this.mockComPort("testShutdown");
-        InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
-        when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(mock(InboundComPortConnector.class));
-        ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider = mock(ComChannelBasedComPortListenerImpl.ServiceProvider.class);
         when(serviceProvider.threadFactory()).thenReturn(threadFactory);
-        when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
-        when(serviceProvider.clock()).thenReturn(this.clock);
-        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
         SingleThreadedComPortListener singleThreadedComPortListener =
                 new SingleThreadedComPortListener(
                         runningComServer,
@@ -231,26 +204,12 @@ public class SingleThreadedComPortListenerTest {
 
     @Test(timeout = 5000)
     public void testAcceptedInboundCall() throws InterruptedException {
-        InboundCapableComServer comServer = mock(InboundCapableComServer.class);
-        when(comServer.getName()).thenReturn("testAcceptedInboundCall");
-        ThreadFactory threadFactory = new ComServerThreadFactory(comServer);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch progressLatch = new CountDownLatch(1);
         CountDownLatch protocolLatch = new CountDownLatch(1);
         final ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         final InboundComPortConnector connector = spy(new LatchDrivenAcceptInboundComPortConnector(startLatch, progressLatch, comChannel));
-        InboundComPort inboundComPort = this.mockComPort("accept");
         InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
         when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
-        ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider = mock(ComChannelBasedComPortListenerImpl.ServiceProvider.class);
-        when(serviceProvider.threadFactory()).thenReturn(threadFactory);
         when(serviceProvider.inboundComPortConnectorFactory()).thenReturn(inboundComPortConnectorFactory);
-        when(serviceProvider.clock()).thenReturn(this.clock);
-        when(serviceProvider.userService()).thenReturn(this.userService);
-        when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
-        ComServerDAO mockedComServerDAO = getMockedComServerDAO();
-        when(serviceProvider.comServerDAO()).thenReturn(mockedComServerDAO);
-        when(serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
         LatchDrivenSingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new LatchDrivenSingleThreadedComPortListener(
                         runningComServer,
