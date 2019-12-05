@@ -94,7 +94,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.suspended', 'DES', 'Suspended'),
                         name: 'suspendUntilExport',
                         renderer: function (value) {
-                            return value ? Uni.I18n.translate('general.suspended.yes', 'DES', 'Yes <br/>has been suspended until next run') : Uni.I18n.translate('general.suspended.no', 'DES', 'No');
+                            return value ? Uni.I18n.translate('general.suspended.yes.until', 'DES', 'Yes <br/>has been suspended until next run') : Uni.I18n.translate('general.suspended.no', 'DES', 'No');
                         }
                     }
                 ]
