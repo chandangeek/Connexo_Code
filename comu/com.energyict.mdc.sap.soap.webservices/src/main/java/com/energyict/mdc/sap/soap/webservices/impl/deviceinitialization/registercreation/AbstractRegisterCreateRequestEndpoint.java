@@ -13,7 +13,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisterCreateConfirmation;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
@@ -21,6 +25,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -59,11 +66,37 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         return thesaurus;
     }
 
-    void createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage message) {
+    void handleRequestMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage) {
+
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        requestMessage.getUtilitiesDeviceRegisterCreateMessages().forEach(device -> {
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), device.getDeviceId());
+            device.getUtilitiesDeviceRegisterMessages().forEach(reg -> {
+                values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), reg.getLrn());
+            });
+        });
+
+        saveRelatedAttributes(values);
+
+        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceRegisterCreateConfirmation.NAME);
+        }
+
+        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredNotification.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceRegisteredNotification.NAME);
+        }
+
+        createServiceCallAndTransition(requestMessage);
+    }
+
+    private void createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage message) {
         if (message.isValid()) {
-            if(hasUtilDeviceRegisterRequestServiceCall(message.getRequestID())){
+            if (hasUtilDeviceRegisterRequestServiceCall(message.getRequestID(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
-            }else {
+            } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST).ifPresent(serviceCallType -> {
                     createServiceCall(serviceCallType, message);
                 });
@@ -73,7 +106,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         }
     }
 
-    boolean isAnyActiveEndpoint(String name) {
+    private boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()
@@ -84,6 +117,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension masterUtilitiesDeviceRegisterCreateRequestDomainExtension =
                 new MasterUtilitiesDeviceRegisterCreateRequestDomainExtension();
         masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+        masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setUuid(requestMessage.getUuid());
         masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
@@ -162,12 +196,16 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         }
     }
 
-    private boolean hasUtilDeviceRegisterRequestServiceCall(String id) {
+    private boolean hasUtilDeviceRegisterRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.MODEL_NAME);
-        if (dataModel.isPresent()) {
-            return dataModel.get().stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
-                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+        if (id != null) {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                    .orElse(false);
+        } else {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
+                    .orElse(false);
         }
-        return false;
     }
 }

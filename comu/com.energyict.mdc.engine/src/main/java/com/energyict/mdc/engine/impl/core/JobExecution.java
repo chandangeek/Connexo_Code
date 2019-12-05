@@ -262,6 +262,11 @@ public abstract class JobExecution implements ScheduledJob {
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions));
     }
 
+    protected CommandRoot prepareAll(final List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions, checkSecurity));
+    }
+
     public void connected(ComPortRelatedComChannel comChannel) {
         this.preparationContext.setComChannel(comChannel);
     }
@@ -505,10 +510,18 @@ public abstract class JobExecution implements ScheduledJob {
 
         private final List<ComTaskExecution> comTaskExecutions;
         private final JobExecution jobExecution;
+        private final boolean checkSecurity;
 
         private PrepareAllTransaction(JobExecution jobExecution, List<ComTaskExecution> comTaskExecutions) {
             this.jobExecution = jobExecution;
             this.comTaskExecutions = comTaskExecutions;
+            this.checkSecurity = true;
+        }
+
+        private PrepareAllTransaction(JobExecution jobExecution, List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+            this.jobExecution = jobExecution;
+            this.comTaskExecutions = comTaskExecutions;
+            this.checkSecurity = checkSecurity;
         }
 
         @Override
@@ -534,7 +547,7 @@ public abstract class JobExecution implements ScheduledJob {
                         final ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
                         final ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
 
-                        if (groupedDeviceCommand == null || (!isSameSecurityPropertySet(groupedDeviceCommand, deviceProtocolSecurityPropertySet))) {
+                        if (groupedDeviceCommand == null || (checkSecurity && !isSameSecurityPropertySet(groupedDeviceCommand, deviceProtocolSecurityPropertySet))) {
                             groupedDeviceCommand = result.getOrCreateGroupedDeviceCommand(offlineDevice, deviceProtocol, comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet());
                         }
 

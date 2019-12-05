@@ -7,24 +7,32 @@ package com.energyict.mdc.device.command.impl.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.FancyJoiner;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.command.impl.MessageSeeds;
 import com.energyict.mdc.device.command.impl.TranslationKeys;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class LimitsExceededForCommandException extends LocalizedException {
     protected final Thesaurus thesaurus;
     protected String message;
+    private DeviceMessage deviceMessage;
 
-    public LimitsExceededForCommandException(Thesaurus thesaurus, List<ExceededCommandRule> exceededCommandRules) {
+    public LimitsExceededForCommandException(Thesaurus thesaurus, List<ExceededCommandRule> exceededCommandRules, DeviceMessage deviceMessage) {
         //Dummy call to super so it the exception would get propagated correctly to the FE
         super(thesaurus, MessageSeeds.LIMITS_EXCEEDED);
         this.thesaurus = thesaurus;
+        this.deviceMessage = deviceMessage;
         if (exceededCommandRules.size() > 0) {
             createTranslatedMessage(exceededCommandRules);
         }
+    }
+
+    public Optional<DeviceMessage> getDeviceMessage() {
+        return Optional.ofNullable(deviceMessage);
     }
 
     protected void createTranslatedMessage(List<ExceededCommandRule> exceededCommandRules) {

@@ -14,6 +14,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -141,6 +143,58 @@ public enum TableSpecs {
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
+    WS_OCC_RELATED_ATTR{
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<WebServiceCallRelatedAttribute> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttribute.class);
+            table.map(WebServiceCallRelatedAttributeImpl.class);
+            table.since(version(10, 7, 1));
+
+            Column idColumn = table.addAutoIdColumn();
+
+            Column keyColumn = table.column("ATTR_KEY")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName())
+                    .add();
+            Column valueColumn = table.column("ATTR_VALUE")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName())
+                    .add();
+            table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn).add();
+            table.primaryKey("PK_WS_RELATED_ATTRBT").on(idColumn).add();
+        }
+    },
+    WS_OCC_ATTRBTS_BINDING {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<WebServiceCallRelatedAttributeBinding> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttributeBinding.class);
+            table.map(WebServiceCallRelatedAttributeBindingImpl.class);
+            table.since(version(10, 7, 1));
+
+            Column idColumn = table.addAutoIdColumn();
+
+            Column occurrence = table.column("OCCURRENCE").number().notNull().add();
+            table.foreignKey("FK_WS_RO_OCCURRENCE")
+                    .references(WS_CALL_OCCURRENCE.name())
+                    .on(occurrence)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(WebServiceCallRelatedAttributeBindingImpl.Fields.OCCURRENCE.fieldName())
+                    .add();
+
+            Column type = table.column("ATTRIBUTE").number().notNull().add();
+            table.foreignKey("FK_WS_RA_ATTRIBUTE")
+                    .references(WS_OCC_RELATED_ATTR.name())
+                    .on(type)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(WebServiceCallRelatedAttributeBindingImpl.Fields.ATTRIBUTE.fieldName())
+                    .add();
+
+            table.primaryKey("PK_WS_OCC_BINDING").on(idColumn).add();
+        }
+    },
+
     WS_ENDPOINT_LOG {
         @Override
         void addTo(DataModel dataModel) {

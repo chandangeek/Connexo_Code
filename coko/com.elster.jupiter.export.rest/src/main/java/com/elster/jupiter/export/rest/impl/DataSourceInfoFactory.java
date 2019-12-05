@@ -28,6 +28,7 @@ public class DataSourceInfoFactory {
         info.readingType = readingTypeInfoFactory.from(item.getReadingType());
         info.details = getDataSourceDetails(item.getReadingContainer());
         item.getLastExportedDate().ifPresent(instant -> info.lastExportedDate = instant);
+        item.getLastExportedPeriodEnd().ifPresent(instant -> info.lastExportedPeriodEnd = instant);
         return info;
     }
 

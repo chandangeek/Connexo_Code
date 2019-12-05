@@ -22,6 +22,7 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
 
         // provided
         REQUEST_ID("requestID", "REQUEST_ID"),
+        UUID("uuid", "UUID"),
         BULK("bulk", "BULK");
         ;
 
@@ -44,9 +45,10 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String requestID;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String uuid;
     private boolean bulk;
 
     public String getRequestID() {
@@ -55,6 +57,14 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
 
     public void setRequestID(String requestID) {
         this.requestID = requestID;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public boolean isBulk() {
@@ -69,12 +79,14 @@ public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractP
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setRequestID((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
+        this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setBulk((boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestID());
+        propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
     }
 

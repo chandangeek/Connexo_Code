@@ -15,11 +15,7 @@ import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author sva
@@ -55,19 +51,19 @@ public class NXT4Properties {
     }
 
     public int getIEC1107TimeOut() {
-        return getIntProperty("Timeout", 10000);
+        return getIntProperty(TIMEOUT.getName(), 10000);
     }
 
     public int getRetries() {
-        return getIntProperty("Retries", 3);
+        return getIntProperty(RETRIES.getName(), 3);
     }
 
     public int getRoundTripCorrection() {
-        return getIntProperty("RoundTripCorrection", 0);
+        return getIntProperty(ROUNDTRIPCORRECTION.getName(), 0);
     }
 
     public int getSecurityLevel() {
-        return getIntProperty("SecurityLevel", 1);
+        return getIntProperty(SECURITYLEVEL.getName(), 1);
     }
 
     public int getEchoCancelling() {
@@ -83,7 +79,7 @@ public class NXT4Properties {
     }
 
     public int getProfileInterval() {
-        return getIntProperty("ProfileInterval", 900);
+        return getIntProperty(PROFILEINTERVAL.getName(), 900);
     }
 
     public boolean isRequestHeader() {
@@ -99,11 +95,11 @@ public class NXT4Properties {
     }
 
     public boolean useExtendedLogging() {
-        return getBooleanProperty("ExtendedLogging", false);
+        return getBooleanProperty(EXTENDED_LOGGING.getName(), false);
     }
 
     public boolean useSoftware7E1() {
-        return getBooleanProperty("Software7E1", false);
+        return getBooleanProperty(SOFTWARE7E1.getName(), false);
     }
 
     public boolean readUserLogBook() {
@@ -169,8 +165,8 @@ public class NXT4Properties {
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCED_DELAY),
                 this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
                 this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
-                this.integerSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("DateFormat", PropertyTranslationKeys.IEC1107_DATE_FORMAT),
                 this.integerSpec("ReadUserLogBook", PropertyTranslationKeys.IEC1107_READ_USER_LOGBOOK),
                 this.integerSpec("ReconnectAfterR6Read", PropertyTranslationKeys.IEC1107_RECONNECT_AFTER_R6_READ),

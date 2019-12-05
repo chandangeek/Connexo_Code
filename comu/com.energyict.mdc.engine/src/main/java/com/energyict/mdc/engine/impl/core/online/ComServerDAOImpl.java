@@ -1214,7 +1214,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public <T> T executeTransaction(Transaction<T> transaction) {
+    public synchronized <T> T executeTransaction(Transaction<T> transaction) {
         return getTransactionService().execute(transaction);
     }
 

@@ -46,13 +46,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author Koen
@@ -503,11 +497,11 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.METCOM_FORCED_DELAY),
                 this.integerSpec("IntervalStatusBehaviour", PropertyTranslationKeys.METCOM_INTERVAL_STATUS_BEHAVIOUR),
                 this.stringSpec("ChannelMap", PropertyTranslationKeys.METCOM_CHANNEL_MAP),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.METCOM_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.METCOM_EXTENDED_LOGGING),
                 this.stringSpec("LogBookReadCommand", PropertyTranslationKeys.METCOM_LOGBOOK_READ_COMMAND),
                 this.integerSpec("AutoBillingPointNrOfDigits", PropertyTranslationKeys.METCOM_AUTOBILLING_POINT_NR_OF_DIGITS),
                 this.integerSpec("TimeSetMethod", PropertyTranslationKeys.METCOM_TIME_SET_METHOD),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.METCOM_SOFTWARE_7E1));
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.METCOM_SOFTWARE_7E1));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -554,7 +548,7 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
             channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap"));
         }
 
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
 
         if (properties.getTypedProperty("LogBookReadCommand", "E4").compareTo("E6") == 0) {
             logbookReadCommand = SiemensSCTM.BUFENQ2; // E6
@@ -566,7 +560,7 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
 
         timeSetMethod = properties.getTypedProperty("TimeSetMethod", 0);
 
-        software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override

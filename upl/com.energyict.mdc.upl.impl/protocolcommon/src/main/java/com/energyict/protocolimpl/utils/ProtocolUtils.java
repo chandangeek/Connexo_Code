@@ -1493,4 +1493,30 @@ public class ProtocolUtils {
         return strByteArray.toString();
     }
 
+
+    public static void validatePortNumber(String tcpPort) throws ProtocolException {
+        try {
+            int port = Integer.parseInt(tcpPort);
+            if (port < 0 || port > 65535) {
+                throw new ProtocolException("Parameter TCP_Port should be an integer number in the range 0-65535.");
+            }
+        } catch (NumberFormatException e) {
+            throw new ProtocolException("Parameter TCP_Port should be an integer number.");
+        }
+    }
+
+    public static void validateIpAddress(String ipAddress) throws ProtocolException {
+        if (ipAddress.split("\\.").length != 4) {
+            throw new ProtocolException("Parameter IP_Address contains no valid IP address. The Ip-address does not contain four elements");
+        }
+        String[] split = ipAddress.split("\\.");
+        try {
+            for (int i = 0; i < 4; i++) {
+                Integer.parseInt(split[i]);
+            }
+        } catch (NumberFormatException e) {
+            throw new ProtocolException("Parameter IP_Address contains no valid IP address. The Ip-address contains nonnumerical characters (dots excluded)");
+        }
+    }
+
 }

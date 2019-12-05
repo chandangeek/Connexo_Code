@@ -12,6 +12,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+
 public class UtilitiesDeviceCreateConfirmationMessage {
 
     private static final CreateBulkConfirmationMessageFactory BULK_MESSAGE_FACTORY = new CreateBulkConfirmationMessageFactory();

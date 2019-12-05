@@ -730,20 +730,27 @@
   </wsdl:operation>
  </wsdl:portType>
  <wsdl:binding name="SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_OutBinding"
-			   type="tns:SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_Out">
-	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
-				  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-	<wsdl:operation name="SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_Out">
-		<soap:operation soapAction="http://sap.com/xi/WebService/soap1.1"
-						xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-		<wsdl:input>
-			<soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-		</wsdl:input>
-	</wsdl:operation>
+               type="tns:SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_Out">
+  <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
+                xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+  <wsdl:operation name="SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_Out">
+   <soap:operation soapAction="http://sap.com/xi/WebService/soap1.1"
+                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+   <wsdl:input>
+    <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+   </wsdl:input>
+  </wsdl:operation>
  </wsdl:binding>
- <wsdl:service name="SmartMeterMeterReadingDocumentERPCancellationConfirmationService" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
-  <wsdl:port binding="tns:SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_OutBinding" name="SmartMeterMeterReadingDocumentERPCancellationConfirmationPort">
-   <soap:address location="http://localhost:8080"/>
+ <wsdl:service name="SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_OutService">
+  <wsdl:port name="HTTP_Port" binding="tns:SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_OutBinding">
+   <soap:address
+           location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+           xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+  </wsdl:port>
+  <wsdl:port name="HTTPS_Port" binding="tns:SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_OutBinding">
+   <soap:address
+           location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=SmartMeterMeterReadingDocumentERPCancellationConfirmation_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+           xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
   </wsdl:port>
  </wsdl:service>
 </wsdl:definitions>

@@ -48,6 +48,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.Mea
 import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestRole;
 import com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateRequestProvider;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -85,8 +86,8 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     public static final String VERSION = "v1.0";
     public static final String GROUP_MRID_PREFIX = "MDC:";
 
-    private static final String DEFAULT_TASK_NAME = "Device data exporter";
-    private static final String DEFAULT_GROUP_NAME = "Export device group";
+    public static final String DEFAULT_TASK_NAME = "Device data exporter";
+    public static final String DEFAULT_GROUP_NAME = "Export device group";
 
     private volatile Clock clock;
     private volatile CustomPropertySetService customPropertySetService;
@@ -403,7 +404,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
             }
         }
 
-        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINTS_NOT_FOUND, webservices.toString().join(","));
+        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINTS_NOT_FOUND, String.join(", ", webservices));
     }
 
     private int getNumberOfReadingTypes(ExportTask exportTask) {

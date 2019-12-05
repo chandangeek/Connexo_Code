@@ -1,0 +1,197 @@
+com	"com" in the first column means the row is for comment. The contents of this table serves as the basis of conformance testing COSEM Interface classes - use of OBIS codes and classes.
+com	Value group							IC 	Alt IC
+com	A	B	C	D	E	F	Meaning	class	class	Reference	Comments/Known issues
+com										[1] 5.3.2, 5.4.1	Value  group  A  defines  the characteristic  of  the  data  item  to  be  identified  (abstract  data, energy type). For gas related objects, A = 7.
+com										[1] 5.3.3, 5.4.2	Group B defines channels 0...64. Values 65...127 are available for utility specific use.
+com										[1] 5.3.4, 5.4.3.2, 5.5.4.2	 The standard range of value group C is 0...127, 200-239 and 241-254. It is used for handling measuring quantities for meters, converters, loggers, energy meters, and for handling metering site specific information.
+com										[1] 5.3.5, 5.4.4, 5.5.4.3	The standard range of value group D is 0-127. It is used for identifying an algorithm for processing a quantity identified by Group A and C and for further subdivision.
+com										[1] 5.3.6, 5.4.5.2	Group E generally is used for further subdivision. The standard range is 0-63.
+com										[1] 5.3.7, 5.4.6, 5.7.3	Group F generally is used for historical values. The standard range is 0...99 and 101...126.
+com										[1] 5.3.8	In group B the range 128...199, in group C the range 128...199 and 240, in groups D, E and F the range 128...254 is available for manufacturer specific purposes, unless otherwise specified.
+com											In all groups the value 255 means "not used".  All codes not specified are reserved.
+com	Range definitions
+com	"def" in the first marks a row defining a range of values valid for group A,B,C,D,E,or F for the lines below that row.
+def	b=0-64									[1] 5.4.2 Table 4
+com	7	b	255	255	255	255	Gas related objects				In the "com" lines starting new code ranges, 255 is used as a wildcard.
+com	7	b	0	255	255	255	Gas related general purpose objects
+com	7	b	0	0	255	255	Free ID-numbers for utilities			[1] 4.6.1.2.3
+	7	b	0	0	0-9	255	Gas ID 1-10	1	3,4		The gas ID numbers are instances of the IC Data, with data type octet string. If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+	7	b	0	0	255	255	Complete combined electricity ID	7	61		If more than one Device ID-s are used, it is allowed to combine them into one instance of the IC = 7 "Profile generic" or IC = 61 "Register table".
+com	7	b	0	1	255	255	Historical value/reset counter entries objects			[1] 4.6.1.2.4, 4.6.1.2.4	NOTE: The second billing period scheme is not implemented for gas.                                 These values are represented by instances of the interface class "Data", with data types unsigned.  If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+	7	b	0	1	0	255	Status (VZ) of the historical value counter (Billing period counter)	1	3,4		If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+	7	b	0	1	1	255	Number of available historical values (billing periods)	1	3		Idem
+com	7	b	0	1	2	255	Time stamps of the billing periods objects			[1] 5.6.6.1 Table 41
+com	Range definition
+def	f = 0-99
+com	7	b	0	1	2	VZ	Time stamp of the billing period VZ (last reset)	1	3,4		VZ means the status of the billing period counter, 0-99 readable under code 0.1.x.0.1.0.255.
+com	7	b	0	1	2	VZ-1	Time stamp of the billing period VZ-1	1	3,4		Idem
+com	7	b	0	1	2	VZ-n	Time stamp of the billing period VZ-n	1	3,4		Idem
+	7	b	0	1	2	f	Time stamp of the billing period	1	3,4		If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+	7	b	0	1	2	255	Time stamp of the most recent billing period closed	1	3,4		The current time stamp is the time stamp of the last billing period closed. NOTE: this code is not included in [2] Table 20.
+com	7	b	0	2	255	255	Configuration objects			[1] 4.6.1.2.5 5.6.6.1 Table 41
+	7	b	0	2	0	255	Program version	1	3,4		 If IC = 3 "Register" or IC = 4 "Extended register" is used, scaler = 0 and unit = 255.
+	7	b	0	2	1	255	Firmware version	1	3,4		Idem
+	7	b	0	2	2	255	Software version	1	3,4		Idem
+	7	b	0	2	3	255	Device version	1	3,4		Idem
+	7	b	0	2	11	255	Pressure sensor, serial no.	1	3,4		Idem
+	7	b	0	2	12	255	Temperature sensor, serial no.	1	3,4		Idem
+	7	b	0	2	13	255	Calculator, serial no.	1	3,4		Idem
+	7	b	0	2	14	255	Volume sensor, serial no.	1	3,4		Idem. A volume sensor could be an external mechanical meter/encoder/electronic index.
+com	7	b	0	3	255	255	Output pulse constants converted/unconverted objects			[1] 4.6.1.2.6 5.6.6.1 Table 41	These values are represented by instances of the interface class IC = 3 "Register"  IC = 4 "Extended Register" with simple data types for the attribute value.
+	7	b	0	3	0	255	Volume forward unconverted	3	4
+	7	b	0	3	1	255	Volume reverse unconverted	3	4
+	7	b	0	3	2	255	Volume absolute unconverted	3	4		Absolute in the sense that negative volume is summed as positive ABS ().
+	7	b	0	3	3	255	Volume forward converted	3	4
+	7	b	0	3	4	255	Volume reverse converted	3	4
+	7	b	0	3	5	255	Volume absolute converted	3	4		Idem
+com	7	b	0	4	255	255	Conversion factor objects			[1] 5.6.6.1 Table 41	This area is to be used for polynomials, constants for conversion and similar.
+	7	b	0	4	0	255		1	3,4
+	7	b	0	4	1	255		1	3,4
+	7	b	0	4	2	255		1	3,4
+	7	b	0	4	3	255		1	3,4
+	7	b	0	4	4	255		1	3,4
+com	1	b	0	5	255	255	Excess consumption
+	1	b	0	5	1	1-4	Demand limits 1...4	3	4
+	1	b	0	5	2	1-9	Demand limits, tariff 1...9	3	4
+com	7	b	0	5	255	255	Maximum contracted value objects
+	7	b	0	5	3	255	Maximum contracted consumption for recording interval 1	3	4		Used for display only. The value is related to the quantity at the top of the volume conversion process.
+	7	b	0	5	4	255	Maximum contracted consumption for recording interval 2	3	4		Idem
+com	7	b	0	5	255	255	Temperature and pressure minimum and maximum limit objects			[1] 5.6.6.1 Table 41    [2] B.3.2	These limits determine a temperature and pressure range. Within this range, the values are "undisturbed" outside of this range they are "disturbed".
+	7	b	0	5	11	255	Absolute temperature, minimum limit setting, Tmin	3	4
+	7	b	0	5	12	255	Absolute temperature, maximum limit setting, Tmax	3	4
+	7	b	0	5	13	255	Absolute pressure, minimum limit setting, Pmin	3	4
+	7	b	0	5	14	255	Absolute pressure, maximum limit setting, Pmax	3	4
+com	7	b	0	6	255	255	Nominal value objects               (for volume sensor)			[1] 5.6.6.1 Table 41	These objects hold gas meter nameplate data.
+	7	b	0	6	1	255	 Pressure	3	4
+	7	b	0	6	2	255	Temperature	3	4
+	7	b	0	6	3	255	Qmin	3	4		Qmin refers to meter quantity. This code is used for display only.
+	7	b	0	6	4	255	Qmax	3	4		Idem
+com	7	b	0	7	255	255	Input pulse constant objects			[1] 4.6.1.2.6 5.6.6.1 Table 41	These values are represented by instances of the interface class IC = 3 "Register"  IC = 4 "Extended Register" with simple data types for the attribute value.
+	7	b	0	7	0	255	Volume forward unconverted	3	4
+	7	b	0	7	1	255	Volume reverse unconverted	3	4
+	7	b	0	7	2	255	Volume absolute unconverted	3	4		Absolute in the sense that negative volume is summed as positive ABS ().
+	7	b	0	7	3	255	Volume forward converted	3	4
+	7	b	0	7	4	255	Volume reverse converted	3	4
+	7	b	0	7	5	255	Volume absolute converted	3	4		Absolute in the sense that negative volume is summed as positive ABS ().
+com	7	b	0	8	255	255	Measurement-/registration period duration objects			[1] 4.6.1.2.8	Time entry values are represented by instances of IC = 1 "Data", IC = 3 "Register" or IC = 4 "Extended register" with the data type of the value attribute unsigned, long-unsigned or double-long-unsigned.
+	7	b	0	8	1	255	Recording interval 1, for profile	1	3
+	7	b	0	8	2	255	Recording interval 2, for profile	1	3	[1] Table 41 Note d)	If multiple recording intervals are implemented, then recording interval 1 shall be the shorter.
+	7	b	0	8	3	255	Measurement period 1, for average value 1	1	3		In gas metering, the averaging schemes belonging to these measurement periods are not used today.
+	7	b	0	8	4	255	Measurement period 2, for average value 2	1	3		Idem
+	7	b	0	8	5	255	Measurement period 3, for instantaneous value	1	3		With battery operated volume converters, P and T is measured as an instantaneous value once every 30 s.
+	7	b	0	8	6	255	Measurement period 4, for test value 	1	3		Idem
+	7	b	0	8	10	255	Billing period	1	3
+com	7	b	0	9	255	255	Time entries objects			[1] 4.6.1.2.8
+	7	b	0	9	0	255	Number of days since last reset	1	3
+com											In the following grey "COM" lines, 255 is used as a wildcard, meaning that in Groups D, E and F various values are allowed. These are defined later down.
+com	7	b	c=1-6, 11-16, 21-26, 31-36	255	255	255	Gas related measuring data - volume and energy objects			[1] 5.5.4.2 Table 19	In gas metering mainly volume quantities are used for billing purposes (meter reading, index). Tariffs for different time periods are not used today, but could be used in the future.
+com	Range definition
+def	c = 1-6						Meter volume objects				In the comment lines below, 255 means wild card
+com	7	b	1	255	255	255	Forward undisturbed meter volume
+com	7	b	2	255	255	255	Forward disturbed meter volume			[2] B.2	Disturbance registers are used when detection exceeds permissible metrological limits or plausibility. So the gas conversion process will switch to store results into disturbance registers when an alert condition occurs and switch back to normal operation registers if this condition disappears.
+com	7	b	3	255	255	255	Forward absolute meter volume				The sum of disturbed and undisturbed volume equals to the absolute meter volume.
+com	7	b	4	255	255	255	Reverse undisturbed meter volume
+com	7	b	5	255	255	255	Reverse disturbed meter volume
+com	7	b	6	255	255	255	Reverse absolute meter volume
+	7	b	c	0	0	255	Actual value at measuring conditions, current billing period	3	4	[2] Table 21, B.3.2	With C = 3, forward absolute unconverted volume "index" from the meter, Vm.
+com	7	b	c	0	0	VZ	Actual value at measuring conditions, value of a single past billing period, identified by VZ	3,4	7
+com	7	b	c	0	0	VZ-1	Idem, value of a single older billing period	3,4	7
+	7	b	c	0	0	0-99	Idem, value of a single historical billing period	3,4	7
+com	7	b	c	0	0	101	Idem, Value of the  last single  billing period	3,4
+com	7	b	c	0	0	101-125	Idem, Value of the (f-100)th last single billing period	3,4
+com	7	b	c	0	0	101-125	Idem, value of the (f-100) last billing periods		7
+com	7	b	c	0	0	102	Idem, value of the second last billing periods	3,4
+com	7	b	c	0	0	102	Idem, value of the two last billing periods		7
+	7	b	c	0	0	101-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	0	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	7	b	c	1	0	255	Corrected volume, current billing period	3	4	[2] Table 21, B.3.2	With C=3, forward absolute error corrected volume from the meter, Vc.
+	7	b	c	1	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	1	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	1	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+def	c = 11-16						Converter volume objects			[1] 5.5.4.2 Table 19	In the comment lines below, 255 means wild card
+com	7	b	11	255	255	255	Forward undisturbed converter volume
+com	7	b	12	255	255	255	Forward disturbed converter volume
+com	7	b	13	255	255	255	Forward absolute converter volume
+com	7	b	14	255	255	255	Reverse undisturbed converter volume
+com	7	b	15	255	255	255	Reverse disturbed converter volume
+com	7	b	16	255	255	255	Reverse absolute converter volume
+	7	b	c	0	0	255	Actual value at measuring conditions, current billing period	3	4	[2] Table 21, B.3.2	With C = 11, forward undisturbed unconverted volume from converter.                           With C = 12, forward disturbed unconverted volume from converter.          With C = 13, forward absolute unconverted volume from converter
+	7	b	c	0	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	0	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	0	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	7	b	c	1	0	255	Corrected volume, current billing period	3	4	[2] Table 21, B.3.2	With C = 11, forward undisturbed error corrected volume from converter. With C = 13, forward absolute error corrected volume from converter.
+	7	b	c	1	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	1	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	1	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	7	b	c	2	0	255	Value at base conditions, current billing period	3	4		With C = 11, forward undisturbed error corrected volume from converter, value at base conditions, Vb.
+	7	b	c	2	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	2	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	2	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+def	c = 21-26						Logger volume objects			[1] 5.5.4.2 Table 19	In the comment lines below, 255 means wild card.
+com	7	b	21	255	255	255	Forward undisturbed logger volume
+com	7	b	22	255	255	255	Forward disturbed logger volume
+com	7	b	23	255	255	255	Forward absolute logger volume
+com	7	b	24	255	255	255	Reverse undisturbed logger volume
+com	7	b	25	255	255	255	Reverse disturbed logger volume
+com	7	b	26	255	255	255	Reverse absolute logger volume
+	7	b	c	0	0	255	Actual value at measuring conditions, current billing period	3	4	[2] Table 21, B.3.2	With C = 23, Forward absolute unconverted volume from logger, Vm.
+	7	b	c	0	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	0	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	0	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	7	b	c	1	0	255	Corrected volume, current billing period	3	4	[2] Table 21, B.3.2	With C=23, forward absolute error corrected volume from logger, Vc.
+	7	b	c	1	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	1	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	1	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+	7	b	c	2	0	255	Value at base conditions, current billing period	3	4	[2] Table 21, B.3.2	With C = 23, Forward absolute converted volume from logger, Vb.
+	7	b	c	2	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	2	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	2	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+def	c = 31-36						Energy objects			[1] 5.5.4.2 Table 19	In the comment lines below, 255 means wild card
+com	7	b	31	255	255	255	Forward undisturbed energy
+com	7	b	32	255	255	255	Forward disturbed energy
+com	7	b	33	255	255	255	Forward absolute energy
+com	7	b	34	255	255	255	Reverse undisturbed energy
+com	7	b	35	255	255	255	Reverse disturbed energy
+com	7	b	36	255	255	255	Reverse absolute energy
+	7	b	c	2	0	255	Value at base conditions	3	4	[2] Table 21, B.3.2	With C = 33, forward absolute energy at base conditions (Energy index, E).
+	7	b	c	2	0	0-99	Idem, value of a single historical billing period	3,4	7
+	7	b	c	2	0	100-125	Idem, value of the (f-100)th / (f-100) last billing periods	3,4	7
+	7	b	c	2	0	126, 255	Idem, value of an unspecified number of last billing periods		7		F = 255 means wildcard
+com	7	b	41	255	255	255	Metering site condition information objects			[2] Table 21	All these data are instantaneous (snapshot) values.
+	7	b	41	0	0	255	Current temperature, T	3	4
+	7	b	41	2	0	255	Base temperature, Tb	3	4		Value of temperature to which conversion is made.
+	7	b	41	3	0	255	Backup temperature (Used if temperature sensor fails)	3	4
+	7	b	41	11	0	255	Preset temperature	3	4		It is an entered data value to be used for volume conversion where an assumed regional/national temperature is used for billing
+	7	b	42	0	0	255	Current pressure, P	3	4
+	7	b	42	2	0	255	Base pressure, Pb	3	4		Value of pressure to which conversion is made.
+	7	b	42	3	0	255	Backup pressure (Used if pressure sensor fails)	3	4
+	7	b	42	11	0	255	Preset pressure value	3	4		Used for conversion devices without a pressure sensor
+	7	b	43	0	0	255	Flow rate, unconverted	3	4	[2] B.3.2	Flow rate is a measured/calculated instantaneous representation of the rate of flow: it is analogous to power in electrical terms. It is usually expressed in m3/hour. It can represent unconverted or converted flow, governed by the value group D.  Flow rate is not used for billing purposes.
+	7	b	43	1	0	255	Flow rate, error-corrected	3	4
+	7	b	43	2	0	255	Flow rate converted	3	4
+	7	b	44	0	0	255	Velocity of sound	3	4	[2] Table 21	Used with ultrasonic meters.
+	7	b	45	0	0	255	Density	3	4	[2] B.3.2	Density can be measured and used to calculate energy with a variant of calorific value.
+com	7	b	255	255	255	255	Constants and calculated results objects
+	7	b	51	0	0	255	Correction factor, Cf	1	3,4	[2] Table 21, B.3.2.	A fixed value used to correct a scalar error on a meter. For example, if a meter under-registers volume by 0,5%, the a correction factor value of 1,005 will compensate for the error. Cf could also be a function of flow, based upon a table of error-flow of the gas meter.
+	7	b	51	10	0	255	Correction factor, Cf at measuring conditions	1	3,4
+	7	b	52	0	0	255	Conversion factor, C	1	3,4	[2] Table 21, B.3.2.	A factor that is used to convert "unconverted volume" to "converted volume".
+	7	b	53	0	0	255	Compressibility, Z	1	3,4	[2] Table 21, B.3.2.	The difference in compressibility between the gas being measured and "noble" gas. SGERG-88 and EN 12405 give full information on this, though below 1,5 Bar this is usually set to 1.
+	7	b	53	2	0	255	Base compressibility, Zb	1	3,4	[2] Table 21, B.3.2.
+	7	b	53	11	0	255	Preset compressibility	1	3,4	[2] Table 21, B.3.2.	Used where a fixed value of Z is assumed.
+	7	b	53	12	0	255	Compressibility method	1	3,4	[2] Table 21, B.3.2.	Usually a text string, SGERG88, AGA8, AGANX19 etc.
+	7	b	54	0	0	255	Calorific value (Measured), CV	3	4	[2] Table 21, B.3.2.	CV is the energy that may be gained from the combustion of a standard volume of gas at base conditions, or at a pre-set density.
+com	1	b	96	50	255	255	Manufacturer specific gas related objects, general service entries			[1] 5.6.6.1 Table 41	In the manufacturer specific objects, only those values which are not represented by another defined code, but need representation on the display as well shall be placed. If this is not required, the code shall use the possibilities of a value group D > 127. These codes are not yet in [2].
+	1	b	96	50-99	0-255	0-255	Manufacturer specific abstract objects	1,3,4,7, 61, 63
+com	7	b	99	255	255	255	Gas data profile objects			[2] Table 20
+	7	b	99	1	0-127	255	Load profile with recording interval 1	7			If only one object is instantiated, the value of E shall be 0.
+	7	b	99	2	0-127	255	Load profile with recording interval 2	7			If only one object is instantiated, the value of E shall be 0.
+	7	b	99	3	0	255	Profile of maxima with recording interval 1	7			A sequence of maximum value sets.
+	7	b	99	4	1	255	Profile of maxima with recording interval 2	7			A sequence of maximum value sets.
+	7	b	99	98	0-127	255	Event log	7		[1] Table 37	If only one object is instantiated, the value of E shall be 0.
+	7	b	99	99	0-127	255	Certification data log	7		[1] Table 37	If only one object is instantiated, the value of E shall be 0.
+com	7	b	128	255	255	255	Gas related manufacturer specific objects				If any group B to F contains a value in the manufacturer specific range, the whole code is considered as manufacturer specific and even the other value groups, (with the exception of group A) are not necessarily bearing any meaning defined by this standard. In all groups, the value 255 means "not used". Manufacturer specific objects can be of any class. The manufacturer must ensure that each and every COSEM object within the logical device can be uniquely identified by the combination of its OBIS name and interface class.
+	7	128-254	0-255	0-255	0-255	0-255	Manufacturer specific gas related objects, Group B>127	*			Objects that are already defined in [1] and [2] shall not be re-defined as manufacturer specific.
+	7	b	128-254, 240	0-255	0-255	0-255	Manufacturer specific gas related objects, Group C>127	*			Idem
+	7	b	0-254	128-254	0-255	0-255	Manufacturer specific gas related objects, Group D>127	*			Idem
+	7	b	0-254	0-254	128-254	0-255	Manufacturer specific gas related objects, Group E>127	*			Idem
+	7	b	0-254	0-254	0-254	128-254	Manufacturer specific gas related objects, Group F>127	*			Idem

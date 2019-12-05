@@ -20,6 +20,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.SftpDestination;
 import com.elster.jupiter.export.WebServiceDestination;
 import com.elster.jupiter.nls.Thesaurus;
@@ -555,10 +556,10 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Optional<ReadingDataSelectorConfigImpl> getReadingDataSelectorConfig() {
+    public Optional<ReadingDataSelectorConfig> getReadingDataSelectorConfig() {
         return dataSelectorConfig
                 .filter(ReadingDataSelectorConfigImpl.class::isInstance)
-                .map(ReadingDataSelectorConfigImpl.class::cast);
+                .map(ReadingDataSelectorConfig.class::cast);
     }
 
     @Override
