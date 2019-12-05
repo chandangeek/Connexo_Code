@@ -66,7 +66,7 @@ import java.util.logging.Level;
  */
 public class A2 extends AbstractDlmsProtocol {
 
-    private final static int PUBLIC_CLIENT = 16;
+    public final static int PUBLIC_CLIENT = 16;
     public final static int INSTALLER_MAINTAINER_CLIENT = 3;
     public final static int MANAGEMENT_CLIENT = 1;
 
@@ -134,7 +134,7 @@ public class A2 extends AbstractDlmsProtocol {
         }
     }
 
-    private void setupSession(ComChannel comChannel, ObisCode frameCounterObiscode) {
+    protected void setupSession(ComChannel comChannel, ObisCode frameCounterObiscode) {
         DlmsProperties publicClientProperties = getDlmsProperties();
         DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, publicClientProperties);
         long frameCounter;
@@ -163,14 +163,14 @@ public class A2 extends AbstractDlmsProtocol {
         setDlmsSession(new A2DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOnV2, offlineDevice.getSerialNumber()));
     }
 
-    private long getFrameCounter(DlmsSession publicDlmsSession, ObisCode frameCounterObiscode) throws IOException {
+    protected long getFrameCounter(DlmsSession publicDlmsSession, ObisCode frameCounterObiscode) throws IOException {
         getLogger().info("Public client connected, reading frame counter " + frameCounterObiscode.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
         long frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObiscode).getValueAttr().longValue();
         getLogger().info("Frame counter received: " + frameCounter);
         return frameCounter;
     }
 
-    private String getLogicalDeviceName(DlmsSession publicDlmsSession) throws IOException {
+    protected String getLogicalDeviceName(DlmsSession publicDlmsSession) throws IOException {
         getLogger().info("Reading COSEM logical device name " + COSEM_LOGICAL_DEVICE_NAME.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
         String logicalDeviceName = getLogDevName(publicDlmsSession);
         getLogger().info("COSEM logical device name received: " + logicalDeviceName);
@@ -181,14 +181,14 @@ public class A2 extends AbstractDlmsProtocol {
         return publicDlmsSession.getCosemObjectFactory().getData(COSEM_LOGICAL_DEVICE_NAME).getValueAttr().getOctetString().stringValue();
     }
 
-    private DlmsSession getPublicDlmsSession(ComChannel comChannel, DlmsProperties publicClientProperties) {
+    protected DlmsSession getPublicDlmsSession(ComChannel comChannel, DlmsProperties publicClientProperties) {
         DlmsSession publicDlmsSession = new A2DlmsSession(comChannel, publicClientProperties, hhuSignOnV2, offlineDevice.getSerialNumber());
         getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
         connectWithRetries(publicDlmsSession);
         return publicDlmsSession;
     }
 
-    private DlmsProperties getDlmsProperties() {
+    protected DlmsProperties getDlmsProperties() {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
         clone.setProperty(DlmsProtocolProperties.ADDRESSING_MODE, BigDecimal.valueOf(ADDRESSING_MODE));
@@ -200,7 +200,7 @@ public class A2 extends AbstractDlmsProtocol {
         return publicClientProperties;
     }
 
-    private void checkDeviceName(String logicalDeviceName) {
+    protected void checkDeviceName(String logicalDeviceName) {
         if (!logicalDeviceName.equals(getDlmsSessionProperties().getDeviceId())) {
             CommunicationException exception = CommunicationException.unexpectedPropertyValue(DlmsProtocolProperties.DEVICE_ID, logicalDeviceName, getDlmsSessionProperties().getDeviceId());
             getLogger().severe(exception.getMessage());
@@ -336,6 +336,10 @@ public class A2 extends AbstractDlmsProtocol {
 
     public NlsService getNlsService() {
         return nlsService;
+    }
+
+    public A2HHUSignOn getHhuSignOnV2() {
+        return hhuSignOnV2;
     }
 
     public DeviceMessageFileExtractor getMessageFileExtractor() {
