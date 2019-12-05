@@ -1406,21 +1406,21 @@ public class ComTaskExecutionOrganizerTest {
         when(configurationSecurityProperty.getName()).thenReturn(name);
         SecurityAccessor securityAccessor = getPassPhraseKeyAccessor(name, passPhrase);
         when(configurationSecurityProperty.getKeyAccessor()).thenReturn(securityAccessor);
-        SecurityAccessorType securityAccessorType = securityAccessor.getKeyAccessorType();
+        SecurityAccessorType securityAccessorType = securityAccessor.getKeyAccessorTypeReference();
         when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         return configurationSecurityProperty;
     }
 
     private SecurityAccessor getPassPhraseKeyAccessor(String keyAccessorTypeName, String passPhrase) {
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
-        when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of(passPhrase));
+        when(plaintextPassphrase.getEncryptedPassphrase()).thenReturn(Optional.of(passPhrase));
 
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         when(securityAccessorType.getName()).thenReturn(keyAccessorTypeName);
-        when(securityAccessor.getKeyAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
         when(securityAccessor.getDevice()).thenReturn(mock(Device.class));
-        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(plaintextPassphrase));
         return securityAccessor;
     }
 

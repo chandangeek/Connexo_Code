@@ -120,5 +120,10 @@
             <version>1.7.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.h2</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

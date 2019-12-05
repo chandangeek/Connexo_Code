@@ -1,12 +1,14 @@
 package com.energyict.mdc.channels.ip;
 
 import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.protocols.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
@@ -25,26 +27,42 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     public static final String PORT_PROPERTY_NAME = "portNumber";
     public static final String CONNECTION_TIMEOUT_PROPERTY_NAME = "connectionTimeout";
     private static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofSeconds(10);
-    private final PropertySpecService propertySpecService;
+    private PropertySpecService propertySpecService;
+
+    public OutboundIpConnectionType() {
+        super();
+    }
 
     public OutboundIpConnectionType(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
-    private PropertySpec hostPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(HOST_PROPERTY_NAME, false, PropertyTranslationKeys.OUTBOUND_IP_HOST, this.propertySpecService::stringSpec).finish();
+    private PropertySpec hostPropertySpec;
+
+    private PropertySpec getHostPropertySpec() {
+        if (hostPropertySpec == null && propertySpecService != null)
+            hostPropertySpec = UPLPropertySpecFactory.specBuilder(HOST_PROPERTY_NAME, false, PropertyTranslationKeys.OUTBOUND_IP_HOST, this.propertySpecService::stringSpec).finish();
+        return hostPropertySpec;
     }
 
     protected String hostPropertyValue() {
         return (String) this.getProperty(HOST_PROPERTY_NAME);
     }
 
-    private PropertySpec portNumberPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PORT_PROPERTY_NAME, false, PropertyTranslationKeys.OUTBOUND_IP_PORT_NUMBER, this.propertySpecService::bigDecimalSpec).finish();
+    private PropertySpec portNumberPropertySpec;
+
+    private PropertySpec getPortNumberPropertySpec() {
+        if (portNumberPropertySpec == null && propertySpecService != null)
+            portNumberPropertySpec = UPLPropertySpecFactory.specBuilder(PORT_PROPERTY_NAME, false, PropertyTranslationKeys.OUTBOUND_IP_PORT_NUMBER, this.propertySpecService::bigDecimalSpec).finish();
+        return portNumberPropertySpec;
     }
 
-    private PropertySpec connectionTimeOutPropertySpec() {
-        return this.durationSpec(CONNECTION_TIMEOUT_PROPERTY_NAME, PropertyTranslationKeys.OUTBOUND_IP_CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT);
+    private PropertySpec connectionTimeOutPropertySpec;
+
+    private PropertySpec getConnectionTimeOutPropertySpec() {
+        if (connectionTimeOutPropertySpec == null && propertySpecService != null)
+            connectionTimeOutPropertySpec = this.durationSpec(CONNECTION_TIMEOUT_PROPERTY_NAME, PropertyTranslationKeys.OUTBOUND_IP_CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT);
+        return connectionTimeOutPropertySpec;
     }
 
     protected int portNumberPropertyValue() {
@@ -76,9 +94,9 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.hostPropertySpec(),
-                this.portNumberPropertySpec(),
-                this.connectionTimeOutPropertySpec());
+                this.getHostPropertySpec(),
+                this.getPortNumberPropertySpec(),
+                this.getConnectionTimeOutPropertySpec());
     }
 
     @Override
@@ -93,6 +111,8 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
                 .finish();
     }
 
+    @JsonIgnore
+    @XmlTransient
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }

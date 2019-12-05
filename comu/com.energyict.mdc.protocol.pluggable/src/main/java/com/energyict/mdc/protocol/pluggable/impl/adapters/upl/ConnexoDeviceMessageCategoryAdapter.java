@@ -3,7 +3,9 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageCategoryAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +58,8 @@ public class ConnexoDeviceMessageCategoryAdapter implements com.energyict.mdc.up
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public List<DeviceMessageSpec> getMessageSpecifications() {
         return cxoDeviceMessageCategory.getMessageSpecifications().stream()
                 .map(ConnexoDeviceMessageSpecAdapter::adaptTo)

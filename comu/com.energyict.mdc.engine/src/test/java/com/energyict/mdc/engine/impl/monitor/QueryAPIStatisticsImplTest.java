@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Date;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -94,7 +96,7 @@ public class QueryAPIStatisticsImplTest {
         int currentNumberOfClients = queryAPIStatistics.getNumberOfClients();
 
         // Business method
-        queryAPIStatistics.clientRegistered();
+        queryAPIStatistics.clientRegistered("", new Date());
 
         // Asserts
         assertThat(queryAPIStatistics.getNumberOfClients()).isEqualTo(currentNumberOfClients + 1);
@@ -103,13 +105,13 @@ public class QueryAPIStatisticsImplTest {
     @Test
     public void testClientUnregistered () {
         QueryAPIStatisticsImpl queryAPIStatistics = new QueryAPIStatisticsImpl(this.comServer);
-        queryAPIStatistics.clientRegistered();
-        queryAPIStatistics.clientRegistered();
-        queryAPIStatistics.clientRegistered();
+        queryAPIStatistics.clientRegistered("", new Date());
+        queryAPIStatistics.clientRegistered("", new Date());
+        queryAPIStatistics.clientRegistered("", new Date());
         int currentNumberOfClients = queryAPIStatistics.getNumberOfClients();
 
         // Business method
-        queryAPIStatistics.clientUnregistered();
+        queryAPIStatistics.clientUnregistered("");
 
         // Asserts
         assertThat(queryAPIStatistics.getNumberOfClients()).isEqualTo(currentNumberOfClients - 1);
@@ -118,9 +120,9 @@ public class QueryAPIStatisticsImplTest {
     @Test
     public void testReset () {
         QueryAPIStatisticsImpl queryAPIStatistics = new QueryAPIStatisticsImpl(this.comServer);
-        queryAPIStatistics.clientRegistered();
-        queryAPIStatistics.clientRegistered();
-        queryAPIStatistics.clientRegistered();
+        queryAPIStatistics.clientRegistered("", new Date());
+        queryAPIStatistics.clientRegistered("", new Date());
+        queryAPIStatistics.clientRegistered("", new Date());
         queryAPIStatistics.setNumberOfClients(23);
         queryAPIStatistics.setNumberOfFailures(31);
         queryAPIStatistics.callCompleted(23);

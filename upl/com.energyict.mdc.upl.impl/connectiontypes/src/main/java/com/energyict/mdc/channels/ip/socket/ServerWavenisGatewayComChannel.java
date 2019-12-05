@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.mdc.protocol.ComChannelRemoteAddress;
 
 /**
  * Copyrights EnergyICT

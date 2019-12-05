@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.device.config.DeleteEventType;
@@ -23,8 +24,11 @@ import com.energyict.mdc.common.protocol.DeviceProtocolDialectSupport;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 
@@ -32,17 +36,22 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
+public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
-    private final DataModel dataModel;
+    private DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -62,8 +71,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @SuppressWarnings("unused") //Used by the orm
     private Instant modTime;
 
+    private List<PropertySpec> propertySpecs;
     // transient
     private transient TypedProperties typedProperties;
+
+    ProtocolDialectConfigurationPropertiesImpl() {
+        super();
+    }
 
     @Inject
     ProtocolDialectConfigurationPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -81,6 +95,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -91,11 +106,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.get();
     }
 
     @Override
+    @XmlTransient
     public DeviceProtocolDialect getDeviceProtocolDialect() {
         if (this.protocolDialect == null) {
             this.protocolDialect = getDeviceProtocolDialect(this.protocolDialectName);
@@ -122,11 +139,17 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    @XmlElement(name = "deviceProtocolDialectName")
     public String getDeviceProtocolDialectName() {
         return this.protocolDialectName;
     }
 
+    public void setDeviceProtocolDialectName(String name) {
+        // For xml unmarshalling purposes only
+    }
+
     @Override
+    @XmlAttribute
     public TypedProperties getTypedProperties() {
         if (typedProperties == null) {
             typedProperties = initializeTypedProperties();
@@ -144,12 +167,24 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = BasicPropertySpec.class),
+            @XmlElement(type = KeyAccessorPropertySpecWithPossibleValues.class),
+            @XmlElement(type = UPLToConnexoPropertySpecAdapter.class),
+    })
     public List<PropertySpec> getPropertySpecs() {
-        if (this.getDeviceProtocolDialect() == null) {
-            return Collections.emptyList();
-        } else {
-            return this.getDeviceProtocolDialect().getPropertySpecs();
-        }
+        if (propertySpecs == null && deviceConfiguration != null)
+            if (this.getDeviceProtocolDialect() == null) {
+                propertySpecs = Collections.emptyList();
+            } else {
+                propertySpecs = this.getDeviceProtocolDialect().getPropertySpecs();
+            }
+        return propertySpecs;
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::adaptTo).collect(Collectors.toList());
     }
 
     @Override
@@ -282,4 +317,12 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         }
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

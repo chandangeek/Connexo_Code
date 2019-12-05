@@ -36,7 +36,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.DstEnablementSta
 import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.HolidayRecord;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;

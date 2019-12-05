@@ -4,17 +4,22 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.io.File;
 
 public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAttribute {
@@ -81,6 +86,11 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = BasicPropertySpec.class),
+            @XmlElement(type = KeyAccessorPropertySpecWithPossibleValues.class),
+            @XmlElement(type = UPLToConnexoPropertySpecAdapter.class),
+    })
     public PropertySpec getPropertySpec() {
         return this.propertySpec;
     }

@@ -54,9 +54,9 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.io.ByteArrayOutputStream;
@@ -754,7 +754,7 @@ public class MiniMax implements DeviceProtocol {
                         break;
                 }
 
-                RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode(), offlineDevice.getDeviceIdentifier());
+                RegisterIdentifier registerIdentifier = new RegisterIdentifierById(list.get(i).getRegisterId(), list.get(i).getObisCode(), offlineDevice.getDeviceIdentifier());
                 CollectedRegister register = this.collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
                 retVal.add(register);
 

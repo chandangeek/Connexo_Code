@@ -4,9 +4,11 @@
 package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
@@ -26,6 +28,9 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(Device device);
 
+    Optional<String> getSapDeviceId(EndDevice endDevice);
+
+    @Deprecated
     Optional<String> getSapDeviceId(String deviceName);
 
     void setSapDeviceId(Device device, String sapDeviceId);
@@ -72,4 +77,8 @@ public interface SAPCustomPropertySets {
     Set<ReadingType> findReadingTypesForProfileId(String profileId);
 
     Map<String, RangeSet<Instant>> getProfileId(Channel channel, Range<Instant> range);
+
+    void truncateCpsInterval(Device device, String lrn, Instant endDate);
+
+    Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid);
 }

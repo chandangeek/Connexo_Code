@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -87,6 +88,7 @@ public final class StateTransitionImpl implements StateTransition {
         return this.id;
     }
 
+    @XmlTransient
     public FiniteStateMachine getFiniteStateMachine() {
         return finiteStateMachine.get();
     }
@@ -127,11 +129,13 @@ public final class StateTransitionImpl implements StateTransition {
     }
 
     @Override
+    @XmlTransient
     public State getFrom() {
         return this.from.get();
     }
 
     @Override
+    @XmlTransient
     public State getTo() {
         return this.to.get();
     }

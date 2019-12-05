@@ -21,6 +21,7 @@ import com.energyict.mdc.common.tasks.ServerComTaskExecution;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +63,11 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     @Override
     public Device getDevice() {
         return comTaskExecution.getDevice();
+    }
+
+    @Override
+    public void setDevice(Device device) {
+        comTaskExecution.setDevice(device);
     }
 
     @Override
@@ -277,6 +283,11 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     }
 
     @Override
+    public void setComTask(ComTask comTask) {
+        comTaskExecution.setComTask(comTask);
+    }
+
+    @Override
     public Optional<ComSchedule> getComSchedule() {
         return Optional.empty();
     }
@@ -392,5 +403,16 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     @Override
     public void sessionCreated(ComTaskExecutionSession session) {
         comTaskExecution.sessionCreated(session);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

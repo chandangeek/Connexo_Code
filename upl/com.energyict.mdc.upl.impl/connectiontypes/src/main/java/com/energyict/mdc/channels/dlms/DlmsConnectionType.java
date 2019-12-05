@@ -2,7 +2,7 @@ package com.energyict.mdc.channels.dlms;
 
 
 import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.protocols.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;

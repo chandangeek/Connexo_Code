@@ -280,13 +280,13 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile1.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile1.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile2.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile2.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile3.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile3.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile4.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile4.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 

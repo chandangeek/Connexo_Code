@@ -2,7 +2,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.custompropertyset;
 
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

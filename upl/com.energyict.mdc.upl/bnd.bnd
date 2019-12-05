@@ -1,5 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
+DynamicImport-Package: com.energyict.dlms,\
+    com.energyict.protocolimplv2.dlms.idis.am540
 Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.upl.cache,\
                 com.energyict.mdc.upl.crypto,\
@@ -16,6 +18,7 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.upl.security,\
                 com.energyict.mdc.upl.tasks,\
                 com.energyict.mdc.upl.tasks.support,\
+                com.energyict.mdc.identifiers,\
                 com.energyict.mdc.channel,\
                 com.energyict.mdc.channel.serial,\
                 com.energyict.mdc.channel.serial.direct.rxtx,\
@@ -26,6 +29,7 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.channel.ip.datagrams,\
                 com.energyict.mdc.ports,\
                 com.energyict.mdc.protocol,\
+                com.energyict.mdc.protocol.journal,\
                 com.energyict.cbo,\
                 com.energyict.cim,\
                 com.energyict.dialer.connection,\

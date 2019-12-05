@@ -9,7 +9,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MultipleLoadProfileSupport;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.IOException;
 import java.time.Duration;

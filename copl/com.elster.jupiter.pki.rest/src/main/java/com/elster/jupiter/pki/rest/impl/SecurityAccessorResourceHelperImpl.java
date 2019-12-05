@@ -90,18 +90,18 @@ public class SecurityAccessorResourceHelperImpl implements SecurityAccessorResou
 
     @Override
     public boolean updateActualCertificateIfNeeded(SecurityAccessor<CertificateWrapper> securityAccessor, List<PropertyInfo> infos, boolean mandatory) {
-        List<PropertySpec> propertySpecs = securityManagementService.getPropertySpecs(securityAccessor.getKeyAccessorType());
+        List<PropertySpec> propertySpecs = securityManagementService.getPropertySpecs(securityAccessor.getKeyAccessorTypeReference());
         Map<String, Object> requested = Optional.of(propertyValueInfoService.findPropertyValues(propertySpecs, infos == null ? Collections.emptyList() : infos))
                 .filter(SecurityAccessorResourceHelperImpl::propertiesContainValues)
                 .orElseGet(Collections::emptyMap);
-        Map<String, Object> current = securityAccessor.getActualValue()
+        Map<String, Object> current = securityAccessor.getActualPassphraseWrapperReference()
                 .map(CertificateWrapper::getProperties)
                 .orElseGet(Collections::emptyMap);
         if (propertiesDiffer(requested, current)) {
             if (!mandatory && requested.isEmpty()) {
                 securityAccessor.clearActualValue();
             } else {
-                securityAccessor.setActualValue(createCertificateWrapper(securityAccessor.getKeyAccessorType(), requested));
+                securityAccessor.setActualPassphraseWrapperReference(createCertificateWrapper(securityAccessor.getKeyAccessorTypeReference(), requested));
             }
             return true;
         }
@@ -110,7 +110,7 @@ public class SecurityAccessorResourceHelperImpl implements SecurityAccessorResou
 
     @Override
     public boolean updateTempCertificateIfNeeded(SecurityAccessor<CertificateWrapper> securityAccessor, List<PropertyInfo> infos) {
-        List<PropertySpec> propertySpecs = securityManagementService.getPropertySpecs(securityAccessor.getKeyAccessorType());
+        List<PropertySpec> propertySpecs = securityManagementService.getPropertySpecs(securityAccessor.getKeyAccessorTypeReference());
         Map<String, Object> requested = Optional.of(propertyValueInfoService.findPropertyValues(propertySpecs, infos == null ? Collections.emptyList() : infos))
                 .filter(SecurityAccessorResourceHelperImpl::propertiesContainValues)
                 .orElseGet(Collections::emptyMap);
@@ -121,7 +121,7 @@ public class SecurityAccessorResourceHelperImpl implements SecurityAccessorResou
             if (requested.isEmpty()) {
                 securityAccessor.clearTempValue();
             } else {
-                securityAccessor.setTempValue(createCertificateWrapper(securityAccessor.getKeyAccessorType(), requested));
+                securityAccessor.setTempValue(createCertificateWrapper(securityAccessor.getKeyAccessorTypeReference(), requested));
             }
             return true;
         }

@@ -22,8 +22,8 @@ import java.time.Clock;
                 "destination=" + ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION},
         immediate = true)
 public class ComServerAliveStatusHandlerFactory implements MessageHandlerFactory {
-    public static final String COM_SERVER_ALIVE_TASK_DESTINATION = "ComServerAliveStatusTopic";
-    public static final String COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER = "ComServerAliveStatusSubscriber";
+    public static final String COM_SERVER_ALIVE_TASK_DESTINATION = "ComServerStatusTopic";
+    public static final String COM_SERVER_ALIVE_TIMEOUT_TASK_SUBSCRIBER = "ComServerStatusSubs";
 
     private volatile TaskService taskService;
     private volatile Clock clock;

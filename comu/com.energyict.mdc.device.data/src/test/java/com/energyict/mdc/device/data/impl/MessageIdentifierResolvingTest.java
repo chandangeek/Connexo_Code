@@ -5,16 +5,15 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import org.reflections.Reflections;
 
 import java.util.ArrayList;
@@ -47,8 +46,9 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     private static DeviceMessageServiceImpl deviceMessageService;
 
-    @Mock
-    DeviceImpl device;
+    Device device;
+
+    Device realDevice;
 
     DeviceIdentifier deviceIdentifier;
 
@@ -63,7 +63,14 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device);
+        device = spy(createDevice());
+        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+    }
+
+    private Device createDevice() {
+        realDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        realDevice.save();
+        return realDevice;
     }
 
     @Test
@@ -84,17 +91,6 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void testDeviceDataDeviceMessageIdentifierForAlreadyKnownMessage() throws Exception {
-        DeviceMessageService spiedService = spy(deviceMessageService);
-        DeviceMessage myDeviceMessage = mock(DeviceMessage.class);
-        when(myDeviceMessage.getDevice()).thenReturn(device);
-        Optional<DeviceMessage> foundLogBook = spiedService.findDeviceMessageByIdentifier(new DeviceMessageIdentifierForAlreadyKnownMessage(myDeviceMessage));
-        assertThat(foundLogBook).isPresent();
-        assertThat(foundLogBook.get()).isEqualTo(myDeviceMessage);
-    }
-
-    @Test
-    @Transactional
     public void testProtocolDeviceMessageIdentifierById() throws Exception {
         DeviceMessageService spiedService = spy(deviceMessageService);
 
@@ -106,8 +102,7 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
     @Transactional
     public void testProtocolDeviceMessageIdentifierByDeviceAndProtocolInfoParts() throws Exception {
         DeviceMessageServiceImpl spiedService = spy(deviceMessageService);
-
         spiedService.findDeviceMessageByIdentifier(new DeviceMessageIdentifierByDeviceAndProtocolInfoParts(deviceIdentifier, "part_A", "part_B"));
-        verify(spiedService).findByDeviceAndProtocolInfoParts(device, "part_A", "part_B");
+        verify(spiedService).findByDeviceAndProtocolInfoParts(realDevice, "part_A", "part_B");
     }
 }

@@ -132,6 +132,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -190,9 +194,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>soap.whiteboard.cxf</artifactId>
+            <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>

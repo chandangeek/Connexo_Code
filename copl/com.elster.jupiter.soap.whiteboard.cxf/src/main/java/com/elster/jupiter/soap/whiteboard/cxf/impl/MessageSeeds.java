@@ -23,7 +23,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_WEB_SERVICE_ENDPOINT(100, "NoWebServiceEndpoint", "Can''t send request to web service endpoint ''{0}'': it isn''t available."),
     INACTIVE_WEB_SERVICE_ENDPOINT(101, "InactiveWebServiceEndpoint", "Can''t send request to web service endpoint ''{0}'': it is deactivated."),
     NO_WEB_SERVICE_ENDPOINTS(102, "NoWebServiceEndpoints", "No web service endpoints are available to send the request using ''{0}''."),
-    PUBLISHING_WEB_SERVICE_ENDPOINT(103, "PublishingWebServiceEndpoint", "Web service endpoint ''{0}'' is active but unpublished; publishing now...", Level.CONFIG);
+    PUBLISHING_WEB_SERVICE_ENDPOINT(103, "PublishingWebServiceEndpoint", "Web service endpoint ''{0}'' is active but unpublished; publishing now...", Level.CONFIG),
+    WRONG_WEB_SERVICE_ENDPOINT_CONFIGURATION(104, "WrongWebServiceEndpointConfiguration", "Can''t send request to web service endpoint ''{0}'' with the help of web service ''{1}''.");
 
     private final int number;
     private final String key;

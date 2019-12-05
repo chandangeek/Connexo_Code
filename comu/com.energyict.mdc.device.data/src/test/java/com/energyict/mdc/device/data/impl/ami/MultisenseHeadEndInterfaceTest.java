@@ -41,6 +41,7 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
@@ -207,6 +208,7 @@ public class MultisenseHeadEndInterfaceTest {
     @Test
     public void sendCommandTest() throws Exception {
         MessagesTask messagesTask = mock(MessagesTask.class);
+        StatusInformationTask statusInformationTask = mock(StatusInformationTask.class);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
@@ -216,7 +218,7 @@ public class MultisenseHeadEndInterfaceTest {
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(COMTASK_ID);
         when(comTask.isManualSystemTask()).thenReturn(true);
-        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
+        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(messagesTask, statusInformationTask));
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
 

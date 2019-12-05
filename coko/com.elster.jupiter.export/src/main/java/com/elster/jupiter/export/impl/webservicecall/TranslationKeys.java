@@ -9,6 +9,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 
 public enum TranslationKeys implements TranslationKey {
     SERVICE_CALL_TYPE_NAME("data.export.web.serviceCall.type.name", "Export confirmation waiting"),
+    SERVICE_CALL_TYPE_CHILD_NAME("data.export.web.serviceCall.type.child.name", "Exported data source"),
     SERVICE_CALL_CPS_NAME(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID, "Data export web service call properties"),
     SERVICE_CALL_CPS_DOMAIN_NAME(ServiceCall.class.getSimpleName(), "Service call"),
 
@@ -16,6 +17,9 @@ public enum TranslationKeys implements TranslationKey {
     TIMEOUT("timeout", "Timeout"),
     ERROR_MESSAGE("errorMessage", "Error message"),
 
+    DEVICE_NAME("deviceName", "Device name"),
+    READING_TYPE_MRID("readingTypeMRID", "Reading type MRID"),
+    DATA_SOURCE_ID("dataSourceId", "Data source id"),
     SECONDS("seconds", "second(s)"),
     MINUTES("minutes", "minute(s)")
     ;

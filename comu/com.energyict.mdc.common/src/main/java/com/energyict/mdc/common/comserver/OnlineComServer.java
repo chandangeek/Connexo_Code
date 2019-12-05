@@ -107,6 +107,8 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
      */
     public int getStoreTaskThreadPriority();
 
+    public boolean isCompressingEnabled();
+
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority);
 
     interface OnlineComServerBuilder<OCS extends OnlineComServer> extends ComServerBuilder<OCS, OnlineComServerBuilder> {

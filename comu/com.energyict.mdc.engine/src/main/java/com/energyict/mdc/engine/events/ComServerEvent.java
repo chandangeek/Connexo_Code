@@ -11,6 +11,7 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.io.Externalizable;
 import java.time.Instant;
 
 /**
@@ -41,7 +42,7 @@ import java.time.Instant;
  * @since 2012-10-30 (17:01)
  */
 @ProviderType
-public interface ComServerEvent {
+public interface ComServerEvent extends Externalizable {
 
     /**
      * Gets the timestamp on which this event occurred.
