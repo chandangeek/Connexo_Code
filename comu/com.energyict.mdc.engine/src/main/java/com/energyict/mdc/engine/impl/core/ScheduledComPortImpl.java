@@ -275,10 +275,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     final void executeTasks() {
         getLogger().lookingForWork(getThreadName());
-        LOGGER.info("[" + Thread.currentThread().getName() + "] looking for work");
+        LOGGER.warning("[" + Thread.currentThread().getName() + "] looking for work");
+        long start = System.currentTimeMillis();
         List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
         queriedForTasks();
-        scheduleAll(jobs);
+        scheduleAll(jobs, start);
     }
 
     private void queriedForTasks() {
@@ -286,14 +287,14 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         ((ServerScheduledComPortOperationalStatistics) getOperationalMonitor().getOperationalStatistics()).setLastCheckForWorkTimestamp(Date.from(lastActivityTimestamp));
     }
 
-    private void scheduleAll(List<ComJob> jobs) {
+    private void scheduleAll(List<ComJob> jobs, long start) {
         if (jobs.isEmpty()) {
             this.getLogger().noWorkFound(this.getThreadName());
-            LOGGER.info("[" + Thread.currentThread().getName() + "] found no work to execute");
+            LOGGER.warning("perf - [" + Thread.currentThread().getName() + "] found no work to execute, " + (System.currentTimeMillis() - start));
             reschedule();
         } else {
             this.getLogger().workFound(this.getThreadName(), jobs.size());
-            LOGGER.info("[" + Thread.currentThread().getName() + "] found " + jobs.size() + " job(s) to execute");
+            LOGGER.warning("perf - [" + Thread.currentThread().getName() + "] found " + jobs.size() + " job(s) to execute, " + (System.currentTimeMillis() - start));
             this.getJobScheduler().scheduleAll(jobs);
         }
     }
