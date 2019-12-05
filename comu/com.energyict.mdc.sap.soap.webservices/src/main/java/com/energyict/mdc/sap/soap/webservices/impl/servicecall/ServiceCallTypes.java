@@ -36,13 +36,13 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultServiceCallHandler;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequest;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequest;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequest;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 
@@ -111,21 +111,21 @@ public enum ServiceCallTypes {
             UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName(),
             UtilitiesDeviceCreateRequestDomainExtension.class.getName()),
     MASTER_METER_REGISTER_CHANGE_REQUEST(
-            MasterMeterRegisterChangeRequest.NAME,
-            MasterMeterRegisterChangeRequest.VERSION,
-            MasterMeterRegisterChangeRequest.APPLICATION,
+            MasterMeterRegisterChangeRequestServiceCallHandler.NAME,
+            MasterMeterRegisterChangeRequestServiceCallHandler.VERSION,
+            MasterMeterRegisterChangeRequestServiceCallHandler.APPLICATION,
             MasterMeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
             MasterMeterRegisterChangeRequestDomainExtension.class.getName()),
     SUB_MASTER_METER_REGISTER_CHANGE_REQUEST(
-            SubMasterMeterRegisterChangeRequest.NAME,
-            SubMasterMeterRegisterChangeRequest.VERSION,
-            SubMasterMeterRegisterChangeRequest.APPLICATION,
+            SubMasterMeterRegisterChangeRequestServiceCallHandler.NAME,
+            SubMasterMeterRegisterChangeRequestServiceCallHandler.VERSION,
+            SubMasterMeterRegisterChangeRequestServiceCallHandler.APPLICATION,
             SubMasterMeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
             SubMasterMeterRegisterChangeRequestDomainExtension.class.getName()),
     METER_REGISTER_CHANGE_REQUEST(
-            MeterRegisterChangeRequest.NAME,
-            MeterRegisterChangeRequest.VERSION,
-            MeterRegisterChangeRequest.APPLICATION,
+            MeterRegisterChangeRequestServiceCallHandler.NAME,
+            MeterRegisterChangeRequestServiceCallHandler.VERSION,
+            MeterRegisterChangeRequestServiceCallHandler.APPLICATION,
             MeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
             MeterRegisterChangeRequestDomainExtension.class.getName()),
     MASTER_CONNECTION_STATUS_CHANGE(

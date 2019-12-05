@@ -53,8 +53,8 @@ public class UpgraderV10_7_1 implements Upgrader {
 
     private void dropOldUrlColumns() {
         List<String> oldColumnsSql = ImmutableList.<String>builder()
-                .add("ALTER TABLE SAP_CS1_CR_SC_CPS DROP COLUMN CONFIRMATION_URL")
-                .add("ALTER TABLE SAP_CS1_CR_SC_CPSJRNL DROP COLUMN CONFIRMATION_URL")
+                .add("ALTER TABLE T01_SAP_C01 DROP COLUMN CONFIRMATION_URL")
+                .add("ALTER TABLE T01_SAP_C01JRNL DROP COLUMN CONFIRMATION_URL")
                 .add("ALTER TABLE SAP_CPS_MR2 DROP COLUMN CONFIRMATION_URL")
                 .add("ALTER TABLE SAP_CPS_MR2 DROP COLUMN RESULT_URL")
                 .add("ALTER TABLE SAP_CPS_MR2JRNL DROP COLUMN CONFIRMATION_URL")

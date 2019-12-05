@@ -138,13 +138,14 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
                 .forEach(bodyMessage -> {
                     if (bodyMessage.isValid()) {
                         createSubParentServiceCall(serviceCall, requestMessage, bodyMessage);
+                    } else {
+                        sendProcessError(requestMessage, bodyMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
                     }
                 });
         if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 
@@ -201,13 +202,14 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         message.getRegisters().forEach(register -> {
             if (register.isValid()) {
                 createChildServiceCall(subParent, register);
+            } else {
+                sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
         });
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
             subParent.requestTransition(DefaultState.PENDING);
         } else {
             subParent.requestTransition(DefaultState.REJECTED);
-            sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 

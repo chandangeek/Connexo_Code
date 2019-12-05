@@ -57,7 +57,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     private String deviceId; // used up to 10.7.1
     private String requestId; // used up to 10.7.1
-    private String uuid; // used up to 10.7.1
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")

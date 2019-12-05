@@ -18,9 +18,9 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Clock;
 import java.util.List;
 
-@Component(name = MasterMeterRegisterChangeRequest.NAME, service = ServiceCallHandler.class,
-        property = "name=" + MasterMeterRegisterChangeRequest.NAME, immediate = true)
-public class MasterMeterRegisterChangeRequest implements ServiceCallHandler {
+@Component(name = MasterMeterRegisterChangeRequestServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + MasterMeterRegisterChangeRequestServiceCallHandler.NAME, immediate = true)
+public class MasterMeterRegisterChangeRequestServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "MasterMeterRegisterChangeRequest";
     public static final String VERSION = "v1.0";

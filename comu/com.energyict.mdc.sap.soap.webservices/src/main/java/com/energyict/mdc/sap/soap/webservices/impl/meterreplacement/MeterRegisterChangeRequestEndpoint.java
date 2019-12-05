@@ -187,13 +187,14 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         message.getRegisters().forEach(register -> {
             if (register.isValid()) {
                 createChildServiceCall(subParent, register);
+            } else {
+                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
         });
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
             subParent.requestTransition(DefaultState.PENDING);
         } else {
             subParent.requestTransition(DefaultState.REJECTED);
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 

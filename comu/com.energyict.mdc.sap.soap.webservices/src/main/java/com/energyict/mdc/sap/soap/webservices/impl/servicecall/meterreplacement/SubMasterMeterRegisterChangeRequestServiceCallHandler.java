@@ -14,9 +14,9 @@ import org.osgi.service.component.annotations.Component;
 import java.util.List;
 
 
-@Component(name = SubMasterMeterRegisterChangeRequest.NAME, service = ServiceCallHandler.class,
-        property = "name=" + SubMasterMeterRegisterChangeRequest.NAME, immediate = true)
-public class SubMasterMeterRegisterChangeRequest implements ServiceCallHandler {
+@Component(name = SubMasterMeterRegisterChangeRequestServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + SubMasterMeterRegisterChangeRequestServiceCallHandler.NAME, immediate = true)
+public class SubMasterMeterRegisterChangeRequestServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "SubMasterMeterRegisterChangeRequest";
     public static final String VERSION = "v1.0";
@@ -38,6 +38,7 @@ public class SubMasterMeterRegisterChangeRequest implements ServiceCallHandler {
                     serviceCall.findChildren()
                             .stream()
                             .filter(child -> child.getState().isOpen())
+                            .filter(child -> child.canTransitionTo(DefaultState.ONGOING))
                             .forEach(child -> child.requestTransition(DefaultState.ONGOING));
                 } else {
                     resultTransition(serviceCall);
@@ -72,7 +73,7 @@ public class SubMasterMeterRegisterChangeRequest implements ServiceCallHandler {
     private void resultTransition(ServiceCall subParent) {
         List<ServiceCall> children = ServiceCallHelper.findChildren(subParent);
         if (ServiceCallHelper.isLastChild(children)) {
-            if (subParent.getState().equals(DefaultState.PENDING) && subParent.canTransitionTo(DefaultState.ONGOING)) {
+            if (subParent.getState().equals(DefaultState.PENDING)) {
                 subParent.requestTransition(DefaultState.ONGOING);
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && subParent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 subParent.requestTransition(DefaultState.SUCCESSFUL);

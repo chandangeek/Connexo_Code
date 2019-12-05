@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -93,16 +94,12 @@ public class MeterRegisterChangeConfirmationMessage {
             } else if (subParent.getState() == DefaultState.FAILED || subParent.getState() == DefaultState.PARTIAL_SUCCESS || subParent.getState() == DefaultState.CANCELLED) {
                 Optional<String> errorMessage = ServiceCallHelper.findChildren(subParent).stream()
                         .map(child -> child.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()))
-                        .map(ext -> {
-                            if (ext.isPresent() && ext.get().getErrorMessage() != null) {
-                                return ext.get().getErrorMessage();
-                            } else {
-                                return null;
-                            }
-                        }).filter(Objects::nonNull)
+                        .flatMap(Functions.asStream())
+                        .map(MeterRegisterChangeRequestDomainExtension::getErrorMessage)
+                        .filter(Objects::nonNull)
                         .findFirst();
                 if (errorMessage.isPresent()) {
-                   confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessage.get()) : createFailedLog(errorMessage.get()));
+                    confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessage.get()) : createFailedLog(errorMessage.get()));
                 } else {
                     confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog());
                 }

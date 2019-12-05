@@ -23,9 +23,9 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Optional;
 
 
-@Component(name = MeterRegisterChangeRequest.NAME, service = ServiceCallHandler.class,
-        property = "name=" + MeterRegisterChangeRequest.NAME, immediate = true)
-public class MeterRegisterChangeRequest implements ServiceCallHandler {
+@Component(name = MeterRegisterChangeRequestServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + MeterRegisterChangeRequestServiceCallHandler.NAME, immediate = true)
+public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "MeterRegisterChangeRequest";
     public static final String VERSION = "v1.0";

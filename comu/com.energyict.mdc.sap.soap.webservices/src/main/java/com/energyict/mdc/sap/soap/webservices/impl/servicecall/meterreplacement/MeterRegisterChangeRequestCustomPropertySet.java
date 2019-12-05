@@ -170,11 +170,7 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .upTo(Version.version(10, 7, 1))
-                    .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
-                    .varChar(NAME_LENGTH)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName())
+                    .notNull()
                     .upTo(Version.version(10, 7, 1))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.databaseName())
