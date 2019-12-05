@@ -400,6 +400,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
         keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
         keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }
 
