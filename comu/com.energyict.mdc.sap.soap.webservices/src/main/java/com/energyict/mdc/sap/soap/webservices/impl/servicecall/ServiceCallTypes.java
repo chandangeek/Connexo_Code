@@ -42,6 +42,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequest;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequest;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 
 import java.util.Optional;
 
@@ -113,6 +116,12 @@ public enum ServiceCallTypes {
             MasterMeterRegisterChangeRequest.APPLICATION,
             MasterMeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
             MasterMeterRegisterChangeRequestDomainExtension.class.getName()),
+    SUB_MASTER_METER_REGISTER_CHANGE_REQUEST(
+            SubMasterMeterRegisterChangeRequest.NAME,
+            SubMasterMeterRegisterChangeRequest.VERSION,
+            SubMasterMeterRegisterChangeRequest.APPLICATION,
+            SubMasterMeterRegisterChangeRequestCustomPropertySet.class.getSimpleName(),
+            SubMasterMeterRegisterChangeRequestDomainExtension.class.getName()),
     METER_REGISTER_CHANGE_REQUEST(
             MeterRegisterChangeRequest.NAME,
             MeterRegisterChangeRequest.VERSION,

@@ -20,9 +20,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Optional;
 
 
@@ -67,8 +64,13 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
     }
 
     private void processServiceCall(ServiceCall serviceCall) {
-        MeterRegisterChangeRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
-        Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
+        ServiceCall subParent = serviceCall.getParent().orElseThrow(() -> new IllegalStateException("Can not find parent for service call"));
+        SubMasterMeterRegisterChangeRequestDomainExtension subParentExtension = subParent.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
+                .orElseThrow(() -> new IllegalStateException("Can not find domain extension for parent service call"));
+        MeterRegisterChangeRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet())
+                .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
+
+        Optional<Device> device = sapCustomPropertySets.getDevice(subParentExtension.getDeviceId());
         if (device.isPresent()) {
             try {
                 sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), WebServiceActivator.getZonedDate(extension.getEndDate(), extension.getTimeZone()));
@@ -79,7 +81,7 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
                 failServiceCallWithException(extension, new SAPWebServiceException(thesaurus, MessageSeeds.ERROR_PROCESSING_METER_REPLACEMENT_REQUEST, e.getLocalizedMessage()));
             }
         } else {
-            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
+            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, subParentExtension.getDeviceId());
         }
     }
 

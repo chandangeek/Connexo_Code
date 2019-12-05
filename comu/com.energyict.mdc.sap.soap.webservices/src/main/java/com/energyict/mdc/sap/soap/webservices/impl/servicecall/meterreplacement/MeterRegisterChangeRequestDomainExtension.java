@@ -24,9 +24,9 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         DOMAIN("serviceCall", "SERVICE_CALL"),
 
         // provided
-        DEVICE_ID("deviceId", "DEVICE_ID"),
-        REQUEST_ID("requestId", "REQUEST_ID"),
-        UUID("uuid", "UUID"),
+        DEVICE_ID("deviceId", "DEVICE_ID"), // used up to 10.7.1
+        REQUEST_ID("requestId", "REQUEST_ID"), // used up to 10.7.1
+        UUID("uuid", "UUID"), // used up to 10.7.1
         LRN("lrn", "LRN"),
         END_DATE("endDate", "END_DATE"),
         TIME_ZONE("timeZone", "TIME_ZONE"),
@@ -55,14 +55,9 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String deviceId;
-
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String requestId;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String uuid;
+    private String deviceId; // used up to 10.7.1
+    private String requestId; // used up to 10.7.1
+    private String uuid; // used up to 10.7.1
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -79,30 +74,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
-
-    public String getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
 
     public String getLrn() {
         return lrn;
@@ -156,9 +127,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
-        this.setRequestId((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
-        this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
         this.setTimeZone((String) propertyValues.getProperty(FieldNames.TIME_ZONE.javaName()));
@@ -168,9 +136,6 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
-        propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestId());
-        propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
         propertySetValues.setProperty(FieldNames.TIME_ZONE.javaName(), this.getTimeZone());

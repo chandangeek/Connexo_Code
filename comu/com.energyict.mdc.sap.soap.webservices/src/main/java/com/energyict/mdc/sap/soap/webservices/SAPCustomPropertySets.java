@@ -82,5 +82,5 @@ public interface SAPCustomPropertySets {
 
     void truncateCpsInterval(Device device, String lrn, Instant endDate);
 
-    Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid);
+    Optional<Interval> getLastProfileIdIntervalForChannelOnDevice(long deviceId, String channelMrid);
 }
