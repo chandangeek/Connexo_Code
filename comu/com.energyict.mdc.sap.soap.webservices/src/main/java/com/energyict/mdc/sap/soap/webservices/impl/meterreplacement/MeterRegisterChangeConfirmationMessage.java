@@ -28,9 +28,10 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
@@ -58,7 +59,7 @@ public class MeterRegisterChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
@@ -75,7 +76,7 @@ public class MeterRegisterChangeConfirmationMessage {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
             return this;
         }
 
@@ -92,14 +93,14 @@ public class MeterRegisterChangeConfirmationMessage {
             if (subParent.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (subParent.getState() == DefaultState.FAILED || subParent.getState() == DefaultState.PARTIAL_SUCCESS || subParent.getState() == DefaultState.CANCELLED) {
-                Optional<String> errorMessage = ServiceCallHelper.findChildren(subParent).stream()
+                List<String> errorMessages = ServiceCallHelper.findChildren(subParent).stream()
                         .map(child -> child.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()))
                         .flatMap(Functions.asStream())
                         .map(MeterRegisterChangeRequestDomainExtension::getErrorMessage)
                         .filter(Objects::nonNull)
-                        .findFirst();
-                if (errorMessage.isPresent()) {
-                    confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessage.get()) : createFailedLog(errorMessage.get()));
+                        .collect(Collectors.toList());
+                if (!errorMessages.isEmpty()) {
+                    confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessages) : createFailedLog(errorMessages));
                 } else {
                     confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog());
                 }
@@ -159,16 +160,23 @@ public class MeterRegisterChangeConfirmationMessage {
             return log;
         }
 
+        private Log createFailedLog(List<String> messages) {
+            Log log = objectFactory.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
+            return log;
+        }
+
         private Log createPartiallySuccessfulLog() {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
             return log;
         }
 
-        private Log createPartiallySuccessfulLog(String message) {
+        private Log createPartiallySuccessfulLog(List<String> messages) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
-            log.getItem().add(createLogItem(message));
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
             return log;
         }
 

@@ -31,8 +31,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmat
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
@@ -60,7 +60,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
@@ -126,14 +126,14 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             if (subParentServiceCall.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (subParentServiceCall.getState() == DefaultState.FAILED || subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS || subParentServiceCall.getState() == DefaultState.CANCELLED) {
-                Optional<String> errorMessage = ServiceCallHelper.findChildren(subParentServiceCall).stream()
+                List<String> errorMessages = ServiceCallHelper.findChildren(subParentServiceCall).stream()
                         .map(child -> child.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()))
                         .flatMap(Functions.asStream())
                         .map(MeterRegisterChangeRequestDomainExtension::getErrorMessage)
                         .filter(Objects::nonNull)
-                        .findFirst();
-                if (errorMessage.isPresent()) {
-                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessage.get()) : createFailedLog(errorMessage.get()));
+                        .collect(Collectors.toList());
+                if (!errorMessages.isEmpty()) {
+                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessages) : createFailedLog(errorMessages));
                 } else {
                     confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog());
                 }
@@ -196,16 +196,23 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return log;
         }
 
-        private Log createPartiallySuccessfulLog(String message) {
+        private Log createPartiallySuccessfulLog(List<String> messages) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
-            log.getItem().add(createLogItem(message));
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
             return log;
         }
 
         private Log createFailedLog() {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            return log;
+        }
+
+        private Log createFailedLog(List<String> messages) {
+            Log log = objectFactory.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
             return log;
         }
 
