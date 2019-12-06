@@ -43,6 +43,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_REQUIRED_OUTBOUND_END_POINT(3005, "NoRequiredOutboundEndPoint", "No required outbound end point configuration is found by name ''{0}''."),
 
     // Device
+    // Period is not needed for some messages as these meesages are used as part of message.
     NO_DEVICE_FOUND_BY_SAP_ID(4001, "NoDeviceFoundBySapId", "No device found with SAP device identifier ''{0}''."),
     NO_HEAD_END_INTERFACE_FOUND(4002, "NoHeadEndInterfaceFound", "No head end interface found for device with id ''{0}''."),
     LRN_NOT_FOUND_FOR_CHANNEL(4003, "LRNNotFoundForChannel", "Logical Register Number isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
@@ -61,19 +62,19 @@ public enum MessageSeeds implements MessageSeed {
     NO_UTILITIES_MEASUREMENT_RECURRENCE_CODE_MAPPING(4025, "NoUtilitiesMeasurementRecurrenceCodeMapping",
             "There is no mapping of UtilitiesMeasurementRecurrenceCode ''{0}'' to a reading type period in the configuration property ''{1}''"),
     SEVERAL_DATA_SOURCES_WITH_OBIS(4026, "SeveralDataSourcesWithObis",
-            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period and OBIS code ''{3}'' are found. Please check the device configuration or precise the request"),
+            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period, OBIS code ''{3}'' and SAP CAS are found. Please check the device configuration or precise the request"),
     SEVERAL_DATA_SOURCES_WITH_KIND(4027, "SeveralDataSourcesWithKind",
-            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period and ''{3}'' (''{4}'') kind are found. Please check the device configuration or precise the request"),
+            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period, CIM code pattern  ''{3}''  and SAP CAS are found. Please check the device configuration or precise the request"),
     SEVERAL_DATA_SOURCES_WITH_OBIS_OR_KIND(4028, "SeveralDataSourcesWithObisAndKind",
-            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period, ''{3}'' (''{4}'') kind or OBIS code ''{5}'' are found. Please check the device configuration or precise the request"),
+            "Multiple data sources with ''{0}'' (''{1}'',''{2}'') period, CIM code pattern ''{3}''  or OBIS code ''{5}'', and SAP CAS are found. Please check the device configuration or precise the request"),
     NO_DATA_SOURCES_WITH_OBIS(4029, "NoDataSourcesWithObis",
-            "Data sources with ''{0}'' (''{1}'',''{2}'') period and OBIS code ''{3}'' aren''t found. Please check the device configuration or precise the request"),
+            "Data sources with ''{0}'' (''{1}'',''{2}'') period, OBIS code ''{3}'' and SAP CAS aren''t found. Please check the device configuration or precise the request"),
     NO_DATA_SOURCES_WITH_KIND(4030, "NoDataSourcesWithKind",
-            "Data sources with ''{0}'' (''{1}'',''{2}'') period and ''{3}'' (''{4}'') kind aren''t found. Please check the device configuration or precise the request"),
+            "Data sources with ''{0}'' (''{1}'',''{2}'') period, CIM code pattern ''{3}'' and SAP CAS aren''t found. Please check the device configuration or precise the request"),
     NO_DATA_SOURCES_WITH_OBIS_OR_KIND(4031, "NoDataSourcesWithObisAndKind",
-            "Data sources with ''{0}'' (''{1}'',''{2}'') period, ''{3}'' (''{4}'') kind or OBIS code ''{5}'' aren''t found. Please check the device configuration or precise the request"),
+            "Data sources with ''{0}'' (''{1}'',''{2}'') period, CIM code pattern ''{3}'' or OBIS code ''{5}'', and SAP CAS aren''t found. Please check the device configuration or precise the request"),
     NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING(4032, "NoUtilitiesDivisionCategoryCodeMapping",
-            "There is no mapping of UtilitiesDivisionCategoryCode = ''{0}'' to a reading type kind  in the configuration property ''{1}''"),
+            "There is no mapping of UtilitiesDivisionCategoryCode = ''{0}'' to CIM code pattern in the configuration property ''{1}''"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
