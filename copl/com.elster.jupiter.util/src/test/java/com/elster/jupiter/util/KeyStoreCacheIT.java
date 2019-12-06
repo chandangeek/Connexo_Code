@@ -14,10 +14,8 @@ import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class KeyStoreCacheIT extends AbstractBenchmark {
 
     private static final String KEY_STORE_TYPE = "JCEKS";

@@ -164,13 +164,13 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param eventRegistrationUri The URI on which the servlet should be listening
      * @param eventAPIStatistics The EventAPIStatistics
      */
-    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, EventAPIStatistics eventAPIStatistics) {
+    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, WebSocketEventPublisherFactory webSocketEventPublisherFactory, EventAPIStatistics eventAPIStatistics) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new EventMechanismShutdownFailureLogger(eventRegistrationUri));
-        server.addEventMechanism(eventRegistrationUri, eventAPIStatistics);
+        server.addEventMechanism(eventRegistrationUri, webSocketEventPublisherFactory, eventAPIStatistics);
         return server;
     }
 
-    public void addEventMechanism (URI eventRegistrationUri, EventAPIStatistics eventAPIStatistics) {
+    public void addEventMechanism (URI eventRegistrationUri, WebSocketEventPublisherFactory webSocketEventPublisherFactory, EventAPIStatistics eventAPIStatistics) {
         if (this.jetty == null) {
             threadPoolName = EVENT_MECHANISM;
             this.jetty = new Server(getPortNumber(eventRegistrationUri, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER));
@@ -180,7 +180,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
             servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
             handlerCollection.setHandlers(new Handler[]{servletContextHandler});
         }
-        EventServlet servlet = new EventServlet(eventAPIStatistics);
+        EventServlet servlet = new EventServlet(webSocketEventPublisherFactory, eventAPIStatistics);
         servletContextHandler.addServlet(new ServletHolder((Servlet) servlet), eventRegistrationUri.getPath());
     }
 

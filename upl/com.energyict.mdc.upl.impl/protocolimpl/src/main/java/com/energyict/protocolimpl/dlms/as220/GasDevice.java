@@ -250,7 +250,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 
     @SuppressWarnings("unchecked")
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessaging().applyMessages(messageEntries);
     }
 

@@ -129,7 +129,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
                 name: 'password',
                 renderer: function(value){
                     Ext.isEmpty(value)?this.hide():this.show();
-                    return value;
+                    return "******";
                 }
             }
         ];

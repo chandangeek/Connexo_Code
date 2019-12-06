@@ -24,7 +24,7 @@ Ext.define('Isu.controller.StartProcess', {
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             fromDetails = router.queryParams.details === 'true',
-            queryParamsForBackUrl = fromDetails ? router.queryParams : null,
+            queryParamsForBackUrl = router.queryParams,
             issueModel = 'Idc.model.Issue',
             issueType = 'datacollectionissue' ;
 

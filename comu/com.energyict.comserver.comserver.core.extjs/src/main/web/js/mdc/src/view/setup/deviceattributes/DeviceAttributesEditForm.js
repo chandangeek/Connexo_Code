@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
         'Uni.form.field.Coordinates',
         'Uni.form.field.Location'
     ],
+    width: 500,
 
     defaults: {
         labelWidth: 150,
@@ -40,7 +41,9 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'name',
                 itemId: 'nameEdit',
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name')
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
+                required: true,
+                allowBlank: false
             },
             {
                 name: 'mrid',
@@ -185,7 +188,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 xtype: 'numberfield',
                 name: 'multiplierEdit',
-                minValue: 1,
+                minValue: 0.000001,
+                decimalPrecision: 6,
                 maxValue: 2147483647,
                 itemId: 'multiplierEdit',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier')
@@ -198,7 +202,8 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 xtype: 'numberfield',
                 name: 'multiplierEdit',
-                minValue: 1,
+                minValue: 0.000001,
+                decimalPrecision: 6,
                 maxValue: 2147483647,
                 itemId: 'multiplierEdit',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.multiplier', 'MDC', 'Multiplier')
@@ -218,8 +223,10 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             },
             {
                 xtype: 'deviceDateFieldEdited',
+                installationDate: 'shipmentDateReset',
                 name: 'shipmentDateEdit',
                 itemId: 'shipmentDateEdit',
+                width: 490,
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.shipmentDate', 'MDC', 'Shipment date')
             },
             {
@@ -238,6 +245,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'deviceDateFieldEdited',
                 itemId: 'installationDateEdit',
                 name: 'installationDateEdit',
+                width: 490,
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.installationDate', 'MDC', 'Installation date')
             },
             {
@@ -256,6 +264,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'deviceDateFieldEdited',
                 itemId: 'deactivationDateEdit',
                 name: 'deactivationDate',
+                width: 490,
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deactivationDate', 'MDC', 'Deactivation date')
             },
             {
@@ -275,6 +284,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 xtype: 'deviceDateFieldEdited',
                 name: 'decommissioningDateEdit',
                 itemId: 'decommissioningDateEdit',
+                width: 490,
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.decommissionDate', 'MDC', 'Decommissioning date')
             }
         ];

@@ -4,18 +4,19 @@
 
 package com.elster.jupiter.issue.share;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.users.User;
-
-import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,13 +24,16 @@ import java.util.Map;
 
 @ConsumerType
 @HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
-                    propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
+        propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
 public abstract class AbstractIssueAction implements IssueAction {
 
     private final DataModel dataModel;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    
+
+    protected IssueType issueType;
+    protected IssueReason issueReason;
+
     protected Map<String, Object> properties = new HashMap<>();
 
     protected AbstractIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -44,7 +48,7 @@ public abstract class AbstractIssueAction implements IssueAction {
     }
 
     @Override
-    public boolean isApplicable(String reasonName){
+    public boolean isApplicable(String reasonName) {
         return true;
     }
 
@@ -66,6 +70,18 @@ public abstract class AbstractIssueAction implements IssueAction {
     }
 
     @Override
+    public IssueAction setIssueType(final IssueType issueType) {
+        this.issueType = issueType;
+        return this;
+    }
+
+    @Override
+    public IssueAction setIssueReason(final IssueReason issueReason) {
+        this.issueReason = issueReason;
+        return this;
+    }
+
+    @Override
     public long getActionType() {
         return ActionType.ACTION.getValue();
     }
@@ -73,7 +89,7 @@ public abstract class AbstractIssueAction implements IssueAction {
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
-    
+
     protected Thesaurus getThesaurus() {
         return thesaurus;
     }

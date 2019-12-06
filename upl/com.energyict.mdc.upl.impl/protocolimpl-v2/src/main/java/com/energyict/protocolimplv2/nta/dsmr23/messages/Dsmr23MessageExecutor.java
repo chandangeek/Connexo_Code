@@ -15,10 +15,8 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer64Unsigned;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
@@ -36,7 +34,6 @@ import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
@@ -83,6 +80,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -199,8 +197,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
                     fullActivityCalendarWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
-                    String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
-                    writeSpecialDays(specialDayArrayBEREncodedBytes);
+                    String calendarWithSpecialDays = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
+                    String[] calendarParts = calendarWithSpecialDays.split(AbstractDlmsMessaging.SEPARATOR);
+                    if (calendarParts.length > 0) {
+                        writeSpecialDays(calendarParts[0]);
+                    } else {
+                        getProtocol().journal("No content to write special days.");
+                    }
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
@@ -489,9 +492,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             String loadProfileContent = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, loadProfileAttributeName).getValue();
             String fromDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fromDateAttributeName).getValue();
             String toDateEpoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, toDateAttributeName).getValue();
-            String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", "fromDate", "toDate", loadProfileContent);
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
+            SimpleDateFormat formatter = AbstractMessageConverter.dateTimeFormatWithTimeZone;
+            String fullLoadProfileContent = LoadProfileMessageUtils.createPartialLoadProfileMessage("PartialLoadProfile", formatter.format(fromDate), formatter.format(toDate), loadProfileContent);
 
             LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(fullLoadProfileContent);
 
@@ -510,7 +514,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             }
 
             List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
-            CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0));
+            CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0), fullLpr);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
             return collectedMessage;
         } catch (SAXException e) {              //Failed to parse XML data
@@ -824,7 +828,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
         if (calendarParts.length>1) {
             getProtocol().journal("Sending special days");
-            writeSpecialDays(calendarParts[1]);
+            writeSpecialDays(calendarParts[0]);
         } else {
             getProtocol().journal("Skipping special days part because it's empty");
         }
@@ -847,19 +851,16 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
         if (calendarParts.length>1) {
             getProtocol().journal("Sending special days");
-            writeSpecialDays(calendarParts[1]);
+            writeSpecialDays(calendarParts[0]);
         } else {
             getProtocol().journal("Skipping special days part because it's empty");
         }
     }
 
-    private void writeSpecialDays(String specialDayArrayBEREncodedBytes) throws IOException {
-        Array sdArray = AXDRDecoder.decode(ProtocolTools.getBytesFromHexString(specialDayArrayBEREncodedBytes, ""), Array.class);
-        SpecialDaysTable sdt = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
-
-        if (sdArray.nrOfDataTypes() != 0) {
-            sdt.writeSpecialDays(sdArray);
-        }
+    private void writeSpecialDays(String calendarXml) throws IOException {
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+        activityCalendarController.parseContent(calendarXml);
+        activityCalendarController.writeSpecialDaysTable();
     }
 
     protected void activityCalendarWithActivationDate(String calendarName, String epoch, String activityCalendarContents) throws IOException {

@@ -116,9 +116,11 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
     
     initActions: function () {
         var me = this,
-            applyButton = me.down('button[action=applyAll]');
+            applyButton = me.down('button[action=applyAll]'),
+            clearButton = me.down('button[action=clearAll]');
 
         applyButton.on('click', me.allProcessesApplyFilters, me);
+        clearButton.on('click', me.clearFilters, me);
     },
     
     allProcessesApplyFilters: function() {

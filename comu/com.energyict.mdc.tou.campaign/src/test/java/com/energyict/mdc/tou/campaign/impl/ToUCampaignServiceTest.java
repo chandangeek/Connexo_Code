@@ -114,7 +114,7 @@ public class ToUCampaignServiceTest {
     public void setUp() {
         when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
         timeOfUseSendHelper = new TimeOfUseSendHelper(thesaurus, deviceConfigurationService, deviceMessageSpecificationService, timeOfUseCampaignService);
-        when(ormService.newDataModel(anyString(),anyString())).thenReturn(dataModel);
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(customPropertySetService.findActiveCustomPropertySet(TimeOfUseCampaignCustomPropertySet.CUSTOM_PROPERTY_SET_ID)).thenReturn(Optional.ofNullable(registeredCustomPropertySet));
         timeOfUseCampaignService = new TimeOfUseCampaignServiceImpl(threadPrincipalService, transactionService,
                 nlsService, upgradeService, userService, batchService, propertySpecService,
@@ -152,6 +152,7 @@ public class ToUCampaignServiceTest {
         when(serviceCallService.getServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(serviceCall.getExtension(TimeOfUseItemDomainExtension.class)).thenReturn(Optional.of(timeOfUseItem));
         when(serviceCall.canTransitionTo(DefaultState.CANCELLED)).thenReturn(true);
+        when(serviceCall.getState()).thenReturn(DefaultState.PENDING);
         CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
         customPropertySetValues.setProperty("device", device);
         customPropertySetValues.setProperty("parentServiceCallId", 11L);
@@ -163,7 +164,7 @@ public class ToUCampaignServiceTest {
         when(endDevice.getId()).thenReturn(1L);
         EndDeviceGroup group = mock(EndDeviceGroup.class);
         when(group.getMembers((Instant) any())).thenReturn(Collections.singletonList(endDevice));
-        timeOfUseItem.cancel();
+        timeOfUseItem.cancel(false);
         verify(serviceCall).requestTransition(DefaultState.CANCELLED);
     }
 

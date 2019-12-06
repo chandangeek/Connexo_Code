@@ -321,7 +321,7 @@ Ext.define('Imt.usagepointgroupsfromissues.controller.AddUsagePointGroupFromIssu
                 if (records.length) {
                     Ext.suspendLayouts(true);
                     errorPopup.show();
-                    groupNameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name must be unique'));
+                    groupNameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'IMT', 'Name must be unique'));
                     Ext.resumeLayouts(true);
                 } else {
                     errorPopup.hide();

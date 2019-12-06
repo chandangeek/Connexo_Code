@@ -189,17 +189,18 @@ Ext.define('Apr.controller.TaskManagement', {
         var taskType = menu.record.get('queue'),
             taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
         Ext.suspendLayouts();
-        menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun());
-        menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
+        var hasTaskAdminPrivilege = !(menu.record.get('application').id === "MultiSense") || Uni.Auth.hasPrivilege('privilege.edit.AdministerTaskOverview');
+        menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun() && hasTaskAdminPrivilege);
+        menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit() && hasTaskAdminPrivilege);
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
-        menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
+        menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove() && hasTaskAdminPrivilege);
         menu.down('#set-queue-priority').setVisible(this.canSetQueuePriority(menu.record));
         menu.reorderItems();
         Ext.resumeLayouts(true);
     },
 
     canSetQueuePriority: function (record) {
-        var application = record.get('application').name,
+        var application = record.get('application').id,
             privilege = false;
         if (application === "MultiSense") {
             privilege = Uni.Auth.checkPrivileges(Mdc.privileges.TaskManagement.administrateTaskOverview)
@@ -424,6 +425,7 @@ Ext.define('Apr.controller.TaskManagement', {
             grid.getSelectionModel().select(selection); // select current item selected, again.
             // This will force refresh of details, needed for "Suspended" detail
         }
+        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('suspendExportTask.successMsg', 'APR', 'Export task suspended'));
     },
 
    setQueueAndPriority: function (record) {

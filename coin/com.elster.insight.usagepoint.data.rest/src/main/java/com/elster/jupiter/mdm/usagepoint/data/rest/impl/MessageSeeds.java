@@ -81,7 +81,8 @@ public enum MessageSeeds implements MessageSeed {
     NOTHING_TO_ESTIMATE(75, "nothing.is.estimated", "Estimation is not configured on this purpose of this usage point"),
     NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}"),
     CANNOT_UNLINK_BEFORE_LINK_DATE(77,"InvalidDateOfUnlink", "The meter can''t be unlinked before the date of linking."),
-    METER_CANNOT_BE_UNLINKED(78, "meter.cannot.be.unlinked", "Meter unlinking error. Meter ''{0}'' is already unlinked from usage point ''{1}'' at {2}.")
+    METER_CANNOT_BE_UNLINKED(78, "meter.cannot.be.unlinked", "Meter unlinking error. Meter ''{0}'' is already unlinked from usage point ''{1}'' at {2}."),
+    NO_STATE_FOR_LIFECYCLE(79,"NoStateForLifeCycle","The life cycle ''{0}'' doesn''t contain the current state ''{1}''."),
     ;
 
     private final int number;

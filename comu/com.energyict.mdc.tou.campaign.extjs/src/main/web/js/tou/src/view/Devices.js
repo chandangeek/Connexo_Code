@@ -15,6 +15,7 @@ Ext.define('Tou.view.Devices', {
     router: null,
     deviceType: null,
     campaignIsOngoing: null,
+    manuallyCancelled: null,
 
     initComponent: function () {
         var me = this;
@@ -45,7 +46,8 @@ Ext.define('Tou.view.Devices', {
                             xtype: 'tou-campaign-devices-grid',
                             itemId: 'tou-campaign-devices-grid',
                             router: me.router,
-                            campaignIsOngoing: me.campaignIsOngoing
+                            campaignIsOngoing: me.campaignIsOngoing,
+                            manuallyCancelled: me.manuallyCancelled
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

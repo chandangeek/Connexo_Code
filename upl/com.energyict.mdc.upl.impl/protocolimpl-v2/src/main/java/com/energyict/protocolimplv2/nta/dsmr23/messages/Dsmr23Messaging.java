@@ -261,7 +261,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
                 return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
             }
-            case fullActivityCalendarAttributeName: {
+            case fullActivityCalendarAttributeName:
+            case specialDaysAttributeName: {
                 this.calendarExtractor.threadContext().setDevice(offlineDevice);
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
                 String activityCalendar = convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
@@ -283,15 +284,11 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case newPasswordAttributeName:
             case passwordAttributeName:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
-            case meterTimeAttributeName:
-                return String.valueOf(((Date) messageAttribute).getTime());
-            case specialDaysAttributeName:
-                return parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
             case loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
+            case meterTimeAttributeName:
             case fromDateAttributeName:
             case toDateAttributeName:
-                return String.valueOf(((Date) messageAttribute).getTime());
             case contactorActivationDateAttributeName:
             case activityCalendarActivationDateAttributeName:
             case emergencyProfileActivationDateAttributeName:
@@ -299,7 +296,6 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             case keyAccessorTypeAttributeName:
                 return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
-
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }

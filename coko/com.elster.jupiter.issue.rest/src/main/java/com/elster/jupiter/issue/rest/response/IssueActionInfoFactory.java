@@ -4,14 +4,15 @@
 
 package com.elster.jupiter.issue.rest.response;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-
-import aQute.bnd.annotation.ProviderType;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -45,7 +46,14 @@ public class IssueActionInfoFactory {
         return asInfo(null, actionType, reasonKey);
     }
 
-    private IssueActionTypeInfo createInfo(Issue issue, IssueActionType actionType, IssueAction action){
+    public IssueActionTypeInfo asInfo(IssueActionType actionType, String reasonKey, IssueType issueType, IssueReason issueReason) {
+        IssueAction action = actionType.createIssueAction().get().setReasonKey(reasonKey);
+        action.setIssueType(issueType);
+        action.setIssueReason(issueReason);
+        return createInfo(null, actionType, action);
+    }
+
+    private IssueActionTypeInfo createInfo(Issue issue, IssueActionType actionType, IssueAction action) {
         IssueActionTypeInfo info = new IssueActionTypeInfo();
         info.id = actionType.getId();
         info.name = action.getDisplayName();

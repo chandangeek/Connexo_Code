@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -23,10 +24,8 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -184,9 +183,6 @@ public class DeviceAttributesInfoFactory {
     void validateOn(Device device, DeviceAttributesInfo info) {
         State currentState = device.getState();
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
-        if (DeviceAttributesInfo.DeviceAttribute.SHIPMENT_DATE.isEditableForState(currentState)) {
-            validationBuilder.notEmpty(info.shipmentDate.displayValue, "shipmentDate");
-        }
         if (DeviceAttributesInfo.DeviceAttribute.INSTALLATION_DATE.isEditableForState(currentState)) {
             validateDate(validationBuilder, "installationDate", info.getInstallationDate(), info.getShipmentDate(), DefaultTranslationKey.CIM_DATE_RECEIVE);
         }
@@ -202,23 +198,19 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttribute.LOCATION.isEditableForState(currentState)) {
             validateLocation(validationBuilder, info.location);
         }
-        if (DeviceAttribute.MULTIPLIER.isEditableForState(currentState) &&  info.multiplier.displayValue.compareTo(BigDecimal.ZERO) <= 0 ){
+        if (DeviceAttribute.MULTIPLIER.isEditableForState(currentState) && info.multiplier.displayValue.compareTo(BigDecimal.ZERO) <= 0) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_MULTIPLIER, "multiplier"));
         }
         validationBuilder.validate();
     }
 
     private void validateDate(RestValidationBuilder validationBuilder, String fieldName, Optional<Instant> currentDate, Optional<Instant> previousDate, DefaultTranslationKey cimDateTranslation) {
-        if (!currentDate.isPresent()) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, fieldName));
-        } else {
-            if (previousDate.isPresent() && !currentDate.get().isAfter(previousDate.get())) {
-                validationBuilder.addValidationError(
-                        new LocalizedFieldValidationException(
-                                MessageSeeds.CIM_DATE_SHOULD_BE_AFTER_X,
-                                fieldName,
-                                thesaurus.getFormat(new SimpleTranslationKey(cimDateTranslation.getKey(), cimDateTranslation.getDefaultFormat())).format()));
-            }
+        if (previousDate.isPresent() && currentDate.isPresent() && !currentDate.get().isAfter(previousDate.get())) {
+            validationBuilder.addValidationError(
+                    new LocalizedFieldValidationException(
+                            MessageSeeds.CIM_DATE_SHOULD_BE_AFTER_X,
+                            fieldName,
+                            thesaurus.getFormat(new SimpleTranslationKey(cimDateTranslation.getKey(), cimDateTranslation.getDefaultFormat())).format()));
         }
     }
 

@@ -146,6 +146,11 @@ public class IssueResource extends BaseResource {
                 });
             }
         }
+        if (issueInfos != null) {
+            // default sort, required if all explicit sorters do not affect the list in any way
+            // (ex. sort by priority and all issues have the same priority)
+            issueInfos.sort(Comparator.comparing(IssueInfo::getId));
+        }
         List<IssueInfo> issueInfosSorted = sortIssues(issueInfos, params);
         return PagedInfoList.fromPagedList("data", issueInfosSorted, queryParams);
     }

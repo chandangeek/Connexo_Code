@@ -606,8 +606,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 detailsForm = widget.down('#servicecall-details-form');
 
             if (rec.raw.serviceCallInfo && rec.raw.serviceCallInfo.logs && panel) {
-                var data = [],
-                    store;
+                var data = [];
 
                 rec.raw.serviceCallInfo.logs.map(function (log) {
                     data.push(Ext.apply({}, {
@@ -616,19 +615,26 @@ Ext.define('Isu.controller.IssueDetail', {
                         logLevel: log.logLevel,
                     }, log))
                 });
-                if (data.length) {
-                    store = Ext.create(me.serviceCallLogStore, {
-                        data: data,
-                        sorters: [
-                            {
-                                property: 'timestamp',
-                                direction: 'DESC'
-                            }
-                        ],});
-                    panel.getView().bindStore(store);
-                }
+
+                Ext.getStore('Isc.store.Logs').loadData(data);
+                panel.bindStore(Ext.getStore('Isc.store.Logs'), true);
+                panel.addDocked({
+                xtype: 'toolbar',
+                itemId: 'components-list-top-toolbar',
+                items: [
+                    '->',
+                    {
+                        xtype: 'exporterbutton',
+                        itemId: 'components-exporter-button',
+                        ui: 'icon',
+                        iconCls: 'icon-file-download',
+                        text: '',
+                        component: 'servicecall-issue-detail-log'
+                    }
+                ]
+            })
             }
-            
+
             detailsForm && detailsForm.loadRecord(rec);
 
         }, me, {
@@ -644,8 +650,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 detailsForm = widget.down('#webservice-details-form');
 
             if (rec.raw.webServiceCallOccurrence && rec.raw.webServiceCallOccurrence.logs && panel) {
-                var data = [],
-                    store;
+                var data = [];
 
                 rec.raw.webServiceCallOccurrence.logs.map(function (log) {
                     data.push(Ext.apply({}, {
@@ -654,17 +659,23 @@ Ext.define('Isu.controller.IssueDetail', {
                         logLevel: log.logLevel,
                     }, log))
                 });
-                if (data.length) {
-                    store = Ext.create(me.webServiceLogStore, {
-                        data: data,
-                        sorters: [
-                            {
-                                property: 'timestamp',
-                                direction: 'DESC'
-                            }
-                        ],});
-                    panel.getView().bindStore(store);
-                }
+                Ext.getStore('Iws.store.Logs').loadData(data);
+                panel.bindStore(Ext.getStore('Iws.store.Logs'), true);
+                panel.addDocked({
+                xtype: 'toolbar',
+                itemId: 'components-list-top-toolbar',
+                items: [
+                    '->',
+                    {
+                        xtype: 'exporterbutton',
+                        itemId: 'components-exporter-button',
+                        ui: 'icon',
+                        iconCls: 'icon-file-download',
+                        text: '',
+                        component: 'webservice-issue-detail-log'
+                    }
+                ]
+            })
             }
 
             detailsForm && detailsForm.loadRecord(rec);

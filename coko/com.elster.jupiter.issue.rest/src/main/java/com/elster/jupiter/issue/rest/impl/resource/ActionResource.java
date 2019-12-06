@@ -26,7 +26,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,12 +67,11 @@ public class ActionResource extends BaseResource {
         Condition condition = (typeCondition).and(reasonCondition).and(phaseCondition);
 
         List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
-                .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
-                .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds))
-                .map(at -> actionInfoFactory.asInfo(at, reasonParam))
-                .filter(item -> (!((item.name).equals("Email") && (phaseParam.equals("OVERDUE") || issueTypeParam.equals("usagepointdatavalidation")))))
-                .sorted(Comparator.comparing(a -> a.name))
+                .filter(issueActionType -> issueActionType.createIssueAction().isPresent() && !createdActionTypeIds.contains(issueActionType.getId()))
+                .filter(at -> additionalRestrictionOnActions(at, createdActionTypeIds, issueReason))
+                .map(issueActionType -> actionInfoFactory.asInfo(issueActionType, reasonParam, issueType.orElse(null), issueReason.orElse(null)))
                 .collect(Collectors.toList());
+
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }
 
@@ -97,7 +95,7 @@ public class ActionResource extends BaseResource {
         return resultMap;
     }
 
-    private boolean additionalRestrictionOnActions(final IssueActionType issueActionType, final List<Long> createdActionTypeIds) {
+    private boolean additionalRestrictionOnActions(final IssueActionType issueActionType, final List<Long> createdActionTypeIds, Optional<IssueReason> issueReason) {
 
         final Map<Long, String> createdActionTypeClassNames = getCreatedActionTypeClassNames(createdActionTypeIds);
 
@@ -108,9 +106,16 @@ public class ActionResource extends BaseResource {
             return !anyMatch;
         }
 
-        if ((actionTypeClassName != null) &&  actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.ProcessAction")) {
+        if ((actionTypeClassName != null) && actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.ProcessAction")) {
             final boolean anyMatch = createdActionTypeClassNames.containsValue("com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction");
             return !anyMatch;
+        }
+
+        if ((actionTypeClassName != null) && (actionTypeClassName.equals("com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction")
+                || actionTypeClassName.equals("com." +
+                "elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction"))) {
+            return issueReason.map(reason -> issueActionType.createIssueAction()
+                    .map(issueAction -> issueAction.isApplicable(reason.getKey())).orElse(false)).orElse(false);
         }
 
         return true;

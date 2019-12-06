@@ -91,7 +91,7 @@ public class GMeterMessaging implements MessageProtocol {
         return msgSpec;
     }
 
-	public void applyMessages(List messageEntries) throws IOException {
+	public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
 		// TODO Auto-generated method stub
 
 	}

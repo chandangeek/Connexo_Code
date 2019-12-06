@@ -1,0 +1,2 @@
+Errors detected in JS sources:
+Wrong argument for method invocation {jsFilePath='devicefirmware\view\Setup.js', lineNo=61, args=['relativeperiod.usage.empty',  'FWC',  'No device firmware history']}

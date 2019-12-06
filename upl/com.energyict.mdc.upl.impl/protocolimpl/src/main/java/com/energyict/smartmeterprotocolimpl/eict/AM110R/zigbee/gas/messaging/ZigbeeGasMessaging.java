@@ -32,7 +32,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements MessageProto
         this.messageExecutor = messageExecutor;
     }
 
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         // Nothing to do here
     }
 

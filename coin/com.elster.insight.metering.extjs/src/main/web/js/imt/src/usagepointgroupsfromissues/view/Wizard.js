@@ -66,21 +66,21 @@ Ext.define('Imt.usagepointgroupsfromissues.view.Wizard', {
             items: [
                 {
                     itemId: 'step-back-button',
-                    text: Uni.I18n.translate('general.back', 'ISU', 'Back'),
+                    text: Uni.I18n.translate('general.back', 'IMT', 'Back'),
                     action: 'step-back',
                     navigationBtn: true,
                     disabled: true
                 },
                 {
                     itemId: 'step-next-button',
-                    text: Uni.I18n.translate('general.next', 'ISU', 'Next'),
+                    text: Uni.I18n.translate('general.next', 'IMT', 'Next'),
                     ui: 'action',
                     action: 'step-next',
                     navigationBtn: true
                 },
                 {
                     itemId: 'confirm-button',
-                    text: Uni.I18n.translate('general.confirm', 'ISU', 'Confirm'),
+                    text: Uni.I18n.translate('general.confirm', 'IMT', 'Confirm'),
                     ui: 'action',
                     action: 'confirm',
                     navigationBtn: true,
@@ -88,7 +88,7 @@ Ext.define('Imt.usagepointgroupsfromissues.view.Wizard', {
                 },
                 {
                     itemId: 'finish-button',
-                    text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'),
+                    text: Uni.I18n.translate('general.finish', 'IMT', 'Finish'),
                     ui: 'action',
                     action: 'finish',
                     href: me.returnLink,
@@ -96,7 +96,7 @@ Ext.define('Imt.usagepointgroupsfromissues.view.Wizard', {
                 },
                 {
                     itemId: 'cancel-button',
-                    text: Uni.I18n.translate('general.cancel', 'ISU', 'Cancel'),
+                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                     ui: 'link',
                     action: 'cancel',
                     href: me.returnLink

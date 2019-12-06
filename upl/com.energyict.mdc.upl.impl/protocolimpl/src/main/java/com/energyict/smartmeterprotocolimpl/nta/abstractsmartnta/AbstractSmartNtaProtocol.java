@@ -308,7 +308,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     }
 
     @Override
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 

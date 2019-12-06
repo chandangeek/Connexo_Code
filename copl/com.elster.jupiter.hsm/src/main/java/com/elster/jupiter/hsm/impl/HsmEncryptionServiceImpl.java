@@ -27,14 +27,14 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     private static final Logger logger = LoggerFactory.getLogger(HsmEncryptionServiceImpl.class);
 
-    private volatile HsmConfiguration hsmConfiguration;
+    private volatile HsmConfigurationService hsmConfigurationService;
 
     public static final String COMPONENTNAME = "HsmEncryptionServiceImpl";
 
 
     @Override
-    public byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException {
-        HsmLabelConfiguration hsmLabelConfiguration = hsmConfiguration.get(label);
+    public byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException, HsmNotConfiguredException {
+        HsmLabelConfiguration hsmLabelConfiguration = hsmConfigurationService.getHsmConfiguration().get(label);
         return symmetricEncrypt(bytes, label, null, hsmLabelConfiguration.getChainingMode(), hsmLabelConfiguration.getPaddingAlgorithm());
     }
 
@@ -50,8 +50,8 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
     @Override
-    public byte[] symmetricDecrypt(byte[] cipher, String label) throws HsmBaseException {
-        HsmLabelConfiguration hsmLabelConfiguration = hsmConfiguration.get(label);
+    public byte[] symmetricDecrypt(byte[] cipher, String label) throws HsmBaseException, HsmNotConfiguredException {
+        HsmLabelConfiguration hsmLabelConfiguration = hsmConfigurationService.getHsmConfiguration().get(label);
         return symmetricDecrypt(cipher, label, null, hsmLabelConfiguration.getChainingMode(), hsmLabelConfiguration.getPaddingAlgorithm());
     }
 
@@ -94,7 +94,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     }
 
     @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfiguration) throws HsmNotConfiguredException {
-        this.hsmConfiguration = hsmConfiguration.getHsmConfiguration();
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) throws HsmNotConfiguredException {
+        this.hsmConfigurationService = hsmConfigurationService;
     }
 }

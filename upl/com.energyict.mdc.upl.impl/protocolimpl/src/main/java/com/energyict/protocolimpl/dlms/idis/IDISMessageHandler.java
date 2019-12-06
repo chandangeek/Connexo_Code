@@ -93,7 +93,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
         this.extractor = extractor;
     }
 
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
