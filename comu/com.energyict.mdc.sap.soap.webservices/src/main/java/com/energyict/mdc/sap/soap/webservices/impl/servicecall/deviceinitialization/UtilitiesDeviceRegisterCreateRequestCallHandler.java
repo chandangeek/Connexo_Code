@@ -135,7 +135,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         Set<Register> registers = new HashSet<>();
         Optional<Register> register = device.getRegisterWithDeviceObisCode(ObisCode.fromString(obis));
-        if (register.isPresent()) {
+        if (register.isPresent() && sapCustomPropertySets.doesRegisterHaveSapCPS(register.get())) {
             registers.add(register.get());
         }
 
@@ -220,6 +220,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         return device.getChannels().stream().filter(c -> c.getObisCode().toString().equals(obis))
                 .filter(c -> c.getReadingType().getMacroPeriod() == period.getFirst()
                         && c.getReadingType().getMeasuringPeriod() == period.getLast())
+                .filter(c -> sapCustomPropertySets.doesChannelHaveSapCPS(c))
                 .collect(Collectors.toSet());
     }
 
@@ -230,6 +231,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 .filter(channel -> channel.getReadingType().getMacroPeriod() == period.getFirst()
                         && channel.getReadingType().getMeasuringPeriod() == period.getLast()
                         && channel.getReadingType().getMeasurementKind() == measurementKind)
+                .filter(channel -> sapCustomPropertySets.doesChannelHaveSapCPS(channel))
                 .collect(Collectors.toSet());
     }
 
@@ -240,6 +242,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 .filter(register -> register.getReadingType().getMacroPeriod() == period.getFirst()
                         && register.getReadingType().getMeasuringPeriod() == period.getLast()
                         && register.getReadingType().getMeasurementKind() == measurementKind)
+                .filter(register -> sapCustomPropertySets.doesRegisterHaveSapCPS(register))
                 .collect(Collectors.toSet());
     }
 

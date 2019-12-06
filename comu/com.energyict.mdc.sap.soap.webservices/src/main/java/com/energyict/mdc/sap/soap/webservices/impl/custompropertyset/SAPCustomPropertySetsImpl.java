@@ -910,4 +910,28 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .filter(f -> f.getCustomPropertySetId().equals(cpsId) && f.isViewableByCurrentUser())
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId));
     }
+
+    public boolean doesRegisterHaveSapCPS(Register register) {
+        Optional<RegisteredCustomPropertySet> registerCPS = register.getDevice().getDeviceType()
+                .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
+
+        if(registerCPS.isPresent()
+                && registerCPS.get().getCustomPropertySetId().equals(registerInfo.getId())
+                && registerCPS.get().isViewableByCurrentUser()){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel) {
+        Optional<RegisteredCustomPropertySet> channelCPS = channel.getDevice().getDeviceType()
+                .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
+
+        if(channelCPS.isPresent()
+                && channelCPS.get().getCustomPropertySetId().equals(channelInfo.getId())
+                && channelCPS.get().isViewableByCurrentUser()){
+            return true;
+        }
+        return false;
+    }
 }

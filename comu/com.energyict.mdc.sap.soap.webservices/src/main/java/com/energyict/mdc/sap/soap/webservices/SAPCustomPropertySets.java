@@ -83,4 +83,8 @@ public interface SAPCustomPropertySets {
     void truncateCpsInterval(Device device, String lrn, Instant endDate);
 
     Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid);
+
+    boolean doesRegisterHaveSapCPS(Register register);
+
+    boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
 }
