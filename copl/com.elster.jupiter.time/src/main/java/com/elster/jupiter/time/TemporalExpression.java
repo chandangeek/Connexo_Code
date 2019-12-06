@@ -6,8 +6,10 @@ package com.elster.jupiter.time;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTimeConstants;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -124,6 +126,8 @@ public final class TemporalExpression implements ScheduleExpression {
         return buffer.toString();
     }
 
+    @JsonIgnore
+    @XmlTransient
     public Offsets getOffsetInDaysHoursMinutes() {
         TimeDuration offsetTD = getOffset();
         int offsetInMinutes = offsetTD==null ? 0 : offsetTD.getCount();
@@ -278,6 +282,8 @@ public final class TemporalExpression implements ScheduleExpression {
         return Objects.hash(every, offset);
     }
 
+    @JsonIgnore
+    @XmlTransient
     public boolean isLastDay() {
         return this.indicatesLastOfMonth();
     }
