@@ -5,7 +5,6 @@
 package com.elster.jupiter.time;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import org.junit.Test;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -13,6 +12,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import org.junit.Test;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 
@@ -36,7 +37,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     /**
      * The time zone that is used in Brussels, which is the one used in this test.
      */
-    private static final TimeZone TIMEZONE_WITH_DST = TimeZone.getTimeZone("UTC");
+    private static final TimeZone TIMEZONE_WITH_DST = TimeZone.getTimeZone("Europe/Brussels");
 
     /**
      * Time zone that is not aware of DST changes.
@@ -259,12 +260,12 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(15);
 
 
@@ -296,12 +297,12 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
     }
@@ -334,12 +335,12 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(5);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
 
         cal.setTime(expr.nextOccurrence(cal));
@@ -433,6 +434,11 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         cal.setTime(expr.nextOccurrence(cal));
 
         assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);  // 2h SUMMER TIME
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);  // 2h WINTER TIME
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
