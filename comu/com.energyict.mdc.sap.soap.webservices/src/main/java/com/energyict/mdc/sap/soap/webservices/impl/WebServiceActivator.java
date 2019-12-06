@@ -4,7 +4,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -262,7 +261,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private Map<String, String> deviceTypesMap;
     private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
-    private Map<String, MeasurementKind> divisionCategoryCodeMap;
+    private Map<String, CIMPattern> divisionCategoryCodeMap;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -304,7 +303,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return recurrenceCodeMap;
     }
 
-    public Map<String, MeasurementKind> getDivisionCategoryCodeMap() {
+    public Map<String, CIMPattern> getDivisionCategoryCodeMap() {
         return divisionCategoryCodeMap;
     }
 
@@ -495,7 +494,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 divisionCategoryCodeMap = Arrays.stream(strMap.get().split(";"))
                         .map(String::trim)
                         .map(s -> s.split(":"))
-                        .collect(Collectors.toMap(e -> e[0].trim(), e -> MeasurementKind.get(Integer.parseInt(e[1].trim()))));
+                        .collect(Collectors.toMap(e -> e[0].trim(), e -> {
+                            String[] codes = e[1].trim().split("\\.");
+                            return new CIMPattern(codes);
+                        }));
             } else {
                 divisionCategoryCodeMap = Collections.emptyMap();
             }
