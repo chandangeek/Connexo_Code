@@ -44,7 +44,6 @@ public final class LdapUserImpl implements LdapUser {
         return dn;
     }
 
-    @Override
     public void setDN(String userDN) {
         this.dn = userDN;
     }
