@@ -52,7 +52,7 @@ Ext.define('Dxp.view.tasks.Grid', {
                 header: Uni.I18n.translate('general.suspended', 'DES', 'Suspended'),
                 dataIndex: 'suspendUntilExport',
                 renderer: function(value) {
-                    return value ? Uni.I18n.translate('general.suspended.yes', 'DES', 'Yes <br/>has been suspended until next run') : Uni.I18n.translate('general.suspended.no', 'DES', 'No');
+                    return value ? Uni.I18n.translate('general.suspended.yes', 'DES', 'Yes') : Uni.I18n.translate('general.suspended.no', 'DES', 'No');
                 },
                 flex: 1
             },

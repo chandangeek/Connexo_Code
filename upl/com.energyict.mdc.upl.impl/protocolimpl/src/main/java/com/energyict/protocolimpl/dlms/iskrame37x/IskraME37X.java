@@ -97,13 +97,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
@@ -1093,7 +1087,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec("LoadProfileId", PropertyTranslationKeys.DLMS_LOADPROFILEID, 1, 2, 97),
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
@@ -1126,8 +1120,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-        strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
         iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
         iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 10);
         if (properties.getTypedProperty(SECURITYLEVEL.getName(), "1").contains(":")) {
@@ -1141,10 +1135,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
         iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
         firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
-        nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
         // KV 19012004 get the serialNumber
-        serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
 
         int loadProfileId = properties.getTypedProperty("LoadProfileId", 1);
         switch (loadProfileId) {

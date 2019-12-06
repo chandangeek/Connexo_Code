@@ -152,7 +152,7 @@ Ext.define('Isu.controller.IssuesOverview', {
                             params: {me: true},
                             callback: function (records) {
                                 queryString.myworkgroupissues = undefined;
-                                queryString.userAssignee = records && !Ext.isEmpty(records) ? [-1, records[0].getId()] : [-1];
+                                //queryString.userAssignee = records && !Ext.isEmpty(records) ? [-1, records[0].getId()] : [-1];
                                 queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
                                     return wg.id;
                                 });
