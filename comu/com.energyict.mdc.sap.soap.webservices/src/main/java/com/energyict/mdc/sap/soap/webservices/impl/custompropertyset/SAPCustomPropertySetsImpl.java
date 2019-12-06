@@ -429,7 +429,10 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 Range<Instant> range = getRangeToUpdate(endDate, oldRange);
                 OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                         .getFirst(), device.getId());
-                Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range).stream().filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)).findFirst();
+                Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range)
+                        .stream()
+                        .filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER))
+                        .findFirst();
                 if (conflict.isPresent()) {
                     List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                             .getFirst(), device.getId());
@@ -438,24 +441,30 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                     List<CustomPropertySetValues> toRecreateAfterConflict = new ArrayList<>();
                     for (CustomPropertySetValues version : allVersions) {
                         if (!version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().hasUpperBound()
-                                && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange().upperEndpoint().equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
+                                && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange()
+                                .upperEndpoint()
+                                .equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
                             toRecreateBeforeConflict.add(version);
                         }
                         if (conflictRange.isPresent() && !version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasUpperBound() && version.getEffectiveRange().hasLowerBound()
-                                && (version.getEffectiveRange().lowerEndpoint().isAfter(versionToUpdate.getEffectiveRange().upperEndpoint()) || version.getEffectiveRange().lowerEndpoint().equals(versionToUpdate.getEffectiveRange().upperEndpoint()))) {
+                                && (version.getEffectiveRange().lowerEndpoint().isAfter(versionToUpdate.getEffectiveRange().upperEndpoint()) || version.getEffectiveRange()
+                                .lowerEndpoint()
+                                .equals(versionToUpdate.getEffectiveRange().upperEndpoint()))) {
                             toRecreateAfterConflict.add(version);
                         }
                     }
                     customPropertySetService.removeValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), device.getId());
                     for (CustomPropertySetValues version : toRecreateBeforeConflict) {
-                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                                .getFirst(), version, version.getEffectiveRange(), device.getId());
                     }
                     // set changed version
                     customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
                     customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(),
                             CustomPropertySetValues.emptyDuring(conflictRange.get()), conflictRange.get(), device.getId());
                     for (CustomPropertySetValues version : toRecreateAfterConflict) {
-                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                                .getFirst(), version, version.getEffectiveRange(), device.getId());
                     }
                 } else {
                     // set changed version
@@ -469,7 +478,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
     private Range<Instant> getRangeToUpdate(Instant endDate, Range<Instant> oldRange) {
         if (oldRange.hasLowerBound()) {
-            if (endDate.isAfter(oldRange.lowerEndpoint()) && oldRange.hasUpperBound() && endDate.isBefore(oldRange.upperEndpoint()) || !oldRange.hasUpperBound() ) {
+            if (endDate.isAfter(oldRange.lowerEndpoint()) && oldRange.hasUpperBound() && endDate.isBefore(oldRange.upperEndpoint()) || !oldRange.hasUpperBound()) {
                 return Range.closedOpen(oldRange.lowerEndpoint(), endDate);
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_END_DATE, endDate, oldRange);
@@ -598,6 +607,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .findAny()
                 .map(ext -> Pair.of(ext.getRegisterSpec(), ext.getRegisteredCustomPropertySet()));
     }
+
     private Optional<Channel> getChannel(long deviceId, ReadingType readingType, Instant when) {
         return deviceService.findDeviceById(deviceId)
                 .flatMap(device -> device.getMeterActivation(when))
@@ -915,23 +925,20 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         Optional<RegisteredCustomPropertySet> registerCPS = register.getDevice().getDeviceType()
                 .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
 
-        if(registerCPS.isPresent()
-                && registerCPS.get().getCustomPropertySetId().equals(registerInfo.getId())
-                && registerCPS.get().isViewableByCurrentUser()){
-            return true;
-        }
-        return false;
+        return registerCPS
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(RegisteredCustomPropertySet::getCustomPropertySetId)
+                .filter(registerInfo.getId()::equals).isPresent();
+
     }
 
     public boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel) {
         Optional<RegisteredCustomPropertySet> channelCPS = channel.getDevice().getDeviceType()
                 .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
 
-        if(channelCPS.isPresent()
-                && channelCPS.get().getCustomPropertySetId().equals(channelInfo.getId())
-                && channelCPS.get().isViewableByCurrentUser()){
-            return true;
-        }
-        return false;
+        return channelCPS
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(RegisteredCustomPropertySet::getCustomPropertySetId)
+                .filter(channelInfo.getId()::equals).isPresent();
     }
 }

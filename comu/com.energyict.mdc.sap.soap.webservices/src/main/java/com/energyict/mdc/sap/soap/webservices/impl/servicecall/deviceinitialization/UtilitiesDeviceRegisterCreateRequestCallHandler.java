@@ -68,7 +68,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             String recurrence = extension.getRecurrenceCode();
             String obis = extension.getObis();
             String divisionCategory = extension.getDivisionCategory();
-            CIMPattern CIMPattern = null;
+            CIMPattern cimPattern = null;
 
             if (recurrence == null) {
                 recurrence = "0";
@@ -87,8 +87,8 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             }
 
             if (divisionCategory != null) {
-                CIMPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
-                if (CIMPattern == null) {
+                cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
+                if (cimPattern == null) {
                     failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
                             WebServiceActivator.REGISTER_DIVISION_CATEGORY_CODE);
                     return;
@@ -96,9 +96,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             }
 
             if (period.getFirst() == MacroPeriod.NOTAPPLICABLE && period.getLast() == TimeAttribute.NOTAPPLICABLE) {
-                processRegister(device.get(), serviceCall, obis, period, CIMPattern);
+                processRegister(device.get(), serviceCall, obis, period, cimPattern);
             } else {
-                processChannel(device.get(), serviceCall, obis, period, CIMPattern);
+                processChannel(device.get(), serviceCall, obis, period, cimPattern);
             }
         } else {
             failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
@@ -107,10 +107,10 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
     }
 
     private void processChannel(Device device, ServiceCall serviceCall, String obis,
-                                Pair<MacroPeriod, TimeAttribute> period, CIMPattern CIMPattern) {
+                                Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         Set<Channel> channels = findChannelByObis(device, obis, period);
-        channels.addAll(findChannelByReadingType(device, period, CIMPattern));
+        channels.addAll(findChannelByReadingType(device, period, cimPattern));
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
                 try {
@@ -123,15 +123,15 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 }
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                failServiceCallBySeveralDataSources(extension, period, CIMPattern, obis);
+                failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
             }
         } else {
-            failServiceCallByNoFound(extension, period, CIMPattern, obis);
+            failServiceCallByNoFound(extension, period, cimPattern, obis);
         }
     }
 
     private void processRegister(Device device, ServiceCall serviceCall, String obis,
-                                 Pair<MacroPeriod, TimeAttribute> period, CIMPattern CIMPattern) {
+                                 Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         Set<Register> registers = new HashSet<>();
         Optional<Register> register = device.getRegisterWithDeviceObisCode(ObisCode.fromString(obis));
@@ -139,7 +139,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             registers.add(register.get());
         }
 
-        registers.addAll(findRegisterByReadingType(device, period, CIMPattern));
+        registers.addAll(findRegisterByReadingType(device, period, cimPattern));
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
@@ -153,10 +153,10 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 }
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                failServiceCallBySeveralDataSources(extension, period, CIMPattern, obis);
+                failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
             }
         } else {
-            failServiceCallByNoFound(extension, period, CIMPattern, obis);
+            failServiceCallByNoFound(extension, period, cimPattern, obis);
         }
     }
 
@@ -167,32 +167,32 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
     }
 
     private void failServiceCallBySeveralDataSources(UtilitiesDeviceRegisterCreateRequestDomainExtension extension,
-                                                     Pair<MacroPeriod, TimeAttribute> period, CIMPattern CIMPattern, String obis) {
+                                                     Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern, String obis) {
         String strPeriod = convertPeriodToString(period);
 
         if (obis == null) {
             failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
-                    CIMPattern.code());
-        } else if (CIMPattern == null) {
+                    cimPattern.code());
+        } else if (cimPattern == null) {
             failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_OBIS, strPeriod, period.getFirst().getId(), period.getLast().getId(), obis);
         } else {
             failServiceCall(extension, MessageSeeds.SEVERAL_DATA_SOURCES_WITH_OBIS_OR_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
-                    CIMPattern.code(), obis);
+                    cimPattern.code(), obis);
         }
     }
 
     private void failServiceCallByNoFound(UtilitiesDeviceRegisterCreateRequestDomainExtension extension,
-                                          Pair<MacroPeriod, TimeAttribute> period, CIMPattern CIMPattern, String obis) {
+                                          Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern, String obis) {
         String strPeriod = convertPeriodToString(period);
 
         if (obis == null) {
             failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
-                    CIMPattern.code());
-        } else if (CIMPattern == null) {
+                    cimPattern.code());
+        } else if (cimPattern == null) {
             failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS, strPeriod, period.getFirst().getId(), period.getLast().getId(), obis);
         } else {
             failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS_OR_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
-                    CIMPattern.code(), obis);
+                    cimPattern.code(), obis);
         }
     }
 
@@ -225,23 +225,23 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
     }
 
     //MacroPeriod.*.TimeAttribute.*.*.*.measurementKind.*.*.*.*.*.*.*.*.*.*.*
-    private Set<Channel> findChannelByReadingType(Device device, Pair<MacroPeriod, TimeAttribute> period, CIMPattern CIMPattern) {
+    private Set<Channel> findChannelByReadingType(Device device, Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         return device.getChannels()
                 .stream()
                 .filter(channel -> channel.getReadingType().getMacroPeriod() == period.getFirst()
                         && channel.getReadingType().getMeasuringPeriod() == period.getLast()
-                        && CIMPattern.isMatch(channel.getReadingType()))
+                        && cimPattern.matches(channel.getReadingType()))
                 .filter(channel -> sapCustomPropertySets.doesChannelHaveSapCPS(channel))
                 .collect(Collectors.toSet());
     }
 
     //MacroPeriod.*.TimeAttribute.*.*.*.measurementKind.*.*.*.*.*.*.*.*.*.*.*
-    private Set<Register> findRegisterByReadingType(Device device, Pair<MacroPeriod, TimeAttribute> period, CIMPattern CIMPattern) {
+    private Set<Register> findRegisterByReadingType(Device device, Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         return device.getRegisters()
                 .stream()
                 .filter(register -> register.getReadingType().getMacroPeriod() == period.getFirst()
                         && register.getReadingType().getMeasuringPeriod() == period.getLast()
-                        && CIMPattern.isMatch(register.getReadingType()))
+                        && cimPattern.matches(register.getReadingType()))
                 .filter(register -> sapCustomPropertySets.doesRegisterHaveSapCPS(register))
                 .collect(Collectors.toSet());
     }

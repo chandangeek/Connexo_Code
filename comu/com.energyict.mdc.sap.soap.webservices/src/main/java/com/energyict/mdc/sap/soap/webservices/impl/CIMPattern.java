@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.google.common.base.Joiner;
 
 import java.util.Currency;
+import java.util.Optional;
 
 /**
  * CIMPattern represents pattern for searching registers/channels.
@@ -25,14 +26,11 @@ import java.util.Currency;
  * MacroPeriod and TimeAttribute are not used in this pattern.
  *
  */
-
 public class CIMPattern {
     private static final String ANY_CODE = "*";
     private static final String MISSED_CODE = "-";
 
-    //private MacroPeriod macroPeriod;
     private Aggregate aggregate;
-    //private TimeAttribute measuringPeriod;
     private Accumulation accumulation;
     private FlowDirection flowDirection;
     private Commodity commodity;
@@ -48,60 +46,39 @@ public class CIMPattern {
     private Currency currency;
 
 
-    public CIMPattern(String[] codes) {
-        if (isInteger(codes[1])) {
-            this.aggregate = Aggregate.get((Integer.parseInt(codes[1])));
-        }
-        if (isInteger(codes[3])) {
-            this.accumulation = Accumulation.get(Integer.parseInt(codes[3]));
-        }
-        if (isInteger(codes[4])) {
-            this.flowDirection = FlowDirection.get(Integer.parseInt(codes[4]));
-        }
-        if (isInteger(codes[5])) {
-            this.commodity = Commodity.get(Integer.parseInt(codes[5]));
+    CIMPattern(String[] codes) {
+        parseOptionalInteger(codes[1]).ifPresent(aggregate->this.aggregate = Aggregate.get(aggregate));
+        parseOptionalInteger(codes[3]).ifPresent(accumulation->this.accumulation = Accumulation.get(accumulation));
+        parseOptionalInteger(codes[4]).ifPresent(flowDirection->this.flowDirection = FlowDirection.get(flowDirection));
+        parseOptionalInteger(codes[5]).ifPresent(commodity->this.commodity = Commodity.get(commodity));
+        parseOptionalInteger(codes[6]).ifPresent(measurementKind->this.measurementKind = MeasurementKind.get(measurementKind));
+
+        Optional<Integer> interharmonicNum = parseOptionalInteger(codes[7]);
+        Optional<Integer> interharmonicDen = parseOptionalInteger(codes[8]);
+        if (interharmonicNum.isPresent() && interharmonicDen.isPresent()) {
+            this.interharmonic = new RationalNumber(interharmonicNum.get(), interharmonicDen.get());
         }
 
-        if (isInteger(codes[6])) {
-            this.measurementKind = MeasurementKind.get(Integer.parseInt(codes[6]));
+        Optional<Integer> argumentNum = parseOptionalInteger(codes[9]);
+        Optional<Integer> argumentDen = parseOptionalInteger(codes[10]);
+        if (argumentNum.isPresent() && argumentDen.isPresent()) {
+            this.argument = new RationalNumber(argumentNum.get(), argumentDen.get());
         }
 
-        if (isInteger(codes[7]) && isInteger(codes[8])) {
-            this.interharmonic = new RationalNumber(Integer.parseInt(codes[7]), Integer.parseInt(codes[8]));
-        }
-
-        if (isInteger(codes[9]) && isInteger(codes[10])) {
-            this.argument = new RationalNumber(Integer.parseInt(codes[9]), Integer.parseInt(codes[10]));
-        }
-
-        if (isInteger(codes[11])) {
-            this.tou = Integer.parseInt(codes[11]);
-        }
-
-        if (isInteger(codes[12])) {
-            this.cpp = Integer.parseInt(codes[12]);
-        }
-
-        if (isInteger(codes[13])) {
-            this.consumptionTier = Integer.parseInt(codes[13]);
-        }
-
-        if (isInteger(codes[14])) {
-            this.phases = Phase.get(Integer.parseInt(codes[14]));
-        }
-
-        if (isInteger(codes[15])) {
-            this.multiplier = MetricMultiplier.with(Integer.parseInt(codes[15]));
-        }
-        if (isInteger(codes[16])) {
-            this.unit = ReadingTypeUnit.get(Integer.parseInt(codes[16]));
-        }
-        if (isInteger(codes[17])) {
-            this.currency = getCurrency(Integer.parseInt(codes[17]));
-        }
+        parseOptionalInteger(codes[11]).ifPresent(tou->this.tou = tou);
+        parseOptionalInteger(codes[12]).ifPresent(cpp->this.cpp = cpp);
+        parseOptionalInteger(codes[13]).ifPresent(consumptionTier->this.consumptionTier = consumptionTier);
+        parseOptionalInteger(codes[14]).ifPresent(phases->this.phases = Phase.get(phases));
+        parseOptionalInteger(codes[15]).ifPresent(multiplier->this.multiplier = MetricMultiplier.with(multiplier));
+        parseOptionalInteger(codes[16]).ifPresent(unit->this.unit = ReadingTypeUnit.get(unit));
+        parseOptionalInteger(codes[17]).ifPresent(currency->this.currency = getCurrency(currency));
     }
 
-    public boolean isMatch(ReadingType readingType) {
+    public static CIMPattern parseFromString(String[] codes) {
+        return new CIMPattern(codes);
+    }
+
+    public boolean matches(ReadingType readingType) {
         if (aggregate != null) {
             if (!aggregate.equals(readingType.getAggregate())) {
                 return false;
@@ -198,21 +175,24 @@ public class CIMPattern {
                 currency == null ? ANY_CODE : getCurrencyId(currency));
     }
 
-    private static boolean isInteger(String str) {
+    private static Optional<Integer> parseOptionalInteger(String str) {
         try {
-            Integer.parseInt(str);
-            return true;
+            return Optional.of(Integer.parseInt(str));
         } catch (NumberFormatException e) {
-            return false;
+            return Optional.empty();
         }
     }
 
     private static Currency getCurrency(int isoCode) {
-        return Currency.getAvailableCurrencies()
-                .stream()
-                .filter(c -> c.getNumericCode() == isoCode)
-                .findAny()
-                .orElse(null);
+        if (isoCode == 0) {
+            isoCode = 999;
+        }
+        for (Currency each : Currency.getAvailableCurrencies()) {
+            if (each.getNumericCode() == isoCode) {
+                return each;
+            }
+        }
+        return null;
     }
 
     private static int getCurrencyId(Currency currency) {

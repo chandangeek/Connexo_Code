@@ -496,7 +496,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                         .map(s -> s.split(":"))
                         .collect(Collectors.toMap(e -> e[0].trim(), e -> {
                             String[] codes = e[1].trim().split("\\.");
-                            return new CIMPattern(codes);
+                            return CIMPattern.parseFromString(codes);
                         }));
             } else {
                 divisionCategoryCodeMap = Collections.emptyMap();
