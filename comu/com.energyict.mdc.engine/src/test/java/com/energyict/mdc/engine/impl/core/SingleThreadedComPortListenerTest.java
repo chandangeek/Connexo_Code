@@ -126,13 +126,17 @@ public class SingleThreadedComPortListenerTest {
     public void testSimulatedVoidComChannelWithNoHandOver() throws InterruptedException {
         SingleThreadedComPortListener singleThreadedComPortListener =
                 spy(new SingleThreadedComPortListener(runningComServer, inboundComPort, this.deviceCommandExecutor, serviceProvider));
-        // business method
-        singleThreadedComPortListener.start();
-        startLatch.await(); // wait until the accept has occurred
+        try {
+            // business method
+            singleThreadedComPortListener.start();
+            startLatch.await(); // wait until the accept has occurred
 
-        //Asserts
-        verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
-        verify(singleThreadedComPortListener, never()).handleInboundDeviceProtocol(any(ComPortRelatedComChannel.class));
+            //Asserts
+            verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
+            verify(singleThreadedComPortListener, never()).handleInboundDeviceProtocol(any(ComPortRelatedComChannel.class));
+        } finally {
+            singleThreadedComPortListener.shutdownImmediate();
+        }
     }
 
     private ComServerDAO getMockedComServerDAO() {
@@ -171,12 +175,16 @@ public class SingleThreadedComPortListenerTest {
                         serviceProvider,
                         new InboundComPortExecutorFactoryImpl(this.inboundComPortExecutorServiceProvider));
 
-        // business method
-        singleThreadedComPortListener.start();
+        try {
+            // business method
+            singleThreadedComPortListener.start();
 
-        // Asserts
-        verify(threadFactory, times(1)).newThread(any(Runnable.class));
-        verify(mockedThread, times(1)).start();
+            // Asserts
+            verify(threadFactory, times(1)).newThread(any(Runnable.class));
+            verify(mockedThread, times(1)).start();
+        } finally {
+            singleThreadedComPortListener.shutdownImmediate();
+        }
     }
 
     @Test
@@ -219,15 +227,19 @@ public class SingleThreadedComPortListenerTest {
                         new InboundComPortExecutorFactoryImpl(this.inboundComPortExecutorServiceProvider)));
         singleThreadedComPortListener.setCounter(protocolLatch);
 
-        // Business method
-        singleThreadedComPortListener.start();
-        startLatch.await(); // wait until the accept has occurred
-        protocolLatch.await(); // wait until the handOver has happened
+        try {
+            // Business method
+            singleThreadedComPortListener.start();
+            startLatch.await(); // wait until the accept has occurred
+            protocolLatch.await(); // wait until the handOver has happened
 
-        //Asserts
-        verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
-        verify(singleThreadedComPortListener, times(1)).handleInboundDeviceProtocol(comChannel);
-        verify(singleThreadedComPortListener, times(1)).setThreadPrinciple();
+            //Asserts
+            verify(connector, atLeast(1)).accept(); // accept should have been called twice (one time it should have returned a VoidComChannel
+            verify(singleThreadedComPortListener, times(1)).handleInboundDeviceProtocol(comChannel);
+            verify(singleThreadedComPortListener, times(1)).setThreadPrinciple();
+        } finally {
+            singleThreadedComPortListener.shutdownImmediate();
+        }
     }
 
     private InboundComPort mockComPort(String name) {

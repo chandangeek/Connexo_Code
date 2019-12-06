@@ -54,7 +54,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -382,10 +381,12 @@ public class RunningComServerChangesTest {
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
+        comServer.setDirty(false); // it was set to dirty at creation already - should be set dirty on deactivateInbound
         runningComServer.start();
 
         // Deactivate first ComPort
         comServerDAO.deactivateInbound(0, 1);
+        comServer.setDirty(true);
 
         this.waitForComServerToPickupChanges(runningComServer);
 
