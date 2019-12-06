@@ -151,7 +151,7 @@ public class DataExportTaskResource {
     @Path("/usagepoint/{usagePointId}/{purposeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
-    public PagedInfoList getDataExportTasksOnUsagePointAndPurpose(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode, @PathParam("usagePointId") String usagePointId,@PathParam("purposeId") long purposeId) {
+    public PagedInfoList getDataExportTasksOnUsagePointAndPurpose(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode, @PathParam("usagePointId") String usagePointId, @PathParam("purposeId") long purposeId) {
         String applicationName = getApplicationNameFromCode(appCode);
 
 
@@ -165,14 +165,16 @@ public class DataExportTaskResource {
         List<DataExportTaskInfo> infos = finder.stream()
                 .map(dataExportTaskInfoFactory::asInfoWithMinimalHistory)
                 .collect(Collectors.toList());
-        List<DataExportTaskInfo>filteredTasks = new ArrayList<>();
-        for(DataExportTaskInfo dataExportTaskInfo: infos){
-            Optional<UsagePointGroup> group = meteringGroupsService.findUsagePointGroup(((Number)dataExportTaskInfo.standardDataSelector.usagePointGroup.id).longValue());
+        List<DataExportTaskInfo> filteredTasks = new ArrayList<>();
+        for (DataExportTaskInfo dataExportTaskInfo : infos) {
+            Optional<UsagePointGroup> group = meteringGroupsService.findUsagePointGroup(((Number) dataExportTaskInfo.standardDataSelector.usagePointGroup.id).longValue());
 
-            if((group.isPresent() && isMember(usagePoint.get(), group.get())) &&
-               (dataExportTaskInfo.standardDataSelector.purpose == null || (dataExportTaskInfo.standardDataSelector.purpose!=null  && metrologyContract.getMetrologyPurpose().getName().equals(dataExportTaskInfo.standardDataSelector.purpose.name))) &&
-                containsAtLeastOneReadingType(readingTypeInfos, dataExportTaskInfo.standardDataSelector.readingTypes)){
-                 filteredTasks.add(dataExportTaskInfo);
+            if ((group.isPresent() && isMember(usagePoint.get(), group.get())) &&
+                    (dataExportTaskInfo.standardDataSelector.purpose == null || (dataExportTaskInfo.standardDataSelector.purpose != null && metrologyContract.getMetrologyPurpose()
+                            .getName()
+                            .equals(dataExportTaskInfo.standardDataSelector.purpose.name))) &&
+                    containsAtLeastOneReadingType(readingTypeInfos, dataExportTaskInfo.standardDataSelector.readingTypes)) {
+                filteredTasks.add(dataExportTaskInfo);
             }
         }
 
@@ -180,11 +182,11 @@ public class DataExportTaskResource {
     }
 
     private boolean containsAtLeastOneReadingType(Collection<Set<ReadingType>> readingTypesFromUsagePoint, List<ReadingTypeInfo> readingTypesFromExportTask) {
-        for(ReadingTypeInfo rtFromExportTask:readingTypesFromExportTask){
+        for (ReadingTypeInfo rtFromExportTask : readingTypesFromExportTask) {
             Iterator iter = readingTypesFromUsagePoint.iterator();
             while (iter.hasNext()) {
-                for (Object readingType : (HashSet)iter.next()) {
-                    if(((ReadingType)readingType).getMRID().equals(rtFromExportTask.mRID)) {
+                for (Object readingType : (HashSet) iter.next()) {
+                    if (((ReadingType) readingType).getMRID().equals(rtFromExportTask.mRID)) {
                         return true;
                     }
                 }
@@ -605,10 +607,14 @@ public class DataExportTaskResource {
             occurrencesFinder.withExportPeriodContaining(filter.getInstant("exportPeriodContains"));
         }
         if (filter.hasProperty("status")) {
-            occurrencesFinder.withExportStatus(filter.getStringList("status")
-                    .stream()
-                    .map(DataExportStatus::valueOf)
-                    .collect(Collectors.toList()));
+            try {
+                occurrencesFinder.withExportStatus(filter.getStringList("status")
+                        .stream()
+                        .map(DataExportStatus::valueOf)
+                        .collect(Collectors.toList()));
+            } catch (Exception ex) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
+            }
         }
 
         History<ExportTask> history = task.getHistory();
@@ -813,10 +819,14 @@ public class DataExportTaskResource {
             occurrencesFinder.withExportTask(filter.getLongList("exportTask"));
         }
         if (filter.hasProperty("status")) {
-            occurrencesFinder.withExportStatus(filter.getStringList("status")
-                    .stream()
-                    .map(DataExportStatus::valueOf)
-                    .collect(Collectors.toList()));
+            try {
+                occurrencesFinder.withExportStatus(filter.getStringList("status")
+                        .stream()
+                        .map(DataExportStatus::valueOf)
+                        .collect(Collectors.toList()));
+            } catch (Exception ex) {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
+            }
         }
         return occurrencesFinder
                 .withExportTask(exportTaskIds)

@@ -183,27 +183,44 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 ]
                             },
                             {
-                                xtype: 'date-time',
-                                layout: 'hbox',
-                                valueInMilliseconds: true,
-                                name: 'startDate',
-                                itemId: 'startDate',
+                                xtype: 'fieldcontainer',
                                 required: true,
                                 fieldLabel: Uni.I18n.translate('communicationschedule.startFrom', 'MDC', 'Start from'),
-                                dateConfig: {
-                                    editable: false,
-                                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
                                 },
-                                hoursConfig: {
-                                    width: 60
-                                },
-                                minutesConfig: {
-                                    width: 60
-                                },
-                                dateTimeSeparatorConfig: {
-                                    html: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
-                                    margin: '0 6 0 6'
-                                }
+                                items: [
+                                    {
+                                        xtype: 'date-time',
+                                        layout: 'hbox',
+                                        valueInMilliseconds: true,
+                                        name: 'startDate',
+                                        itemId: 'startDate',
+                                        required: true,
+                                        dateConfig: {
+                                            editable: false,
+                                            format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
+                                        },
+                                        hoursConfig: {
+                                            width: 60
+                                        },
+                                        minutesConfig: {
+                                            width: 60
+                                        },
+                                        dateTimeSeparatorConfig: {
+                                            html: Uni.I18n.translate('general.lowercase.at', 'MDC', 'at'),
+                                            margin: '0 6 0 6'
+                                        }
+                                    },
+                                    {
+                                        xtype: 'displayfield-with-info-icon',
+                                        itemId: 'start-from-info-icon',
+                                        onlyIcon: true,
+                                        infoTooltip:  Uni.I18n.translate('communicationschedule.infoStartFrom', 'MDC', "The schedule is always calculated from 00:00. The communication task won't start before the date and time defined in 'Start from' parameter")
+                                    },
+
+                                ]
                             },
                             {
                                 xtype: 'menuseparator',

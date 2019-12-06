@@ -36,6 +36,7 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -400,12 +401,12 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             } else {
                 serviceCallService.lockServiceCall(getServiceCall().getId());
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                        .format(campaign.getFirmwareUploadConnectionStrategy().get().name(), firmwareComTaskExec.getComTask().getName()));
+                        .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExec.getComTask().getName()));
                 getServiceCall().requestTransition(DefaultState.REJECTED);
             }
         } else {
             serviceCallService.lockServiceCall(getServiceCall().getId());
-            getServiceCall().log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             getServiceCall().requestTransition(DefaultState.REJECTED);
         }
     }

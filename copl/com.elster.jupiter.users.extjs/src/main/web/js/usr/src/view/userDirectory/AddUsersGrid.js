@@ -22,6 +22,11 @@ Ext.define('Usr.view.userDirectory.AddUsersGrid', {
                 flex: 2
             },
             {
+                header: Uni.I18n.translate('userDirectories.ldap.dn', 'USR', 'DN'),
+                dataIndex: 'dn',
+                flex: 2
+            },
+            {
                 header: Uni.I18n.translate('userDirectories.userStatus.status', 'USR', 'Status'),
                 dataIndex: 'statusDisplay',
                 flex: 1
