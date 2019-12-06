@@ -409,6 +409,16 @@
                 <artifactId>commons-csv</artifactId>
                 <version>1.0</version>
             </dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-text</artifactId>
+				<version>1.8</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.9</version>
+			</dependency>
             <dependency>
                 <groupId>com.enterprisedt</groupId>
                 <artifactId>edtftpj-pro</artifactId>

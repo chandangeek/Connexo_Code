@@ -366,7 +366,7 @@ Ext.define('Isu.controller.IssuesOverview', {
             };
         me.getIssuesGrid().down('#pagingtoolbartop').isFullTotalCount = false;
         Ext.suspendLayouts();
-        if (queryString.groupingType !== 'none') {
+        if (queryString.groupingType && queryString.groupingType !== 'none') {
             groupGrid.updateGroupingType(queryString.groupingType);
             groupGrid.show();
             groupGrid.down('pagingtoolbarbottom').params = me.getGroupProxyParams();
