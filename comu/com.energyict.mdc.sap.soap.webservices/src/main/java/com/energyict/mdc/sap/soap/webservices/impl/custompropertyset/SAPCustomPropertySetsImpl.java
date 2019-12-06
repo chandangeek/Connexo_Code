@@ -482,13 +482,13 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid) {
+    public Optional<Interval> getLastProfileIdIntervalForChannelOnDevice(long deviceId, String readingTypeMrid) {
         return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isNotNull())
                 .filter(e -> e.getDeviceId() == deviceId)
-                .filter(f -> f.getChannelSpec().getReadingType().getMRID().equals(channelMrid))
+                .filter(f -> f.getChannelSpec().getReadingType().getMRID().equals(readingTypeMrid))
                 .map(c -> c.getInterval())
                 .max(Comparator.comparingLong(m -> {
                     if (m.getEnd() != null) {

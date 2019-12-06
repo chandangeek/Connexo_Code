@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -14,6 +15,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.Log;
@@ -27,7 +30,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmat
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
@@ -55,7 +60,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
@@ -68,11 +73,24 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return this;
         }
 
-        public Builder from(MeterRegisterBulkChangeRequestMessage message, MessageSeeds messageSeed, Instant now) {
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestId(), message.getUuid(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), now));
 
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+            UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
+            confMsg.setUtilitiesDevice(createChildBody(message.getDeviceId()));
+
+            confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(confMsg);
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
+            return this;
+        }
+
+        public Builder from(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed, Instant now) {
+            confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
+            confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), now));
+
+            createBody(confirmationMessage, messages, now);
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
             return this;
         }
 
@@ -81,24 +99,44 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         }
 
         private void createBody(UtilsDvceERPSmrtMtrRegBulkChgConfMsg confirmationMessage,
-                                List<ServiceCall> children, Instant now) {
+                                List<ServiceCall> subParents, Instant now) {
 
-            children.forEach(child -> {
+            subParents.forEach(subParent -> {
                 confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage()
-                        .add(createChildMessage(child, now));
+                        .add(createChildMessage(subParent, now));
             });
         }
 
-        private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall childServiceCall, Instant now) {
-            MeterRegisterChangeRequestDomainExtension extension = childServiceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
+        private void createBody(UtilsDvceERPSmrtMtrRegBulkChgConfMsg confirmationMessage, MeterRegisterBulkChangeRequestMessage messages, Instant now) {
+            messages.getMeterRegisterChangeMessages().forEach(message -> {
+                UtilsDvceERPSmrtMtrRegChgConfMsg confMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
+                confMessage.setMessageHeader(createChildHeader(message.getId(), message.getUuid(), now));
+                confMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
+                confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(confMessage);
+            });
+        }
+
+        private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall subParentServiceCall, Instant now) {
+            SubMasterMeterRegisterChangeRequestDomainExtension extension = subParentServiceCall.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
+                    .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
 
             UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
-            if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
+            if (subParentServiceCall.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
-            } else if (childServiceCall.getState() == DefaultState.FAILED || childServiceCall.getState() == DefaultState.CANCELLED) {
-                confirmationMessage.setLog(createFailedLog(extension.getErrorMessage()));
+            } else if (subParentServiceCall.getState() == DefaultState.FAILED || subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS || subParentServiceCall.getState() == DefaultState.CANCELLED) {
+                List<String> errorMessages = ServiceCallHelper.findChildren(subParentServiceCall).stream()
+                        .map(child -> child.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()))
+                        .flatMap(Functions.asStream())
+                        .map(MeterRegisterChangeRequestDomainExtension::getErrorMessage)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                if (!errorMessages.isEmpty()) {
+                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessages) : createFailedLog(errorMessages));
+                } else {
+                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog());
+                }
             }
             return confirmationMessage;
         }
@@ -158,9 +196,23 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return log;
         }
 
+        private Log createPartiallySuccessfulLog(List<String> messages) {
+            Log log = objectFactory.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
+            return log;
+        }
+
         private Log createFailedLog() {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            return log;
+        }
+
+        private Log createFailedLog(List<String> messages) {
+            Log log = objectFactory.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
             return log;
         }
 
