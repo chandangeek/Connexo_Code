@@ -56,13 +56,21 @@ public class CIMPattern {
         Optional<Integer> interharmonicNum = parseOptionalInteger(codes[7]);
         Optional<Integer> interharmonicDen = parseOptionalInteger(codes[8]);
         if (interharmonicNum.isPresent() && interharmonicDen.isPresent()) {
-            this.interharmonic = new RationalNumber(interharmonicNum.get(), interharmonicDen.get());
+            if (interharmonicNum.get() == 0 && interharmonicDen.get() == 0) {
+                this.interharmonic = RationalNumber.NOTAPPLICABLE;
+            } else {
+                this.interharmonic = new RationalNumber(interharmonicNum.get(), interharmonicDen.get());
+            }
         }
 
         Optional<Integer> argumentNum = parseOptionalInteger(codes[9]);
         Optional<Integer> argumentDen = parseOptionalInteger(codes[10]);
         if (argumentNum.isPresent() && argumentDen.isPresent()) {
-            this.argument = new RationalNumber(argumentNum.get(), argumentDen.get());
+            if (argumentNum.get() == 0 && argumentDen.get() == 0) {
+                this.argument = RationalNumber.NOTAPPLICABLE;
+            } else {
+                this.argument = new RationalNumber(argumentNum.get(), argumentDen.get());
+            }
         }
 
         parseOptionalInteger(codes[11]).ifPresent(tou->this.tou = tou);
