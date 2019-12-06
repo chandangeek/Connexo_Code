@@ -69,7 +69,7 @@ Ext.define('Mdc.property.SecuritySet', {
         needed stores before callParent call */
         me.callParent();
 
-        var deviceNameToSet = me.parentForm.context.deviceName;
+        var deviceNameToSet = me.parentForm.context.id;
 
         me.securitySetsStore.getProxy().setUrl(deviceNameToSet);
 
