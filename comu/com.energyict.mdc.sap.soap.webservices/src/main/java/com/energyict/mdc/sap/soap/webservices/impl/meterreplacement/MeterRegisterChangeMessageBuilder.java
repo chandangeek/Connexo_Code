@@ -12,7 +12,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.Utils
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UUID;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 
@@ -33,9 +35,7 @@ public class MeterRegisterChangeMessageBuilder {
         setId(getId(requestMessage));
         setUuid(getUuid(requestMessage));
         setDeviceId(getDeviceId(requestMessage));
-        setLrn(getLrn(requestMessage));
-        setEndDate(calculateEndDate(requestMessage));
-        setTimeZone(getTimeZone(requestMessage));
+        addRegisters(getRegisters(requestMessage));
         return this;
     }
 
@@ -55,16 +55,8 @@ public class MeterRegisterChangeMessageBuilder {
         message.setDeviceId(deviceId);
     }
 
-    private void setLrn(String lrn) {
-        message.setLrn(lrn);
-    }
-
-    private void setEndDate(Instant endDate) {
-        message.setEndDate(endDate);
-    }
-
-    private void setTimeZone(String timeZone) {
-        message.setTimeZone(timeZone);
+    private void addRegisters(List<RegisterChangeMessage> registers) {
+        message.getRegisters().addAll(registers);
     }
 
     private String getDeviceId(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
@@ -88,30 +80,35 @@ public class MeterRegisterChangeMessageBuilder {
                 .orElse(null);
     }
 
-    private String getLrn(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
-        Optional<UtilsDvceERPSmrtMtrRegChgReqReg> register = requestMessage.getUtilitiesDevice().getRegister().stream().findFirst();
-        if (register.isPresent() && !Checks.is(register.get().getUtilitiesMeasurementTaskID().getValue()).emptyOrOnlyWhiteSpace()) {
-            return register.get().getUtilitiesMeasurementTaskID().getValue();
+    private List<RegisterChangeMessage> getRegisters(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
+       return requestMessage.getUtilitiesDevice().getRegister().stream().map(reg -> getRegister(reg)).collect(Collectors.toList());
+    }
+
+    private RegisterChangeMessage getRegister(UtilsDvceERPSmrtMtrRegChgReqReg reg) {
+        RegisterChangeMessage register = new RegisterChangeMessage();
+        register.setLrn(getLrn(reg));
+        register.setEndDate(calculateEndDate(reg));
+        register.setTimeZone(getTimeZone(reg));
+        return register;
+    }
+
+    private String getLrn(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
+        if (!Checks.is(requestRegister.getUtilitiesMeasurementTaskID().getValue()).emptyOrOnlyWhiteSpace()) {
+            return requestRegister.getUtilitiesMeasurementTaskID().getValue();
         } else {
             return null;
         }
     }
 
-    private String getTimeZone(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
-        Optional<UtilsDvceERPSmrtMtrRegChgReqReg> register = requestMessage.getUtilitiesDevice().getRegister().stream().findFirst();
-        if (register.isPresent() && !Checks.is(register.get().getTimeZoneCode()).emptyOrOnlyWhiteSpace()) {
-            return register.get().getTimeZoneCode();
+    private String getTimeZone(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
+        if (!Checks.is(requestRegister.getTimeZoneCode()).emptyOrOnlyWhiteSpace()) {
+            return requestRegister.getTimeZoneCode();
         } else {
             return null;
         }
     }
 
-    private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqMsg requestMessage) {
-        Optional<UtilsDvceERPSmrtMtrRegChgReqReg> register = requestMessage.getUtilitiesDevice().getRegister().stream().findFirst();
-        if (register.isPresent()) {
-            return register.get().getEndDate().plus(meterReplacementAddInterval, MINUTES);
-        } else {
-            return null;
-        }
+    private Instant calculateEndDate(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
+        return requestRegister.getEndDate().plus(meterReplacementAddInterval, MINUTES);
     }
 }
