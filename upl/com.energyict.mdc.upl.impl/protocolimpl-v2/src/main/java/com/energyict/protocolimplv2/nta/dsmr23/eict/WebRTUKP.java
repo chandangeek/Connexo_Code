@@ -90,6 +90,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         this.numberLookupExtractor = numberLookupExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+        setHasBreaker(false);
     }
 
     protected NlsService getNlsService() {return this.nlsService;}
@@ -215,40 +216,34 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         CollectedBreakerStatus result = super.getBreakerStatus();
-
-        try {
-            Disconnector disconnector = getDlmsSession().getCosemObjectFactory().getDisconnector();
-            TypeEnum controlState = disconnector.doReadControlState();
-            switch (controlState.getValue()) {
-                case 0:
-                    result.setBreakerStatus(BreakerStatus.DISCONNECTED);
-                    break;
-                case 1:
-                    result.setBreakerStatus(BreakerStatus.CONNECTED);
-                    break;
-                case 2:
-                    result.setBreakerStatus(BreakerStatus.ARMED);
-                    break;
-                default:
+        if (hasBreaker()) {
+            try {
+                Disconnector disconnector = getDlmsSession().getCosemObjectFactory().getDisconnector();
+                TypeEnum controlState = disconnector.doReadControlState();
+                switch (controlState.getValue()) {
+                    case 0:
+                        result.setBreakerStatus(BreakerStatus.DISCONNECTED);
+                        break;
+                    case 1:
+                        result.setBreakerStatus(BreakerStatus.CONNECTED);
+                        break;
+                    case 2:
+                        result.setBreakerStatus(BreakerStatus.ARMED);
+                        break;
+                    default:
+                        ObisCode source = Disconnector.getDefaultObisCode();
+                        result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory()
+                                .createProblem(source, "issue.protocol.readingOfBreakerStateFailed", "received value '" + controlState.getValue() + "', expected either 0, 1 or 2."));
+                        break;
+                }
+            } catch (IOException e) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
                     ObisCode source = Disconnector.getDefaultObisCode();
-                    result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory()
-                            .createProblem(source, "issue.protocol.readingOfBreakerStateFailed", "received value '" + controlState.getValue() + "', expected either 0, 1 or 2."));
-                    break;
-            }
-        } catch (IOException e) {
-            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                ObisCode source = Disconnector.getDefaultObisCode();
-                result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory().createProblem(source, "issue.protocol.readingOfBreakerStateFailed", e.toString()));
+                    result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory().createProblem(source, "issue.protocol.readingOfBreakerStateFailed", e.toString()));
+                }
             }
         }
         return result;
-    }
-
-    // NTA-related protocols don't support CA version, this is for tesitng purposes only
-    // TODO: 19.03.2018 for testing purposes
-    @Override
-    public boolean supportsCaConfigImageVersion() {
-        return true;
     }
 
     @Override
@@ -268,19 +263,6 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
         if (supportsAuxiliaryFirmwareVersion()) {
             collectFirmwareVersionAuxiliary(result);
-        }
-
-        // NTA-related protocols don't support CA version, this is for testing purposes only
-        // TODO: 19.03.2018 for testing purposes
-        try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString("1.0.0.2.8.255")).getValueAttr();
-            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
-            result.setActiveCaConfigImageVersion(fwVersion);
-        } catch (IOException e) {
-            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(FIRMWARE_VERSION_METER_CORE, "issue.protocol.readingOfFirmwareFailed", e.toString());
-                result.setFailureInformation(ResultType.InCompatible, problem);
-            }   //Else a communication exception is thrown
         }
 
         return result;
@@ -320,7 +302,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-12-06 14:40:26 +0100 (Tue, 06 Dec 2016)$";
+        return "$Date: 2019-12-06$";
     }
 
     @Override
@@ -338,9 +320,4 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return null;
     }
 
-    @Override
-    public boolean supportsAuxiliaryFirmwareVersion() {
-        // added support for testing purposes with the simulator
-        return true;
-    }
 }
