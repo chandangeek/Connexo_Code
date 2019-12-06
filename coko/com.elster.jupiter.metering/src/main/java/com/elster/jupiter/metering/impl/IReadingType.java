@@ -14,4 +14,6 @@ public interface IReadingType extends ReadingType {
     ReadingTypeCodeBuilder builder();
 
     Quantity toQuantity(BigDecimal value);
+
+    long getId();
 }

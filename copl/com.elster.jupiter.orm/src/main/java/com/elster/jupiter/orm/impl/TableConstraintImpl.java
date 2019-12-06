@@ -53,7 +53,8 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
 
     TableConstraintImpl init(TableImpl<?> table, String name) {
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
-            throw new IllegalTableMappingException("Table " + table.getName() + " : constraint name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
+            throw new IllegalTableMappingException("Table " + table.getName() + " : constraint name '" + name + "' is too long, max length is "
+                    + ColumnConversion.CATALOGNAMELIMIT + " actual length is " + name.length() + ".");
         }
         this.table.set(table);
         this.name = name;
@@ -115,7 +116,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
 
     @Override
     public boolean noDdl() {
-    	return false;
+        return false;
     }
 
     @Override
@@ -204,7 +205,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     }
 
     public boolean delayDdl() {
-    	return false;
+        return false;
     }
 
     S since(Version version) {

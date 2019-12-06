@@ -32,9 +32,12 @@ public class UpgraderV10_7_1 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7, 1));
         installerV10_7_1.install(dataModelUpgrader, logger);
         defaultDeviceEventTypesInstaller.installIfNotPresent(logger);
-        // TODO: uncomment
-//        execute(dataModel,
+        execute(dataModel,
+                "update MTR_READINGTYPE set ID = MTR_READINGTYPEID.NEXTVAL",
+                "alter table MTR_READINGTYPE add constraint UK_MTR_READINGTYPE_ID unique (ID)"
+                // TODO: uncomment
 //                "drop sequence " + TableSpecs.MTR_READINGQUALITY.name() + "ID",
 //                "alter table " + TableSpecs.MTR_READINGQUALITY.name() + " drop column ID");
+        );
     }
 }

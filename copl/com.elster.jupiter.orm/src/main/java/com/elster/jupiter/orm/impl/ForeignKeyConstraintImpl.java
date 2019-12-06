@@ -118,9 +118,9 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
             }
         }
         for (Index index : getTable().getIndexes()) {
-        	if (this.isInLeadingColumns(index.getColumns())) {
-        		 return false;
-        	}
+            if (this.isInLeadingColumns(index.getColumns())) {
+                return false;
+            }
         }
         return true;
     }
@@ -163,13 +163,13 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
 
     @Override
     public boolean isRefPartition() {
-    	return refPartitioned;
+        return refPartitioned;
     }
 
     @Override
-	public boolean noDdl() {
-		return noDdl;
-	}
+    public boolean noDdl() {
+        return noDdl;
+    }
 
     @Override
     void validate() {
@@ -181,7 +181,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
             throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
         }*/
         if (getReferencedTable().isCached() && forwardEagers.length > 0) {
-         	throw new IllegalStateException("Table: " + getTable().getName() + " Do not specify eager mapping when referencing cached table " + getReferencedTable().getName());
+            throw new IllegalStateException("Table: " + getTable().getName() + " Do not specify eager mapping when referencing cached table " + getReferencedTable().getName());
         }
     }
 
@@ -321,19 +321,19 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
     }
 
     public boolean delayDdl() {
-    	int referencedIndex = getTable().getDataModel().getTables().indexOf(getReferencedTable());
-    	return referencedIndex > getTable().getDataModel().getTables().indexOf(getTable());
+        int referencedIndex = getTable().getDataModel().getTables().indexOf(getReferencedTable());
+        return referencedIndex > getTable().getDataModel().getTables().indexOf(getTable());
     }
 
     public Class<?>[] reverseEagers() {
-    	return reverseEagers;
+        return reverseEagers;
     }
 
     public void setPredecessor(ForeignKeyConstraint predecessor) {
         this.predecessor = (ForeignKeyConstraintImpl) predecessor;
     }
 
-    public static class BuilderImpl implements ForeignKeyConstraint.Builder {
+    public static class BuilderImpl implements Builder {
         private final ForeignKeyConstraintImpl constraint;
 
         BuilderImpl(TableImpl<?> table, String name) {
@@ -365,7 +365,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         }
 
         @Override
-        public Builder map(String field, Class<?> eager, Class<?> ...eagers) {
+        public Builder map(String field, Class<?> eager, Class<?>... eagers) {
             map(field);
             Class<?>[] forwardEagers = new Class<?>[eagers.length + 1];
             forwardEagers[0] = eager;
@@ -397,7 +397,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         @Override
         public Builder references(Class apiClass) {
             TableImpl<?> table = constraint.getTable().getDataModel().getTable(apiClass, constraint.versions())
-                .orElseGet(() -> constraint.getTable().getDataModel().getOrmService().getTable(apiClass));
+                    .orElseGet(() -> constraint.getTable().getDataModel().getOrmService().getTable(apiClass));
             constraint.setReferencedTable(table);
             return this;
         }
@@ -405,14 +405,15 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         @Override
         public Builder reverseMap(String field) {
             if (constraint.getReferencedTable().getField(field) == null) {
-                throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable().getName() + " the referenced object does not have a field named " + field + ".");
+                throw new IllegalTableMappingException("Foreign key " + constraint.getName() + " on table " + constraint.getTable()
+                        .getName() + " the referenced object does not have a field named " + field + ".");
             }
             constraint.reverseFieldName = field;
             return this;
         }
 
         @Override
-        public Builder reverseMap(String field, Class<?> eager, Class<?> ... eagers) {
+        public Builder reverseMap(String field, Class<?> eager, Class<?>... eagers) {
             reverseMap(field);
             Class<?>[] reverseEagers = new Class<?>[eagers.length + 1];
             reverseEagers[0] = eager;
@@ -441,14 +442,14 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
 
         @Override
         public Builder refPartition() {
-        	constraint.refPartitioned = true;
-        	return this;
+            constraint.refPartitioned = true;
+            return this;
         }
 
         @Override
-        public Builder  noDdl() {
-        	constraint.noDdl = true;
-        	return this;
+        public Builder noDdl() {
+            constraint.noDdl = true;
+            return this;
         }
 
         @Override

@@ -369,6 +369,16 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_READINGTYPE_JNRL").since(version(10, 2));
             table.cache();
             Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
+            Column idColumn = table.column("ID")
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .sequence(name() + "ID")
+                    .skipOnUpdate()
+                    .map("id")
+                    .since(version(10, 7, 1))
+                    .installValue("0")
+                    .add();
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
             table.column("FULLALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("fullAliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
@@ -377,6 +387,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("PK_MTR_READINGTYPE").on(mRidColumn).add();
             table.index("MTR_READINGTYPE_EQUIDISTANT").on(equidistantColumn).add();
+            table.unique("UK_MTR_READINGTYPE_ID").on(idColumn).since(version(10, 7, 1)).noDdl().add(); // directly added in installer & upgrader
         }
     },
     MTR_ENDDEVICE {

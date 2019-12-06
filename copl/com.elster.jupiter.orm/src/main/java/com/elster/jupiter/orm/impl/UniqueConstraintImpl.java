@@ -17,31 +17,37 @@ import static com.elster.jupiter.util.Ranges.intersection;
 
 public class UniqueConstraintImpl extends TableConstraintImpl<UniqueConstraintImpl> implements UniqueConstraint {
 
-	private UniqueConstraintImpl predecessor;
+    private UniqueConstraintImpl predecessor;
+    private boolean noDdl;
 
-	@Override
-	UniqueConstraintImpl init(TableImpl<?> table,String name) {
-		super.init(table, name);
-		return this;
-	}
+    @Override
+    UniqueConstraintImpl init(TableImpl<?> table, String name) {
+        super.init(table, name);
+        return this;
+    }
 
-	public UniqueConstraintImpl() {
-		super(UniqueConstraintImpl.class);
-	}
+    public UniqueConstraintImpl() {
+        super(UniqueConstraintImpl.class);
+    }
 
-	static UniqueConstraintImpl from(TableImpl<?> table , String name) {
-		return (UniqueConstraintImpl) new UniqueConstraintImpl().init(table,name);
-	}
-	
-	@Override
-	public boolean isUnique() {
-		return true;
-	}
+    static UniqueConstraintImpl from(TableImpl<?> table, String name) {
+        return new UniqueConstraintImpl().init(table, name);
+    }
 
-	@Override
-	String getTypeString() {
-		return "unique";
-	}
+    @Override
+    public boolean isUnique() {
+        return true;
+    }
+
+    @Override
+    String getTypeString() {
+        return "unique";
+    }
+
+    @Override
+    public boolean noDdl() {
+        return noDdl;
+    }
 
     void setPredecessor(UniqueConstraint predecessor) {
         this.predecessor = (UniqueConstraintImpl) predecessor;
@@ -51,51 +57,57 @@ public class UniqueConstraintImpl extends TableConstraintImpl<UniqueConstraintIm
         return predecessor;
     }
 
-    static class BuilderImpl implements UniqueConstraint.Builder {
-		private final UniqueConstraintImpl constraint;
-		
-		public BuilderImpl(TableImpl<?> table, String name) {
-			this.constraint = UniqueConstraintImpl.from(table,name);
-		}
+    static class BuilderImpl implements Builder {
+        private final UniqueConstraintImpl constraint;
 
-		@Override
-		public Builder on(Column... columns) {
-			constraint.add(columns);
-			return this;
-		}
-
-		@Override
-		public UniqueConstraint add() {
-			constraint.validate();
-			constraint.getTable().add(constraint);
-			return constraint;
-		}
-
-		@Override
-		public UniqueConstraint.Builder since(Version version) {
-			constraint.setVersions(intersection(constraint.getTable().getVersions(), ImmutableRangeSet.of(Range.atLeast(version))));
-			return this;
-		}
-
-		@Override
-		public UniqueConstraint.Builder upTo(Version version) {
-			constraint.setVersions(intersection(constraint.getTable().getVersions(), ImmutableRangeSet.of(Range.lessThan(version))));
-			return this;
-		}
-
-		@Override
-		public UniqueConstraint.Builder during(Range... ranges) {
-			ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
-			Arrays.stream(ranges)
-					.forEach(builder::add);
-			constraint.setVersions(intersection(constraint.getTable().getVersions(), builder.build()));
-			return this;
-		}
+        public BuilderImpl(TableImpl<?> table, String name) {
+            this.constraint = UniqueConstraintImpl.from(table, name);
+        }
 
         @Override
-        public UniqueConstraint.Builder previously(UniqueConstraint uniqueConstraint) {
+        public Builder on(Column... columns) {
+            constraint.add(columns);
+            return this;
+        }
+
+        @Override
+        public UniqueConstraint add() {
+            constraint.validate();
+            constraint.getTable().add(constraint);
+            return constraint;
+        }
+
+        @Override
+        public Builder since(Version version) {
+            constraint.setVersions(intersection(constraint.getTable().getVersions(), ImmutableRangeSet.of(Range.atLeast(version))));
+            return this;
+        }
+
+        @Override
+        public Builder upTo(Version version) {
+            constraint.setVersions(intersection(constraint.getTable().getVersions(), ImmutableRangeSet.of(Range.lessThan(version))));
+            return this;
+        }
+
+        @Override
+        public Builder during(Range... ranges) {
+            ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+            Arrays.stream(ranges)
+                    .forEach(builder::add);
+            constraint.setVersions(intersection(constraint.getTable().getVersions(), builder.build()));
+            return this;
+        }
+
+        @Override
+        public Builder previously(UniqueConstraint uniqueConstraint) {
             constraint.setPredecessor(uniqueConstraint);
             return this;
         }
-	}
+
+        @Override
+        public Builder noDdl() {
+            constraint.noDdl = true;
+            return this;
+        }
+    }
 }
