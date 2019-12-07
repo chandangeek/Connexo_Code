@@ -18,7 +18,6 @@ import static com.elster.jupiter.util.Ranges.intersection;
 public class UniqueConstraintImpl extends TableConstraintImpl<UniqueConstraintImpl> implements UniqueConstraint {
 
     private UniqueConstraintImpl predecessor;
-    private boolean noDdl;
 
     @Override
     UniqueConstraintImpl init(TableImpl<?> table, String name) {
@@ -42,11 +41,6 @@ public class UniqueConstraintImpl extends TableConstraintImpl<UniqueConstraintIm
     @Override
     String getTypeString() {
         return "unique";
-    }
-
-    @Override
-    public boolean noDdl() {
-        return noDdl;
     }
 
     void setPredecessor(UniqueConstraint predecessor) {

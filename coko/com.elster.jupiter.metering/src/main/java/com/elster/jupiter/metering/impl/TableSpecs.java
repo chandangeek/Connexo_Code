@@ -1931,10 +1931,18 @@ public enum TableSpecs {
             Table<ReadingQualityRecord> table = dataModel.addTable(name(), ReadingQualityRecord.class);
             table.map(ReadingQualityRecordImpl.class);
             table.setJournalTableName("MTR_READINGQUALITYJRNL");
-            Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
+            Column channelColumn = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).add();
+            Column timestampColumn = table.column("READINGTIMESTAMP").number().notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
             Column typeColumn = table.column("TYPE").varChar(64).notNull().map("typeCode").add();
-            Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
+            Column readingTypeColumn = table.column("READINGTYPEID")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .map("readingTypeId")
+                    .since(version(10, 7, 1))
+                    .installValue("0")
+                    .add();
+            Column oldReadingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().upTo(version(10, 7, 1)).add();
             Column idColumn = table.addAutoIdColumn().upTo(version(10, 7, 1));
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
@@ -1952,15 +1960,17 @@ public enum TableSpecs {
                     .references(ReadingType.class)
                     .onDelete(DeleteRule.RESTRICT)
                     .map("readingType")
-                    .on(readingTypeColumn)
+                    .on(oldReadingTypeColumn)
+                    .upTo(version(10, 7, 1))
                     .add();
             table.unique("MTR_U_READINGQUALITY")
-                    .on(channelColumn, timestampColumn, typeColumn, readingTypeColumn)
+                    .on(channelColumn, timestampColumn, typeColumn, oldReadingTypeColumn)
                     .upTo(version(10, 7, 1))
                     .add();
             table.primaryKey("PK_MTR_READINGQUALITY")
                     .on(channelColumn, timestampColumn, typeColumn, readingTypeColumn)
                     .since(version(10, 7, 1))
+                    .noDdl() // directly added in installer & upgrader
                     .add();
             table.index("MTR_READINGQUALITY_VAL_OVERVW")
                     .on(channelColumn, typeColumn, actual)

@@ -34,10 +34,16 @@ public class UpgraderV10_7_1 implements Upgrader {
         defaultDeviceEventTypesInstaller.installIfNotPresent(logger);
         execute(dataModel,
                 "update MTR_READINGTYPE set ID = MTR_READINGTYPEID.NEXTVAL",
-                "alter table MTR_READINGTYPE add constraint UK_MTR_READINGTYPE_ID unique (ID)"
+                "alter table MTR_READINGTYPE add constraint UK_MTR_READINGTYPE_ID unique (ID)",
+                "merge into MTR_READINGQUALITY rq"
+                        + " using (select ID, MRID from MTR_READINGTYPE) rt"
+                        + " on (rq.READINGTYPE = rt.MRID)"
+                        + " when matched then update set rq.READINGTYPEID = rt.ID",
+                "alter table MTR_READINGQUALITY add constraint PK_MTR_READINGQUALITY primary key (CHANNELID, READINGTIMESTAMP, TYPE, READINGTYPEID)"
                 // TODO: uncomment
-//                "drop sequence " + TableSpecs.MTR_READINGQUALITY.name() + "ID",
-//                "alter table " + TableSpecs.MTR_READINGQUALITY.name() + " drop column ID");
+//                "alter table MTR_READINGQUALITY drop column READINGTYPE",
+//                "drop sequence MTR_READINGQUALITYID",
+//                "alter table MTR_READINGQUALITY drop column ID");
         );
     }
 }

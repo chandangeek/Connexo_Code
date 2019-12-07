@@ -36,7 +36,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     // null means not fetched; empty optional means no matching reading record
     private transient Optional<BaseReadingRecord> baseReadingRecord;
     private Reference<Channel> channel = ValueReference.absent();
-    private Reference<IReadingType> readingType = ValueReference.absent();
+    private long readingTypeId;
 
     @SuppressWarnings("unused")
     private long version;
@@ -49,17 +49,19 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final ServerMeteringService meteringService;
 
     @Inject
-    ReadingQualityRecordImpl(DataModel dataModel, EventService eventService) {
+    ReadingQualityRecordImpl(DataModel dataModel, EventService eventService, ServerMeteringService meteringService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.meteringService = meteringService;
         doMakeActual();
     }
 
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
         this.channel.set(cimChannel.getChannel());
-        this.readingType.set((IReadingType) cimChannel.getReadingType());
+        readingTypeId = ((IReadingType) cimChannel.getReadingType()).getId();
         if (baseReading instanceof BaseReadingRecord) {
             this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
         }
@@ -77,7 +79,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, Instant timestamp) {
         this.channel.set(cimChannel.getChannel());
-        this.readingType.set((IReadingType) cimChannel.getReadingType());
+        readingTypeId = ((IReadingType) cimChannel.getReadingType()).getId();
         readingTimestamp = timestamp;
         this.type = type;
         this.typeCode = type.getCode();
@@ -103,7 +105,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public ReadingType getReadingType() {
-        return readingType.get();
+        return meteringService.getReadingTypeById(readingTypeId).get(); // reading type must exist, transitively referenced through channel
     }
 
     @Override
@@ -274,7 +276,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         }
 
         public String getReadingType() {
-            return readingQuality.readingType.get().getMRID();
+            return readingQuality.getReadingType().getMRID();
         }
     }
 }

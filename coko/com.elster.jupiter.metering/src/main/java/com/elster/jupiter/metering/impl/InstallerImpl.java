@@ -103,7 +103,10 @@ public class InstallerImpl implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        execute(dataModel, "alter table MTR_READINGTYPE add constraint UK_MTR_READINGTYPE_ID unique (ID)");
+        execute(dataModel,
+                "alter table MTR_READINGTYPE add constraint UK_MTR_READINGTYPE_ID unique (ID)",
+                "alter table MTR_READINGQUALITY add constraint PK_MTR_READINGQUALITY primary key (CHANNELID, READINGTIMESTAMP, TYPE, READINGTYPEID)"
+        );
 
         doTry(
                 "Create Vaults for MTR",

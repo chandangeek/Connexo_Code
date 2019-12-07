@@ -46,6 +46,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     private transient RangeSet<Version> versions = ImmutableRangeSet.<Version>of().complement();
     private transient RangeSet<Version> versionsIntersectedWithTable;
     private S self;
+    boolean noDdl;
 
     TableConstraintImpl(Class<S> selfType) {
         self = selfType.cast(this);
@@ -116,7 +117,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
 
     @Override
     public boolean noDdl() {
-        return false;
+        return noDdl;
     }
 
     @Override
