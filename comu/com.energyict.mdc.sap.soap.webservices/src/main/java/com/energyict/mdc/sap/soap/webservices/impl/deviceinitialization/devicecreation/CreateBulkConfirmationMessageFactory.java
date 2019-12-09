@@ -23,6 +23,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconf
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilsDvceERPSmrtMtrCrteConfUtilsDvce;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -130,9 +132,13 @@ public class CreateBulkConfirmationMessageFactory {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        header.setReferenceID(createID(requestId));
+        if (!Strings.isNullOrEmpty(requestId)){
+            header.setReferenceID(createID(requestId));
+        }
         header.setUUID(createUUID(uuid));
-        header.setReferenceUUID(createUUID(referenceUuid));
+        if (!Strings.isNullOrEmpty(referenceUuid)){
+            header.setReferenceUUID(createUUID(referenceUuid));
+        }
         header.setCreationDateTime(now);
         return header;
     }

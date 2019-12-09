@@ -16,6 +16,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscan
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.UtilitiesConnectionStatusChangeRequestID;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -121,9 +123,13 @@ public class CancellationConfirmationMessageFactory {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        header.setReferenceID(createID(requestId));
+        if (!Strings.isNullOrEmpty(requestId)){
+            header.setReferenceID(createID(requestId));
+        }
         header.setUUID(createUUID(uuid));
-        header.setReferenceUUID(createUUID(referenceUuid));
+        if (!Strings.isNullOrEmpty(referenceUuid)){
+            header.setReferenceUUID(createUUID(referenceUuid));
+        }
         header.setCreationDateTime(now);
         return header;
     }
