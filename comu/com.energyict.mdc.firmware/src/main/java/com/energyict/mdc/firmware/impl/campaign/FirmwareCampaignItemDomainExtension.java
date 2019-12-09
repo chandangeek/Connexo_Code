@@ -263,7 +263,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                             .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExecution.getComTask()
                                     .getName()));
-                    getServiceCall().requestTransition(DefaultState.REJECTED);
+                    failed = true;
                 }
             } else {
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
@@ -292,7 +292,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                             .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(), verificationComTaskExecution.getComTask()
                                     .getName()));
-                    getServiceCall().requestTransition(DefaultState.REJECTED);
+                    failed = true;
                 }
             } else {
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
