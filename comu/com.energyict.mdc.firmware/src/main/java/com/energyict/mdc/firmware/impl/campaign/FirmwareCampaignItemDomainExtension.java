@@ -259,7 +259,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                 FirmwareCampaignDomainExtension campaign = getFirmwareCampaign();
                 if (!(connectionTask.isActive() && (!campaign.getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign
                         .getFirmwareUploadConnectionStrategy().get()))) {
-                    serviceCallService.lockServiceCall(getServiceCall().getId());
                     getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                             .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExecution.getComTask()
                                     .getName()));
@@ -288,7 +287,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                 FirmwareCampaignDomainExtension campaign = getFirmwareCampaign();
                 if (!(connectionTask.isActive() && (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign
                         .getValidationConnectionStrategy().get()))) {
-                    serviceCallService.lockServiceCall(getServiceCall().getId());
                     getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                             .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(), verificationComTaskExecution.getComTask()
                                     .getName()));
