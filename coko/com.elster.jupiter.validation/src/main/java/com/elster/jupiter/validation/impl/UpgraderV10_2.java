@@ -41,20 +41,22 @@ public class UpgraderV10_2 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        List<String> sql = new ArrayList<>();
-
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement preparedStatement = connection.prepareStatement("select VALUE from VAL_VALIDATIONRULEPROPS where NAME = 'intervalFlags'");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE VAL_VALIDATIONRULEPROPS SET VALUE = ? where VALUE = ?");
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 String oldValues = resultSet.getString(1);
                 String cimCodes = convertToCIMCodes(oldValues);
-                sql.add("UPDATE VAL_VALIDATIONRULEPROPS SET VALUE = '" + cimCodes + "' where VALUE = '" + oldValues + "'");
+                updateStatement.setString(1, cimCodes);
+                updateStatement.setString(2, oldValues);
+                updateStatement.executeUpdate();
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
 
+        List<String> sql = new ArrayList<>();
         sql.add("UPDATE VAL_VALIDATIONRULE SET IMPLEMENTATION = 'com.elster.jupiter.validators.impl.ReadingQualitiesValidator' where IMPLEMENTATION = 'com.elster.jupiter.validators.impl.IntervalStateValidator'");
         sql.add("UPDATE VAL_VALIDATIONRULEPROPS SET NAME = 'readingQualities' where NAME = 'intervalFlags'");
 
