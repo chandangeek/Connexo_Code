@@ -18,9 +18,9 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Clock;
 import java.util.List;
 
-@Component(name = MasterMeterRegisterChangeRequest.NAME, service = ServiceCallHandler.class,
-        property = "name=" + MasterMeterRegisterChangeRequest.NAME, immediate = true)
-public class MasterMeterRegisterChangeRequest implements ServiceCallHandler {
+@Component(name = MasterMeterRegisterChangeRequestServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + MasterMeterRegisterChangeRequestServiceCallHandler.NAME, immediate = true)
+public class MasterMeterRegisterChangeRequestServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "MasterMeterRegisterChangeRequest";
     public static final String VERSION = "v1.0";
@@ -67,6 +67,7 @@ public class MasterMeterRegisterChangeRequest implements ServiceCallHandler {
             case CANCELLED:
             case FAILED:
             case SUCCESSFUL:
+            case PARTIAL_SUCCESS:
                 if (ServiceCallHelper.isLastChild(ServiceCallHelper.findChildren(parentServiceCall))) {
                     if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
@@ -108,7 +109,7 @@ public class MasterMeterRegisterChangeRequest implements ServiceCallHandler {
                 parent.requestTransition(DefaultState.ONGOING);
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
+            } else if ((ServiceCallHelper.hasAnyChildState(children, DefaultState.PARTIAL_SUCCESS) || ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 parent.requestTransition(DefaultState.FAILED);

@@ -269,6 +269,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
         //BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.osgi-resource-locator");
+        BundleWaiter.wait(this, bundleContext, "org.glassfish.hk2.locator");
         start(bundleContext);
     }
 

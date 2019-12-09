@@ -153,7 +153,7 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         assertThat(possibleValues.isExhaustive()).isTrue();
         assertThat(possibleValues.isEditable()).isTrue();
         assertThat(possibleValues.getAllValues()).containsOnly(file2, file3);
-        assertThat(possibleValues.getDefault()).isNull();
+        assertThat(possibleValues.getDefault()).isEqualTo(file2);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         assertThat(possibleValues.isExhaustive()).isTrue();
         assertThat(possibleValues.isEditable()).isTrue();
         assertThat(possibleValues.getAllValues()).containsOnly(securityAccessorType1, securityAccessorType2, securityAccessorType3);
-        assertThat(possibleValues.getDefault()).isNull();
+        assertThat(possibleValues.getDefault()).isEqualTo(securityAccessorType1);
     }
 
     private DeviceMessageSpecWithPossibleValuesImpl getTestInstance() {

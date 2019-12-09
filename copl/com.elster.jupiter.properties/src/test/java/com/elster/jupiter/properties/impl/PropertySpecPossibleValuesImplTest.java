@@ -4,16 +4,14 @@
 
 package com.elster.jupiter.properties.impl;
 
-import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
-
-import static org.fest.assertions.api.Assertions.assertThat;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PropertySpecPossibleValuesImplTest {
@@ -40,7 +38,7 @@ public class PropertySpecPossibleValuesImplTest {
         // Asserts
         assertThat(possibleValues.isExhaustive()).isFalse();
         assertThat((List<String>) possibleValues.getAllValues()).containsOnly(otherValue1, otherValue2);
-        assertThat(possibleValues.getDefault()).isNull();
+        assertThat(possibleValues.getDefault()).isEqualTo(otherValue1);
     }
 
     @Test

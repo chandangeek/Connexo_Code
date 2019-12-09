@@ -93,17 +93,17 @@ public class ServiceCallCommands {
         }
     }
 
-    public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message, ServiceCall parent) {
+    public void createServiceCallAndTransition(StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, ServiceCall parent) {
         if (message.isValid()) {
             if (!hasConnectionStatusChangeServiceCall(message.getId(), message.getUuid())) {
                 getServiceCallType(ServiceCallTypes.CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
                     createChildServiceCall(serviceCallType, message, parent);
                 });
             } else {
-                sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, message);
+                sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages, message);
             }
         } else {
-            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message);
+            sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, messages, message);
         }
     }
 
@@ -122,7 +122,7 @@ public class ServiceCallCommands {
 
                     serviceCall.requestTransition(DefaultState.PENDING);
                     serviceCall.requestTransition(DefaultState.ONGOING);
-                    messages.getRequests().forEach(m -> createServiceCallAndTransition(m, serviceCall));
+                    messages.getRequests().forEach(m -> createServiceCallAndTransition(messages, m, serviceCall));
 
                     List<ServiceCall> children = findChildren(serviceCall);
 
@@ -301,6 +301,7 @@ public class ServiceCallCommands {
         ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
+        connectionStatusChangeDomainExtension.setRequestId(message.getRequestId());
         connectionStatusChangeDomainExtension.setUuid(message.getUuid());
         connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
@@ -332,6 +333,7 @@ public class ServiceCallCommands {
         ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
+        connectionStatusChangeDomainExtension.setRequestId(message.getRequestId());
         connectionStatusChangeDomainExtension.setUuid(message.getUuid());
         connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
@@ -503,6 +505,14 @@ public class ServiceCallCommands {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                         .from(message, messageSeed.translate(thesaurus), clock.instant())
+                        .build();
+        sendMessage(confirmationMessage);
+    }
+
+    private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message) {
+        StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
+                StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
+                        .from(messages, message, messageSeed.translate(thesaurus), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }

@@ -129,10 +129,10 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {
-        Optional<ConnectionStatusChangeDomainExtension> extension = getRequestExtension(message.getRequestId(), message.getCategoryCode());
+        Optional<ConnectionStatusChangeDomainExtension> extension = getRequestExtension(message.getId(), message.getCategoryCode());
 
         if (!extension.isPresent()) {
-            return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), 0, 0, 0);
+            return new CancelledStatusChangeRequestDocument(message.getId(), message.getCategoryCode(), 0, 0, 0);
         }
         String documentId = extension.get().getId();
         int cancelledRequests = 0;
@@ -141,7 +141,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         List<ServiceCall> serviceCalls = ServiceCallHelper.findChildren(parent);
         if (!parent.getState().isOpen()) {
             // send already processed message
-            return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
+            return new CancelledStatusChangeRequestDocument(message.getId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
         }
         for (ServiceCall serviceCall : serviceCalls) {
             try {
