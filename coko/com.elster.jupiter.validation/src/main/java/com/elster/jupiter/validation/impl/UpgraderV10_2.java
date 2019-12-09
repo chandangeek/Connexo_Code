@@ -43,7 +43,7 @@ public class UpgraderV10_2 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement preparedStatement = connection.prepareStatement("select VALUE from VAL_VALIDATIONRULEPROPS where NAME = 'intervalFlags'");
-             PreparedStatement updateStatement = connection.prepareStatement("UPDATE VAL_VALIDATIONRULEPROPS SET VALUE = ? where VALUE = ?");
+             PreparedStatement updateStatement = dataModel.getConnection(true).prepareStatement("UPDATE VAL_VALIDATIONRULEPROPS SET VALUE = ? where VALUE = ?");
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 String oldValues = resultSet.getString(1);
