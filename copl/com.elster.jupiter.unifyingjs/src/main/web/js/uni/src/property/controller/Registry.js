@@ -79,7 +79,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.comtasks.ComTasks',
         'Uni.property.view.property.webservices.WebServiceIssue',
         'Uni.property.view.property.WebServiceCombo',
-        'Uni.property.view.property.CloseIssueForm'
+        'Uni.property.view.property.CloseIssueForm',
+        'Uni.property.view.property.DynamicCombobox'
     ],
 
     /**
@@ -156,6 +157,7 @@ Ext.define('Uni.property.controller.Registry', {
         CUSTOM_EVENT_TYPE: 'Uni.property.view.property.CustomEventTypeReference',
         EXCLUDED_COM_TASKS: 'Uni.property.view.property.comtasks.ComTasks',
         ENDPOINT_CONFIGURATION_LIST: 'Uni.property.view.property.webservices.WebServiceIssue',
+        DYNAMIC_COMBOBOX: 'Uni.property.view.property.DynamicCombobox'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
@@ -175,6 +177,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.PropertyCommunicationTasksCurrentValue',
         'Uni.property.store.PropertyEndDeviceGroups',
         'Uni.property.store.PropertyWebServices',
+        'Uni.property.store.DynamicComboboxData'
     ],
 
     /**

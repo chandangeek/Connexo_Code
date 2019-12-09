@@ -441,11 +441,20 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             lastScheduledDate,
             intervalInMillis;
 
-        if (schedule.every.timeUnit === 'minutes' || schedule.every.timeUnit === 'hours') {
+        if (schedule.every.timeUnit === 'minutes') {
             startDate = moment(startDate);
             intervalInMillis = moment.duration(schedule.every.count, schedule.every.timeUnit);
             lastScheduledDate = moment(Math.floor(startDate / intervalInMillis) * intervalInMillis);
-        } else if (schedule.every.timeUnit === 'days') {
+        }
+        else if (schedule.every.timeUnit === 'hours') {
+            var beginOfDay,
+                lastScheduledHour;
+            startDate = moment(startDate);
+            beginOfDay = moment(startDate).startOf('day');
+            lastScheduledHour = Math.floor(startDate.hours() / schedule.every.count) * schedule.every.count;
+            lastScheduledDate = beginOfDay.add(lastScheduledHour, 'hour');
+        }
+        else if (schedule.every.timeUnit === 'days') {
             lastScheduledDate = moment(startDate).clone().startOf('day');
         } else if (schedule.every.timeUnit === 'weeks') {
             var startOf = schedule.every.timeUnit.slice(0, -1) === 'week' ? 'isoWeek' : schedule.every.timeUnit.slice(0, -1);

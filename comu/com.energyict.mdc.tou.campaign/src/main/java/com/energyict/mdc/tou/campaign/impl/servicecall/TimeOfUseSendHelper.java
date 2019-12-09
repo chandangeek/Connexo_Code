@@ -76,7 +76,7 @@ public class TimeOfUseSendHelper {
             Optional<ComTaskExecution> verificationTask = timeOfUseItemDomainExtension.findOrCreateVerificationComTaskExecution();
             if (verificationTask.isPresent()) {
                 if (!verificationTask.get().getConnectionTask().isPresent()) {
-                    serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
                             .format(verificationTask.get().getComTask().getName()));
                     if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                         serviceCall.requestTransition(DefaultState.REJECTED);
@@ -84,7 +84,7 @@ public class TimeOfUseSendHelper {
                     return;
                 }
             } else {
-                serviceCall.log(LogLevel.SEVERE, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                     serviceCall.requestTransition(DefaultState.REJECTED);
                 }
@@ -124,13 +124,14 @@ public class TimeOfUseSendHelper {
                     }
                 } else {
                     serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                            .format(timeOfUseCampaign.getCalendarUploadConnectionStrategy().get().name(), cteFromEnablement.getComTask().getName()));
+                            .format(thesaurus.getFormat(TranslationKeys.valueOf(timeOfUseCampaign.getCalendarUploadConnectionStrategy().get().name())).format(), cteFromEnablement.getComTask().getName()));
                     if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                         serviceCall.requestTransition(DefaultState.REJECTED);
                     }
                 }
             } else {
-                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK).format(cteFromEnablement.getComTask().getName()));
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                        .format(cteFromEnablement.getComTask().getName()));
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                     serviceCall.requestTransition(DefaultState.REJECTED);
                 }

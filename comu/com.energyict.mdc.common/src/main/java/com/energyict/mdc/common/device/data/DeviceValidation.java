@@ -63,6 +63,8 @@ public interface DeviceValidation {
 
     boolean allDataValidated(Channel channel);
 
+    boolean allDataValidated(Register<?, ?> register);
+
     boolean allDataValidated(Register<?, ?> register, Instant when);
 
     Optional<Instant> getLastChecked();

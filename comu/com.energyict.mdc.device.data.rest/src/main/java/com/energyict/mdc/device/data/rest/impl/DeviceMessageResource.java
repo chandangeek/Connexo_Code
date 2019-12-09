@@ -43,6 +43,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -172,7 +173,10 @@ public class DeviceMessageResource {
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration()
                 .getDeviceMessageEnablements()
                 .stream()
-                .map(DeviceMessageEnablement::getDeviceMessageId)
+                .map(DeviceMessageEnablement::getDeviceMessageDbValue)
+                .map(DeviceMessageId::find)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
         return deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
