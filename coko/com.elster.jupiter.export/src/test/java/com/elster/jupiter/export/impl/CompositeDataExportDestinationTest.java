@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -52,6 +53,8 @@ public class CompositeDataExportDestinationTest {
     private Path path;
     @Mock
     private TagReplacerFactory tagReplacerFactory;
+    @Mock
+    private ReadingTypeDataExportItem dataSource1, dataSource2;
     private Logger logger = Logger.getAnonymousLogger();
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private List<ExportData> data;
@@ -71,6 +74,19 @@ public class CompositeDataExportDestinationTest {
         when(sftpDestination.getType()).thenReturn(Destination.Type.FILE);
         when(localFileDestination.getType()).thenReturn(Destination.Type.FILE);
         when(webServiceDestination.getType()).thenReturn(Destination.Type.DATA);
+
+        when(emailDestination.send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.success());
+        when(ftpDestination.send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.success());
+        when(ftpsDestination.send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.success());
+        when(sftpDestination.send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.success());
+        when(localFileDestination.send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.success());
+        when(webServiceDestination.send(anyListOf(ExportData.class), any(TagReplacerFactory.class), any(Logger.class)))
+                .thenReturn(DataSendingStatus.success());
         compositeDataExportDestination = new CompositeDataExportDestination(localFileDestination, webServiceDestination);
     }
 
@@ -110,7 +126,8 @@ public class CompositeDataExportDestinationTest {
     public void testSendData() {
         testInstance = new CompositeDataExportDestination(emailDestination,
                 ftpDestination, ftpsDestination, sftpDestination, compositeDataExportDestination);
-        testInstance.send(data, tagReplacerFactory, logger);
+
+        assertThat(testInstance.send(data, tagReplacerFactory, logger).isFailed()).isFalse();
         verify(emailDestination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class));
         verify(ftpDestination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class));
         verify(ftpsDestination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class));
@@ -123,7 +140,8 @@ public class CompositeDataExportDestinationTest {
     public void testSendFiles() {
         testInstance = new CompositeDataExportDestination(emailDestination,
                 ftpDestination, ftpsDestination, sftpDestination, compositeDataExportDestination);
-        testInstance.send(files, tagReplacerFactory, logger, thesaurus);
+
+        assertThat(testInstance.send(files, tagReplacerFactory, logger, thesaurus).isFailed()).isFalse();
         verify(emailDestination).send(files, tagReplacerFactory, logger, thesaurus);
         verify(ftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
         verify(ftpsDestination).send(files, tagReplacerFactory, logger, thesaurus);
@@ -136,7 +154,94 @@ public class CompositeDataExportDestinationTest {
     public void testSendDataAndFiles() {
         testInstance = new CompositeDataExportDestination(emailDestination,
                 ftpDestination, ftpsDestination, sftpDestination, compositeDataExportDestination);
-        testInstance.send(data, files, tagReplacerFactory, logger, thesaurus);
+
+        DataSendingStatus status = testInstance.send(data, files, tagReplacerFactory, logger, thesaurus);
+
+        assertThat(status.isFailed()).isFalse();
+        assertThat(status.isFailed(dataSource1)).isFalse();
+        assertThat(status.isFailed(dataSource2)).isFalse();
+        verify(emailDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpsDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(sftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(localFileDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(webServiceDestination).send(data, tagReplacerFactory, logger);
+    }
+
+    @Test
+    public void testSendDataAndFilesFailedData() {
+        when(webServiceDestination.send(anyListOf(ExportData.class), any(TagReplacerFactory.class), any(Logger.class)))
+                .thenReturn(DataSendingStatus.failure().withAllDataSourcesFailed().build());
+        testInstance = new CompositeDataExportDestination(emailDestination,
+                ftpDestination, ftpsDestination, sftpDestination, compositeDataExportDestination);
+
+        DataSendingStatus status = testInstance.send(data, files, tagReplacerFactory, logger, thesaurus);
+
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(dataSource1)).isTrue();
+        assertThat(status.isFailed(dataSource2)).isTrue();
+        verify(emailDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpsDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(sftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(localFileDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(webServiceDestination).send(data, tagReplacerFactory, logger);
+    }
+
+    @Test
+    public void testSendDataAndFilesFailedDataOfOneDataSource() {
+        when(webServiceDestination.send(anyListOf(ExportData.class), any(TagReplacerFactory.class), any(Logger.class)))
+                .thenReturn(DataSendingStatus.failure().withFailedDataSource(dataSource1).build());
+        testInstance = new CompositeDataExportDestination(emailDestination,
+                ftpDestination, ftpsDestination, sftpDestination, compositeDataExportDestination);
+
+        DataSendingStatus status = testInstance.send(data, files, tagReplacerFactory, logger, thesaurus);
+
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(dataSource1)).isTrue();
+        assertThat(status.isFailed(dataSource2)).isFalse();
+        verify(emailDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpsDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(sftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(localFileDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(webServiceDestination).send(data, tagReplacerFactory, logger);
+    }
+
+    @Test
+    public void testSendDataAndFilesFailedFiles() {
+        when(emailDestination.send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.failure().withAllDataSourcesFailed().build());
+        testInstance = new CompositeDataExportDestination(emailDestination,
+                ftpDestination, ftpsDestination, sftpDestination, compositeDataExportDestination);
+
+        DataSendingStatus status = testInstance.send(data, files, tagReplacerFactory, logger, thesaurus);
+
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(dataSource1)).isTrue();
+        assertThat(status.isFailed(dataSource2)).isTrue();
+        verify(emailDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(ftpsDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(sftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(localFileDestination).send(files, tagReplacerFactory, logger, thesaurus);
+        verify(webServiceDestination).send(data, tagReplacerFactory, logger);
+    }
+
+    @Test
+    public void testSendDataAndFilesFailedDifferentDataSources() {
+        when(webServiceDestination.send(anyListOf(ExportData.class), any(TagReplacerFactory.class), any(Logger.class)))
+                .thenReturn(DataSendingStatus.failure().withFailedDataSource(dataSource1).build());
+        when(emailDestination.send(anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), any(Thesaurus.class)))
+                .thenReturn(DataSendingStatus.failure().withFailedDataSource(dataSource2).build());
+        testInstance = new CompositeDataExportDestination(emailDestination,
+                ftpDestination, ftpsDestination, sftpDestination, compositeDataExportDestination);
+
+        DataSendingStatus status = testInstance.send(data, files, tagReplacerFactory, logger, thesaurus);
+
+        assertThat(status.isFailed()).isTrue();
+        assertThat(status.isFailed(dataSource1)).isTrue();
+        assertThat(status.isFailed(dataSource2)).isTrue();
         verify(emailDestination).send(files, tagReplacerFactory, logger, thesaurus);
         verify(ftpDestination).send(files, tagReplacerFactory, logger, thesaurus);
         verify(ftpsDestination).send(files, tagReplacerFactory, logger, thesaurus);

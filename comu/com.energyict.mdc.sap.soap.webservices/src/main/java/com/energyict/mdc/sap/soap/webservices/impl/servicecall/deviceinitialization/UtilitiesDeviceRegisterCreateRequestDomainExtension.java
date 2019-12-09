@@ -26,10 +26,12 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         // provided
         DEVICE_ID("deviceId", "DEVICE_ID"),
         OBIS("obis", "OBIS"),
-        INTERVAL("interval", "INTERVAL"),
+        RECURRENCE_CODE("recurrenceCode", "INTERVAL"),
         LRN("lrn", "LRN"),
         START_DATE("startDate", "START_DATE"),
         END_DATE("endDate", "END_DATE"),
+        TIME_ZONE("timeZone", "TIME_ZONE"),
+        DIVISION_CATEGORY("divisionCategory", "DIVISION_CATEGORY"),
 
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
@@ -59,16 +61,18 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceId;
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String obis;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String interval;
+    private String recurrenceCode;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String lrn;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String divisionCategory;
 
     private Instant startDate;
     private Instant endDate;
@@ -78,6 +82,9 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String timeZone;
 
     public ServiceCall getServiceCall() {
         return serviceCall.get();
@@ -91,12 +98,12 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.obis = obis;
     }
 
-    public String getInterval() {
-        return interval;
+    public String getRecurrenceCode() {
+        return recurrenceCode;
     }
 
-    public void setInterval(String interval) {
-        this.interval = interval;
+    public void setRecurrenceCode(String recurrenceCode) {
+        this.recurrenceCode = recurrenceCode;
     }
 
     public String getLrn() {
@@ -131,6 +138,22 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.endDate = endDate;
     }
 
+    public String getTimeZone() {
+        return timeZone;
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public String getDivisionCategory() {
+        return divisionCategory;
+    }
+
+    public void setDivisionCategory(String divisionCategory) {
+        this.divisionCategory = divisionCategory;
+    }
+
     public String getErrorCode() {
         return errorCode;
     }
@@ -157,10 +180,12 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.serviceCall.set(serviceCall);
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
         this.setObis((String) propertyValues.getProperty(FieldNames.OBIS.javaName()));
-        this.setInterval((String) propertyValues.getProperty(FieldNames.INTERVAL.javaName()));
+        this.setRecurrenceCode((String) propertyValues.getProperty(FieldNames.RECURRENCE_CODE.javaName()));
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setStartDate((Instant) propertyValues.getProperty(FieldNames.START_DATE.javaName()));
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
+        this.setTimeZone((String) propertyValues.getProperty(FieldNames.TIME_ZONE.javaName()));
+        this.setDivisionCategory((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -169,10 +194,12 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
         propertySetValues.setProperty(FieldNames.OBIS.javaName(), this.getObis());
-        propertySetValues.setProperty(FieldNames.INTERVAL.javaName(), this.getInterval());
+        propertySetValues.setProperty(FieldNames.RECURRENCE_CODE.javaName(), this.getRecurrenceCode());
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
         propertySetValues.setProperty(FieldNames.START_DATE.javaName(), this.getStartDate());
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
+        propertySetValues.setProperty(FieldNames.TIME_ZONE.javaName(), this.getTimeZone());
+        propertySetValues.setProperty(FieldNames.DIVISION_CATEGORY.javaName(), this.getDivisionCategory());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }

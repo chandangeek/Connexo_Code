@@ -25,13 +25,15 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
-        'Wss.store.Roles'
+        'Wss.store.Roles',
+        'Wss.store.RelatedAttributeStore'
     ],
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
         'Wss.model.endpoint.Occurrence',
-        'Wss.model.Log'
+        'Wss.model.Log',
+        'Wss.model.RelatedAttributeModel'
     ],
 
     refs: [
@@ -127,26 +129,29 @@ Ext.define('Wss.controller.Webservices', {
                    var view = Ext.widget('webservice-history-occurence', {
                        router: me.getController('Uni.controller.history.Router'),
                        endpoint: endpoint,
-                       occurrence: occurrence
+                       occurrence: occurrence,
+                       time : occurrence.data.startTime
                    });
 
                    var endpointName = occurrence.getEndpoint() && occurrence.getEndpoint().get('name');
 
                    me.getApplication().fireEvent('changecontentevent', view);
                    me.getApplication().fireEvent('occurenceload', endpointName);
+                   me.getApplication().fireEvent('endpointlogdate', occurrence.data.startTime);
 
               }
         });
     },
 
-    showWebserviceEndPoint: function (endpointId, occurenceId) {
+    showWebserviceEndPoint: function (endpointId, occurrence) {
         var me = this;
 
         if ((Uni.Auth.hasPrivilege('privilege.administrate.webservices')) || (Uni.Auth.hasPrivilege('privilege.view.webservices')) || (Uni.Auth.hasPrivilege('privilege.retry.webservices'))){
             me.getModel('Wss.model.Endpoint').load(endpointId, {
                 success: function (endpoint) {
-                    me.showWebserviceHistoryOccurrence(occurenceId, endpoint);
+                    me.showWebserviceHistoryOccurrence(occurrence, endpoint);
                     me.getApplication().fireEvent('endpointload', endpoint.get('name'));
+
                 }
             });
         }else{
@@ -248,6 +253,10 @@ Ext.define('Wss.controller.Webservices', {
             var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
         }
         authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
+        if(authenticationMethod.data.id === 'NONE'){
+            record.set('username',null);
+            record.set('password',null);
+        }
         if(form.down('#userRoleField')) {
             var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
             if(userGroup && userGroup.get('id')==='all'){
@@ -489,6 +498,7 @@ Ext.define('Wss.controller.Webservices', {
                     view.down('webservices-action-menu').record = record;
                 }
                 me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('endpointload', record.get('name'));
             }
         });
     },

@@ -14,7 +14,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
@@ -158,6 +160,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile ServiceCallService serviceCallService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringTranslationService meteringTranslationService;
     private volatile LockService lockService;
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
@@ -179,7 +182,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
-
+    private BundleContext bundleContext;
+    private ConfigPropertiesService configPropertiesService;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -202,7 +206,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
             LockService lockService, DataVaultService dataVaultService,
             SecurityManagementService securityManagementService, MeteringZoneService meteringZoneService,
-            CalendarService calendarService) {
+            CalendarService calendarService,MeteringTranslationService meteringTranslationService,
+            ConfigPropertiesService configPropertiesService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -242,6 +247,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setSecurityManagementService(securityManagementService);
         setMeteringZoneService(meteringZoneService);
         setCalendarService(calendarService);
+        setMeteringTranslationService(meteringTranslationService);
+        setConfigPropertiesService(configPropertiesService);
         activate(bundleContext);
     }
 
@@ -331,6 +338,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
+    public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService){
+        this.configPropertiesService = configPropertiesService;
     }
 
     @Reference
@@ -630,12 +647,15 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(CrlRequestTaskPropertiesService.class).toInstance(crlRequestTaskPropertiesService);
                 bind(MeteringZoneService.class).toInstance(meteringZoneService);
                 bind(CalendarService.class).toInstance(calendarService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
+                bind(ConfigPropertiesService.class).toInstance(configPropertiesService);
             }
         };
     }
 
     @Activate
     public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         this.createRealServices();
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel, dataVaultService);
@@ -655,6 +675,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 3), UpgraderV10_4_3.class)
                         .put(version(10, 4, 5), UpgraderV10_4_5.class)
                         .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 6, 1), UpgraderV10_6_1.class)
                         .put(version(10, 7), UpgraderV10_7.class)
                         .build());
         this.registerRealServices(bundleContext);
@@ -664,7 +685,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
         connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
         priorityComTaskService = new PriorityComTaskServiceImpl(this, engineConfigurationService, connectionTaskService);
-        communicationTaskService = new CommunicationTaskServiceImpl(this, priorityComTaskService);
+        communicationTaskService = new CommunicationTaskServiceImpl(this, configPropertiesService, bundleContext, priorityComTaskService);
         communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);
         registerService = new RegisterServiceImpl(this);

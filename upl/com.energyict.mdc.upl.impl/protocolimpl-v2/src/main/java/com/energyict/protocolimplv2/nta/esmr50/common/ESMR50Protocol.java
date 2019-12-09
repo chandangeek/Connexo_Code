@@ -10,7 +10,12 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
@@ -18,11 +23,23 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.*;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
@@ -65,7 +82,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     protected final NlsService nlsService;
     ESMR50Cache esmr50Cache;
     private Esmr50LogBookFactory esmr50LogBookFactory;
-    ESMR50RegisterFactory registerFactory;
+    protected ESMR50RegisterFactory registerFactory;
     private ESMR50Messaging esmr50Messaging;
     private ESMR50MessageExecutor esmr50MessageExecutor;
     protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
@@ -74,9 +91,13 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     protected final DeviceMessageFileExtractor messageFileExtractor;
     protected final NumberLookupExtractor numberLookupExtractor;
     protected final LoadProfileExtractor loadProfileExtractor;
+    private final DeviceMasterDataExtractor deviceMasterDataExtractor;
 
-
-    public ESMR50Protocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    public ESMR50Protocol(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                          PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                          DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                          NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                          KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceMasterDataExtractor deviceMasterDataExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.calendarExtractor = calendarExtractor;
         this.nlsService = nlsService;
@@ -85,11 +106,12 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
 
     @Override
     public String getVersion() {
-        return "ESMR 5.0 - 2019-07-01";
+        return "ESMR 5.0 - 2019-12-05";
     }
 
     @Override
@@ -129,6 +151,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
                 }
             } catch (CommunicationException ex) {
                 journal("Association using the new frame counter has failed ("+ex.getLocalizedMessage()+")");
+                throw ex;
             } catch (Exception ex){
                 journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
                 throw ex;
@@ -370,7 +393,8 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     protected ESMR50MessageExecutor getMessageExecutor() {
         if (this.esmr50MessageExecutor == null) {
-            this.esmr50MessageExecutor = new ESMR50MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.keyAccessorTypeExtractor);
+            this.esmr50MessageExecutor = new ESMR50MessageExecutor(this, this.getCollectedDataFactory(),
+                    this.getIssueFactory(), this.keyAccessorTypeExtractor, this.deviceMasterDataExtractor);
         }
         return this.esmr50MessageExecutor;
     }

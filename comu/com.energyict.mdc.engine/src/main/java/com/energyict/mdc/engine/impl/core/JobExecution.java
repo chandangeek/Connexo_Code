@@ -52,6 +52,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -67,7 +68,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -108,17 +108,18 @@ public abstract class JobExecution implements ScheduledJob {
         this.preparationContext = new PreparationContext();
     }
 
-    protected static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+    protected static TypedProperties getProtocolDialectTypedProperties(ComServerDAO comServerDAO, ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
         TypedProperties result = TypedProperties.empty();
-        if (protocolDialectConfigurationProperties == null) {
-            return result;
-        }
-
-        Optional<ProtocolDialectProperties> protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
-        if (protocolDialectPropertiesWithName.isPresent()) {
-            result = protocolDialectPropertiesWithName.get().getTypedProperties();
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
+        TypedProperties protocolDialectProperties = comServerDAO.findProtocolDialectPropertiesFor(comTaskExecution.getId());
+        if (protocolDialectProperties == null) {
+            result = TypedProperties.inheritingFrom(
+                    protocolDialectConfigurationProperties != null
+                            ? protocolDialectConfigurationProperties.getTypedProperties()
+                            : TypedProperties.empty()
+            );
         } else {
-            result = TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
+            result = protocolDialectProperties;
         }
         addDefaultValuesIfNecessary(protocolDialectConfigurationProperties, result);
         addProtocolDialectNameAsProperty(protocolDialectConfigurationProperties, result);
@@ -130,12 +131,9 @@ public abstract class JobExecution implements ScheduledJob {
      */
     private static void addDefaultValuesIfNecessary(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TypedProperties result) {
         if (protocolDialectConfigurationProperties != null) {
-            DeviceProtocolDialect theActualDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect();
-            if (theActualDialect != null) {
-                for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
-                    if (!result.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
-                        result.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
-                    }
+            for (PropertySpec propertySpec : protocolDialectConfigurationProperties.getUPLPropertySpecs()) {
+                if (!result.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                    result.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
                 }
             }
         }
@@ -234,7 +232,7 @@ public abstract class JobExecution implements ScheduledJob {
         final List<ProtocolTask> protocolTasks = generateProtocolTaskList(comTaskExecution);
         commandCreator.createCommands(
                 groupedDeviceCommand,
-                getProtocolDialectTypedProperties(getConnectionTask().getDevice(), getConnectionTask().getProtocolDialectConfigurationProperties()),
+                getProtocolDialectTypedProperties(getComServerDAO(), getConnectionTask(), comTaskExecution),
                 this.preparationContext.getComChannelPlaceHolder(),
                 protocolTasks,
                 deviceProtocolSecurityPropertySet,
@@ -264,6 +262,11 @@ public abstract class JobExecution implements ScheduledJob {
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions));
     }
 
+    protected CommandRoot prepareAll(final List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions, checkSecurity));
+    }
+
     public void connected(ComPortRelatedComChannel comChannel) {
         this.preparationContext.setComChannel(comChannel);
     }
@@ -283,6 +286,10 @@ public abstract class JobExecution implements ScheduledJob {
 
     public void releaseToken() {
         this.getDeviceCommandExecutor().free(this.getToken());
+    }
+
+    public void releaseTokenSilently() {
+        this.getDeviceCommandExecutor().freeSilently(this.getToken());
     }
 
     public ExecutionContext getExecutionContext() {
@@ -327,8 +334,8 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private void addCompletionEvent() {
-        ExecutionContext executionContext = getExecutionContext();
-        if (executionContext != null) {
+        ExecutionContext executionContext = this.getExecutionContext();
+        if (executionContext != null && serviceProvider.engineService().isOnlineMode()) {
             if (!executionContext.connectionFailed()) {
                 executionContext.getStoreCommand().add(
                         new PublishConnectionCompletionEvent(
@@ -343,7 +350,7 @@ public abstract class JobExecution implements ScheduledJob {
             // Failure was in the preparation that creates the ExecutionContext
             LOGGER.log(
                     Level.FINE,
-                    "Attempt to publish an event that a ConnectionTask has completed without an ExecutionContext!",
+                    "Attempt to publish an event that a ConnectionTask has completed for OfflineEngine or no ExecutionContext!",
                     new Exception("For diagnostic purposes only"));
         }
     }
@@ -478,6 +485,8 @@ public abstract class JobExecution implements ScheduledJob {
 
         FirmwareService firmwareService();
 
+        ProtocolPluggableService protocolPluggableService();
+
         TimeOfUseCampaignService touService();
 
     }
@@ -503,10 +512,18 @@ public abstract class JobExecution implements ScheduledJob {
 
         private final List<ComTaskExecution> comTaskExecutions;
         private final JobExecution jobExecution;
+        private final boolean checkSecurity;
 
         private PrepareAllTransaction(JobExecution jobExecution, List<ComTaskExecution> comTaskExecutions) {
             this.jobExecution = jobExecution;
             this.comTaskExecutions = comTaskExecutions;
+            this.checkSecurity = true;
+        }
+
+        private PrepareAllTransaction(JobExecution jobExecution, List<ComTaskExecution> comTaskExecutions, boolean checkSecurity) {
+            this.jobExecution = jobExecution;
+            this.comTaskExecutions = comTaskExecutions;
+            this.checkSecurity = checkSecurity;
         }
 
         @Override
@@ -519,7 +536,7 @@ public abstract class JobExecution implements ScheduledJob {
                 for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : deviceOrganizedComTaskExecutions) {
 
                     final OfflineDeviceForComTaskGroup offlineDeviceForComTaskGroup = new OfflineDeviceForComTaskGroup(deviceOrganizedComTaskExecution.getComTaskExecutions());
-                    DeviceIdentifier deviceIdentifier = getComCommandServiceProvider().identificationService().createDeviceIdentifierForAlreadyKnownDevice(deviceOrganizedComTaskExecution.getDevice());
+                    DeviceIdentifier deviceIdentifier = getComCommandServiceProvider().identificationService().createDeviceIdentifierForAlreadyKnownDevice(deviceOrganizedComTaskExecution.getDevice().getId(), deviceOrganizedComTaskExecution.getDevice().getmRID());
                     OfflineDevice offlineDevice = getComServerDAO().findOfflineDevice(deviceIdentifier, offlineDeviceForComTaskGroup).get();
                     DeviceProtocolPluggableClass deviceProtocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
                     DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
@@ -532,7 +549,7 @@ public abstract class JobExecution implements ScheduledJob {
                         final ComTaskExecution comTaskExecution = comTaskWithSecurityAndConnectionSteps.getComTaskExecution();
                         final ComTaskExecutionConnectionSteps connectionSteps = comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps();
 
-                        if (groupedDeviceCommand == null || (!isSameSecurityPropertySet(groupedDeviceCommand, deviceProtocolSecurityPropertySet))) {
+                        if (groupedDeviceCommand == null || (checkSecurity && !isSameSecurityPropertySet(groupedDeviceCommand, deviceProtocolSecurityPropertySet))) {
                             groupedDeviceCommand = result.getOrCreateGroupedDeviceCommand(offlineDevice, deviceProtocol, comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet());
                         }
 
@@ -608,6 +625,11 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public DeviceMessageService deviceMessageService() {
             return JobExecution.this.serviceProvider.deviceMessageService();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return JobExecution.this.serviceProvider.protocolPluggableService();
         }
     }
 }

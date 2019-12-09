@@ -75,7 +75,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             layout: 'hbox',
             flex: 1,
             itemId: 'firmware-min-meter-version-common',
-            fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version meter firmware'),
+            fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimum meter firmware version'),
             items: [
                        {    xtype: 'combobox',
                             itemId: 'firmware-min-meter-version',
@@ -134,7 +134,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             itemId: 'firmware-min-meter-version-default-button',
                             hidden: false,
                             disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
                             margin: '0 30',
                             handler: function () {
                                 this.previousSibling('#firmware-min-meter-version').reset();
@@ -148,7 +148,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                 layout: 'hbox',
                 flex: 1,
                 itemId: 'firmware-min-communication-version-common',
-                fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimal version communication firmware'),
+                fieldLabel: Uni.I18n.translate('general.minCommVersion', 'FWC', 'Minimum communication firmware version'),
                 items: [
                         {
                             xtype: 'combobox',
@@ -208,7 +208,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             itemId: 'firmware-min-communication-version-default-button',
                             hidden: false,
                             disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
                             margin: '0 30',
                             handler: function () {
                                 this.previousSibling('#firmware-min-communication-version').reset();
@@ -222,7 +222,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             layout: 'hbox',
             flex: 1,
             itemId: 'firmware-min-auxiliary-version-common',
-            fieldLabel: Uni.I18n.translate('general.minAuxiliaryVersion', 'FWC', 'Minimal version auxiliary firmware'),
+            fieldLabel: Uni.I18n.translate('general.minAuxiliaryVersion', 'FWC', 'Minimum auxiliary firmware version'),
             items: [
                        {    xtype: 'combobox',
                             itemId: 'firmware-min-auxiliary-version',
@@ -281,7 +281,7 @@ Ext.define('Fwc.view.firmware.FormEdit', {
                             itemId: 'firmware-min-auxiliary-version-default-button',
                             hidden: false,
                             disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'UNI', 'Clear'),
+                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
                             margin: '0 30',
                             handler: function () {
                                 this.previousSibling('#firmware-min-auxiliary-version').reset();

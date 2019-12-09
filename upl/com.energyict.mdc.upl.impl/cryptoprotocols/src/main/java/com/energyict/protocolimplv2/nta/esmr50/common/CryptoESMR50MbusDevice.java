@@ -9,25 +9,26 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.nta.dsmr40.common.CryptoMbusDevice;
 import com.energyict.protocolimplv2.nta.esmr50.messages.CryptoESMR50MbusMessaging;
 
+import java.util.List;
+
 public class CryptoESMR50MbusDevice extends CryptoMbusDevice {
-    private DlmsProtocolProperties properties;
+
+    private ESMR50MbusConfigurationSupport dlmsConfigurationSupport;
     private CryptoESMR50MbusMessaging mbusMessaging;
 
     public CryptoESMR50MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor1) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor, keyAccessorTypeExtractor1);
     }
 
-
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-02-26";
+        return "Crypto version: 2019-10-17";
     }
 
     @Override
@@ -42,4 +43,13 @@ public class CryptoESMR50MbusDevice extends CryptoMbusDevice {
         }
         return mbusMessaging;
     }
+
+    @Override
+    public List<PropertySpec> getUPLPropertySpecs() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new ESMR50MbusConfigurationSupport(this.getPropertySpecService());
+        }
+        return dlmsConfigurationSupport.getUPLPropertySpecs();
+    }
+
 }

@@ -4,6 +4,7 @@
 package com.energyict.mdc.tou.campaign.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -32,6 +33,9 @@ public enum TranslationKeys implements TranslationKey {
     CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "Calendar upload communication task id"),
     VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "Validation connection strategy"),
     CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "Calendar upload connection strategy"),
+    MANUALLY_CANCELLED("manuallyCancelled", "Manually cancelled"),
+    MINIMIZE_CONNECTIONS(ConnectionStrategy.MINIMIZE_CONNECTIONS.name(), "Minimize connections"),
+    AS_SOON_AS_POSSIBLE(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name(), "As soon as possible"),
     ;
 
 

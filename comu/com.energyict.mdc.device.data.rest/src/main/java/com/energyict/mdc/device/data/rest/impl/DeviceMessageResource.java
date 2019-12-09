@@ -17,7 +17,6 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
-import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilterImpl;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
@@ -44,6 +43,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -88,8 +88,8 @@ public class DeviceMessageResource {
         List<DeviceMessageInfo> infos = resourceHelper.getDeviceMessages(deviceMessageQueryFilter, queryParameters).stream().
                 map(deviceMessage -> deviceMessageInfoFactory.asFullInfo(deviceMessage, uriInfo)).
                 collect(toList());
-        List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
-        return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters)).build();
+
+        return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infos, queryParameters)).build();
     }
 
     @GET
@@ -173,7 +173,10 @@ public class DeviceMessageResource {
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration()
                 .getDeviceMessageEnablements()
                 .stream()
-                .map(DeviceMessageEnablement::getDeviceMessageId)
+                .map(DeviceMessageEnablement::getDeviceMessageDbValue)
+                .map(DeviceMessageId::find)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
         return deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()

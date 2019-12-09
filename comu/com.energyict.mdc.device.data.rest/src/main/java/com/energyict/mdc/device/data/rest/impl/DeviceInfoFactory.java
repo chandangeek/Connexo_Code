@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -55,6 +56,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private volatile MeteringZoneService meteringZoneService;
     private volatile MeteringService meteringService;
     private volatile EndDeviceZoneInfoFactory endDeviceZoneInfoFactory;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     public DeviceInfoFactory() {
     }
@@ -64,7 +66,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                              MeteringZoneService meteringZoneService, MeteringService meteringService, EndDeviceZoneInfoFactory endDeviceZoneInfoFactory,
                              MultiElementDeviceService multiElementDeviceService,
                              IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService,
-                             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, FirmwareService firmwareService, Clock clock) {
+                             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, FirmwareService firmwareService, Clock clock,
+                             MeteringTranslationService meteringTranslationService) {
         this();
         this.thesaurus = thesaurus;
         this.setBatchService(batchService);
@@ -79,6 +82,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         this.endDeviceZoneInfoFactory = endDeviceZoneInfoFactory;
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setFirmwareService(firmwareService);
+        this.setMeteringTranslationService(meteringTranslationService);
     }
 
     @Reference
@@ -123,9 +127,15 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
+    @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
+
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
@@ -143,12 +153,12 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     public DeviceSearchInfo from(Device device) {
         return DeviceSearchInfo
                 .from(
-                    device,
-                    new GatewayRetriever(topologyService),
-                    new IssueRetriever(issueService),
-                    this.thesaurus,
-                    this.deviceLifeCycleConfigurationService,
-                    new DeviceValidationRetriever(deviceService));
+                        device,
+                        new GatewayRetriever(topologyService),
+                        new IssueRetriever(issueService),
+                        this.thesaurus,
+                        this.meteringTranslationService,
+                        new DeviceValidationRetriever(deviceService));
     }
 
     @Override
@@ -157,7 +167,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         IssueRetriever issueRetriever = new IssueRetriever(issueService, domainObjects);
         DeviceValidationRetriever validationRetriever = new DeviceValidationRetriever(deviceService, domainObjects);
         return domainObjects.stream()
-                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, deviceLifeCycleConfigurationService, validationRetriever))
+                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus,meteringTranslationService, validationRetriever))
                 .collect(Collectors.toList());
     }
 
@@ -177,7 +187,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                 meteringService.findEndDeviceByMRID(device.getmRID()).get())
                 .stream().limit(5).map(deviceZones -> endDeviceZoneInfoFactory.from(deviceZones)).collect(Collectors.toList());
         DeviceInfo deviceInfo = DeviceInfo.from(device, slaveDevices, zones, topologyService, multiElementDeviceService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
-                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock);
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock, meteringTranslationService);
         deviceInfo.protocolNeedsImageIdentifierForFirmwareUpgrade = firmwareService.imageIdentifierExpectedAtFirmwareUpload(device.getDeviceType());
         return deviceInfo;
     }

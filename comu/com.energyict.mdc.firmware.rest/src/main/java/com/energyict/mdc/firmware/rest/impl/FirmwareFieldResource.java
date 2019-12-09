@@ -20,7 +20,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
-import com.energyict.mdc.tasks.impl.ServerTaskService;
+import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.Range;
 
@@ -168,7 +168,7 @@ public class FirmwareFieldResource extends FieldResource {
         deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
-                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
@@ -187,8 +187,8 @@ public class FirmwareFieldResource extends FieldResource {
         deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
-                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                .filter(cte -> cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME))
+                .flatMap(cnf -> cnf.getComTaskEnablements().stream())
+                .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME))
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
         return Response.ok(comTasks).build();

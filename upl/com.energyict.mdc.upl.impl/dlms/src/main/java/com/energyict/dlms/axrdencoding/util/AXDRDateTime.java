@@ -1,8 +1,6 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -16,7 +14,7 @@ import java.util.TimeZone;
 /**
  * @author gna
  * @since 03/02/2009
- * This is the copy of the DateTime class.
+ * This is the copy of the DateTimeOctetString class.
  * The blue book describes the dateTime as an OctetString(size(12)). The 12 indicates that the length is fixed an does not have to be encode.
  *
  * <pre>
@@ -110,6 +108,14 @@ public class AXDRDateTime extends AbstractDataType {
 
     public AXDRDateTime(Date date, TimeZone timeZone) {
     	this(date, timeZone, false);
+    }
+
+    public AXDRDateTime(Long epoch) {
+        this(new Date(epoch));
+    }
+
+    public AXDRDateTime(Long epoch, TimeZone timeZone) {
+        this(new Date(epoch), timeZone);
     }
     
     /**
@@ -375,6 +381,20 @@ public class AXDRDateTime extends AbstractDataType {
 
     public long longValue() {
         return getValue().getTime().getTime();
+    }
+
+    public CosemTime getCosemTime() throws ProtocolException {
+        byte[] array = getBEREncodedByteArray();
+        int offset = 6;
+        array[offset] = 27; // mark as time array
+        return new CosemTime(array, offset);
+    }
+
+    public CosemDate getCosemDate() throws ProtocolException {
+        byte[] array = getBEREncodedByteArray();
+        int offset = 1;
+        array[offset] = 26; // mark as date array
+        return new CosemDate(array, offset);
     }
 
     @Override

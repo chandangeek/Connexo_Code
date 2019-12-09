@@ -7,12 +7,17 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfUtilsDvce;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -20,8 +25,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.Map;
+import java.util.Optional;
 
-@Component(name = UtilitiesDeviceCreateConfirmation.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateConfirmationProvider",
         service = {UtilitiesDeviceCreateConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceCreateConfirmation.NAME})
@@ -53,7 +59,7 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesDeviceERPSmartMeterCreateConfirmationCOut> getService() {
         return UtilitiesDeviceERPSmartMeterCreateConfirmationCOut.class;
     }
 
@@ -63,9 +69,24 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
     }
 
     @Override
-    public void call(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
+    public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = msg.getConfirmationMessage()
+                .orElseThrow(() -> new IllegalStateException("Unable to get confirmation message"));
+
+        getDeviceId(confirmationMessage).ifPresent(value->values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+
         using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut")
-                .send(msg);
+                .withRelatedAttributes(values)
+                .send(confirmationMessage);
+    }
+
+    private static Optional<String> getDeviceId(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
+        return Optional.ofNullable(msg)
+                .map(UtilsDvceERPSmrtMtrCrteConfMsg::getUtilitiesDevice)
+                .map(UtilsDvceERPSmrtMtrCrteConfUtilsDvce::getID)
+                .map(UtilitiesDeviceID::getValue);
     }
 
     @Override

@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
@@ -28,6 +29,8 @@ import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.connexo._2018.schema.securitykeys.AllowedDeviceStatuses;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKeys;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.w3._2001._04.xmlenc.CipherDataType;
 import org.w3._2001._04.xmlenc.EncryptedDataType;
 
@@ -46,10 +49,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ChangeDeviceTest extends AbstractMockMeterConfig {
+    private static final String METER = "SPE0000001";
+    private static final String IN_STOCK_MSG = "dlc.default.inStock";
+    private static final String SECURITY_ACCESSOR_NAME = "my security accessor name";
 
     private ExecuteMeterConfigEndpoint executeMeterConfigEndpoint;
 
@@ -103,6 +110,11 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         verify(device).setManufacturer(MANUFACTURER);
         verify(device).setModelNumber(MODEL_NUMBER);
         verify(device).setModelVersion(MODEL_VERSION);
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CHANGED);
@@ -157,7 +169,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         allowedDeviceStatuses.getAllowedDeviceStatus().add("Some wierd status");
         SecurityKeys securityKeys = new SecurityKeys();
         SecurityKey securityKey = new SecurityKey();
-        securityKey.setSecurityAccessorName("my security accessor name");
+        securityKey.setSecurityAccessorName(SECURITY_ACCESSOR_NAME);
         EncryptedDataType securityAccessorKey = new EncryptedDataType();
         CipherDataType cipherData = new CipherDataType();
         cipherData.setCipherValue("1234".getBytes());
@@ -177,7 +189,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.translate(thesaurus, METER, IN_STOCK_MSG));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -187,6 +199,11 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
                     .isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS
                     .translate(thesaurus, DEVICE_NAME, STATE_NAME));
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         }
     }
 
@@ -205,7 +222,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         allowedDeviceStatuses.getAllowedDeviceStatus().add(STATE_NAME);
         SecurityKeys securityKeys = new SecurityKeys();
         SecurityKey securityKey = new SecurityKey();
-        String securityAccessorName = "my security accessor name";
+        String securityAccessorName = SECURITY_ACCESSOR_NAME;
         securityKey.setSecurityAccessorName(securityAccessorName);
         EncryptedDataType securityAccessorKey = new EncryptedDataType();
         CipherDataType cipherData = new CipherDataType();
@@ -225,7 +242,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         } catch (FaultMessage faultMessage) {
             // Asserts
             assertThat(faultMessage.getMessage())
-                    .isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT.translate(thesaurus));
+                    .isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT.translate(thesaurus, METER, SECURITY_ACCESSOR_NAME));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -234,6 +251,11 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
             assertThat(error.getCode()).isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT.getErrorCode());
             assertThat(error.getDetails()).isEqualTo(MessageSeeds.EXCEPTION_OCCURRED_DURING_KEY_IMPORT
                     .translate(thesaurus, DEVICE_NAME, securityAccessorName));
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), DEVICE_NAME);
+            values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), DEVICE_MRID);
+            values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), SERIAL_NUMBER);
+            verify(webServiceCallOccurrence).saveRelatedAttributes(values);
         }
     }
 

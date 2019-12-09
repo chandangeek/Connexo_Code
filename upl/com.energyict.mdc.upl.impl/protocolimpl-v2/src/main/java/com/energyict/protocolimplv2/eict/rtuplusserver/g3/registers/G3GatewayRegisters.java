@@ -26,7 +26,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.G3Net
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.PushEventNotificationSetupRegisterMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.UplinkPingSetupCustomRegisterMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.util.HashMap;

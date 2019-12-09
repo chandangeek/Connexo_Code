@@ -110,6 +110,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'manualIssueForm',
             selector: 'issue-manually-creation-rules-item-add issue-manually-creation-rules-item'
+        },
+        {
+            ref: 'bulkStartProcessesPanel',
+            selector: '#bulk-start-processes-panel'
         }
     ],
 
@@ -795,6 +799,44 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         });
     },
 
+    getProcessValues: function(processRecord, startProcessRecord) {
+        var processValues = {
+            'name': processRecord.name,
+            'processId': processRecord.processId,
+            'version': processRecord.version,
+            'deploymentId': processRecord.deploymentId,
+            'properties': startProcessRecord.getWriteData(true, true).properties
+        };
+        return processValues;
+    },
+
+    startProcessConfMessage: function(nextCmp, wizard, formErrorsPanel, propertyForm) {
+        var me = this;
+        wizard.setLoading(true);
+        me.validateStartProcessAction(me.processValues, function (success, response) {
+            var resp = Ext.JSON.decode(response.responseText, true);
+            if (success && resp) {
+                me.validatedForProcessDevices = resp;
+                me.validation = true;
+                nextCmp.removeAll();
+                wizard.down('#confirmButton').enable();
+                var message = me.buildConfirmMessage();
+                additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
+                nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
+            } else {
+                if (response.status == 400) {
+                    var json = Ext.decode(response.responseText, true);
+                    if (json && json.errors) {
+                        formErrorsPanel.show();
+                        propertyForm.markInvalid(json.errors);
+                    }
+                }
+                me.validation = false;
+            }
+            wizard.setLoading(false);
+        });
+    },
+
     validateStartProcessAction: function (processValues, callback) {
         var me = this,
             store = me.getDevicesGrid().getStore(),
@@ -1076,7 +1118,24 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             propertyForm = processStartContent.down('property-form'),
                             formErrorsPanel = startProcessPanel.down('#start-process-form').down('#form-errors'),
                             businessObject = {};
-                        if (propertyForm.isValid() && startProcessRecord) {
+
+
+                        propertyForm.updateRecord();
+                        if (me.processRecord) me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);
+
+                        var processValuesProperties = me.processValues && me.processValues.properties;
+                        var propertyFormIsValid = propertyForm.isValid();
+
+                        if (propertyFormIsValid){
+                            Ext.Array.each(processValuesProperties, function (property){
+                                if (property.required && !(property.propertyValueInfo && property.propertyValueInfo.value)){
+                                    propertyFormIsValid = false;
+                                    propertyForm.getPropertyField(property.key).markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                                }
+                            });
+                        }
+
+                        if (propertyFormIsValid && startProcessRecord) {
                             me.validation = true;
                             if (!formErrorsPanel.isHidden()) {
                                 formErrorsPanel.hide();
@@ -1084,47 +1143,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             }
 
                             propertyForm.updateRecord();
-
-                            startProcessRecord.beginEdit();
-
                             Ext.Array.each(extraParams, function (param) {
                                 businessObject[param.name] = param.value;
                             });
-
-                            var processValues = {
-                                'name': me.processRecord.name,
-                                'processId': me.processRecord.processId,
-                                'version': me.processRecord.version,
-                                'deploymentId': me.processRecord.deploymentId,
-                                'properties': startProcessRecord.getWriteData(true, true).properties
-                            };
-                            me.processValues = processValues;
-
-                            wizard.setLoading(true);
-                            me.validateStartProcessAction(processValues, function (success, response) {
-                                var resp = Ext.JSON.decode(response.responseText, true);
-                                if (success && resp) {
-                                    me.validatedForProcessDevices = resp;
-                                    me.validation = true;
-                                    if (nextCmp.name == 'confirmPage') {
-                                        nextCmp.removeAll();
-                                        wizard.down('#confirmButton').enable();
-                                        var message = me.buildConfirmMessage();
-                                        additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
-                                        nextCmp.showStartProcessConfirmation(message.title, message.body, null, additionalText)
-                                    }
-                                    wizard.setLoading(false);
-                                } else {
-                                    if (response.status == 400) {
-                                        var json = Ext.decode(operation.response.responseText, true);
-                                        if (json && json.errors) {
-                                            formErrorsPanel.show();
-                                            propertyForm.markInvalid(json.errors);
-                                        }
-                                    }
-                                    me.validation = false;
-                                }
-                            });
+                            me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);;
                         } else {
                             formErrorsPanel.show();
                             me.validation = false;
@@ -1162,12 +1184,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                     if ( reasonEditedValue.trim() === '') {
                         formErrorsManualIssue.show();
-                        comboReason.markInvalid(Uni.I18n.translate('searchItems.bulk.issues.maxLength', 'MDC','This field is required'));
+                        comboReason.markInvalid(Uni.I18n.translate('searchItems.bulk.issues.maxLength', 'MDC','This field\'s text length should be between 1 and 80 symbols'));
                         me.validation = false;
                     }
                     else if (reasonEditedValue.length > 80) {
                         formErrorsManualIssue.show();
-                        comboReason.markInvalid(Uni.I18n.translate('searchItems.bulk.issues.maxLength', 'MDC', "This field's text length should be between 1 and 80 symbols"));
+                        comboReason.markInvalid(Uni.I18n.translate('searchItems.bulk.issues.maxLength', 'MDC','This field\'s text length should be between 1 and 80 symbols'));
                         me.validation = false;
                     }
                     else{
@@ -1268,11 +1290,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 }
                             });
                             break;
+                        case 'startprocess':
+                            wizard.setLoading(true);
+                            me.startProcessConfMessage(nextCmp, wizard, formErrorsPanel, propertyForm);
+                            break;
                         default:
                             nextCmp.showMessage(me.buildConfirmMessage());
                             wizard.down('#confirmButton').enable();
                             break;
-
                     }
                     break;
                 case 'statusPage':
@@ -1664,6 +1689,19 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     processComboChange: function(combo){
-        this.processRecord = combo.lastSelection[0].data
+        this.processRecord = combo.lastSelection[0].data;
+        var firstDeviceData;
+        if (this.allDevices){
+            var store = this.getDevicesGrid().getStore();
+            var jsonData = store.getProxy().getReader().jsonData;
+            var devicesData = jsonData && jsonData.searchResults;
+            firstDeviceData = devicesData && devicesData.length && devicesData[0];
+        } else {
+            firstDeviceData = this.devices[0].data
+        }
+        if (firstDeviceData){
+            var propertyForm = this.getBulkStartProcessesPanel() && this.getBulkStartProcessesPanel().down('property-form');
+            if (propertyForm) propertyForm.context = {'id' : firstDeviceData.name};
+        }
     }
 });

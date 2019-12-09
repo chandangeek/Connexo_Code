@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>2.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -52,7 +52,12 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>dlms-elster</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolimpl</artifactId>
@@ -67,6 +72,11 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.57</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
             <version>1.57</version>
         </dependency>
         <dependency>
@@ -120,6 +130,12 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>

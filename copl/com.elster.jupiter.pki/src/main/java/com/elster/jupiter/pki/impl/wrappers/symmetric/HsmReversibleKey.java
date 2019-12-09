@@ -3,6 +3,7 @@ package com.elster.jupiter.pki.impl.wrappers.symmetric;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -31,8 +32,11 @@ public class HsmReversibleKey extends HsmKeyImpl {
     @Override
     public byte[] getKey() {
         try {
+            if (super.getKey() == null) {
+                return null;
+            }
             return hsmEncryptionService.symmetricDecrypt(super.getKey(), super.getLabel());
-        } catch (HsmBaseException e) {
+        } catch (HsmBaseException|HsmNotConfiguredException e) {
             throw new RuntimeException(e);
         }
     }
@@ -47,7 +51,7 @@ public class HsmReversibleKey extends HsmKeyImpl {
         try {
             super.validateSetKey(key, label);
             super.setKey(this.hsmEncryptionService.symmetricEncrypt(key, label), label);
-        } catch (HsmBaseException e) {
+        } catch (HsmBaseException|HsmNotConfiguredException e) {
             throw new RuntimeException(e);
         }
     }

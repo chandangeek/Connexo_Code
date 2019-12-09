@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
@@ -54,6 +55,7 @@ import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_3;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_4_1;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_4_3;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_6;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_7_1;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
@@ -308,6 +310,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                         .put(version(10, 4, 3), UpgraderV10_4_3.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), V10_7SimpleUpgrader.class)
+                        .put(version(10, 7, 1), UpgraderV10_7_1.class)
                         .build());
         this.meteringService.readLocationTemplatesFromDatabase();
     }
@@ -420,6 +423,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(GasDayOptions.RelativePeriodTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
         Arrays.stream(AuditTranslationKeys.values()).forEach(translationKeys::add);
+        Arrays.stream(DefaultState.values()).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));

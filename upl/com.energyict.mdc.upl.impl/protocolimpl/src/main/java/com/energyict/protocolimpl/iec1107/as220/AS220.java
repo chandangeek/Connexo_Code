@@ -72,15 +72,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author jme
@@ -265,10 +257,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.stringSpec(PROPERTY_DATE_FORMAT, PropertyTranslationKeys.IEC1107_DATE_FORMAT),
                 this.stringSpec(PROPERTY_BILLING_DATE_FORMAT, PropertyTranslationKeys.IEC1107_BILLING_DATE_FORMAT),
                 this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT, Range.closed(0, 2)),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec("VDEWCompatible", PropertyTranslationKeys.IEC1107_VDEWCOMPATIBLE),
                 this.integerSpec("LoadProfileNumber", PropertyTranslationKeys.IEC1107_LOADPROFILE_NUMBER, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("FailOnUnitMismatch", PropertyTranslationKeys.IEC1107_FAIL_ON_UNIT_MISMATCH),
                 this.integerSpec("HalfDuplex", PropertyTranslationKeys.IEC1107_HALF_DUPLEX),
                 this.integerSpec("RS485RtuPlusServer", PropertyTranslationKeys.IEC1107_RS485RTU_PLUS_SERVER),
@@ -315,10 +307,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         this.dateFormat = properties.getTypedProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         this.billingDateFormat = properties.getTypedProperty(PROPERTY_BILLING_DATE_FORMAT);
         this.dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
-        this.extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        this.extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
         this.vdewCompatible = properties.getTypedProperty("VDEWCompatible", 0);
         this.loadProfileNumber = Integer.parseInt(properties.getTypedProperty("LoadProfileNumber", "1"));
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         this.failOnUnitMismatch = properties.getTypedProperty("FailOnUnitMismatch", 0);
         this.halfDuplex = properties.getTypedProperty("HalfDuplex", 0);
         this.rs485RtuPlusServer = properties.getTypedProperty("RS485RtuPlusServer", 0);
@@ -858,7 +850,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         this.aS220Messages.applyMessages(messageEntries);
     }
 

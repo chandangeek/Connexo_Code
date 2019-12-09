@@ -29,5 +29,6 @@ Import-Package: !com.sun.jdi.*,\
     !sun.security.krb5.*,\
     !sun.security.util,\
     *
-Embed-Dependency: groupId=javassist|log4j|org.eclipse.jetty|org.json
+Export-Package: com.energyict.mdc.engine.*
+Embed-Dependency: groupId=javassist|log4j|org.json|org.eclipse.jetty|org.eclipse.jetty.websocket
 Embed-Transitive: true

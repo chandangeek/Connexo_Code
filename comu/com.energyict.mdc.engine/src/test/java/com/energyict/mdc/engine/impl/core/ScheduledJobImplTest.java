@@ -202,6 +202,7 @@ public class ScheduledJobImplTest {
         when(this.serviceProvider.transactionService()).thenReturn(this.transactionService);
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.serviceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
+        when(this.engineService.isOnlineMode()).thenReturn(true);
         when(this.serviceProvider.engineService()).thenReturn(engineService);
         when(this.userService.findUser(anyString())).thenReturn(Optional.of(comServerUser));
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), any(ComPortPool.class), any(ComPort.class), any(Instant.class))).
@@ -701,6 +702,11 @@ public class ScheduledJobImplTest {
         @Override
         public void free(DeviceCommandExecutionToken unusedToken) {
             this.actualExecutor.free(unusedToken);
+        }
+
+        @Override
+        public void freeSilently(DeviceCommandExecutionToken unusedToken) {
+            this.actualExecutor.freeSilently(unusedToken);
         }
 
         @Override

@@ -93,7 +93,7 @@ public class ChannelResourceHelper {
         }
         channelInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(channel), states, lastCheck);
         if (states.isEmpty()) {
-            channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel, clock.instant());
+            channelInfo.validationInfo.dataValidated = channel.getDevice().forValidation().allDataValidated(channel);
         }
         channelInfo.validationInfo.channelValidationStatus = isChannelValidationActive(channel);
     }

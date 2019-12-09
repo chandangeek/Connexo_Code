@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -12,9 +13,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -31,6 +33,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,20 +48,20 @@ public class DeviceBuilder {
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
     private final MeterConfigFaultMessageFactory faultMessageFactory;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
 
     @Inject
     public DeviceBuilder(BatchService batchService, Clock clock, DeviceLifeCycleService deviceLifeCycleService,
                          DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
                          MeterConfigFaultMessageFactory faultMessageFactory,
-                         DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+                         MeteringTranslationService meteringTranslationService) {
         this.batchService = batchService;
         this.clock = clock;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
         this.faultMessageFactory = faultMessageFactory;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
@@ -96,6 +99,7 @@ public class DeviceBuilder {
         Optional<String> statusValue = Optional.ofNullable(meter.getStatusValue());
         Optional<Instant> statusEffectiveDate = Optional.ofNullable(meter.getStatusEffectiveDate());
         Optional<Instant> multiplierEffectiveDate = Optional.ofNullable(meter.getMultiplierEffectiveDate());
+        Optional<Instant> shipmentDate = Optional.ofNullable(meter.getShipmentDate());
         String newDeviceConfigurationName = meter.getDeviceConfigurationName();
 
         return () -> {
@@ -154,7 +158,9 @@ public class DeviceBuilder {
             if (batch.isPresent()) {
                 batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);
             }
-
+            if (shipmentDate.isPresent() && shipmentDate.get().isAfter(new Date(0).toInstant())) {
+                    changedDevice.getLifecycleDates().setReceivedDate(shipmentDate.get());
+            }
             serialNumber.ifPresent(changedDevice::setSerialNumber);
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
             changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
@@ -214,7 +220,7 @@ public class DeviceBuilder {
             final List<String> allowedStatuses = securityInfo.getDeviceStatuses();
             final State status = device.getState();
             final String deviceStatus = DefaultState.from(status)
-                    .map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(status::getName);
+                    .map(meteringTranslationService::getDisplayName).orElseGet(status::getName);
             if (!allowedStatuses.contains(deviceStatus)) {
                 throw faultMessageFactory.meterConfigFaultMessageSupplier(device.getName(),
                         MessageSeeds.SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS, device.getName(), deviceStatus)

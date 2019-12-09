@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
+import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.EventAPIStatisticsImpl;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import org.mockito.Mock;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 public abstract class EventFilterBaseIT {
@@ -60,13 +62,13 @@ public abstract class EventFilterBaseIT {
 
     public void setup(int regCount, int msgCount) throws Exception {
         registrationLatch = new CountDownLatch(regCount);
-        WebSocketEventPublisherFactory.setInstance(new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, runningComServer, connectionTaskService, communicationTaskService, deviceService,engineConfigurationService, identificationService, eventPublisher, serviceProvider));
+        webSocketEventPublisherFactory = new LatchDrivenWebSocketEventPublisherFactory(registrationLatch, runningComServer, connectionTaskService, communicationTaskService, deviceService,engineConfigurationService, identificationService, EventPublisherImpl.getInstance(), serviceProvider);
 
         // Start the EventServlet in a jetty context
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(EVENT_REGISTRATION_URL);
         messagesReceivedLatch = new CountDownLatch(msgCount);
         webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
-        this.factory = new DefaultEmbeddedWebServerFactory(this.webSocketEventPublisherFactory);
+        this.factory = new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory);
         webServer = this.factory.findOrCreateEventWebServer(comServer, new EventAPIStatisticsImpl());
         webServer.start();
         connectClient(EVENT_REGISTRATION_URL, webSocket, TimeUnit.SECONDS.toMillis(5));

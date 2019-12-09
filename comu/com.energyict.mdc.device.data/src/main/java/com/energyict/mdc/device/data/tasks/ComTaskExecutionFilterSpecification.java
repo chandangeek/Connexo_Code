@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTask;
@@ -90,7 +90,7 @@ public class ComTaskExecutionFilterSpecification {
      * Comtasks of devices in such states will be excluded from the result
      * Default value: exclude comtasks of "In stock" and "Decommissioned" devices
      */
-    public Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
+    public Set<String> restrictedDeviceStates = new HashSet<>();
 
     /**
      * The device(name) you want to filter on
@@ -114,7 +114,7 @@ public class ComTaskExecutionFilterSpecification {
      * Comtasks of devices in such stages will be excluded from the result
      * Default value: exclude comtasks of "Pre-operational" and "Post-operational" devices
      */
-    public Set<String> restrictedDeviceStages = new HashSet<>(Arrays.asList(EndDeviceStage.PRE_OPERATIONAL.getKey(), EndDeviceStage.POST_OPERATIONAL.getKey()));
+    public Set<String> restrictedDeviceStages = new HashSet<>();
 
 
     public boolean showSlaveComTaskExecutions;

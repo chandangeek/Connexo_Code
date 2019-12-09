@@ -181,6 +181,16 @@ class DeviceValidationImpl implements DeviceValidation {
     }
 
     @Override
+    public boolean allDataValidated(Channel channel) {
+        return device.findKoreChannels(channel).stream().filter(com.elster.jupiter.metering.Channel::hasData).allMatch(kore -> getEvaluator().isAllDataValidated(kore.getChannelsContainer()));
+    }
+
+    @Override
+    public boolean allDataValidated(Register<?, ?> register) {
+        return device.findKoreChannels(register).stream().filter(com.elster.jupiter.metering.Channel::hasData).allMatch(kore -> getEvaluator().isAllDataValidated(kore.getChannelsContainer()));
+    }
+
+    @Override
     public boolean allDataValidated(Register<?, ?> register, Instant when) {
         Optional<com.elster.jupiter.metering.Channel> found = findKoreChannel(register, when);
         return !found.isPresent() || getEvaluator().isAllDataValidated(found.get().getChannelsContainer());
@@ -210,9 +220,9 @@ class DeviceValidationImpl implements DeviceValidation {
     public List<DataValidationStatus> getValidationStatus(Channel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
         Stream<com.elster.jupiter.metering.Channel> koreChannels = ((DeviceImpl) channel.getDevice()).findKoreChannels(channel).stream();
         return koreChannels
-                .filter(k -> does(k.getChannelsContainer().getRange()).overlap(interval))
+                .filter(k -> does(k.getChannelsContainer().getInterval().toOpenClosedRange()).overlap(interval))
                 .flatMap(k -> getEvaluator().getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM), k, readings,
-                        k.getChannelsContainer().getRange().intersection(interval)).stream())
+                        k.getChannelsContainer().getInterval().toOpenClosedRange().intersection(interval)).stream())
                 .collect(Collectors.toList());
     }
 

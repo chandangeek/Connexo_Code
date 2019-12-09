@@ -49,7 +49,7 @@ public abstract class MockComPort implements ComPort, Cloneable {
     }
 
     @Override
-    public Instant getModificationDate() {
+    public Instant getModTime() {
         return Instant.now();
     }
 

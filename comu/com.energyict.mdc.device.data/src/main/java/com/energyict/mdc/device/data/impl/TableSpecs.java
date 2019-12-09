@@ -60,7 +60,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
@@ -133,7 +133,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
             Column name = table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
-            table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
+            Column serialNumber = table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
             Column mRID_10_2 = table.column("MRID").varChar(SHORT_DESCRIPTION_LENGTH).upTo(version(10, 2, 1)).add();
             Column mRID = table.column("MRID").varChar().notNull().map(DeviceFields.MRID.fieldName()).since(version(10, 2, 1)).previously(mRID_10_2).add();
@@ -168,9 +168,10 @@ public enum TableSpecs {
 
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
             table.unique("UK_DDC_DEVICE_NAME").on(name).since(version(10, 2, 1)).add();
+            table.index("IX_DDC_DEVICE_SERIALNUMBER").on(serialNumber).add().since(version(10, 7, 1));
             table.primaryKey("PK_DDC_DEVICE").on(id).add();
             table.audit(DDC_DEVICE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_DDC_DEVICE_ENDDEVICE")
                     .reverseReferenceMap("amrId")
                     .build();
@@ -196,7 +197,7 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.audit(DDC_DEVICEPROTOCOLPROPERTY.name())
-                    .domainContext(AuditDomainContextType.GENERAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.GENERAL_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_DDC_DEVICEPROTPROP_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .build();
         }
@@ -350,7 +351,7 @@ public enum TableSpecs {
                     .map(ConnectionTaskFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName())
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_CONNECTION_METHODS.domainContextId())
                     .domainReferences("FK_DDC_CONNECTIONTASK_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .contextReferenceColumn("ID")
                     .forceReverseReferenceMap(false)
@@ -432,7 +433,7 @@ public enum TableSpecs {
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
-            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionDbValue").since(Version.version(10, 4)).add();
+            table.column("CONNECTIONFUNCTION").number().conversion(NUMBER2LONG).map("connectionFunctionId").since(Version.version(10, 4)).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT")
                     .on(comPort)
@@ -473,7 +474,7 @@ public enum TableSpecs {
                     .add();
             table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
             table.audit(DDC_COMTASKEXEC.name())
-                    .domainContext(AuditDomainContextType.DEVICE_COMTASKS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_COMTASKS.domainContextId())
                     .domainReferences("FK_DDC_COMTASKEXEC_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .contextReferenceColumn("COMTASK")
                     .build();
@@ -1073,7 +1074,7 @@ public enum TableSpecs {
                     add();
 
             table.audit(DDC_OVERRULEDOBISCODE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.domainContextId())
                     .domainReferences("FK_DDC_OVEROBIS_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .build();
         }

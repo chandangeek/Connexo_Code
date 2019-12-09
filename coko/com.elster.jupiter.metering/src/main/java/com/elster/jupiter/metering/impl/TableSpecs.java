@@ -50,6 +50,7 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
+import com.elster.jupiter.metering.configproperties.ConfigProperty;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
@@ -78,6 +79,7 @@ import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateImpl;
 import com.elster.jupiter.metering.impl.config.ServiceCategoryMeterRoleUsage;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementImpl;
 import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
+import com.elster.jupiter.metering.impl.configproperties.ConfigPropertyImpl;
 import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileImpl;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.orm.Column;
@@ -350,7 +352,7 @@ public enum TableSpecs {
                     .add();
 
             table.audit(MTR_USAGEPOINT.name())
-                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.domainContextId())
                     .build();
         }
     },
@@ -437,7 +439,7 @@ public enum TableSpecs {
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
             table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
             table.audit(MTR_ENDDEVICE.name())
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .build();
         }
     },
@@ -467,7 +469,7 @@ public enum TableSpecs {
                     .map("state")
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_MTR_STATUS_ENDDEVICE")
                     .build();
         }
@@ -535,12 +537,12 @@ public enum TableSpecs {
                     .on(meterRoleIdColumn)
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
                     .domainReferences("FK_MTR_METERACTUSAGEPOINT")
                     .contextReferenceColumn("ID")
                     .build();
             table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.domainContextId())
                     .domainReferences("FK_MTR_METERACTMETER")
                     .build();
         }
@@ -736,7 +738,7 @@ public enum TableSpecs {
                     .add();
 
             table.audit(MTR_USAGEPOINTDETAIL.name())
-                    .domainContext(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES.domainContextId())
                     .domainReferenceColumn("USAGEPOINTID")
                     .build();
         }
@@ -881,7 +883,7 @@ public enum TableSpecs {
                     .map("metrologyConfiguration")
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
                     .domainReferences("FK_MTR_UPMTRCONFIG_UP")
                     .build();
         }
@@ -950,7 +952,7 @@ public enum TableSpecs {
                     .on(meterIdColumn).add();
 
             table.audit(MTR_RT_METER_CONFIG.name())
-                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.ordinal())
+                    .domainContext(AuditDomainContextType.DEVICE_DATA_SOURCE_SPECIFICATIONS.domainContextId())
                     .domainReferences("FK_MTR_METER_CONFIG")
                     .build();
 
@@ -1764,7 +1766,7 @@ public enum TableSpecs {
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.fieldName())
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.domainContextId())
                     .domainReferences("MTR_EF_CONTRACT_2_EF_CONF", "FK_MTR_UPMTRCONFIG_UP")
                     .contextReferenceColumn(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name())
                     .build();
@@ -2028,7 +2030,7 @@ public enum TableSpecs {
                     .map("state")
                     .add();
             table.audit("")
-                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.domainContextId())
                     .domainReferenceColumn("USAGE_POINT")
                     .build();
         }
@@ -2129,6 +2131,21 @@ public enum TableSpecs {
             table.column("COMMENTS").varChar(4000).map("comment").add();
 
             table.primaryKey("PK_MTR_RQC").on(idColumn).add();
+        }
+    },
+    MTR_CONFIG_PROPERTY {
+        @Override
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+            Table<ConfigProperty> table = dataModel.addTable(name(), ConfigProperty.class);
+            table.since(version(10, 7, 1));
+            table.map(ConfigPropertyImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.setJournalTableName("MTR_CONFIG_PROPERTYJRNL");
+            table.column("SCOPE").varChar(NAME_LENGTH).map("scope").add();
+            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
+            table.addAuditColumns();
+            table.primaryKey("PK_MTR_CONFIG_PROPERTY").on(idColumn).add();
         }
     };
 

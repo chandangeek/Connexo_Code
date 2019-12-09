@@ -184,7 +184,11 @@ public class MdmAppInstaller {
                     //issue configuration
                     com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
                     com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
-                    com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE
+                    com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE,
+
+                    //WebServices
+                    com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                    com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES
             };
         }
     }

@@ -16,10 +16,15 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 
 public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseCampaignItem {
@@ -29,8 +34,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
         DEVICE("device", "device"),
         DEVICE_MESSAGE("deviceMessage", "device_message_id"),
-        STEP_OF_UPDATE("stepOfUpdate","step_of_update")
-        ;
+        STEP_OF_UPDATE("stepOfUpdate", "step_of_update");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -52,6 +56,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
+    private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @IsPresent
@@ -64,6 +69,7 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Inject
     public TimeOfUseItemDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
         super();
+        this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.dataModel = timeOfUseCampaignService.getDataModel();
         thesaurus = dataModel.getInstance(Thesaurus.class);
         serviceCallService = dataModel.getInstance(ServiceCallService.class);
@@ -85,8 +91,13 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public ServiceCall cancel() {
+    public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
+            if (!initFromCampaign) {
+                throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
+            }
+        }
         if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }
@@ -96,6 +107,9 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public ServiceCall retry() {
         ServiceCall serviceCall = getServiceCall();
+        if (serviceCall.getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get().isManuallyCancelled()) {
+            throw new TimeOfUseCampaignException(thesaurus, MessageSeeds.CAMPAIGN_WITH_DEVICE_CANCELLED);
+        }
         if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
             serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
             serviceCall.requestTransition(DefaultState.PENDING);
@@ -146,12 +160,52 @@ public class TimeOfUseItemDomainExtension extends AbstractPersistentDomainExtens
         propertySetValues.setProperty(FieldNames.STEP_OF_UPDATE.javaName(), this.getStepOfUpdate());
     }
 
-    public void update(){
+    public void update() {
         getServiceCall().update(this);
     }
 
     @Override
     public void validateDelete() {
         // nothing to validate
+    }
+
+    private TimeOfUseCampaignDomainExtension getCampaign() {
+        return getServiceCall().getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
+    }
+
+    @Override
+    public Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution() {
+        return getDevice().getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == getCampaign().getValidationComTaskId())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
+                        .anyMatch(task -> task instanceof StatusInformationTask))
+                .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
+                .filter(comTaskEnablement -> (timeOfUseCampaignService.findComTaskExecution(getDevice(), comTaskEnablement) == null)
+                        || (!timeOfUseCampaignService.findComTaskExecution(getDevice(), comTaskEnablement).isOnHold()))
+                .findAny()
+                .map(comTaskEnablement -> getDevice().getComTaskExecutions().stream()
+                        .filter(comTaskExecution -> comTaskExecution.getComTask().equals(comTaskEnablement.getComTask()))
+                        .findAny().orElseGet(() -> getDevice().newAdHocComTaskExecution(comTaskEnablement).add()));
+    }
+
+    @Override
+    public Optional<ComTaskExecution> findOrCreateUploadComTaskExecution() {
+        return getDevice().getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == getCampaign().getCalendarUploadComTaskId())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
+                        .filter(task -> task instanceof MessagesTask)
+                        .map(task -> ((MessagesTask) task))
+                        .map(MessagesTask::getDeviceMessageCategories)
+                        .flatMap(List::stream)
+                        .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0))
+                .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
+                .filter(comTaskEnablement -> (timeOfUseCampaignService.findComTaskExecution(getDevice(), comTaskEnablement) == null)
+                        || (!timeOfUseCampaignService.findComTaskExecution(getDevice(), comTaskEnablement).isOnHold()))
+                .findAny()
+                .map(comTaskEnablement -> getDevice().getComTaskExecutions().stream()
+                        .filter(comTaskExecution -> comTaskExecution.getComTask().equals(comTaskEnablement.getComTask()))
+                        .findAny().orElseGet(() -> getDevice().newAdHocComTaskExecution(comTaskEnablement).add()));
     }
 }

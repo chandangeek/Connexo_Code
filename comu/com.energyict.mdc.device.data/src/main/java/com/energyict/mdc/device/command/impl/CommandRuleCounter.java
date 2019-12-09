@@ -14,6 +14,7 @@ import com.google.inject.Inject;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 public class CommandRuleCounter implements ICommandRuleCounter {
 
@@ -41,6 +42,7 @@ public class CommandRuleCounter implements ICommandRuleCounter {
     private Instant from;
     private Instant to;
     private long count;
+    private Optional<CounterType> counterType = Optional.empty();
     private Reference<CommandRule> commandRule = Reference.empty();
 
     @Inject
@@ -48,16 +50,17 @@ public class CommandRuleCounter implements ICommandRuleCounter {
         this.dataModel = dataModel;
     }
 
-    public CommandRuleCounter initialize(Instant from, Instant to, Long count) {
+    public CommandRuleCounter initialize(Instant from, Instant to, Long count, CounterType counterType) {
         this.from = from;
         this.to = to;
         this.count = count;
+        this.counterType = Optional.of(counterType);
         return this;
     }
 
-    public CommandRuleCounter initialize(Instant from, Instant to, Long count, CommandRule commandRule) {
+    public CommandRuleCounter initialize(Instant from, Instant to, Long count, CommandRule commandRule, CounterType counterType) {
         this.commandRule.set(commandRule);
-        return initialize(from, to, count);
+        return initialize(from, to, count, counterType);
     }
 
     public void increaseCount() {
@@ -107,14 +110,16 @@ public class CommandRuleCounter implements ICommandRuleCounter {
 
     @Override
     public CounterType getCounterType() {
-        long differenceInMillis = getTo().toEpochMilli() - getFrom().toEpochMilli();
-        if (differenceInMillis <= TimeUnit.DAYS.toMillis(1)) {
-            return CounterType.DAY;
-        } else if (differenceInMillis <= TimeUnit.DAYS.toMillis(7)) {
-            return CounterType.WEEK;
-        } else {
-            return CounterType.MONTH;
-        }
+        return counterType.orElseGet(() -> {
+            long differenceInMillis = getTo().toEpochMilli() - getFrom().toEpochMilli();
+            if (differenceInMillis <= TimeUnit.DAYS.toMillis(1)) {
+                return CounterType.DAY;
+            } else if (differenceInMillis <= TimeUnit.DAYS.toMillis(7)) {
+                return CounterType.WEEK;
+            } else {
+                return CounterType.MONTH;
+            }
+        });
     }
 
 

@@ -15,20 +15,13 @@ import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
-import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -130,7 +123,5 @@ public class UpgraderV10_7 implements Upgrader {
                 "        " + Instant.now().toEpochMilli() + ",\n" +
                 "        " + Instant.now().toEpochMilli() + ",\n" +
                 "        DEFAULT)");
-        final IssueCreationService.CreationRuleUpdater creationRuleUpdater = creationRule.startUpdate();
-        creationRuleUpdater.complete();
     }
 }

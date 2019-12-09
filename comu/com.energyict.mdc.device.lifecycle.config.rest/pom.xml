@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>2.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -126,6 +126,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -216,11 +220,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cbo</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -360,6 +359,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

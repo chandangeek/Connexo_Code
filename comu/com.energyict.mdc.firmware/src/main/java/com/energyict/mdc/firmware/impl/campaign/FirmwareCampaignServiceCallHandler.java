@@ -6,14 +6,12 @@ package com.energyict.mdc.firmware.impl.campaign;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +77,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     private void complete(ServiceCall parent) {
         if (isLastChild(findChildren(parent))) {
             if (parent.getState().equals(DefaultState.ONGOING)) {
-                if (isCancelling(findChildren(parent))) {
+                if (isCancelling(parent)) {
                     parent.requestTransition(DefaultState.CANCELLED);
                 } else {
                     parent.requestTransition(DefaultState.SUCCESSFUL);
@@ -99,10 +97,11 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
                         || sc.getState().equals(DefaultState.PENDING));
     }
 
-    private boolean isCancelling(List<ServiceCall> serviceCalls) {
-        return serviceCalls
-                .stream()
-                .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
+    private boolean isCancelling(ServiceCall parent) {
+        return parent.getExtension(FirmwareCampaignDomainExtension.class).get().isManuallyCancelled() ||
+                findChildren(parent)
+                        .stream()
+                        .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
     }
 
 

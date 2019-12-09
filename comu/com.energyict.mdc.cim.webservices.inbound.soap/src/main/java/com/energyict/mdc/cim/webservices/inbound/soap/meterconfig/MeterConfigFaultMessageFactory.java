@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigFaultMessageType;
@@ -33,7 +34,13 @@ public class MeterConfigFaultMessageFactory {
     }
 
     public Supplier<FaultMessage> meterConfigFaultMessageSupplier(String meterName, MessageSeeds messageSeed, Object... args) {
-        return () -> meterConfigFaultMessage(messageSeed, replyTypeFactory.failureReplyType(meterName, messageSeed, args));
+        return () -> meterConfigFaultMessage(messageSeed.translate(thesaurus,args), replyTypeFactory.failureReplyType(meterName, messageSeed, args));
+    }
+
+    private FaultMessage meterConfigFaultMessage(String message, ReplyType replyType) {  // CONM-842
+        MeterConfigFaultMessageType faultMessageType = meterConfigMessageObjectFactory.createMeterConfigFaultMessageType();
+        faultMessageType.setReply(replyType);
+        return new FaultMessage(message, faultMessageType);
     }
 
     FaultMessage meterConfigFaultMessage(String meterName, MessageSeeds messageSeed, String message, String errorCode) {
@@ -55,10 +62,29 @@ public class MeterConfigFaultMessageFactory {
     }
 
     FaultMessage meterConfigFaultMessage(List<FaultMessage> faults) {
+        StringBuilder message = new StringBuilder();
+        if(
+            faults.size()==2 &&
+            faults.stream().anyMatch(faultMessage -> faultMessage.getMessage().contains(thesaurus.getFormat(TranslationKeys.CARD_FORMAT).format())) &&
+            faults.stream().anyMatch(faultMessage -> faultMessage.getMessage().contains(thesaurus.getFormat(TranslationKeys.STATUS).format()))
+        ){
+            faults.forEach(faultMessage -> message.append(faultMessage.getMessage()).append(" "));
+        }else{
+            message.append(faults.get(0).getMessage());
+        }
+
+        return meterConfigFaultMessage(message.toString(), faults, ReplyType.Result.FAILED);
+    }
+
+    FaultMessage meterConfigFaultMessage(MessageSeeds message, List<FaultMessage> faults, ReplyType.Result result) {
+        return meterConfigFaultMessage(message.translate(thesaurus), faults, result);
+    }
+
+    private FaultMessage meterConfigFaultMessage(String message, List<FaultMessage> faults, ReplyType.Result result) {
         MeterConfigFaultMessageType faultMessageType = meterConfigMessageObjectFactory.createMeterConfigFaultMessageType();
         ErrorType[] errorTypes = faults.stream().flatMap(fault -> fault.getFaultInfo().getReply().getError().stream()).toArray(ErrorType[]::new);
-        ReplyType replyType = replyTypeFactory.failureReplyType(ReplyType.Result.FAILED, errorTypes);
+        ReplyType replyType = replyTypeFactory.failureReplyType(result, errorTypes);
         faultMessageType.setReply(replyType);
-        return new FaultMessage(faults.get(0).getMessage(), faultMessageType);
+        return new FaultMessage(message, faultMessageType);
     }
 }

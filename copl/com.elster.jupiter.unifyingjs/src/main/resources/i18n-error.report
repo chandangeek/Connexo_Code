@@ -1,0 +1,19 @@
+Errors detected in JS sources:
+Wrong argument for method invocation {jsFilePath='controller\Error.js', lineNo=175, args=['error.'+message.replace(' ','.'), 'UNI', message]}
+Wrong argument for method invocation {jsFilePath='property\form\GroupedPropertyForm.js', lineNo=46, args=[property.get('boxLabel'), null, property.get('boxLabel')]}
+Wrong argument for method invocation {jsFilePath='property\view\property\AdvanceReadingsSettingsWithoutNone.js', lineNo=163, args=['advanceReadingProperty.bulkReading', this.translationKey, 'Bulk reading']}
+Wrong argument for method invocation {jsFilePath='property\view\property\Base.js', lineNo=207, args=['general.restoreDefaultValue', this.translationKey, 'Restore to default value "{0}"']}
+Wrong argument for method invocation {jsFilePath='property\view\property\Boolean.js', lineNo=60, args=['general.yes', this.translationKey, 'Yes']}
+Wrong argument for method invocation {jsFilePath='property\view\property\Boolean.js', lineNo=60, args=['general.no', this.translationKey, 'No']}
+Wrong argument for method invocation {jsFilePath='property\view\property\MaximumAbsoluteDifference.js', lineNo=30, args=['value', me.translationKey, 'Value']}
+Wrong argument for method invocation {jsFilePath='property\view\property\MaximumAbsoluteDifference.js', lineNo=62, args=['percent', me.translationKey, 'Percent']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NoneOrBigDecimal.js', lineNo=30, args=['none', me.translationKey, 'None']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NoneOrBigDecimal.js', lineNo=51, args=['value', me.translationKey, 'Value']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NoneOrBigDecimal.js', lineNo=110, args=['value.none1', me.translationKey, 'None']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NullableBoolean.js', lineNo=22, args=['true', me.translationKey, 'True']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NullableBoolean.js', lineNo=28, args=['false', me.translationKey, 'False']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NullableBoolean.js', lineNo=34, args=['general.none', me.translationKey, 'None']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NullableBoolean.js', lineNo=63, args=['general.yes', this.translationKey, 'Yes']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NullableBoolean.js', lineNo=65, args=['general.no', this.translationKey, 'No']}
+Wrong argument for method invocation {jsFilePath='property\view\property\NullableBoolean.js', lineNo=67, args=['general.none', this.translationKey, 'None']}
+Wrong argument for method invocation {jsFilePath='property\view\property\Period.js', lineNo=156, args=['general.restoreDefaultValue', this.translationKey, 'Restore to default value "{0}"']}

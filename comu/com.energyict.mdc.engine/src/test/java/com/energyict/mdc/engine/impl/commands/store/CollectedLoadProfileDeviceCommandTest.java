@@ -14,12 +14,12 @@ import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 
@@ -193,7 +193,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         long deviceId = device.getId();
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID()))).thenReturn(Optional.of(device));
 
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
@@ -243,7 +243,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID()))).thenReturn(Optional.of(device));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
@@ -327,7 +327,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID()))).thenReturn(Optional.of(device));
 
         CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
@@ -388,7 +388,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(device.getId())).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID()))).thenReturn(Optional.of(device));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
@@ -421,7 +421,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(dataLogger.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(dataLogger));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger))).thenReturn(Optional.of(dataLogger));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger.getId(),dataLogger.getmRID()))).thenReturn(Optional.of(dataLogger));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(dataLogger);
@@ -480,9 +480,9 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(dataLoggerId)).thenReturn(Optional.of(dataLogger));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger))).thenReturn(Optional.of(dataLogger));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger.getId(), dataLogger.getmRID()))).thenReturn(Optional.of(dataLogger));
         when(this.deviceService.findDeviceById(slaveId)).thenReturn(Optional.of(slave));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(slave))).thenReturn(Optional.of(slave));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(slave.getId(), slave.getmRID()))).thenReturn(Optional.of(slave));
 
         Map<com.energyict.mdc.common.device.data.Channel, com.energyict.mdc.common.device.data.Channel> channelMap = new HashMap<>();
         // Linking the slave
@@ -514,31 +514,34 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         List<Channel> dataLoggerChannels = dataLogger.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(dataLoggerChannels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsDataLoggerChannel1 = dataLoggerChannels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
-        assertThat(intervalReadingsDataLoggerChannel1).hasSize(0);
+        assertThat(intervalReadingsDataLoggerChannel1).hasSize(4);
+        List<IntervalReadingRecord> intervalReadingsDataLoggerChannel2 = dataLoggerChannels.get(1).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
+        assertThat(intervalReadingsDataLoggerChannel2).hasSize(4);
 
-        // Data is stored on the slave
+        // Data is not stored yet on the slave
         List<Channel> channels = slave.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
-        assertThat(intervalReadingsChannel1).hasSize(4);
-
-        assertThat(intervalReadingsChannel1.get(0).getValue()).isNull();
-        assertThat(intervalReadingsChannel1.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne));
-        assertThat(intervalReadingsChannel1.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
-        assertThat(intervalReadingsChannel1.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 1));
-        assertThat(intervalReadingsChannel1.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
-        assertThat(intervalReadingsChannel1.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 2));
-        assertThat(intervalReadingsChannel1.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
-        assertThat(intervalReadingsChannel1.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 3));
+        assertThat(intervalReadingsChannel1).hasSize(0);
         List<IntervalReadingRecord> intervalReadingsChannel2 = channels.get(1).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
-        assertThat(intervalReadingsChannel2).hasSize(4);
-        assertThat(intervalReadingsChannel2.get(0).getValue()).isNull();
-        assertThat(intervalReadingsChannel2.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo));
-        assertThat(intervalReadingsChannel2.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
-        assertThat(intervalReadingsChannel2.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 1));
-        assertThat(intervalReadingsChannel2.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
-        assertThat(intervalReadingsChannel2.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 2));
-        assertThat(intervalReadingsChannel2.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
-        assertThat(intervalReadingsChannel2.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 3));
+        assertThat(intervalReadingsChannel2).hasSize(0);
+
+        assertThat(intervalReadingsDataLoggerChannel1.get(0).getValue()).isNull();
+        assertThat(intervalReadingsDataLoggerChannel1.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne));
+        assertThat(intervalReadingsDataLoggerChannel1.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
+        assertThat(intervalReadingsDataLoggerChannel1.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 1));
+        assertThat(intervalReadingsDataLoggerChannel1.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
+        assertThat(intervalReadingsDataLoggerChannel1.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 2));
+        assertThat(intervalReadingsDataLoggerChannel1.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
+        assertThat(intervalReadingsDataLoggerChannel1.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueOne + 3));
+
+        assertThat(intervalReadingsDataLoggerChannel2.get(0).getValue()).isNull();
+        assertThat(intervalReadingsDataLoggerChannel2.get(0).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo));
+        assertThat(intervalReadingsDataLoggerChannel2.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
+        assertThat(intervalReadingsDataLoggerChannel2.get(1).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 1));
+        assertThat(intervalReadingsDataLoggerChannel2.get(2).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
+        assertThat(intervalReadingsDataLoggerChannel2.get(2).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 2));
+        assertThat(intervalReadingsDataLoggerChannel2.get(3).getQuantity(0).getValue()).isEqualTo(BigDecimal.ONE);
+        assertThat(intervalReadingsDataLoggerChannel2.get(3).getQuantity(1).getValue()).isEqualTo(new BigDecimal(intervalValueTwo + 3));
     }
 }

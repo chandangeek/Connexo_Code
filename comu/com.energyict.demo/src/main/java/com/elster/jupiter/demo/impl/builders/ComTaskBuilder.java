@@ -12,11 +12,15 @@ import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.tasks.ClockTaskType;
 import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import javax.inject.Inject;
+
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -29,6 +33,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
     private List<LogBookType> logBookTypes;
     private List<RegisterGroup> registerGroups;
     private List<TopologyAction> topologyActions;
+    private List<ComTaskUserAction> comTaskUserActions;
     private List<Clock> clocks;
     private Function<DeviceMessageSpecificationService, List<DeviceMessageCategory>> commandCategoryProvider;
     private boolean statusInformationTask = false;
@@ -80,6 +85,11 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         this.commandCategoryProvider = commandCategoryProvider;
         return this;
     }
+    
+    public ComTaskBuilder withComTaskUserActions(List<ComTaskUserAction> comTaskUserActions) {
+        this.comTaskUserActions = comTaskUserActions;
+        return this;
+    }
 
     @Override
     public Optional<ComTask> find() {
@@ -115,6 +125,11 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         }
         if (commandCategoryProvider != null) {
             comTask.createMessagesTask().deviceMessageCategories(commandCategoryProvider.apply(deviceMessageSpecificationService)).add();
+        }
+        if (comTaskUserActions != null) {
+            comTask.setUserActions(new HashSet<>(comTaskUserActions));
+        } else {
+            comTask.setUserActions(new HashSet<>(Arrays.asList(ComTaskUserAction.values())));
         }
         comTask.save();
         return comTask;

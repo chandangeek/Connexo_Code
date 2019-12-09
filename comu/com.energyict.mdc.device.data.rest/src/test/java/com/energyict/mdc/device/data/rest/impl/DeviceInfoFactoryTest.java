@@ -24,12 +24,14 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
@@ -51,7 +53,6 @@ import com.energyict.mdc.common.device.data.DeviceEstimation;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.common.device.data.Register;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -178,6 +179,8 @@ public class DeviceInfoFactoryTest {
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
+    private MeteringTranslationService meteringTranslationService;
+    @Mock
     private FirmwareService firmwareService;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -258,6 +261,7 @@ public class DeviceInfoFactoryTest {
         OpenIssue dataValidationIssue = mockIssue(dataValidationIssueType);
         when(dataValidationIssue.getId()).thenReturn(ISSUE_DATA_VALIDATION_ID);
         when(issueFinder.find()).thenReturn(Arrays.asList(dataCollectionIssue1, dataCollectionIssue2, dataValidationIssue));
+        when(issueFinder.stream()).thenReturn(Arrays.asList(dataCollectionIssue1, dataCollectionIssue2, dataValidationIssue).stream());
         when(issueService.findOpenIssuesForDevice(DATALOGGER_NAME)).thenReturn(issueFinder);
         when(issueService.findStatus(IssueStatus.OPEN)).thenReturn(Optional.of(issueStatusOpen));
         when(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME)).thenReturn(Optional.of(dataValidationIssueType));
@@ -466,7 +470,7 @@ public class DeviceInfoFactoryTest {
 
     private void setupTranslations() {
         when(thesaurus.getString(any(), any())).thenReturn("Translation not supported in unit tests");
-        when(this.deviceLifeCycleConfigurationService.getDisplayName(any(DefaultState.class)))
+        when(this.meteringTranslationService.getDisplayName(any(DefaultState.class)))
                 .thenAnswer(invocationOnMock -> {
                     DefaultState state = (DefaultState) invocationOnMock.getArguments()[0];
                     return state.getDefaultFormat();
@@ -522,7 +526,7 @@ public class DeviceInfoFactoryTest {
 
         DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService,
                 meteringZoneService, meteringService, endDeviceZoneInfoFactory, multiElementDeviceService, issueService,
-                dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, firmwareService, clock);
+                dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, firmwareService, clock, meteringTranslationService);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);

@@ -29,6 +29,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -48,7 +49,6 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.MessagesTask;
-import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -96,10 +96,10 @@ import java.util.stream.Stream;
 
 @Component(
         name = "com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignServiceImpl",
-        service = {TimeOfUseCampaignService.class, TimeOfUseCampaignServiceImpl.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {TimeOfUseCampaignService.class, TimeOfUseCampaignServiceImpl.class, MessageSeedProvider.class, TranslationKeyProvider.class, ServiceCallCancellationHandler.class},
         property = {"name=" + TimeOfUseCampaignService.COMPONENT_NAME},
         immediate = true)
-public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, MessageSeedProvider, TranslationKeyProvider {
+public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, MessageSeedProvider, TranslationKeyProvider, ServiceCallCancellationHandler {
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -193,7 +193,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        dataModel = upgradeService.newNonOrmDataModel();
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "Time of use campaign");
         dataModel.register(getModule());
         customPropertySets.add(dataModel.getInstance(TimeOfUseCampaignCustomPropertySet.class));
         customPropertySets.add(dataModel.getInstance(TimeOfUseItemPropertySet.class));
@@ -483,9 +483,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     void setCalendarOnDevice(ServiceCall serviceCall) {
-        Device device = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice();
+        TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
         try {
-            dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
+            dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(timeOfUseItemDomainExtension, serviceCall);
         } catch (DeviceMessageNotAllowedException e) {
             serviceCallService.lockServiceCall(serviceCall.getId());
             if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
@@ -544,8 +544,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     findCalendarsComTaskExecutions(timeOfUseItemDomainExtension.getDevice())
                             .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId())
                             .findAny()
-                            .ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
-                                    .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd()));
+                            .ifPresent(comTaskExecution -> comTaskExecution.schedule(timeOfUseCampaign.getUploadPeriodStart()));
                 }));
     }
 
@@ -572,32 +571,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .findAny().orElse(null);
     }
 
-    boolean isActiveVerificationTask(Device device, long taskId) {
-        return device.getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == taskId)
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
-                        .anyMatch(task -> task instanceof StatusInformationTask))
-                .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .anyMatch(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
-                        || (!findComTaskExecution(device, comTaskEnablement).isOnHold()));
-    }
-
-    Optional<ComTaskEnablement> getActiveTaskForCalendarsById(Device device, long taskId) {
-        return device.getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == taskId)
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
-                        .filter(task -> task instanceof MessagesTask)
-                        .map(task -> ((MessagesTask) task))
-                        .map(MessagesTask::getDeviceMessageCategories)
-                        .flatMap(List::stream)
-                        .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0))
-                .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
-                        || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
-                .findAny();
-    }
-
     boolean isWithVerification(TimeOfUseCampaign timeOfUseCampaign) {
         String activationOption = timeOfUseCampaign.getActivationOption();
         return (activationOption.equals(TranslationKeys.IMMEDIATELY.getKey()) || activationOption.equals(TranslationKeys.ON_DATE.getKey()));
@@ -606,5 +579,22 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     @Override
     public ComTask getComTaskById(long id) {
         return taskService.findComTask(id).get();
+    }
+
+    @Override
+    public List<ServiceCallType> getTypes() {
+        return Arrays.asList(serviceCallService.findServiceCallType(TimeOfUseCampaignServiceCallHandler.NAME, TimeOfUseCampaignServiceCallHandler.VERSION)
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")),
+                serviceCallService.findServiceCallType(TimeOfUseItemServiceCallHandler.NAME, TimeOfUseItemServiceCallHandler.VERSION)
+                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")));
+    }
+
+    @Override
+    public void cancel(ServiceCall serviceCall) {
+        if (serviceCall.getParent().isPresent()) {
+            serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().cancel(false);
+        } else {
+            serviceCall.getExtension(TimeOfUseCampaignDomainExtension.class).get().cancel();
+        }
     }
 }

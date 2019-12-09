@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.users.User;
 
 import com.google.common.collect.Range;
@@ -151,6 +152,61 @@ public abstract class BaseResource {
                 finderBuilder.onlyInbound();
             } else if (typeList.contains("OUTBOUND") && !typeList.contains("INBOUND")) {
                 finderBuilder.onlyOutbound();
+            }
+        }
+
+        if (filter.hasProperty("wsRelatedObjectId")) {
+            long objectId = -1;
+            String objectIdStr = null;
+            /* wsRelatedObjectId value from FE can be received as number for example 123 or string as "123".
+             * It is some ExtJS specific */
+            try {
+                objectId = filter.getInteger("wsRelatedObjectId");
+            } catch (NullPointerException e) {
+                objectIdStr = filter.getString("wsRelatedObjectId");
+                try {
+                    objectId = Long.parseLong(objectIdStr);
+                    objectIdStr = null;
+                }catch(NumberFormatException ex){
+                    objectId = -1;
+                }
+            }
+
+            if (objectId != -1) {
+                Optional<WebServiceCallRelatedAttribute> wscRo = webServiceCallOccurrenceService.getRelatedObjectById(objectId);
+                if (wscRo.isPresent()) {
+                    finderBuilder.withRelatedAttribute(wscRo.get());
+                } else {
+                    return Collections.emptyList();
+                }
+            }
+
+            if (objectIdStr != null) {
+                String txtToFind = null;
+                final String translationTxt;
+
+                if (objectIdStr.contains("(") && objectIdStr.contains(")")) {
+                    txtToFind = objectIdStr.substring(0, objectIdStr.lastIndexOf("(") - 1);
+                    translationTxt = objectIdStr.substring(objectIdStr.lastIndexOf("(") + 1, objectIdStr.length() - 1);
+                } else {
+                    translationTxt = null;
+                }
+
+                if (translationTxt == null) {
+                    /* No related attribute is specified. So just return empty list */
+                    return Collections.emptyList();
+                }
+
+                List<WebServiceCallRelatedAttribute> wscRattrList = webServiceCallOccurrenceService.getRelatedAttributesByValue(txtToFind.trim());
+
+                Optional<WebServiceCallRelatedAttribute> wecRattribute = wscRattrList.stream().
+                        filter(attr -> webServiceCallOccurrenceService.translateAttributeType(attr.getKey()).equals(translationTxt)).findFirst();
+
+                if (wecRattribute.isPresent()) {
+                    finderBuilder.withRelatedAttribute(wecRattribute.get());
+                } else {
+                    return Collections.emptyList();
+                }
             }
         }
 

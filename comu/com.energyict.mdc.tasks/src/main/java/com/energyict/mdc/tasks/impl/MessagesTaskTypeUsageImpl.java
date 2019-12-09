@@ -9,8 +9,12 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageCategoryAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 
 public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
@@ -31,7 +35,7 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
 
     }
 
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private long id;
     private Reference<ProtocolTask> protocolTask = ValueReference.absent();
@@ -41,6 +45,9 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
     private long version;
     private Instant createTime;
     private Instant modTime;
+
+    public MessagesTaskTypeUsageImpl() {
+    }
 
     @Inject
     public MessagesTaskTypeUsageImpl(DeviceMessageSpecificationService deviceMessageSpecificationService) {
@@ -60,8 +67,9 @@ public class MessagesTaskTypeUsageImpl implements MessagesTaskTypeUsage {
     }
 
     @Override
+    @XmlElement(type = UPLDeviceMessageCategoryAdapter.class)
     public DeviceMessageCategory getDeviceMessageCategory() {
-        if (this.deviceMessageCategory == null) {
+        if (this.deviceMessageSpecificationService != null && this.deviceMessageCategory == null) {
             this.deviceMessageCategory = this.deviceMessageSpecificationService.findCategoryById(this.deviceMessageCategoryId).orElse(null);
         }
         return this.deviceMessageCategory;

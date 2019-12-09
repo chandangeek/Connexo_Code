@@ -25,12 +25,17 @@ import java.util.Optional;
 // almost copy-pasted as com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl.
 // A refactoring towards usage of that class can be attempted
 public class CertificateAccessorImpl extends AbstractDeviceSecurityAccessorImpl<CertificateWrapper> implements CertificateAccessor {
-    private final DataModel dataModel;
-    private final SecurityManagementService securityManagementService;
-    private final Thesaurus thesaurus;
+
+    private DataModel dataModel;
+    private SecurityManagementService securityManagementService;
+    private Thesaurus thesaurus;
 
     private Reference<CertificateWrapper> actualCertificate = Reference.empty();
     private Reference<CertificateWrapper> tempCertificate = Reference.empty();
+
+    public CertificateAccessorImpl() {
+        super();
+    }
 
     @Inject
     public CertificateAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
@@ -41,12 +46,12 @@ public class CertificateAccessorImpl extends AbstractDeviceSecurityAccessorImpl<
     }
 
     @Override
-    public Optional<CertificateWrapper> getActualValue() {
+    public Optional<CertificateWrapper> getActualPassphraseWrapperReference() {
         return actualCertificate.getOptional();
     }
 
     @Override
-    public void setActualValue(CertificateWrapper newWrapperValue) {
+    public void setActualPassphraseWrapperReference(CertificateWrapper newWrapperValue) {
         this.actualCertificate.set(newWrapperValue);
     }
 
@@ -108,14 +113,14 @@ public class CertificateAccessorImpl extends AbstractDeviceSecurityAccessorImpl<
     }
 
     private void doRenewCertificate() throws CertificateEncodingException { // TODO can NOT renew non-ClientCertificate types
-        ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(getKeyAccessorType().getKeyType(), getKeyAccessorType().getKeyEncryptionMethod())
+        ClientCertificateWrapper clientCertificateWrapper = securityManagementService.newClientCertificateWrapper(getKeyAccessorTypeReference().getKeyType(), getKeyAccessorTypeReference().getKeyEncryptionMethod())
                 .alias(actualCertificate.get().getAlias()+"-new)")
                 .add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
-        X500Name x500Name = getDNFromCertificate(getActualValue().get());
+        X500Name x500Name = getDNFromCertificate(getActualPassphraseWrapperReference().get());
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
-                .generateCSR(x500Name, getKeyAccessorType().getKeyType().getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest,getKeyAccessorType().getKeyType().getKeyUsages(),getKeyAccessorType().getKeyType().getExtendedKeyUsages());
+                .generateCSR(x500Name, getKeyAccessorTypeReference().getKeyType().getSignatureAlgorithm());
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest,getKeyAccessorTypeReference().getKeyType().getKeyUsages(),getKeyAccessorTypeReference().getKeyType().getExtendedKeyUsages());
         clientCertificateWrapper.save();
         tempCertificate.set(clientCertificateWrapper);
         this.save();

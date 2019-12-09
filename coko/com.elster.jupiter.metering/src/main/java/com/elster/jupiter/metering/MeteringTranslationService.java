@@ -19,6 +19,8 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface MeteringTranslationService {
 
+    String getDisplayName(DefaultState state);
+
     String getDisplayName(QualityCodeIndex index);
 
     String getDisplayName(QualityCodeSystem system);

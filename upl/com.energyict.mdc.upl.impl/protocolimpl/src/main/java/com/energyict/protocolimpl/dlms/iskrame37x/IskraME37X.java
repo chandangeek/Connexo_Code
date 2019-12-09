@@ -97,13 +97,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
@@ -216,8 +210,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     private int deviation = -1;
     private int addressingMode;
     private int connectionMode;
-    private String version = null;
-    private String serialnr = null;
     private String nodeId;
     private CapturedObjects capturedObjects = null;
     private DLMSConnection dlmsConnection = null;
@@ -248,8 +240,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         numberOfChannels = -1;
         configProgramChanges = -1;
         iInterval = 0;
-        version = null;
-        serialnr = null;
 
         try {
             cosemObjectFactory = new CosemObjectFactory(this);
@@ -283,7 +273,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     private byte[] buildaarq(byte[] aarq1, byte[] aarq2) {
-        byte[] aarq = null;
+        byte[] aarq;
         int i, t = 0;
         // prepare aarq buffer
         aarq = new byte[3 + aarq1.length + 1 + (strPassword == null ? 0 : strPassword.length()) + aarq2.length];
@@ -647,14 +637,14 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     private String bytesToObisString(byte[] channelLN) {
-        String str = "";
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < channelLN.length; i++) {
             if (i > 0) {
-                str += ".";
+                builder.append(".");
             }
-            str += "" + ((int) channelLN[i] & 0xff);
+            builder.append("" + ((int) channelLN[i] & 0xff));
         }
-        return str;
+        return builder.toString();
     }
 
     private List getLogbookData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
@@ -1050,7 +1040,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
     }
 
-    public String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
+    private String requestAttribute(short sIC, byte[] LN, byte bAttr) throws IOException {
         return doRequestAttribute(sIC, LN, bAttr).print2strDataContainer();
     }
 
@@ -1076,7 +1066,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-09-04$";
+        return "$Date: 2019-11-06$";
     }
 
     @Override
@@ -1097,7 +1087,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec("LoadProfileId", PropertyTranslationKeys.DLMS_LOADPROFILEID, 1, 2, 97),
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
@@ -1130,8 +1120,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-        strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
         iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
         iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 10);
         if (properties.getTypedProperty(SECURITYLEVEL.getName(), "1").contains(":")) {
@@ -1145,10 +1135,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
         iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
         firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
-        nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
         // KV 19012004 get the serialNumber
-        serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
 
         int loadProfileId = properties.getTypedProperty("LoadProfileId", 1);
         switch (loadProfileId) {
@@ -1319,9 +1309,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public void applyMessages(List messageEntries) throws IOException {
-        Iterator it = messageEntries.iterator();
-        while (it.hasNext()) {
-            MessageEntry messageEntry = (MessageEntry) it.next();
+        for (Object each : messageEntries) {
+            MessageEntry messageEntry = (MessageEntry)each;
             if (DEBUG == 1) {
                 System.out.println(messageEntry);
             }
@@ -1390,8 +1379,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     @Override
-    public List getMessageCategories() {
-        List theCategories = new ArrayList();
+    public List<MessageCategorySpec> getMessageCategories() {
+        List<MessageCategorySpec> theCategories = new ArrayList<>();
         MessageCategorySpec cat = new MessageCategorySpec("IskraMT372Messages");
 
         MessageSpec msgSpec = addBasicMsg("Disconnect meter", DISCONNECT, false);
@@ -1422,8 +1411,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = it.next();
+        for (MessageAttribute att : msgTag.getAttributes()) {
             if (att.getValue() == null || att.getValue().isEmpty()) {
                 continue;
             }
@@ -1433,8 +1421,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         builder.append(">");
 
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
-            MessageElement elt = (MessageElement) it.next();
+        for (MessageElement elt : msgTag.getSubElements()) {
             if (elt.isTag()) {
                 builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {

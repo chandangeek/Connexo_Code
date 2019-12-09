@@ -3,13 +3,13 @@
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>1.0.0-Heracles-SNAPSHOT</version>
+    <version>2.0.0-Heracles-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -35,12 +35,18 @@
     </scm>
 
     <properties>
-        <!-- property to include the source code in the bundles
-             will be set to false by the release profile for releases -->
+        <sencha.workspace>${project.basedir}/src/main/web/${js.dir}</sencha.workspace>
+        <sencha.src.dir>${project.basedir}/src/main/web/${js.dir}/src</sencha.src.dir>
+        <sencha.build.dir>${project.basedir}/src/main/web/${js.dir}/build</sencha.build.dir>
+        <source.version>1.8</source.version>
+        <target.version>1.8</target.version>
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <baseline>1.0.0-Nessus</baseline>
-        <commercial.version>10.7.0</commercial.version>
+        <baseline>1.0.0-Heracles</baseline>
+        <commercial.version>10.7.1</commercial.version>
+        <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
+        <powermock.version>1.6.6</powermock.version>
+        <mockito.version>1.10.19</mockito.version>
     </properties>
 
     <!-- Repositories specification. -->
@@ -177,19 +183,45 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.11</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/com.carrotsearch/junit-benchmarks -->
+            <dependency>
+                <groupId>com.carrotsearch</groupId>
+                <artifactId>junit-benchmarks</artifactId>
+                <version>0.2.1</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-all</artifactId>
-                <version>1.10.8</version>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>${powermock.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>${powermock.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>3.2.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert-core</artifactId>
+                <version>2.0M8</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -207,6 +239,18 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert-core</artifactId>
         </dependency>
     </dependencies>
 
@@ -235,6 +279,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
                 </plugin>
@@ -242,6 +291,14 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.0.0-M3</version>
+                    <configuration>
+                        <parallel>classes</parallel>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -259,11 +316,6 @@
                     <version>1.3</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.6</version>
-                </plugin>
-                <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
                     <version>3.0.2</version>
@@ -279,6 +331,16 @@
                     <version>2.10.4</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.jvnet.jaxb2.maven2</groupId>
+                    <artifactId>maven-jaxb2-plugin</artifactId>
+                    <version>0.13.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.20</version>
+                </plugin>
+                <plugin>
                     <groupId>org.jvnet.jax-ws-commons</groupId>
                     <artifactId>jaxws-maven-plugin</artifactId>
                     <version>2.2.1</version>
@@ -291,7 +353,7 @@
                         <dependency>
                             <groupId>javax.xml.ws</groupId>
                             <artifactId>jaxws-api</artifactId>
-                            <version>2.1-1</version>
+                            <version>2.3.1</version>
                             <exclusions>
                                 <exclusion>
                                     <groupId>javax.jws</groupId>
@@ -310,23 +372,24 @@
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>bundle-version-maven-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>1.6</version>
                 </plugin>
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>npm-version-maven-plugin</artifactId>
                     <version>1.1</version>
                 </plugin>
-                <!-- This is commented due to errors in JS files
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>js-unifying-i18n-maven-plugin</artifactId>
-                    <version>1.0</version>
+                    <version>1.6</version>
                     <configuration>
-                        <jsSourceFolder>${project.basedir}/src/main/web/${js.dir}/src</jsSourceFolder>
+                        <sourceFolder>${sencha.src.dir}</sourceFolder>
                         <propertyFile>${project.basedir}/src/main/resources/i18n.properties</propertyFile>
+                        <reportFile>${project.basedir}/src/main/resources/i18n-error.report</reportFile>
+                        <ignoreWrongArgumentInvocations>true</ignoreWrongArgumentInvocations>
                     </configuration>
-                </plugin-->
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -342,6 +405,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
+<!--                    <failOnWarning>true</failOnWarning>-->
                     <instructions>
                         <Bundle-Vendor>Elster</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
@@ -399,22 +463,6 @@
                         <projectnature>bndtools.core.bndnature</projectnature>
                     </additionalProjectnatures>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <java.util.logging.config.file>../copl/com.elster.jupiter.parent/junit-logging.properties</java.util.logging.config.file>
-                    </systemPropertyVariables>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -544,15 +592,14 @@
                         </executions>
                         <configuration>
                             <excludeDefaultDirectories>false</excludeDefaultDirectories>
-                            <filesets>
+                            <filesets combine.children="append">
                                 <fileset>
-                                    <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                    <directory>${sencha.build.dir}</directory>
                                     <followSymlinks>false</followSymlinks>
                                 </fileset>
                             </filesets>
                         </configuration>
                     </plugin>
-                    <!-- This is commented due to errors in JS files
                     <plugin>
                         <groupId>com.elster.plugin</groupId>
                         <artifactId>js-unifying-i18n-maven-plugin</artifactId>
@@ -564,7 +611,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin-->
+                    </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
@@ -579,14 +626,16 @@
                                 <configuration>
                                     <resources>
                                         <resource>
-                                            <directory>${basedir}/src/main/web</directory>
+                                            <directory>${sencha.workspace}</directory>
+                                            <targetPath>${js.dir}</targetPath>
                                             <includes>
                                                 <include>**/*</include>
                                             </includes>
                                         </resource>
-                                        <!-- This is needed while some js files are directly pointed from html files and needs to have same path as in sencha-compile-->
+                                        <!-- This is needed while some js files are directly pointed from html (and some app.js) files and needs to have same path as in sencha-compile
+                                        (for modules that append sencha-dev profile and are actually compiling the app, e.g: loaderjs,unifyingjs...)-->
                                         <resource>
-                                            <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                            <directory>${sencha.build.dir}</directory>
                                             <targetPath>${js.dir}</targetPath>
                                             <includes>
                                                 <include>**/*</include>
@@ -617,9 +666,9 @@
                         </executions>
                         <configuration>
                             <excludeDefaultDirectories>false</excludeDefaultDirectories>
-                            <filesets>
+                            <filesets combine.children="append">
                                 <fileset>
-                                    <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                    <directory>${sencha.build.dir}</directory>
                                     <followSymlinks>false</followSymlinks>
                                 </fileset>
                             </filesets>
@@ -635,7 +684,7 @@
                                     <goal>verify</goal>
                                 </goals>
                                 <configuration>
-                                    <scanFolders>${project.basedir}/src/main/web</scanFolders>
+                                    <scanFolders>${sencha.src.dir}</scanFolders>
                                     <applicationFiles>app.json</applicationFiles>
                                     <packageFiles>package.json</packageFiles>
                                     <packages>com.elster.*,com.energyict.*,uni-theme-skyline</packages>
@@ -644,7 +693,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- This is commented due to errors in JS files
                     <plugin>
                         <groupId>com.elster.plugin</groupId>
                         <artifactId>js-unifying-i18n-maven-plugin</artifactId>
@@ -656,7 +704,7 @@
                                     </goals>
                                 </execution>
                         </executions>
-                    </plugin-->
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
@@ -673,11 +721,11 @@
                                         <echo>Sencha build</echo>
                                         <echo>Using Sencha CMD in ${sencha.cmd.dir}</echo>
                                         <echo>Using Ext lib in ${sencha.ext.dir}</echo>
-                                        <property name="build.dir" value="${project.basedir}/src/main/web/${js.dir}/build"/>
+                                        <property name="build.dir" value="${sencha.build.dir}"/>
                                         <property name="build.temp.dir" value="${project.build.directory}/webtemp"/>
                                         <property name="cmd.dir" value="${sencha.cmd.dir}"/>
                                         <property name="ext.dir" value="${sencha.ext.dir}"/>
-                                        <ant antfile="build.xml" target="build" dir="./src/main/web/${js.dir}"/>
+                                        <ant antfile="build.xml" target="build" dir="${sencha.workspace}"/>
                                     </target>
                                 </configuration>
                             </execution>
@@ -691,7 +739,7 @@
                                     <target unless="skipSencha" if="package.name">
                                         <property name="cmd.dir" value="${sencha.cmd.dir}"/>
                                         <property name="package.file"
-                                                  value="${project.basedir}/src/main/web/${js.dir}/build/${package.name}/${package.name}.pkg"/>
+                                                  value="${sencha.build.dir}/${package.name}/${package.name}.pkg"/>
                                         <available file="${package.file}" property="package.present"/>
                                         <taskdef resource="com/sencha/ant/antlib.xml" classpath="${cmd.dir}/sencha.jar"
                                                  loaderref="senchaloader"/>
@@ -719,7 +767,7 @@
                                 <configuration>
                                     <resources>
                                         <resource>
-                                            <directory>${project.basedir}/src/main/web/${js.dir}/build</directory>
+                                            <directory>${sencha.build.dir}</directory>
                                             <targetPath>${js.dir}</targetPath>
                                             <includes>
                                                 <include>**/*</include>
@@ -808,7 +856,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-clean-plugin</artifactId>
                         <configuration>
-                            <filesets>
+                            <filesets combine.children="append">
                                 <fileset>
                                     <directory>${felix.load.folder}</directory>
                                     <includes>

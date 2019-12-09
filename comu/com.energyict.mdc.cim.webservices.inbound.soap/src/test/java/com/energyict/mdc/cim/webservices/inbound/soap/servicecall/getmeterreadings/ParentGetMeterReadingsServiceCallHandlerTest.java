@@ -17,7 +17,9 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.meterreadings.MeterReading;
@@ -105,6 +107,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         parentDomainExtension.setTimePeriodStart(startDate);
         parentDomainExtension.setTimePeriodEnd(endDate);
         parentDomainExtension.setReadingTypes(MIN15_MRID);
+        parentDomainExtension.setResponseStatus(ParentGetMeterReadingsDomainExtension.ResponseStatus.NOT_SENT.getName());
         when(serviceCall.getExtensionFor(any(ParentGetMeterReadingsCustomPropertySet.class)))
                 .thenReturn(Optional.of(parentDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(parentDomainExtension));
@@ -127,6 +130,19 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         when(childServiceCallFinder.stream()).then((i) -> Stream.of(subParentServiceCall_1, subParentServiceCall_2));
         when(serviceCall.findChildren()).thenReturn(childServiceCallFinder);
         when(serviceCall.findChildren(any())).thenReturn(childServiceCallFinder);
+
+        Finder<ServiceCall> secondChildServiceCallFinder_1 = mock(Finder.class);
+        when(secondChildServiceCallFinder_1.stream()).then((i) -> Stream.empty());
+        when(subParentServiceCall_1.findChildren()).thenReturn(secondChildServiceCallFinder_1);
+        when(subParentServiceCall_1.findChildren().paged(anyInt(), anyInt())).thenReturn(secondChildServiceCallFinder_1);
+
+        Finder<ServiceCall> secondChildServiceCallFinder_2 = mock(Finder.class);
+        when(secondChildServiceCallFinder_2.stream()).then((i) -> Stream.empty());
+        when(subParentServiceCall_2.findChildren()).thenReturn(secondChildServiceCallFinder_2);
+        when(subParentServiceCall_2.findChildren().paged(anyInt(), anyInt())).thenReturn(secondChildServiceCallFinder_2);
+
+        Finder<Device> deviceFinder = mockFinder(Collections.emptyList());
+        when(deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
 
         parentServiceCallHandler = new ParentGetMeterReadingsServiceCallHandler(meteringService,
                 sendMeterReadingsProvider, readingBuilderProvider, endPointConfigurationService, deviceService);
@@ -281,6 +297,8 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         when(meterReadings.getMeterReading()).thenReturn(mrList);
         when(mrList.isEmpty()).thenReturn(false);
         when(sendMeterReadingsProvider.call(any(), any(), any())).thenReturn(true);
+        when(subParentServiceCall_1.getState()).thenReturn(DefaultState.SUCCESSFUL);
+        when(subParentServiceCall_2.getState()).thenReturn(DefaultState.SUCCESSFUL);
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.PAUSED, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), any(), any());

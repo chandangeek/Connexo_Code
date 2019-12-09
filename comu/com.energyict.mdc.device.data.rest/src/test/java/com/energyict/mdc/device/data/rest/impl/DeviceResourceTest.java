@@ -115,7 +115,6 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.impl.NumericalRegisterImpl;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
@@ -163,7 +162,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -190,9 +188,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     private static final long endTimeSecond = 1489561597000L;
     private static final long startTimeNew = 1469561597000L;
     private static final long endTimeNew = 1499561597000L;
-
-    @Mock
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private ReadingType readingType;
 
@@ -224,6 +219,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME)).thenReturn(Optional.of(dataValidationIssueType));
         Finder<OpenIssue> issueFinder = mock(Finder.class);
         when(issueFinder.find()).thenReturn(Collections.emptyList());
+        when(issueFinder.stream()).thenReturn(Stream.empty());
         when(issueService.findOpenIssuesForDevice(any(String.class))).thenReturn(issueFinder);
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
@@ -1561,7 +1557,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(slice.getDevices()).thenReturn(slavesList);
         when(slice.getPeriod()).thenReturn(range);
 
-        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
+        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline,  meteringTranslationService);
 
         assertThat(infos.size()).isEqualTo(5);
         assertThat(infos.get(0).name).isEqualTo("slave7");
@@ -1572,7 +1568,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         slaves = new HashSet<>(Collections.singletonList(slave1));
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
-        infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
+        infos = DeviceTopologyInfo.from(topologyTimeline, meteringTranslationService);
         assertThat(infos.size()).isEqualTo(1);
     }
 

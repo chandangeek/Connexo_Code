@@ -27,6 +27,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -62,6 +63,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -100,6 +102,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
     private volatile Clock clock;
+    private volatile Map<Long, ServiceCallCancellationHandler> serviceCallCancellationHandlers = new ConcurrentHashMap<>();
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -180,6 +183,22 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
             throw new MissingHandlerNameException(thesaurus, MessageSeeds.NO_NAME_FOR_HANDLER, serviceCallHandler);
         }
         handlerMap.put(name, serviceCallHandler);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Override
+    public void addServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler) {
+        serviceCallCancellationHandler.getTypes().forEach(type -> serviceCallCancellationHandlers.put(type.getId(), serviceCallCancellationHandler));
+    }
+
+    @Override
+    public void removeServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler) {
+        serviceCallCancellationHandler.getTypes().forEach(type -> serviceCallCancellationHandlers.remove(type.getId()));
+    }
+
+    @Override
+    public Optional<ServiceCallCancellationHandler> getServiceCallCancellationHandler(ServiceCallType serviceCallType) {
+        return Optional.ofNullable(serviceCallCancellationHandlers.get(serviceCallType.getId()));
     }
 
     @Reference
@@ -429,14 +448,16 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     private Condition createConditionFromFilter(ServiceCallFilter filter) {
         Condition condition = Condition.TRUE;
-
+        if (filter.ids != null && !filter.ids.isEmpty()) {
+            condition = condition.and(where("id").in(new ArrayList<>(filter.ids)));
+        }
         if (filter.reference != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(filter.reference).or(where("internalReference").like(filter.reference)));
         }
-        if (!filter.types.isEmpty()) {
+        if (filter.types != null && !filter.types.isEmpty()) {
             condition = condition.and(ofAnyType(filter.types));
         }
-        if (!filter.states.isEmpty()) {
+        if (filter.states != null && !filter.states.isEmpty()) {
             condition = condition.and(ofAnyState(filter.states));
         }
         if (filter.receivedDateFrom != null) {

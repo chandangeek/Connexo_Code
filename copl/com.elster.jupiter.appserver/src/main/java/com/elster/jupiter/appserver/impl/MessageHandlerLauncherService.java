@@ -43,6 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,6 +68,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private volatile TransactionService transactionService;
     private volatile boolean active = false;
     private volatile boolean reconfigureNeeded = false;
+
     private ThreadGroup threadGroup;
     private Principal batchPrincipal;
     private Registration commandRegistration;
@@ -166,9 +168,16 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private void stopLaunched() {
-        executors.values().forEach(this::shutDownServiceWithCancelling);
+        int nbOfExecutors = executors.size();
+        LOGGER.info("#message services: " + nbOfExecutors + " #message service threads: " + futures.size());
+        AtomicInteger i = new AtomicInteger(0);
+        executors.values().forEach(messageHandlerLauncherPojo -> {
+            LOGGER.info("stopping message service " + i.incrementAndGet() + "/" + nbOfExecutors);
+            shutDownServiceWithCancelling(messageHandlerLauncherPojo);
+        });
         executors.clear();
         futures.clear();
+        LOGGER.info("message services stopped");
     }
 
     private void destroyThreadGroup(ThreadGroup toClean) {
@@ -239,7 +248,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 futures.remove(executorService);
             }
             executors.remove(key);
-        } else{
+        } else {
             LOGGER.info("Avoid null pointer exception " + "   Subscriber: " + key.getSubscriber() + "Destination:   " + key.getDestination());
         }
     }
@@ -308,7 +317,8 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 executorService.shutdownNow();
             }
 
-            LOGGER.log(Level.SEVERE, e, () -> "MessageHandlerFactory for subscriber " + subscriberSpec.getDestination().getName() + " : " + subscriberSpec.getName() + " threw an exception while creating a new Messagehandler.");
+            LOGGER.log(Level.SEVERE, e, () -> "MessageHandlerFactory for subscriber " + subscriberSpec.getDestination()
+                    .getName() + " : " + subscriberSpec.getName() + " threw an exception while creating a new Messagehandler.");
         }
     }
 
@@ -375,6 +385,18 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                     reconfigure();
                 } else {
                     reconfigureNeeded = true;
+                }
+                return;
+            case NEW_QUEUE_ADDED:
+                SubscriberExecutionSpec subscriberExecutionSpec = (SubscriberExecutionSpec) command.getProperties().get(AppServiceImpl.SUBSCRIBER_EXECUTION_SPEC);
+                if (!subscriberExecutionSpec.getSubscriberSpec().getDestination().isDefault()) {
+                    String defaultDestination = subscriberExecutionSpec.getSubscriberSpec().getDestination().getQueueTypeName();
+                    SubscriberKey subscriberKey = SubscriberKey.of(subscriberExecutionSpec);
+                    handlerFactories.entrySet().stream()
+                            .filter(entry -> entry.getKey().getDestination().equals(defaultDestination))
+                            .findAny()
+                            .map(Map.Entry::getValue)
+                            .ifPresent(messageHandlerFactory -> addNewMessageHandlerFactory(subscriberKey, messageHandlerFactory));
                 }
                 return;
             default:

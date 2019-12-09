@@ -4,10 +4,13 @@
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqSmrtMtr;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.UtilitiesAdvancedMeteringSystemID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.UtilitiesConnectionStatusChangeRequestCategoryCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.UtilitiesConnectionStatusChangeRequestID;
@@ -24,14 +27,25 @@ public class StatusChangeRequestCreateMessage {
     private Instant plannedProcessingDateTime;
     private Map<String, String> deviceConnectionStatus;
     private String id;
+    private String requestId;
+    private String uuid;
     private String categoryCode;
     private String utilitiesServiceDisconnectionReasonCode;
+    private boolean bulk;
 
     private StatusChangeRequestCreateMessage() {
     }
 
     public String getId() {
         return id;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     public String getCategoryCode() {
@@ -50,9 +64,13 @@ public class StatusChangeRequestCreateMessage {
         return utilitiesServiceDisconnectionReasonCode;
     }
 
+    public boolean isBulk() {
+        return bulk;
+    }
+
     public boolean isValid() {
-        return id != null && categoryCode != null && plannedProcessingDateTime != null &&
-               !deviceConnectionStatus.isEmpty();
+        return (requestId != null || uuid != null) && id != null && categoryCode != null && plannedProcessingDateTime != null &&
+                !deviceConnectionStatus.isEmpty();
     }
 
     public static Builder builder() {
@@ -64,7 +82,23 @@ public class StatusChangeRequestCreateMessage {
         private Builder() {
         }
 
+        public Builder from(String id, String requestId, String uuid, String categoryCode, String utilitiesServiceDisconnectionReasonCode, Instant plannedProcessingDateTime, Map<String, String> deviceConnectionStatus, boolean bulk) {
+            StatusChangeRequestCreateMessage.this.id = id;
+            StatusChangeRequestCreateMessage.this.requestId = requestId;
+            StatusChangeRequestCreateMessage.this.uuid = uuid;
+            StatusChangeRequestCreateMessage.this.categoryCode = categoryCode;
+            StatusChangeRequestCreateMessage.this.utilitiesServiceDisconnectionReasonCode = utilitiesServiceDisconnectionReasonCode;
+            StatusChangeRequestCreateMessage.this.plannedProcessingDateTime = plannedProcessingDateTime;
+            StatusChangeRequestCreateMessage.this.deviceConnectionStatus = deviceConnectionStatus;
+            StatusChangeRequestCreateMessage.this.bulk = bulk;
+            return this;
+        }
+
         public Builder from(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg requestMessage) {
+            Optional.ofNullable(requestMessage.getMessageHeader()).ifPresent(messageHeader -> {
+                setRequestId(getRequestId(messageHeader));
+                setUuid(getUuid(messageHeader));
+            });
             Optional.ofNullable(requestMessage.getUtilitiesConnectionStatusChangeRequest())
                     .ifPresent(statusChangeRequest -> {
                         setId(getId(statusChangeRequest));
@@ -73,11 +107,22 @@ public class StatusChangeRequestCreateMessage {
                         setPlannedProcessingDateTime(statusChangeRequest.getPlannedProcessingDateTime());
                         setDeviceConnectionStatus(getDeviceConnectionStatus(statusChangeRequest));
                     });
+            StatusChangeRequestCreateMessage.this.bulk = false;
             return this;
         }
 
         public Builder setId(String id) {
             StatusChangeRequestCreateMessage.this.id = id;
+            return this;
+        }
+
+        public Builder setRequestId(String requestId) {
+            StatusChangeRequestCreateMessage.this.requestId = requestId;
+            return this;
+        }
+
+        public Builder setUuid(String uuid) {
+            StatusChangeRequestCreateMessage.this.uuid = uuid;
             return this;
         }
 
@@ -108,6 +153,20 @@ public class StatusChangeRequestCreateMessage {
         private String getId(SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq changeRequest) {
             return Optional.ofNullable(changeRequest.getID())
                     .map(UtilitiesConnectionStatusChangeRequestID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getRequestId(BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getID())
+                    .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

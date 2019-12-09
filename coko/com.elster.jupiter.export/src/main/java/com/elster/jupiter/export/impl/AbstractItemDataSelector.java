@@ -10,7 +10,6 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
-import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.MissingDataOption;
@@ -74,7 +73,10 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     private final DateTimeFormatter timeFormatter;
 
     private int exportCount;
+    private int updateCount;
     private Logger logger;
+
+    private Range<Instant> currentExportInterval;
 
     @Inject
     AbstractItemDataSelector(Clock clock,
@@ -98,6 +100,10 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return exportCount;
     }
 
+    public int getUpdateCount() {
+        return updateCount;
+    }
+
     Clock getClock() {
         return clock;
     }
@@ -108,41 +114,41 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-        Range<Instant> exportInterval = determineExportInterval(occurrence, item);
+        this.currentExportInterval = determineExportInterval(occurrence, item);
 
-        warnIfExportPeriodCoversFuture(occurrence, exportInterval);
+        warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
-        List<? extends BaseReadingRecord> readings = getReadings(item, exportInterval);
+        List<? extends BaseReadingRecord> readings = getReadings(item, currentExportInterval);
 
         DataExportStrategy strategy = item.getSelector().getStrategy();
 
         String itemDescription = item.getDescription();
 
-        handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
+        handleValidatedDataOption(item, strategy, readings, currentExportInterval, itemDescription);
 
-        if (isExportCompleteData(strategy) && !isComplete(item, exportInterval, readings)) {
+        if (isExportCompleteData(strategy) && !isComplete(item, currentExportInterval, readings)) {
             if (strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
-                logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval, itemDescription);
+                logExportWindow(MessageSeeds.MISSING_WINDOW, currentExportInterval, itemDescription);
             }
             if (strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_OBJECT)) {
-                logExportWindow(MessageSeeds.USAGE_POINT_MISSING_WINDOW, exportInterval, item.getDomainObject().getDescription());
+                logExportWindow(MessageSeeds.USAGE_POINT_MISSING_WINDOW, currentExportInterval, item.getDomainObject().getDescription());
             }
             return Optional.empty();
         }
 
         if (!isExportCompleteData(strategy)) {
-            logMissings(item, exportInterval, readings, itemDescription);
+            logMissings(item, currentExportInterval, readings, itemDescription);
         }
 
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
-            MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, exportInterval);
+            MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, currentExportInterval);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarker(exportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
 
@@ -440,8 +446,15 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
+            updateCount++;
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarkerForUpdate()));
         }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, itemDescription);
+            context.commit();
+        }
+
         return Optional.empty();
     }
 
@@ -457,11 +470,11 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             DataExportRunParameters runParameters = ((IDataExportOccurrence) occurrence).getTask().getRunParameters(adhocTime.get()).get();
             baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
             base.add(baseRange);
-            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+            base.remove(currentExportInterval);
         } else {
             baseRange = determineBaseUpdateInterval(occurrence, item);
             base.add(baseRange);
-            base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+            base.remove(currentExportInterval);
         }
         return base.asRanges().stream().findFirst().orElse(baseRange);
     }

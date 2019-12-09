@@ -27,9 +27,7 @@ import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +58,8 @@ public abstract class ComPortImpl implements ComPort {
                     SERVLET_DISCRIMINATOR, ServletBasedInboundComPortImpl.class,
                     UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
                     OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
-    private final DataModel dataModel;
-    protected final Thesaurus thesaurus;
+    private DataModel dataModel;
+    protected Thesaurus thesaurus;
 
     enum FieldNames {
         NAME("name");
@@ -92,6 +90,12 @@ public abstract class ComPortImpl implements ComPort {
     private Instant obsoleteDate;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private ComPortType type;
+    protected boolean inbound;
+    protected boolean obsolete;
+
+    public ComPortImpl() {
+        super();
+    }
 
     @Inject
     protected ComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
@@ -125,7 +129,7 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     @Override
-    public Instant getModificationDate() {
+    public Instant getModTime() {
         return this.modTime;
     }
 
@@ -148,18 +152,32 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     @Override
+    @XmlAttribute
     public boolean isInbound() {
         return false;
     }
 
     @Override
+    public int getNumberOfSimultaneousConnections() {
+        return 0;
+    }
+
+    @Override
+    public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
+
+    }
+
+    @Override
+    @XmlTransient
     public ComServer getComServer() {
         return comServer.get();
     }
 
     @Override
+    @XmlElement
     public boolean isObsolete() {
-        return this.obsoleteDate!=null;
+        obsolete = (this.obsoleteDate != null);
+        return obsolete;
     }
 
     @Override
@@ -169,12 +187,12 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     @Override
-    @XmlElement
+    @XmlElement(name = "comPortType")
     public ComPortType getComPortType() {
         return type;
     }
 
-    void setComServer(ComServer comServer) {
+    public void setComServer(ComServer comServer) {
         this.comServer.set(comServer);
     }
 

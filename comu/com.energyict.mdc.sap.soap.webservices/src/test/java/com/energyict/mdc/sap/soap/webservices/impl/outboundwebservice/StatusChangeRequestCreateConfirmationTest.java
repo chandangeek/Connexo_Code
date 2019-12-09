@@ -4,87 +4,82 @@
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 
-import org.junit.Assert;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundWebserviceTest {
-
-    @Mock
-    private SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port;
-    @Mock
+public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundWebserviceTest<SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut> {
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts connectionStatus;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg confirmationMessage;
     @Mock
     private StatusChangeRequestCreateConfirmationMessage outboundMessage;
 
+
     private StatusChangeRequestCreateConfirmationProvider provider;
+    private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> deviceConnectionStatuses;
+
 
     @Before
     public void setUp() {
-        provider = spy(new StatusChangeRequestCreateConfirmationProvider());
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
-        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
-        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
-        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        deviceConnectionStatuses = Collections.singletonList(connectionStatus);
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
         when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
-        when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+        when(confirmationMessage.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()).thenReturn(deviceConnectionStatuses);
+        when(connectionStatus.getUtilitiesDeviceID().getValue()).thenReturn("UtilDeviceID");
+
+        provider = getProviderInstance(StatusChangeRequestCreateConfirmationProvider.class);
     }
 
     @Test
     public void testCall() {
-        when(provider.using(anyString())).thenReturn(requestSender);
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(WebServiceActivator.URL_PROPERTY, getURL());
-        properties.put("epcId", 1l);
-
-        provider.addSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(port, properties);
         provider.call(outboundMessage);
 
-        verify(provider).using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut");
-        verify(requestSender).send(confirmationMessage);
+        SetMultimap<String,String> values = ImmutableSetMultimap.of(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), "UtilDeviceID");
+
+        verify(endpoint).smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut(confirmationMessage);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
     public void testCallWithoutPort() {
-        inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
-        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
-        expectedException.expect(LocalizedException.class);
-        expectedException.expectMessage("No web service endpoints are available to send the request using 'SapStatusChangeRequestCreateConfirmation'.");
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(Collections.emptyList());
 
-        provider.call(outboundMessage);
+        assertThatThrownBy(() -> provider.call(outboundMessage))
+                .isInstanceOf(LocalizedException.class)
+                .hasMessage("No web service endpoints are available to send the request using 'SAP ConnectionStatusChangeСonfirmation'.");
     }
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut.class);
+        assertThat(provider.getService()).isSameAs(SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService.class);
+        assertThat(provider.get()).isInstanceOf(SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService.class);
     }
 }

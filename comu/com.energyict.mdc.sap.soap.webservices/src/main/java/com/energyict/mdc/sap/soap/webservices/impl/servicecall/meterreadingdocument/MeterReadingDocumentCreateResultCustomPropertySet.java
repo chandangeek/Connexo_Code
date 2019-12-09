@@ -44,6 +44,7 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
         immediate = true)
 public class MeterReadingDocumentCreateResultCustomPropertySet implements CustomPropertySet<ServiceCall, MeterReadingDocumentCreateResultDomainExtension> {
     public static final String CUSTOM_PROPERTY_SET_NAME = "MeterReadingDocumentCreateResultCustomPropertySet";
+    public static final String MODEL_NAME = "MR4";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -192,6 +193,16 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.NEXT_READING_ATTEMPT_DATE.javaName(), TranslationKeys.NEXT_READING_ATTEMPT_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .longSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_ATTEMPT.javaName(), TranslationKeys.READING_ATTEMPT)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.ACTUAL_READING_DATE.javaName(), TranslationKeys.ACTUAL_READING_DATE)
                         .describedAs(TranslationKeys.ACTUAL_READING_DATE)
                         .fromThesaurus(thesaurus)
@@ -201,8 +212,19 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING.javaName(), TranslationKeys.READING)
                         .describedAs(TranslationKeys.READING)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
+                        .describedAs(TranslationKeys.CANCELLED_BY_SAP_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .longSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName(), TranslationKeys.COM_TASK_EXECUTION_ID)
+                        .fromThesaurus(thesaurus)
                         .finish()
-        );
+                );
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterReadingDocumentCreateResultDomainExtension> {
@@ -211,7 +233,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
 
         @Override
         public String componentName() {
-            return "MR4";
+            return MODEL_NAME;
         }
 
         @Override
@@ -266,6 +288,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .varChar(80)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
+                    .installValue("''")
                     .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DEVICE_NAME.databaseName())
@@ -282,6 +305,18 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.PROCESSING_DATE.javaName())
                     .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.NEXT_READING_ATTEMPT_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.NEXT_READING_ATTEMPT_DATE.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_ATTEMPT.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_ATTEMPT.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
             /*table.column("lrn")
                     .number()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.LRN.javaName())
@@ -292,6 +327,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .varChar(80)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.LRN.javaName())
                     .notNull()
+                    .installValue("''")
                     .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_REASON_CODE.databaseName())
@@ -319,6 +355,17 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING.databaseName())
                     .number()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING.javaName())
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CANCELLED_BY_SAP.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONGWRAPPER)
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
         }
 

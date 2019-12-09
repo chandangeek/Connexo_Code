@@ -33,12 +33,13 @@ import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
@@ -222,7 +223,7 @@ public class SecurityPropertySetImplCrudIT {
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new DataVaultModule(),
                     new MdcReadingTypeUtilServiceModule(),
                     new MasterDataModule(),
@@ -291,7 +292,8 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(DataVaultService.class),
                     UpgradeModule.FakeUpgradeService.getInstance(),
                     injector.getInstance(DeviceMessageSpecificationService.class),
-                    securityManagementService);
+                    securityManagementService,
+                    injector.getInstance(MeteringTranslationService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();

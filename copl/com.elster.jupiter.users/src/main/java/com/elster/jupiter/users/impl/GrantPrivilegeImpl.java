@@ -9,6 +9,7 @@ import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.privileges.AbstractPrivilege;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ final class GrantPrivilegeImpl extends AbstractPrivilege implements GrantPrivile
 	}
 
     @Override
-    GrantPrivilegeImpl init(String name, Resource resource, PrivilegeCategory privilegeCategory) {
+    protected GrantPrivilegeImpl init(String name, Resource resource, PrivilegeCategory privilegeCategory) {
         super.init(name, resource, privilegeCategory);
         return this;
     }

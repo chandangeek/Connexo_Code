@@ -13,7 +13,6 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import com.google.common.collect.Range;
@@ -33,7 +32,7 @@ class LoggingItemExporter implements ItemExporter {
     private final TransactionService transactionService;
     private final DateTimeFormatter timeFormatter;
 
-    public LoggingItemExporter(Thesaurus thesaurus,
+    LoggingItemExporter(Thesaurus thesaurus,
                                TransactionService transactionService,
                                Logger logger,
                                ItemExporter decorated,
@@ -50,19 +49,19 @@ class LoggingItemExporter implements ItemExporter {
         ReadingTypeDataExportItem item = meterReadingData.getItem();
         String itemDescription = item.getDescription();
         try {
-            Range<Instant> range = ((IExportTask) occurrence.getTask()).getReadingDataSelectorConfig().get().getStrategy().adjustedExportPeriod(occurrence, item);
+            Range<Instant> range = occurrence.getTask().getReadingDataSelectorConfig().get().getStrategy().adjustedExportPeriod(occurrence, item);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
             String toDate = range.hasUpperBound() ? timeFormatter.format(range.upperEndpoint()) : "";
 
             List<FormattedExportData> data = decorated.exportItem(occurrence, meterReadingData);
 
-            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, itemDescription, fromDate, toDate)));
+            transactionService.run(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, itemDescription, fromDate, toDate));
             return data;
         } catch (DataExportException e) {
-            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FAILED.log(logger, thesaurus, e.getCause(), itemDescription)));
+            transactionService.run(() -> MessageSeeds.ITEM_FAILED.log(logger, thesaurus, e.getCause(), itemDescription));
             throw e;
         } catch (FatalDataExportException e) {
-            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, e.getCause(), itemDescription)));
+            transactionService.run(() -> MessageSeeds.ITEM_FATALLY_FAILED.log(logger, thesaurus, e.getCause(), itemDescription));
             throw e;
         }
     }

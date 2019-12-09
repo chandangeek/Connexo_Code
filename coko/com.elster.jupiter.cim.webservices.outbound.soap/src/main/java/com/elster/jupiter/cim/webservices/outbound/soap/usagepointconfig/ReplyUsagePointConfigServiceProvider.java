@@ -6,6 +6,7 @@ package com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -23,6 +24,8 @@ import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -118,8 +121,20 @@ public class ReplyUsagePointConfigServiceProvider
             default:
                 throw new UnsupportedOperationException(operation + " isn't supported.");
         }
+
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        successList.forEach(up->{
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), up.getMRID());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), up.getName());
+        });
+        failureList.forEach(upFail->{
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), upFail.getUsagePointMrid());
+            values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), upFail.getUsagePointName());
+        });
         using(method)
                 .toEndpoints(endPointConfiguration)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 

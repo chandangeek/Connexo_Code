@@ -47,6 +47,7 @@ Ext.define('Iws.controller.Main', {
             webservice = null,
             items = [];
 
+        if ( Isu.privileges.Issue.canViewIssue() ){
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace','IWS','Workspace'),
                 glyph: 'workspace',
@@ -75,8 +76,9 @@ Ext.define('Iws.controller.Main', {
                 items:  items
             });
 
-        if (webserviceIssue !== null) {
-            Uni.store.PortalItems.add(webserviceIssue);
+            if (webserviceIssue !== null) {
+                Uni.store.PortalItems.add(webserviceIssue);
+            }
         }
     }
 });

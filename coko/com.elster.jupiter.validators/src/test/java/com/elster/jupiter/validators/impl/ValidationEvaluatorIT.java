@@ -40,7 +40,7 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -168,7 +168,7 @@ public class ValidationEvaluatorIT {
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new UtilModule(),
                     new ThreadSecurityModule(),
                     new PubSubModule(),
@@ -305,14 +305,14 @@ public class ValidationEvaluatorIT {
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT, VALID));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED));
         validationStates = evaluator.getValidationStatus(Collections.emptySet(),
                 channel, channel.getReadings(Range.greaterThan(ACTIVATION_DATE)));
         assertThat(validationStates).hasSize(4);
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, VALID, SUSPECT));
         assertThat(evaluator.getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM),
                 channel, channel.getReadings(Range.greaterThan(ACTIVATION_DATE))).stream()
                 .map(DataValidationStatus::getValidationResult)
@@ -335,7 +335,7 @@ public class ValidationEvaluatorIT {
         validationResults = validationStates.stream()
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, VALID));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED));
         validationStates = evaluator.getValidationStatus(Collections.emptySet(),
                 channel, channel.getReadings(Range.greaterThan(ACTIVATION_DATE)));
         assertThat(validationStates).hasSize(4);

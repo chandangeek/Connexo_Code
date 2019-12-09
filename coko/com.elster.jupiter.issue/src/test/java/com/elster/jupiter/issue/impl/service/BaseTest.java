@@ -50,7 +50,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -175,7 +175,7 @@ public abstract class BaseTest {
                 new EventsModule(),
                 new DomainUtilModule(),
                 new ThreadSecurityModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new UtilModule(),
                 new PubSubModule(),
                 new TransactionModule(),

@@ -6,11 +6,19 @@ package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public class IntervalBlockImpl implements IntervalBlock {
 
     private final String readingTypeCode;
@@ -42,5 +50,14 @@ public class IntervalBlockImpl implements IntervalBlock {
 
     public void addAllIntervalReadings(List<IntervalReading> intervalReadings){
         this.intervals.addAll(intervalReadings);
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

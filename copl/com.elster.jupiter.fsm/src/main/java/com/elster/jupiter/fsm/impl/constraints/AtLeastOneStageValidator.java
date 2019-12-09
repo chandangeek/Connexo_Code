@@ -4,9 +4,7 @@
 
 package com.elster.jupiter.fsm.impl.constraints;
 
-import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StageSet;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineImpl;
 import com.elster.jupiter.fsm.impl.StageSetImpl;
 
 import javax.validation.ConstraintValidator;

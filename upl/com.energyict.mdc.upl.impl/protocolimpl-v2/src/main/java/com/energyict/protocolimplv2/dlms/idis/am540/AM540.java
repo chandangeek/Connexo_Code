@@ -58,7 +58,7 @@ import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFacto
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.FIFOStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 

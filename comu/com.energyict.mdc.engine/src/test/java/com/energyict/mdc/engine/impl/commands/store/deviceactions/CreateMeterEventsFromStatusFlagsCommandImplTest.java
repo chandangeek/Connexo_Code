@@ -18,7 +18,6 @@ import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -33,6 +32,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -268,7 +268,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
         command.execute(deviceProtocol, executionContext);
         String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
-        assertEquals("Create meter events from load profile reading qualities {No events created from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+        assertEquals("Create meter events from load profile reading qualities {No events created from profile deviceIdentifier = null and ObisCode = 0.0.99.98.0.255}", journalMessage);
     }
 
     @Test
@@ -285,7 +285,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         initializeDeviceLoadProfileWith(ProtocolReadingQualities.DEVICE_ERROR);
         command.execute(deviceProtocol, executionContext);
         String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
-        assertEquals("Create meter events from load profile reading qualities {Created 1 event(s) from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+        assertEquals("Create meter events from load profile reading qualities {Created 1 event(s) from profile deviceIdentifier = null and ObisCode = 0.0.99.98.0.255}", journalMessage);
     }
 
     @Test

@@ -223,7 +223,7 @@ public class WaveFlow100mWMessages implements MessageProtocol {
        return value.getValue();
     }
 
-	public void applyMessages(List messageEntries) throws IOException {
+	public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
 	}
 
 	/**

@@ -4,6 +4,7 @@
 package com.energyict.mdc.common.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 
 import java.util.Optional;
 import java.util.stream.Stream;

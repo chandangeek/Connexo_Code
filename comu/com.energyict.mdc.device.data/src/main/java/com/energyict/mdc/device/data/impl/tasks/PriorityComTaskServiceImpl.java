@@ -342,11 +342,12 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
 
         @Override
         public List<HighPriorityComJob> consume(ResultSet resultSet) throws SQLException {
+            int totalRemainingJobs = totalRemainingJobs();
             while (continueFetching(resultSet)) {
                 add(resultSet);
             }
 
-            if (!jobs.isEmpty() && totalRemainingJobs() == 0) {
+            if (!jobs.isEmpty() && totalRemainingJobs == 0) {
                 throw new NoMoreHighPriorityTasksCanBePickedUpRuntimeException();
             }
 

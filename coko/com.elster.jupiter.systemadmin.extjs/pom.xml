@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>2.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -54,13 +54,13 @@
                 <version>1.8</version>
                 <executions>
                     <execution>
-                        <id>set-cxo-version-i18n</id>
-                        <phase>prepare-package</phase>
+                        <id>set-cxo-version</id>
+                        <phase>process-sources</phase>
                         <configuration>
                             <tasks>
-                                <replace token= "general.connexoVersion=Connexo version" value="general.connexoVersion=Connexo version ${commercial.version}"
-                                         dir="src/main/resources">
-                                    <include name="i18n.properties"/>
+                                <replace token= "{connexo.version}" value="${commercial.version}"
+                                         dir="src/main/web/js/systemadmin/src/view/about">
+                                    <include name="About.js"/>
                                 </replace>
                             </tasks>
                         </configuration>
@@ -69,13 +69,13 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>reset-cxo-version-i18n</id>
-                        <phase>install</phase>
+                        <id>reset-cxo-version</id>
+                        <phase>compile</phase>
                         <configuration>
                             <tasks>
-                                <replace token="general.connexoVersion=Connexo version ${commercial.version}" value= "general.connexoVersion=Connexo version"
-                                         dir="src/main/resources">
-                                    <include name="i18n.properties"/>
+                                <replace token="${commercial.version}" value= "{connexo.version}"
+                                         dir="src/main/web/js/systemadmin/src/view/about">
+                                    <include name="About.js"/>
                                 </replace>
                             </tasks>
                         </configuration>

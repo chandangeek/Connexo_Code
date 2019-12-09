@@ -148,6 +148,9 @@ public class MdcAppInstaller {
                     //Business processes
                     com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
 
+                    //Mobile Comserver
+                    com.energyict.mdc.engine.security.Privileges.Constants.OPERATE_MOBILE_COMSERVER,
+
                     //Communication
                     com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
                     com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_STATUS_COMMUNICATION_INFRASTRUCTURE,
@@ -265,7 +268,12 @@ public class MdcAppInstaller {
                     com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS,
 
                     //Time of use campaigns
-                    com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS
+                    com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS,
+
+                    //WebServices
+                    com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                    com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
+
             };
         }
     }

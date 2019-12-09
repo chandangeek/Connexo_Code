@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.esmr50.sagemcom;
 
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.*;
@@ -11,7 +12,9 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 
 import java.io.IOException;
 import java.util.Date;
@@ -20,8 +23,22 @@ import java.util.logging.Level;
 public class T210 extends ESMR50Protocol implements SerialNumberSupport {
 
 
-    public T210(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+    public T210(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService,
+                NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
+                TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor,
+                LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor,
+                DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor,
+                deviceMasterDataExtractor);
+    }
+
+    @Override
+    public DeviceRegisterSupport getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new ESMR50RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return registerFactory;
     }
 
     @Override
@@ -36,7 +53,7 @@ public class T210 extends ESMR50Protocol implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "Enexis first protocol integration version 20.12.2018";
+        return "$Date: 2019-09-26 12:00:00 +0300 (Thu, 16 Sep 2019)$";
     }
 
     @Override

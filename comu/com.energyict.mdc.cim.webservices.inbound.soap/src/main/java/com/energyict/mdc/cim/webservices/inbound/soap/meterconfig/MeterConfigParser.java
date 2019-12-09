@@ -63,7 +63,7 @@ public class MeterConfigParser {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    public MeterInfo asMeterInfo(Meter meter) throws FaultMessage {
+    public MeterInfo asMeterInfo(Meter meter) {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
@@ -78,12 +78,13 @@ public class MeterConfigParser {
         switch (operationEnum) {
             case CREATE:
                 meterInfo.setDeviceName(extractDeviceNameForCreate(meter));
-                meterInfo.setShipmentDate(extractShipmentDate(meter));
                 meterInfo.setDeviceType(extractDeviceTypeName(meter));
                 meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
+                meterInfo.setShipmentDate(extractShipmentDate(meter));
                 break;
             case UPDATE:
                 meterInfo.setDeviceName(extractDeviceNameForUpdate(meter));
+                meterInfo.setShipmentDate(extractOptionalShipmentDate(meter));
                 meterInfo.setmRID(extractMrid(meter).orElse(null));
                 meterInfo.setConfigurationEventReason(extractConfigurationReason(meter).orElse(null));
                 meterInfo.setStatusValue(extractStatusValue(meter).orElse(null));
@@ -305,6 +306,12 @@ public class MeterConfigParser {
                 .map(LifecycleDate::getReceivedDate)
                 .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(getMeterName(meter),
                         MessageSeeds.MISSING_ELEMENT, "MeterConfig.Meter.lifecycle.receivedDate"));
+    }
+
+    public Instant extractOptionalShipmentDate(Meter meter) {
+        return Optional.ofNullable(meter.getLifecycle())
+                .map(LifecycleDate::getReceivedDate)
+                .orElse(null);
     }
 
     public Optional<String> extractBatch(Meter meter) {

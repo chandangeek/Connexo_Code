@@ -156,7 +156,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 multiSelect: true,
             },
             {
-                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
                 type: 'combobox',
                 itemId: 'issue-usagePoints-filter',
                 dataIndex: 'usagePoint',

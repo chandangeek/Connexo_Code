@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.rest.impl.campaign;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -35,6 +36,7 @@ import com.energyict.mdc.firmware.rest.impl.IdWithLocalizedValue;
 import com.energyict.mdc.firmware.rest.impl.ManagementOptionInfo;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
+import com.energyict.mdc.firmware.rest.impl.TranslationKeys;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -102,18 +104,29 @@ public class FirmwareCampaignInfoFactory {
         info.timeBoundaryStart = campaign.getUploadPeriodStart();
         info.timeBoundaryEnd = campaign.getUploadPeriodEnd();
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
-        info.validationTimeout = new TimeDurationInfo(campaign.getValidationTimeout());
+        info.validationTimeout = new TimeDurationInfo(campaign.getValidationTimeout(), thesaurus);
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
-        info.calendarUploadComTask = new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getFirmwareUploadComTaskId()).getName());
+        info.calendarUploadComTask = campaign.getFirmwareUploadComTaskId() == 0 ? null : new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getFirmwareUploadComTaskId()).getName());
         info.calendarUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy().isPresent()?new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy().get(), thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().get().name(), campaign.getFirmwareUploadConnectionStrategy().get().name())):null;
-        info.validationComTask = new IdWithNameInfo(campaign.getValidationComTaskId(),firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
+        info.validationComTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(campaign.getValidationComTaskId(),firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
         info.validationConnectionStrategy = campaign.getValidationConnectionStrategy().isPresent()?new IdWithNameInfo(campaign.getValidationConnectionStrategy().get(),thesaurus.getString(campaign.getValidationConnectionStrategy().get().name(), campaign.getValidationConnectionStrategy().get().name())):null;
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
+            info.properties.forEach(pr->{
+                if(pr.name.equals(TranslationKeys.FIRMWARE_RESUME.getDefaultFormat())){
+                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_RESUME.getKey(),pr.name);
+                } else if(pr.name.equals(TranslationKeys.FIRMWARE_FILE.getDefaultFormat())){
+                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_FILE.getKey(),pr.name);
+                } else if(pr.name.equals(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getDefaultFormat())){
+                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_IMAGE_IDENTIFIER.getKey(),pr.name);
+                } else if(pr.name.equals(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getDefaultFormat())){
+                    pr.name = thesaurus.getString(TranslationKeys.FIRMWARE_ACTIVATION_DATE.getKey(),pr.name);
+                }
+            });
         }
         Optional<FirmwareCampaignManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignCheckManagementOptions(campaign);
         info.checkOptions = new EnumMap<>(FirmwareCheckManagementOption.class);
@@ -143,6 +156,7 @@ public class FirmwareCampaignInfoFactory {
                         .findAny()
                         .ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
         info.serviceCall = new IdWithNameInfo(campaignsServiceCall.getId(), campaignsServiceCall.getNumber());
+        info.manuallyCancelled = campaign.isManuallyCancelled();
         return info;
     }
 
@@ -163,8 +177,8 @@ public class FirmwareCampaignInfoFactory {
                 .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
                 .withManagementOption(managementOptions)
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
-                .withFirmwareUploadComTaskId(((Number)info.calendarUploadComTask.id).longValue())
-                .withValidationComTaskId(((Number)info.validationComTask.id).longValue())
+                .withFirmwareUploadComTaskId(info.calendarUploadComTask == null? null :((Number)info.calendarUploadComTask.id).longValue())
+                .withValidationComTaskId(info.validationComTask == null? null :((Number)info.validationComTask.id).longValue())
                 .withFirmwareUploadConnectionStrategy(info.calendarUploadConnectionStrategy==null?null:info.calendarUploadConnectionStrategy.name)
                 .withValidationConnectionStrategy(info.validationConnectionStrategy==null?null:info.validationConnectionStrategy.name)
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());

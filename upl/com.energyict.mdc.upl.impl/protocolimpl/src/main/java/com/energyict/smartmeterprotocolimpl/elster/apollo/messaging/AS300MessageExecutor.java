@@ -11,7 +11,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.ActivePassive;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
@@ -291,8 +291,8 @@ public class AS300MessageExecutor extends MessageParser {
         if (activationDate != null) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            standingCharge.writeActivationDate(new DateTime(cal));
-            tariffLabel.writeActivationDate(new DateTime(cal));
+            standingCharge.writeActivationDate(new DateTimeOctetString(cal));
+            tariffLabel.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             standingCharge.activate();
             tariffLabel.activate();
@@ -353,8 +353,8 @@ public class AS300MessageExecutor extends MessageParser {
         if (activationDate != null) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(activationDate);
-            priceInformation.writeActivationDate(new DateTime(cal));
-            tariffLabel.writeActivationDate(new DateTime(cal));
+            priceInformation.writeActivationDate(new DateTimeOctetString(cal));
+            tariffLabel.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             priceInformation.activate();
             tariffLabel.activate();
@@ -432,14 +432,14 @@ public class AS300MessageExecutor extends MessageParser {
                     cal.setTime(date);
 
                     log(Level.FINEST, "Writing new Supplier ActivationDates");
-                    changeOfSupplier.writePassiveValue(new DateTime(cal));
-                    changeOfSupplier.writeActivationDate(new DateTime(cal));
-                    getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTime(cal));
-                    getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTime(cal));
+                    changeOfSupplier.writePassiveValue(new DateTimeOctetString(cal));
+                    changeOfSupplier.writeActivationDate(new DateTimeOctetString(cal));
+                    getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).writeActivationDate(new DateTimeOctetString(cal));
+                    getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).writeActivationDate(new DateTimeOctetString(cal));
                 } else {
                     log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
                     cal.setTime(new Date());
-                    changeOfSupplier.writePassiveValue(new DateTime(cal));
+                    changeOfSupplier.writePassiveValue(new DateTimeOctetString(cal));
                     changeOfSupplier.activate();
                     getCosemObjectFactory().getSupplierName(ChangeOfSupplierNameObisCode).activate();
                     getCosemObjectFactory().getSupplierId(ChangeOfSupplierIdObisCode).activate();
@@ -463,12 +463,12 @@ public class AS300MessageExecutor extends MessageParser {
                 cal.setTime(date);
 
                 log(Level.FINEST, "Writing new Tenant ActivationDates");
-                changeOfTenant.writePassiveValue(new DateTime(cal));
-                changeOfTenant.writeActivationDate(new DateTime(cal));
+                changeOfTenant.writePassiveValue(new DateTimeOctetString(cal));
+                changeOfTenant.writeActivationDate(new DateTimeOctetString(cal));
             } else {
                 log(Level.FINEST, "No activation date specified, the changes will be activated immediately.");
                 cal.setTime(new Date());
-                changeOfTenant.writePassiveValue(new DateTime(cal));
+                changeOfTenant.writePassiveValue(new DateTimeOctetString(cal));
                 changeOfTenant.activate();
             }
         } catch (ParseException e) {
@@ -551,7 +551,7 @@ public class AS300MessageExecutor extends MessageParser {
         if (date != null) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());
             cal.setTime(date);
-            meterMessageControl.writeActivationDate(new DateTime(cal));
+            meterMessageControl.writeActivationDate(new DateTimeOctetString(cal));
         } else {
             meterMessageControl.activate();
         }

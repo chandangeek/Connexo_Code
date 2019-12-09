@@ -23,8 +23,8 @@ import com.elster.jupiter.search.users.properties.RoleSearchableProperty;
 import com.elster.jupiter.search.users.properties.StatusSearchableProperty;
 import com.elster.jupiter.search.users.properties.UserDirectorySearchableProperty;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.UserInGroup;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -38,7 +38,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,7 +89,7 @@ public class UserSearchDomain implements SearchDomain {
 
     @Override
     public List<String> targetApplications() {
-        return Arrays.asList("COKO", "COIN");
+        return Collections.singletonList("COKO");
     }
 
     @Override
@@ -172,7 +172,7 @@ public class UserSearchDomain implements SearchDomain {
         private UserFinder(Condition condition) {
             this.finder = DefaultFinder
                     .of(User.class, condition, userService.getDataModel(), UserInGroup.class)
-                    .defaultSortColumn("username");
+                    .defaultSortColumn("authname");
         }
 
         @Override

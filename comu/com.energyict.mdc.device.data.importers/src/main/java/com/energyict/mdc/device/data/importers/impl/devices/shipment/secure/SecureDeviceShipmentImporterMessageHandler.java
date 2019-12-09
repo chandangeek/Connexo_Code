@@ -8,11 +8,14 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-
 import com.energyict.mdc.device.data.importers.ImporterExtension;
 
 import com.google.common.collect.ImmutableMap;
@@ -24,23 +27,26 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
-
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureDeviceShipmentImporterMessageHandler",
-        service = MessageHandlerFactory.class,
+        service = {MessageHandlerFactory.class, TranslationKeyProvider.class},
         property = {
                 "name=" + SecureDeviceShipmentImporterMessageHandler.COMPONENT_NAME,
                 "subscriber=" + SecureDeviceShipmentImporterMessageHandler.SUBSCRIBER_NAME,
-                "destination=" + SecureDeviceShipmentImporterMessageHandler.DESTINATION_NAME },
+                "destination=" + SecureDeviceShipmentImporterMessageHandler.DESTINATION_NAME},
         immediate = true)
-public class SecureDeviceShipmentImporterMessageHandler implements MessageHandlerFactory {
+public class SecureDeviceShipmentImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider {
 
     static final String DESTINATION_NAME = "SecureShipmentImport";
-    public static final String SUBSCRIBER_NAME = "SecureShipmentImport";
+    static final String SUBSCRIBER_NAME = "SecureShipmentImport";
     static final String COMPONENT_NAME = "SSI";
+    static final SimpleTranslationKey SECURE_SHIPMENT_IMPORT_SUBSCRIBER =
+            new SimpleTranslationKey(SUBSCRIBER_NAME, "Handle secure shipment import");
 
     private volatile FileImportService fileImportService;
     private volatile UpgradeService upgradeService;
@@ -118,4 +124,18 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
         return fileImportService.createMessageHandler();
     }
 
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Collections.singletonList(SECURE_SHIPMENT_IMPORT_SUBSCRIBER);
+    }
 }

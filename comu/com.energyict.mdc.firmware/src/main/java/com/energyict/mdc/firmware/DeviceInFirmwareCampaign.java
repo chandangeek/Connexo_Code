@@ -7,6 +7,7 @@ package com.energyict.mdc.firmware;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -22,7 +23,7 @@ public interface DeviceInFirmwareCampaign {
 
     ServiceCall getServiceCall();
 
-    ServiceCall cancel();
+    ServiceCall cancel(boolean initFromCampaign);
 
     ServiceCall retry();
 
@@ -33,6 +34,12 @@ public interface DeviceInFirmwareCampaign {
     Instant getFinishedOn();
 
     long getId();
+
+    boolean doesDeviceAlreadyHaveTheSameVersion();
+
+    Optional<ComTaskExecution> findOrCreateFirmwareComTaskExecution();
+
+    Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution();
 
     void delete();
 }

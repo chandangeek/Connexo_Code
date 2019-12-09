@@ -3,6 +3,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -11,9 +12,10 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -34,6 +36,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -91,9 +94,6 @@ public class DeviceBuilderTest {
 	private MeterConfigFaultMessageFactory faultMessageFactory;
 
 	@Mock
-	private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-
-	@Mock
 	private DeviceType deviceType;
 
 	@Mock
@@ -127,7 +127,13 @@ public class DeviceBuilderTest {
 	private AuthorizedTransitionAction authorizedTransitionAction;
 
 	@Mock
+	private MeteringTranslationService meteringTranslationService;
+
+	@Mock
 	private StateTransition stateTransition;
+
+	@Mock
+	private CIMLifecycleDates lifecycleDates;
 
 	private MeterInfo meterInfo;
 
@@ -137,7 +143,7 @@ public class DeviceBuilderTest {
 	public void setUp() {
 		testable = new DeviceBuilder(batchService, Clock.fixed(NOW, Clock.systemDefaultZone().getZone()),
 				deviceLifeCycleService, deviceConfigurationService, deviceService, faultMessageFactory,
-				deviceLifeCycleConfigurationService);
+				meteringTranslationService);
 		meterInfo = new MeterInfo();
 		meterInfo.setDeviceType(DEVICE_TYPE);
 		meterInfo.setDeviceConfigurationName(DEVICE_CONFIG_NAME);
@@ -169,7 +175,7 @@ public class DeviceBuilderTest {
 		when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
 		SecurityInfo securityInfo = new SecurityInfo();
 		securityInfo.setDeviceStatusesElementPresent(true);
-		securityInfo.setDeviceStatuses(Arrays.asList(STATUS_VALUE));
+		securityInfo.setDeviceStatuses(Arrays.asList(STATUS_VALUE, DefaultState.IN_STOCK.getKey()));
 		SecurityKeyInfo securityKeyInfo = new SecurityKeyInfo();
 		securityKeyInfo.setPublicKeyLabel(PUBLIC_KEY_LABEL);
 		securityKeyInfo.setSymmetricKey(SYMMETRIC_KEY.getBytes());
@@ -185,6 +191,7 @@ public class DeviceBuilderTest {
 		when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 		when(batchService.findOrCreateBatch(BATCH)).thenReturn(batch);
 		when(device.getDeviceType()).thenReturn(deviceType);
+		when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 		when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(Arrays.asList(executableAction));
 		when(executableAction.getAction()).thenReturn(authorizedTransitionAction);
 		when(authorizedTransitionAction.getStateTransition()).thenReturn(stateTransition);
@@ -253,6 +260,7 @@ public class DeviceBuilderTest {
 
 	@Test
 	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_Success_NonDefaultState() throws FaultMessage {
+		meterInfo.setShipmentDate(null);
 		testable.prepareChangeFrom(meterInfo).build();
 		verify(device).setName(DEVICE_NAME);
 		verify(device).setSerialNumber(DEVICE_SERIAL_NUMBER);
@@ -268,7 +276,7 @@ public class DeviceBuilderTest {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatuses(Arrays.asList(DefaultState.IN_STOCK.getDefaultFormat()));
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		testable.prepareChangeFrom(meterInfo).build();
 	}
@@ -293,7 +301,7 @@ public class DeviceBuilderTest {
 			throws FaultMessage {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatuses(Arrays.asList(STATUS_VALUE));
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getName()).thenReturn(DEVICE_NAME);
@@ -311,7 +319,7 @@ public class DeviceBuilderTest {
 	public void testPrepareChangeFrom_ChengeSecurityKeysNotAllowed_Exception_StatusListEmpty() throws FaultMessage {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatuses(new ArrayList<>());
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getName()).thenReturn(DEVICE_NAME);
@@ -331,7 +339,7 @@ public class DeviceBuilderTest {
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getKey());
 		meterInfo.getSecurityInfo().setDeviceStatusesElementPresent(false);
 		meterInfo.getSecurityInfo().setDeviceStatuses(Arrays.asList(STATUS_VALUE));
-		when(deviceLifeCycleConfigurationService.getDisplayName(DefaultState.IN_STOCK))
+		when(meteringTranslationService.getDisplayName(DefaultState.IN_STOCK))
 				.thenReturn(DefaultState.IN_STOCK.getDefaultFormat());
 		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
 		when(device.getName()).thenReturn(DEVICE_NAME);
@@ -354,6 +362,7 @@ public class DeviceBuilderTest {
 	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_Success_StatusChange_findDeviceByName()
 			throws FaultMessage {
 		meterInfo.setmRID(null);
+		meterInfo.setShipmentDate(null);
 		meterInfo.setDeviceConfigurationName(OTHER_DEVICE_CONFIG_NAME);
 		meterInfo.setConfigurationEventReason(CHANGE_STATUS_EVENT_REASON);
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getDefaultFormat());
@@ -411,6 +420,7 @@ public class DeviceBuilderTest {
 			throws FaultMessage {
 		meterInfo.setmRID(null);
 		meterInfo.setDeviceName(null);
+		meterInfo.setShipmentDate(null);
 		meterInfo.getSecurityInfo().setSecurityKeys(new ArrayList<>());
 		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
 		testable.prepareChangeFrom(meterInfo).build();
@@ -420,6 +430,28 @@ public class DeviceBuilderTest {
 		verify(device).setManufacturer(MANUFACTURER);
 		verify(device).save();
 		verify(batch).addDevice(device);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_ShipmentDate() throws FaultMessage {
+		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
+		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+		testable.prepareChangeFrom(meterInfo).build();
+		verify(device.getLifecycleDates()).setReceivedDate(SHIPMENT_DATE);
+		verify(device).save();
+		verify(batch).addDevice(device);
+	}
+
+	@Test
+	@Ignore //remove test as now is possible to change shipment date via ws independent of the device state
+	public void testPrepareChangeFrom_ShipmentDateNotInStock() {
+		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.SHIPMENT_DATE_NOT_IN_STOCK);
 	}
 
 	@Test
@@ -442,6 +474,7 @@ public class DeviceBuilderTest {
 		meterInfo.setmRID(null);
 		meterInfo.setDeviceName(null);
 		meterInfo.getSecurityInfo().setSecurityKeys(new ArrayList<>());
+		meterInfo.setShipmentDate(null);
 		when(deviceFinder.find()).thenReturn(Arrays.asList(otherDevice));
 		when(otherDevice.getId()).thenReturn(OTHER_ID);
 		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));

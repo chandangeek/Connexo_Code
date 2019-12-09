@@ -22,7 +22,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         'Mdc.store.Clipboard',
         'Mdc.store.Commands',
         'Mdc.store.CommandsForRule',
-        'Mdc.store.SelectedCommands'
+        'Mdc.store.SelectedCommands',
+        'Mdc.store.CommandLimitationRules'
     ],
 
     refs: [

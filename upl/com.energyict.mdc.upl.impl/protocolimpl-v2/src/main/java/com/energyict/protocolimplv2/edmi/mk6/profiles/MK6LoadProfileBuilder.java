@@ -20,7 +20,7 @@ import com.energyict.protocolimpl.edmi.common.command.CommandResponseException;
 import com.energyict.protocolimpl.edmi.common.command.TimeInfo;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.edmi.mk6.MK6;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;

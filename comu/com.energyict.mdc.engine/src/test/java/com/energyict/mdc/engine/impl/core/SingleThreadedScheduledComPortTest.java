@@ -681,7 +681,7 @@ public class SingleThreadedScheduledComPortTest {
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
-        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getName()).thenReturn("SingleThreadedScheduledComPortTest#" + name);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
@@ -699,14 +699,14 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private ComJob toComJob(ComTaskExecution comTask) {
-        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup(((OutboundConnectionTask) comTask.getConnectionTask().get()).getId());
+        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup(((OutboundConnectionTask) comTask.getConnectionTask().get()));
         comTaskExecutionGroup.add(comTask);
         return comTaskExecutionGroup;
     }
 
     private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
         ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask().get();
-        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask.getId());
+        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
         serialComTasks.forEach(group::add);
         return Arrays.asList(group);
     }
@@ -861,6 +861,11 @@ public class SingleThreadedScheduledComPortTest {
         @Override
         public void free(DeviceCommandExecutionToken unusedToken) {
             this.actualExecutor.free(unusedToken);
+        }
+
+        @Override
+        public void freeSilently(DeviceCommandExecutionToken unusedToken) {
+            this.actualExecutor.freeSilently(unusedToken);
         }
 
         @Override

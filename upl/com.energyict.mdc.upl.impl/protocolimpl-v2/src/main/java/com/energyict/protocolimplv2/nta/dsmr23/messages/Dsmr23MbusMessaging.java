@@ -57,6 +57,9 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
         return supplier.get(this.propertySpecService, this.nlsService, this.converter);
     }
 
+    public KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -94,10 +97,9 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
             case DeviceMessageConstants.openKeyAttributeName:
             case DeviceMessageConstants.transferKeyAttributeName:
-                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+                return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
-                return String.valueOf(((Date) messageAttribute).getTime());
             case DeviceMessageConstants.contactorActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             default:

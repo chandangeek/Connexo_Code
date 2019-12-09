@@ -321,18 +321,18 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         itemId: 'firmwareTargetFileStatus',
                         columns: 1,
                         vertical: true,
-                        fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
+                        fieldLabel: Uni.I18n.translate('general.targetManagementOptions', 'FWC', 'Target firmware status'),
                         required: true,
                         items: [
                             {
                                 beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 5px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',
                                 itemId: 'targetFirmwareCheckFinal',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware'),
+                                boxLabel: Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of target firmware'),
                                 inputValue: 'targetFirmwareCheckFinal',
                             },
                             {
                                 itemId: 'targetFirmwareCheckTest',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of target firmware'),
+                                boxLabel: Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of target firmware'),
                                 inputValue: 'targetFirmwareCheckTest',
                             }
                         ]
@@ -349,7 +349,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     },
                     {
                         xtype: 'checkboxgroup',
-                        fieldLabel: Uni.I18n.translate('general.firmwareDependenciesCheck', 'FWC', 'Dependencies check'),
+                        fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
                         required: false,
                         itemId: 'dependenciesCheckTargetOption',
                         columns: 1,
@@ -357,8 +357,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         items: [
                             {
                                 itemId: 'curFirmwareCheck',
-                                boxLabel: ('<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type. ') +
-                                           Uni.I18n.translate('general.upload.fw.currentFirmwareCheckSecSent', 'FWC', 'All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version') + '</b>'),
+                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type') + '</b>',
                                 inputValue: 'curFirmwareCheck'
                             }
                         ]

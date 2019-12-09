@@ -9,13 +9,14 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.TimeZone;
 
 /**
@@ -180,15 +181,15 @@ public class OctetString extends AbstractDataType {
 	 * @return
 	 * @throws IOException
 	 */
-	public DateTime getDateTime(TimeZone tz) {
+	public DateTimeOctetString getDateTime(TimeZone tz) {
 		try {
 			if ((getBEREncodedByteArray() == null) || (getBEREncodedByteArray().length != 14)) {
 				throw new ProtocolException("AXDRDateTime is expecting an OctetString with a data length of 12.");
 			}
 			if (tz == null) {
-				return new DateTime(this);
+				return new DateTimeOctetString(this);
 			} else {
-				return new DateTime(this, tz);
+				return new DateTimeOctetString(this, tz);
 			}
 		} catch (IOException e) {
 			return null;
@@ -232,6 +233,17 @@ public class OctetString extends AbstractDataType {
     public static OctetString fromString(String string, int size, boolean fixed) {
         return new OctetString(string.getBytes(), size, (fixed ? 1 : 0));
     }
+
+	public static OctetString fromString(String string, Charset charSet) {
+		if (string == null) {
+			return OctetString.fromByteArray(new byte[0]);
+		} else if (charSet != null) {
+			byte[] bytes = string.getBytes(charSet);
+			return OctetString.fromByteArray(bytes);
+		} else {
+			return fromString(string);
+		}
+	}
 
     /**
      * Create an OctetString with the content of an IP-address

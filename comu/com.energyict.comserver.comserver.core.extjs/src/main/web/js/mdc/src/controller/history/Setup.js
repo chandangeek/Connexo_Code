@@ -1366,13 +1366,27 @@ Ext.define('Mdc.controller.history.Setup', {
                             title: Uni.I18n.translate('tsk.general.addTask', 'MDC', 'Add task'),
                             route: 'add',
                             privileges: function () {
-                                return Apr.TaskManagementApp.canAdministrate();
+                                return Apr.TaskManagementApp.canAdministrate() && Uni.Auth.hasPrivilege('privilege.edit.AdministerTaskOverview');
                             },
                             haveDependenciesLoaded: function () {
                                 return Apr.TaskManagementApp.dependenciesLoaded();
                             },
                             controller: 'Mdc.controller.setup.TaskManagement',
-                            action: 'showAddTask'
+                            action: 'showAddTask',
+                            items: {
+                                  readingtypes: {
+                                       title: Uni.I18n.translate('general.addReadingTypes','MDC','Add reading types'),
+                                       route: 'readingtypes',
+                                       controller: 'Dxp.controller.Tasks',
+                                       action: 'addReadingTypes'
+                                  },
+                                  destination: {
+                                       title: Uni.I18n.translate('general.addDestination','MDC','Add destination'),
+                                       route: 'destination',
+                                       controller: 'Dxp.controller.Tasks',
+                                       action: 'addDestination'
+                                  }
+                            }
                         },
                         viewTaskManagement: {
                             title: '',
@@ -2263,6 +2277,101 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         }
                     },
+                    offlinecomservers: {
+                        title: Uni.I18n.translate('general.offlineCommunicationServers', 'MDC', 'Mobile communication servers'),
+                        route: 'offlinecomservers',
+                        privileges: Mdc.privileges.Communication.view,
+                        controller: 'Mdc.controller.setup.SetupOverview',
+                        action: 'showOfflineComServers',
+                        items: {
+                            offlineadd: {
+                                title: Uni.I18n.translate('general.addOfflineCommunicationServer', 'MDC', 'Add mobile communication server'),
+                                route: 'add/offline',
+                                privileges: Mdc.privileges.Communication.admin,
+                                controller: 'Mdc.controller.setup.OfflineComServerEdit',
+                                action: 'showOfflineAddView'
+                            },
+                            detail: {
+                                title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                                route: '{id}',
+                                privileges: Mdc.privileges.Communication.view,
+                                controller: 'Mdc.controller.setup.OfflineComServerOverview',
+                                action: 'showOverview',
+                                callback: function (route) {
+                                    this.getApplication().on('comServerOverviewLoad', function (record) {
+                                        route.setTitle(Ext.String.htmlEncode(record.get('name')));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                },
+                                items: {
+                                    edit: {
+                                        title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        route: 'edit',
+                                        privileges: Mdc.privileges.Communication.admin,
+                                        controller: 'Mdc.controller.setup.OfflineComServerEdit',
+                                        action: 'showEditView'
+                                    },
+                                    comports: {
+                                        title: Uni.I18n.translate('general.communicationPorts', 'MDC', 'Communication ports'),
+                                        route: 'comports',
+                                        privileges: Mdc.privileges.Communication.view,
+                                        controller: 'Mdc.controller.setup.ComServerComPortsView',
+                                        action: 'showView',
+                                        items: {
+                                            addInbound: {
+                                                title: Uni.I18n.translate('general.addInboundPort', 'MDC', 'Add inbound communication port'),
+                                                route: 'add/inbound',
+                                                privileges: Mdc.privileges.Communication.admin,
+                                                controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                action: 'showAddInbound'
+                                            },
+                                            addOutbound: {
+                                                title: Uni.I18n.translate('general.addOutboundPort', 'MDC', 'Add outbound communication port'),
+                                                route: 'add/outbound',
+                                                privileges: Mdc.privileges.Communication.admin,
+                                                controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                action: 'showAddOutbound',
+                                                items: {
+                                                    addComPortPool: {
+                                                        title: Uni.I18n.translate('general.addCommunicationPortPool', 'MDC', 'Add communication port pool'),
+                                                        route: 'addPool',
+                                                        privileges: Mdc.privileges.Communication.admin,
+                                                        controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                        action: 'showAddComPortPool'
+                                                    }
+                                                }
+                                            },
+                                            edit: {
+                                                title: Uni.I18n.translate('general.editCommunicationPort', 'MDC', 'Edit communication port'),
+                                                route: '{direction}/{comPortId}/edit',
+                                                privileges: Mdc.privileges.Communication.admin,
+                                                controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                action: 'showEditView',
+                                                callback: function (route) {
+                                                    this.getApplication().on('loadComPortOnComServer', function (name) {
+                                                        route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", name, false));
+                                                        return true;
+                                                    }, {single: true});
+
+                                                    return this;
+                                                },
+                                                items: {
+                                                    addComPortPool: {
+                                                        title: Uni.I18n.translate('general.addCommunicationPortPool', 'MDC', 'Add communication port pool'),
+                                                        route: 'addPool',
+                                                        privileges: Mdc.privileges.Communication.admin,
+                                                        controller: 'Mdc.controller.setup.ComServerComPortsEdit',
+                                                        action: 'showAddComPortPool'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     comservers: {
                         title: Uni.I18n.translate('general.communicationServers', 'MDC', 'Communication servers'),
                         route: 'comservers',
@@ -2826,6 +2935,31 @@ Ext.define('Mdc.controller.history.Setup', {
                                 action: 'showEditSecurityAccessor',
                                 callback: function (route) {
                                     this.getApplication().on('securityaccessorload', function (name) {
+                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
+                                    }, {single: true});
+                                    return this;
+                                }
+                            }
+                        }
+                    },
+                    commsettings: {
+                        title: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
+                        route: 'commsettings',
+                        controller: 'Cfg.properties.controller.ConfigProperties',
+                        action: 'showOverview',
+                        privileges: Mdc.privileges.Communication.view,
+                        scope: 'COMMUNICATION',
+                        items: {
+                            edit: {
+                                title: Uni.I18n.translate('general.communicationSettings.edit', 'MDC', 'Edit'),
+                                scopeTitle: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
+                                route: 'edit',
+                                controller: 'Cfg.properties.controller.ConfigProperties',
+                                privileges: Mdc.privileges.Communication.admin,
+                                action: 'editProperties',
+                                scope: 'COMMUNICATION',
+                                callback: function (route) {
+                                    this.getApplication().on('configPropertiesLoaded', function (name) {
                                         route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
                                     }, {single: true});
                                     return this;

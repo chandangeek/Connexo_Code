@@ -173,7 +173,7 @@ public class ResourceHelper {
     public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(Device device, long campaignId) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
-            deviceInFirmwareCampaign.get().cancel();
+            deviceInFirmwareCampaign.get().cancel(false);
             return Optional.of(deviceInFirmwareCampaignInfoFactory.createInfo(deviceInFirmwareCampaign.get()));
         } else {
             return Optional.empty();
@@ -193,12 +193,12 @@ public class ResourceHelper {
     public List<SecurityAccessor> getCertificatesWithFileOperations() {
         return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
-                .filter(sa -> sa.getActualValue().isPresent() && sa.getActualValue().get() instanceof CertificateWrapper)
+                .filter(sa -> sa.getActualPassphraseWrapperReference().isPresent() && sa.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper)
                 .collect(Collectors.toList());
     }
 
     public Optional<SecurityAccessor> getCertificateWithFileOperations(long id) {
-        return getCertificatesWithFileOperations().stream().filter(sa -> sa.getKeyAccessorType().getId() == id).findAny();
+        return getCertificatesWithFileOperations().stream().filter(sa -> sa.getKeyAccessorTypeReference().getId() == id).findAny();
     }
 
     public void deleteSecurityAccessorForSignatureValidation(long deviceTypeId) {
@@ -226,8 +226,8 @@ public class ResourceHelper {
     }
 
     public void checkFirmwareVersion(DeviceType deviceType, SecurityAccessor securityAccessor, byte[] firmwareFile) {
-        if (securityAccessor.getActualValue().isPresent()
-                && ((CertificateWrapper) securityAccessor.getActualValue().get()).getExpirationTime().filter(e -> e.isBefore(clock.instant())).isPresent()) {
+        if (securityAccessor.getActualPassphraseWrapperReference().isPresent()
+                && ((CertificateWrapper) securityAccessor.getActualPassphraseWrapperReference().get()).getExpirationTime().filter(e -> e.isBefore(clock.instant())).isPresent()) {
             throw new LocalizedFieldValidationException(MessageSeeds.SECURITY_ACCESSOR_EXPIRED, "firmwareFile");
         }
         if (deviceType.getDeviceProtocolPluggableClass().filter(p -> p.getDeviceProtocol().firmwareSignatureCheckSupported()).isPresent()) {

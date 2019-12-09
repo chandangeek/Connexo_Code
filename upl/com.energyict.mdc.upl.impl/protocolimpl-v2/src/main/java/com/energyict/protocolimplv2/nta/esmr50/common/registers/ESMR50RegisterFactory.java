@@ -8,8 +8,8 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.DateTime;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
@@ -31,7 +31,6 @@ import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.*;
 
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -40,7 +39,7 @@ import java.util.logging.Level;
 
 public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     //Firmware
-    protected static final ObisCode ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_METER_CORE;
+    protected static final ObisCode ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.1.0.2.0.255");
     public static final ObisCode ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.2.0.2.0.255");
 
     protected static final ObisCode MODEM_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.2.0.2.8.255");
@@ -183,6 +182,18 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRP = ObisCode.fromString("0.1.25.11.24.255");
     public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN = ObisCode.fromString("0.1.25.11.25.255");
 
+    /** Class 151
+     * LTE Monitoring (Class ID: 151, Version: 1) added 6 registers on top of version: 0
+     */
+    public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412ext2 = ObisCode.fromString("0.1.25.11.26.255");
+    public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3324 = ObisCode.fromString("0.1.25.11.27.255");
+    public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_TeDRX = ObisCode.fromString("0.1.25.11.28.255");
+    public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_TPTW = ObisCode.fromString("0.1.25.11.29.255");
+    public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN_CE_r13 = ObisCode.fromString("0.1.25.11.30.255");
+    public static final ObisCode LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN_CE1_r13 = ObisCode.fromString("0.1.25.11.31.255");
+
+
+
     /**
      * LTE FW Upgrade
      **/
@@ -323,7 +334,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 return new RegisterValue(register, new Quantity(id, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, desc);
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_PS_STATUS)) {
                 int id = abstractDataType.getTypeEnum().intValue();
-                String desc = GSMDiagnosticPSStatus.getDescriptionForId(id);
+                String desc = GSMDiagnosticPSStatusVersion1.getDescriptionForId(id);
                 return new RegisterValue(register, new Quantity(id, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, desc);
             } else if (rObisCode.equalsIgnoreBChannel(GSM_DIAGNOSTIC_CELL_INFO_BASE)) {
                 LTEDiagnosticCellInfo cellInfo = new LTEDiagnosticCellInfo(abstractDataType.getStructure());
@@ -403,49 +414,49 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                     return new RegisterValue(register, abstractDataType.getArray().toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_BASE)){
-                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapper(abstractDataType);
+                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
                     return new RegisterValue(register, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3402)){
-                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapper(abstractDataType);
+                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
                     return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getT3402(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_T3412)){
-                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapper(abstractDataType);
+                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
                     return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getT3412(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             } else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ)){
-                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapper(abstractDataType);
+                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
                     return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrq(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRQ)){
-                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapper(abstractDataType);
+                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
                     return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrq(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_RSRP)){
-                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapper(abstractDataType);
+                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
                     return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getRsrp(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_MONITORING_LTE_QUALITY_OF_SERVICE_Q_RXLEV_MIN)){
-                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapper(abstractDataType);
+                LTEMonitoringWrapper lteMonitoringWrapper = new LTEMonitoringWrapperVersion0(abstractDataType);
                 if (lteMonitoringWrapper.isDecoded()){
                     return new RegisterValue(register, new Quantity(lteMonitoringWrapper.getqRxlevMin(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, lteMonitoringWrapper.toString());
                 } else {
@@ -683,7 +694,6 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
      * Construct a ComposedCosemObject from a list of <CODE>Registers</CODE>.
      * If the {@link com.energyict.protocol.Register} is a DLMS {@link com.energyict.dlms.cosem.Register} or {@link com.energyict.dlms.cosem.ExtendedRegister},
      * and the ObisCode is listed in the ObjectList(see {@link com.energyict.dlms.DLMSMeterConfig#getInstance(String)}, then we define a ComposedRegister and add
-     * it to the {@link #composedRegisterMap}. Otherwise if it is not a DLMS <CODE>Register</CODE> or <CODE>ExtendedRegister</CODE>, but the ObisCode exists in the
      * ObjectList, then we just add it to the {@link #registerMap}. The handling of the <CODE>registerMap</CODE> should be done by the {@link #readRegisters(java.util.List)}
      * method for each <CODE>ObisCode</CODE> in specific.
      *
@@ -965,7 +975,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     @Override
     protected RegisterValue readComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
         if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
-            ScalerUnit su = new ScalerUnit(Unit.get(70)); // dbm = 70;
+            ScalerUnit su = new ScalerUnit(Unit.get(BaseUnit.DECIBELMILLIWAT)); // dbm = 70;
             try {
                 protocol.journal("Handling MBUS Diagnostic: "+register.getObisCode().toString());
                 DLMSAttribute registerCaptureTime = this.getComposedRegisterMap().get(register).getRegisterCaptureTime();
@@ -973,22 +983,18 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
                 if (attribute.isStructure()) {
                     Structure structure = attribute.getStructure();
-                    AbstractDataType attr1 = structure.getNextDataType();
+                    structure.getNextDataType();
                     AbstractDataType captureStructure = structure.getNextDataType();
-                    if(captureStructure instanceof DateTime){
-                        DateTime dateTime = (DateTime) captureStructure;
-                        Date capturedTime = dateTime.getValue().getTime();
-                        String format = "yyyy/MM/dd HH:mm:ss";
-                        SimpleDateFormat sdf = new SimpleDateFormat(format);
-                        sdf.setTimeZone(protocol.getDlmsSession().getTimeZone());
-                        Date deviceTime = new Date(sdf.format(capturedTime));
-                        protocol.journal("  > decoded captured time = " + capturedTime.toString());
+                    if(isValidDateTime(captureStructure)){
+                        Date captureTime = ((DateTime) captureStructure).getCalendar(protocol.getDlmsSession().getTimeZone()).getTime();
+                        protocol.journal(Level.FINEST, "  > decoded captured time = " + captureTime.toString());
                         return new RegisterValue(
                                 register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
-                                        su.getEisUnit()), deviceTime);
-                    } else {
-                        protocol.journal("Structure attribute is not date_time: " + ProtocolTools.getHexStringFromBytes(captureStructure.getBEREncodedByteArray()));
+                                        su.getEisUnit()), captureTime);
+                    }
+                    else {
+                        protocol.journal("decoded capture time is not a valid date");
                         protocol.journal("Creating register without timestamp.");
                         return new RegisterValue(
                                 register,
@@ -1009,5 +1015,9 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
         }
 
         return new RegisterValue(register);
+    }
+
+    private boolean isValidDateTime(AbstractDataType captureStructure) {
+        return captureStructure instanceof DateTime && ((DateTime) captureStructure).isValidDate();
     }
 }

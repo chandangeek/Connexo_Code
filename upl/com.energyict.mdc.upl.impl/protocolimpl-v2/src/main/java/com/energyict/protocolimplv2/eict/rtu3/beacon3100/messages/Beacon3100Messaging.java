@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
@@ -124,11 +126,11 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.Ma
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
@@ -361,6 +363,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 DeviceActionMessage.FETCH_LOGGING.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SetModemResetSchedule.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.ReadDLMSAttribute.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // FirmwareDeviceMessage.BroadcastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
@@ -1006,6 +1009,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = getMasterDataSync().setBufferForAllRegisters(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetBufferForSpecificRegister)) {
                         collectedMessage = getMasterDataSync().setBufferForSpecificRegister(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
+                        collectedMessage = this.readDlmsAttribute(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ReadBlacklist)) {
                         this.readBlacklist(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RENEW_GMK)) {
@@ -3367,5 +3372,27 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private String getStringAttributeValue(OfflineDeviceMessage offlineDeviceMessage, String attributeName) {
         return MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, attributeName).getValue();
+    }
+
+    private CollectedMessage readDlmsAttribute(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
+        String obisCodeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.obisCode).getValue();
+        int attributeId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.attributeId).getValue());
+        int classId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.classId).getValue());
+
+        obisCodeString = obisCodeString.replace(":", ".").replace("-", ".").replace(" ", "");
+        ObisCode obisCode = ObisCode.fromString(obisCodeString);
+
+        DLMSAttribute dlmsAttribute = new DLMSAttribute(obisCode, attributeId, classId);
+
+        try {
+            ComposedCosemObject composeObject = getCosemObjectFactory().getComposedCosemObject(dlmsAttribute);
+            AbstractDataType abstractDataType = composeObject.getAttribute(dlmsAttribute);
+            collectedMessage.setDeviceProtocolInformation(abstractDataType.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            collectedMessage.setDeviceProtocolInformation(e.toString());
+        }
+
+        return collectedMessage;
     }
 }

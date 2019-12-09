@@ -23,7 +23,7 @@ import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -123,7 +123,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     @Override
     public void setTime() throws IOException {
         final Calendar newTimeToSet = Calendar.getInstance(getTimeZone());
-        getCosemObjectFactory().getClock().setTimeAttr(new DateTime(newTimeToSet));
+        getCosemObjectFactory().getClock().setTimeAttr(new DateTimeOctetString(newTimeToSet));
     }
 
     @Override
@@ -348,7 +348,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessageHandler().applyMessages(messageEntries);
     }
 

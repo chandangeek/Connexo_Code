@@ -39,14 +39,14 @@ public class LoadProfileReader {
      * Represents the database ID of the LoadProfile to read.
      * We will need this to set in the {@link com.energyict.protocol.ProfileData} object.
      */
-    private final int loadProfileId;
+    private final long loadProfileId;
 
     /**
      * Contains a <CODE>List</CODE> of <b>necessary</b> channels to read from the meter.
      */
     private final List<ChannelInfo> channelInfos;
 
-    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, int loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos) {
+    public LoadProfileReader(ObisCode profileObisCode, Date startReadingTime, Date endReadingTime, long loadProfileId, String meterSerialNumber, List<ChannelInfo> channelInfos) {
         this.profileObisCode = profileObisCode;
         if (endReadingTime == null) {
             this.endReadingTime = new Date();
@@ -104,7 +104,7 @@ public class LoadProfileReader {
      *
      * @return the {@link #loadProfileId}
      */
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return loadProfileId;
     }
 
@@ -169,7 +169,7 @@ public class LoadProfileReader {
         result = 31 * result + (getMeterSerialNumber() != null ? getMeterSerialNumber().hashCode() : 0);
         result = 31 * result + (getStartReadingTime() != null ? getStartReadingTime().hashCode() : 0);
         result = 31 * result + (getEndReadingTime() != null ? getEndReadingTime().hashCode() : 0);
-        result = 31 * result + getLoadProfileId();
+        result = 31 * result + Long.valueOf(getLoadProfileId()).hashCode();
         return result;
     }
 }

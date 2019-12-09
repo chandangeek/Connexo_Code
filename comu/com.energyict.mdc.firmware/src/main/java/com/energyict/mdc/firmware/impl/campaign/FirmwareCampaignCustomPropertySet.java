@@ -142,6 +142,11 @@ public class FirmwareCampaignCustomPropertySet implements CustomPropertySet<Serv
                         .stringSpec()
                         .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .booleanSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.MANUALLY_CANCELLED.javaName(), TranslationKeys.MANUALLY_CANCELLED)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }

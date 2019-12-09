@@ -23,9 +23,14 @@ import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -94,6 +99,10 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @SuppressWarnings("unused")
     private Instant modTime;
     private int maxNumberOfTries;
+
+    public ComTaskEnablementImpl() {
+        super();
+    }
 
     @Inject
     protected ComTaskEnablementImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -168,11 +177,13 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    @XmlAttribute
     public long getVersion() {
         return this.version;
     }
 
     @Override
+    @XmlAttribute
     public boolean isSuspended() {
         return this.suspended;
     }
@@ -192,16 +203,24 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    @XmlElement(type = ComTaskDefinedByUserImpl.class, name = "comTask")
     public ComTask getComTask() {
         return this.comTask.isPresent() ? this.comTask.get() : null;
     }
 
+    public void setComTask(ComTask comTask) {
+        this.comTask.set(comTask);
+    }
+
     @Override
+    @XmlTransient
+    @JsonIgnore
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.get();
     }
 
     @Override
+    @XmlElement(type = SecurityPropertySetImpl.class)
     public SecurityPropertySet getSecurityPropertySet() {
         return this.securityPropertySet.isPresent() ? this.securityPropertySet.get() : null;
     }
@@ -212,6 +231,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    @XmlAttribute
     public boolean isIgnoreNextExecutionSpecsForInbound() {
         return ignoreNextExecutionSpecsForInbound;
     }
@@ -222,6 +242,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    @XmlAttribute
     public int getPriority() {
         return this.priority;
     }
@@ -266,6 +287,8 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    @XmlTransient
+    @JsonIgnore
     public Optional<PartialConnectionTask> getPartialConnectionTask() {
         if (this.usesDefaultConnectionTask) {
             return getDeviceConfiguration().getPartialConnectionTasks().stream().filter(PartialConnectionTask::isDefault).findFirst();
@@ -288,6 +311,7 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    @XmlTransient
     public Optional<ConnectionFunction> getConnectionFunction() {
         if (!this.connectionFunction.isPresent() && this.connectionFunctionDbValue != 0) {
             Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
@@ -660,5 +684,16 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
         if (update) {
             getDataModel().touch(deviceConfiguration.get());
         }
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

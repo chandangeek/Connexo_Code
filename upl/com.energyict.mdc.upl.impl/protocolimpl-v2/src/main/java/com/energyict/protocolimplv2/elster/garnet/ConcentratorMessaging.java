@@ -23,7 +23,7 @@ import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNum
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.ContactorStatus;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 
 import java.util.Collections;

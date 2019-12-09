@@ -15,7 +15,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -95,7 +95,7 @@ public class LogBookTypeUpdateEventHandlerTest {
                 this.bootstrapModule,
                 new DataVaultModule(),
                 new ThreadSecurityModule(this.principal),
-                new OrmModule(),
+                new H2OrmModule(),
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(),

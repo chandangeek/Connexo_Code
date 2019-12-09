@@ -135,8 +135,9 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
+    public DataSendingStatus send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
         new Sender(tagReplacerFactory, logger, thesaurus).send(files);
+        return DataSendingStatus.success();
     }
 
     @Override

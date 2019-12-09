@@ -18,6 +18,8 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -134,15 +136,28 @@ public class CreateDataLoggerCommand {
         if (!config.isActive()) {
             config.activate();
         }
+        config.getPartialConnectionTasks().get(0).setProperty("host", "localhost");
+        config.getPartialConnectionTasks().get(0).setProperty("portNumber", new BigDecimal(4059));
+        config.save();
         return config;
+    }
+
+    private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names) {
+        if (names != null) {
+            for (ComTaskTpl comTaskTpl : names) {
+                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0))
+                        .setIgnoreNextExecutionSpecsForInbound(false)
+                        .setPriority(100).add().save();
+            }
+        }
     }
 
     private void findOrCreateRequiredObjects() {
         Builders.from(RegisterGroupTpl.DATA_LOGGER_REGISTER_DATA).get();
 
         comTasks = new HashMap<>();
-        findOrCreateComTask(ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
-        findOrCreateComTask(ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
+        //findOrCreateComTask(ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
+        //findOrCreateComTask(ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
     }
 
     private ComTask findOrCreateComTask(ComTaskTpl comTaskTpl) {
@@ -161,8 +176,8 @@ public class CreateDataLoggerCommand {
         device = deviceBuilderProvider.get().withName(name).get();
         addSecurityPropertiesToDevice(device);
         device = deviceBuilderProvider.get().withName(name).get();
-        addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
-        addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
+        //addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA, TimeDuration.hours(1));
+        //addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA, TimeDuration.hours(1));
         return deviceBuilderProvider.get().withName(name).get();
     }
 
@@ -199,10 +214,10 @@ public class CreateDataLoggerCommand {
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);*/
     }
 
-    private void addComTaskToDevice(Device device, ComTaskTpl comTask) {
+    private void addComTaskToDevice(Device device, ComTaskTpl comTask,TimeDuration every) {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         ComTaskEnablement taskEnablement = configuration.getComTaskEnablementFor(comTasks.get(comTask)).get();
-        device.newManuallyScheduledComTaskExecution(taskEnablement, null).add();
+        device.newManuallyScheduledComTaskExecution(taskEnablement,new TemporalExpression(every)).add();
     }
 
     private void addSecurityPropertiesToDevice(Device device) {

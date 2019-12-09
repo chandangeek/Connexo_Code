@@ -54,7 +54,7 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 dataIndex: 'suspendUntilTime',
                 flex: 1,
                 renderer: function(value){
-                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes') : Uni.I18n.translate('general.suspended.no','APR','No')
+                    return value  ? Uni.I18n.translate('general.yes','APR','Yes') : Uni.I18n.translate('general.suspended.no','APR','No')
                 }
             },
             {
@@ -90,7 +90,7 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                         itemId: 'btnAddTask',
                         text: Uni.I18n.translate('taskManagement.general.addTask', 'APR', 'Add task'),
                         privileges: function () {
-                            return Apr.TaskManagementApp.canAdministrate();
+                            return Apr.TaskManagementApp.canAdministrate() && Uni.Auth.hasPrivilege('privilege.edit.AdministerTaskOverview');
                         },
                         href: me.addTaskRoute
                     }

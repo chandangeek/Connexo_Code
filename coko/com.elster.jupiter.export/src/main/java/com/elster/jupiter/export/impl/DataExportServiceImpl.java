@@ -24,6 +24,8 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildCustomPropertySet;
+import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildDomainExtension;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportCustomPropertySet;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportDomainExtension;
 import com.elster.jupiter.export.security.Privileges;
@@ -123,6 +125,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MeteringService meteringService;
     private volatile MessageService messageService;
+    private volatile BundleContext bundleContext;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile UserService userService;
@@ -148,6 +152,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();
     private CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
+    private CustomPropertySet<ServiceCall, WebServiceDataExportChildDomainExtension> childServiceCallCPS;
 
     public DataExportServiceImpl() {
     }
@@ -237,7 +242,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
-    public  Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name) {
+    public Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name) {
         Query<IExportTask> query =
                 queryService.wrap(dataModel.query(IExportTask.class, RecurrentTask.class));
         Condition condition = where("recurrentTask.name").isEqualTo(name);
@@ -366,8 +371,11 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     @Activate
     public final void activate(BundleContext context) {
-        serviceCallCPS = new WebServiceDataExportCustomPropertySet(thesaurus, propertySpecService);
+        this.bundleContext = context;
+        serviceCallCPS = new WebServiceDataExportCustomPropertySet(thesaurus, propertySpecService, this);
+        childServiceCallCPS = new WebServiceDataExportChildCustomPropertySet(thesaurus, propertySpecService);
         customPropertySetService.addCustomPropertySet(serviceCallCPS);
+        customPropertySetService.addCustomPropertySet(childServiceCallCPS);
         try {
             dataModel.register(new AbstractModule() {
                 @Override
@@ -393,6 +401,10 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     bind(MessageService.class).toInstance(messageService);
                     bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                     bind(ServiceCallService.class).toInstance(serviceCallService);
+                    bind(NlsService.class).toInstance(nlsService);
+                    bind(UpgradeService.class).toInstance(upgradeService);
+                    bind(BundleContext.class).toInstance(bundleContext);
+                    bind(QueryService.class).toInstance(queryService);
                     bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                     bind(DataModel.class).toInstance(dataModel);
                     bind(OrmService.class).toInstance(ormService);
@@ -417,9 +429,10 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 2), UpgraderV10_2.class)
                             .put(version(10, 3), UpgraderV10_3.class)
                             .put(version(10, 4), V10_4SimpleUpgrader.class)
-                            .put(version(10, 4, 3),  V10_4_3SimpleUpgrader.class)
+                            .put(version(10, 4, 3), V10_4_3SimpleUpgrader.class)
                             .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
                             .put(version(10, 7), UpgraderV10_7.class)
+                            .put(version(10, 7, 1), UpgraderV10_7_1.class)
                             .build());
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -430,10 +443,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Deactivate
     public final void deactivate() {
         customPropertySetService.removeCustomPropertySet(serviceCallCPS);
+        customPropertySetService.removeCustomPropertySet(childServiceCallCPS);
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(DataExportService.COMPONENTNAME, Layer.DOMAIN);
     }
 

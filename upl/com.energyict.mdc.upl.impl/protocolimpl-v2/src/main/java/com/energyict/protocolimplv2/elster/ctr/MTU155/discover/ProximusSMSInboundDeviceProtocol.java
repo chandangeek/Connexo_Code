@@ -23,7 +23,7 @@ import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
 import javax.servlet.http.HttpServletRequest;

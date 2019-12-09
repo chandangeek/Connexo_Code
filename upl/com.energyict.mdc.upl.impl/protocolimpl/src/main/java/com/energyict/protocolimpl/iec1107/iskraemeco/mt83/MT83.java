@@ -56,14 +56,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author jme
@@ -211,10 +204,10 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec("ReadCurrentDay", PropertyTranslationKeys.IEC1107_READ_CURRENT_DAY),
                 this.integerSpec("LoadProfileNumber", PropertyTranslationKeys.IEC1107_LOADPROFILE_NUMBER, Range.closed(LOADPROFILES_FIRST, LOADPROFILES_LAST)),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT));
     }
 
@@ -249,10 +242,10 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
         iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
         iProfileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 900);
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
         readCurrentDay = properties.getTypedProperty("ReadCurrentDay", 0);
         loadProfileNumber = properties.getTypedProperty("LoadProfileNumber", 1);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         this.dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
     }
 
@@ -527,7 +520,7 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      * @throws java.io.IOException if a logical error occurs
      */
     @Override
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         this.meterMessages.applyMessages(messageEntries);
     }
 
