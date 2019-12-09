@@ -119,14 +119,19 @@ Ext.define('Uni.property.view.property.LifeCycleStatusInDeviceType', {
         if(value) {
             value = [].concat(value);
             Ext.Array.forEach(value, function (item) {
-                if (item !== '') {
-                    deviceTypeValues.push(item.split(':')[0]);
-                    if(item.split(':')[2].split(',').length > 0){
-                        for(i = 0; i < item.split(':')[2].split(',').length; i++){
-                            deviceStateValues.push(item.split(':')[0] + ':' + item.split(':')[1] + ':' + item.split(':')[2].split(',')[i]);
+                if (Array.isArray(item) && item.length && item[0].id !== '') {
+                    var itemID = item;
+                    if (Array.isArray(item)) {
+                        itemID = item[0].id;
+                    }
+
+                    deviceTypeValues.push(itemID.split(':')[0]);
+                    if(itemID.split(':')[2].split(',').length > 0){
+                        for(i = 0; i < itemID.split(':')[2].split(',').length; i++){
+                            deviceStateValues.push(itemID.split(':')[0] + ':' + itemID.split(':')[1] + ':' + itemID.split(':')[2].split(',')[i]);
                         }
                     } else{
-                        deviceStateValues.push(item);
+                        deviceStateValues.push(itemID);
                     }
                 }
             });
