@@ -123,7 +123,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                     ServiceCall serviceCall = optionalTimeOfUseCampaignItem.get().getServiceCall();
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.FAILED);
-                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_SENDING_CALENDAR_IS_MISSING, LogLevel.WARNING);
+                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_SENDING_CALENDAR_LOST_ACTION, LogLevel.WARNING);
                 }
             } else if (timeOfUseCampaignItem.getStepOfUpdate() == 1) {
                 if (comTaskExecution.getComTask().getProtocolTasks().stream()
@@ -150,7 +150,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                     ServiceCall serviceCall = optionalTimeOfUseCampaignItem.get().getServiceCall();
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.FAILED);
-                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING, LogLevel.WARNING);
+                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION, LogLevel.WARNING);
                 }
             }
         }
@@ -198,7 +198,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                     ServiceCall serviceCall = optionalTimeOfUseCampaignItem.get().getServiceCall();
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.FAILED);
-                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_SENDING_CALENDAR_IS_MISSING, LogLevel.WARNING);
+                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_SENDING_CALENDAR_LOST_ACTION, LogLevel.WARNING);
                 }
             } else if (timeOfUseCampaignItem.getStepOfUpdate() == 1) {
                 if (comTaskExecution.getComTask().getProtocolTasks().stream()
@@ -234,7 +234,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                     ServiceCall serviceCall = optionalTimeOfUseCampaignItem.get().getServiceCall();
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.FAILED);
-                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING, LogLevel.WARNING);
+                    timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION, LogLevel.WARNING);
                 }
             }
         }
