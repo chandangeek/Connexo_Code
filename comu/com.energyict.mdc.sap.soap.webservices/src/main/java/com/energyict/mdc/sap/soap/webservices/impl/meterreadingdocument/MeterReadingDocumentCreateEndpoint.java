@@ -27,7 +27,7 @@ public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint 
     @Override
     public void smartMeterMeterReadingDocumentERPCreateRequestCIn(SmrtMtrMtrRdngDocERPCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
-                      Optional.ofNullable(request).ifPresent(requestMessage -> {
+            Optional.ofNullable(request).ifPresent(requestMessage -> {
                 MeterReadingDocumentCreateRequestMessage message = MeterReadingDocumentCreateRequestMessage.builder()
                         .from(requestMessage)
                         .build();

@@ -142,7 +142,6 @@ public class MeterReadingDocumentCreateMessage {
             return MeterReadingDocumentCreateMessage.this;
         }
 
-
         void setValues(String id, String deviceId, String lrn, String code,
                        Instant date) {
             setId(id);

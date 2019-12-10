@@ -18,7 +18,6 @@ public class MeterReadingDocumentCreateRequestMessage {
     private BigDecimal attemptNumber = BigDecimal.ZERO;
     private String id;
     private String uuid;
-
     private List<MeterReadingDocumentCreateMessage> meterReadingDocumentCreateMessages = new ArrayList<>();
 
     private MeterReadingDocumentCreateRequestMessage() {
