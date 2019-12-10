@@ -25,6 +25,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmat
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -71,7 +73,10 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         public Builder from(MeterRegisterBulkChangeRequestMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestId(), message.getUuid(), now));
-
+            List<MeterRegisterChangeMessage>  messageList = message.getMeterRegisterChangeMessages();
+            messageList.forEach(msg->{
+                confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(createChildMessage(msg, now));
+            });
             confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
             return this;
         }
@@ -88,6 +93,17 @@ public class MeterRegisterBulkChangeConfirmationMessage {
                         .add(createChildMessage(child, now));
             });
         }
+
+
+        private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(MeterRegisterChangeMessage msg, Instant now) {
+            UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
+            confirmationMessage.setMessageHeader(createChildHeader(msg.getId(), msg.getUuid(), now));
+            confirmationMessage.setUtilitiesDevice(createChildBody(msg.getDeviceId()));
+            Log log = objectFactory.createLog();
+            confirmationMessage.setLog(log);
+            return confirmationMessage;
+        }
+
 
         private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall childServiceCall, Instant now) {
             MeterRegisterChangeRequestDomainExtension extension = childServiceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
@@ -115,9 +131,12 @@ public class MeterRegisterBulkChangeConfirmationMessage {
 
         private BusinessDocumentMessageHeader createChildHeader(String id, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-
-            header.setReferenceID(createID(id));
-            header.setReferenceUUID(createUUID(uuid));
+            if (!Strings.isNullOrEmpty(id)) {
+                header.setReferenceID(createID(id));
+            }
+            if (!Strings.isNullOrEmpty(uuid)){
+                header.setReferenceUUID(createUUID(uuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }
@@ -126,9 +145,13 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-            header.setReferenceID(createID(requestId));
+            if (!Strings.isNullOrEmpty(requestId)) {
+                header.setReferenceID(createID(requestId));
+            }
             header.setUUID(createUUID(uuid));
-            header.setReferenceUUID(createUUID(referenceUuid));
+            if (!Strings.isNullOrEmpty(referenceUuid)) {
+                header.setReferenceUUID(createUUID(referenceUuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }

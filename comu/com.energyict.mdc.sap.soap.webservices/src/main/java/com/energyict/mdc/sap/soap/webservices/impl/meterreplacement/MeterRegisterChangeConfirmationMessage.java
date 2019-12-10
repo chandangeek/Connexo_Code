@@ -23,6 +23,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.UUID;
 
@@ -66,7 +68,7 @@ public class MeterRegisterChangeConfirmationMessage {
         public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), now));
-
+            confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
             confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
             return this;
         }
@@ -101,9 +103,13 @@ public class MeterRegisterChangeConfirmationMessage {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-            header.setReferenceID(createID(requestId));
+            if (!Strings.isNullOrEmpty(requestId)) {
+                header.setReferenceID(createID(requestId));
+            }
             header.setUUID(createUUID(uuid));
-            header.setReferenceUUID(createUUID(referenceUuid));
+            if (!Strings.isNullOrEmpty(referenceUuid)) {
+                header.setReferenceUUID(createUUID(referenceUuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }

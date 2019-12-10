@@ -53,6 +53,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
+        System.out.println("STATE CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         switch (newState) {
             case ONGOING:
                 if (!oldState.equals(DefaultState.WAITING)) {
