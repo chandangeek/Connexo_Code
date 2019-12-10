@@ -201,5 +201,4 @@ public abstract class AbstractSecurableLdapDirectoryImpl extends AbstractLdapDir
             return ((UserImpl) user).doGetGroups();
         }
     }
-
 }

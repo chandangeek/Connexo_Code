@@ -1,7 +1,8 @@
 package com.energyict.mdc.upl;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ProtocolLoggingSupport;
+import com.energyict.mdc.protocol.journal.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.security.DeviceSecuritySupport;
@@ -14,8 +15,11 @@ import com.energyict.mdc.upl.tasks.support.DeviceProtocolConnectionFunctionSuppo
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceStatusInformationSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 /**
@@ -30,6 +34,12 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-14 (10:04)
  */
+@ProviderType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface DeviceProtocol
         extends HasDynamicProperties, DeviceProtocolDialectSupport,
         DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
@@ -93,4 +103,12 @@ public interface DeviceProtocol
 
     ManufacturerInformation getManufacturerInformation();
 
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public default String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public default void setXmlType(String ignore) {
+    }
 }

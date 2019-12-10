@@ -55,7 +55,7 @@ public class LabeledDeviceResource {
         User user = (User) context.getUserPrincipal();
         Optional<LabelCategory> category = favoritesService.findLabelCategory(categoryId);
         if (!category.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LABEL_CATEGORY, categoryId);
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_LABEL_CATEGORY, org.apache.commons.text.StringEscapeUtils.escapeHtml4(categoryId));
         }
         List<DeviceLabel> devices = favoritesService.getDeviceLabelsOfCategory(user, category.get());
         List<DeviceWithLabelInfo> infos = devices.stream()

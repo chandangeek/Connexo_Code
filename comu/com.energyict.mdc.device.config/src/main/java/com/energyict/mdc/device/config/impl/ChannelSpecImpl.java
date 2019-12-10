@@ -35,6 +35,7 @@ import com.energyict.obis.ObisCode;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -146,11 +147,13 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     }
 
     @Override
+    @XmlTransient
     public LoadProfileSpec getLoadProfileSpec() {
         return this.loadProfileSpec.get();
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.get();
     }

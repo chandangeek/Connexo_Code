@@ -4,7 +4,9 @@
 
 package com.elster.jupiter.users;
 
+import aQute.bnd.annotation.ProviderType;
 
+@ProviderType
 public interface LdapUser {
 
     void setUsername(String username);
@@ -14,4 +16,6 @@ public interface LdapUser {
     void setStatus(boolean status);
 
     boolean getStatus();
+
+    String getDN();
 }

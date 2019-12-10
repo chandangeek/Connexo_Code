@@ -50,22 +50,15 @@ public class MeterReadingDocumentCreateMessage {
     }
 
     public boolean isSingleSupported() {
-        return findReasonCode()
+        return WebServiceActivator.findReadingReasonProvider(readingReasonCode)
                 .map(SAPMeterReadingDocumentReason::isSingle)
                 .orElse(false);
     }
 
     public boolean isBulkSupported() {
-        return findReasonCode()
+        return WebServiceActivator.findReadingReasonProvider(readingReasonCode)
                 .map(SAPMeterReadingDocumentReason::isBulk)
                 .orElse(false);
-    }
-
-    private Optional<SAPMeterReadingDocumentReason> findReasonCode() {
-        return WebServiceActivator.METER_READING_REASONS
-                .stream()
-                .filter(reasonCode -> reasonCode.getCode().equals(readingReasonCode))
-                .findFirst();
     }
 
     static MeterReadingDocumentCreateMessage.Builder builder() {

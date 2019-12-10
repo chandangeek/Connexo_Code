@@ -10,6 +10,8 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -85,6 +87,7 @@ public class ImageTransfer extends AbstractCosemObject {
     private boolean transferBlocks = true;
     private boolean verifyImage = true;
     private boolean activateImage = false;
+    private Charset charSet;
 
     public ImageTransfer(ProtocolLink protocolLink) {
         super(protocolLink, new ObjectReference(LN));
@@ -120,6 +123,10 @@ public class ImageTransfer extends AbstractCosemObject {
 
     public void setDelayBeforeSendingBlocks(long delayBeforeSendingBlocks) {
         this.delayBeforeSendingBlocks = delayBeforeSendingBlocks;
+    }
+
+    public void setCharSet(Charset charSet) {
+        this.charSet = charSet;
     }
 
     /**
@@ -208,7 +215,7 @@ public class ImageTransfer extends AbstractCosemObject {
     public void initiateImageTransfer(String imageIdentifier) throws IOException {
         updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
         Structure imageInitiateStructure = new Structure();
-        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
+        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier, charSet));
         imageInitiateStructure.addDataType(this.size);
         if (!isResume()) {
             imageTransferInitiate(imageInitiateStructure);

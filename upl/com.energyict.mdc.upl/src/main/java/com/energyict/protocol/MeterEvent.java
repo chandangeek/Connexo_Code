@@ -4,6 +4,7 @@
 
 package com.energyict.protocol;
 
+import com.energyict.cim.EndDeviceEventTypeFactory;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 
 import java.io.Serializable;
@@ -580,6 +581,45 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int CHANGE_IMPULSE = 202;
 
     public static final int PLUS_A_STORED = 203;
+
+    public static final int PARAMETER_RESTORED = 204;
+
+    public static final int PARAMETER_INITIALIZED = 205;
+
+    public static final int STATUS_CHANGED = 206;
+
+    public static final int RELAY_CONNECTED = 207;
+
+    public static final int RELAY_DISCONNECTED = 208;
+
+    public static final int RELAY_CONNECT_FAILED = 209;
+
+    public static final int RELAY_DISCONNECT_FAILED = 210;
+
+    public static final int SESSION_STARTED = 211;
+
+    public static final int CONFIGURATION_PARAMETER_CHANGED = 212;
+
+    public static final int SESSION_STOPPED = 213;
+
+    public static final int SESSION_TERMINATED = 214;
+
+    public static final int SESSION_EXPIRED = 215;
+
+    public static final int SESSION_DISALLOWED = 216;
+
+    public static final int SESSION_SUBSTITUTED = 217;
+
+    public static final int SESSION_ABORTED = 218;
+
+    public static final int BATTERY_STATUS_ENABLED = 219;
+
+    public static final int BATTERY_STATUS_DISABLED = 220;
+
+    public static final int ASS_DEVICE_INPUT_ERROR = 221;
+
+    public static final int MODEM_SESSION_FAILED = 222;
+
 
     /**
      * Start of Beacon3100 custom codes

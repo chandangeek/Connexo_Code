@@ -12,7 +12,9 @@ import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.UnmodifiableTypedProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +41,8 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public DeviceConfigurationImpl getDeviceConfiguration() {
         return this.deviceConfiguration;
     }

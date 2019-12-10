@@ -1,40 +1,18 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.mdc.upl.SerialNumberSupport;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageElement;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterProtocol;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.SerialNumber;
+import com.energyict.protocol.*;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
@@ -48,32 +26,18 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.utils.ComServerModeUtil;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * ABBA1140.java
@@ -122,10 +86,6 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     /**
      * Property keys specific for A140 protocol.
      */
-    private static final String PK_TIMEOUT = TIMEOUT.getName();
-    private static final String PK_RETRIES = RETRIES.getName();
-    private static final String PK_SECURITY_LEVEL = SECURITYLEVEL.getName();
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     private static final String PK_ECHO_CANCELING = "EchoCancelling";
     private static final String PK_DELAY_BEFORE_CONNECT = "DelayBeforeConnect";
@@ -216,18 +176,20 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
-                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC1107_TIMEOUT),
-                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC1107_RETRIES),
+                this.stringSpec(OFFLINE_NODEID.getName(), PropertyTranslationKeys.IEC1107_OFFLINE_NODEID),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
+                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
                 this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC1107_CORRECTTIME),
-                this.integerSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec(PK_DELAY_BEFORE_CONNECT, PropertyTranslationKeys.IEC1107_DELAY_BEFORE_CONNECT),
                 this.integerSpec(PK_ECHO_CANCELING, PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec(PK_IEC1107_COMPATIBLE, PropertyTranslationKeys.IEC1107_COMPATIBLE),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
-                this.stringSpec("DisableLogOffCommand", PropertyTranslationKeys.IEC1107_DISABLE_LOG_OFF_COMMAND),
-                this.stringSpec("ExtendedProfileStatus", PropertyTranslationKeys.IEC1107_EXTENDED_PROFILE_STATUS),
-                this.stringSpec("UseSelectiveAccessByFromAndToDate", PropertyTranslationKeys.IEC1107_USE_SELECTIVE_ACCESS_BY_FROM_AND_TO_DATE));
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(DISABLE_LOGOFF_COMMAND.getName(), PropertyTranslationKeys.IEC1107_DISABLE_LOG_OFF_COMMAND),
+                this.stringSpec(EXTENDED_PROFILE_STATUS.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_PROFILE_STATUS),
+                this.stringSpec(USE_SELECTIVE_ACCESS_BY_FROM_AND_TO_DATE.getName(), PropertyTranslationKeys.IEC1107_USE_SELECTIVE_ACCESS_BY_FROM_AND_TO_DATE));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -242,26 +204,34 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
+    private PropertySpec booleanSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::booleanSpec);
+    }
+
     @Override
     public void setUPLProperties(TypedProperties p) throws MissingPropertyException, InvalidPropertyException {
         if (p.getTypedProperty(ADDRESS.getName()) != null) {
             pAddress = p.getTypedProperty(ADDRESS.getName());
         }
 
-        if (p.getTypedProperty(NODEID.getName()) != null) {
+        if (p.getTypedProperty(NODEID.getName()) != null && ComServerModeUtil.isOnline()) {
             pNodeId = p.getTypedProperty(NODEID.getName());
+        }
+
+        if (p.getTypedProperty(OFFLINE_NODEID.getName()) !=null && ComServerModeUtil.isOffLine()) {
+            pNodeId = p.getTypedProperty(OFFLINE_NODEID.getName());
         }
 
         if (p.getTypedProperty(PASSWORD.getName()) != null) {
             pPassword = p.getTypedProperty(PASSWORD.getName());
         }
 
-        if (p.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        if (p.getTypedProperty(TIMEOUT.getName()) != null) {
+            pTimeout = p.getTypedProperty(TIMEOUT.getName());
         }
 
-        if (p.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = p.getTypedProperty(PK_RETRIES);
+        if (p.getTypedProperty(RETRIES.getName()) != null) {
+            pRetries = p.getTypedProperty(RETRIES.getName());
         }
 
         if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
@@ -272,15 +242,15 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
             pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
         }
 
-        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            pExtendedLogging = p.getTypedProperty(EXTENDED_LOGGING.getName());
         }
 
         if (p.getTypedProperty(PK_DELAY_BEFORE_CONNECT) != null) {
             pDelayBeforeConnect = p.getTypedProperty(PK_DELAY_BEFORE_CONNECT);
         }
 
-        pSecurityLevel = p.getTypedProperty(PK_SECURITY_LEVEL, 2);
+        pSecurityLevel = p.getTypedProperty(SECURITYLEVEL.getName(), 2);
         if (pSecurityLevel != 0) {
             if (pPassword == null || pPassword.isEmpty()) {
                 throw InvalidPropertyException.forNameAndValue(PASSWORD.getName(), null);
@@ -298,14 +268,14 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
             pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
         }
 
-        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty(SOFTWARE7E1.getName(), "0"));
 
-        this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty("DisableLogOffCommand", "0"));
+        this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty(DISABLE_LOGOFF_COMMAND.getName(), "0"));
         this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
 
-        this.extendedProfileStatus = !"0".equalsIgnoreCase(p.getTypedProperty("ExtendedProfileStatus", "0"));
+        this.extendedProfileStatus = !"0".equalsIgnoreCase(p.getTypedProperty(EXTENDED_PROFILE_STATUS.getName(), "0"));
 
-        this.useSelectiveAccessByFromAndToDate = "1".equals(p.getTypedProperty("UseSelectiveAccessByFromAndToDate", "1"));
+        this.useSelectiveAccessByFromAndToDate = "1".equals(p.getTypedProperty(USE_SELECTIVE_ACCESS_BY_FROM_AND_TO_DATE.getName(), "1"));
     }
 
     boolean isUseSelectiveAccessByFromAndToDate() {
@@ -441,7 +411,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-07-15 15:30:00 +0300 (Mon, 15 Jul 2019)$";
+        return "$Date: 2019-11-28$";
     }
 
     @Override

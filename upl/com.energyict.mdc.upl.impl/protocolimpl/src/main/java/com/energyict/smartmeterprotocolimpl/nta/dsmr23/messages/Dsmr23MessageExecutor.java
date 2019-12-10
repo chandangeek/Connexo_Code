@@ -448,7 +448,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        int rtuRegisterId = register.getRtuRegisterId();
+                        long rtuRegisterId = register.getRtuRegisterId();
                         final RegisterValue registerValue;
                         if (rtuRegisterId != -1) {
                             registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), rtuRegisterId);

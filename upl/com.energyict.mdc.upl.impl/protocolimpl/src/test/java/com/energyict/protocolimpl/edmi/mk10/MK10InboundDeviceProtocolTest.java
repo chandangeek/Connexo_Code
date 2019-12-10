@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.math.BigDecimal;

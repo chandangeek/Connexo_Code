@@ -123,7 +123,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                 },
                                 {
                                     text: Uni.I18n.translate('deviceCommunicationPlanning.runComTaskNowWithPriority', 'MDC', 'Run with priority'),
-                                    privileges: Mdc.privileges.Device.operateDeviceCommunication,
+                                    privileges: Mdc.privileges.Device.runWithPriority,
                                     itemId: 'mdc-device-communication-planning-runDeviceComTaskNowWithPriority',
                                     action: 'runDeviceComTaskNowWithPriority',
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions

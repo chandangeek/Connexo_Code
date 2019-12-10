@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -86,7 +86,7 @@ public class UPLPropertySpecServiceImplTest {
                 new PubSubModule(),
                 new UtilModule(),
                 new BasicPropertiesModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new NlsModule(),
                 new DataVaultModule(),
                 new InMemoryMessagingModule(),

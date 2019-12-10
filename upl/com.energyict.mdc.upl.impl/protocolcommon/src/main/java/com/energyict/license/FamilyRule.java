@@ -50,7 +50,8 @@ public enum FamilyRule implements ProtocolFamily {
     LG_SCTM(32),            // L&G Dataloggers SCTM
     ELSTER_GARNET(33),      // Elster GARNET
     G3_PLC(34),             // G3 PLC
-    EICT_SUBMETER_EMS(35);  // EnergyICT Submeter EMS
+    EICT_SUBMETER_EMS(35),  // EnergyICT Submeter EMS
+    EICT_THEMISUNO(36);     // Elster THEMISUNO
     private int code;
 
     FamilyRule (int code) {

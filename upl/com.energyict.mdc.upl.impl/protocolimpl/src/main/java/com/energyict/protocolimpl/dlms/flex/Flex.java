@@ -84,14 +84,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 public class Flex extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, CachingProtocol, RegisterProtocol, SerialNumberSupport {
 
@@ -990,7 +983,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec("LoadProfileId", PropertyTranslationKeys.DLMS_LOADPROFILEID, 1, 2, 97),
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION));
@@ -1038,7 +1031,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+            extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
 
             int loadProfileIdPropertyValue = properties.getTypedProperty("LoadProfileId", 1);
             if (loadProfileIdPropertyValue == 1) {

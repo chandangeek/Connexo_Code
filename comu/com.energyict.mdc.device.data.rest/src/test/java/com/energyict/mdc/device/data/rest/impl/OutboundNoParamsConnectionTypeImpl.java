@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public class OutboundNoParamsConnectionTypeImpl extends NoParamsConnectionType {
 
     @Override
@@ -11,4 +13,14 @@ public class OutboundNoParamsConnectionTypeImpl extends NoParamsConnectionType {
         return ConnectionTypeDirection.OUTBOUND;
     }
 
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
+    }
 }

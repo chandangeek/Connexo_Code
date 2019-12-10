@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,7 +79,17 @@ public class UsagePointReadingSelectorConfigImplTest {
         notSupportedRT = mockReadingType("NotSupported");
         when(dataModel.getInstance(UsagePointReadingSelectorConfigImpl.class)).thenReturn(new UsagePointReadingSelectorConfigImpl(dataModel));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocationOnMock -> new ReadingTypeInDataSelector(meteringService));
-        when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocationOnMock -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel));
+        when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocationOnMock -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel) {
+            @Override
+            public long getId() {
+                return hashCode();
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(getReadingContainer(), getReadingType());
+            }
+        });
         when(dataModel.asRefAny(any())).thenAnswer(invocationOnMock -> {
             Object param = invocationOnMock.getArguments()[0];
             return new FakeRefAny(param);

@@ -1,7 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
-
-Private-Package:  \
-	com.energyict.mdc.tasks.impl
+DynamicImport-Package: com.energyict.mdc.protocols.tasks
 Export-Package:  \
+	com.energyict.mdc.tasks,\
+	com.energyict.mdc.tasks.impl,\
 	com.energyict.mdc.tasks,com.energyict.mdc.tasks.security

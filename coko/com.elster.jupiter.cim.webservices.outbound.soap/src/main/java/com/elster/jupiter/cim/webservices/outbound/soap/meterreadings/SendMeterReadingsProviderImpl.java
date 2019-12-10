@@ -4,6 +4,8 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
+import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -20,6 +22,8 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
 import ch.iec.tc57._2011.sendmeterreadings.SendMeterReadings;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -29,6 +33,7 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,7 +100,26 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
             } else {
                 throw new UnsupportedOperationException(requestVerb + " isn't supported.");
             }
-            using(method).send(message);
+            SetMultimap<String, String> values = HashMultimap.create();
+            readingInfos.forEach(reading->{
+                reading.getMeter().ifPresent(meter->{
+                    values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
+                            meter.getName());
+                    values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                            meter.getMRID());
+                });
+
+                reading.getUsagePoint().ifPresent(usp->{
+                    values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                            usp.getName());
+                    values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                            usp.getMRID());
+                });
+            });
+
+            using(method)
+                    .withRelatedAttributes(values)
+                    .send(message);
         }
     }
 
@@ -113,8 +137,27 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
             default:
                 throw new UnsupportedOperationException(header.getVerb() + " isn't supported.");
         }
+
+        SetMultimap<String, String> values = HashMultimap.create();
+        meterReadings.getMeterReading().forEach(reading->{
+            Optional.ofNullable(reading.getMeter()).ifPresent(meter->{
+                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(),
+                        meter.getNames().get(0).getName());
+                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
+                        meter.getMRID());
+            });
+
+            Optional.ofNullable(reading.getUsagePoint()).ifPresent(usp->{
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(),
+                        usp.getNames().get(0).getName());
+                values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(),
+                        usp.getMRID());
+            });
+        });
+
         Map response = using(method)
                 .toEndpoints(endPointConfiguration)
+                .withRelatedAttributes(values)
                 .send(message);
         if (response == null || response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((MeterReadingsResponseMessageType)response.get(endPointConfiguration)).getReply().getResult()) {
             return false;

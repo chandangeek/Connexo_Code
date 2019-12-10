@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -40,6 +41,7 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.configproperties.ConfigProperties;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
@@ -50,6 +52,7 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -89,11 +92,15 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private final DeviceDataModelService deviceDataModelService;
     private final PriorityComTaskService priorityComTaskService;
+    private final ConfigPropertiesService configPropertiesService;
+    private final BundleContext bundleContext;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, PriorityComTaskService priorityComTaskService) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, ConfigPropertiesService configPropertiesService, BundleContext bundleContext, PriorityComTaskService priorityComTaskService) {
         this.deviceDataModelService = deviceDataModelService;
         this.priorityComTaskService = priorityComTaskService;
+        this.configPropertiesService = configPropertiesService;
+        this.bundleContext = bundleContext;
     }
 
     @Override
@@ -775,11 +782,28 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" and (NVL(ct.comwindowend, 99999000) > "); // max possible value of milisecondsSinceMidnight is 86399000
             sqlBuilder.addLong(msSinceMidnight);
             sqlBuilder.append(" or ct.comwindowend = 0) ");
-            sqlBuilder.append(" order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask");
+            sqlBuilder.append(getOrderForPlannedComTaskExecutions());
             return mapper.fetcher(sqlBuilder);
         } else {
             return new NoComTaskExecutions();
         }
+    }
+
+    private String getOrderForPlannedComTaskExecutions(){
+        String orderClause = "";
+        boolean isTrueMinimizedOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.TRUE_MINIMIZED.value()).map(v -> v.equals("1")).orElse(false);
+        boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
+
+        if (!isTrueMinimizedOn && !isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";
+        } else if (isTrueMinimizedOn && !isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, cte.connectiontask, cte.priority";
+        } else if (!isTrueMinimizedOn && isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.priority, cte.connectiontask";
+        } else if (isTrueMinimizedOn && isRandomizationOn) {
+            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.connectiontask, cte.priority";
+        }
+        return orderClause;
     }
 
     public Fetcher<ComTaskExecution> findComTaskExecutionsForDevicesByComTask(List<Long> deviceIds, List<Long> comTaskIds) {

@@ -5,16 +5,28 @@
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.Reading;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public class ReadingImpl extends BaseReadingImpl implements Reading {
 
-    private final String mrid;
+    private String mrid;
     private String reason;
     private String text;
-    
+
+    public ReadingImpl() {
+        super();
+    }
+
     private ReadingImpl(String mrid, BigDecimal value, String text, Instant timeStamp) {
     	super(timeStamp,value);
     	this.mrid = mrid;
@@ -48,7 +60,11 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     public void setReason(String reason) {
         this.reason = reason;
     }
-    
+
+    public void setReadingTypeCode(String mrid) {
+        this.mrid = mrid;
+    }
+
     @Override
     public String getText() {
     	return text;
@@ -56,6 +72,15 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     
     public void setText(String text) {
     	this.text = text;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
     
 }

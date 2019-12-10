@@ -38,6 +38,11 @@ felix.log.level=1
 # Please set to appropriate value if the hostname of the machine cannot be used
 #com.elster.jupiter.server.name=
 
+# Property to set the comserver type that will start up.
+# Possible values "online", "remote" and "offline"
+# When not set, the default online comserver is used.
+#com.elster.jupiter.server.type=
+
 # Properties to set if you want to send mail from connexo
 #mail.smtp.host=
 #mail.smtp.port=

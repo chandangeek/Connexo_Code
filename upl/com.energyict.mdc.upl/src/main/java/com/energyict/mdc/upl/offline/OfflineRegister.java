@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl.offline;
 
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collection;
@@ -117,11 +119,17 @@ public interface OfflineRegister extends Offline {
      *
      * @return the deviceIdentifier
      */
+    @XmlElements(
+            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class), @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),}
+    )
     DeviceIdentifier getDeviceIdentifier();
 
     /**
      * The identifier that uniquely identifies this {@link OfflineRegister}.
      */
+    @XmlElements(
+            {@XmlElement(type = RegisterIdentifierById.class), @XmlElement(type = RegisterDataIdentifierByObisCodeAndDevice.class)}
+    )
     RegisterIdentifier getRegisterIdentifier();
 
     /**
@@ -136,7 +144,7 @@ public interface OfflineRegister extends Offline {
      *
      * @return the configured overFlowValue
      */
-    BigDecimal getOverFlowValue();
+    BigDecimal getOverFlow();
 
     /**
      * Indicates whether this is a text register

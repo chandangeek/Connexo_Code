@@ -60,15 +60,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -220,12 +212,12 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                 this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
                 this.stringSpec("ChannelMap", PropertyTranslationKeys.IEC1107_CHANNEL_MAP),
                 this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec("VDEWCompatible", PropertyTranslationKeys.IEC1107_VDEWCOMPATIBLE),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.IEC1107_FIRMWARE_VERSION),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("MaxNrOfDaysProfileData", PropertyTranslationKeys.IEC1107_MAX_NR_OF_DAYS_PROFILE_DATA),
                 this.integerSpec("ProfileRequestBlockSize", PropertyTranslationKeys.IEC1107_PROFILE_REQUEST_BLOCK_SIZE),
                 this.stringSpec("DateFormat", PropertyTranslationKeys.IEC1107_DATE_FORMAT));
@@ -260,12 +252,12 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0,0,0,0"));
         requestHeader = properties.getTypedProperty("RequestHeader", 1);
         dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
         vdewCompatible = properties.getTypedProperty("VDEWCompatible", 1);
         forcedDelay = properties.getTypedProperty("ForcedDelay", 0);
         serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
         iFirmwareVersion = properties.getTypedProperty("FirmwareVersion", "3.03").trim();
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         this.MaxNrOfDaysProfileData = properties.getTypedProperty("MaxNrOfDaysProfileData", 0);
         this.profileRequestBlockSize = properties.getTypedProperty("ProfileRequestBlockSize", 8);
         strDateFormat = properties.getTypedProperty("DateFormat", "yy/MM/dd").trim();

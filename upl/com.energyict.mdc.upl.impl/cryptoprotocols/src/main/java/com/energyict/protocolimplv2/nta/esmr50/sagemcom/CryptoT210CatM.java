@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.esmr50.sagemcom;
 import com.energyict.common.framework.CryptoDlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
@@ -26,9 +27,17 @@ public class CryptoT210CatM extends T210CatM {
 
     private CryptoESMR50Messaging cryptoMessaging;
     private CryptoESMR50MessageExecutor cryptoMessageExecutor;
+    private final DeviceMasterDataExtractor deviceMasterDataExtractor;
 
-    public CryptoT210CatM(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+    public CryptoT210CatM(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                          PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                          DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor,
+                          NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor,
+                          KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        super(collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor,
+                calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor,
+                deviceMasterDataExtractor);
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
 
     @Override
@@ -86,7 +95,8 @@ public class CryptoT210CatM extends T210CatM {
     @Override
     protected ESMR50MessageExecutor getMessageExecutor() {
         if (this.cryptoMessageExecutor == null) {
-            this.cryptoMessageExecutor = new CryptoESMR50MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.keyAccessorTypeExtractor);
+            this.cryptoMessageExecutor = new CryptoESMR50MessageExecutor(this, this.getCollectedDataFactory(),
+                    this.getIssueFactory(), this.keyAccessorTypeExtractor, this.deviceMasterDataExtractor);
         }
         return this.cryptoMessageExecutor;
     }

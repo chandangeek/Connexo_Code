@@ -18,11 +18,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class OfflineLogBookSpecImpl implements OfflineLogBookSpec {
 
-    private final int logBookSpecId;
-    private final long deviceConfigId;
-    private final long logBookTypeId;
-    private final ObisCode deviceObisCode;
-    private final ObisCode obisCode;
+    private int logBookSpecId;
+    private long deviceConfigId;
+    private long logBookTypeId;
+    private ObisCode deviceObisCode;
+    private ObisCode obisCode;
+
+    public OfflineLogBookSpecImpl() {
+        super();
+    }
 
     protected OfflineLogBookSpecImpl(LogBookSpec logBookSpec) {
         logBookSpecId = (int) logBookSpec.getId();

@@ -14,7 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.SmsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 
 import java.util.Iterator;
 import java.util.List;

@@ -111,7 +111,7 @@ public class CertificateExportProcessor {
             // no signature available
             return "".getBytes();
         }
-        CertificateWrapper certificateWrapper = securityAccessor.getActualValue()
+        CertificateWrapper certificateWrapper = securityAccessor.getActualPassphraseWrapperReference()
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
         return getSignature(certificateWrapper, bytes, logger.getThesaurus());
     }

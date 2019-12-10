@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.energyict</groupId>
 		<artifactId>upl</artifactId>
-		<version>1.0.0-Heracles-SNAPSHOT</version>
+		<version>2.0.0-Heracles-SNAPSHOT</version>
 	</parent>
 
 	<groupId>com.energyict</groupId>
@@ -69,6 +69,7 @@
 	<modules>
 		<module>protocol-api</module>
 		<module>dlms</module>
+		<module>dlms-elster</module>
 		<module>protocolcommon</module>
 		<module>protocolimpl</module>
 		<module>protocolimpl-v2</module>

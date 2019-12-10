@@ -59,7 +59,7 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
@@ -427,7 +427,10 @@ class DeviceServiceImpl implements ServerDeviceService {
                     .map(Collections::singletonList)
                     .orElseGet(Collections::emptyList);
         } else if (introspector.getTypeName().equals(IntrospectorTypes.Actual.name())) {
-            return Collections.singletonList((Device) introspector.getValue(IntrospectorTypes.Actual.roles[0]));
+            return this
+                    .findDeviceById((long)introspector.getValue(IntrospectorTypes.Actual.roles[0]))
+                    .map(Collections::singletonList)
+                    .orElseGet(Collections::emptyList);
         } else if (introspector.getTypeName().equals(IntrospectorTypes.Name.name())) {
             String deviceName = (String) introspector.getValue(IntrospectorTypes.Name.roles[0]);
             return findDeviceByName(deviceName)

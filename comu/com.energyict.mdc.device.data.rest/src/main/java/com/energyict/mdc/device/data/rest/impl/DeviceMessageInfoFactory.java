@@ -6,6 +6,10 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -32,7 +36,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -141,12 +148,32 @@ public class DeviceMessageInfoFactory {
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
                 deviceMessage.getAttributes().stream()
                         .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                        .map(DeviceMessageAttribute::getSpecification).collect(toList()),
+                        .map(DeviceMessageAttribute::getSpecification)
+                        .filter(Objects::nonNull)
+                        .collect(toList()),
                 typedProperties,
                 info.properties
         );
+        if(typedProperties.size() > 0 && info.properties.size() < typedProperties.size()){
+            HashMap<String, PropertyInfo> props = new HashMap<>();
+            info.properties.stream().forEach(p -> props.put(p.key, p));
+            typedProperties.stream().filter(e-> Objects.isNull(props.get(e.getKey())))
+                    .forEach(entry -> props.put(entry.getKey(), getArchivedProperty(entry)));
+            info.properties.clear();
+            deviceMessage.getAttributes().forEach(a -> info.properties.add((PropertyInfo) props.get(a.getName())));
+        }
 
         return info;
+    }
+
+    private PropertyInfo getArchivedProperty(Map.Entry<String, Object> entry){
+        String name = thesaurus.getString(entry.getKey(), null);
+        String key = entry.getKey();
+        String decription = "Description for " + key;
+        PropertyValueInfo propertyValueInfo = new PropertyValueInfo(entry.getValue(), null, null, null);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.simplePropertyType = SimplePropertyType.UNKNOWN;
+        return  new PropertyInfo(name, key, decription, propertyValueInfo, propertyTypeInfo, true);
     }
 
     private Boolean getUserCanAdministrateFromCache(Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache, DeviceMessage deviceMessage, Device device) {

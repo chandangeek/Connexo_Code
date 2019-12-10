@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>2.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -36,9 +36,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>ElsterDlmsLibrary</artifactId>
-            <version>2.0</version>
+            <groupId>com.energyict</groupId>
+            <artifactId>dlms-elster</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>

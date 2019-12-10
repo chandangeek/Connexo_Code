@@ -26,6 +26,7 @@ import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
@@ -329,6 +330,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
     }
 
 	@Override
+	@XmlTransient
 	public Optional<ReadingType> getCalculatedReadingType() {
 		if (isCumulative() && !calculatedReadingType.isPresent()) {
 			ReadingTypeCodeBuilder builder = this.builder();

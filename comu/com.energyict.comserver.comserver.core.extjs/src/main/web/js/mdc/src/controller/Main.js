@@ -21,7 +21,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.zones.controller.Zones',
         'Mdc.property.SecuritySet',
         'Mdc.property.SecurityAccessors',
-        'Mdc.property.CertificateSecurityAccessors'
     ],
 
     controllers: [
@@ -39,6 +38,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ComServerEdit',
         'Mdc.controller.setup.ComServerOverview',
         'Mdc.controller.setup.ComServersView',
+        'Mdc.controller.setup.OfflineComServerEdit',
+        'Mdc.controller.setup.OfflineComServerOverview',
+        'Mdc.controller.setup.OfflineComServersView',
         'Mdc.controller.setup.Comtasks',
         'Mdc.controller.setup.ConnectionMethods',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
@@ -149,7 +151,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.processes.controller.ProcessesController',
         'Mdc.processes.controller.ProcBulkActions',
         'Cfg.audit.controller.Audit',
-        'Mdc.controller.setup.AutoclosureExclusions'
+        'Mdc.controller.setup.AutoclosureExclusions',
+        'Cfg.properties.controller.ConfigProperties'
     ],
 
     stores: [
@@ -180,7 +183,6 @@ Ext.define('Mdc.controller.Main', {
         Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         Uni.property.controller.Registry.addProperty('SECURITYACCESSORSOUTPUT', 'Mdc.property.SecuritySet');
         Uni.property.controller.Registry.addProperty('SERVICEKEYSSIGNATURESOUTPUT', 'Mdc.property.SecurityAccessors');
-        Uni.property.controller.Registry.addProperty('CERTSECURITYACCESSORSOUTPUT', 'Mdc.property.CertificateSecurityAccessors');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
@@ -278,7 +280,13 @@ Ext.define('Mdc.controller.Main', {
                     route: 'devicecommunication',
                     items: [
                         {
-                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
+                            text: Uni.I18n.translate('general.offlineComServers', 'MDC', 'Mobile communication servers'),
+                            href: '#/administration/offlinecomservers',
+                            privileges: Mdc.privileges.Communication.view,
+                            route: 'offlinecomservers'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Online communication servers'),
                             href: '#/administration/comservers',
                             privileges: Mdc.privileges.Communication.view,
                             route: 'comservers'
@@ -312,6 +320,12 @@ Ext.define('Mdc.controller.Main', {
                             href: '#/administration/commandrules',
                             privileges: Mdc.privileges.CommandLimitationRules.view,
                             route: 'commandrules'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.communicationSettings', 'MDC', 'Communication settings'),
+                            href: '#/administration/commsettings',
+                            privileges: Mdc.privileges.Communication.view,
+                            route: 'commsettings'
                         }
                     ]
                 });

@@ -29,7 +29,7 @@ public class AbstractEndPointInitializer {
     private final EventService eventService;
 
     @Inject
-    AbstractEndPointInitializer(TransactionService transactionService,
+    public AbstractEndPointInitializer(TransactionService transactionService,
                                 ThreadPrincipalService threadPrincipalService,
                                 UserService userService,
                                 Thesaurus thesaurus,

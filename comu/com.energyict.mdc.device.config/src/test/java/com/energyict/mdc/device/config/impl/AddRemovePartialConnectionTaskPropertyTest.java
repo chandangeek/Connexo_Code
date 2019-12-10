@@ -19,7 +19,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
@@ -150,7 +150,7 @@ public class AddRemovePartialConnectionTaskPropertyTest {
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new TransactionModule(false),
-                new OrmModule());
+                new H2OrmModule());
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(OrmService.class);

@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.export;
 
-import com.elster.jupiter.export.impl.ReadingDataSelectorConfigImpl;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
@@ -122,5 +121,5 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     void setSuspendUntil(Instant suspendUntil);
 
-    Optional<ReadingDataSelectorConfigImpl> getReadingDataSelectorConfig();
+    Optional<ReadingDataSelectorConfig> getReadingDataSelectorConfig();
 }

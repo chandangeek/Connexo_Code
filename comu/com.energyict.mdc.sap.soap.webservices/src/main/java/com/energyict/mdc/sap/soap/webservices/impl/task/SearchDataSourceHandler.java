@@ -21,21 +21,24 @@ import java.math.BigDecimal;
 public class SearchDataSourceHandler implements TaskExecutor {
 
     private final ServiceCallService serviceCallService;
+    private final WebServiceActivator webServiceActivator;
 
     public SearchDataSourceHandler(ServiceCallService serviceCallService, WebServiceActivator webServiceActivator) {
         this.serviceCallService = serviceCallService;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        BigDecimal retries = new BigDecimal(WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
         findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
                 .stream()
                 .forEach(serviceCall -> {
+                    serviceCall = lock(serviceCall);
                     MasterMeterReadingDocumentCreateRequestDomainExtension domainExtension = serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class).get();
-                    BigDecimal retried = domainExtension.getAttemptNumber();
-                    if (retried.compareTo(retries) == -1) {
-                        domainExtension.setAttemptNumber(retried.add(BigDecimal.ONE));
+                    BigDecimal currentAttempt = domainExtension.getAttemptNumber();
+                    if (currentAttempt.compareTo(attempts) == -1) {
+                        domainExtension.setAttemptNumber(currentAttempt.add(BigDecimal.ONE));
                         serviceCall.update(domainExtension);
                         switch (serviceCall.getState()) {
                             case SCHEDULED:
@@ -57,5 +60,10 @@ public class SearchDataSourceHandler implements TaskExecutor {
         filter.states.add(DefaultState.SCHEDULED.name());
         filter.states.add(DefaultState.PAUSED.name());
         return serviceCallService.getServiceCallFinder(filter);
+    }
+
+    private ServiceCall lock(ServiceCall serviceCall) {
+        return serviceCallService.lockServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " disappeared."));
     }
 }
