@@ -203,10 +203,12 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             itemId: me.key + 'displayfield',
             renderer: function (data) {
                 var result = '';
-                Ext.isArray(data) && Ext.Array.each(data, function (item) {
-                    result +=
-                        '<span style="display:inline-block; float: left; margin-right:7px;" >' + me.getDisplayName(item) + '</span>' +
-                        '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(me.getTooltip(item)) + '"></span><br>';
+                Ext.isArray(data) && Ext.Array.each(data, function (itemList) {
+                    Ext.Array.each(itemList, function (item) {
+                        result +=
+                            '<span style="display:inline-block; float: left; margin-right:7px;" >' + me.getDisplayName(item.cimCode) + '</span>' +
+                            '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(me.getTooltip(item.cimCode)) + '"></span><br>';
+                    });
                 });
                 return result.length > 0 ? result : '-';
             }

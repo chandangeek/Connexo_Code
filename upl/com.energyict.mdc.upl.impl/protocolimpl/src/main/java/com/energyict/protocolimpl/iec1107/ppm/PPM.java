@@ -58,14 +58,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -155,13 +148,9 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
      * Property keys specific for PPM protocol.
      */
     private static final String PK_OPUS = "OPUS";
-    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
-    private static final String PK_RETRIES = Property.RETRIES.getName();
     private static final String PK_FORCE_DELAY = "ForcedDelay";
-
     private static final String PK_DELAY_AFTER_FAIL = "DelayAfterFail";
     private static final String PK_SECURITY_LEVEL = Property.SECURITYLEVEL.getName();
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
 
     /**
      * Property Default values
@@ -253,9 +242,9 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
                 this.integerSpec(PK_DELAY_AFTER_FAIL, PropertyTranslationKeys.IEC1107_DELAY_AFTER_FAIL),
                 this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC1107_CORRECTTIME),
-                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.stringSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.IEC1107_FORCEDELAY),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1));
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -291,11 +280,11 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         if (properties.getTypedProperty(PK_OPUS) != null) {
             this.pOpus = properties.getTypedProperty(PK_OPUS);
         }
-        if (properties.getTypedProperty(PK_TIMEOUT) != null) {
-            this.pTimeout = properties.getTypedProperty(PK_TIMEOUT);
+        if (properties.getTypedProperty(TIMEOUT.getName()) != null) {
+            this.pTimeout = properties.getTypedProperty(TIMEOUT.getName());
         }
-        if (properties.getTypedProperty(PK_RETRIES) != null) {
-            this.pRetries = properties.getTypedProperty(PK_RETRIES);
+        if (properties.getTypedProperty(RETRIES.getName()) != null) {
+            this.pRetries = properties.getTypedProperty(RETRIES.getName());
         }
         if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
             this.pRountTripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName());
@@ -309,13 +298,13 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
         if (properties.getTypedProperty(CORRECTTIME.getName()) != null) {
             this.pCorrectTime = properties.getTypedProperty(CORRECTTIME.getName());
         }
-        if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            this.pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (properties.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            this.pExtendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName());
         }
         if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
             this.pForceDelay = properties.getTypedProperty(PK_FORCE_DELAY);
         }
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override

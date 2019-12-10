@@ -7,7 +7,6 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -20,19 +19,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.time.PeriodicalScheduleExpression;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.ScheduleExpression;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionType;
-import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -51,7 +45,6 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
-import com.energyict.mdc.engine.impl.status.ComServerAliveStatusHandlerFactory;
 import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -169,9 +162,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
     private Properties engineProperties = new Properties();
     private BundleContext bundleContext = null;
-
-    private static final String COM_SERVER_STATUS_TASK_NAME = "ComServerAliveStatusTask";
-    private static final int COM_SERVER_STATUS_TASK_RETRY_DELAY = 60;
 
     public EngineServiceImpl() {
     }
@@ -399,7 +389,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
         keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
-        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }
 
@@ -526,13 +516,18 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             this.bundleContext = bundleContext;
             dataModel.register(this.getModule());
             upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
-                    version(10, 4, 7), Upgrader_V10_4_7.class));
+                    version(10, 4, 7), Upgrader_V10_4_7.class,
+                    version(10, 7, 1), Upgrader_V10_7_1.class));
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
             setEngineProperty(SERVER_TYPE_PROPERTY_NAME, bundleContext.getProperty(SERVER_TYPE_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
-            createOrUpdateComServerAliveStatusTask();
             this.launchComServer();
+            try {
+                new ComServerAliveLoopImpl(clock, engineConfigurationService, statusService, transactionService).run();
+            } catch (Exception e) {
+                LOGGER.severe(e.getMessage());
+            }
         } catch(Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
             // componentContext.disableComponent(componentContext.getBundleContext().getProperty(Constants.SERVICE_PID));
@@ -715,46 +710,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 //    public RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder() {
 //        return dataModel.getInstance(RemoteComServerImpl.RemoteComServerBuilderImpl.class);
 //    }
-
-    private void createOrUpdateComServerAliveStatusTask() {
-        createOrUpdateActionTask(ComServerAliveStatusHandlerFactory.COM_SERVER_ALIVE_TASK_DESTINATION,
-                COM_SERVER_STATUS_TASK_RETRY_DELAY,
-                TranslationKeys.COM_SERVER_STATUS_TASK_NAME_TRANSLATION,
-                COM_SERVER_STATUS_TASK_NAME,
-                PeriodicalScheduleExpression.every(engineConfigurationService.getComServerStatusAliveFrequency()).minutes().at(0).build());
-    }
-
-    private void createOrUpdateActionTask(String destinationSpecName, int destinationSpecRetryDelay,
-                                          TranslationKey subscriberSpecName, String taskName, ScheduleExpression scheduleExpression) {
-
-        threadPrincipalService.set(() -> "Activator");
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(taskName);
-            if (taskOptional.isPresent()) {
-                RecurrentTask task = taskOptional.get();
-                task.setScheduleExpression(scheduleExpression);
-                task.save();
-            } else {
-                DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
-                        .get()
-                        .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
-                destination.activate();
-                destination.subscribe(subscriberSpecName, EngineService.COMPONENTNAME, Layer.DOMAIN);
-
-                taskService.newBuilder()
-                        .setApplication("Admin")
-                        .setName(taskName)
-                        .setScheduleExpression(scheduleExpression)
-                        .setDestination(destination)
-                        .setPayLoad("payload")
-                        .scheduleImmediately(true)
-                        .build();
-            }
-            context.commit();
-        } catch (Exception e) {
-            LOGGER.severe(e.getMessage());
-        }
-    }
 
     private static class OptionalIdentificationService implements IdentificationService {
         private AtomicReference<Optional<IdentificationService>> identificationService = new AtomicReference<>(Optional.empty());

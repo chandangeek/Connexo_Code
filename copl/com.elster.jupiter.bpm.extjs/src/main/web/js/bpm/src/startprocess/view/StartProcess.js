@@ -159,8 +159,9 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
             Ext.getBody().unmask();
             me.down('#processes-panel').setVisible(!visible);
             me.down('#no-items-found-panel').setVisible(visible);
-            if (!visible) {
-                me.down('combobox[name=startProcessCombo]').bindStore(me.availableStore);
+            var startProcessCombo = me.down('combobox[name=startProcessCombo]');
+            if (!visible && startProcessCombo && (!startProcessCombo.store || startProcessCombo.store.storeId === "ext-empty-store")) {
+                startProcessCombo.bindStore(me.availableStore);
             }
             callback && callback(visible);
             viewport.setLoading(false);

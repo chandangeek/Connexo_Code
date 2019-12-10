@@ -1217,7 +1217,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
-    @XmlElement(type = ComScheduleImpl.class)
+    @JsonIgnore
+    @XmlTransient
     public Optional<ComSchedule> getComSchedule() {
         return this.comSchedule.getOptional();
     }
