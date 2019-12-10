@@ -65,5 +65,7 @@ public interface DataExportServiceCallType {
 
     List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls);
 
-    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall);
+    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCall);
+
+    Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> serviceCalls);
 }

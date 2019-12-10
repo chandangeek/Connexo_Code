@@ -25,14 +25,14 @@ public class DataSendingStatus {
         return new DataSendingStatus();
     }
 
-    public static DataSendingStatusBuilder failure() {
+    public static Builder failure() {
         DataSendingStatus result = new DataSendingStatus();
         result.failed = true;
-        return result.new DataSendingStatusBuilder();
+        return result.new Builder();
     }
 
-    public static DataSendingStatusBuilder builder() {
-        return new DataSendingStatus().new DataSendingStatusBuilder();
+    public static Builder builder() {
+        return new DataSendingStatus().new Builder();
     }
 
     public static DataSendingStatus merge(DataSendingStatus result1, DataSendingStatus result2) {
@@ -69,8 +69,8 @@ public class DataSendingStatus {
         }
     }
 
-    public class DataSendingStatusBuilder {
-        public DataSendingStatusBuilder withFailedDataSource(ReadingTypeDataExportItem item) {
+    public class Builder {
+        public Builder withFailedDataSource(ReadingTypeDataExportItem item) {
             failed = true;
             if (!allDataSourcesFailed) {
                 failedDataSources.add(item);
@@ -78,7 +78,7 @@ public class DataSendingStatus {
             return this;
         }
 
-        public DataSendingStatusBuilder withFailedDataSources(Collection<ReadingTypeDataExportItem> items) {
+        public Builder withFailedDataSources(Collection<ReadingTypeDataExportItem> items) {
             if (!items.isEmpty()) {
                 failed = true;
                 if (!allDataSourcesFailed) {
@@ -88,7 +88,7 @@ public class DataSendingStatus {
             return this;
         }
 
-        public DataSendingStatusBuilder withAllDataSourcesFailed() {
+        public Builder withAllDataSourcesFailed() {
             failed = true;
             failedDataSources.clear();
             allDataSourcesFailed = true;

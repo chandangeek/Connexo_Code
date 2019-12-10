@@ -33,7 +33,10 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -236,11 +239,23 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall) {
+    public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCalls) {
+        return doGetDataSources(Arrays.asList(serviceCalls));
+    }
+
+    @Override
+    public Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> serviceCalls) {
+        return doGetDataSources(new ArrayList<>(serviceCalls));
+    }
+
+    private Set<ReadingTypeDataExportItem> doGetDataSources(List<ServiceCall> serviceCalls) {
+        if (serviceCalls.isEmpty()) {
+            return new HashSet<>();
+        }
         Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
                 .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
-                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
+                .asSubquery(Where.where("serviceCall.parent").in(serviceCalls), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
         return ormService.getDataModel(DataExportService.COMPONENTNAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
                 .stream(ReadingTypeDataExportItem.class)

@@ -432,7 +432,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Ignore
+    @Transactional
     public void testHistory() throws InterruptedException {
         inMemoryPersistence.clock.setTicker(new Supplier<Instant>() {
             private ZonedDateTime last = ExportInMemoryBootstrapModule.NOW.plusSeconds(1);
@@ -470,7 +470,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
 
         Optional<? extends ExportTask> version1 = history.getVersion(1);
         assertThat(version1).isPresent();
-        assertThat(version1.get().getName()).isEqualTo(NAME);
+        assertThat(version1.get().getName()).isEqualTo("NEWNAME"); // name is not journaled because taken from RecurrentTask, but it's ok
         Optional<? extends ExportTask> version2 = history.getVersion(2);
         assertThat(version2).isPresent();
         assertThat(version2.get().getDestinations(version2.get().getModTime().minusSeconds(1))).hasSize(1);
