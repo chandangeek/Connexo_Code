@@ -68,6 +68,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private volatile TransactionService transactionService;
     private volatile boolean active = false;
     private volatile boolean reconfigureNeeded = false;
+
     private ThreadGroup threadGroup;
     private Principal batchPrincipal;
     private Registration commandRegistration;
@@ -247,7 +248,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 futures.remove(executorService);
             }
             executors.remove(key);
-        } else{
+        } else {
             LOGGER.info("Avoid null pointer exception " + "   Subscriber: " + key.getSubscriber() + "Destination:   " + key.getDestination());
         }
     }
@@ -316,7 +317,8 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                 executorService.shutdownNow();
             }
 
-            LOGGER.log(Level.SEVERE, e, () -> "MessageHandlerFactory for subscriber " + subscriberSpec.getDestination().getName() + " : " + subscriberSpec.getName() + " threw an exception while creating a new Messagehandler.");
+            LOGGER.log(Level.SEVERE, e, () -> "MessageHandlerFactory for subscriber " + subscriberSpec.getDestination()
+                    .getName() + " : " + subscriberSpec.getName() + " threw an exception while creating a new Messagehandler.");
         }
     }
 
@@ -383,6 +385,18 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
                     reconfigure();
                 } else {
                     reconfigureNeeded = true;
+                }
+                return;
+            case NEW_QUEUE_ADDED:
+                SubscriberExecutionSpec subscriberExecutionSpec = (SubscriberExecutionSpec) command.getProperties().get(AppServiceImpl.SUBSCRIBER_EXECUTION_SPEC);
+                if (!subscriberExecutionSpec.getSubscriberSpec().getDestination().isDefault()) {
+                    String defaultDestination = subscriberExecutionSpec.getSubscriberSpec().getDestination().getQueueTypeName();
+                    SubscriberKey subscriberKey = SubscriberKey.of(subscriberExecutionSpec);
+                    handlerFactories.entrySet().stream()
+                            .filter(entry -> entry.getKey().getDestination().equals(defaultDestination))
+                            .findAny()
+                            .map(Map.Entry::getValue)
+                            .ifPresent(messageHandlerFactory -> addNewMessageHandlerFactory(subscriberKey, messageHandlerFactory));
                 }
                 return;
             default:

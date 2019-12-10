@@ -20,7 +20,7 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.IOException;
 import java.math.BigDecimal;

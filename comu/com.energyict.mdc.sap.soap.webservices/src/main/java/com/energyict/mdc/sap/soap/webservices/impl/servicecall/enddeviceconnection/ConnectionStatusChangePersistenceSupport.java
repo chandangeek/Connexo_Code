@@ -22,8 +22,8 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 
 public class ConnectionStatusChangePersistenceSupport implements PersistenceSupport<ServiceCall, ConnectionStatusChangeDomainExtension> {
 
-    public static final String COMPONENT_NAME = "C01";
-    public static final String TABLE_NAME = "T01_" + WebServiceActivator.COMPONENT_NAME + "_" + COMPONENT_NAME;
+    public static final String COMPONENT_NAME = "CS1";
+    public static final String TABLE_NAME = WebServiceActivator.COMPONENT_NAME + "_" + COMPONENT_NAME + "_CR_SC_CPS";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
 
     @Override
@@ -63,17 +63,14 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-        Column oldIdColumn = table.column(ConnectionStatusChangeDomainExtension.FieldNames.ID.databaseName())
-                .varChar()
-                .map(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName())
-                .notNull()
-                .upTo(Version.version(10, 7, 1))
-                .add();
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.ID.databaseName())
                 .varChar()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName())
-                .since(Version.version(10, 7, 1))
-                .previously(oldIdColumn)
+                .notNull()
+                .add();
+        table.column(ConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                .varChar()
+                .map(ConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName())
                 .add();
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.UUID.databaseName())
                 .varChar(NAME_LENGTH)

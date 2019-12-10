@@ -45,6 +45,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -146,6 +148,15 @@ public class AbstractContactorOperationServiceCallHandlerTest {
             @Override
             public void save() {
 
+            }
+
+            @XmlElement(name = "type")
+            public String getXmlType() {
+                return this.getClass().getName();
+            }
+
+            public void setXmlType(String ignore) {
+                // For xml unmarshalling purposes only
             }
         }));
         when(comTask.isManualSystemTask()).thenReturn(true);

@@ -43,7 +43,10 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
-
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,18 +95,18 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     private List<ComTaskUserActionRecord> comTaskUserActionRecords = new ArrayList<>();
     private Set<ComTaskUserAction> comTaskUserActions = new HashSet<>();
 
-    private final DataModel dataModel;
-    private final Thesaurus thesaurus;
-    private final EventService eventService;
-    private final Provider<BasicCheckTaskImpl> basicCheckTaskProvider;
-    private final Provider<ClockTaskImpl> clockTaskProvider;
-    private final Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider;
-    private final Provider<LogBooksTaskImpl> logBooksTaskProvider;
-    private final Provider<MessagesTaskImpl> messagesTaskProvider;
-    private final Provider<RegistersTaskImpl> registersTaskProvider;
-    private final Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
-    private final Provider<TopologyTaskImpl> topologyTaskProvider;
-    private final Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider;
+    private DataModel dataModel;
+    private Thesaurus thesaurus;
+    private EventService eventService;
+    private Provider<BasicCheckTaskImpl> basicCheckTaskProvider;
+    private Provider<ClockTaskImpl> clockTaskProvider;
+    private Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider;
+    private Provider<LogBooksTaskImpl> logBooksTaskProvider;
+    private Provider<MessagesTaskImpl> messagesTaskProvider;
+    private Provider<RegistersTaskImpl> registersTaskProvider;
+    private Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
+    private Provider<TopologyTaskImpl> topologyTaskProvider;
+    private Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider;
 
     static final Map<String, Class<? extends ComTask>> IMPLEMENTERS = ImmutableMap.of(USER_DEFINED_COMTASK,
             ComTaskDefinedByUserImpl.class, SYSTEM_DEFINED_COMTASK, ComTaskDefinedBySystemImpl.class);
@@ -153,6 +156,10 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.VALUE_TOO_SMALL + "}")
     private int maxNrOfTries = 3;
 
+    public ComTaskImpl() {
+        super();
+    }
+
     @Inject
     ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider, DataModel dataModel,
             Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
@@ -180,11 +187,13 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     }
 
     @Override
+    @XmlAttribute
     public long getId() {
         return id;
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -210,6 +219,18 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = BasicCheckTaskImpl.class),
+            @XmlElement(type = RegistersTaskImpl.class),
+            @XmlElement(type = LoadProfilesTaskImpl.class),
+            @XmlElement(type = LogBooksTaskImpl.class),
+            @XmlElement(type = FirmwareManagementTaskImpl.class),
+            @XmlElement(type = MessagesTaskImpl.class),
+            @XmlElement(type = TopologyTaskImpl.class),
+            @XmlElement(type = StatusInformationTaskImpl.class),
+            @XmlElement(type = ClockTaskImpl.class),
+            @XmlElement(type = ManualMeterReadingsTaskImpl.class),
+    })
     public List<ProtocolTask> getProtocolTasks() {
         return Collections.unmodifiableList(protocolTasks);
     }
@@ -223,6 +244,14 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     @Override
     public int getMaxNrOfTries() {
         return maxNrOfTries;
+    }
+
+    @Override
+    public void setUserComTask(boolean ignore){
+    }
+
+    @Override
+    public void setSystemComTask(boolean ignore){
     }
 
     @Override
@@ -300,6 +329,7 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     }
 
     @Override
+    @XmlTransient
     public int getMaxNumberOfTries() {
         return maxNrOfTries;
     }

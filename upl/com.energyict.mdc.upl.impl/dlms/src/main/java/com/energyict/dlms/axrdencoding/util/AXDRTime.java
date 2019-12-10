@@ -87,7 +87,7 @@ public final class AXDRTime extends AbstractDataType {
      * Set the time
      * @param time String containing the time in format "hh:mm:ss"
      */
-    public void setTime(String time) throws IOException {
+    public void decode(String time) throws IOException {
         try {
             final String[] split = time.split(":");
             hour = Integer.parseInt(split[0]);
@@ -101,7 +101,7 @@ public final class AXDRTime extends AbstractDataType {
         }
     }
 
-    public String getTime() {
+    public String encode() {
         String readableTime = String.format("%02d", hour) + "h:" + String.format("%02d", minutes) + "m:" + String.format("%02d", seconds) + "s";
         if (milliSeconds != 0) {
             readableTime += ":";

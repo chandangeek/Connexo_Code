@@ -29,13 +29,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
+import com.energyict.mdc.engine.impl.commands.store.*;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.events.ComPortCommunicationLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
@@ -238,8 +232,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.appendPropertyToMessage(builder, property.getName(), property.getValue());
     }
 
-    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask) {
-        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(connectionTask.getDevice(), connectionTask.getProtocolDialectConfigurationProperties());
+    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
+        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(getComServerDAO(), connectionTask, comTaskExecution);
         if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
             currentTaskExecutionBuilder.ifPresent(b -> b.addComTaskExecutionMessageJournalEntry(now(), ComServer.LogLevel.INFO, asString(protocolDialectTypedProperties), ""));
         }
@@ -311,17 +305,27 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.zeroOutTimings();
             this.cleanStatistics();
         } finally {
+            addConnectionFailedEvent();
+            this.publish(new CannotEstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), connectionTask, e));
+            this.connectionLogger.cannotEstablishConnection(e, this.getJob().getThreadName());
+            logConnectionSetupFailure(e);
+        }
+    }
 
+    private void addConnectionFailedEvent() {
+        if (serviceProvider.engineService().isOnlineMode()) {
             this.getStoreCommand().add(
                     new PublishConnectionSetupFailureEvent(
                             connectionTask,
                             this.comPort,
                             this.jobExecution.getComTaskExecutions(),
                             getDeviceCommandServiceProvider()));
-
-            this.connectionLogger.cannotEstablishConnection(e, this.getJob().getThreadName());
-            this.publish(new CannotEstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), connectionTask, e));
-            logConnectionSetupFailure(e);
+        } else {
+            // Failure was in the preparation that creates the ExecutionContext
+            this.logger .log(
+                    Level.FINE,
+                    "Attempt to publish an event that a ConnectionTask has completed for OfflineEngine!",
+                    new Exception("For diagnostic purposes only"));
         }
     }
 
@@ -423,7 +427,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTask(), now()));
         initializeJournalist();
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
-            this.addProtocolDialectPropertiesAsJournalEntries(this.connectionTask);
+            this.addProtocolDialectPropertiesAsJournalEntries(getConnectionTask(), comTaskExecution);
         }
     }
 

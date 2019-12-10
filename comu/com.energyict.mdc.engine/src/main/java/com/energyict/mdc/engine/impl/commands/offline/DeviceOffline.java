@@ -6,6 +6,8 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 
+import javax.xml.bind.annotation.XmlElement;
+
 public enum DeviceOffline implements OfflineDeviceContext {
 
     needsEverything;
@@ -55,5 +57,12 @@ public enum DeviceOffline implements OfflineDeviceContext {
         return true;
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
 
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

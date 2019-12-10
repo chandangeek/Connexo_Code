@@ -12,6 +12,7 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.privileges.PrivilegeImpl;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

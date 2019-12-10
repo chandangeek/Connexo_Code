@@ -7,7 +7,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.BusinessDocumentMessageHeader;
@@ -66,20 +69,41 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
             confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), extension.getUuid(), now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(subParent, children));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(createBody(subParent, children, now));
+            // parent state still not changed before sending confirmation, so check children states
+            if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
+                confirmationMessage.setLog(createSuccessfulLog());
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+                confirmationMessage.setLog(createPartiallySuccessfulLog());
+            } else {
+                confirmationMessage.setLog(createFailedLog());
+            }
             return this;
         }
 
-        public Builder from(StatusChangeRequestBulkCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(message));
+        public Builder from(StatusChangeRequestBulkCreateMessage messages, String exceptionMessage, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(messages.getId(), messages.getUuid(), now));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(messages, now));
             confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
         }
 
+        public Builder from(StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(messages.getId(), messages.getUuid(), now));
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message, now);
+            msg.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
+            if (messages.getRequests().size() == 1) {
+                confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
+            }
+            return this;
+        }
+
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getId(), message.getUuid(), now));
-            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message);
+            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message, now);
             msg.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
             return this;
@@ -137,32 +161,44 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return messageBody;
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(ServiceCall parent, List<ServiceCall> children) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(ServiceCall parent, List<ServiceCall> children, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
 
             ConnectionStatusChangeDomainExtension extension = parent.getExtension(ConnectionStatusChangeDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+            messageBody.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), now));
             messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(extension.getId());
             messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(extension.getCategoryCode());
             children.stream().forEach(serviceCall -> messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
                     .add(createDeviceConnectionStatus(serviceCall)));
+            // parent state still not changed before sending confirmation, so check children states
+            if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
+                messageBody.setLog(createSuccessfulLog());
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
+                messageBody.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+                messageBody.setLog(createPartiallySuccessfulLog());
+            } else {
+                messageBody.setLog(createFailedLog());
+            }
             return messageBody;
         }
 
-        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBodies(StatusChangeRequestBulkCreateMessage message) {
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBodies(StatusChangeRequestBulkCreateMessage message, Instant now) {
             return message.getRequests().stream()
                     .map(m -> {
                         SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
-
+                        messageBody.setMessageHeader(createHeader(m.getRequestId(), m.getUuid(), now));
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(m.getId());
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(m.getCategoryCode());
                         return messageBody;
                     }).collect(Collectors.toList());
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(StatusChangeRequestCreateMessage message) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(StatusChangeRequestCreateMessage message, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
 
+            messageBody.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
             messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(message.getId());
             messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(message.getCategoryCode());
 
@@ -186,8 +222,8 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             UtilitiesConnectionStatusChangeResultCode resultCode =
                     OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
             resultCode.setValue(serviceCall.getState().equals(DefaultState.SUCCESSFUL)
-                    ? ProcessingResultCode.SUCCESSFUL.getCode()
-                    : ProcessingResultCode.FAILED.getCode());
+                    ? ConnectionStatusProcessingResultCode.SUCCESSFUL.getCode()
+                    : ConnectionStatusProcessingResultCode.FAILED.getCode());
             deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
 
             return deviceConnectionStatus;
@@ -218,6 +254,43 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             UUID messageUUID = OBJECT_FACTORY.createUUID();
             messageUUID.setValue(uuid);
             return messageUUID;
+        }
+
+        private Log createSuccessfulLog() {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
+            return log;
+        }
+
+        private Log createFailedLog() {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            return log;
+        }
+
+        private Log createFailedLog(String message) {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            log.getItem().add(createLogItem(message));
+            return log;
+        }
+
+        private Log createPartiallySuccessfulLog() {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+            return log;
+        }
+
+        private LogItem createLogItem(String message) {
+            LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
+            logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
+
+            LogItem logItem = OBJECT_FACTORY.createLogItem();
+            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
+            logItem.setCategoryCode(logItemCategoryCode);
+            logItem.setNote(message);
+
+            return logItem;
         }
 
         public StatusChangeRequestBulkCreateConfirmationMessage build() {

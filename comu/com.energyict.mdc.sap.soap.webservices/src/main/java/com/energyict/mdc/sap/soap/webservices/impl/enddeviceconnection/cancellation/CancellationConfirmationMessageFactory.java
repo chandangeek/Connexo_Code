@@ -14,6 +14,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscan
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.SmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.UtilitiesConnectionStatusChangeRequestCategoryCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationconfirmation.UtilitiesConnectionStatusChangeRequestID;
 
 import com.google.common.base.Strings;
@@ -44,7 +45,7 @@ public class CancellationConfirmationMessageFactory {
         } else {
             confirmMsg.setLog(createFailedLog(MessageSeeds.ERROR_CANCELLING_STATUS_CHANGE_REQUEST_LOG, document.getCancelledRequests(), document.getTotalRequests(),  document.getNotCancelledRequests()));
         }
-        confirmMsg.setUtilitiesConnectionStatusChangeRequest(createBodyMessage(document.getId()));
+        confirmMsg.setUtilitiesConnectionStatusChangeRequest(createBodyMessage(document.getId(), document.getCategoryCode()));
 
         return confirmMsg;
     }
@@ -65,12 +66,14 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
-    private SmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq createBodyMessage(String mrId) {
+    private SmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq createBodyMessage(String id, String code) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq confirmationMessage = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfUtilsConncnStsChgReq();
         UtilitiesConnectionStatusChangeRequestID valueId = objectFactory.createUtilitiesConnectionStatusChangeRequestID();
-        valueId.setValue(mrId);
+        valueId.setValue(id);
         confirmationMessage.setID(valueId);
-
+        UtilitiesConnectionStatusChangeRequestCategoryCode categoryCode = objectFactory.createUtilitiesConnectionStatusChangeRequestCategoryCode();
+        categoryCode.setValue(code);
+        confirmationMessage.setCategoryCode(categoryCode);
         return confirmationMessage;
     }
 

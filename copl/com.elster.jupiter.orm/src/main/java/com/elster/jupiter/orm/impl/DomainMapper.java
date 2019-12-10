@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
+import com.elster.jupiter.orm.associations.references.RefAnyImpl;
 import com.elster.jupiter.orm.fields.impl.LazyLoadingBlob;
 
 import com.google.inject.Injector;

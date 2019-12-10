@@ -74,9 +74,9 @@ class DataExportTaskExecutor implements TaskExecutor {
 
     @Override
     public void execute(TaskOccurrence occurrence) {
-        try{
+        try {
             createOccurrence(occurrence);
-        } catch(Exception e){
+        } catch (Exception e) {
             postFailEvent(eventService, occurrence, e.getLocalizedMessage());
             throw e;
         }
@@ -140,6 +140,7 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
+        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
         if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
@@ -150,12 +151,9 @@ class DataExportTaskExecutor implements TaskExecutor {
         }
 
         DataFormatter dataFormatter = getDataFormatter(task, occurrence);
-
         loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger)).run();
-
         ItemExporter itemExporter = new LazyItemExporter(dataFormatter, logger);
 
-        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
         CompositeDataExportDestination destination = occurrence.getRetryTime()
                 .map(task::getCompositeDestination)
                 .orElseGet(task::getCompositeDestination);
@@ -185,7 +183,10 @@ class DataExportTaskExecutor implements TaskExecutor {
             try (TransactionContext context = transactionService.getContext()) {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
                         .filter(Predicates.not(dataSendingStatus::isFailed))
-                        .peek(item -> item.setLastExportedDate(occurrence.getTriggerTime()))
+                        .peek(item -> {
+                            item.setLastExportedDate(occurrence.getTriggerTime());
+                            occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedPeriodEnd(s.getExportedDataInterval().upperEndpoint()));
+                        })
                         .forEach(ReadingTypeDataExportItem::update);
                 context.commit();
             }

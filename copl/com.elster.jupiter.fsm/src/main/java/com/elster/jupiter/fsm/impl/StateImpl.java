@@ -26,6 +26,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -172,6 +173,7 @@ public final class StateImpl implements State {
     }
 
     @Override
+    @XmlTransient
     public FiniteStateMachine getFiniteStateMachine() {
         return finiteStateMachine.get();
     }

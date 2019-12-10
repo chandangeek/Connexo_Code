@@ -52,7 +52,7 @@ import com.energyict.protocolimplv2.dlms.g3.profile.ProfileDataFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DProperties;
 import com.energyict.protocolimplv2.dlms.g3.registers.RegisterFactory;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.AS330DSecuritySupport;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 

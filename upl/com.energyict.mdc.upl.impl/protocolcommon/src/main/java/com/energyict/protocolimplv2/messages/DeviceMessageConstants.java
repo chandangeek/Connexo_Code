@@ -23,6 +23,8 @@ public final class DeviceMessageConstants {
     public static final String relayActionAttributeDefaultTranslation = "ContactorDeviceMessage.Relay action";
     public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
     public static final String relayOperatingModeAttributeDefaultTranslation = "Relay operating mode";
+    public static final String contactorValveEnablePassword = "ContactorDeviceMessage.valveEnablePassword";
+
 
     public static final String broadcastLogicalDeviceIdAttributeName = "FirmwareDeviceMessage.broadcast.logicaldeviceid";
     public static final String broadcastLogicalDeviceIdAttributeDefaultTranslation = "Broadcast logical device ID";
@@ -51,6 +53,12 @@ public final class DeviceMessageConstants {
     public static final String firmwareUpdateVersionNumberAttributeDefaultTranslation = "Version number";
     public static final String firmwareUpdateFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
     public static final String firmwareUpdateUserFileAttributeDefaultTranslation = "Firmware file";
+    public static final String firmwareUpdateImageTypeAttributeName = "FirmwareDeviceMessage.ImageType";
+    public static final String firmwareUpdateImageTypeAttributeNameDefaultTranslation = "Image Type";
+    public static final String firmwareUpdateKDLAttributeName = "FirmwareDeviceMessage.KDL";
+    public static final String firmwareUpdateKDLAttributeNameDefaultTranslation = "KDL";
+    public static final String firmwareUpdateHashAttributeName = "FirmwareDeviceMessage.Hash";
+    public static final String firmwareUpdateHashAttributeNameDefaultTranslation = "Hash";
     public static final String configurationCAImageFileAttributeName = "FirmwareDeviceMessage.configurationCAImageFileAttributeName";
     public static final String configurationCAImageFileDefaultTranslation = "CA configuration image";
     public static final String firmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
@@ -645,6 +653,17 @@ public final class DeviceMessageConstants {
     public static final String autoConnectDestionation1DefaultTranslation = "Destionation 1";
     public static final String autoConnectDestionation2 = "NetworkConnectivityMessage.destination2";
     public static final String autoConnectDestionation2DefaultTranslation = "Destionation 2";
+    public static final String autoConnectRepetitions = "NetworkConnectivityMessage.autoconnect.repetitions";
+    public static final String autoConnectRepetitionsDefaultTranslation = "Repetitions";
+    public static final String autoConnectRepetitionsDelay = "NetworkConnectivityMessage.autoconnect.repetitionsDelay";
+    public static final String autoConnectRepetitionsDelayDefaultTranslation = "Repetitions Delay";
+    public static final String autoConnectDayMap = "NetworkConnectivityMessage.autoconnect.daymap";
+    public static final String autoConnectDayMapDefaultTranslation = "Autoconnect Daymap";
+    public static final String autoConnectGSMRegistrationTimeout = "NetworkConnectivityMessage.autoconnect.GSMregistrationTimeout";
+    public static final String autoConnectGSMRegistrationTimeoutDefaultTranslation = "GSM Registration Timeout";
+    public static final String autoConnectCosemSessionRegistrationTimeout = "NetworkConnectivityMessage.autoconnect.cosemSessionTimeout";
+    public static final String autoConnectCosemSessionRegistrationTimeoutDefaultTranslation = "COSEM Session Timeout";
+
     public static final String autoAnswerStartTime = "NetworkConnectivityMessage.autoanswer.starttime";
     public static final String autoAnswerStartTimeDefaultTranslation = "Start time";
     public static final String autoAnswerEndTime = "NetworkConnectivityMessage.autoanswer.endtime";
@@ -1791,6 +1810,8 @@ public final class DeviceMessageConstants {
     public static final String vpnVirtualIPEnabledDefaultTranslation = "Set virtual IP enabled";
     public static final String vpnIPCompressionEnabled = "NetworkConnectivityMessage.vpnIPCompressionEnabled";
     public static final String vpnIPCompressionEnabledDefaultTranslation = "Set IP compression enabled";
+    public static final String simPincode = "NetworkConnectivityMessage.simPincode";
+    public static final String simPincodeDefaultTranslation = "Change the sim PIN code";
 
     //Debug log IC
     public static final String remoteSyslogTransportServiceType = "DeviceActionMessage.remoteSyslogTransportServiceType";

@@ -13,7 +13,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-08 (16:46)
  */
-class AllDevicesRequest implements Request {
+class AllDevicesRequest extends RequestImpl {
 
     @Override
     public void applyTo (EventPublisher eventPublisher) {

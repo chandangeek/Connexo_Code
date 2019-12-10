@@ -22,6 +22,10 @@ class BoundedBigDecimalPropertySpecImpl extends BasicPropertySpec implements Bou
     private BigDecimal lowerLimit;
     private BigDecimal upperLimit;
 
+    public BoundedBigDecimalPropertySpecImpl() {
+        super(new BigDecimalFactory());
+    }
+
     BoundedBigDecimalPropertySpecImpl(BigDecimal lowerLimit, BigDecimal upperLimit) {
         super(new BigDecimalFactory());
         this.lowerLimit = lowerLimit;

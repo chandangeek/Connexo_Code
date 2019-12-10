@@ -16,7 +16,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 
 import java.util.ArrayList;
 import java.util.List;

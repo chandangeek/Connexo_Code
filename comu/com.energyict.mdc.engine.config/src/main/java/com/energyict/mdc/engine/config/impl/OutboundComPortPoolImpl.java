@@ -18,6 +18,8 @@ import com.google.inject.Provider;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,10 +36,16 @@ public final class OutboundComPortPoolImpl extends ComPortPoolImpl implements Ou
 
     public static final String FIELD_TASKEXECUTIONTOMEOUT = "taskExecutionTimeout";
 
-    private final Provider<ComPortPoolMember> comPortPoolMemberProvider;
+    private Provider<ComPortPoolMember> comPortPoolMemberProvider;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     private TimeDuration taskExecutionTimeout;
     private final List<ComPortPoolMember> comPortPoolMembers = new ArrayList<>();
+
+    private boolean inbound;
+
+    protected OutboundComPortPoolImpl() {
+        super();
+    }
 
     @Inject
     protected OutboundComPortPoolImpl(DataModel dataModel, Provider<ComPortPoolMember> comPortPoolMemberProvider, Thesaurus thesaurus, EventService eventService) {
@@ -54,16 +62,20 @@ public final class OutboundComPortPoolImpl extends ComPortPoolImpl implements Ou
     }
 
     @Override
+    @XmlAttribute
     public boolean isInbound () {
-        return false;
+        inbound = false;
+        return inbound;
     }
 
     @Override
+    @XmlAttribute
     public TimeDuration getTaskExecutionTimeout() {
         return new TimeDuration(this.taskExecutionTimeout.getCount(), this.taskExecutionTimeout.getTimeUnitCode());
     }
 
     @Override
+    @XmlElement(type = OutboundComPortImpl.class, name = "comPorts")
     public List<OutboundComPort> getComPorts() {
         return comPortPoolMembers.stream().map(ComPortPoolMember::getComPort).collect(Collectors.toList());
     }

@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<cosemattributevalidators>
+  <validator name="logical_name">
+    <octet-string length="6" />
+  </validator>
+
+
+  <validator name="enum">
+    <enum/>
+  </validator>
+
+  <validator name="dateTime">
+    <date_time/>
+  </validator>
+
+  <validator name="array">
+    <array/>
+  </validator>
+  
+  <validator name="bit_string">
+    <bit-string/>
+  </validator>
+
+
+
+  <validator name="octetString_DateTime">
+    <octet-string length="12" />
+  </validator>
+
+  <validator name="octetString">
+    <octet-string />
+  </validator>
+
+
+  <validator name="double_long_unsigned">
+    <double-long-unsigned/>
+  </validator>
+
+  <validator name="long_unsigned">
+    <long-unsigned/>
+  </validator>
+
+  <validator name="long">
+    <long/>
+  </validator>
+
+
+  <validator name="unsigned">
+    <unsigned/>
+  </validator>
+
+  <validator name="integer">
+    <integer/>
+  </validator>
+
+  <validator name="boolean">
+    <boolean/>
+  </validator>
+
+
+  <validator name="scaler_unit">
+    <structure name="scal_unit_type">
+      <integer name="scaler"/>
+      <enum name="unit"/>
+    </structure>
+  </validator>
+
+
+
+
+  <validator name="object_list_V0">
+    <array name="object_list_type">
+      <structure name="object_list_element">
+        <long-unsigned name="class_id"/>
+        <unsigned name="version"/>
+        <octet-string length="6" name="logical_name"/>
+        <structure name="access_right">
+          <array name="attribute_access_descriptor">
+            <structure name="attribute_access_item">
+              <integer name="attribute_id"/>
+              <enum name="access_mode"/>
+              <CHOICE name="access_selectors">
+                <null-data/>
+                <array>
+                  <integer/>
+                </array>
+              </CHOICE>
+            </structure>
+          </array>
+          <array name="method_access_descriptor">
+            <structure name="method_access_item">
+              <integer name="method_id"/>
+              <boolean name="access_mode"/>
+            </structure>
+          </array>
+        </structure>
+      </structure>
+    </array>
+  </validator>
+
+  <validator name="object_list_V1">
+    <array name="object_list_type">
+      <structure name="object_list_element">
+        <long-unsigned name="class_id"/>
+        <unsigned name="version"/>
+        <octet-string length="6" name="logical_Name"/>
+        <structure name="access_right">
+          <array name="attribute_access_descriptor">
+            <structure name="attribute_access_item">
+              <integer name="attribute_id"/>
+              <enum name="access_mode"/>
+              <CHOICE name="access_selectors">
+                <null-data/>
+                <array>
+                  <integer/>
+                </array>
+              </CHOICE>
+            </structure>
+          </array>
+          <array name="method_access_descriptor">
+            <structure name="method_access_item">
+              <integer name="method_id"/>
+              <enum name="access_mode"/>
+            </structure>
+          </array>
+        </structure>
+      </structure>
+    </array>
+  </validator>
+  <validator name="capture_objects">
+    <array name="capture_objects">
+      <structure name="capture_object_definition">
+        <long-unsigned name="class_id"/>
+        <octet-string length="6" name="ogical_name"/>
+        <integer name="attribute_index"/>
+        <long-unsigned name="data_index"/>
+      </structure>
+    </array>
+  </validator>
+  <validator name="capture_object_definition">
+    <structure name="capture_object_definition">
+      <long-unsigned name="class_id"/>
+      <octet-string length="6" name="logical_name"/>
+      <integer name="attribute_index"/>
+      <long-unsigned name="data_index"/>
+    </structure>
+  </validator>
+
+  <validator name="profile_buffer">
+    <array name="buffer"/>
+  </validator>
+
+  <validator name="register_assignment">
+    <array name="register_assignment">
+      <structure name="object_definition">
+        <long-unsigned name="class_id"/>
+        <octet-string length="6" name="logical_name"/>
+      </structure>
+    </array>
+  </validator>
+  
+  
+  <validator name="SAP_assignment_list">
+    <array name="asslist_type">
+      <structure name="asslist_element">
+        <long-unsigned name="SAP"/>
+        <octet-string name="logical_device_name"/>
+      </structure>
+    </array>
+  </validator>
+
+  <validator name="mask_list">
+    <array name="mask_list">
+      <structure name="register_act_mask">
+        <octet-string name="mask_name"/>
+        <array name="index_array">
+          <unsigned/>
+        </array>
+      </structure>
+    </array>
+  </validator>
+
+
+  <validator name="active_mask">
+    <octet-string name="mask_name"/>
+  </validator>
+
+  <validator name="special_days_table_entries">
+    <array name="entries">
+      <structure name="spec_day_entry">
+        <long-unsigned name="index"/>
+        <octet-string length="5" name="specialday_date"/>
+        <unsigned name="day_id"/>
+      </structure>
+    </array>
+  </validator>
+
+
+  <validator name="season_profile">
+    <array name="seasons">
+      <structure name="season">
+        <octet-string name="season_profile_name"/>
+        <octet-string length="12" name="season_start"/>
+        <octet-string name="week_name"/>
+      </structure>
+    </array>
+  </validator> 
+  
+  <validator name="image_to_activate_info">
+    <array name="image_to_activate_info_elements">
+      <structure name="mage_to_activate_info_element">
+        <double-long-unsigned name="season_profile_name"/>
+        <octet-string name="image_identification"/>
+        <octet-string name="image_signature"/>
+      </structure>
+    </array>
+  </validator>
+  
+<!--    <validator name="image_to_activate_info_V0">
+    <array name="image_to_activate_info">
+      <structure name="image_to_activate_info_element">
+        <double-long-unsigned name="image_size"/>
+        <octet-string name="image_identification"/>
+        <octet-string name="image_signature"/>
+      </structure>
+    </array>
+  </validator>-->
+
+
+
+  <validator name="week_profile_table">
+    <array name="week_profiles">
+      <structure name="week_profiles">
+        <octet-string name="week_profile_name"/>
+        <unsigned name="day_id_monday"/>
+        <unsigned name="day_id_tuesday"/>
+        <unsigned name="day_id_wednesday"/>
+        <unsigned name="day_id_thursday"/>
+        <unsigned name="day_id_friday"/>
+        <unsigned name="day_id_saturday"/>
+        <unsigned name="day_id_sunday"/>
+      </structure>
+    </array>
+  </validator>
+
+  <validator name="day_profile_table">
+    <array name="day_profiles">
+      <structure name="day_profile">
+        <unsigned name="day_id"/>
+        <array name="day_schedule">
+          <structure name="day_profile_action">
+            <CHOICE name="start_time">
+              <octet-string length="4" name="start_time"/>
+              <time name="start_time"/> <!--For EK280 V1.10 but not allowed in BB ed.10 -->
+            </CHOICE>
+            <octet-string length="6" name="script_logical_name"/>
+            <long-unsigned name="script_selector"/>
+          </structure>
+        </array>
+      </structure>
+    </array>
+  </validator>
+  
+  
+  <validator name="actions">
+    <array name="actions">
+      <structure name="action_set">
+        <structure name="action_up">
+          <octet-string length="6" name="script_logical_name"/>
+          <long-unsigned name="script_selector"/>
+        </structure>
+        <structure name="action_down">
+          <octet-string length="6" name="script_logical_name"/>
+          <long-unsigned name="script_selector"/>
+        </structure>
+      </structure>
+    </array>
+  </validator>
+  
+  
+  
+  <validator name="initialization_string">
+    <array name="initialization_string_elements">
+      <structure name="initialization_string_element">
+        <octet-string name="request"/>
+        <octet-string name="response"/>
+        <long-unsigned name="delay_after_response"/>
+      </structure>
+    </array>
+  </validator>
+  
+  <validator name="modem_profile">
+    <array name="modem_profile_elements">
+      <octet-string name="modem_profile_element"/>
+    </array>
+  </validator>
+  
+
+  
+
+  <validator name="processed_value_definition">
+    <structure name="processed_value_definition">
+      <long-unsigned name="class_id"/>
+      <octet-string length="6" name="logical_name"/>
+      <integer name="attribute_index"/>
+    </structure>
+  </validator>
+  
+  <validator name="value_definition">
+    <structure name="value_definition">
+      <long-unsigned name="class_id"/>
+      <octet-string length="6" name="logical_name"/>
+      <integer name="attribute_index"/>
+    </structure>
+  </validator>
+  
+  
+  <validator name="associated_partners_id">
+    <structure name="associated_partners_type">
+      <integer name="client_SAP"/>
+      <long-unsigned name="server_SAP"/>
+    </structure>
+  </validator>
+  
+  <validator name="number_of_rings">
+    <structure name="nr_rings_type">
+      <unsigned name="nr_rings_in_window"/>
+      <unsigned name="nr_rings_out_of_window"/>
+    </structure>
+  </validator>
+ 
+  
+  <validator name="application_context_name">
+    <CHOICE>
+      <structure name="name">
+        <unsigned name="joint-iso-ctt-element"/>
+        <unsigned name="country-element"/>
+        <long-unsigned name="country-name-element"/>
+        <unsigned name="identified-organization-element"/>
+        <unsigned name="DLMS-UA-element"/>
+        <unsigned name="application-context-element"/>
+        <unsigned name="context-id-element"/>
+      </structure>
+      <octet-string length="9" name="name"/>
+    </CHOICE>
+  </validator>
+  
+  
+  <validator name="xDLMS_context_info">
+    <structure name="xDLMS-context-type">
+      <bit-string name="conformance"/>
+      <long-unsigned name="max_receive_pdu_size"/>
+      <long-unsigned name="max_send_pdu_size"/>
+      <unsigned name="dlms_version_number"/>
+      <integer name="quality_of_service"/>
+      <octet-string name="cyphering_info"/>
+    </structure>
+  </validator>
+  
+  
+  <validator name="authentication_ mechanism_name">
+    <CHOICE>
+      <structure name="name">
+        <unsigned name="joint-iso-ctt-element"/>
+        <unsigned name="country-element"/>
+        <long-unsigned name="country-name-element"/>
+        <unsigned name="identified-organization-element"/>
+        <unsigned name="DLMS-UA-element"/>
+        <unsigned name="authentication-mechanism-name-element"/>
+        <unsigned name="mechanism-id-element"/>
+      </structure>
+      <octet-string length="9" name="name"/>
+    </CHOICE>
+  </validator>
+  
+  
+  
+
+  <validator name="scripts">
+    <array name="scripts">
+      <structure name="script">
+        <long-unsigned name="script_identifier"/>
+        <array name="actions">
+          <structure name="action_specification">
+            <enum name="service_id" />
+            <long-unsigned name="class_id"/>
+            <octet-string length="6" name="logical_name"/>
+            <integer name="index"/>
+            <ANY name="parameter"/>
+          </structure>
+        </array>
+      </structure>
+    </array>
+  </validator>
+  
+  
+  <validator name="quality_of_service">
+    <structure name="quality_of_service">
+      <structure name="default">
+        <unsigned name="precedence"/>
+        <unsigned name="delay"/>
+        <unsigned name="reliability"/>
+        <unsigned name="peak throughput"/>
+        <unsigned name="mean throughput"/>
+      </structure>
+      <structure name="requested">
+        <unsigned name="precedence"/>
+        <unsigned name="delay"/>
+        <unsigned name="reliability"/>
+        <unsigned name="peak throughput"/>
+        <unsigned name="mean throughput"/>
+      </structure>
+    </structure>
+  </validator>
+   
+   
+   <validator name="array_of_octet_strings">
+    <array name="array">
+        <octet-string name="octet_string"/>
+    </array>
+  </validator>
+  
+  
+  <validator name="timewindow">
+    <array name="window_elements">
+      <structure name="window_element">
+        <octet-string length="12" name="start _time"/>
+        <octet-string length="12" name="end_time"/>
+      </structure>
+    </array>
+  </validator>
+
+</cosemattributevalidators>

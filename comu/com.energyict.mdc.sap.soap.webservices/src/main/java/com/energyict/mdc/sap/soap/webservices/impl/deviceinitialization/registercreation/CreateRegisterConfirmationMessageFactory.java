@@ -118,7 +118,7 @@ public class CreateRegisterConfirmationMessageFactory {
                 .filter(child -> child.getState() == FAILED || child.getState() == CANCELLED)
                 .map(child -> {
                     UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-                    return extension.getErrorMessage();
+                    return "["+ extension.getLrn() + "] - " + extension.getErrorMessage();
                 }).collect(Collectors.joining("; "));
     }
 

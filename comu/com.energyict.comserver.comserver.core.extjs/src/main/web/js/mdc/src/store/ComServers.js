@@ -13,6 +13,11 @@ Ext.define('Mdc.store.ComServers',{
        property: 'name',
        direction: 'ASC'
     }],*/
+    filters: [{
+        property: 'comServerType',
+        value: '0'
+    }],
+    remoteFilter: true,
     remoteSort: true,
     proxy: {
         type: 'rest',

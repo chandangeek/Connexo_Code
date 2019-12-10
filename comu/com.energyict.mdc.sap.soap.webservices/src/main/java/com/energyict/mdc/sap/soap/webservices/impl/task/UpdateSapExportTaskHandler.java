@@ -6,7 +6,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.task;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -18,10 +17,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
-import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeProcessor.DEFAULT_GROUP_NAME;
 import static com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeProcessor.DEFAULT_TASK_NAME;
@@ -55,10 +51,13 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
                     && exportTask.get().getReadingDataSelectorConfig().get().getExportItems().stream()
                     .filter(item -> ((EndDevice) item.getDomainObject()).getId() == endDeviceEntry.getMember().getId())
                     .allMatch(item -> {
-                        Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdDateForChannelOnDevice(endDeviceEntry.getMember()
+                        Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdIntervalForChannelOnDevice(endDeviceEntry.getMember()
                                 .getId(), item.getReadingType().getMRID());
                         if (lastProfileIdInterval.isPresent()) {
-                            return item.getLastExportedDate().isPresent() && item.getLastExportedDate().get().isAfter(lastProfileIdInterval.get().getEnd());
+                            if (lastProfileIdInterval.get().getEnd() == null) {
+                                return false;
+                            }
+                            return item.getLastExportedPeriodEnd().isPresent() && item.getLastExportedPeriodEnd().get().isAfter(lastProfileIdInterval.get().getEnd());
                         }
                         return true;
                     });

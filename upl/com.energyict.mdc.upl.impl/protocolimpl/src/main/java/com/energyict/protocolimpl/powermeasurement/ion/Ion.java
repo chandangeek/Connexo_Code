@@ -46,14 +46,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * Integrated Object Network (ION) architecture
@@ -78,15 +71,6 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     /**
      * Property keys
      */
-    private static final String PK_CORRECTTIME = CORRECTTIME.getName();
-    private static final String PK_ROUNDTRIPCORRECTION = ROUNDTRIPCORRECTION.getName();
-    private static final String PK_PROFILEINTERVAL = PROFILEINTERVAL.getName();
-    private static final String PK_SERIALNUMBER = SERIALNUMBER.getName();
-    private static final String PK_PASSWORD = PASSWORD.getName();
-    private static final String PK_NODEID = NODEID.getName();
-    private static final String PK_TIMEOUT = TIMEOUT.getName();
-    private static final String PK_RETRIES = RETRIES.getName();
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_DATA_RECORDER_NAME = "DataRecorderName";
     private static final String PK_USER_ID = "UserId";
     private static final String PK_DTR_BEHAVIOUR = "DTRBehaviour";
@@ -167,9 +151,9 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     public List<String> getOptionalKeys() {
         return Arrays.asList(
-                PK_TIMEOUT,
-                PK_RETRIES,
-                PK_EXTENDED_LOGGING,
+                TIMEOUT.getName(),
+                RETRIES.getName(),
+                EXTENDED_LOGGING.getName(),
                 PK_DATA_RECORDER_NAME,
                 PK_USER_ID,
                 PK_DTR_BEHAVIOUR,
@@ -180,14 +164,14 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(PK_NODEID, PropertyTranslationKeys.ION_NODEID),
-                this.stringSpec(PK_SERIALNUMBER, PropertyTranslationKeys.ION_SERIALNUMBER),
-                this.integerSpec(PK_PROFILEINTERVAL, PropertyTranslationKeys.ION_PROFILEINTERVAL),
-                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.ION_TIMEOUT),
-                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.ION_RETRIES),
-                this.integerSpec(PK_ROUNDTRIPCORRECTION, PropertyTranslationKeys.ION_ROUNDTRIPCORRECTION),
-                this.integerSpec(PK_CORRECTTIME, PropertyTranslationKeys.ION_CORRECTTIME),
-                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.ION_EXTENDED_LOGGING),
+                this.integerSpec(NODEID.getName(), PropertyTranslationKeys.ION_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.ION_SERIALNUMBER),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.ION_PROFILEINTERVAL),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.ION_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.ION_RETRIES),
+                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.ION_ROUNDTRIPCORRECTION),
+                this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.ION_CORRECTTIME),
+                this.stringSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.ION_EXTENDED_LOGGING),
                 this.stringSpec(PK_DATA_RECORDER_NAME, PropertyTranslationKeys.ION_DATA_RECORDER_NAME),
                 this.integerSpec(PK_DTR_BEHAVIOUR, PropertyTranslationKeys.ION_DTR_BEHAVIOUR),
                 this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.ION_FORCE_DELAY),
@@ -213,8 +197,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             pUserId = properties.getTypedProperty(PK_USER_ID);
         }
 
-        if (properties.getTypedProperty(PK_PASSWORD) != null) {
-            pPassword = properties.getTypedProperty(PK_PASSWORD);
+        if (properties.getTypedProperty(PASSWORD.getName()) != null) {
+            pPassword = properties.getTypedProperty(PASSWORD.getName());
         }
 
         try {
@@ -225,32 +209,32 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             throw new InvalidPropertyException(e, e.getMessage());
         }
 
-        if (properties.getTypedProperty(PK_SERIALNUMBER) != null) {
-            pSerialNumber = properties.getTypedProperty(PK_SERIALNUMBER);
+        if (properties.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            pSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
         }
 
-        if (properties.getTypedProperty(PK_PROFILEINTERVAL) != null) {
-            pProfileInterval = properties.getTypedProperty(PK_PROFILEINTERVAL);
+        if (properties.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName());
         }
 
-        if (properties.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = properties.getTypedProperty(PK_TIMEOUT);
+        if (properties.getTypedProperty(TIMEOUT.getName()) != null) {
+            pTimeout = properties.getTypedProperty(TIMEOUT.getName());
         }
 
-        if (properties.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = properties.getTypedProperty(PK_RETRIES);
+        if (properties.getTypedProperty(RETRIES.getName()) != null) {
+            pRetries = properties.getTypedProperty(RETRIES.getName());
         }
 
-        if (properties.getTypedProperty(PK_ROUNDTRIPCORRECTION) != null) {
-            pRountTripCorrection = properties.getTypedProperty(PK_ROUNDTRIPCORRECTION);
+        if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+            pRountTripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName());
         }
 
-        if (properties.getTypedProperty(PK_CORRECTTIME) != null) {
-            pCorrectTime = properties.getTypedProperty(PK_CORRECTTIME);
+        if (properties.getTypedProperty(CORRECTTIME.getName()) != null) {
+            pCorrectTime = properties.getTypedProperty(CORRECTTIME.getName());
         }
 
-        if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (properties.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            pExtendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName());
         }
 
         if (properties.getTypedProperty(PK_DATA_RECORDER_NAME) != null) {

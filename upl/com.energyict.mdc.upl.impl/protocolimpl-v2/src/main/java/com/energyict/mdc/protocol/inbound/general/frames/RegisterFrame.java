@@ -9,8 +9,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
 import java.util.Date;

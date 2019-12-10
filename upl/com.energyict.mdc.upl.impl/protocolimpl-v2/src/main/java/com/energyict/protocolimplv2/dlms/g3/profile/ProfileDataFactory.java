@@ -15,7 +15,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
 import com.energyict.protocolimpl.dlms.g3.profile.G3Profile;
 import com.energyict.protocolimplv2.dlms.g3.cache.G3Cache;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;

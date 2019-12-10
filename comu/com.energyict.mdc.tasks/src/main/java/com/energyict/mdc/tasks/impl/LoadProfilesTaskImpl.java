@@ -12,6 +12,7 @@ import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -61,6 +62,11 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask,
     @Override
     public void postLoad() {
         this.minClockDiffBeforeBadTime = this.postLoad(this.minClockDiffBeforeBadTime);
+    }
+
+    public LoadProfilesTaskImpl() {
+        super();
+        setFlags(FLAGS);
     }
 
     @Inject
@@ -169,5 +175,10 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask,
     @Override
     public void setCreateMeterEventsFromStatusFlags(boolean createMeterEventsFromStatusFlags) {
         this.createMeterEventsFromStatusFlags = createMeterEventsFromStatusFlags;
+    }
+
+    @XmlAttribute
+    public DeviceOfflineFlags getFlags() {
+        return FLAGS;
     }
 }

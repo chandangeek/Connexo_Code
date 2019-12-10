@@ -13,6 +13,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -37,6 +38,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private long id;
     private Instant lastRun;
     private Instant lastExportedDate;
+    private Instant lastExportedPeriodEnd;
     private String readingTypeMRId;
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
@@ -93,6 +95,11 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
+    public Optional<Instant> getLastExportedPeriodEnd() {
+        return Optional.ofNullable(lastExportedPeriodEnd);
+    }
+
+    @Override
     public ReadingDataSelectorConfig getSelector() {
         return selector.orElseThrow(IllegalStateException::new);
     }
@@ -105,6 +112,11 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void setLastExportedDate(Instant lastExportedDate) {
         this.lastExportedDate = lastExportedDate;
+    }
+
+    @Override
+    public void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd) {
+        this.lastExportedPeriodEnd = lastExportedPeriodEnd;
     }
 
     @Override
@@ -144,7 +156,18 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
 
     @Override
     public String getDescription() {
-        return getDomainObject().getName() + ":" + getReadingType().getFullAliasName();
+        ReadingContainer readingContainer = getReadingContainer();
+        String description;
+        if (readingContainer instanceof Meter) {
+            description = ((Meter) readingContainer).getName();
+        } else if (readingContainer instanceof MetrologyContractChannelsContainer) {
+            MetrologyContractChannelsContainer metrologyContractChannelsContainer = (MetrologyContractChannelsContainer) readingContainer;
+            description = metrologyContractChannelsContainer.getUsagePoint().get().getName()
+                    + ':' + metrologyContractChannelsContainer.getMetrologyContract().getMetrologyPurpose().getName();
+        } else {
+            throw new IllegalStateException("Unexpected domain object linked to export item");
+        }
+        return description + ":" + getReadingType().getFullAliasName();
     }
 
     @Override

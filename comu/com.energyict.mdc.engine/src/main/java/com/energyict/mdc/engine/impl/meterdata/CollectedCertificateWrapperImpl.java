@@ -22,6 +22,8 @@ public class CollectedCertificateWrapperImpl implements CollectedCertificateWrap
     private String certificateSerialNumber;
     private String certificateIssuerDistinguishedName;
     private Date certificateExpireDate;
+    private String alias;
+    private String trustStoreName;
 
     public CollectedCertificateWrapperImpl(X509Certificate certificate) {
         super();
@@ -29,6 +31,17 @@ public class CollectedCertificateWrapperImpl implements CollectedCertificateWrap
         this.certificateExpireDate = certificate.getNotAfter();
         this.certificateSerialNumber = certificate.getSerialNumber().toString();
         this.certificateIssuerDistinguishedName = certificate.getIssuerDN().getName();
+        this.alias = certificate.getSerialNumber().toString();
+    }
+
+    public CollectedCertificateWrapperImpl(X509Certificate certificate, String alias, String trustStoreName) {
+        super();
+        this.base64Certificate = this.encode(certificate);
+        this.certificateExpireDate = certificate.getNotAfter();
+        this.certificateSerialNumber = certificate.getSerialNumber().toString();
+        this.certificateIssuerDistinguishedName = certificate.getIssuerDN().getName();
+        this.alias = alias;
+        this.trustStoreName = trustStoreName;
     }
 
     private String encode(X509Certificate certificate) {
@@ -59,4 +72,24 @@ public class CollectedCertificateWrapperImpl implements CollectedCertificateWrap
         return this.base64Certificate;
     }
 
+    @Override
+    public String getAlias() {
+        return alias;
+    }
+
+    @Override
+    public String getTrustStoreName() {
+        return trustStoreName;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder certificateDescription = new StringBuilder("Certificate: ");
+        certificateDescription.append("Alias: " + alias);
+        certificateDescription.append("Base64 certificate: " + base64Certificate);
+        certificateDescription.append(", Expire date: " + certificateExpireDate);
+        certificateDescription.append(", IssuerDN: " + certificateIssuerDistinguishedName);
+        certificateDescription.append(", Serial number: " + certificateSerialNumber);
+        return certificateDescription.toString();
+    }
 }
