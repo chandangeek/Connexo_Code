@@ -53,6 +53,7 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
 
     void setScheduleExpressionString(String expression);
 
+
     void triggerNow();
 
     /*

@@ -17,7 +17,7 @@ import java.util.Optional;
 public class MeterReadingDocumentCancellationRequestEndpoint extends AbstractCancellationRequestEndpoint
         implements SmartMeterMeterReadingDocumentERPCancellationRequestCIn {
 
-    @Inject ///sdfsdfsdf
+    @Inject
     MeterReadingDocumentCancellationRequestEndpoint(EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus,
                                                     ServiceCallService serviceCallService, Clock clock, OrmService ormService) {
         super(endPointConfigurationService, serviceCallService, thesaurus, clock, ormService);

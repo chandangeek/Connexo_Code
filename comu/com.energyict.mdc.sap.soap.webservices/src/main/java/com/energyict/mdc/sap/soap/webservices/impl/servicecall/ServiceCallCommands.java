@@ -143,16 +143,13 @@ public class ServiceCallCommands {
     public void createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage message) {
         if (message.isValid()) {
             if (hasMeterReadingRequestServiceCall(message.getId(), message.getUuid())) {
-                System.out.println("SEND ERROR 1!!!!!!!!!!!!!");
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 getServiceCallType(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST).ifPresent(serviceCallType -> {
-                    System.out.println("SEND MESSAGE OK!!!!!!!!!!!!!!!!!!");
                     sendMessage(createServiceCall(serviceCallType, message), message.isBulk());
                 });
             }
         } else {
-            System.out.println("SEND ERROR 2!!!!!!!!!!!!!");
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }

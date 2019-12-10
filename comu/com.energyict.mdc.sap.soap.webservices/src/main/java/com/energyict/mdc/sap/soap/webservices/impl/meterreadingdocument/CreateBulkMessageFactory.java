@@ -111,32 +111,18 @@ public class CreateBulkMessageFactory {
     private void createAndValidateBody(SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage,
                                        List<MeterReadingDocumentCreateMessage> messages,
                                        Instant now) {
-
-        /*SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc meterReadingDocument =
-                OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc();*/
-
         messages.forEach(message -> {
             if (!message.isValid()) {
-                System.out.println("MESSAGE IS NOT VALID!!!!!!!!!");
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
                         .add(createBody(message, createLogItem(MessageSeeds.INVALID_METER_READING_DOCUMENT, message.getId()), now));
-                /*bulkConfirmationMessage.getLog()
-                        .getItem()
-                        .add(createLogItem(MessageSeeds.INVALID_METER_READING_DOCUMENT, message.getId()));*/
             } else if (!message.isBulkSupported()) {
-                System.out.println("BULK IS NOT SUPPORTED!!!!!!!!!");
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
                         .add(createBody(message, createLogItem(MessageSeeds.UNSUPPORTED_REASON_CODE, message.getId()), now));
-                /*bulkConfirmationMessage.getLog()
-                        .getItem()
-                        .add(createLogItem(MessageSeeds.UNSUPPORTED_REASON_CODE, message.getId()));*/
             } else {
-                System.out.println("MESSAGE IS OK!!!!!!!!!");
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
-                        .add(createBody(message, null/*OBJECT_FACTORY.createLogItem()*/, now));
+                        .add(createBody(message, null, now));
             }
         });
-        //bulkConfirmationMessage.getLog().getItem();
     }
 
     private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
