@@ -127,7 +127,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.requestTransition(DefaultState.FAILED);
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
             }
         }
     }
@@ -178,7 +178,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.requestTransition(DefaultState.FAILED);
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
             }
         }
     }
