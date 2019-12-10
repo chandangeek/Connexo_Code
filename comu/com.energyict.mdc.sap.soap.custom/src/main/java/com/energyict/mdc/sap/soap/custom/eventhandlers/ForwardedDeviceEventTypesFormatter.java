@@ -120,9 +120,12 @@ class ForwardedDeviceEventTypesFormatter {
 
     private UtilitiesSmartMeterEventID formatEventId(String sapDeviceId, SAPDeviceEventType eventType, Instant time) {
         UtilitiesSmartMeterEventID utilitiesSmartMeterEventID = objectFactory.createUtilitiesSmartMeterEventID();
-        utilitiesSmartMeterEventID.setValue(sapDeviceId + '_'
+        String eventId = sapDeviceId + '_'
                 + eventType.getCategoryCode() + '.' + eventType.getTypeCode() + '.' + eventType.getSeverityCode() + '.' + eventType.getOriginTypeCode()
-                + '_' + time.toEpochMilli());
+                + '_' + time.toEpochMilli();
+        // adjust eventId so it can be used in the utilitiesSmartMeterEventID tag with length 1-22
+        utilitiesSmartMeterEventID.setValue(Long.toString(eventId.hashCode() + 2147483648L));
+
         return utilitiesSmartMeterEventID;
     }
 }
