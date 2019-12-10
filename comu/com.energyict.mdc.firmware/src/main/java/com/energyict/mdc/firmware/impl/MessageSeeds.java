@@ -75,8 +75,8 @@ public enum MessageSeeds implements MessageSeed {
     CAMPAIGN_ALREADY_CANCELLED(4019, "CampaignAlreadyCancelled", "The campaign has already been cancelled.", Level.WARNING),
     DEVICE_IS_NOT_PENDING_STATE(4020, "DeviceIsNotPendingState", "The device service call isn''t in pending state.", Level.WARNING),
     CAMPAIGN_WITH_DEVICE_CANCELLED(4021, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),
-    CONNECTION_METHOD_MISSING_ON_COMTASK(4022, "ConnectionMissingOnComTask", "Communication task ''{0}'' doesn''t refer to any connection method.", Level.WARNING);
-    TASK_FOR_VALIDATION_LOST_ACTION(2030, "TaskForValidationLostAction", "Task for validation doesn't have the necessary action", Level.SEVERE),
+    CONNECTION_METHOD_MISSING_ON_COMTASK(4022, "ConnectionMissingOnComTask", "Communication task ''{0}'' doesn''t refer to any connection method.", Level.WARNING),
+    TASK_FOR_VALIDATION_LOST_ACTION(4023, "TaskForValidationLostAction", "Task for validation doesn't have the necessary action", Level.SEVERE),
     ;
 
 

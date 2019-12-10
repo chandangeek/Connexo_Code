@@ -105,11 +105,6 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                     serviceCall.requestTransition(DefaultState.FAILED);
                     serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
                 }
-            } else if (comTaskExecution.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME)){
-                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
-                serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.requestTransition(DefaultState.FAILED);
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             }
 
             if (comTaskExecution.getComTask().getProtocolTasks().stream()
@@ -154,11 +149,6 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
                     }
                 }
-            } else if (comTaskExecution.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME)){
-                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
-                serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.requestTransition(DefaultState.FAILED);
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             }
 
             if (comTaskExecution.getComTask().getProtocolTasks().stream()
