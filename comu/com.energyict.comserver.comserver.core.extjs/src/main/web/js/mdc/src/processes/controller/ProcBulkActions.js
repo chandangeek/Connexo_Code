@@ -418,7 +418,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                                  if (processObjectType === "Device"){
                                      Ext.Ajax.suspendEvent("requestexception");
                                      Ext.Ajax.request({
-                                            url: '/api/ddr/devices/byMRID/' + '3537c8d5-7b94-4119-9ef7-c692ea1ff011',//processValue,
+                                            url: '/api/ddr/devices/byMRID/' + processValue,
                                             method: 'GET',
                                             timeout: 180000,
                                             async: false,
