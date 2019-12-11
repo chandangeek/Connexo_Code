@@ -47,7 +47,10 @@ public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem {
         matchItems.stream().forEach(matchedConnectionTask
                 -> device.getConnectionTasks().stream()
                 .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == matchedConnectionTask.getOrigin().getId()).findFirst()
-                .ifPresent(updateConnectionTaskWithNewPartialConnectionTask(matchedConnectionTask.getDestination())));
+                .ifPresent(connectionTask->{
+                        updateConnectionTaskWithComPortPool(matchedConnectionTask.getDestination(), connectionTask);
+                        updateConnectionTaskWithNewPartialConnectionTask(matchedConnectionTask.getDestination(), connectionTask);
+                    }));
         removeItems.forEach(partialConnectionTask -> device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == partialConnectionTask.getId()).findAny().ifPresent(device::removeConnectionTask));
     }
 
@@ -61,13 +64,21 @@ public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem {
         final List<ConflictingConnectionMethodSolution> conflictsToMap = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream()
                 .filter(solutionsForMap()).collect(Collectors.toList());
         conflictsToMap.stream().forEach(conflictingConnectionMethodSolution -> device.getConnectionTasks().stream().filter(onSameConnectionTaskForOrigin(conflictingConnectionMethodSolution))
-                .forEach(updateConnectionTaskWithNewPartialConnectionTask(conflictingConnectionMethodSolution.getDestinationDataSource())));
+                .forEach(connectionTask->{
+                        updateConnectionTaskWithNewPartialConnectionTask(conflictingConnectionMethodSolution.getDestinationDataSource(), connectionTask);
+                }));
     }
 
-    private Consumer<ConnectionTask<?, ?>> updateConnectionTaskWithNewPartialConnectionTask(PartialConnectionTask destination) {
+    private void updateConnectionTaskWithNewPartialConnectionTask(PartialConnectionTask destination, ConnectionTask<?,?> connectionTask) {
         //noinspection unchecked
-        return connectionTask -> ((ServerConnectionTaskForConfigChange) connectionTask).setNewPartialConnectionTask(destination);
+        ((ServerConnectionTaskForConfigChange) connectionTask).setNewPartialConnectionTask(destination);
     }
+
+    private void updateConnectionTaskWithComPortPool(PartialConnectionTask destination, ConnectionTask<?,?>  connectionTask) {
+        ((ConnectionTask)connectionTask).setComPortPool(destination.getComPortPool());
+        connectionTask.save();
+    }
+
 
     private Predicate<ConnectionTask<?, ?>> onSameConnectionTaskForOrigin(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution) {
         return connectionTask -> connectionTask.getPartialConnectionTask().getId() == conflictingConnectionMethodSolution.getOriginDataSource().getId();
