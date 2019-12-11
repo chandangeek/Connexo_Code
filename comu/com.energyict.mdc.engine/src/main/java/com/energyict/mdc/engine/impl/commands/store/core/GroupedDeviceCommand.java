@@ -154,41 +154,44 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         createDeviceProtocolForMobileInstance();
         basicCheckCommand = getBasicCheckCommandIfPresent(); // initialize it if present
         for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : comTaskExecutionComCommands.values()) {
-            try {
-                executionContext.start(comTaskExecutionComCommand);
-                if (hasBasicCheckFailedForThisGroupedDeviceCommand()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                } else if (commandRoot.hasConnectionErrorOccurred()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                }  else if (commandRoot.hasConnectionBeenInterrupted()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                } else if (getCompletionCode().equals(CompletionCode.InitError)) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_INIT_ERROR);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                } else if (skipOtherComTaskExecutions) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+            if (comTaskExecutionComCommand.comCommands.size() > 0){
+                try {
+                    executionContext.start(comTaskExecutionComCommand);
+                    if (hasBasicCheckFailedForThisGroupedDeviceCommand()) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (commandRoot.hasConnectionErrorOccurred()) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (commandRoot.hasConnectionBeenInterrupted()) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (getCompletionCode().equals(CompletionCode.InitError)) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_INIT_ERROR);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (skipOtherComTaskExecutions) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    }
+                    comTaskExecutionComCommand.execute(deviceProtocol, executionContext);
+                } finally {
+                    ComTaskExecutionSession.SuccessIndicator successIndicator;
+                    if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)
+                            || comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.Rescheduled)) {
+                        comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
+                        successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
+                    } else if (!comTaskExecutionComCommand.getProblems().isEmpty()) {
+                        comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
+                        executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
+                        successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
+                    } else {
+                        comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
+                        successIndicator = ComTaskExecutionSession.SuccessIndicator.Success;
+                    }
+                    executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), successIndicator);
                 }
-                comTaskExecutionComCommand.execute(deviceProtocol, executionContext);
-            } finally {
-                ComTaskExecutionSession.SuccessIndicator successIndicator;
-                if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)
-                        || comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.Rescheduled)) {
-                    comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
-                    successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
-                } else if (!comTaskExecutionComCommand.getProblems().isEmpty()) {
-                    comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
-                    executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
-                    successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
-                } else {
-                    comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
-                    successIndicator = ComTaskExecutionSession.SuccessIndicator.Success;
-                }
-                executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), successIndicator);
-            }
+            } else
+                completeComCommandWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR, comTaskExecutionComCommand);
         }
     }
 
