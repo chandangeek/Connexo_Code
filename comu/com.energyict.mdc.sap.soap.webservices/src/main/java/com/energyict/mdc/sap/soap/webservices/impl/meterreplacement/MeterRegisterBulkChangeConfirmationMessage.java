@@ -55,6 +55,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         private Builder() {
         }
 
+
         public Builder from(ServiceCall parent, Instant now) {
             List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
             MasterMeterRegisterChangeRequestDomainExtension extension = parent.getExtensionFor(new MasterMeterRegisterChangeRequestCustomPropertySet()).get();
@@ -78,10 +79,6 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), now));
-            List<MeterRegisterChangeMessage>  messageList = message.getMeterRegisterChangeMessages();
-            messageList.forEach(msg->{
-                confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage().add(createChildMessage(msg, now));
-            });
             UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confMsg.setUtilitiesDevice(createChildBody(message.getDeviceId()));
 
@@ -123,19 +120,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
 
         private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall subParentServiceCall, Instant now) {
             SubMasterMeterRegisterChangeRequestDomainExtension extension = subParentServiceCall.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
-
-        private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(MeterRegisterChangeMessage msg, Instant now) {
-            UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-            confirmationMessage.setMessageHeader(createChildHeader(msg.getId(), msg.getUuid(), now));
-            confirmationMessage.setUtilitiesDevice(createChildBody(msg.getDeviceId()));
-            Log log = objectFactory.createLog();
-            confirmationMessage.setLog(log);
-            return confirmationMessage;
-        }
-
-
                     .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
-
             UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));

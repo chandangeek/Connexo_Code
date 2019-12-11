@@ -117,7 +117,10 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
         private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-            header.setReferenceID(createID(requestId));
+
+            if (!Strings.isNullOrEmpty(requestId)) {
+                header.setReferenceID(createID(requestId));
+            }
             if (!Strings.isNullOrEmpty(uuid)) {
                 header.setReferenceUUID(createUUID(uuid));
             }
