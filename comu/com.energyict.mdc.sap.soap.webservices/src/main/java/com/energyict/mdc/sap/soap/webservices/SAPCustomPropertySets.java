@@ -87,4 +87,9 @@ public interface SAPCustomPropertySets {
     boolean doesRegisterHaveSapCPS(Register register);
 
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
+
+    /**
+     * This method returns maximum of two dates (start date of the first LRN or the last date transition to operational stage)
+     */
+    Optional<Instant> getStartDate(String sapDeviceId);
 }

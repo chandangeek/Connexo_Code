@@ -19,7 +19,9 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.AbstractModule;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +61,7 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
                 bind(DeviceService.class).toInstance(deviceService);
             }
         });
+        when(sapCustomPropertySets.getStartDate(anyString())).thenReturn(Optional.of(Instant.EPOCH));
     }
 
     @Test

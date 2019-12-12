@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -45,15 +46,17 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     private volatile Clock clock;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
     }
 
     @Inject
-    public UtilitiesDeviceRegisteredBulkNotificationProvider(Clock clock) {
+    public UtilitiesDeviceRegisteredBulkNotificationProvider(Clock clock, SAPCustomPropertySets sapCustomPropertySets) {
         this();
         this.clock = clock;
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
     @Reference
@@ -70,6 +73,11 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     public void addRequestConfirmationPort(UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut port,
                                            Map<String, Object> properties) {
         super.doAddEndpoint(port, properties);
+    }
+
+    @Reference
+    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
     public void removeRequestConfirmationPort(UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut port) {
@@ -153,6 +161,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
         smartMeterId.setValue(WebServiceActivator.METERING_SYSTEM_ID);
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
+        sapCustomPropertySets.getStartDate(sapDeviceId).ifPresent(sD -> smartMeter.setStartDate(sD));
 
         UtilsDvceERPSmrtMtrRegedNotifUtilsDvce device = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
         device.setID(deviceId);

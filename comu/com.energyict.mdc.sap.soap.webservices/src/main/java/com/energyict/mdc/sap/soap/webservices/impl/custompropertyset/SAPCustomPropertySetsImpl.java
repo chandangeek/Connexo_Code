@@ -15,6 +15,7 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -42,7 +43,6 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -51,7 +51,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
@@ -940,5 +939,46 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(RegisteredCustomPropertySet::getCustomPropertySetId)
                 .filter(channelInfo.getId()::equals).isPresent();
+    }
+
+    @Override
+    public Optional<Instant> getStartDate(String sapDeviceId) {
+        Optional<Device> device = getDevice(sapDeviceId);
+        if (device.isPresent()) {
+            Optional<Instant> activationDate = getActivationDate(device.get().getMeter());
+            if (activationDate.isPresent()) {
+                Optional<Instant> lrnAfterDate = getLrnDates(device.get().getId()).filter(e -> e.isAfter(activationDate.get())).findFirst();
+                if (lrnAfterDate.isPresent()) {
+                    return lrnAfterDate;
+                }
+                return activationDate;
+            } else {
+                return getLrnDates(device.get().getId()).findFirst();
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Instant> getActivationDate(Meter meter) {
+        return meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
+                .filter(stateTimeSlice -> stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
+                .max(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint())))
+                .map(slice -> slice.getPeriod().lowerEndpoint());
+    }
+
+    private Stream<Instant> getLrnDates(long deviceId) {
+        Stream<Instant> registerDates = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceRegisterSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .map(DeviceRegisterSAPInfoDomainExtension::getRange)
+                .map(Range::lowerEndpoint);
+        Stream<Instant> channelDates = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .map(DeviceChannelSAPInfoDomainExtension::getRange)
+                .map(Range::lowerEndpoint);
+        return Stream.concat(registerDates, channelDates).sorted();
     }
 }

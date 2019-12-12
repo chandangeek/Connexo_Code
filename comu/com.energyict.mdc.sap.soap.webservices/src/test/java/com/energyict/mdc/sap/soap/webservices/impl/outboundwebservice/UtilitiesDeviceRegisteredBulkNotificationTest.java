@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.nls.LocalizedException;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider;
@@ -16,9 +17,11 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.AbstractModule;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +37,8 @@ import static org.mockito.Mockito.when;
 public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutboundWebserviceTest<UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> {
     @Mock
     private Clock clock;
+    @Mock
+    private SAPCustomPropertySets sapCustomPropertySets;
 
     private List<String> deviceIds;
     private UtilitiesDeviceRegisteredBulkNotificationProvider provider;
@@ -47,8 +52,10 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
             @Override
             protected void configure() {
                 bind(Clock.class).toInstance(clock);
+                bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
             }
         });
+        when(sapCustomPropertySets.getStartDate(anyString())).thenReturn(Optional.of(Instant.EPOCH));
     }
 
     @Test
