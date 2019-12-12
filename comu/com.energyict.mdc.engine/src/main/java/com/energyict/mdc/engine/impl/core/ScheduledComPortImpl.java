@@ -274,12 +274,17 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     final void executeTasks() {
-        getLogger().lookingForWork(getThreadName());
-        LOGGER.warning("[" + Thread.currentThread().getName() + "] looking for work");
-        long start = System.currentTimeMillis();
-        List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
-        queriedForTasks();
-        scheduleAll(jobs, start);
+        int storeTaskQueueLoadPercentage = deviceCommandExecutor.getCurrentLoadPercentage();
+        if(storeTaskQueueLoadPercentage < 100) {
+            getLogger().lookingForWork(getThreadName());
+            LOGGER.warning("[" + Thread.currentThread().getName() + "] looking for work");
+            long start = System.currentTimeMillis();
+            List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
+            queriedForTasks();
+            scheduleAll(jobs, start);
+        }else{
+            getLogger().storeTaskQueueIsFull(storeTaskQueueLoadPercentage);
+        }
     }
 
     private void queriedForTasks() {
@@ -474,6 +479,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         @Override
         public void unexpectedError(String comPortThreadName, String message) {
             this.loggers.forEach(each -> each.unexpectedError(comPortThreadName, message));
+        }
+
+        @Override
+        public void storeTaskQueueIsFull(int queueLoadPercentage) {
+            this.loggers.forEach(each -> each.storeTaskQueueIsFull(queueLoadPercentage));
         }
 
     }
