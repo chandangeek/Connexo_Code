@@ -5,6 +5,8 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.Log;
@@ -21,8 +23,11 @@ import com.google.common.base.Strings;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.OptionalInt;
+import java.util.logging.Level;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateBulkMessageFactory {
@@ -36,6 +41,12 @@ public class CreateBulkMessageFactory {
         SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPBulkCrteConfMsg();
         bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         bulkConfirmationMessage.setLog(OBJECT_FACTORY.createLog());
+        bulkConfirmationMessage.getLog().getItem().add(createLogItem(MessageSeeds.OK_RESULT,
+                null,
+                SUCCESSFUL_PROCESSING_TYPE_ID));
+        bulkConfirmationMessage.getLog().setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        setMaximumLogItemSeverityCode(bulkConfirmationMessage.getLog());
+
         createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages(), now);
         return bulkConfirmationMessage;
     }
@@ -45,8 +56,14 @@ public class CreateBulkMessageFactory {
         SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPBulkCrteConfMsg();
         bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         bulkConfirmationMessage.setLog(OBJECT_FACTORY.createLog());
-        bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeeds));
+        bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeeds,
+                PROCESSING_ERROR_CATEGORY_CODE,
+                UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID));
+        bulkConfirmationMessage.getLog().setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        setMaximumLogItemSeverityCode(bulkConfirmationMessage.getLog());
+
         createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages(), now);
+
         return bulkConfirmationMessage;
     }
 
@@ -72,6 +89,7 @@ public class CreateBulkMessageFactory {
     }
 
     private SmrtMtrMtrRdngDocERPCrteConfMsg createBody(MeterReadingDocumentCreateMessage message,
+                                                       String docProcResultCode,
                                                        LogItem logItem,
                                                        Instant now) {
         MeterReadingDocumentID meterReadingDocumentID = OBJECT_FACTORY.createMeterReadingDocumentID();
@@ -102,6 +120,8 @@ public class CreateBulkMessageFactory {
 
         Log log = OBJECT_FACTORY.createLog();
         log.getItem().add(logItem);
+        log.setBusinessDocumentProcessingResultCode(docProcResultCode);
+        setMaximumLogItemSeverityCode(log);
 
         confirmationMessage.setLog(log);
 
@@ -114,26 +134,57 @@ public class CreateBulkMessageFactory {
         messages.forEach(message -> {
             if (!message.isValid()) {
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
-                        .add(createBody(message, createLogItem(MessageSeeds.INVALID_METER_READING_DOCUMENT, message.getId()), now));
+                        .add(createBody(message,  ProcessingResultCode.FAILED.getCode(), createLogItem(MessageSeeds.INVALID_METER_READING_DOCUMENT,
+                                PROCESSING_ERROR_CATEGORY_CODE,
+                                UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                                message.getId()), now));
             } else if (!message.isBulkSupported()) {
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
-                        .add(createBody(message, createLogItem(MessageSeeds.UNSUPPORTED_REASON_CODE, message.getId()), now));
+                        .add(createBody(message, ProcessingResultCode.FAILED.getCode(), createLogItem(MessageSeeds.UNSUPPORTED_REASON_CODE,
+                                PROCESSING_ERROR_CATEGORY_CODE,
+                                UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                                message.getId()), now));
             } else {
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
-                        .add(createBody(message, null, now));
+                        .add(createBody(message, ProcessingResultCode.SUCCESSFUL.getCode(), createLogItem(MessageSeeds.OK_RESULT,
+                                null,
+                                SUCCESSFUL_PROCESSING_TYPE_ID), now));
             }
         });
     }
 
-    private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
-        LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
-        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
+    private LogItem createLogItem(MessageSeeds messageSeeds, String categoryCode, String typeId, Object... args) {
 
         LogItem logItem = OBJECT_FACTORY.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-        logItem.setCategoryCode(logItemCategoryCode);
+
+        if (!Strings.isNullOrEmpty(categoryCode)) {
+            LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
+            logItemCategoryCode.setValue(categoryCode);
+            logItem.setCategoryCode(logItemCategoryCode);
+        }
+
+        logItem.setTypeID(typeId);
+        logItem.setSeverityCode(getSeverityCode(messageSeeds.getLevel().getName()));
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
         return logItem;
+    }
+
+    private String getSeverityCode(String level) {
+        if (level.equals(Level.SEVERE.getName())) {
+            return SeverityCode.ERROR.getCode();
+        } else if (level.equals(Level.WARNING.getName())) {
+            return SeverityCode.WARNING.getCode();
+        } else {
+            return SeverityCode.INFORMATION.getCode();
+        }
+    }
+
+    private void setMaximumLogItemSeverityCode(Log log) {
+        OptionalInt maxInt = log.getItem().stream().map(item -> Integer.valueOf(item.getSeverityCode())).mapToInt(v -> v).max();
+        if (maxInt.isPresent()) {
+            Integer value = maxInt.getAsInt();
+            log.setMaximumLogItemSeverityCode(value.toString());
+        }
     }
 }

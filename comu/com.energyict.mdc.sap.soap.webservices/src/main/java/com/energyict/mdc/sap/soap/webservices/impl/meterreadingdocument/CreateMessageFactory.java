@@ -4,6 +4,8 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.Log;
@@ -18,8 +20,11 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 import com.google.common.base.Strings;
 
 import java.time.Instant;
+import java.util.OptionalInt;
+import java.util.logging.Level;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateMessageFactory {
@@ -37,15 +42,26 @@ public class CreateMessageFactory {
                 .forEach(message -> {
                     if (!message.isValid()) {
                         confirmationMessage
-                                .setLog(createLog(MessageSeeds.INVALID_METER_READING_DOCUMENT, message.getId()));
+                                .setLog(createLog(MessageSeeds.INVALID_METER_READING_DOCUMENT,
+                                        PROCESSING_ERROR_CATEGORY_CODE,
+                                        UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                                        ProcessingResultCode.FAILED.getCode(),
+                                        message.getId()));
                         confirmationMessage.setMeterReadingDocument(createBody(message));
                     } else if (!message.isSingleSupported()) {
                         confirmationMessage
-                                .setLog(createLog(MessageSeeds.UNSUPPORTED_REASON_CODE, message.getId()));
+                                .setLog(createLog(MessageSeeds.UNSUPPORTED_REASON_CODE,
+                                        PROCESSING_ERROR_CATEGORY_CODE,
+                                        UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                                        ProcessingResultCode.FAILED.getCode(),
+                                        message.getId()));
                         confirmationMessage.setMeterReadingDocument(createBody(message));
                     } else {
                         confirmationMessage.setMeterReadingDocument(createBody(message));
-                        confirmationMessage.setLog(createEmptyLog());
+                        confirmationMessage.setLog(createLog(MessageSeeds.OK_RESULT,
+                                null,
+                                SUCCESSFUL_PROCESSING_TYPE_ID,
+                                ProcessingResultCode.SUCCESSFUL.getCode()));
                     }
                 });
 
@@ -57,7 +73,7 @@ public class CreateMessageFactory {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
 
         confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
-        confirmationMessage.setLog(createLog(messageSeeds));
+        confirmationMessage.setLog(createLog(messageSeeds,PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, ProcessingResultCode.FAILED.getCode()));
         requestMessage.getMeterReadingDocumentCreateMessages()
                 .forEach(message->{
                     confirmationMessage.setMeterReadingDocument(createBody(message));
@@ -97,12 +113,14 @@ public class CreateMessageFactory {
         return meterReadingDocument;
     }
 
-    private Log createLog(MessageSeeds messageSeeds, Object... args) {
+    private Log createLogOld(MessageSeeds messageSeeds, Object... args) {
+
         LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
         logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
 
         LogItem logItem = OBJECT_FACTORY.createLogItem();
         logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
+        logItem.setSeverityCode(getSeverityCode(messageSeeds.getLevel().getName()));
         logItem.setCategoryCode(logItemCategoryCode);
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
@@ -111,8 +129,46 @@ public class CreateMessageFactory {
         return log;
     }
 
-    private Log createEmptyLog() {
+    private Log createLog(MessageSeeds messageSeeds, String categoryCode, String typeId, String docProcResultCode, Object... args) {
+
+        LogItem logItem = OBJECT_FACTORY.createLogItem();
+
+        if (!Strings.isNullOrEmpty(categoryCode)) {
+            LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
+            logItemCategoryCode.setValue(categoryCode);
+            logItem.setCategoryCode(logItemCategoryCode);
+        }
+
+        logItem.setTypeID(typeId);
+        logItem.setSeverityCode(getSeverityCode(messageSeeds.getLevel().getName()));
+
+        logItem.setNote(messageSeeds.getDefaultFormat(args));
+
         Log log = OBJECT_FACTORY.createLog();
+        log.setBusinessDocumentProcessingResultCode(docProcResultCode);
+        log.getItem().add(logItem);
+        setMaximumLogItemSeverityCode(log);
+
         return log;
     }
+
+
+    private String getSeverityCode(String level) {
+        if (level.equals(Level.SEVERE.getName())) {
+            return SeverityCode.ERROR.getCode();
+        } else if (level.equals(Level.WARNING.getName())) {
+            return SeverityCode.WARNING.getCode();
+        } else {
+            return SeverityCode.INFORMATION.getCode();
+        }
+    }
+
+    private void setMaximumLogItemSeverityCode(Log log) {
+        OptionalInt maxInt = log.getItem().stream().map(item -> Integer.valueOf(item.getSeverityCode())).mapToInt(v -> v).max();
+        if (maxInt.isPresent()) {
+            Integer value = maxInt.getAsInt();
+            log.setMaximumLogItemSeverityCode(value.toString());
+        }
+    }
+
 }

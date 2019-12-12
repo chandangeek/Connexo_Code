@@ -11,6 +11,7 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     // General
+    OK_RESULT(0, "OkMessageFormat", "OK", Level.INFO),
     INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format"),
     MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message already exists"),
     UNEXPECTED_CONFIRMATION_MESSAGE(3, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
