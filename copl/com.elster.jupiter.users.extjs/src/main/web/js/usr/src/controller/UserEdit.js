@@ -67,7 +67,7 @@ Ext.define('Usr.controller.UserEdit', {
             success: function (user) {
                 var language = user.get('language');
                 panel.setTitle(Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'", [user.get('authenticationName')], true));
-                if (isLocalAdmin(user)) {
+                if (me.isLocalAdmin(user)) {
                     panel.down('[itemId=alertmessageuser]').show();
                 }
 
@@ -88,7 +88,7 @@ Ext.define('Usr.controller.UserEdit', {
 
                     Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                         callback: function (domain) {
-                            if (!domain.get('manageGroupsInternal')|| isLocalAdmin(user)) {
+                            if (!domain.get('manageGroupsInternal')|| me.isLocalAdmin(user)) {
                                 panel.down('[itemId=selectRoles]').disable();
                             }
 
@@ -101,7 +101,7 @@ Ext.define('Usr.controller.UserEdit', {
         });
     },
 
-    isLocalAdmin: function(user) {
+    isLocalAdmin: function (user) {
         return user.get('authenticationName') == "admin" && user.get('domain') == "Local";
     },
 
