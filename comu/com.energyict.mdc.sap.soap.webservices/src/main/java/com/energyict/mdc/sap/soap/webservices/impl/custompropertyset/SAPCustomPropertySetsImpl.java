@@ -13,7 +13,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -42,7 +41,6 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -364,20 +362,16 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
             if (cutRange.isPresent()) {
                 Optional<Device> device = deviceService.findDeviceById(e.getDeviceId());
                 if (device.isPresent()) {
-                    if (isDeviceActive(device.get())) {
-                        Pair<Long, ChannelSpec> key = Pair.of(e.getDeviceId(), e.getChannelSpec());
-                        List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
-                        try {
-                            Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
-                            if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
-                                list.add(Pair.of(rangeIntersection, range));
-                            }
-                            map.put(key, list);
-                        } catch (IllegalArgumentException ex) {
-                            // no intersection with interval (should never occur)
+                    Pair<Long, ChannelSpec> key = Pair.of(e.getDeviceId(), e.getChannelSpec());
+                    List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
+                    try {
+                        Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
+                        if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
+                            list.add(Pair.of(rangeIntersection, range));
                         }
-                    } else {
-                        throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_IS_NOT_ACTIVE, device.get().getName());
+                        map.put(key, list);
+                    } catch (IllegalArgumentException ex) {
+                        // no intersection with interval (should never occur)
                     }
                 }
             }
@@ -506,10 +500,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                         return Long.MAX_VALUE;
                     }
                 }));
-    }
-
-    private boolean isDeviceActive(Device device) {
-        return device.getState().getName().equals(DefaultState.ACTIVE.getKey());
     }
 
     private Condition getOverlappedCondition(Range<Instant> range) {

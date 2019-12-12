@@ -32,9 +32,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with reading type ''{0}''"),
     NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with reading type ''{0}''"),
     DATASOURCE_NOT_FOUND(4024, "DataSourceNotFound", "Couldn''t find data source on device ''{0}'' by LRN ''{1}'' for specified end date ''{2}''."),
-    INVALID_END_DATE(4025, "InvalidEndDate", "Received end date ''{0}'' isn''t in existing custom property set range ''{1}''."),
-
-    DEVICE_IS_NOT_ACTIVE(7008, "DeviceIsNotActive", "Device ''{0}'' isn''t in active state.");
+    INVALID_END_DATE(4025, "InvalidEndDate", "Received end date ''{0}'' isn''t in existing custom property set range ''{1}''.");
 
     private final int number;
     private final String key;
