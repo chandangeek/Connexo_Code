@@ -102,7 +102,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
+    public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         if (transactionService.isInTransaction()) {
             return doStartServiceCall(uuid, timeout, data);
         } else {
@@ -111,7 +111,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCallAsync(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
+    public ServiceCall startServiceCallAsync(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         Principal principal = threadPrincipalService.getPrincipal();
         try {
             return CompletableFuture.supplyAsync(() -> {
@@ -125,11 +125,13 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data) {
-        data.forEach(item -> createChild(parent,
-                item.getDomainObject().getName(),
-                item.getReadingType().getMRID(),
-                item.getId()));
+    private void createChildServiceCalls(ServiceCall parent, Collection<ReadingTypeDataExportItem> data) {
+        data.stream()
+                .distinct()
+                .forEach(item -> createChild(parent,
+                        item.getDomainObject().getName(),
+                        item.getReadingType().getMRID(),
+                        item.getId()));
     }
 
     private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
@@ -149,11 +151,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
 
-    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, List<ReadingTypeDataExportItem>  data) {
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Collection<ReadingTypeDataExportItem>  data) {
         return transactionService.execute(() -> doStartServiceCall(uuid, timeout, data));
     }
 
-    private ServiceCall doStartServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
+    private ServiceCall doStartServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);

@@ -2,6 +2,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
@@ -12,7 +13,6 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
@@ -54,52 +54,34 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOutboundWebserviceTest<UtilitiesTimeSeriesERPItemBulkChangeRequestCOut> {
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ReadingType readingType;
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private MeterReading meterReading1;
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private MeterReading meterReading2;
-
-    private UtilitiesTimeSeriesBulkChangeRequestProvider provider;
-
-    @Mock
-    private SAPCustomPropertySets sapCustomPropertySets;
-
-    @Mock
-    private Clock clock;
-
-    @Mock
-    ReadingNumberPerMessageProvider readingNumberPerMessageProvider;
-
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    MeterReadingValidationData validationData;
-
-    private static List<MeterReadingData> dataExportList = new ArrayList<>();
-
     private static final String DEVICE_NAME_1 = "DEVICE_1";
     private static final String MRID_1 = "MRID_1";
     private static final String DEVICE_NAME_2 = "DEVICE_2";
     private static final String MRID_2 = "MRID_2";
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private Channel channel1;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private Channel channel2;
-
-
-    Map<String, RangeSet<Instant>> profileIdIntervals = new HashMap<>();
-    RangeSet<Instant> rangeSet = TreeRangeSet.create();
-
     @Mock
-    Reading reading1, reading2, reading3;
+    private DataExportWebService.ExportContext exportContext;
     @Mock
-    Reading reading4, reading5, reading6;
+    private SAPCustomPropertySets sapCustomPropertySets;
+    @Mock
+    private Clock clock;
+    @Mock
+    private ReadingNumberPerMessageProvider readingNumberPerMessageProvider;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ReadingType readingType;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private MeterReading meterReading1, meterReading2;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private Channel channel1, channel2;
+    @Mock
+    private Reading reading1, reading2, reading3, reading4, reading5, reading6;
+    private MeterReadingValidationData validationData = new MeterReadingValidationData(Collections.emptyMap());
 
+    private List<MeterReadingData> dataExportList = new ArrayList<>();
+    private Map<String, RangeSet<Instant>> profileIdIntervals = new HashMap<>();
+    private RangeSet<Instant> rangeSet = TreeRangeSet.create();
 
+    private UtilitiesTimeSeriesBulkChangeRequestProvider provider;
 
     @Before
     public void setUp() {
@@ -142,7 +124,6 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(reading3.getValue()).thenReturn(new BigDecimal(100502));
         readingsList1.add(reading3);
 
-
         when(meterReading1.getIntervalBlocks()).thenReturn(Collections.emptyList());
         when(meterReading1.getReadings()).thenReturn(readingsList1);
 
@@ -152,7 +133,6 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(meterReadingData1.getItem().getReadingType()).thenReturn(readingType);
         when(meterReadingData1.getValidationData()).thenReturn(validationData);
         when(meterReadingData1.getMeterReading()).thenReturn(meterReading1);
-
 
         ChannelsContainer channelContainer1 = mock(ChannelsContainer.class, RETURNS_DEEP_STUBS);
         when(channelContainer1.getInterval()).thenReturn(Interval.of(Range.open(Instant.now().minus(2, ChronoUnit.DAYS), Instant.now().plus(2, ChronoUnit.DAYS))));
@@ -175,10 +155,8 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(reading6.getValue()).thenReturn(new BigDecimal(100505));
         readingsList2.add(reading6);
 
-
         when(meterReading2.getIntervalBlocks()).thenReturn(Collections.emptyList());
         when(meterReading2.getReadings()).thenReturn(readingsList2);
-
 
         MeterReadingData meterReadingData2 = mock(MeterReadingData.class, RETURNS_DEEP_STUBS);
         when(meterReadingData2.getItem().getDomainObject().getName()).thenReturn(DEVICE_NAME_2);
@@ -190,7 +168,6 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         ChannelsContainer channelContainer2 = mock(ChannelsContainer.class, RETURNS_DEEP_STUBS);
         when(channelContainer2.getInterval()).thenReturn(Interval.of(Range.open(Instant.now().minus(2, ChronoUnit.DAYS), Instant.now().plus(2, ChronoUnit.DAYS))));
         when(channelContainer2.getChannel(anyObject())).thenReturn(Optional.of(channel2));
-
 
         channelsContainerList2.add(channelContainer2);
         when(meterReadingData2.getItem().getReadingContainer().getChannelsContainers()).thenReturn(channelsContainerList2);
@@ -210,10 +187,9 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
 
     @Test
     public void testNumberOfReadingsPerMsgIsLessThanNumberOfReadingsToSend() {
-
         /*Here we have situation when number of readings per msg is less than number of readings in data source.
         * We have two data source. So two message should be sent(Two call of send() method). */
-        provider.call(outboundEndPointConfiguration, dataExportList.stream());
+        provider.call(outboundEndPointConfiguration, dataExportList.stream(), exportContext);
 
         SetMultimap<String,String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
@@ -229,7 +205,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(readingNumberPerMessageProvider.getNumberOfReadingsPerMsg()).thenReturn(10);
         provider.setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
 
-        provider.call(outboundEndPointConfiguration, dataExportList.stream());
+        provider.call(outboundEndPointConfiguration, dataExportList.stream(), exportContext);
 
         SetMultimap<String,String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
@@ -245,7 +221,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(readingNumberPerMessageProvider.getNumberOfReadingsPerMsg()).thenReturn(3);
         provider.setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
 
-        provider.call(outboundEndPointConfiguration, dataExportList.stream());
+        provider.call(outboundEndPointConfiguration, dataExportList.stream(), exportContext);
 
         SetMultimap<String,String> values = HashMultimap.create();
         values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),

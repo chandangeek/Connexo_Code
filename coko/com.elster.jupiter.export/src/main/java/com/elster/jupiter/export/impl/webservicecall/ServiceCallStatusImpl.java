@@ -10,12 +10,13 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ServiceCallStatusImpl implements ServiceCallStatus {
+class ServiceCallStatusImpl implements ServiceCallStatus {
     private final ServiceCall serviceCall;
     private final DefaultState state;
     private String errorMessage;
@@ -25,6 +26,9 @@ public class ServiceCallStatusImpl implements ServiceCallStatus {
     }
 
     static List<ServiceCallStatus> from(ServiceCallService serviceCallService, Collection<ServiceCall> serviceCalls) {
+        if (serviceCalls.isEmpty()) {
+            return new ArrayList<>();
+        }
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.ids = serviceCalls.stream()
                 .map(ServiceCall::getId)

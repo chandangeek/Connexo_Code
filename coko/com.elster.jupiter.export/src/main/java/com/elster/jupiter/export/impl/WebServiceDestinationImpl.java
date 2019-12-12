@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
@@ -160,7 +161,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     }
 
     private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger) {
-        Collection<ServiceCallStatus> states = dataSendingResult.serviceCallStates.values();
+        List<ServiceCallStatus> states = dataSendingResult.updateAndGetStates();
         Set<ServiceCall> unsuccessfulServiceCalls = states.stream()
                 .filter(Predicates.not(ServiceCallStatus::isSuccessful))
                 .peek(status -> {
@@ -239,22 +240,18 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
 
     private void callService(DataExportWebService service, EndPointConfiguration endPoint, List<ExportData> data,
                              DataSendingResult result, boolean waitForServiceCalls) {
-        List<ServiceCall> serviceCalls = service.call(endPoint, data.stream());
-        if (waitForServiceCalls && !serviceCalls.isEmpty()) {
-            List<ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(serviceCalls);
-            statuses.forEach(status -> result.serviceCallStates.put(status.getServiceCall(), status));
-            result.sent = true;
-            while (statuses.stream().anyMatch(ServiceCallStatus::isOpen)) {
+        service.call(endPoint, data.stream(), result);
+        result.sent = true;
+        if (waitForServiceCalls && !result.serviceCallStates.isEmpty()) {
+            while (result.updateAndGetStates().stream().anyMatch(ServiceCallStatus::isOpen)) {
                 try {
                     Thread.sleep(1000L * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                statuses = dataExportServiceCallType.getStatuses(serviceCalls);
-                statuses.forEach(status -> result.serviceCallStates.put(status.getServiceCall(), status));
             }
         } else {
-            result.sent = true;
+            result.serviceCallStates.clear(); // success case as the timeout is not configured => not interested in confirmation
         }
     }
 
@@ -268,8 +265,52 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .orElse(TimeDuration.NONE);
     }
 
-    private static class DataSendingResult {
+    private class DataSendingResult implements DataExportWebService.ExportContext {
         private volatile boolean sent;
+        // TODO: can we get rid of map towards set?
         private Map<ServiceCall, ServiceCallStatus> serviceCallStates = new ConcurrentHashMap<>();
+
+        private List<ServiceCallStatus> updateAndGetStates() {
+            List<ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(serviceCallStates.keySet());
+            statuses.forEach(status -> serviceCallStates.put(status.getServiceCall(), status));
+            return statuses;
+        }
+
+        @Override
+        public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources) {
+            ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, dataSources);
+            serviceCallStates.put(serviceCall, new ServiceCallStatus() {
+                @Override
+                public ServiceCall getServiceCall() {
+                    return serviceCall;
+                }
+
+                @Override
+                public DefaultState getState() {
+                    return serviceCall.getState();
+                }
+
+                @Override
+                public Optional<String> getErrorMessage() {
+                    return Optional.empty();
+                }
+
+                @Override
+                public boolean isSuccessful() {
+                    return getState() == DefaultState.SUCCESSFUL;
+                }
+
+                @Override
+                public boolean isFailed() {
+                    return getState() == DefaultState.FAILED;
+                }
+
+                @Override
+                public boolean isOpen() {
+                    return getState().isOpen();
+                }
+            });
+            return serviceCall;
+        }
     }
 }
