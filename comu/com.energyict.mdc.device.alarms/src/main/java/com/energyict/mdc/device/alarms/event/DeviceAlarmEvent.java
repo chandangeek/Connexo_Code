@@ -150,12 +150,13 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
             return false;
         }
         List<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
+        List<String> deviceCodes = getDeviceCodes(triggeringEndDeviceEventTypes);
         if (isAllEventTypesList(inputTriggeringEventTypeList)) {
             return getLoggedEvents(relativePeriod.get()).size() >= eventCountThreshold;
-        } else if (!matches(inputTriggeringEventTypeList, getDeviceCodes(triggeringEndDeviceEventTypes))) {
+        } else if (!matches(inputTriggeringEventTypeList, deviceCodes)) {
             return false;
         }
-        return getTotalOccurrenceCount(getLoggedEvents(relativePeriod.get()), inputTriggeringEventTypeList, getDeviceCodes(triggeringEndDeviceEventTypes)) >= eventCountThreshold;
+        return getTotalOccurrenceCount(getLoggedEvents(relativePeriod.get()), inputTriggeringEventTypeList, deviceCodes) >= eventCountThreshold;
     }
 
     private boolean matches(List<String> inputTriggeringEventTypeList, List<String> deviceCodes) {
