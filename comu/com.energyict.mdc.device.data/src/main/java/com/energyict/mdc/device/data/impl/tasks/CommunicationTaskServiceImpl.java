@@ -739,10 +739,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 "t.LASTSESS_SUCCESSINDICATOR");
         sqlBuilder.append(" FROM (");
         sqlBuilder.append(mapper.builderWithAdditionalColumns("cte", "row_number() over (ORDER BY cte.nextexecutiontimestamp, cte.priority, cte.connectiontask) as rn").toString());
+        sqlBuilder.append(" LEFT JOIN ");
+        sqlBuilder.append(TableSpecs.DDC_HIPRIOCOMTASKEXEC.name());
+        sqlBuilder.append(" hpcte on cte.ID = hpcte.COMTASKEXECUTION");
         sqlBuilder.append(", ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
-        sqlBuilder.append(" WHERE ct.status = 0");
+        sqlBuilder.append(" WHERE hpcte.COMTASKEXECUTION is null");
+        sqlBuilder.append("   and ct.status = 0");
         sqlBuilder.append("   and ct.comport is null");
         sqlBuilder.append("   and ct.obsolete_date is null");
         return sqlBuilder;
