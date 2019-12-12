@@ -60,6 +60,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     private volatile MeteringService meteringService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile DeviceService deviceService;
+    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesDeviceRegisteredNotificationProvider() {
         // for OSGI purposes
@@ -69,13 +70,20 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     public UtilitiesDeviceRegisteredNotificationProvider(Clock clock,
                                                          SAPCustomPropertySets sapCustomPropertySets, MeteringService meteringService,
                                                          EndPointConfigurationService endPointConfigurationService,
-                                                         DeviceService deviceService) {
+                                                         DeviceService deviceService,
+                                                         WebServiceActivator webServiceActivator) {
         this();
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.meteringService = meteringService;
         this.endPointConfigurationService = endPointConfigurationService;
         this.deviceService = deviceService;
+        setWebServiceActivator(webServiceActivator);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Reference
@@ -197,7 +205,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
         UtilsDvceERPSmrtMtrRegedNotifSmrtMtr smartMeter = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifSmrtMtr();
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
-        smartMeterId.setValue(WebServiceActivator.METERING_SYSTEM_ID);
+        smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         sapCustomPropertySets.getStartDate(sapDeviceId).ifPresent(sD -> smartMeter.setStartDate(sD));
 

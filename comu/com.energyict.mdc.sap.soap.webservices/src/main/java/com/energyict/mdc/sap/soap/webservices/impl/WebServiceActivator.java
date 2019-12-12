@@ -162,7 +162,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String COMPONENT_NAME = "SAP";
     public static final String URL_PROPERTY = "url";
     public static final String APPLICATION_NAME = "MultiSense";
-    public static final String METERING_SYSTEM_ID = "HON";
+    public static final String DEFAULT_METERING_SYSTEM_ID = "HON";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
     public static final String UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID = "001";
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
@@ -193,6 +193,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_NEW_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.new.data.endpoint";
     public static final String EXPORT_TASK_UPDATED_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.updated.data.endpoint";
 
+    private static final String METERING_SYSTEM_ID = "sap.soap.metering.system.id";
     private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
     private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
@@ -264,6 +265,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private Map<String, String> deviceTypesMap;
     private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
     private Map<String, CIMPattern> divisionCategoryCodeMap;
+    private String meteringSystemId;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -315,6 +317,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public Integer getSapProperty(AdditionalProperties property) {
         return sapProperties.get(property);
+    }
+
+    public String getMeteringSystemId() {
+        return meteringSystemId;
     }
 
     public WebServiceActivator() {
@@ -444,6 +450,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_UPDATE_WINDOW));
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
+
+        meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
 
         loadDeviceTypesMap();
         createOrUpdateUpdateSapExportTask();

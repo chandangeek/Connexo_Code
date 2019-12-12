@@ -9,6 +9,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredNotificationProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOutService;
@@ -43,6 +44,8 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
     private MeteringService meteringService;
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private WebServiceActivator webServiceActivator;
 
     private String deviceId;
     private UtilitiesDeviceRegisteredNotificationProvider provider;
@@ -59,9 +62,12 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
                 bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(DeviceService.class).toInstance(deviceService);
+                bind(WebServiceActivator.class).toInstance(webServiceActivator);
+
             }
         });
         when(sapCustomPropertySets.getStartDate(anyString())).thenReturn(Optional.of(Instant.EPOCH));
+        when(webServiceActivator.getMeteringSystemId()).thenReturn(WebServiceActivator.DEFAULT_METERING_SYSTEM_ID);
     }
 
     @Test

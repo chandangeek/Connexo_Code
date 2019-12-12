@@ -47,21 +47,23 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
     }
 
     @Inject
-    public UtilitiesDeviceRegisteredBulkNotificationProvider(Clock clock, SAPCustomPropertySets sapCustomPropertySets) {
+    public UtilitiesDeviceRegisteredBulkNotificationProvider(Clock clock, SAPCustomPropertySets sapCustomPropertySets, WebServiceActivator webServiceActivator) {
         this();
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
+        setWebServiceActivator(webServiceActivator);
     }
 
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        // No action, just for binding WebServiceActivator
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Reference
@@ -159,7 +161,7 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         UtilsDvceERPSmrtMtrRegedNotifSmrtMtr smartMeter = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifSmrtMtr();
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
-        smartMeterId.setValue(WebServiceActivator.METERING_SYSTEM_ID);
+        smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
         sapCustomPropertySets.getStartDate(sapDeviceId).ifPresent(sD -> smartMeter.setStartDate(sD));
 
