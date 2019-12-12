@@ -63,7 +63,9 @@ abstract class AbstractRescheduleBehavior {
     }
 
     public void reschedule(CommandRoot commandRoot) {
-        if (commandRoot.hasConnectionErrorOccurred() || commandRoot.hasConnectionSetupError()) {
+        if (commandRoot.hasConnectionNotExecuted()){
+            rescheduleForConnectionSuccess(commandRoot);
+        } else if (commandRoot.hasConnectionErrorOccurred() || commandRoot.hasConnectionSetupError()) {
             rescheduleForConnectionError(commandRoot);
         } else if (commandRoot.hasGeneralSetupErrorOccurred()) {
             rescheduleForGeneralSetupError(commandRoot);
