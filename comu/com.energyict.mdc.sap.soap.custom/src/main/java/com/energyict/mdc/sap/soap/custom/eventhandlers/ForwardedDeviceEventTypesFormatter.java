@@ -124,7 +124,7 @@ class ForwardedDeviceEventTypesFormatter {
                 + eventType.getCategoryCode() + '.' + eventType.getTypeCode() + '.' + eventType.getSeverityCode() + '.' + eventType.getOriginTypeCode()
                 + '_' + time.toEpochMilli();
         // adjust eventId so it can be used in the utilitiesSmartMeterEventID tag with length 1-22
-        utilitiesSmartMeterEventID.setValue(Long.toString(eventId.hashCode() + 2147483648L));
+        utilitiesSmartMeterEventID.setValue(Long.toString(eventId.hashCode() & Integer.MAX_VALUE));
 
         return utilitiesSmartMeterEventID;
     }
