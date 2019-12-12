@@ -24,7 +24,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,14 +91,19 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         try {
             processDeviceCreation(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        } catch (LocalizedException ex) {
-            extension.setError(ex.getMessageSeed(), ex.getMessageArgs());
+        } catch (Exception ex) {
+            if(ex instanceof LocalizedException){
+                extension.setError(((LocalizedException)ex).getMessageSeed(), ((LocalizedException)ex).getMessageArgs());
+            }else{
+                extension.setError(MessageSeeds.ERROR_PROCESSING_METER_CREATE_REQUEST, ex.getLocalizedMessage());
+            }
+
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
     }
 
-    private void processDeviceCreation(UtilitiesDeviceCreateRequestDomainExtension extension){
+    private void processDeviceCreation(UtilitiesDeviceCreateRequestDomainExtension extension) {
         String sapDeviceId = extension.getDeviceId();
         String serialId = extension.getSerialId();
 
@@ -115,27 +119,19 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         }
     }
 
-    private Device getOrCreateDevice(UtilitiesDeviceCreateRequestDomainExtension extension){
+    private Device getOrCreateDevice(UtilitiesDeviceCreateRequestDomainExtension extension) {
         String serialId = extension.getSerialId();
-        Device device = null;
-        List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
-        if (!devices.isEmpty()) {
-            if (devices.size() == 1) {
-                device = devices.get(0);
-            } else {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.SEVERAL_DEVICES, serialId);
-            }
-        } else {
-            device = createDevice(extension);
+        Optional<Device> device = deviceService.findDeviceByName(serialId);
+        if (!device.isPresent()) {
+            device = Optional.of(createDevice(extension));
         }
-
-        return device;
+        return device.get();
     }
 
-    private Device createDevice(UtilitiesDeviceCreateRequestDomainExtension extension){
+    private Device createDevice(UtilitiesDeviceCreateRequestDomainExtension extension) {
         String deviceTypeName = extension.getDeviceType();
-        if(deviceTypeName == null){
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_TYPE_IS_NOT_MAPPED , extension.getMaterialId());
+        if (deviceTypeName == null) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_TYPE_IS_NOT_MAPPED, extension.getMaterialId());
         }
 
         DeviceConfiguration deviceConfig = findDeviceConfiguration(deviceTypeName);

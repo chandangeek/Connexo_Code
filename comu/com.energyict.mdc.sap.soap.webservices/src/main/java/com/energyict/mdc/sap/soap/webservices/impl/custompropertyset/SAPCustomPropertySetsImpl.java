@@ -229,7 +229,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (!getSapDeviceId(device).isPresent()) {
             setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber());
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getName());
         }
     }
 

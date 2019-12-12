@@ -22,7 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_ACTIVE_CPS(2002, "CouldNotFindActiveCPS", "Couldn''t find active custom property set {0}."),
 
     // Device
-    DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with serial id ''{0}'' already has SAP device identifier."),
+    DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with name ''{0}'' already has SAP device identifier."),
     REGISTER_ALREADY_HAS_LRN(4008, "RegisterAlreadyHasLrn", "Register ''{0}'' already has LRN (range is ''{1}'')"),
     CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN (range is ''{1}'')"),
     NO_SUCH_DEVICE(4015, "NoSuchDevice", "No device with id ''{0}''."),
