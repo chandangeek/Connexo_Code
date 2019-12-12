@@ -36,6 +36,10 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
         return processingResultCodes;
     }
 
+    public boolean isValid() {
+        return id != null && uuid != null && !processingResultCodes.isEmpty();
+    }
+
     public boolean isBulk() {
         return bulk;
     }
