@@ -39,7 +39,7 @@ public class CancellationBulkConfirmationMessageFactory {
         if (hasAllSuccessDocument(documents)) {
             confirmMsg.setLog(createSuccessfulLog());
         } else if (hasAllFailedDocument(documents)) {
-            confirmMsg.setLog(createFailedLog());
+            confirmMsg.setLog(createFailedLog(MessageSeeds.BULK_REQUEST_WAS_FAILED));
         } else {
             confirmMsg.setLog(createPartiallySuccessfulLog());
         }
@@ -94,13 +94,6 @@ public class CancellationBulkConfirmationMessageFactory {
                 ProcessingResultCode.SUCCESSFUL.getCode());
     }
 
-    private Log createFailedLog() {
-        return createLog(MessageSeeds.BULK_REQUEST_WAS_FAILED,
-                PROCESSING_ERROR_CATEGORY_CODE,
-                UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
-                ProcessingResultCode.FAILED.getCode());
-    }
-
     private Log createFailedLog(MessageSeeds messageSeeds, Object... args) {
         return createLog(messageSeeds,
                 PROCESSING_ERROR_CATEGORY_CODE,
@@ -126,7 +119,7 @@ public class CancellationBulkConfirmationMessageFactory {
         }
 
         logItem.setTypeID(typeId);
-        logItem.setSeverityCode(getSeverityCode(messageSeeds.getLevel().getName()));
+        logItem.setSeverityCode(SeverityCode.getSeverityCode(messageSeeds.getLevel().getName()));
 
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
@@ -136,17 +129,6 @@ public class CancellationBulkConfirmationMessageFactory {
         setMaximumLogItemSeverityCode(log);
 
         return log;
-    }
-
-
-    private String getSeverityCode(String level) {
-        if (level.equals(Level.SEVERE.getName())) {
-            return SeverityCode.ERROR.getCode();
-        } else if (level.equals(Level.WARNING.getName())) {
-            return SeverityCode.WARNING.getCode();
-        } else {
-            return SeverityCode.INFORMATION.getCode();
-        }
     }
 
     private void setMaximumLogItemSeverityCode(Log log) {

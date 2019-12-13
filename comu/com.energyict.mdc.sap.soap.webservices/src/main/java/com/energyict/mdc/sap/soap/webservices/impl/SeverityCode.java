@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
+import java.util.logging.Level;
+
 public enum SeverityCode {
     INFORMATION("1"),
     WARNING("2"),
@@ -17,5 +19,15 @@ public enum SeverityCode {
 
     public String getCode() {
         return code;
+    }
+
+    static public String getSeverityCode(String level) {
+        if (level.equals(Level.SEVERE.getName())) {
+            return SeverityCode.ERROR.getCode();
+        } else if (level.equals(Level.WARNING.getName())) {
+            return SeverityCode.WARNING.getCode();
+        } else {
+            return SeverityCode.INFORMATION.getCode();
+        }
     }
 }

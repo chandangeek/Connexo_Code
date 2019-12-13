@@ -88,7 +88,7 @@ public class CancellationConfirmationMessageFactory {
         }
 
         logItem.setTypeID(typeId);
-        logItem.setSeverityCode(getSeverityCode(messageSeeds.getLevel().getName()));
+        logItem.setSeverityCode(SeverityCode.getSeverityCode(messageSeeds.getLevel().getName()));
 
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
@@ -131,15 +131,4 @@ public class CancellationConfirmationMessageFactory {
             log.setMaximumLogItemSeverityCode(value.toString());
         }
     }
-
-    private String getSeverityCode(String level) {
-        if (level.equals(Level.SEVERE.getName())) {
-            return SeverityCode.ERROR.getCode();
-        } else if (level.equals(Level.WARNING.getName())) {
-            return SeverityCode.WARNING.getCode();
-        } else {
-            return SeverityCode.INFORMATION.getCode();
-        }
-    }
-
 }

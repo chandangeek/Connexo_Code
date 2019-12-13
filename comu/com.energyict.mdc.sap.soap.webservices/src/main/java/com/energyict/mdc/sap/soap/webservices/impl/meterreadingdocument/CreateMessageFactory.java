@@ -124,7 +124,7 @@ public class CreateMessageFactory {
         }
 
         logItem.setTypeID(typeId);
-        logItem.setSeverityCode(getSeverityCode(messageSeeds.getLevel().getName()));
+        logItem.setSeverityCode(SeverityCode.getSeverityCode(messageSeeds.getLevel().getName()));
 
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
@@ -134,17 +134,6 @@ public class CreateMessageFactory {
         setMaximumLogItemSeverityCode(log);
 
         return log;
-    }
-
-
-    private String getSeverityCode(String level) {
-        if (level.equals(Level.SEVERE.getName())) {
-            return SeverityCode.ERROR.getCode();
-        } else if (level.equals(Level.WARNING.getName())) {
-            return SeverityCode.WARNING.getCode();
-        } else {
-            return SeverityCode.INFORMATION.getCode();
-        }
     }
 
     private void setMaximumLogItemSeverityCode(Log log) {

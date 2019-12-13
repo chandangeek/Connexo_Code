@@ -44,7 +44,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         }
 
         public MeasurementTaskAssignmentChangeConfirmationMessage.Builder from(String level, String errorMessage) {
-            confirmationMessage.setLog(createLog(getSeverityCode(level), errorMessage));
+            confirmationMessage.setLog(createLog(SeverityCode.getSeverityCode(level), errorMessage));
             return this;
         }
 
@@ -69,16 +69,6 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             }
             messageHeader.setCreationDateTime(now);
             return messageHeader;
-        }
-
-        private String getSeverityCode(String level) {
-            if (level.equals(Level.SEVERE.getName())) {
-                return SeverityCode.ERROR.getCode();
-            } else if (level.equals(Level.WARNING.getName())) {
-                return SeverityCode.WARNING.getCode();
-            } else {
-                return SeverityCode.INFORMATION.getCode();
-            }
         }
 
         private Log createLog() {
