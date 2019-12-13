@@ -1082,6 +1082,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         } catch (DateTimeException e) {
             // No action, just use UTC zone
         }
-        return date.atZone(ZoneId.systemDefault()).withZoneSameLocal(zoneId).toInstant();
+        return date.atZone(zoneId).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+    }
+
+    public static Instant getUTCDate(Instant date) {
+        return date.atZone(ZoneId.systemDefault()).withZoneSameLocal( ZoneId.of("UTC")).toInstant();
     }
 }

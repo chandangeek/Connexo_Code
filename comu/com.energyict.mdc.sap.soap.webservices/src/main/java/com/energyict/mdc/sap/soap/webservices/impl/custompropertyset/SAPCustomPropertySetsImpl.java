@@ -51,6 +51,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.BoundType;
@@ -472,7 +473,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 }
             }
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, endDate);
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, WebServiceActivator.getUTCDate(endDate));
         }
     }
 
