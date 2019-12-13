@@ -18,7 +18,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
@@ -34,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -161,7 +159,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     }
 
     private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger) {
-        List<ServiceCallStatus> states = dataSendingResult.updateAndGetStates();
+        List<ServiceCallStatus> states = dataSendingResult.getStatuses();
         Set<ServiceCall> unsuccessfulServiceCalls = states.stream()
                 .filter(Predicates.not(ServiceCallStatus::isSuccessful))
                 .peek(status -> {
@@ -242,8 +240,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                              DataSendingResult result, boolean waitForServiceCalls) {
         service.call(endPoint, data.stream(), result);
         result.sent = true;
-        if (waitForServiceCalls && !result.serviceCallStates.isEmpty()) {
-            while (result.updateAndGetStates().stream().anyMatch(ServiceCallStatus::isOpen)) {
+        if (waitForServiceCalls && !result.serviceCalls.isEmpty()) {
+            while (result.getStatuses().stream().anyMatch(ServiceCallStatus::isOpen)) {
                 try {
                     Thread.sleep(1000L * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS);
                 } catch (InterruptedException e) {
@@ -251,7 +249,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 }
             }
         } else {
-            result.serviceCallStates.clear(); // success case as the timeout is not configured => not interested in confirmation
+            result.serviceCalls.clear(); // success case as the timeout is not configured => not interested in confirmation
         }
     }
 
@@ -267,49 +265,16 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
 
     private class DataSendingResult implements DataExportWebService.ExportContext {
         private volatile boolean sent;
-        // TODO: can we get rid of map towards set?
-        private Map<ServiceCall, ServiceCallStatus> serviceCallStates = new ConcurrentHashMap<>();
+        private Set<ServiceCall> serviceCalls = ConcurrentHashMap.newKeySet();
 
-        private List<ServiceCallStatus> updateAndGetStates() {
-            List<ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(serviceCallStates.keySet());
-            statuses.forEach(status -> serviceCallStates.put(status.getServiceCall(), status));
-            return statuses;
+        private List<ServiceCallStatus> getStatuses() {
+            return dataExportServiceCallType.getStatuses(serviceCalls);
         }
 
         @Override
         public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources) {
             ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, dataSources);
-            serviceCallStates.put(serviceCall, new ServiceCallStatus() {
-                @Override
-                public ServiceCall getServiceCall() {
-                    return serviceCall;
-                }
-
-                @Override
-                public DefaultState getState() {
-                    return serviceCall.getState();
-                }
-
-                @Override
-                public Optional<String> getErrorMessage() {
-                    return Optional.empty();
-                }
-
-                @Override
-                public boolean isSuccessful() {
-                    return getState() == DefaultState.SUCCESSFUL;
-                }
-
-                @Override
-                public boolean isFailed() {
-                    return getState() == DefaultState.FAILED;
-                }
-
-                @Override
-                public boolean isOpen() {
-                    return getState().isOpen();
-                }
-            });
+            serviceCalls.add(serviceCall);
             return serviceCall;
         }
     }
