@@ -13,10 +13,13 @@ import com.elster.jupiter.orm.associations.Reference;
 
 public class ReversePersistentReference<T> implements Reference<T> {
 	private Optional<T> target;
-	private final DataMapper<T> dataMapper;
-	private final Object owner;
-	private final ForeignKeyConstraint constraint;
-	
+	private DataMapper<T> dataMapper;
+	private Object owner;
+	private ForeignKeyConstraint constraint;
+
+	ReversePersistentReference() {
+	}
+
 	ReversePersistentReference(ForeignKeyConstraint constraint, DataMapper<T> dataMapper, Object owner) {
 		this.constraint = constraint;
 		this.dataMapper = dataMapper;

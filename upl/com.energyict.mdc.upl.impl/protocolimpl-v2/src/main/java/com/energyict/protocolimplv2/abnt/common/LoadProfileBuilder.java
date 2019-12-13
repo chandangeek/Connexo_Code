@@ -19,7 +19,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.LoadProfileReadoutResp
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 
 import java.util.ArrayList;
 import java.util.Calendar;

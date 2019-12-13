@@ -11,7 +11,7 @@ import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.protocols.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
@@ -29,7 +29,11 @@ import java.util.Set;
 
 public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
-    private final PropertySpecService propertySpecService;
+    private PropertySpecService propertySpecService;
+
+    public AbstractSerialConnectionType(){
+        super();
+    }
 
     public AbstractSerialConnectionType(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;

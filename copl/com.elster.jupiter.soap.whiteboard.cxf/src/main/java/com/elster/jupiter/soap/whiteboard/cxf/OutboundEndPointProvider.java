@@ -5,9 +5,12 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.SetMultimap;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @ProviderType
 public interface OutboundEndPointProvider extends EndPointProvider {
@@ -59,5 +62,7 @@ public interface OutboundEndPointProvider extends EndPointProvider {
          * @throws RuntimeException In case the request should have been sent to all endpoint configurations, but no suitable one is found.
          */
         Map<EndPointConfiguration, ?> sendRawXml(String message);
+
+        RequestSender withRelatedAttributes(SetMultimap<String,String> values);
     }
 }

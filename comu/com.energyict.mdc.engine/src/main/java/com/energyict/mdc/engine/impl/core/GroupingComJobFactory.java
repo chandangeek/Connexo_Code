@@ -5,12 +5,9 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class GroupingComJobFactory implements ComJobFactory {
 
@@ -76,18 +73,21 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     }
 
     protected void addToGroup(ComTaskExecution comTaskExecution) {
-        ComTaskExecutionGroup group = getComTaskGroup(comTaskExecution);
-        group.add(comTaskExecution);
+        // ComTaskExecution was returned by task query that joins it with the ConnectionTask so group cannot be <code>null</code>
+        Optional<ComTaskExecutionGroup> group = this.getComTaskGroup(comTaskExecution);
+        group.ifPresent(g -> g.add(comTaskExecution));
     }
 
-    private ComTaskExecutionGroup getComTaskGroup(ComTaskExecution comTaskExecution) {
+    private Optional<ComTaskExecutionGroup> getComTaskGroup(ComTaskExecution comTaskExecution) {
         // ComTaskExecution was returned by task query that joins it with the ConnectionTask so it cannot be <code>null</code>
-        long connectionTaskId = comTaskExecution.getConnectionTaskId();
-        ComTaskExecutionGroup group = groups.get(connectionTaskId);
+        Optional<ConnectionTask<?, ?>> connectionTask = comTaskExecution.getConnectionTask();
+        if (!connectionTask.isPresent())
+            return Optional.empty();
+        ComTaskExecutionGroup group = this.groups.get(connectionTask.get().getId());
         if (group == null) {
-            group = new ComTaskExecutionGroup(connectionTaskId);
-            groups.put(connectionTaskId, group);
+            group = new ComTaskExecutionGroup(connectionTask.get());
+            this.groups.put(connectionTask.get().getId(), group);
         }
-        return group;
+        return Optional.of(group);
     }
 }

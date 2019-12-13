@@ -6,14 +6,16 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineLogBookSpec;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
@@ -29,9 +31,11 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     /**
      * The {@link com.energyict.mdc.upl.meterdata.LogBook} which is going offline
      */
-    private final LogBook logBook;
-    private final Device device;
+    private LogBook logBook;
+    private Device device;
+    private DeviceIdentifier deviceIdentifier;
     private IdentificationService identificationService;
+    private LogBookIdentifier logBookIdentifier;
 
     /**
      * The {@link OfflineLogBookSpec} for the LogBookType.
@@ -54,7 +58,11 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     /**
      * The Date from where to start fetching data from the {@link com.energyict.mdc.upl.meterdata.LogBook}
      */
-    private Date lastLogBook;
+    private Date lastReading;
+
+    public OfflineLogBookImpl() {
+        super();
+    }
 
     public OfflineLogBookImpl(LogBook logBook, IdentificationService identificationService) {
         this.logBook = logBook;
@@ -87,7 +95,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     }
 
     @Override
-    @XmlAttribute
+    @XmlElement(type = OfflineLogBookSpecImpl.class)
     public OfflineLogBookSpec getOfflineLogBookSpec() {
         return offlineLogBookSpec;
     }
@@ -116,21 +124,39 @@ public class OfflineLogBookImpl implements OfflineLogBook {
 
     @Override
     public Date getLastReading() {
-        return lastLogBook;
+        return lastReading;
     }
 
     void setLastLogBook(Date lastLogBook) {
-        this.lastLogBook = lastLogBook;
+        this.lastReading = lastLogBook;
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+        if (identificationService != null)
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        return deviceIdentifier;
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = LogBookIdentifierById.class),
+            @XmlElement(type = LogBookIdentifierByObisCodeAndDevice.class),
+            @XmlElement(type = LogBookIdentifierByDeviceAndObisCode.class),
+            @XmlElement(type = LogBookIdentifierForAlreadyKnowLogBook.class),
+    })
     public LogBookIdentifier getLogBookIdentifier() {
-        return this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook, getDeviceIdentifier());
+        if (logBookIdentifier == null && this.identificationService != null)
+            logBookIdentifier = this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook, getDeviceIdentifier());
+        return logBookIdentifier;
     }
 
     @XmlElement(name = "type")

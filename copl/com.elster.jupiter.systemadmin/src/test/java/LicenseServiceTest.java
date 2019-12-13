@@ -14,7 +14,7 @@ import com.elster.jupiter.license.impl.InvalidLicenseException;
 import com.elster.jupiter.license.impl.LicenseServiceImpl;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -76,7 +76,7 @@ public class LicenseServiceTest {
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(inMemoryBootstrapModule, licenseModule,
-                new OrmModule(), new DataVaultModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(),
+                new H2OrmModule(), new DataVaultModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(),
                 new UtilModule(), new DomainUtilModule(), new UserModule(), new EventsModule(),
                 new InMemoryMessagingModule(), new NlsModule(), new AbstractModule() {
                     @Override

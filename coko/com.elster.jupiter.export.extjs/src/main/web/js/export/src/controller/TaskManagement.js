@@ -6,7 +6,12 @@ Ext.define('Dxp.controller.TaskManagement', {
     extend: 'Ext.app.Controller',
 
     views: [],
-    refs: [],
+    refs: [
+        {
+            ref: 'page',
+            selector: 'data-export-tasks-add'
+        }
+    ],
 
     init: function () {
         Apr.TaskManagementApp.addTaskManagementApp(this.getType(), {
@@ -16,7 +21,7 @@ Ext.define('Dxp.controller.TaskManagement', {
     },
 
     canAdministrate: function () {
-        return false;
+        return Dxp.privileges.DataExport.canAdministrate();
     },
 
     canView: function () {
@@ -48,7 +53,11 @@ Ext.define('Dxp.controller.TaskManagement', {
     },
 
     getType: function () {
-        return 'DataExport';
+        return 'DataExport'
+    },
+
+    getTaskForm: function(caller, completedFunc){
+         return this.getController('Dxp.controller.Tasks').appendAddTaskForm(caller, completedFunc);
     },
 
     getTask: function (controller, taskManagementId, operationCompleted) {
@@ -65,6 +74,10 @@ Ext.define('Dxp.controller.TaskManagement', {
                 });
             }
         })
+    },
+    saveTaskForm: function (panel, formErrorsPanel, saveOperationComplete, controller) {
+        var me = this;
+        me.getController('Dxp.controller.Tasks').addTask({action: 'addTask'}, formErrorsPanel, saveOperationComplete, controller);
     }
 
 });

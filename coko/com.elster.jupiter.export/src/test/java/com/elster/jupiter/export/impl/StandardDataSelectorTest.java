@@ -198,6 +198,9 @@ public class StandardDataSelectorTest {
         when(meter1.is(meter1)).thenReturn(true);
         when(meter2.is(meter2)).thenReturn(true);
         when(meter3.is(meter3)).thenReturn(true);
+        when(meter1.getReadingTypes(any())).thenReturn(Collections.singleton(readingType1));
+        when(meter2.getReadingTypes(any())).thenReturn(Collections.singleton(readingType1));
+        when(meter3.getReadingTypes(any())).thenReturn(Collections.singleton(readingType1));
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));

@@ -28,7 +28,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -158,7 +158,7 @@ public class CustomTaskImplIT {
                     new TransactionModule(),
                     new ThreadSecurityModule(),
                     new PubSubModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new AppServiceModule(),
                     new NlsModule(),
                     new BasicPropertiesModule(),

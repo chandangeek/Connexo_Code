@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dialects;
 
+import com.energyict.mdc.upl.nls.ThesaurusEnum;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.Thesaurus;
@@ -17,7 +18,7 @@ public abstract class AbstractDeviceProtocolDialect implements DeviceProtocolDia
 
     public AbstractDeviceProtocolDialect(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
-        this.thesaurus = nlsService.getThesaurus(com.energyict.protocolimplv2.messages.nls.Thesaurus.ID.toString());
+        this.thesaurus = nlsService.getThesaurus(ThesaurusEnum.ID.toString());
     }
 
     public AbstractDeviceProtocolDialect(PropertySpecService propertySpecService, Thesaurus thesaurus) {

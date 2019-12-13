@@ -21,8 +21,8 @@ import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 
 import javax.servlet.http.HttpServletRequest;

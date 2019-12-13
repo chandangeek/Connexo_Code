@@ -7,14 +7,19 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -23,17 +28,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedMessageListDeviceCommandTest extends AbstractCollectedDataIntegrationTest {
@@ -67,10 +63,10 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
     @Test
     public void testExecute() {
         freezeClock(new Date());
-        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
+        final DeviceMessageIdentifierById deviceMessageIdentifier = new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier());
         when(this.deviceMessageService.findDeviceMessageByIdentifier(deviceMessageIdentifier)).thenReturn(Optional.of(this.deviceMessage1));
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage.getIdentifier()).thenReturn(deviceMessageIdentifier);
+        when(offlineDeviceMessage.getMessageIdentifier()).thenReturn(deviceMessageIdentifier);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier);
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -86,18 +82,18 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1), DeviceMessageStatus.CONFIRMED, Instant.now(getClock()), null);
+        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier()), DeviceMessageStatus.CONFIRMED, Instant.now(getClock()), null);
     }
 
     @Test
     public void testToJournalMessageDescriptionOnDebugLevel() {
         freezeClock(new Date());
-        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
+        final DeviceMessageIdentifierById deviceMessageIdentifier1 = new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier());
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
+        final DeviceMessageIdentifierById deviceMessageIdentifier2 = new DeviceMessageIdentifierById(deviceMessage2.getId(), deviceMessage2.getDeviceIdentifier());
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setSentDate(getClock().instant());
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
@@ -115,17 +111,17 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 12, message status: confirmed, sent date: " + getClock().instant() +
-                ", protocolInfo: null; messageIdentifier: message having id 32, message status: indoubt, sent date: " + getClock().instant() + ", protocolInfo: null}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed, sent date: " + getClock().instant() +
+                ", protocolInfo: null; messageIdentifier: messageId = 32, message status: indoubt, sent date: " + getClock().instant() + ", protocolInfo: null}");
     }
 
     @Test
     public void testToJournalMessageDescriptionOnInfoLevel() {
-        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
+        final DeviceMessageIdentifierById deviceMessageIdentifier1 = new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier());
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
+        final DeviceMessageIdentifierById deviceMessageIdentifier2 = new DeviceMessageIdentifierById(deviceMessage2.getId(), deviceMessage2.getDeviceIdentifier());
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
@@ -142,28 +138,28 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 12, message status: confirmed; messageIdentifier: message having id 32, message status: indoubt}");
+        assertThat(journalMessage).contains("{messageIdentifier: messageId = 12, message status: confirmed; messageIdentifier: messageId = 32, message status: indoubt}");
     }
 
     @Test
     public void testUnProcessedDeviceMessage(){
         freezeClock(new Date());
-        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier1 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1);
+        final DeviceMessageIdentifierById deviceMessageIdentifier1 = new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier());
         doReturn(Optional.of(this.deviceMessage1)).when(this.deviceMessageService).findDeviceMessageByIdentifier(deviceMessageIdentifier1);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        final DeviceMessageIdentifierForAlreadyKnownMessage deviceMessageIdentifier2 = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2);
+        final DeviceMessageIdentifierById deviceMessageIdentifier2 = new DeviceMessageIdentifierById(deviceMessage2.getId(), deviceMessage2.getDeviceIdentifier());
         doReturn(Optional.of(this.deviceMessage2)).when(this.deviceMessageService).findDeviceMessageByIdentifier(deviceMessageIdentifier2);
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setSentDate(getClock().instant());
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage1.getIdentifier()).thenReturn(deviceMessageIdentifier1);
+        when(offlineDeviceMessage1.getMessageIdentifier()).thenReturn(deviceMessageIdentifier1);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage2.getIdentifier()).thenReturn(deviceMessageIdentifier2);
+        when(offlineDeviceMessage2.getMessageIdentifier()).thenReturn(deviceMessageIdentifier2);
         when(offlineDeviceMessage2.getDeviceMessageStatus()).thenReturn(DeviceMessageStatus.SENT);
 
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);
@@ -176,8 +172,8 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
 
         // Business method
         command.execute(comServerDAO);
-        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage1), DeviceMessageStatus.CONFIRMED, Instant.now(getClock()), null);
-        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage2), DeviceMessageStatus.SENT, null, CollectedMessageList.REASON_FOR_PENDING_STATE);
+        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier()), DeviceMessageStatus.CONFIRMED, Instant.now(getClock()), null);
+        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierById(deviceMessage2.getId(), deviceMessage2.getDeviceIdentifier()), DeviceMessageStatus.SENT, null, CollectedMessageList.REASON_FOR_PENDING_STATE);
     }
 
 }

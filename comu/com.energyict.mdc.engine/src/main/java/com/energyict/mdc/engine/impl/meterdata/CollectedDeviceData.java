@@ -7,10 +7,17 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.IssueFactoryImpl;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.issues.impl.ProblemImpl;
+import com.energyict.mdc.issues.impl.WarningImpl;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +84,12 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = WarningImpl.class),
+            @XmlElement(type = ProblemImpl.class),
+            @XmlElement(type = IssueFactoryImpl.Warning.class),
+            @XmlElement(type = IssueFactoryImpl.Problem.class),
+    })
     public List<Issue> getIssues() {
         return this.issueList;
     }
@@ -86,6 +99,8 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
         // No post processing by default
     }
 
+    @JsonIgnore
+    @XmlTransient
     public ComTaskExecution getComTaskExecution() {
         return comTaskExecution;
     }

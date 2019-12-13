@@ -8,35 +8,29 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierFirstOnDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierForAlreadyKnownLoadProfile;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierFirstOnDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.eict.eiweb.FirstLoadProfileOnDevice;
-import org.reflections.Reflections;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.reflections.Reflections;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the resolving of all different {@link LoadProfileIdentifier}s to actual load profiles.
@@ -52,7 +46,6 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     private static final ObisCode LOADPROFILE_OBIS_CODE = ObisCode.fromString("0.0.96.1.0.255");
     private static LoadProfileServiceImpl loadProfileService;
 
-    @Mock
     Device device;
 
     DeviceIdentifier deviceIdentifier;
@@ -64,7 +57,14 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
 
     @Before
     public void setUp() throws Exception {
-        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device);
+        device = createDevice();
+        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+    }
+
+    private Device createDevice() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "test", "testMRID", inMemoryPersistence.getClock().instant());
+        device.save();
+        return device;
     }
 
     @Test
@@ -85,20 +85,8 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
 
     @Test
     @Transactional
-    public void testDeviceDataLoadProfileIdentifierByAlreadyKnownLoadProfile() throws Exception {
-        LoadProfileService spiedService = spy(loadProfileService);
-        LoadProfile myLoadProfile = mock(LoadProfile.class);
-        when(myLoadProfile.getDevice()).thenReturn(device);
-        Optional<LoadProfile> foundLoadProfile = spiedService.findByIdentifier(new LoadProfileIdentifierForAlreadyKnownLoadProfile(myLoadProfile, LOADPROFILE_OBIS_CODE));
-        assertThat(foundLoadProfile).isPresent();
-        assertThat(foundLoadProfile.get()).isEqualTo(myLoadProfile);
-    }
-
-    @Test
-    @Transactional
     public void testDeviceDataLoadProfileIdentifierById() throws Exception {
         LoadProfileService spiedService = spy(loadProfileService);
-
         spiedService.findByIdentifier(new LoadProfileIdentifierById(1L, LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findById(1L);
     }
@@ -107,7 +95,6 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     @Transactional
     public void testDeviceDataLoadProfileIdentifierByObisCodeAndDevice() throws Exception {
         LoadProfileServiceImpl spiedService = spy(loadProfileService);
-
         spiedService.findByIdentifier(new LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findByDeviceAndObisCode(device, LOADPROFILE_OBIS_CODE);
     }
@@ -126,7 +113,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     public void testProtocolLoadProfileIdentifierById() throws Exception {
         LoadProfileService spiedService = spy(loadProfileService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById(1L, LOADPROFILE_OBIS_CODE, deviceIdentifier));
+        spiedService.findByIdentifier(new com.energyict.mdc.identifiers.LoadProfileIdentifierById(1L, LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findById(1L);
     }
 
@@ -135,7 +122,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     public void testProtocolLoadProfileIdentifierByObisCodeAndDevice() throws Exception {
         LoadProfileServiceImpl spiedService = spy(loadProfileService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, deviceIdentifier));
+        spiedService.findByIdentifier(new com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findByDeviceAndObisCode(device, LOADPROFILE_OBIS_CODE);
     }
 

@@ -15,6 +15,7 @@ public class DataSourceInfo {
     public DataSource details;
     public ReadingTypeInfo readingType;
     public Instant lastExportedDate;
+    public Instant lastExportedPeriodEnd;
     public Long occurrenceId;
 
     public static class DataSource {

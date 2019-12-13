@@ -8,6 +8,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
 
 public class OutboundIpConnectionTypeImpl extends IpConnectionType {
 
@@ -21,4 +22,14 @@ public class OutboundIpConnectionTypeImpl extends IpConnectionType {
         return ConnectionTypeDirection.OUTBOUND;
     }
 
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
+    }
 }

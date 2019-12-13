@@ -5,14 +5,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
-import com.elster.jupiter.fsm.EndPointConfigurationReference;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.ProcessReference;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.StageSet;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;

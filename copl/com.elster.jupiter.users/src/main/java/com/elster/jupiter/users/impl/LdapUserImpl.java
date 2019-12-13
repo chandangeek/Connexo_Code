@@ -11,10 +11,12 @@ public final class LdapUserImpl implements LdapUser {
 
     private String username;
     private boolean status;
+    private String dn;
 
-    LdapUserImpl init(String username, boolean status){
+    LdapUserImpl init(String username, String dn, boolean status){
         this.username = username;
         this.status = status;
+        this.dn = dn;
         return this;
     }
     @Override
@@ -35,6 +37,15 @@ public final class LdapUserImpl implements LdapUser {
     @Override
     public boolean getStatus() {
         return status;
+    }
+
+    @Override
+    public String getDN() {
+        return dn;
+    }
+
+    public void setDN(String userDN) {
+        this.dn = userDN;
     }
 
     @Override

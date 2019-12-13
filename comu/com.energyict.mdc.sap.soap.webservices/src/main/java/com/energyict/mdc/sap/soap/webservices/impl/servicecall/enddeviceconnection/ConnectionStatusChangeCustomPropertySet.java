@@ -38,6 +38,7 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
     private volatile PropertySpecService propertySpecService;
 
     public ConnectionStatusChangeCustomPropertySet() {
+        // for OSGI purpose
     }
 
     @Inject
@@ -118,6 +119,17 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
                         .named(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName(), TranslationKeys.ID)
                         .describedAs(TranslationKeys.ID)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(ConnectionStatusChangeDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(ConnectionStatusChangeDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .stringSpec()
@@ -136,6 +148,18 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
                         .named(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName(), TranslationKeys.PROCESS_DATE)
                         .describedAs(TranslationKeys.PROCESS_DATE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(ConnectionStatusChangeDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(ConnectionStatusChangeDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }

@@ -116,6 +116,11 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
                             htmlEncode: false
                         },
                         {
+                            fieldLabel: Uni.I18n.translate('comserver.preview.queryApiLabel', 'MDC', 'Remote connection port'),
+                            name: 'queryAPIPort',
+                            htmlEncode: false
+                        },
+                        {
                             fieldLabel: Uni.I18n.translate('comserver.preview.eventUriLabel', 'MDC', 'Event registration port'),
                             name: 'eventRegistrationPort',
                             htmlEncode: false

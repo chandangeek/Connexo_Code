@@ -6,7 +6,7 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
-class PingRequest implements Request {
+class PingRequest extends RequestImpl {
     @Override
     public void applyTo(EventPublisher eventPublisher) {
        eventPublisher.answerPing();

@@ -32,8 +32,8 @@ import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.DeltaElectr
 import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.InitiatorElectricalPhaseType;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.PANConnectionStatus;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.PLCG3BandplanType;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;

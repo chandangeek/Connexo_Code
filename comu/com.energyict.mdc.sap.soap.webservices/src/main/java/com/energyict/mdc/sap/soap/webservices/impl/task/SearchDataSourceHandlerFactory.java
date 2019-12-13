@@ -34,10 +34,11 @@ public class SearchDataSourceHandlerFactory implements MessageHandlerFactory {
     }
 
     @Inject
-    public SearchDataSourceHandlerFactory(TaskService taskService,
-                                          ServiceCallService serviceCallService) {
+    public SearchDataSourceHandlerFactory(TaskService taskService, ServiceCallService serviceCallService,
+                                          WebServiceActivator webServiceActivator) {
         setTaskService(taskService);
         setServiceCallService(serviceCallService);
+        setWebServiceActivator(webServiceActivator);
     }
 
     @Override

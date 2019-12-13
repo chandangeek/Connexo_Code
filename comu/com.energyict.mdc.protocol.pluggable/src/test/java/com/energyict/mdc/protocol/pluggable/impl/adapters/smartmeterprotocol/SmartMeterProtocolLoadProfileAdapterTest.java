@@ -184,9 +184,9 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
     @Test
     public void getLoadProfileDataSuccessTest() throws IOException {
         LoadProfileReader loadProfileReader = mock(LoadProfileReader.class);
-        when(loadProfileReader.getLoadProfileId()).thenReturn(23);
+        when(loadProfileReader.getLoadProfileId()).thenReturn(23L);
         ProfileData profileData = mock(ProfileData.class);
-        when(profileData.getLoadProfileId()).thenReturn(23);
+        when(profileData.getLoadProfileId()).thenReturn(23L);
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.getLoadProfileData(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.singletonList(profileData));
         SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(smartMeterProtocol, issueService, collectedDataFactory, identificationService);
@@ -201,9 +201,9 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
 
     @Test
     public void getMultipleLoadProfilesWithOneFailureTest() throws IOException {
-        final int loadProfileId1 = 23;
-        final int loadProfileId2 = 56;
-        final int loadProfileId3 = 99;
+        final long loadProfileId1 = 23;
+        final long loadProfileId2 = 56;
+        final long loadProfileId3 = 99;
         LoadProfileReader loadProfileReader1 = mock(LoadProfileReader.class);
         when(loadProfileReader1.getLoadProfileId()).thenReturn(loadProfileId1);
         LoadProfileReader loadProfileReader2 = mock(LoadProfileReader.class);

@@ -16,8 +16,8 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.ProtocolJournal;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.upl.issue.Problem;
 
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -51,7 +51,7 @@ public class DeviceProtocolInitializeCommand extends SimpleComCommand {
         } catch (ConnectionCommunicationException e) {
             throw e;
         } catch (Throwable e) {
-            Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getCause(), e);
+            Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getMessage(), e);
             addIssue(problem, CompletionCode.InitError);
         }
     }

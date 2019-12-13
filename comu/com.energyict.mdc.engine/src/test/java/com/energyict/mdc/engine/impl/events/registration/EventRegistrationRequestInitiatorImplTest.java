@@ -70,26 +70,28 @@ public class EventRegistrationRequestInitiatorImplTest {
         // Expected IllegalArgumentException because the ComServer does not exist
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testOfflineComServerByName() {
         String comServerName = "Offline";
         OfflineComServer comServer = createOfflineComServer();
         when(this.engineConfigurationService.findComServer(comServerName)).thenReturn(Optional.<ComServer>of(comServer));
 
         // Business method
-        new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
+        String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServerName);
 
-        // Expected UnsupportedOperationException because OfflineComServer does not support event registration
+        // Asserts
+        assertThat(url).isEqualTo(OfflineComServerImpl.EVENT_REGISTRATION_URI);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testOfflineComServer() {
         OfflineComServer comServer = createOfflineComServer();
 
         // Business method
-        new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
+        String url = new EventRegistrationRequestInitiatorImpl(this.engineConfigurationService).getRegistrationURL(comServer);
 
-        // Expected UnsupportedOperationException because OfflineComServer does not support event registration
+        // Asserts
+        assertThat(url).isEqualTo(OfflineComServerImpl.EVENT_REGISTRATION_URI);
     }
 
     private OfflineComServer createOfflineComServer() {

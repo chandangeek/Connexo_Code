@@ -17,7 +17,12 @@ import com.energyict.mdc.common.protocol.security.SecurityPropertySpecProvider;
 import com.energyict.mdc.common.protocol.security.SecuritySuite;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,12 +40,19 @@ import java.util.Set;
  * @since 2012-12-14 (10:29)
  */
 @ConsumerType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpecProvider {
 
     void setName(String name);
 
+    @XmlAttribute
     AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
 
+    @XmlAttribute
     EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
 
     Object getClient();
@@ -95,5 +107,14 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     void update();
 
+    @XmlAttribute
     long getVersion();
+
+    @XmlElement(name = "type")
+    default String getXmlType() {
+        return getClass().getName();
+    }
+
+    default void setXmlType(String ignore) {
+    }
 }

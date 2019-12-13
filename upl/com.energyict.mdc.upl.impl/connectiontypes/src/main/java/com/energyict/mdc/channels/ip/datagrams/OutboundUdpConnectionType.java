@@ -29,6 +29,10 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     public static final String BUFFER_SIZE_NAME = "udpdatagrambuffersize";
 
+    public OutboundUdpConnectionType() {
+        super();
+    }
+
     public OutboundUdpConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }

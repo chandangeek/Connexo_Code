@@ -22,6 +22,7 @@ Ext.define('Dxp.view.tasks.Add', {
     edit: false,
     returnLink: null,
     router: null,
+    onNewPage: false,
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -43,10 +44,13 @@ Ext.define('Dxp.view.tasks.Add', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('general.addExportTask', 'DES', 'Add export task'),
+                title: me.onNewPage ? Uni.I18n.translate('general.addExportTask', 'DES', 'Add export task') : '' ,
                 itemId: 'add-data-export-task-form',
                 ui: 'large',
                 width: '100%',
+                style: {
+                    'margin': (me.onNewPage || me.edit) ? '0px' : '-16px 0px 0px -16px'
+                },
                 defaults: {
                     labelWidth: 250
                 },
@@ -841,6 +845,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         ui: 'actions',
                         fieldLabel: '&nbsp',
                         layout: 'hbox',
+                        hidden: (!me.onNewPage && !me.edit),
                         items: [
                             {
                                 xtype: 'button',

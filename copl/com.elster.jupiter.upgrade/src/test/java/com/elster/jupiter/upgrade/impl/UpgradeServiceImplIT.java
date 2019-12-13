@@ -11,7 +11,7 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -152,7 +152,7 @@ public class UpgradeServiceImplIT {
             injector = Guice.createInjector(
                     new MockModule(),
                     inMemoryBootstrapModule,
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new UtilModule(clock),
                     new ThreadSecurityModule(),
                     new PubSubModule(),

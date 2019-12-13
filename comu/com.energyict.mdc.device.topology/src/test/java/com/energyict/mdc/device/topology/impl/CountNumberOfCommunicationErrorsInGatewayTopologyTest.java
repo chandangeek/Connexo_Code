@@ -38,7 +38,7 @@ import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -191,7 +191,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new InMemoryMessagingModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule(),
                 new KpiModule(),

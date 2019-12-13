@@ -13,7 +13,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.InboundFrameException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
-import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
+import com.energyict.mdc.identifiers.CallHomeIdPlaceHolder;
 
 import java.util.ArrayList;
 import java.util.List;

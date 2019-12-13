@@ -21,6 +21,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserService;
 
+import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;

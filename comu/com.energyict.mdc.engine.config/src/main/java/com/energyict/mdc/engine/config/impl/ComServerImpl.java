@@ -32,12 +32,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -64,14 +63,14 @@ public abstract class ComServerImpl implements ComServer {
                     OFFLINE_COMSERVER_DISCRIMINATOR, OfflineComServerImpl.class,
                     REMOTE_COMSERVER_DISCRIMINATOR, RemoteComServerImpl.class);
 
-    private final DataModel dataModel;
-    private final Provider<OutboundComPort> outboundComPortProvider;
+    private DataModel dataModel;
+    private Provider<OutboundComPort> outboundComPortProvider;
 
-    private final Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
-    private final Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
-    private final Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
-    private final Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
-    protected final Thesaurus thesaurus;
+    private Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
+    private Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
+    private Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
+    private Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
+    protected Thesaurus thesaurus;
 
     /**
      * Notifies this ComServer that the specified {@link ComPortImpl} was saved.
@@ -121,9 +120,17 @@ public abstract class ComServerImpl implements ComServer {
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-    private final List<ComPort>  comPorts = new ArrayList<>();
+    private List<ComPort>  comPorts = new ArrayList<>();
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
     private Instant obsoleteDate;
+    protected boolean obsolete;
+    protected boolean remote;
+    protected boolean online;
+    protected boolean offline;
+
+    protected ComServerImpl() {
+        super();
+    }
 
     @Inject
     protected ComServerImpl(DataModel dataModel, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
@@ -177,6 +184,10 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
+    @XmlElements({
+            @XmlElement(name = "OutboundComPortImpl", type = OutboundComPortImpl.class),
+            @XmlElement(name = "InboundComPortImpl", type = InboundComPortImpl.class)
+    })
     public List<ComPort> getComPorts() {
         List<ComPort> nonObsoleteComPorts = new ArrayList<>();
         for (ComPort comPort : this.comPorts) {
@@ -188,7 +199,7 @@ public abstract class ComServerImpl implements ComServer {
         return nonObsoleteComPorts;
     }
 
-    public final  List<InboundComPort> getInboundComPorts () {
+    public List<InboundComPort> getInboundComPorts () {
         List<InboundComPort> inboundComPorts = new ArrayList<>();
         for (ComPort comPort : this.comPorts) {
             if (comPort.isInbound() && !comPort.isObsolete()) {
@@ -196,18 +207,19 @@ public abstract class ComServerImpl implements ComServer {
                 inboundComPorts.add(inboundComPort);
             }
         }
-        return ImmutableList.copyOf(inboundComPorts);
+        return Collections.unmodifiableList(inboundComPorts);
     }
 
-    public final List<OutboundComPort> getOutboundComPorts() {
+    @XmlElement(type = OutboundComPortImpl.class)
+    public List<OutboundComPort> getOutboundComPorts() {
         List<OutboundComPort> outboundComPorts = new ArrayList<>();
         for (ComPort comPort : this.comPorts) {
             if (!comPort.isInbound() && !comPort.isObsolete()) {
-                OutboundComPort outboundComPort = (OutboundComPort) comPort;
+                OutboundComPortImpl outboundComPort = (OutboundComPortImpl) comPort;
                 outboundComPorts.add(outboundComPort);
             }
         }
-        return ImmutableList.copyOf(outboundComPorts);
+        return outboundComPorts;
     }
 
     @Override
@@ -326,11 +338,13 @@ public abstract class ComServerImpl implements ComServer {
         }
     }
 
-    public Instant getModificationDate() {
+    @XmlElement
+    public Instant getModTime() {
         return this.modTime;
     }
 
     @Override
+    @XmlElement
     public long getVersion() {
         return this.version;
     }
@@ -375,18 +389,24 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
+    @XmlElement
     public boolean isOnline () {
-        return false;
+        online = false;
+        return online;
     }
 
     @Override
+    @XmlElement
     public boolean isRemote () {
-        return false;
+        remote = false;
+        return remote;
     }
 
     @Override
+    @XmlElement
     public boolean isOffline () {
-        return false;
+        offline = false;
+        return offline;
     }
 
     @XmlElement(name = "type")
@@ -443,7 +463,8 @@ public abstract class ComServerImpl implements ComServer {
     @Override
     @XmlElement
     public boolean isObsolete () {
-        return this.obsoleteDate!=null;
+        obsolete = (this.obsoleteDate != null);
+        return obsolete;
     }
 
     @Override
@@ -457,6 +478,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
+    @XmlElement
     public String getServerMonitorUrl() { return serverMonitorUrl; }
 
     public void setName(String name) {
@@ -495,6 +517,7 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
+    @XmlElement
     public String getEventRegistrationUriIfSupported () {
         throw new UnsupportedOperationException("The comserver " + this.getName() + " does not support event registration");
     }

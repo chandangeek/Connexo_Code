@@ -20,6 +20,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implements OpticalDriver {
 
+    public RxTxOpticalConnectionType() {
+        super();
+    }
+
     public RxTxOpticalConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }

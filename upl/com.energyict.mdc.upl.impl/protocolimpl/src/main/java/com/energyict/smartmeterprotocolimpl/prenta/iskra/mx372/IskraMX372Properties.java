@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * Copyrights EnergyICT
@@ -57,14 +60,14 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.spec(PK_RETRIES, PropertyTranslationKeys.PRENTA_RETRIES, this.propertySpecService::integerSpec),
-                this.spec(PK_TIMEOUT, PropertyTranslationKeys.PRENTA_TIMEOUT, this.propertySpecService::integerSpec),
+                this.spec(RETRIES.getName(), PropertyTranslationKeys.PRENTA_RETRIES, this.propertySpecService::integerSpec),
+                this.spec(TIMEOUT.getName(), PropertyTranslationKeys.PRENTA_TIMEOUT, this.propertySpecService::integerSpec),
                 this.spec(SERVER_MAC_ADDRESS, PropertyTranslationKeys.PRENTA_SERVER_MAC_ADDRESS, this.propertySpecService::stringSpec),
                 this.spec(ADDRESSING_MODE, PropertyTranslationKeys.PRENTA_ADDRESSING_MODE, this.propertySpecService::integerSpec),
                 this.spec(CONNECTION, PropertyTranslationKeys.PRENTA_CONNECTION, this.propertySpecService::integerSpec),
                 this.spec("RequestTimeZone", PropertyTranslationKeys.PRENTA_REQUEST_TIME_ZONE, this.propertySpecService::integerSpec),
                 this.spec("FirmwareVersion", PropertyTranslationKeys.PRENTA_FIRMWARE_VERION, this.propertySpecService::stringSpec),
-                this.spec("ExtendedLogging", PropertyTranslationKeys.PRENTA_EXTENDED_LOGGING, this.propertySpecService::integerSpec),
+                this.spec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.PRENTA_EXTENDED_LOGGING, this.propertySpecService::integerSpec),
                 this.spec("DeviceType", PropertyTranslationKeys.PRENTA_DEVICETYPE, this.propertySpecService::stringSpec),
                 this.spec("TestLogging", PropertyTranslationKeys.PRENTA_TEST_LOGGING, this.propertySpecService::integerSpec),
                 this.spec("FolderExtName", PropertyTranslationKeys.PRENTA_FOLDER_EXTERNAL_NAME, this.propertySpecService::stringSpec),
@@ -84,13 +87,13 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     @Override
     public int getTimeout() {
-        return getIntProperty(PK_TIMEOUT, DEFAULT_TIMEOUT);
+        return getIntProperty(TIMEOUT.getName(), DEFAULT_TIMEOUT);
     }
 
     @ProtocolProperty
     @Override
     public int getRetries() {
-        return getIntProperty(PK_RETRIES, DEFAULT_RETRIES);
+        return getIntProperty(RETRIES.getName(), DEFAULT_RETRIES);
     }
 
     @ProtocolProperty
@@ -159,7 +162,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public int getExtendedLogging() {
-        return getIntProperty("ExtendedLogging", 0);
+        return getIntProperty(EXTENDED_LOGGING.getName(), 0);
     }
 
     @ProtocolProperty

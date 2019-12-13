@@ -15,7 +15,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-05 (09:58)
  */
-abstract class IdBusinessObjectRequest implements Request {
+abstract class IdBusinessObjectRequest extends RequestImpl {
 
     private Set<Long> businessObjectIds;
 
