@@ -64,6 +64,16 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
     private void processServiceCall(ServiceCall serviceCall) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
+        try {
+            processDeviceRegisterCreation(extension);
+        } catch (LocalizedException localizedEx) {
+            failServiceCall(extension, localizedEx.getMessageSeed(), localizedEx.getMessageArgs());
+        } catch (Exception ex) {
+            failServiceCall(extension, MessageSeeds.ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST, ex.getLocalizedMessage());
+        }
+    }
+
+    private void processDeviceRegisterCreation(UtilitiesDeviceRegisterCreateRequestDomainExtension extension) {
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         if (device.isPresent()) {
             String recurrence = extension.getRecurrenceCode();
@@ -97,14 +107,13 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             }
 
             if (period.getFirst() == MacroPeriod.NOTAPPLICABLE && period.getLast() == TimeAttribute.NOTAPPLICABLE) {
-                processRegister(device.get(), serviceCall, obis, period, cimPattern);
+                processRegister(device.get(), extension.getServiceCall(), obis, period, cimPattern);
             } else {
-                processChannel(device.get(), serviceCall, obis, period, cimPattern);
+                processChannel(device.get(), extension.getServiceCall(), obis, period, cimPattern);
             }
         } else {
             failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
         }
-
     }
 
     private void processChannel(Device device, ServiceCall serviceCall, String obis,
@@ -114,14 +123,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         channels.addAll(findChannelByReadingType(device, period, cimPattern));
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
-                try {
-                    sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
-                            TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
-                            TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
-                } catch (LocalizedException ex) {
-                    failServiceCall(extension, ex.getMessageSeed(), ex.getMessageArgs());
-                    return;
-                }
+                sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
+                        TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
+                        TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -144,14 +148,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
-                try {
-                    sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
-                            TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
-                            TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
-                } catch (LocalizedException ex) {
-                    failServiceCall(extension, ex.getMessageSeed(), ex.getMessageArgs());
-                    return;
-                }
+                sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
+                        TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
+                        TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
