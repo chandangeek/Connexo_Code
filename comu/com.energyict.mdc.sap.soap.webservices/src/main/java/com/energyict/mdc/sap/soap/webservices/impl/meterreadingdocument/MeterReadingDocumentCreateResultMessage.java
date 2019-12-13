@@ -202,20 +202,16 @@ public class MeterReadingDocumentCreateResultMessage {
             mtrRdngDocERPRsltCrteReqUtilsMsmtTsk.setUtilitiesMeasurementTaskID(utilitiesMeasurementTaskID);
             meterReadingDocument.setUtiltiesMeasurementTask(mtrRdngDocERPRsltCrteReqUtilsMsmtTsk);
 
-
-            com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqRslt result =
-                        BULK_OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqRslt();
-
-            result.setMeterReadingResultValue(childExtension.getReading());
-            result.setActualMeterReadingDate(childExtension.getActualReadingDate());
-            result.setActualMeterReadingTime(LocalDateTime.ofInstant(childExtension.getActualReadingDate(), ZoneId.systemDefault()).toLocalTime());
-
             if (childExtension.getReading() != null) {
+                com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqRslt result =
+                        BULK_OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqRslt();
+                result.setMeterReadingResultValue(childExtension.getReading());
+                result.setActualMeterReadingDate(childExtension.getActualReadingDate());
+                result.setActualMeterReadingTime(LocalDateTime.ofInstant(childExtension.getActualReadingDate(), ZoneId.systemDefault()).toLocalTime());
+                meterReadingDocument.setResult(result);
                 documentsSuccessfullyProcessed++;
             }
-
-            meterReadingDocument.setResult(result);
-
+            
             return meterReadingDocument;
         }
 
