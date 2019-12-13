@@ -59,7 +59,7 @@ public class CreateMessageFactory {
         confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         confirmationMessage.setLog(createLog(messageSeeds));
         requestMessage.getMeterReadingDocumentCreateMessages()
-                .forEach(message->{
+                .forEach(message -> {
                     confirmationMessage.setMeterReadingDocument(createBody(message));
                 });
         return confirmationMessage;

@@ -55,7 +55,6 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         private Builder() {
         }
 
-
         public Builder from(ServiceCall parent, Instant now) {
             List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
             MasterMeterRegisterChangeRequestDomainExtension extension = parent.getExtensionFor(new MasterMeterRegisterChangeRequestCustomPropertySet()).get();
