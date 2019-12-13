@@ -81,7 +81,7 @@ public class MeterReadingDocumentCreateRequestMessage {
                     .forEach(message ->
                             meterReadingDocumentCreateMessages.add(MeterReadingDocumentCreateMessage
                                     .builder()
-                                    .from(message.getMeterReadingDocument())
+                                    .from(message)
                                     .build()));
             return this;
         }

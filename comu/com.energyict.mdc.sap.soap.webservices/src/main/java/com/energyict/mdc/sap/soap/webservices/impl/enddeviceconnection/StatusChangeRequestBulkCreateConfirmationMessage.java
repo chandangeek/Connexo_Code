@@ -29,6 +29,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestbulkcreateconfirmation.UUID;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,9 +136,12 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
         private BusinessDocumentMessageHeader createHeader(String parentId, String referenceUuid, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             header.setCreationDateTime(now);
-            header.setReferenceID(createID(parentId));
-            header.setReferenceUUID(createUUID(referenceUuid));
-
+            if (!Strings.isNullOrEmpty(parentId)){
+                header.setReferenceID(createID(parentId));
+            }
+            if (!Strings.isNullOrEmpty(referenceUuid)){
+                header.setReferenceUUID(createUUID(referenceUuid));
+            }
             return header;
         }
 
