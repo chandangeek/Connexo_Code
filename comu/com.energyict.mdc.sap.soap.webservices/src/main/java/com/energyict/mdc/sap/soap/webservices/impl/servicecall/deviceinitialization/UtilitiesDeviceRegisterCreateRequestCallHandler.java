@@ -110,7 +110,10 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                                 Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
         Set<Channel> channels = findChannelByObis(device, obis, period);
-        channels.addAll(findChannelByReadingType(device, period, cimPattern));
+
+        if(cimPattern != null) {
+            channels.addAll(findChannelByReadingType(device, period, cimPattern));
+        }
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
                 try {
@@ -139,7 +142,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             registers.add(register.get());
         }
 
-        registers.addAll(findRegisterByReadingType(device, period, cimPattern));
+        if (cimPattern != null) {
+            registers.addAll(findRegisterByReadingType(device, period, cimPattern));
+        }
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
