@@ -33,6 +33,7 @@ import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -942,47 +943,58 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Instant> getStartDate(String sapDeviceId) {
-        Optional<Device> device = getDevice(sapDeviceId);
-        if (device.isPresent()) {
-            Optional<Instant> activationDate = getActivationDate(device.get().getMeter());
-            if (activationDate.isPresent()) {
-                Optional<Instant> lrnAfterDate = getLrnDates(device.get().getId()).filter(e -> e.isAfter(activationDate.get())).findFirst();
-                if (lrnAfterDate.isPresent()) {
-                    return lrnAfterDate;
-                }
-                return activationDate;
-            } else {
-                return getLrnDates(device.get().getId()).findFirst();
+    public Optional<Instant> getStartDate(Device device) {
+        Optional<Instant> activationDate = getLstActivationDate(device.getMeter());
+        if (activationDate.isPresent()) {
+            Optional<Instant> lrnAfterDate = getFirstLrnDateAfterDate(device.getId(), activationDate.get());
+            if (lrnAfterDate.isPresent()) {
+                return lrnAfterDate;
             }
+            return activationDate;
         }
         return Optional.empty();
     }
 
-    private Optional<Instant> getActivationDate(Meter meter) {
+    private Optional<Instant> getLstActivationDate(Meter meter) {
         return meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
                 .filter(stateTimeSlice -> stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
-                .max(Comparator.comparing(slice -> slice.getPeriod().lowerEndpoint())))
-                .map(slice -> slice.getPeriod().lowerEndpoint());
+                .map(slice -> slice.getPeriod().lowerEndpoint())
+                .max(Comparator.comparing(date -> date.toEpochMilli())));
     }
 
-    private Stream<Instant> getLrnDates(long deviceId) {
-        Stream<Instant> registerDates = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+    private Optional<Instant> getFirstLrnDateAfterDate(long deviceId, Instant date) {
+        Range<Instant> registerDateRange = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .sorted(Order.ascending("startTime"))
                 .map(DeviceRegisterSAPInfoDomainExtension::getRange)
-                .map(this::getLowerBound);
-        Stream<Instant> channelDates = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .findFirst()
+                .orElse(null);
+        Optional<Instant> registerDate = getLowerBound(registerDateRange, date);
+        Range<Instant> channelDateRange = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .sorted(Order.ascending("startTime"))
                 .map(DeviceChannelSAPInfoDomainExtension::getRange)
-                .map(this::getLowerBound);
-        return Stream.concat(registerDates, channelDates).sorted();
+                .findFirst()
+                .orElse(null);
+
+        Optional<Instant> channelDate = getLowerBound(channelDateRange, date);
+        if (registerDate.isPresent()) {
+            if (channelDate.isPresent() && registerDate.get().isAfter(channelDate.get())) {
+                return channelDate;
+            }
+            return registerDate;
+        }
+        return channelDate;
     }
 
-    private Instant getLowerBound(Range<Instant> range) {
-        return range.hasLowerBound() ? range.lowerEndpoint() : Instant.EPOCH;
+    private Optional<Instant> getLowerBound(Range<Instant> range, Instant date) {
+        if (Optional.ofNullable(range).isPresent()) {
+            return (range.hasLowerBound() && range.lowerEndpoint().isAfter(date)) ? Optional.of(range.lowerEndpoint()) : Optional.empty();
+        }
+        return Optional.empty();
     }
 }

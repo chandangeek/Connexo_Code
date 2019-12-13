@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
@@ -34,6 +35,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider",
@@ -56,8 +58,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     @Inject
     public UtilitiesDeviceRegisteredBulkNotificationProvider(Clock clock, SAPCustomPropertySets sapCustomPropertySets, WebServiceActivator webServiceActivator) {
         this();
-        this.clock = clock;
-        this.sapCustomPropertySets = sapCustomPropertySets;
+        setClock(clock);
+        setSAPCustomPropertySets(sapCustomPropertySets);
         setWebServiceActivator(webServiceActivator);
     }
 
@@ -163,12 +165,15 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
         smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
-        sapCustomPropertySets.getStartDate(sapDeviceId).ifPresent(sD -> smartMeter.setStartDate(sD));
+        Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
+        if (device.isPresent()) {
+            sapCustomPropertySets.getStartDate(device.get()).ifPresent(sD -> smartMeter.setStartDate(sD));
+        }
 
-        UtilsDvceERPSmrtMtrRegedNotifUtilsDvce device = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
-        device.setID(deviceId);
-        device.setSmartMeter(smartMeter);
+        UtilsDvceERPSmrtMtrRegedNotifUtilsDvce utilsDevice = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
+        utilsDevice.setID(deviceId);
+        utilsDevice.setSmartMeter(smartMeter);
 
-        return device;
+        return utilsDevice;
     }
 }

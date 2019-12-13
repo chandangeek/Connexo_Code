@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
@@ -41,6 +42,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -199,7 +201,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createBody(String sapDeviceId) {
-        UtilsDvceERPSmrtMtrRegedNotifUtilsDvce device = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
+        UtilsDvceERPSmrtMtrRegedNotifUtilsDvce utilsDevice = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
         UtilitiesDeviceID deviceId = objectFactory.createUtilitiesDeviceID();
         deviceId.setValue(sapDeviceId);
 
@@ -207,13 +209,15 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
         smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
-        sapCustomPropertySets.getStartDate(sapDeviceId).ifPresent(sD -> smartMeter.setStartDate(sD));
+        Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
+        if (device.isPresent()) {
+            sapCustomPropertySets.getStartDate(device.get()).ifPresent(sD -> smartMeter.setStartDate(sD));
+        }
 
+        utilsDevice.setID(deviceId);
+        utilsDevice.setSmartMeter(smartMeter);
 
-        device.setID(deviceId);
-        device.setSmartMeter(smartMeter);
-
-        return device;
+        return utilsDevice;
     }
 
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {

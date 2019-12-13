@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedException;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
@@ -46,6 +47,8 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
     private DeviceService deviceService;
     @Mock
     private WebServiceActivator webServiceActivator;
+    @Mock
+    private Device device;
 
     private String deviceId;
     private UtilitiesDeviceRegisteredNotificationProvider provider;
@@ -66,7 +69,8 @@ public class UtilitiesDeviceRegisteredNotificationTest extends AbstractOutboundW
 
             }
         });
-        when(sapCustomPropertySets.getStartDate(anyString())).thenReturn(Optional.of(Instant.EPOCH));
+        when(sapCustomPropertySets.getDevice(anyString())).thenReturn(Optional.of(device));
+        when(sapCustomPropertySets.getStartDate(any(Device.class))).thenReturn(Optional.of(Instant.EPOCH));
         when(webServiceActivator.getMeteringSystemId()).thenReturn(WebServiceActivator.DEFAULT_METERING_SYSTEM_ID);
     }
 

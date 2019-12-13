@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.nls.LocalizedException;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
@@ -31,6 +32,7 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +44,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
     private SAPCustomPropertySets sapCustomPropertySets;
     @Mock
     private WebServiceActivator webServiceActivator;
+    @Mock
+    private Device device;
 
     private List<String> deviceIds;
     private UtilitiesDeviceRegisteredBulkNotificationProvider provider;
@@ -59,7 +63,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
                 bind(WebServiceActivator.class).toInstance(webServiceActivator);
             }
         });
-        when(sapCustomPropertySets.getStartDate(anyString())).thenReturn(Optional.of(Instant.EPOCH));
+        when(sapCustomPropertySets.getDevice(anyString())).thenReturn(Optional.of(device));
+        when(sapCustomPropertySets.getStartDate(any(Device.class))).thenReturn(Optional.of(Instant.EPOCH));
         when(webServiceActivator.getMeteringSystemId()).thenReturn(WebServiceActivator.DEFAULT_METERING_SYSTEM_ID);
     }
 
