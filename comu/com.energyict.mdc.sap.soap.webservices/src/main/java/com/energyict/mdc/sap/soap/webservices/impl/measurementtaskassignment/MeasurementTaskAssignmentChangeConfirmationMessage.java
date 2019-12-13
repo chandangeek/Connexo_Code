@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment;
 
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
@@ -114,7 +115,10 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         }
 
         private void setMaximumLogItemSeverityCode(Log log) {
-            OptionalInt maxInt = log.getItem().stream().filter(item->!Strings.isNullOrEmpty(item.getSeverityCode())).map(item -> Integer.valueOf(item.getSeverityCode())).mapToInt(v -> v).max();
+            OptionalInt maxInt = log.getItem().stream().map(LogItem::getSeverityCode)
+                    .filter(Predicates.not(Strings::isNullOrEmpty))
+                    .mapToInt(Integer::parseInt)
+                    .max();
             if (maxInt.isPresent()) {
                 Integer value = maxInt.getAsInt();
                 log.setMaximumLogItemSeverityCode(value.toString());

@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
@@ -206,10 +207,9 @@ public class CreateBulkConfirmationMessageFactory {
     }
 
     private void setMaximumLogItemSeverityCode(Log log) {
-        OptionalInt maxInt = log.getItem().stream()
-                .filter(item -> !Strings.isNullOrEmpty(item.getSeverityCode()))
-                .map(item -> Integer.valueOf(item.getSeverityCode()))
-                .mapToInt(v -> v)
+        OptionalInt maxInt = log.getItem().stream().map(LogItem::getSeverityCode)
+                .filter(Predicates.not(Strings::isNullOrEmpty))
+                .mapToInt(Integer::parseInt)
                 .max();
         if (maxInt.isPresent()) {
             Integer value = maxInt.getAsInt();
