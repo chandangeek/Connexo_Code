@@ -28,6 +28,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmat
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -76,7 +78,6 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), now));
-
             UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confMsg.setUtilitiesDevice(createChildBody(message.getDeviceId()));
 
@@ -119,7 +120,6 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall subParentServiceCall, Instant now) {
             SubMasterMeterRegisterChangeRequestDomainExtension extension = subParentServiceCall.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
                     .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
-
             UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
@@ -153,9 +153,12 @@ public class MeterRegisterBulkChangeConfirmationMessage {
 
         private BusinessDocumentMessageHeader createChildHeader(String id, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-
-            header.setReferenceID(createID(id));
-            header.setReferenceUUID(createUUID(uuid));
+            if (!Strings.isNullOrEmpty(id)) {
+                header.setReferenceID(createID(id));
+            }
+            if (!Strings.isNullOrEmpty(uuid)){
+                header.setReferenceUUID(createUUID(uuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }
@@ -164,9 +167,13 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-            header.setReferenceID(createID(requestId));
+            if (!Strings.isNullOrEmpty(requestId)) {
+                header.setReferenceID(createID(requestId));
+            }
             header.setUUID(createUUID(uuid));
-            header.setReferenceUUID(createUUID(referenceUuid));
+            if (!Strings.isNullOrEmpty(referenceUuid)) {
+                header.setReferenceUUID(createUUID(referenceUuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }

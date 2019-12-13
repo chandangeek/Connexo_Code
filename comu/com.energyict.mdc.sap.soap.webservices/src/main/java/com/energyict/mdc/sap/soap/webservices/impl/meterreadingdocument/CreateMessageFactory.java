@@ -15,6 +15,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.UUID;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
@@ -36,11 +38,14 @@ public class CreateMessageFactory {
                     if (!message.isValid()) {
                         confirmationMessage
                                 .setLog(createLog(MessageSeeds.INVALID_METER_READING_DOCUMENT, message.getId()));
+                        confirmationMessage.setMeterReadingDocument(createBody(message));
                     } else if (!message.isSingleSupported()) {
                         confirmationMessage
                                 .setLog(createLog(MessageSeeds.UNSUPPORTED_REASON_CODE, message.getId()));
+                        confirmationMessage.setMeterReadingDocument(createBody(message));
                     } else {
                         confirmationMessage.setMeterReadingDocument(createBody(message));
+                        confirmationMessage.setLog(createEmptyLog());
                     }
                 });
 
@@ -53,19 +58,29 @@ public class CreateMessageFactory {
 
         confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         confirmationMessage.setLog(createLog(messageSeeds));
-
+        requestMessage.getMeterReadingDocumentCreateMessages()
+                .forEach(message -> {
+                    confirmationMessage.setMeterReadingDocument(createBody(message));
+                });
         return confirmationMessage;
     }
 
     private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
-        BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
-        messageID.setValue(requestMessage.getId());
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-        messageHeader.setReferenceID(messageID);
-        UUID uuid = OBJECT_FACTORY.createUUID();
-        uuid.setValue(requestMessage.getUuid());
-        messageHeader.setReferenceUUID(uuid);
+
+        if (!Strings.isNullOrEmpty(requestMessage.getId())){
+            BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
+            messageID.setValue(requestMessage.getId());
+            messageHeader.setReferenceID(messageID);
+        }
+
+        if (!Strings.isNullOrEmpty(requestMessage.getUuid())) {
+            UUID uuid = OBJECT_FACTORY.createUUID();
+            uuid.setValue(requestMessage.getUuid());
+            messageHeader.setReferenceUUID(uuid);
+        }
+
         messageHeader.setCreationDateTime(now);
 
         return messageHeader;
@@ -93,6 +108,11 @@ public class CreateMessageFactory {
 
         Log log = OBJECT_FACTORY.createLog();
         log.getItem().add(logItem);
+        return log;
+    }
+
+    private Log createEmptyLog() {
+        Log log = OBJECT_FACTORY.createLog();
         return log;
     }
 }
