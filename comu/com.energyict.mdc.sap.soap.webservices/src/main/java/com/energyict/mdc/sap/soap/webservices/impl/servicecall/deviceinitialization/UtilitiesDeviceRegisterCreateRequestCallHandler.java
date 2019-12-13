@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.TimeUtils;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 
@@ -123,8 +124,8 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
-                        WebServiceActivator.getZonedDate(extension.getStartDate(), extension.getTimeZone()),
-                        WebServiceActivator.getZonedDate(extension.getEndDate(), extension.getTimeZone()));
+                        TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
+                        TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -148,8 +149,8 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
-                        WebServiceActivator.getZonedDate(extension.getStartDate(), extension.getTimeZone()),
-                        WebServiceActivator.getZonedDate(extension.getEndDate(), extension.getTimeZone()));
+                        TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
+                        TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);

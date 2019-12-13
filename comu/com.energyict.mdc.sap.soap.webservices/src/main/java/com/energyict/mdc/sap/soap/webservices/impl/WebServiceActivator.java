@@ -121,7 +121,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -164,6 +163,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String APPLICATION_NAME = "MultiSense";
     public static final String METERING_SYSTEM_ID = "CXO";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
+    public static final String SUCCESSFUL_PROCESSING_TYPE_ID = "000";
     public static final String UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID = "001";
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -1070,18 +1070,5 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
             LOGGER.log(Level.WARNING, MessageSeeds.PROPERTY_IS_NOT_SET.getDefaultFormat(), propertyName);
         }
         return value;
-    }
-
-    public static Instant getZonedDate(Instant date, String timeZone) {
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId zoneId = utcZoneId;
-        try {
-            if (timeZone != null) {
-                zoneId = ZoneId.of(timeZone);
-            }
-        } catch (DateTimeException e) {
-            // No action, just use UTC zone
-        }
-        return date.atZone(ZoneId.systemDefault()).withZoneSameLocal(zoneId).toInstant();
     }
 }
