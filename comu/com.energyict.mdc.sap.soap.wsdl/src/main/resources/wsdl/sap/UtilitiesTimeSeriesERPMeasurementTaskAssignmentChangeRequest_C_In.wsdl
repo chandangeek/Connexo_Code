@@ -728,39 +728,39 @@
      <xsd:element name="MeasurementTaskAssignmentRole" minOccurs="0" maxOccurs="unbounded" type="UtilsTmeSersERPMsmtTskAssgmtChgReqMsmtTskAssgmtRole"/>
     </xsd:sequence>
     <xsd:attribute name="measurementTaskAssignmentRoleListCompleteTransmissionIndicator" use="required" type="Indicator"/>
-    </xsd:complexType>
-    <xsd:simpleType name="UtilitiesAdvancedMeteringSystemID.Content">
-     <xsd:restriction base="xsd:token">
-      <xsd:maxLength value="4"/>
-      <xsd:minLength value="1"/>
-     </xsd:restriction>
-    </xsd:simpleType>
-    <xsd:complexType name="UtilitiesAdvancedMeteringSystemID">
-     <xsd:annotation>
-      <xsd:documentation xml:lang="EN">
-       <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
-      </xsd:documentation>
-     </xsd:annotation>
-     <xsd:simpleContent>
-      <xsd:extension base="UtilitiesAdvancedMeteringSystemID.Content">
-       <xsd:attribute name="schemeID">
-        <xsd:simpleType>
-         <xsd:restriction base="xsd:token">
-          <xsd:maxLength value="60"/>
-          <xsd:minLength value="1"/>
-         </xsd:restriction>
-        </xsd:simpleType>
-       </xsd:attribute>
-       <xsd:attribute name="schemeAgencyID">
-        <xsd:simpleType>
-         <xsd:restriction base="xsd:token">
-          <xsd:maxLength value="60"/>
-          <xsd:minLength value="1"/>
-         </xsd:restriction>
-        </xsd:simpleType>
-       </xsd:attribute>
-      </xsd:extension>
-     </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesAdvancedMeteringSystemID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="4"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UtilitiesAdvancedMeteringSystemID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesAdvancedMeteringSystemID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
    </xsd:complexType>
   </xsd:schema>
   <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal20/Global" xmlns="http://sap.com/xi/SAPGlobal20/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global">
