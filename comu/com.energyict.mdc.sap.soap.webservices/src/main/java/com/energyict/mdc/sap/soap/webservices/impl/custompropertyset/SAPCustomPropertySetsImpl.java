@@ -972,15 +972,17 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
                 .map(DeviceRegisterSAPInfoDomainExtension::getRange)
-                .filter(r -> r.hasLowerBound())
-                .map(Range::lowerEndpoint);
+                .map(this::getLowerBound);
         Stream<Instant> channelDates = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
                 .map(DeviceChannelSAPInfoDomainExtension::getRange)
-                .filter(r -> r.hasLowerBound())
-                .map(Range::lowerEndpoint);
+                .map(this::getLowerBound);
         return Stream.concat(registerDates, channelDates).sorted();
+    }
+
+    private Instant getLowerBound(Range<Instant> range) {
+        return range.hasLowerBound() ? range.lowerEndpoint() : Instant.EPOCH;
     }
 }
