@@ -24,7 +24,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component(name = UtilitiesDeviceCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,
@@ -120,12 +119,10 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
     }
 
     private Device getOrCreateDevice(UtilitiesDeviceCreateRequestDomainExtension extension) {
-        String serialId = extension.getSerialId();
-        Optional<Device> device = deviceService.findDeviceByName(serialId);
-        if (!device.isPresent()) {
-            device = Optional.of(createDevice(extension));
-        }
-        return device.get();
+        //name = serial id for SAP
+        String name = extension.getSerialId();
+        return deviceService.findDeviceByName(name)
+                .orElseGet(() -> createDevice(extension));
     }
 
     private Device createDevice(UtilitiesDeviceCreateRequestDomainExtension extension) {
