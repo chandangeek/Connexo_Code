@@ -51,7 +51,7 @@ public interface DeviceCommandExecutorLogger {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param numberOfCommands The number of device commands that were prepared
      */
-    @Configuration(format = "{0} failed to prepare the execution of {1} device command(s) because the 'store task queue' is full", logLevel = LogLevel.ERROR)
+    @Configuration(format = "{0} failed to prepare the execution of {1} device command(s) because the 'store task queue' is full", logLevel = LogLevel.INFO)
     public void preparationFailed (DeviceCommandExecutor deviceCommandExecutor, int numberOfCommands);
 
     /**
