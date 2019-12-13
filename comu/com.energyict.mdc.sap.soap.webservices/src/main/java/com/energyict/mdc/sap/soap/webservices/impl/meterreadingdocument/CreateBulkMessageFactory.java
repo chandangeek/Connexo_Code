@@ -44,7 +44,7 @@ public class CreateBulkMessageFactory {
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(MessageSeeds.OK_RESULT,
                 null,
                 SUCCESSFUL_PROCESSING_TYPE_ID));
-        bulkConfirmationMessage.getLog().setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        bulkConfirmationMessage.getLog().setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
         setMaximumLogItemSeverityCode(bulkConfirmationMessage.getLog());
 
         createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages(), now);
@@ -181,7 +181,7 @@ public class CreateBulkMessageFactory {
     }
 
     private void setMaximumLogItemSeverityCode(Log log) {
-        OptionalInt maxInt = log.getItem().stream().map(item -> Integer.valueOf(item.getSeverityCode())).mapToInt(v -> v).max();
+        OptionalInt maxInt = log.getItem().stream().filter(item->!Strings.isNullOrEmpty(item.getSeverityCode())).map(item -> Integer.valueOf(item.getSeverityCode())).mapToInt(v -> v).max();
         if (maxInt.isPresent()) {
             Integer value = maxInt.getAsInt();
             log.setMaximumLogItemSeverityCode(value.toString());

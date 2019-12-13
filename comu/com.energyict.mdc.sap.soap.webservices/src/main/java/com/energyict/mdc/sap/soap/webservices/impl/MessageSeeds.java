@@ -20,6 +20,9 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_LOADING_PROPERTY(7, "ErrorLoadingProperty", "Error while loading property ''{0}'': ''{1}''."),
     UNEXPECTED_EXCEPTION(8, "UnexpectedException", "Exception occurred while processing request : ''{0}''."),
     MISSING_REQUIRED_TAG(9, "NoRequiredTag", "Tag ''{0}'' is required."),
+    PARTIALLY_SUCCESSFUL(10, "PartialSuccessful", "Partially successful request."),
+    BULK_REQUEST_WAS_FAILED(11, "BulkRequestWasFailed", "Bulk request was failed."),
+    BULK_ITEM_PROCESSING_WAS_NOT_STARTED(12, "BulkItemProcessingWasNotStarted", "Bulk item processing wasn''t started due to request issue."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),

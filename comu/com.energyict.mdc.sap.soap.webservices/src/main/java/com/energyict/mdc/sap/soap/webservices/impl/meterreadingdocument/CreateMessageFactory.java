@@ -113,22 +113,6 @@ public class CreateMessageFactory {
         return meterReadingDocument;
     }
 
-    private Log createLogOld(MessageSeeds messageSeeds, Object... args) {
-
-        LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
-        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
-
-        LogItem logItem = OBJECT_FACTORY.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-        logItem.setSeverityCode(getSeverityCode(messageSeeds.getLevel().getName()));
-        logItem.setCategoryCode(logItemCategoryCode);
-        logItem.setNote(messageSeeds.getDefaultFormat(args));
-
-        Log log = OBJECT_FACTORY.createLog();
-        log.getItem().add(logItem);
-        return log;
-    }
-
     private Log createLog(MessageSeeds messageSeeds, String categoryCode, String typeId, String docProcResultCode, Object... args) {
 
         LogItem logItem = OBJECT_FACTORY.createLogItem();
@@ -164,7 +148,7 @@ public class CreateMessageFactory {
     }
 
     private void setMaximumLogItemSeverityCode(Log log) {
-        OptionalInt maxInt = log.getItem().stream().map(item -> Integer.valueOf(item.getSeverityCode())).mapToInt(v -> v).max();
+        OptionalInt maxInt = log.getItem().stream().filter(item->!Strings.isNullOrEmpty(item.getSeverityCode())).map(item -> Integer.valueOf(item.getSeverityCode())).mapToInt(v -> v).max();
         if (maxInt.isPresent()) {
             Integer value = maxInt.getAsInt();
             log.setMaximumLogItemSeverityCode(value.toString());
