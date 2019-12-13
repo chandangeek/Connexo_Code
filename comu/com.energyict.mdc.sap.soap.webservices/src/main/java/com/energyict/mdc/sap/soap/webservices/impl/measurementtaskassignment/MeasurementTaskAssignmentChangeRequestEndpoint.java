@@ -116,7 +116,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeed).format(e.getMessageArgs()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid)
-                            .from(messageSeed.getLevel().getName(), errorMessage)
+                            .from(messageSeed.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
@@ -126,7 +126,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(e.getLocalizedMessage()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid)
-                            .from(messageSeeds.getLevel().getName(), errorMessage)
+                            .from(messageSeeds.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
