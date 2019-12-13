@@ -75,7 +75,7 @@ public class CreateMessageFactory {
         confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         confirmationMessage.setLog(createLog(messageSeeds,PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, ProcessingResultCode.FAILED.getCode()));
         requestMessage.getMeterReadingDocumentCreateMessages()
-                .forEach(message->{
+                .forEach(message -> {
                     confirmationMessage.setMeterReadingDocument(createBody(message));
                 });
         return confirmationMessage;

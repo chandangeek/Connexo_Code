@@ -6,13 +6,13 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
 
 import java.time.Instant;
 import java.util.Optional;
 
 public class MeterReadingDocumentCreateMessage {
 
+    /* headerId headerUUID used only for bulk request */
     private String headerId;
     private String headerUUID;
 
@@ -82,7 +82,7 @@ public class MeterReadingDocumentCreateMessage {
         private Builder() {
         }
 
-        public MeterReadingDocumentCreateMessage.Builder from(SmrtMtrMtrRdngDocERPCrteReqMsg requestMessage) {
+        public MeterReadingDocumentCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg requestMessage) {
             Optional.ofNullable(requestMessage)
                     .ifPresent(bulkRequestMessage -> setValues(getId(bulkRequestMessage.getMeterReadingDocument()),
                             getDeviceId(bulkRequestMessage.getMeterReadingDocument()), getLrn(bulkRequestMessage.getMeterReadingDocument()),
