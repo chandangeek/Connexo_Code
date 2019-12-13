@@ -105,9 +105,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                     serviceCall.requestTransition(DefaultState.FAILED);
                     serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_FAILED).format());
                 }
-            }
-
-            if (comTaskExecution.getComTask().getProtocolTasks().stream()
+            } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                     .anyMatch(StatusInformationTask.class::isInstance)) {
                 FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
                 if (firmwareCampaign.isWithVerification()) {
@@ -149,9 +147,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
                     }
                 }
-            }
-
-            if (comTaskExecution.getComTask().getProtocolTasks().stream()
+            } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                     .anyMatch(StatusInformationTask.class::isInstance)) {
                 if (firmwareCampaign.isWithVerification()) {
                     Instant firmwareTimeUpload = deviceInFirmwareCampaign
