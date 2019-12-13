@@ -21,10 +21,10 @@ public enum SeverityCode {
         return code;
     }
 
-    static public String getSeverityCode(String level) {
-        if (level.equals(Level.SEVERE.getName())) {
+    static public String getSeverityCode(Level level) {
+        if (level.getName().equals(Level.SEVERE.getName())) {
             return SeverityCode.ERROR.getCode();
-        } else if (level.equals(Level.WARNING.getName())) {
+        } else if (level.getName().equals(Level.WARNING.getName())) {
             return SeverityCode.WARNING.getCode();
         } else {
             return SeverityCode.INFORMATION.getCode();

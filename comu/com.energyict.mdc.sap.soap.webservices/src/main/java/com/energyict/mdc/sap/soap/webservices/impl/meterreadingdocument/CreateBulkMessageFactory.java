@@ -164,7 +164,7 @@ public class CreateBulkMessageFactory {
         }
 
         logItem.setTypeID(typeId);
-        logItem.setSeverityCode(SeverityCode.getSeverityCode(messageSeeds.getLevel().getName()));
+        logItem.setSeverityCode(SeverityCode.getSeverityCode(messageSeeds.getLevel()));
         logItem.setNote(messageSeeds.getDefaultFormat(args));
 
         return logItem;

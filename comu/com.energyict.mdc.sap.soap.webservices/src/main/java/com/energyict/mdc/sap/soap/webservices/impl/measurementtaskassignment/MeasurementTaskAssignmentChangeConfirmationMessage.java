@@ -43,7 +43,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             return this;
         }
 
-        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder from(String level, String errorMessage) {
+        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder from(Level level, String errorMessage) {
             confirmationMessage.setLog(createLog(SeverityCode.getSeverityCode(level), errorMessage));
             return this;
         }
