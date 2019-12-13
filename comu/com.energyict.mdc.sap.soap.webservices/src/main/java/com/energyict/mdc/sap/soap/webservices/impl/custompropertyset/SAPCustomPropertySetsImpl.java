@@ -36,6 +36,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.TimeUtils;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -466,7 +467,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 }
             }
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, endDate);
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, TimeUtils.convertToUTC(endDate));
         }
     }
 

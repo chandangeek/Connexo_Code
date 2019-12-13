@@ -121,7 +121,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -1070,18 +1069,5 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
             LOGGER.log(Level.WARNING, MessageSeeds.PROPERTY_IS_NOT_SET.getDefaultFormat(), propertyName);
         }
         return value;
-    }
-
-    public static Instant getZonedDate(Instant date, String timeZone) {
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId zoneId = utcZoneId;
-        try {
-            if (timeZone != null) {
-                zoneId = ZoneId.of(timeZone);
-            }
-        } catch (DateTimeException e) {
-            // No action, just use UTC zone
-        }
-        return date.atZone(ZoneId.systemDefault()).withZoneSameLocal(zoneId).toInstant();
     }
 }
