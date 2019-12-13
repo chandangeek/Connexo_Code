@@ -5,9 +5,11 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 
@@ -29,6 +31,7 @@ import com.google.common.base.Strings;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -36,6 +39,7 @@ import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
 import static com.elster.jupiter.servicecall.DefaultState.FAILED;
 import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class CreateRegisterConfirmationMessageFactory {
@@ -69,7 +73,8 @@ public class CreateRegisterConfirmationMessageFactory {
                         if (!failedRegisterError.isEmpty()) {
                             confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
                         } else {
-                            confirmationMessage.setLog(createFailedLog());
+                            // unreachable case
+                            confirmationMessage.setLog(createFailedLog(MessageSeeds.UNKNOWN_ERROR.getDefaultFormat(null)));
                         }
                     }
                 }else if (deviceServiceCall.getState() == CANCELLED) {
@@ -95,8 +100,7 @@ public class CreateRegisterConfirmationMessageFactory {
         if(!requestMessage.getUtilitiesDeviceRegisterCreateMessages().isEmpty()) {
             confirmationMessage.setUtilitiesDevice(createUtilsDvce(requestMessage.getUtilitiesDeviceRegisterCreateMessages().get(0).getDeviceId()));
         }
-        confirmationMessage.setLog(objectFactory.createLog());
-        confirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
+        confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
         return confirmationMessage;
     }
 
@@ -172,44 +176,45 @@ public class CreateRegisterConfirmationMessageFactory {
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
-        return log;
-    }
-
-    private Log createFailedLog() {
-        Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(null),
+                SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
+                null));
+        setMaximumLogItemSeverityCode(log);
         return log;
     }
 
     private Log createFailedLog(String message) {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-        log.getItem().add(createLogItem(message));
+        log.getItem().add(createLogItem(message, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                SeverityCode.ERROR.getCode(), PROCESSING_ERROR_CATEGORY_CODE));
+        setMaximumLogItemSeverityCode(log);
         return log;
     }
 
-    private LogItem createLogItem(String message) {
-        LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
-
+    private LogItem createLogItem(String message, String typeId, String severityCode, String categoryCode) {
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-        logItem.setCategoryCode(logItemCategoryCode);
+        if (!Strings.isNullOrEmpty(categoryCode)) {
+            LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
+            logItemCategoryCode.setValue(categoryCode);
+            logItem.setCategoryCode(logItemCategoryCode);
+        }
+        logItem.setSeverityCode(severityCode);
+        logItem.setTypeID(typeId);
         logItem.setNote(message);
 
         return logItem;
     }
 
-    private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
-        LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-        logItemCategoryCode.setValue(PROCESSING_ERROR_CATEGORY_CODE);
-
-        LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-        logItem.setCategoryCode(logItemCategoryCode);
-        logItem.setNote(messageSeeds.getDefaultFormat(args));
-
-        return logItem;
+    private void setMaximumLogItemSeverityCode(Log log) {
+        OptionalInt maxInt = log.getItem().stream().map(LogItem::getSeverityCode)
+                .filter(Predicates.not(Strings::isNullOrEmpty))
+                .mapToInt(Integer::parseInt)
+                .max();
+        if (maxInt.isPresent()) {
+            Integer value = maxInt.getAsInt();
+            log.setMaximumLogItemSeverityCode(value.toString());
+        }
     }
 
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {

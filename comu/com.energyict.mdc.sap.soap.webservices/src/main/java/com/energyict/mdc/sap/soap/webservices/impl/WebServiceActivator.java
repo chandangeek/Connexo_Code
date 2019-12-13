@@ -157,9 +157,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String REGISTER_RECURRENCE_CODE = "com.elster.jupiter.sap.register.recurrencecode";
     public static final String REGISTER_DIVISION_CATEGORY_CODE = "com.elster.jupiter.sap.register.divisioncategorycode";
 
-    public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
-    public static final String URL_PROPERTY = "url";
     public static final String APPLICATION_NAME = "MultiSense";
     public static final String METERING_SYSTEM_ID = "CXO";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";

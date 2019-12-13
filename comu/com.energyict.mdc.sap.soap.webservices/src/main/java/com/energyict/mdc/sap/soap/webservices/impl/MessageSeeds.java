@@ -23,6 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     PARTIALLY_SUCCESSFUL(10, "PartialSuccessful", "Partially successful request."),
     BULK_REQUEST_WAS_FAILED(11, "BulkRequestWasFailed", "Bulk request has failed."),
     BULK_ITEM_PROCESSING_WAS_NOT_STARTED(12, "BulkItemProcessingWasNotStarted", "Bulk item processing hasn''t started due to request issue."),
+    UNKNOWN_ERROR(13, "UnknownError", "Unknown error."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
