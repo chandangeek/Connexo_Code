@@ -171,6 +171,7 @@ public class MeterReadingStorer {
             } else {
                 EndDeviceEventType endDeviceEventType = meteringService.createEndDeviceEventType(sourceEvent.getEventTypeCode());
                 toCreate.add(createEventRecord(endDeviceEventType, sourceEvent, readingDate));
+                PrivateMessageSeeds.UNEXPECTED_METER_EVENT_LOGGED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getName());
             }
         }
         getEventMapper().persist(toCreate);
