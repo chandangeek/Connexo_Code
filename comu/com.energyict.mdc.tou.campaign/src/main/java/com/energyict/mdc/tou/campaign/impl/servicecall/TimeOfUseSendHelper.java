@@ -88,6 +88,7 @@ public class TimeOfUseSendHelper {
                         if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                             serviceCall.requestTransition(DefaultState.REJECTED);
                         }
+                        return;
                     }
                 } else {
                     serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK).format(verificationTask.getComTask().getName()));
