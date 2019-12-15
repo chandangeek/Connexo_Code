@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -80,5 +81,17 @@ class ServiceCallStatusImpl implements ServiceCallStatus {
     @Override
     public boolean isOpen() {
         return state.isOpen();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj
+                || obj instanceof ServiceCallStatusImpl
+                && Objects.equals(serviceCall, ((ServiceCallStatusImpl) obj).serviceCall);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(serviceCall);
     }
 }

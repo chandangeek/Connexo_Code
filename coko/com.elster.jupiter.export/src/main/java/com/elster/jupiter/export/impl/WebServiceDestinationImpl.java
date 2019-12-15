@@ -159,7 +159,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     }
 
     private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger) {
-        List<ServiceCallStatus> states = dataSendingResult.getStatuses();
+        List<ServiceCallStatus> states = dataSendingResult.getFinalStatuses();
         Set<ServiceCall> unsuccessfulServiceCalls = states.stream()
                 .filter(Predicates.not(ServiceCallStatus::isSuccessful))
                 .peek(status -> {
@@ -240,8 +240,8 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                              DataSendingResult result, boolean waitForServiceCalls) {
         service.call(endPoint, data.stream(), result);
         result.sent = true;
-        if (waitForServiceCalls && !result.serviceCalls.isEmpty()) {
-            while (result.getStatuses().stream().anyMatch(ServiceCallStatus::isOpen)) {
+        if (waitForServiceCalls && !result.openServiceCalls.isEmpty()) {
+            while (result.hasOpenServiceCalls()) {
                 try {
                     Thread.sleep(1000L * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS);
                 } catch (InterruptedException e) {
@@ -249,7 +249,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 }
             }
         } else {
-            result.serviceCalls.clear(); // success case as the timeout is not configured => not interested in confirmation
+            result.openServiceCalls.clear(); // success case as the timeout is not configured => not interested in confirmation
         }
     }
 
@@ -265,16 +265,29 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
 
     private class DataSendingResult implements DataExportWebService.ExportContext {
         private volatile boolean sent;
-        private Set<ServiceCall> serviceCalls = ConcurrentHashMap.newKeySet();
+        private Set<ServiceCall> openServiceCalls = ConcurrentHashMap.newKeySet();
+        private Set<ServiceCallStatus> closedServiceCallStatuses = ConcurrentHashMap.newKeySet();
 
-        private List<ServiceCallStatus> getStatuses() {
-            return dataExportServiceCallType.getStatuses(serviceCalls);
+        private boolean hasOpenServiceCalls() {
+            List<ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(openServiceCalls);
+            statuses.stream()
+                    .filter(Predicates.not(ServiceCallStatus::isOpen))
+                    .peek(closedServiceCallStatuses::add)
+                    .map(ServiceCallStatus::getServiceCall)
+                    .forEach(openServiceCalls::remove);
+            return !openServiceCalls.isEmpty();
+        }
+
+        private List<ServiceCallStatus> getFinalStatuses() {
+            List<ServiceCallStatus> result = dataExportServiceCallType.getStatuses(openServiceCalls);
+            result.addAll(closedServiceCallStatuses);
+            return result;
         }
 
         @Override
         public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources) {
             ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, dataSources);
-            serviceCalls.add(serviceCall);
+            openServiceCalls.add(serviceCall);
             return serviceCall;
         }
     }
