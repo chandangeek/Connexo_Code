@@ -11,6 +11,7 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
     // General
+    OK_RESULT(0, "OkMessageFormat", "OK", Level.INFO),
     INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format"),
     MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message already exists"),
     UNEXPECTED_CONFIRMATION_MESSAGE(3, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
@@ -19,6 +20,10 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_LOADING_PROPERTY(7, "ErrorLoadingProperty", "Error while loading property ''{0}'': ''{1}''."),
     UNEXPECTED_EXCEPTION(8, "UnexpectedException", "Exception occurred while processing request : ''{0}''."),
     MISSING_REQUIRED_TAG(9, "NoRequiredTag", "Tag ''{0}'' is required."),
+    PARTIALLY_SUCCESSFUL(10, "PartialSuccessful", "Partially successful request."),
+    BULK_REQUEST_WAS_FAILED(11, "BulkRequestWasFailed", "Bulk request has failed."),
+    BULK_ITEM_PROCESSING_WAS_NOT_STARTED(12, "BulkItemProcessingWasNotStarted", "Bulk item processing hasn''t started due to request issue."),
+    UNKNOWN_ERROR(13, "UnknownError", "Unknown error."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -47,7 +52,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEVICE_FOUND_BY_SAP_ID(4001, "NoDeviceFoundBySapId", "No device found with SAP device identifier ''{0}''."),
     NO_HEAD_END_INTERFACE_FOUND(4002, "NoHeadEndInterfaceFound", "No head end interface found for device with id ''{0}''."),
     LRN_NOT_FOUND_FOR_CHANNEL(4003, "LRNNotFoundForChannel", "Logical Register Number isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
-    SEVERAL_DEVICES(4005, "SeveralDevices", "There are several devices with serial id ''{0}''."),
     REGISTER_NOT_FOUND(4007, "RegisterNotFound", "Register ''{0}'' not found"),
     FAILED_DATA_SOURCE(4009, "FailedDataSources", "The following LRN are not set: {0}."),
     NO_ANY_LRN_ON_DEVICE(4010, "NoAnyLrnOnDevice", "No any LRN on device ''{0}''."),
@@ -75,6 +79,9 @@ public enum MessageSeeds implements MessageSeed {
             "Data sources with ''{0}'' (''{1}'',''{2}'') period, CIM code pattern ''{3}'' or OBIS code ''{4}'', and SAP CAS aren''t found. Please check the device configuration or precise the request"),
     NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING(4032, "NoUtilitiesDivisionCategoryCodeMapping",
             "There is no mapping of UtilitiesDivisionCategoryCode = ''{0}'' to CIM code pattern in the configuration property ''{1}''"),
+    ERROR_PROCESSING_METER_CREATE_REQUEST(4033, "ErrorProcessingMeterCreateRequest", "Error while processing meter create request: ''{0}''."),
+    ERROR_PROCESSING_METER_REGISTER_CREATE_REQUEST(4034, "ErrorProcessingMeterRegisterCreateRequest",
+            "Error while processing meter register create request: ''{0}''."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),

@@ -27,6 +27,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -121,9 +123,13 @@ public class MeterRegisterChangeConfirmationMessage {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-            header.setReferenceID(createID(requestId));
+            if (!Strings.isNullOrEmpty(requestId)) {
+                header.setReferenceID(createID(requestId));
+            }
             header.setUUID(createUUID(uuid));
-            header.setReferenceUUID(createUUID(referenceUuid));
+            if (!Strings.isNullOrEmpty(referenceUuid)) {
+                header.setReferenceUUID(createUUID(referenceUuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }

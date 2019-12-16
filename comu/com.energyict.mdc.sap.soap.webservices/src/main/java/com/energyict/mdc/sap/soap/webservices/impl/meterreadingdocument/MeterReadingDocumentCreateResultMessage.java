@@ -211,7 +211,7 @@ public class MeterReadingDocumentCreateResultMessage {
                 meterReadingDocument.setResult(result);
                 documentsSuccessfullyProcessed++;
             }
-
+            
             return meterReadingDocument;
         }
 

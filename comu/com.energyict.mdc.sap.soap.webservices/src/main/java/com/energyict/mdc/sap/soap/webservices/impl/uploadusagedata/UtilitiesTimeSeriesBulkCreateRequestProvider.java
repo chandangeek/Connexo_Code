@@ -257,7 +257,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     private static Quantity createQuantity(BigDecimal value, String unit) {
         Quantity quantity = new Quantity();
-        quantity.setUnitCode(unit);
+        quantity.setUnitCode(unit.toUpperCase());
         quantity.setValue(value);
         return quantity;
     }
