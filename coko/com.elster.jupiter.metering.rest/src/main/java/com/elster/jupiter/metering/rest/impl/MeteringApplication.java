@@ -12,10 +12,13 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.metering.rest.impl.configProperties.ConfigPropertiesInfoFactory;
+import com.elster.jupiter.metering.rest.impl.configProperties.ConfigPropertiesResource;
 import com.elster.jupiter.metering.rest.impl.zone.ZoneInfoFactory;
 import com.elster.jupiter.metering.rest.impl.zone.ZoneResource;
 import com.elster.jupiter.metering.rest.impl.zone.ZoneTypeInfoFactory;
@@ -75,6 +78,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile LocationService locationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringZoneService meteringZoneService;
+    private volatile ConfigPropertiesService configPropertiesService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -87,7 +91,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 EndDeviceEventTypeResource.class,
                 RestValidationExceptionMapper.class,
                 GasDayResource.class,
-                ZoneResource.class
+                ZoneResource.class,
+                ConfigPropertiesResource.class
                 );
     }
 
@@ -147,6 +152,10 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         this.meteringZoneService = meteringZoneService;
     }
 
+    @Reference
+    public void setConfigPropertiesService(ConfigPropertiesService configPropertiesService) {
+        this.configPropertiesService = configPropertiesService;
+    }
 
     @Activate
     public void activate() {
@@ -243,6 +252,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(meteringZoneService).to(MeteringZoneService.class);
             bind(ZoneTypeInfoFactory.class).to(ZoneTypeInfoFactory.class);
             bind(ZoneInfoFactory.class).to(ZoneInfoFactory.class);
+            bind(ConfigPropertiesInfoFactory.class).to(ConfigPropertiesInfoFactory.class);
+            bind(configPropertiesService).to(ConfigPropertiesService.class);
         }
     }
 }

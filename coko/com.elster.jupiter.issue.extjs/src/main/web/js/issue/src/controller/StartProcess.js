@@ -77,7 +77,8 @@ Ext.define('Isu.controller.StartProcess', {
                             }
                         ],
                         successLink: router.getRoute(router.currentRoute.replace('/startProcess', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl),
-                        cancelLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/startProcess': '/view/startProcess', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl)
+                        cancelLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/startProcess': '/view/startProcess', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl),
+                        context: { id: issueId }
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);

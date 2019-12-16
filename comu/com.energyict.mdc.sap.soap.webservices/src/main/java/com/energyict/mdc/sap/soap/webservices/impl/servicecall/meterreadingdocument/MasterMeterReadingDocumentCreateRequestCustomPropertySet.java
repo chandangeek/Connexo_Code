@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateRequestCustomPropertySet",
@@ -123,8 +124,13 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_UUID)
-                        .describedAs(TranslationKeys.REQUEST_UUID)
+                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
+                        .describedAs(TranslationKeys.REQUEST_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -183,26 +189,28 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+            Column oldRequestIdColumn = table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7, 1))
+                    .add();
+            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                    .varChar()
+                    .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .previously(oldRequestIdColumn)
+                    .add();
+            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.UUID.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.databaseName())
                     .number()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName())
                     .notNull()
                     .add();
-            /*table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
-                    .varChar()
-                    .notNull()
-                    .upTo(version(10,7))
-                    .add();
-            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.databaseName())
-                    .varChar()
-                    .notNull()
-                    .upTo(version(10,7))
-                    .add();*/
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.javaName())

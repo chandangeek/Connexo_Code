@@ -11,7 +11,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionService;
@@ -60,7 +60,7 @@ public class KeyStoreImplTest {
                     new ThreadSecurityModule(),
                     new PubSubModule(),
                     new DomainUtilModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new UtilModule(),
                     new TransactionModule(),
                     new NlsModule(),

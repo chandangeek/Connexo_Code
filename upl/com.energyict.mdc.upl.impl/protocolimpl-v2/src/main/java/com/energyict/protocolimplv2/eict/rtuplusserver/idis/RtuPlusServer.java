@@ -50,8 +50,8 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGateway
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayProperties;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;

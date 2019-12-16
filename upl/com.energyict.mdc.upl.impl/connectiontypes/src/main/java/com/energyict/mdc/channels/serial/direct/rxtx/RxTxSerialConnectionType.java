@@ -22,6 +22,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
 
+    public RxTxSerialConnectionType(){
+        super();
+    }
+
     public RxTxSerialConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }

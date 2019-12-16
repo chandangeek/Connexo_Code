@@ -147,7 +147,7 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
                 String executionTimeText = AXDRDate.toReadableDescription((OctetString) ((Structure) executionTime.getDataType(0)).getDataType(1));
                 AXDRTime time = new AXDRTime((OctetString) ((Structure) executionTime.getDataType(0)).getDataType(0));
                 executionTimeText = executionTimeText + " ";
-                executionTimeText = executionTimeText + time.getTime();
+                executionTimeText = executionTimeText + time.encode();
                 return executionTimeText;
             } catch (IndexOutOfBoundsException | ClassCastException e) {
                 throw new IOException("Failed to parse the execution time array");

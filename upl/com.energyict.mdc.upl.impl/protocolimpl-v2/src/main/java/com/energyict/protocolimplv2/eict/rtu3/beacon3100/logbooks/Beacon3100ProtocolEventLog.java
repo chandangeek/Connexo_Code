@@ -10,8 +10,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.exception.DataParseException;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
 import java.text.DateFormat;

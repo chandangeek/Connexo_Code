@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm.associations;
 
 import javax.validation.Valid;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,7 +13,8 @@ import java.util.Optional;
  * used to initialize a Reference
  */
 
-public final class ValueReference<T> implements Reference<T> {
+@XmlRootElement
+public class ValueReference<T> implements Reference<T> {
 
 	@Valid
 	private T value;

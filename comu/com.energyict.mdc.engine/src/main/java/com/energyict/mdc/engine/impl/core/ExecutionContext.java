@@ -29,13 +29,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
+import com.energyict.mdc.engine.impl.commands.store.*;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.events.ComPortCommunicationLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
@@ -238,8 +232,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.appendPropertyToMessage(builder, property.getName(), property.getValue());
     }
 
-    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask) {
-        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(connectionTask.getDevice(), connectionTask.getProtocolDialectConfigurationProperties());
+    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
+        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(getComServerDAO(), connectionTask, comTaskExecution);
         if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
             currentTaskExecutionBuilder.ifPresent(b -> b.addComTaskExecutionMessageJournalEntry(now(), ComServer.LogLevel.INFO, asString(protocolDialectTypedProperties), ""));
         }
@@ -311,17 +305,27 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.zeroOutTimings();
             this.cleanStatistics();
         } finally {
+            addConnectionFailedEvent();
+            this.publish(new CannotEstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), connectionTask, e));
+            this.connectionLogger.cannotEstablishConnection(e, this.getJob().getThreadName());
+            logConnectionSetupFailure(e);
+        }
+    }
 
+    private void addConnectionFailedEvent() {
+        if (serviceProvider.engineService().isOnlineMode()) {
             this.getStoreCommand().add(
                     new PublishConnectionSetupFailureEvent(
                             connectionTask,
                             this.comPort,
                             this.jobExecution.getComTaskExecutions(),
                             getDeviceCommandServiceProvider()));
-
-            this.connectionLogger.cannotEstablishConnection(e, this.getJob().getThreadName());
-            this.publish(new CannotEstablishConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), connectionTask, e));
-            logConnectionSetupFailure(e);
+        } else {
+            // Failure was in the preparation that creates the ExecutionContext
+            this.logger .log(
+                    Level.FINE,
+                    "Attempt to publish an event that a ConnectionTask has completed for OfflineEngine!",
+                    new Exception("For diagnostic purposes only"));
         }
     }
 
@@ -423,7 +427,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTask(), now()));
         initializeJournalist();
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
-            this.addProtocolDialectPropertiesAsJournalEntries(this.connectionTask);
+            this.addProtocolDialectPropertiesAsJournalEntries(getConnectionTask(), comTaskExecution);
         }
     }
 
@@ -436,7 +440,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      */
     public void completeExecutedComTask(ComTaskExecution comTaskExecution, ComTaskExecutionSession.SuccessIndicator successIndicator) {
         if (isConnected()) {
-            this.getComPortRelatedComChannel().logRemainingBytes();
+            getComPortRelatedComChannel().logRemainingBytes();
         }
         connectionLogger.completingTask(Thread.currentThread().getName(), comTaskExecution.getComTask().getName());
         try {
@@ -447,20 +451,20 @@ public final class ExecutionContext implements JournalEntryFactory {
                             new ComServerEventServiceProvider(),
                             comTaskExecution,
                             successIndicator,
-                            this.getComPort(),
-                            this.getConnectionTask()
+                            getComPort(),
+                            getConnectionTask()
                     ));
             if (executing != null) {
                 executing.stop();
             }
-            this.addStatisticalInformationForTaskSession();
+            addStatisticalInformationForTaskSession();
         }
     }
 
     private void addStatisticalInformationForTaskSession() {
-        if (this.isConnected() && this.currentTaskExecutionBuilder.isPresent()) {
-            ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = this.currentTaskExecutionBuilder.get();
-            Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
+        if (isConnected() && currentTaskExecutionBuilder.isPresent()) {
+            ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = currentTaskExecutionBuilder.get();
+            Counters taskSessionCounters = comPortRelatedComChannel.getTaskSessionCounters();
             comTaskExecutionSessionBuilder.addSentBytes(taskSessionCounters.getBytesSent());
             comTaskExecutionSessionBuilder.addReceivedBytes(taskSessionCounters.getBytesRead());
             comTaskExecutionSessionBuilder.addSentPackets(taskSessionCounters.getPacketsSent());
@@ -469,11 +473,11 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void comTaskExecutionCompleted(ComTaskExecutionSession.SuccessIndicator successIndicator) {
-        if (this.currentTaskExecutionBuilder != null && currentTaskExecutionBuilder.isPresent()) {
+        if (currentTaskExecutionBuilder != null && currentTaskExecutionBuilder.isPresent()) {
             currentTaskExecutionBuilder.get().add(now(), successIndicator);
-            this.currentTaskExecutionBuilder = Optional.empty();
+            currentTaskExecutionBuilder = Optional.empty();
 
-            this.getStoreCommand().addAll(this.toDeviceCommands(this.comTaskExecutionComCommand));
+            getStoreCommand().addAll(toDeviceCommands(comTaskExecutionComCommand));
         }
     }
 
@@ -507,38 +511,38 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void failWithProblems() {
-        if (this.currentTaskExecutionBuilder != null && currentTaskExecutionBuilder.isPresent()) {
+        if (currentTaskExecutionBuilder != null && currentTaskExecutionBuilder.isPresent()) {
             currentTaskExecutionBuilder.get().add(now(), ComTaskExecutionSession.SuccessIndicator.Failure);
         }
     }
 
     void completeFailure(ComSession.SuccessIndicator successIndicator) {
-        sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
-        sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
-        sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
+        sessionBuilder.setFailedTasks(jobExecution.getFailedComTaskExecutions().size());
+        sessionBuilder.setSuccessFulTasks(jobExecution.getSuccessfulComTaskExecutions().size());
+        sessionBuilder.setNotExecutedTasks(jobExecution.getNotExecutedComTaskExecutions().size());
 
-        this.createComSessionCommand(sessionBuilder, successIndicator);
+        createComSessionCommand(sessionBuilder, successIndicator);
     }
 
-    void completeSuccessful() {
-        sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
-        sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
-        sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
+    void completeSuccessful(ComSession.SuccessIndicator reason) {
+        sessionBuilder.setFailedTasks(jobExecution.getFailedComTaskExecutions().size());
+        sessionBuilder.setSuccessFulTasks(jobExecution.getSuccessfulComTaskExecutions().size());
+        sessionBuilder.setNotExecutedTasks(jobExecution.getNotExecutedComTaskExecutions().size());
 
-        ComSession.SuccessIndicator successIndicator = Thread.currentThread().isInterrupted() ? ComSession.SuccessIndicator.Broken : ComSession.SuccessIndicator.Success;
-        this.createComSessionCommand(sessionBuilder, successIndicator);
+        ComSession.SuccessIndicator successIndicator = Thread.currentThread().isInterrupted() ? ComSession.SuccessIndicator.Broken : reason;
+        createComSessionCommand(sessionBuilder, successIndicator);
     }
 
     void completeOutsideComWindow() {
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
-        this.createComSessionCommand(sessionBuilder, successIndicator);
+        createComSessionCommand(sessionBuilder, successIndicator);
     }
 
     private void executionStopWatchStart() {
-        if (this.executing == null) {
-            this.executing = new StopWatch();
+        if (executing == null) {
+            executing = new StopWatch();
         }
-        this.executing.start();
+        executing.start();
     }
 
     private List<ConnectionTaskProperty> getConnectionTaskProperties() {
@@ -550,28 +554,28 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void createComSessionCommand(ComSessionBuilder comSessionBuilder, ComSession.SuccessIndicator successIndicator) {
-        if (this.connectionTask instanceof OutboundConnectionTask) {
-            this.getStoreCommand().
+        if (connectionTask instanceof OutboundConnectionTask) {
+            getStoreCommand().
                     add(new CreateOutboundComSession(
                             now(),
-                            this.comPort.getComServer().getCommunicationLogLevel(),
-                            (ScheduledConnectionTask) this.connectionTask,
+                            comPort.getComServer().getCommunicationLogLevel(),
+                            (ScheduledConnectionTask) connectionTask,
                             comSessionBuilder, successIndicator, serviceProvider.clock()));
         } else {
-            this.getStoreCommand().
+            getStoreCommand().
                     add(new CreateInboundComSession(
                             now(),
                             (InboundComPort) getComPort(),
-                            (InboundConnectionTask) this.connectionTask,
+                            (InboundConnectionTask) connectionTask,
                             comSessionBuilder, successIndicator, serviceProvider.clock()));
         }
     }
 
     public CompositeDeviceCommand getStoreCommand() {
-        if (this.storeCommand == null) {
-            this.storeCommand = new ComSessionRootDeviceCommand(this.getComPort().getComServer().getCommunicationLogLevel());
+        if (storeCommand == null) {
+            storeCommand = new ComSessionRootDeviceCommand(getComPort().getComServer().getCommunicationLogLevel());
         }
-        return this.storeCommand;
+        return storeCommand;
     }
 
     private Instant now() {
@@ -587,7 +591,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void initializeJournalist() {
-        this.journalist = new ComCommandJournalist(this, serviceProvider.clock());
+        journalist = new ComCommandJournalist(this, serviceProvider.clock());
     }
 
     public DeviceCommandServiceProvider getDeviceCommandServiceProvider() {
@@ -595,7 +599,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     private void publish(ComServerEvent event) {
-        this.eventPublisher().publish(event);
+        eventPublisher().publish(event);
     }
 
     public interface ServiceProvider {
@@ -627,10 +631,10 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         @Override
         public List<ConnectionTaskProperty> getProperties() {
-            if (this.properties == null) {
-                this.setProperties(getConnectionTaskProperties());
+            if (properties == null) {
+                setProperties(getConnectionTaskProperties());
             }
-            return this.properties;
+            return properties;
         }
 
         public void setProperties(List<ConnectionTaskProperty> properties) {

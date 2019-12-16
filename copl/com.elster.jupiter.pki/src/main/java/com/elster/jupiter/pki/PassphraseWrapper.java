@@ -5,7 +5,11 @@
 package com.elster.jupiter.pki;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -14,6 +18,11 @@ import java.util.Optional;
  * Through the offering of PropertySpecs & properties, a generic interface is offered for the UI
  */
 @ConsumerType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface PassphraseWrapper extends HasDynamicPropertiesWithUpdatableValues, SecurityValueWrapper {
 
     /**
@@ -42,4 +51,11 @@ public interface PassphraseWrapper extends HasDynamicPropertiesWithUpdatableValu
      */
     public void generateValue();
 
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public default String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public default void setXmlType(String ignore) {}
 }

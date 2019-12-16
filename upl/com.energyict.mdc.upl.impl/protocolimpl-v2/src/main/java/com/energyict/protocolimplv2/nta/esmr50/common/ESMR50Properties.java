@@ -32,10 +32,6 @@ public class ESMR50Properties extends DlmsProperties {
         return securityProvider;
     }
 
-    public String getFUAK() {
-        return getProperties().getTypedProperty(ESMR50ConfigurationSupport.FIRMWARE_UPGRADE_AUTHENTICATION_KEY, null).toString();
-    }
-
     public String getWorkingKeyLabelPhase2() {
         return getProperties().getTypedProperty(ESMR50ConfigurationSupport.WORKING_KEY_LABEL_PHASE2, null).toString();
     }

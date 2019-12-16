@@ -11,7 +11,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 
 import java.util.ArrayList;
 import java.util.List;

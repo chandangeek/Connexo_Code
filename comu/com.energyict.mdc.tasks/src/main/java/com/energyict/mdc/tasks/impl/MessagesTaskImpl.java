@@ -9,9 +9,17 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageCategoryAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.protocolimplv2.messages.DeviceMessageCategoryImpl;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +55,11 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
     private List<MessagesTaskTypeUsage> deviceMessageUsages = new ArrayList<>();
     private MessageTaskType messageTaskType = MessageTaskType.NONE;
 
+    public MessagesTaskImpl() {
+        super();
+        setFlags(FLAGS);
+    }
+
     @Inject
     MessagesTaskImpl(DataModel dataModel) {
         super(dataModel);
@@ -54,6 +67,8 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public List<DeviceMessageCategory> getDeviceMessageCategories() {
         return this.deviceMessageUsages.stream().map(MessagesTaskTypeUsage::getDeviceMessageCategory).collect(Collectors.toList());
     }
@@ -70,6 +85,7 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
     }
 
     @Override
+    @XmlAttribute
     public MessageTaskType getMessageTaskType() {
         return this.messageTaskType;
     }
@@ -79,6 +95,15 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
         if(this.messageTaskType.equals(MessageTaskType.ALL) || this.messageTaskType.equals(MessageTaskType.NONE)){
             this.deviceMessageUsages.clear();
         }
+    }
+
+    @XmlElement(type = MessagesTaskTypeUsageImpl.class)
+    public List<MessagesTaskTypeUsage> getDeviceMessageUsages() {
+        return deviceMessageUsages;
+    }
+
+    public void setDeviceMessageUsages(List<MessagesTaskTypeUsage> deviceMessageUsages) {
+        this.deviceMessageUsages = deviceMessageUsages;
     }
 
     void deleteDependents() {

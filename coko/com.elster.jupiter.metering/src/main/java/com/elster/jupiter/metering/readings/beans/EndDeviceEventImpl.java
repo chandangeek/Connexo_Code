@@ -6,11 +6,19 @@ package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
+@XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "xml-type")
 public class EndDeviceEventImpl implements EndDeviceEvent {
 
     private final Instant eventOccurredDate;
@@ -195,5 +203,14 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
 
     public void setMrid(String mrid) {
         this.mrid = mrid;
+    }
+
+    @XmlElement(name = "xml-type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

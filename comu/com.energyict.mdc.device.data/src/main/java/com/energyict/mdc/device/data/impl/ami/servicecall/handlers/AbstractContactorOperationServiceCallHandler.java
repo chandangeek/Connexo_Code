@@ -62,6 +62,9 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
+        if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
+            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK_EXECUTION).format());
+        }
         existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).scheduleNow();
     }
 
@@ -82,6 +85,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         Optional<ComTaskEnablement> enablementOptional = device.getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream().
                         filter(task -> task instanceof StatusInformationTask).
                         findFirst().

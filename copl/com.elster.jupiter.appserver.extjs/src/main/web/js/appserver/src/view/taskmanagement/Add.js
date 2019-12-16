@@ -49,7 +49,13 @@ Ext.define('Apr.view.taskmanagement.Add', {
                         editable: false,
                         queryMode: 'local',
                         displayField: 'name',
-                        valueField: 'id'
+                        valueField: 'id',
+                        defaultValue: me.taskTypeDefaultValue,
+                        listeners: {
+                            afterrender: function (field) {
+                                if (me.taskTypeDefaultValue) field.setValue(me.taskTypeDefaultValue);
+                            }
+                        }
                     },
                     {
                         xtype: 'container',

@@ -89,11 +89,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -134,11 +130,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /**
      * Property keys specific for AS230 protocol.
      */
-    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
-    private static final String PK_RETRIES = Property.RETRIES.getName();
-    private static final String PK_SECURITYLEVEL = Property.SECURITYLEVEL.getName();
+
     private static final String PK_FORCED_DELAY = "ForcedDelay";
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     private static final String PK_ECHO_CANCELING = "EchoCancelling";
     private static final String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
@@ -228,17 +221,17 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         return Arrays.asList(
                 UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, PropertyTranslationKeys.IEC1107_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, PropertyTranslationKeys.IEC1107_NODEID, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.IEC1107_TIMEOUT, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.IEC1107_RETRIES, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, PropertyTranslationKeys.IEC1107_TIMEOUT, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, PropertyTranslationKeys.IEC1107_RETRIES, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, PropertyTranslationKeys.IEC1107_CORRECTTIME, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(EXTENDED_LOGGING.getName(), false, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_ECHO_CANCELING, false, PropertyTranslationKeys.IEC1107_ECHOCANCELLING, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_SCRIPTING_ENABLED, false, PropertyTranslationKeys.IEC1107_SCRIPTING_ENABLED, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_FORCED_DELAY, false, PropertyTranslationKeys.IEC1107_FORCED_DELAY, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_IEC1107_COMPATIBLE, false, PropertyTranslationKeys.IEC1107_COMPATIBLE, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("Software7E1", false, PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("DisableLogOffCommand", false, PropertyTranslationKeys.IEC1107_DISABLE_LOG_OFF_COMMAND, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SOFTWARE7E1.getName(), false, PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(DISABLE_LOGOFF_COMMAND.getName(), false, PropertyTranslationKeys.IEC1107_DISABLE_LOG_OFF_COMMAND, propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(INSTRUMENTATION_PROFILE_MODE, false, PropertyTranslationKeys.IEC1107_INSTRUMENTATION_PROFILE_MODE, propertySpecService::stringSpec).finish());
     }
 
@@ -260,12 +253,12 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             this.pPassword = p.getTypedProperty(PASSWORD.getName());
         }
 
-        if (p.getTypedProperty(PK_TIMEOUT) != null) {
-            this.pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        if (p.getTypedProperty(TIMEOUT.getName()) != null) {
+            this.pTimeout = p.getTypedProperty(TIMEOUT.getName());
         }
 
-        if (p.getTypedProperty(PK_RETRIES) != null) {
-            this.pRetries = p.getTypedProperty(PK_RETRIES);
+        if (p.getTypedProperty(RETRIES.getName()) != null) {
+            this.pRetries = p.getTypedProperty(RETRIES.getName());
         }
 
         if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
@@ -276,11 +269,11 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             this.pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
         }
 
-        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            this.pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            this.pExtendedLogging = p.getTypedProperty(EXTENDED_LOGGING.getName());
         }
 
-        this.pSecurityLevel = p.getTypedProperty(PK_SECURITYLEVEL, 3);
+        this.pSecurityLevel = p.getTypedProperty(SECURITYLEVEL.getName(), 3);
         if (this.pSecurityLevel != 0) {
             // Password is required when security level != 0
             this.passwordPropertySpec(true).validateValue(this.pPassword);
@@ -303,9 +296,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             this.pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
         }
 
-        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty(SOFTWARE7E1.getName(), "0"));
 
-        this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty("DisableLogOffCommand", "0"));
+        this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty(DISABLE_LOGOFF_COMMAND.getName(), "0"));
         this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
 
         this.instrumentationProfileMode = !"0".equalsIgnoreCase(p.getTypedProperty(INSTRUMENTATION_PROFILE_MODE, "0"));

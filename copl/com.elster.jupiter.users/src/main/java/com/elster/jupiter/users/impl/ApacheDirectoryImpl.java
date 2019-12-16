@@ -30,7 +30,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -346,9 +345,10 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         SearchResult searchResult = results.next();
         Attributes attributes = searchResult.getAttributes();
         if (attributes.get("uid") != null) {
-            LdapUser ldapUser = new LdapUserImpl();
+            LdapUserImpl ldapUser = new LdapUserImpl();
             String userName = attributes.get("uid").get().toString();
             ldapUser.setUsername(userName);
+            ldapUser.setDN(searchResult.getNameInNamespace());
             ldapUser.setStatus(true);
             if (attributes.get("pwdAccountLockedTime") != null
                     && "000001010000Z".equals(attributes.get("pwdAccountLockedTime").get().toString())) {
@@ -383,7 +383,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     }
 
     private void putSecurityPrincipal(Hashtable<String, Object> env) {
-        putSecurityPrincipal(getDirectoryUser(), env, false);
+        putSecurityPrincipal(getDirectoryUser(), env, getBaseUser() == null);
     }
 
     private void putSecurityPrincipal(String name, Hashtable<String, Object> env, boolean useNameAsIs) {
@@ -392,6 +392,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             principal = "uid=" + name + "," + getBaseUser();
         } else {
             principal = name;
+            setBaseUser(name);
         }
         env.put(Context.SECURITY_PRINCIPAL, principal);
     }

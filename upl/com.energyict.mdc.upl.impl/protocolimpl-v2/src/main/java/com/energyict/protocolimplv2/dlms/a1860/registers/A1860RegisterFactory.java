@@ -26,7 +26,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dlms.a1860.A1860;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 
 import java.io.IOException;
 import java.util.ArrayList;

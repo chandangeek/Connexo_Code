@@ -25,7 +25,7 @@ import com.energyict.mdc.common.device.data.Reading;
 import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.device.data.RegisterDataUpdater;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import com.energyict.obis.ObisCode;
@@ -67,7 +67,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDevice(this.getDevice().getId(), this.getDevice().getmRID());
     }
 
     @Override

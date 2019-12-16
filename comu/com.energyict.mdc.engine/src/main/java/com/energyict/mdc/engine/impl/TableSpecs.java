@@ -31,6 +31,6 @@ public enum TableSpecs {
         }
     };
 
-    abstract void addTo(DataModel component);
+    public abstract void addTo(DataModel component);
 
 }

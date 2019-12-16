@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : cosemClassInfo.xml
+    Created on : 10. August 2010, 13:39
+    Author     : osse
+    Description:
+-->
+
+
+<cosemclassinfos>
+  <cosemclass id="1" version="0" name="Data">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="data"/>
+    </attributes>
+  </cosemclass>
+  <cosemclass id="3" version="0" name="Register">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="value" type="dynamic"/>
+      <attribute number="3" name="scaler_unit" type="static" validator="scaler_unit"/>
+    </attributes>
+    <methods>
+      <method number="1" name="reset" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="4" version="0" name="Extended register">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="value" type="dynamic"/>
+      <attribute number="3" name="scaler_unit" type="static" validator="scaler_unit"/>
+      <attribute number="4" name="status" type="dynamic"/>
+      <attribute number="5" name="capture_time" type="dynamic" validator="octetString_DateTime" octetStringType="DATE_TIME"/>
+    </attributes>
+    <methods>
+      <method number="1" name="reset" />
+    </methods>
+  </cosemclass>
+
+  <cosemclass id="5" version="0" name="Demand register">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="current_average_value" type="dynamic"/>
+      <attribute number="3" name="last_average_value" type="dynamic"/>
+      <attribute number="4" name="scaler_unit" type="static" validator="scaler_unit"/>
+      <attribute number="5" name="status" type="dynamic"/>
+      <attribute number="6" name="capture_time" type="dynamic" validator="octetString_DateTime" octetStringType="DATE_TIME"/>
+      <attribute number="7" name="start_time_current" type="dynamic" validator="octetString_DateTime" octetStringType="DATE_TIME"/>
+      <attribute number="8" name="period" type="static" validator="double_long_unsigned"/>
+      <attribute number="9" name="number_of_periods" type="static" validator="long_unsigned"/>
+    </attributes>
+    <methods>
+      <method number="1" name="reset" />
+      <method number="2" name="next_period" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="6" version="0" name="Register activation">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="register_assignment" type="static"  validator="register_assignment"/>
+      <attribute number="3" name="mask_list" type="static" validator="mask_list"/>
+      <attribute number="4" name="active_mask" type="dynamic"  validator="active_mask"/>
+    </attributes>
+    <methods>
+      <method number="1" name="add_register" />
+      <method number="2" name="add_mask" />
+      <method number="3" name="delete_mask" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="7" version="1" name="Profile generic">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="buffer" type="dynamic" validator="profile_buffer"/>
+      <attribute number="3" name="capture_objects" type="static" validator="capture_objects"/>
+      <attribute number="4" name="capture_period" type="static"  validator="double_long_unsigned"/>
+      <attribute number="5" name="sort_method" type="static" validator="enum"/>
+      <attribute number="6" name="sort_object" type="static" validator="capture_object_definition"/>
+      <attribute number="7" name="entries_in_use" type="dynamic" validator="double_long_unsigned" />
+      <attribute number="8" name="profile_entries" type="static" validator="double_long_unsigned"/>
+    </attributes>
+    <methods>
+      <method number="1" name="reset" />
+      <method number="2" name="capture" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="8" version="0" name="Clock">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="time" type="dynamic" validator="octetString_DateTime" octetStringType="DATE_TIME"/>
+      <attribute number="3" name="time_zone" type="static" validator="long"/>
+      <attribute number="4" name="status" type="dynamic" validator="unsigned"/>
+      <attribute number="5" name="daylight_savings_begin" type="static" validator="octetString_DateTime" octetStringType="DATE_TIME"/>
+      <attribute number="6" name="daylight_savings_end" type="static" validator="octetString_DateTime" octetStringType="DATE_TIME"/>
+      <attribute number="7" name="daylight_savings_deviation" validator="integer"/>
+      <attribute number="8" name="daylight_savings_enabled" type="static" validator="boolean"/>
+      <attribute number="9" name="clock_base" type="static" validator="enum"/>
+    </attributes>
+    <methods>
+      <method number="1" name="adjust_to_quarter" />
+      <method number="2" name="adjust_to_measuring_period" />
+      <method number="3" name="adjust_to_minute" />
+      <method number="4" name="adjust_to_preset_time" />
+      <method number="5" name="preset_adjusting_time" />
+      <method number="6" name="shift_time" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="9" version="0" name="Script table">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="scripts" type="static" validator="scripts"/>
+    </attributes>
+    <methods>
+      <method number="1" name="execute" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="10" version="0" name="Schedule">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="entries" type="static"/>
+    </attributes>
+    <methods>
+      <method number="1" name="enable/disable" />
+      <method number="2" name="insert" />
+      <method number="3" name="delete" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="11" version="0" name="Special days table">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="entries" type="static" validator="special_days_table_entries"/>
+    </attributes>
+    <methods>
+      <method number="1" name="insert" />
+      <method number="2" name="delete" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="12" version="1" name="Association SN">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="object_list" type="static"/>
+    </attributes>
+    <methods>
+      <method number="3" name="read_by_logicalname" />
+      <method number="4" name="get_attributes_and_methods" />
+      <method number="5" name="change_LLS_secret" />
+      <method number="6" name="change_HLS_secret" />
+      <method number="8" name="reply_to_HLS_authentication" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="15" version="1" name="Association LN">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="object_list" type="static" validator="object_list_V1"/>
+      <attribute number="3" name="associated_partners_id" validator="associated_partners_id"/>
+      <attribute number="4" name="application_context_name" validator="application_context_name"/>
+      <attribute number="5" name="xDLMS_context_info" validator="xDLMS_context_info"/>
+      <attribute number="6" name="authentication_mechanism_name" validator="authentication_ mechanism_name"/>
+      <attribute number="7" name="secret" validator="octetString"/>
+      <attribute number="8" name="association_status" validator="enum"/>
+      <attribute number="9" name="security_setup_reference" type="static" validator="logical_name"/>
+    </attributes>
+    <methods>
+      <method number="1" name="reply_to_HLS_authentication" />
+      <method number="2" name="change_HLS_secret" />
+      <method number="3" name="add_object" />
+      <method number="4" name="remove_object" />
+    </methods>
+  </cosemclass>
+  <cosemclass id="15" version="0" name="Association LN">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="object_list" type="static" validator="object_list_V0"/>
+      <attribute number="3" name="associated_partners_id"/>
+      <attribute number="4" name="application_context_name"/>
+      <attribute number="5" name="xDLMS_context_info"/>
+      <attribute number="6" name="authentication_mechanism_name"/>
+      <attribute number="7" name="LLS_secret"/>
+      <attribute number="8" name="association_status"/>
+      <attribute number="9" name="security_setup_reference" type="static"/>
+    </attributes>
+    <methods>
+      <method number="1" name="reply_to_HLS_authentication" />
+      <method number="2" name="change_HLS_secret" />
+      <method number="3" name="add_object" />
+      <method number="4" name="remove_object" />
+    </methods>
+  </cosemclass>
+
+
+  <cosemclass id="17" version="0" name="SAP assignment">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="SAP_assignment_list" type="static" validator="SAP_assignment_list"/>
+    </attributes>
+    <methods>
+      <method number="1" name="connect_logical_device" />
+    </methods>
+  </cosemclass>
+  
+  <cosemclass id="18" version="0" name="Image transfer">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="image_block_size" type="static" validator="double_long_unsigned"/>
+      <attribute number="3" name="image_transferred_blocks_status" type="dynamic" validator="bit_string"/>
+      <attribute number="4" name="image_first_not_transferred_block_number" type="dynamic"  validator="double_long_unsigned"/>
+      <attribute number="5" name="image_transfer_enabled" type="static"  validator="boolean"/>
+      <attribute number="6" name="image_transfer_status" type="dynamic"  validator="enum"/>
+      <attribute number="7" name="image_to_activate_info" type="dynamic"  validator="image_to_activate_info"/>
+    </attributes>
+    <methods>
+      <method number="1" name="image_transfer_initiate" />
+      <method number="2" name="image_block_transfer" />
+      <method number="3" name="image_verify" />
+      <method number="4" name="image_activate" />
+    </methods>
+  </cosemclass>
+
+
+
+  <cosemclass id="19" version="1" name="IEC local port setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="default_mode" type="static" validator="enum"/>
+      <attribute number="3" name="default_baud" type="static" validator="enum"/>
+      <attribute number="4" name="prop_baud" type="static" validator="enum"/>
+      <attribute number="5" name="response_time" type="static" validator="enum"/>
+      <attribute number="6" name="device_addr" type="static" validator="octetString"/>
+      <attribute number="7" name="pass_p1" type="static" validator="octetString"/>
+      <attribute number="8" name="pass_p2" type="static" validator="octetString"/>
+      <attribute number="9" name="pass_w5" type="static" validator="octetString"/>
+    </attributes>
+  </cosemclass>
+
+  <cosemclass id="20" version="0" name="Activity calendar">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="calendar_name_active" type="static" validator="octetString"/>
+      <attribute number="3" name="season_profile_active" type="static" validator="season_profile"/>
+      <attribute number="4" name="week_profile_table_active" type="static" validator="week_profile_table"/>
+      <attribute number="5" name="day_profile_table_active" type="static" validator="day_profile_table"/>
+      <attribute number="6" name="calendar_name_passive" type="static" validator="octetString" />
+      <attribute number="7" name="season_profile_passive" type="static" validator="season_profile" />
+      <attribute number="8" name="week_profile_table_passive" type="static" validator="week_profile_table"/>
+      <attribute number="9" name="day_profile_table_passive" type="static" validator="day_profile_table"/>
+      <attribute number="10" name="activate_passive_calendar_time" type="static" validator="octetString_DateTime" octetStringType="DATE_TIME"/>
+    </attributes>
+    <methods>
+      <method number="1" name="activate_passive_calendar" />
+    </methods>
+  </cosemclass>
+
+  <cosemclass id="21" version="0" name="Register monitor">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="thresholds" type="static" validator="array"/>
+      <attribute number="3" name="monitored_value" type="static" validator="value_definition"/>
+      <attribute number="4" name="actions" type="static" validator="actions"/>
+    </attributes>
+  </cosemclass>
+
+  <cosemclass id="22" version="0" name="Single action schedule">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="executed_script" type="static"/>
+      <attribute number="3" name="type" type="static"/>
+      <attribute number="4" name="execution_time" type="static"/>
+    </attributes>
+  </cosemclass>
+
+  <cosemclass id="23" version="1" name="IEC HDLC setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="comm_speed" type="static" validator="enum"/>
+      <attribute number="3" name="window_size_transmit" type="static" validator="unsigned"/>
+      <attribute number="4" name="window_size_receive" type="static" validator="unsigned"/>
+      <attribute number="5" name="max_info_field_length_transmit" type="static" validator="long_unsigned"/>
+      <attribute number="6" name="max_info_field_length_receive" type="static" validator="long_unsigned"/>
+      <attribute number="7" name="inter_octet_time_out" type="static" validator="long_unsigned"/>
+      <attribute number="8" name="inactivity_time_out" type="static" validator="long_unsigned"/>
+      <attribute number="9" name="device_address" type="static" validator="long_unsigned"/>
+    </attributes>
+  </cosemclass>
+  <cosemclass id="27" version="0" name="Modem configuration">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="comm_speed" type="static"  validator="enum"/>
+      <attribute number="3" name="initialization_string" type="static" validator="initialization_string"/>
+      <attribute number="4" name="modem_profile" type="static" validator="modem_profile"/>
+    </attributes>
+  </cosemclass>
+  
+  <cosemclass id="28" version="0" name="Auto answer">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="mode" type="static"  validator="enum" />
+      <attribute number="3" name="listening_window" type="static" validator="timewindow" />
+      <attribute number="4" name="status" type="dynamic" validator="enum"/>
+      <attribute number="5" name="number_of_calls" type="static"  validator="unsigned"/>
+      <attribute number="6" name="number_of_rings" type="static" validator="number_of_rings"/>
+    </attributes>
+  </cosemclass>
+  
+  
+  <cosemclass id="29" version="1" name="Auto connect">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="mode" type="static"   validator="enum" />
+      <attribute number="3" name="repetitions" type="static" validator="unsigned"  />
+      <attribute number="4" name="repetition_delay" type="static" validator="long_unsigned" />
+      <attribute number="5" name="calling_window" type="static"  validator="timewindow" />
+      <attribute number="6" name="destination_list" type="static" validator="array_of_octet_strings"/>
+    </attributes>
+    <methods>
+      <method number="-1" name="connect_now" />
+    </methods>    
+  </cosemclass>
+  
+  
+  <cosemclass id="41" version="0" name="TCP-UDP setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="TCP-UDP_port" type="static"/>
+      <attribute number="3" name="IP_reference" type="static"/>
+      <attribute number="4" name="MSS" type="static"/>
+      <attribute number="5" name="nb_of_sim_conn" type="static"/>
+      <attribute number="6" name="inactivity_time_out" type="static"/>
+    </attributes>
+  </cosemclass>
+  <cosemclass id="42" version="0" name="IPv4 setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="DL_reference" type="static"/>
+      <attribute number="3" name="IP_address"/>
+      <attribute number="4" name="multicast_IP_address"/>
+      <attribute number="5" name="IP_options"/>
+      <attribute number="6" name="subnet_mask"/>
+      <attribute number="7" name="gateway_IP_address"/>
+      <attribute number="8" name="use_DHCP_flag" type="static"/>
+      <attribute number="9" name="primary_DNS_address"/>
+      <attribute number="10" name="secondary_DNS_address"/>
+    </attributes>
+    <methods>
+      <method number="1" name="add_mc_IP_address" />
+      <method number="2" name="delete_mc_IP_address" />
+      <method number="3" name="get_nbof_mc_IP_addresses" />
+    </methods>
+  </cosemclass>
+
+  <cosemclass id="43" version="0" name="Ethernet setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="MAC_address"/>
+    </attributes>
+  </cosemclass>
+
+  <cosemclass id="44" version="0" name="PPP setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="PHY_reference" type="static"/>
+      <attribute number="3" name="LCP_options" type="static"/>
+      <attribute number="4" name="IPCP_options" type="static"/>
+      <attribute number="5" name="PPP_authentication" type="static"/>
+    </attributes>
+  </cosemclass>
+
+  <cosemclass id="45" version="0" name="GPRS modem setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="APN" type="static" validator="octetString"/>
+      <attribute number="3" name="PIN_code" type="static" validator="long_unsigned"/>
+      <attribute number="4" name="quality_of_service" type="static" validator="quality_of_service"/>
+      <attribute number="-5" name="APN_user_name" type="static" validator="octetString"/>
+      <attribute number="-6" name="APN_user_password" type="static" validator="octetString"/>
+    </attributes>
+  </cosemclass>
+
+  <cosemclass id="64" version="0" name="Security setup">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="security_policy" type="static" validator="enum" />
+      <attribute number="3" name="security_suite" type="static" validator="enum" />
+      <attribute number="4" name="client_system_title" type="dynamic" validator="octetString"/>
+      <attribute number="5" name="server_system_title" type="static" validator="octetString"/>
+    </attributes>
+    <methods>
+      <method number="1" name="security_activate" />
+      <method number="2" name="global_key_transfer" />
+    </methods>
+  </cosemclass>
+
+  <cosemclass id="67" version="0" name="Sensor manager">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="serial_number" type="dynamic" validator="octetString"/>
+      <attribute number="3" name="metrological_identification" type="dynamic" validator="octetString"/>
+      <attribute number="4" name="output_type" type="dynamic" validator="enum" />
+      <attribute number="5" name="adjustment_method" type="dynamic" validator="octetString" />
+      <attribute number="6" name="sealing_method" type="dynamic" validator="enum"/>
+      <attribute number="7" name="raw_value" type="dynamic"/>
+      <attribute number="8" name="scaler_unit" type="dynamic" validator="scaler_unit" />
+      <attribute number="9" name="status" type="dynamic"/>
+      <attribute number="10" name="capture_time" type="dynamic" validator="dateTime" />
+      <attribute number="11" name="raw_value_thresholds" type="dynamic" validator="array"/>
+      <attribute number="12" name="raw_value_actions" type="dynamic" validator="array"/>
+      <attribute number="13" name="processed_value" type="dynamic" validator="processed_value_definition"/>
+      <attribute number="14" name="processed_value_thresholds" type="dynamic" validator="array"/>
+      <attribute number="15" name="processed_value_actions" type="dynamic" validator="array"/>
+    </attributes>
+    <methods>
+      <method number="1" name="reset" />
+    </methods>
+  </cosemclass>
+  
+  <cosemclass id="8193" version="0" name="Parameter list">
+    <attributes>
+      <attribute number="1" name="logical_name" type="static" validator="logical_name"/>
+      <attribute number="2" name="changed_parameter"/>
+      <attribute number="3" name="parameter_list"/>
+    </attributes>
+    <methods>
+      <method number="1" name="add_parameter"/>
+      <method number="2" name="remove_parameter"/>
+    </methods>
+  </cosemclass>
+
+</cosemclassinfos>

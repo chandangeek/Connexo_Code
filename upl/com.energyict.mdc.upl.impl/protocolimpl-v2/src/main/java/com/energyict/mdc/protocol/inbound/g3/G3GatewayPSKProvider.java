@@ -35,7 +35,7 @@ import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
 import java.util.ArrayList;

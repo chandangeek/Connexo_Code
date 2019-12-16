@@ -8,7 +8,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.WebServiceDestination;
-import com.elster.jupiter.export.impl.webservicecall.ServiceCallStatusImpl;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportServiceCallHandler;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.export.webservicecall.ServiceCallStatus;
@@ -22,17 +21,19 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.streams.Predicates;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -82,14 +83,12 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
     }
 
     @Override
-    public void send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger) {
+    public DataSendingStatus send(List<ExportData> data, TagReplacerFactory tagReplacerFactory, Logger logger) {
         EndPointConfiguration createEndPoint = getCreateWebServiceEndpoint();
         DataExportWebService createService = getExportWebService(createEndPoint);
         TimeDuration timeout = getTimeout(createEndPoint);
-        List<ServiceCallStatus> serviceCallStates = new ArrayList<>(2);
-        List<CompletableFuture<Void>> serviceCalls = new ArrayList<>(2);
-// want to send 2 different requests when the same endpoint is set for both services
-//        if (getChangeWebServiceEndpoint().filter(Predicates.not(createEndPoint::equals)).isPresent()) {
+        Map<ServiceCall, ServiceCallStatus> serviceCallStates = new ConcurrentHashMap<>();
+        List<CompletableFuture<Void>> serviceCalls = new ArrayList<>();
         if (getChangeWebServiceEndpoint().isPresent()) {
             EndPointConfiguration changeEndPoint = getChangeWebServiceEndpoint().get();
             DataExportWebService changeService = getExportWebService(changeEndPoint);
@@ -111,8 +110,10 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         } else {
             serviceCalls.add(callServiceAsync(createService, createEndPoint, data, serviceCallStates, !timeout.isEmpty()));
         }
-        execute(serviceCalls, serviceCallStates, timeout);
-        processErrors(serviceCallStates);
+        execute(serviceCalls, timeout);
+        DataSendingStatus.DataSendingStatusBuilder dataSendingStatusBuilder = DataSendingStatus.builder();
+        processErrors(serviceCallStates.values(), dataSendingStatusBuilder, logger);
+        return dataSendingStatusBuilder.build();
     }
 
     @Override
@@ -140,33 +141,37 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .orElseThrow(() -> new DestinationFailedException(getThesaurus(), MessageSeeds.NO_WEBSERVICE_FOUND, endPoint.getName()));
     }
 
-    private void processErrors(List<ServiceCallStatus> serviceCallStates) {
+    private void processErrors(Collection<ServiceCallStatus> serviceCallStates, DataSendingStatus.DataSendingStatusBuilder resultBuilder, Logger logger) {
         if (!serviceCallStates.stream().allMatch(ServiceCallStatus::isSuccessful)) {
-            serviceCallStates.stream()
-                    .filter(ServiceCallStatus::isFailed)
-                    // TODO: treat all error messages?
-                    .findAny()
-                    .ifPresent(status -> {
-                        String error = status.getErrorMessage()
+            getTransactionService().run(() -> serviceCallStates.forEach(status -> {
+                String error;
+                switch (status.getState()) {
+                    case SUCCESSFUL:
+                        // nothing to do
+                        return;
+                    case FAILED:
+                        error = status.getErrorMessage()
                                 .orElseGet(() -> getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_ERROR_MESSAGE).format());
-                        throw new DestinationFailedException(getThesaurus(), MessageSeeds.WEB_SERVICE_EXPORT_NOT_CONFIRMED, error);
-                    });
-            if (serviceCallStates.stream().anyMatch(ServiceCallStatus::isOpen)) {
-                String error = getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_CONFIRMATION).format();
-                throw new DestinationFailedException(getThesaurus(), MessageSeeds.WEB_SERVICE_EXPORT_NOT_CONFIRMED, error);
-            }
-            // this case should not happen actually; if reproduced, there's some integration bug between data export destination & web service implementation
-            serviceCallStates.stream()
-                    .filter(Predicates.not(ServiceCallStatus::isSuccessful))
-                    .findFirst()
-                    .ifPresent(unexpectedState -> {
-                        throw new DestinationFailedException(getThesaurus(), MessageSeeds.WEB_SERVICE_EXPORT_UNEXPECTED_STATE,
-                                unexpectedState.getServiceCall().getNumber(), unexpectedState.getState().name());
-                    });
+                        break;
+                    case CREATED:
+                    case PENDING:
+                    case ONGOING:
+                        error = getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_CONFIRMATION).format();
+                        break;
+                    default:
+                        // this case should not happen actually
+                        // if reproduced, there's some integration bug between data export destination & web service implementation
+                        error = getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_UNEXPECTED_STATE).format(status.getState().name());
+                        break;
+                }
+                error = getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NOT_CONFIRMED).format(status.getServiceCall().getNumber(), error);
+                logger.severe(error);
+                resultBuilder.withFailedDataSources(dataExportServiceCallType.getDataSources(status.getServiceCall()));
+            }));
         }
     }
 
-    private void execute(List<CompletableFuture<Void>> serviceCalls, List<ServiceCallStatus> results, TimeDuration timeout) {
+    private void execute(List<CompletableFuture<Void>> serviceCalls, TimeDuration timeout) {
         try {
             CompletableFuture<Void> allOperations = CompletableFuture.allOf(serviceCalls.toArray(new CompletableFuture[serviceCalls.size()]));
             if (timeout.isEmpty()) {
@@ -176,37 +181,37 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
             }
         } catch (InterruptedException | TimeoutException e) {
             // at least one of service calls hasn't managed to complete in time
-            results.add(ServiceCallStatusImpl.ONGOING);
+            // no spoiling a wedding, go ahead and process results
         } catch (CompletionException | ExecutionException e) {
             throw new DestinationFailedException(getThesaurus(), MessageSeeds.WEB_SERVICE_EXPORT_FAILURE, e, e.getCause().getLocalizedMessage());
         }
     }
 
     private CompletableFuture<Void> callServiceAsync(DataExportWebService service, EndPointConfiguration endPoint,
-                                                     List<ExportData> data, List<ServiceCallStatus> results, boolean waitForServiceCall) {
+                                                     List<ExportData> data, Map<ServiceCall, ServiceCallStatus> results, boolean waitForServiceCall) {
         Principal principal = threadPrincipalService.getPrincipal();
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.runAsync(() -> {
             threadPrincipalService.set(principal);
-            return callService(service, endPoint, data, waitForServiceCall);
-        }, Executors.newSingleThreadExecutor())
-                .thenAccept(results::add);
+            callService(service, endPoint, data, results, waitForServiceCall);
+        }, Executors.newSingleThreadExecutor());
     }
 
-    private <T extends ExportData> ServiceCallStatus callService(DataExportWebService service, EndPointConfiguration endPoint, List<ExportData> data, boolean waitForServiceCall) {
-        Optional<ServiceCall> serviceCall = service.call(endPoint, data.stream());
-        if (waitForServiceCall && serviceCall.isPresent()) {
-            ServiceCallStatus status;
-            do {
+    private void callService(DataExportWebService service, EndPointConfiguration endPoint, List<ExportData> data,
+                                                    Map<ServiceCall, ServiceCallStatus> results, boolean waitForServiceCall) {
+        List<ServiceCall> serviceCalls = service.call(endPoint, data.stream());
+        if (waitForServiceCall && !serviceCalls.isEmpty()) {
+            List<ServiceCallStatus> statuses = dataExportServiceCallType.getStatuses(serviceCalls);
+            statuses.forEach(status -> results.put(status.getServiceCall(), status));
+            while (statuses.stream().anyMatch(ServiceCallStatus::isOpen)) {
                 try {
                     Thread.sleep(1000L * WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                status = dataExportServiceCallType.getStatus(serviceCall.get());
-            } while (status.isOpen());
-            return status;
+                statuses = dataExportServiceCallType.getStatuses(serviceCalls);
+                statuses.forEach(status -> results.put(status.getServiceCall(), status));
+            }
         }
-        return ServiceCallStatusImpl.SUCCESS;
     }
 
     private static TimeDuration getTimeout(EndPointConfiguration endPoint) {

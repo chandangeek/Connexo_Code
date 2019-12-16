@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>2.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>issue.servicecall.extjs</artifactId>
@@ -16,7 +16,6 @@
     <name>[Jupiter] com.elster.jupiter.issue.servicecall.extjs</name>
 
     <properties>
-        <baseline>(,${project.version})</baseline>
         <js.dir>js/isc</js.dir>
         <package.name>${project.groupId}.${project.artifactId}</package.name>
     </properties>

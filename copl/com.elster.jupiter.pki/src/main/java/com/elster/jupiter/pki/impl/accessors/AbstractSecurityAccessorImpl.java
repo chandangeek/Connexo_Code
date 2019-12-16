@@ -83,13 +83,13 @@ public abstract class AbstractSecurityAccessorImpl<T extends SecurityValueWrappe
     }
 
     @Override
-    public SecurityAccessorType getKeyAccessorType() {
+    public SecurityAccessorType getKeyAccessorTypeReference() {
         return keyAccessorTypeReference.get();
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return securityManagementService.getPropertySpecs(getKeyAccessorType());
+        return securityManagementService.getPropertySpecs(getKeyAccessorTypeReference());
     }
 
     @Override

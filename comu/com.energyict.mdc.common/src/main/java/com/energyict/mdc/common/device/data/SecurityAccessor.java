@@ -7,6 +7,11 @@ package com.energyict.mdc.common.device.data;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Represents access to a wrapper object on device level. This security object can be a certificate, symmetric key or password.
@@ -15,6 +20,11 @@ import aQute.bnd.annotation.ConsumerType;
  * process (TempValue).
  */
 @ConsumerType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.elster.jupiter.pki.SecurityAccessor<T> {
 
     /**
@@ -54,4 +64,12 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.el
      * @return {@code true} if security accessor has service key, {@code false} otherwise.
      */
     public boolean isServiceKey();
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public default String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public default void setXmlType(String ignore) {}
 }

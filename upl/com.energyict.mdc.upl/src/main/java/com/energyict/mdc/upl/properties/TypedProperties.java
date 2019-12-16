@@ -2,6 +2,7 @@ package com.energyict.mdc.upl.properties;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -195,5 +196,7 @@ public interface TypedProperties {
      * @return A flag that indicates if there is a value for the property
      */
     boolean isValueFor(Object value, String propertyName);
+
+    public Properties toStringProperties();
 
 }

@@ -273,7 +273,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OfflineComServer serverSideComServer = mock(OfflineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        final ComServer.ComServerBuilder comServerBuilder = mock(ComServer.ComServerBuilder.class);
+        final OfflineComServer.OfflineComServerBuilder comServerBuilder = mock(OfflineComServer.OfflineComServerBuilder.class);
         when(comServerBuilder.create()).thenReturn(serverSideComServer);
         when(engineConfigurationService.newOfflineComServerBuilder()).thenReturn(comServerBuilder);
 

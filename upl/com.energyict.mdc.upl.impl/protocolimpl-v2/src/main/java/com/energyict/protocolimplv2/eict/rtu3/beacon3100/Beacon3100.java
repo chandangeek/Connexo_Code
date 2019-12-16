@@ -65,8 +65,8 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Co
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100SecurityProvider;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100RegisterFactory;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;

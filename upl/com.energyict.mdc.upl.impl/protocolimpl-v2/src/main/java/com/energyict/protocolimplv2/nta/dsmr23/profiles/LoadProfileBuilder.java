@@ -25,7 +25,7 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;

@@ -94,7 +94,7 @@ public class ColumnImpl implements Column {
         return this;
     }
 
-    static ColumnImpl from(TableImpl<?> table, String name) {
+    public static ColumnImpl from(TableImpl<?> table, String name) {
         return new ColumnImpl().init(table, name);
     }
 

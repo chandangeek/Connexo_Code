@@ -102,11 +102,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySupport, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
 
@@ -117,10 +113,6 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     private final ACE6000Messages messageProtocol;
     private ACE6000Properties properties = null;
 
-    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
-    private static final String PK_RETRIES = Property.RETRIES.getName();
-    private static final String PK_SECURITYLEVEL = Property.SECURITYLEVEL.getName();
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     // interval alarm status flags
     private static final int EXTERNAL_CLOCK_INCOHERENCE = 1;
     private static final int NON_VOLATILE_MEMORY_NON_FATAL_ERROR = 2;
@@ -1403,8 +1395,8 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, 16),
-                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
-                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
                 this.integerSpec("RequestTimeZone", PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
@@ -1412,7 +1404,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
-                this.integerSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
                 this.integerSpec("StatusFlagChannel", PropertyTranslationKeys.DLMS_STATUS_FLAG_CHANNEL));
@@ -1439,9 +1431,9 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iHDLCTimeoutProperty = properties.getTypedProperty(PK_TIMEOUT, 10000);
-            iProtocolRetriesProperty = properties.getTypedProperty(PK_RETRIES, 5);
-            iSecurityLevelProperty = properties.getTypedProperty(PK_SECURITYLEVEL, 1);
+            iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+            iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+            iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
             iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
             iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
@@ -1452,7 +1444,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            extendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING, 0);
+            extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
             addressingMode = properties.getTypedProperty("AddressingMode", -1);
             connectionMode = properties.getTypedProperty("Connection", 0); // 0=HDLC, 1= TCP/IP
             alarmStatusFlagChannel = properties.getTypedProperty("StatusFlagChannel", 0);

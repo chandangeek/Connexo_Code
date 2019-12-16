@@ -32,11 +32,9 @@ import java.util.stream.Collectors;
  */
 public class PreStoreLogBook {
 
-    private final Clock clock;
     private final ComServerDAO comServerDAO;
 
-    public PreStoreLogBook(Clock clock, ComServerDAO comServerDAO) {
-        this.clock = clock;
+    public PreStoreLogBook(ComServerDAO comServerDAO) {
         this.comServerDAO = comServerDAO;
     }
 
@@ -52,13 +50,12 @@ public class PreStoreLogBook {
      * @param deviceLogBook the collected events from the device
      * @return the preStored logbook
      */
-    public Optional<Pair<DeviceIdentifier, LocalLogBook>> preStore(CollectedLogBook deviceLogBook) {
+    public Optional<Pair<DeviceIdentifier, LocalLogBook>> preStore(CollectedLogBook deviceLogBook, Instant currentDate) {
         Set<UniquePair<String, Instant>> uniqueCheck = new HashSet<>();
         Optional<OfflineLogBook> offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
         if (offlineLogBook.isPresent()) {
             List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
             Instant lastLogbook = null;
-            Instant currentDate = this.clock.instant();
             List<EndDeviceEvent> endDeviceEvents =
                     DecoratedStream.decorate(MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.get().getLogBookId()).stream())
                             .distinct(this::calculateEndDeviceEventHashCode) // Filter out all duplicates (by looking at the hashcode of the EndDeviceEvent which is calculated across all fields of the EndDeviceEvent)
@@ -103,7 +100,7 @@ public class PreStoreLogBook {
         return result;
     }
 
-    class LocalLogBook {
+    public class LocalLogBook {
 
         private final List<EndDeviceEvent> endDeviceEvents;
         private final Instant lastLogbook;

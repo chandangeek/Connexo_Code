@@ -15,6 +15,7 @@ import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -92,6 +93,7 @@ class PartialConnectionTaskPropertyImpl implements PartialConnectionTaskProperty
     }
 
     @Override
+    @XmlTransient
     public PartialConnectionTask getPartialConnectionTask() {
         return partialConnectionTask.get();
     }

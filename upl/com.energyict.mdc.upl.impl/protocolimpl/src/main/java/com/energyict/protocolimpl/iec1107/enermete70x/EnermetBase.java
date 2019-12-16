@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.SOFTWARE7E1;
+
 /**
  *
  * @author  Koen
@@ -142,14 +144,14 @@ public abstract class EnermetBase extends AbstractProtocol{
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
+        propertySpecs.add(this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
         return propertySpecs;
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.energyict.mdc.upl.meterdata.identifiers;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import java.io.Serializable;
 
@@ -23,6 +25,7 @@ import java.io.Serializable;
         use = JsonTypeInfo.Id.CLASS,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface Identifier extends Serializable {
 
     Introspector forIntrospection();
