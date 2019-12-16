@@ -31,6 +31,7 @@ import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -185,8 +186,15 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 })
                 .map(ServiceCallStatus::getServiceCall)
                 .collect(Collectors.toSet());
-        Set<ReadingTypeDataExportItem> failedDataSources = dataExportServiceCallType.getDataSources(unsuccessfulServiceCalls);
-        statusBuilder.withFailedDataSources(failedDataSources);
+        Set<ReadingTypeDataExportItem> failedDataSources = Collections.emptySet();
+        if (!unsuccessfulServiceCalls.isEmpty()) {
+            failedDataSources = dataExportServiceCallType.getDataSources(unsuccessfulServiceCalls);
+            if (failedDataSources.isEmpty()) {
+                statusBuilder.withAllDataSourcesFailed(); // service calls keep no track of data sources; need to fail all them
+            } else {
+                statusBuilder.withFailedDataSources(failedDataSources);
+            }
+        }
         if (!dataSendingResult.sent) {
             // some service calls are possibly not created yet
             Set<ServiceCall> successfulServiceCalls = states.stream()
@@ -201,6 +209,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                     ReadingTypeDataExportItem dataSource = ((MeterReadingData) exportData).getItem();
                     if (!trackedDataSources.contains(dataSource)) {
                         untrackedDataSources.add(dataSource);
+                        logger.severe(getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_SERVICE_CALL).format(dataSource.getDescription()));
                     }
                 } else {
                     statusBuilder.withAllDataSourcesFailed();

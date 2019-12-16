@@ -171,7 +171,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType, times(2)).getDataSources(Collections.emptySet()); // per each of created/changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -197,7 +196,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(Collections.emptySet());
-        verify(serviceCallType, times(2)).getDataSources(Collections.emptySet()); // per each of created/changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -222,7 +220,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(Collections.emptySet());
-        verify(serviceCallType, times(2)).getDataSources(Collections.emptySet()); // per each of created/changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -246,7 +243,6 @@ public class WebServiceDestinationImplTest {
         assertThat(dataStreamCaptor.getValue().collect(Collectors.toList())).containsOnly(updatedData);
         verifyNoMoreInteractions(webServiceChange);
         verify(serviceCallType, atLeastOnce()).getStatuses(Collections.emptySet());
-        verify(serviceCallType, times(2)).getDataSources(Collections.emptySet()); // per each of created/changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -267,7 +263,6 @@ public class WebServiceDestinationImplTest {
         verifyZeroInteractions(webServiceCreate);
         verify(serviceCallType, times(2)).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType, times(2)).getDataSources(Collections.emptySet()); // per each of created/changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -287,7 +282,6 @@ public class WebServiceDestinationImplTest {
         verifyZeroInteractions(webServiceChange);
         verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType).getDataSources(Collections.emptySet()); // per created data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -307,7 +301,6 @@ public class WebServiceDestinationImplTest {
         verifyZeroInteractions(webServiceCreate);
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType).getDataSources(Collections.emptySet()); // per changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -327,7 +320,6 @@ public class WebServiceDestinationImplTest {
         verifyZeroInteractions(webServiceChange);
         verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType).getDataSources(Collections.emptySet()); // per created data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -355,7 +347,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(createServiceCall));
-        verify(serviceCallType).getDataSources(Collections.emptySet()); // per changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -382,7 +373,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType).getDataSources(Collections.emptySet()); // per created data
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall));
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -442,7 +432,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
         verify(serviceCallType).getDataSources(Collections.singleton(createServiceCall));
-        verify(serviceCallType).getDataSources(Collections.emptySet()); // per changed data
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -469,7 +458,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCr", 1, Collections.singleton(source1));
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType).getDataSources(Collections.emptySet()); // per created data
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall));
         verifyNoMoreInteractions(serviceCallType);
     }
@@ -605,8 +593,7 @@ public class WebServiceDestinationImplTest {
         verifyNoMoreInteractions(webServiceChange);
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType, times(3)).getDataSources(Collections.emptySet()); // per failed service calls for created/changed data,
-        // and once per passed service calls for created data to find untracked data sources
+        verify(serviceCallType).getDataSources(Collections.emptySet()); // per passed service calls for created data to find untracked data sources
         verifyNoMoreInteractions(serviceCallType);
     }
 
@@ -668,7 +655,6 @@ public class WebServiceDestinationImplTest {
         verify(serviceCallType).startServiceCallAsync("uuidCh", 2, Collections.singleton(source1));
         verify(serviceCallType).startServiceCallAsync("uuidCr1", 3, Collections.singleton(source2));
         verify(serviceCallType, atLeastOnce()).getStatuses(anySetOf(ServiceCall.class));
-        verify(serviceCallType, times(2)).getDataSources(Collections.emptySet()); // per failed created/changed data
         verify(serviceCallType).getDataSources(Collections.singleton(changeServiceCall)); // per passed changed data, called to find out untracked data sources
         verifyNoMoreInteractions(serviceCallType);
     }
