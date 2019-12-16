@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
@@ -87,4 +88,6 @@ public interface SAPCustomPropertySets {
     boolean doesRegisterHaveSapCPS(Register register);
 
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
+
+    Optional<Instant> getFirstProfileIdSetDate(List<ChannelsContainer> channelsContainers, ReadingType readingType);
 }

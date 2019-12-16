@@ -13,6 +13,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
@@ -42,7 +43,6 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -51,7 +51,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
@@ -940,5 +939,28 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(RegisteredCustomPropertySet::getCustomPropertySetId)
                 .filter(channelInfo.getId()::equals).isPresent();
+    }
+
+    @Override
+    public Optional<Instant> getFirstProfileIdSetDate(List<ChannelsContainer> channelsContainers, ReadingType readingType) {
+        Optional<Range<Instant>> range = channelsContainers.stream()
+                .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange()))
+                .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
+                .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
+                        .map(channel -> Pair.of(channel, ccAndRange.getLast())))
+                .flatMap(Functions.asStream())
+                .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
+                .map(e -> e.getValue().asRanges())
+                .flatMap(sR -> sR.stream())
+                .sorted()
+                .findFirst();
+
+        if (range.isPresent()) {
+            if (range.get().hasLowerBound()) {
+                return Optional.of(range.get().lowerEndpoint());
+            }
+            return Optional.of(Instant.EPOCH);
+        }
+        return Optional.empty();
     }
 }

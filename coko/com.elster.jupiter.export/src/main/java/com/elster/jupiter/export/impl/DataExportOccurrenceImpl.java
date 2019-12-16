@@ -242,4 +242,10 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     public RecurrentTask getRecurrentTask() {
         return this.getTaskOccurrence().getRecurrentTask();
     }
+
+    @Override
+    public void updateExportedDataRange(Range<Instant> instantRange) {
+        exportedDataInterval = Interval.of(instantRange);
+        exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+    }
 }
