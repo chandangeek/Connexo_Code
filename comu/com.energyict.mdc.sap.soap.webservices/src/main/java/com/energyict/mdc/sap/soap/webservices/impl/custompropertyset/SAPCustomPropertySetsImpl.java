@@ -959,6 +959,22 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
+    public boolean isAnyProfileIdPresent(List<ChannelsContainer> channelsContainers, ReadingType readingType, Range<Instant> range) {
+        return channelsContainers.stream()
+                .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(range))
+                .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(range)))
+                .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
+                .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
+                        .map(channel -> Pair.of(channel, ccAndRange.getLast())))
+                .flatMap(Functions.asStream())
+                .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
+                .map(e -> e.getValue().asRanges())
+                .flatMap(sR -> sR.stream())
+                .findFirst()
+                .isPresent();
+    }
+
+    @Override
     public Optional<Instant> getStartDate(Device device) {
         Optional<Instant> activationDate = getLstActivationDate(device.getMeter());
         if (activationDate.isPresent()) {

@@ -103,38 +103,42 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         List<BaseReading> readings = getReadings(item, currentExportInterval);
 
         String itemDescription = item.getDescription();
+        if (!currentExportInterval.isEmpty() && sapCustomPropertySets.isAnyProfileIdPresent(item.getReadingContainer().getChannelsContainers(), item.getReadingType(), currentExportInterval)) {
+            if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
+                readings = filterReadings(readings);
 
-        if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
-            readings = filterReadings(readings);
+                List<Instant> instants = new ArrayList<>();
+                Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
 
-            List<Instant> instants = new ArrayList<>();
-            Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
+                while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
+                    instants.add(instant);
+                    instant = instant.plus(1, ChronoUnit.HOURS);
+                }
 
-            while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
-                instants.add(instant);
-                instant = instant.plus(1, ChronoUnit.HOURS);
-            }
-
-            Map<Instant, String> readingStatuses = new HashMap<>();
-            List<IntervalBlock> intervalBlocks = new ArrayList<>();
-            intervalBlocks.add(buildIntervalBlock(item, readings));
-            for (IntervalBlock intervalBlock : intervalBlocks) {
-                for (Instant time : instants) {
-                    Optional<IntervalReading> readingOpt = intervalBlock.getIntervals().stream()
-                            .filter(r -> r.getTimeStamp().equals(time)).findAny();
-                    if (readingOpt.isPresent()) {
-                        readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
-                    } else {
-                        readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
-                        readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                Map<Instant, String> readingStatuses = new HashMap<>();
+                List<IntervalBlock> intervalBlocks = new ArrayList<>();
+                intervalBlocks.add(buildIntervalBlock(item, readings));
+                for (IntervalBlock intervalBlock : intervalBlocks) {
+                    for (Instant time : instants) {
+                        Optional<IntervalReading> readingOpt = intervalBlock.getIntervals().stream()
+                                .filter(r -> r.getTimeStamp().equals(time)).findAny();
+                        if (readingOpt.isPresent()) {
+                            readingStatuses.put(time, ReadingStatus.ACTUAL.getValue());
+                        } else {
+                            readings.add(ZeroIntervalReadingImpl.intervalReading(item.getReadingType(), time));
+                            readingStatuses.put(time, ReadingStatus.INVALID.getValue());
+                        }
                     }
                 }
-            }
 
-            readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
-            MeterReadingImpl meterReading = asMeterReading(item, readings);
-            exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+                readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
+                MeterReadingImpl meterReading = asMeterReading(item, readings);
+                exportCount++;
+                return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
+            }
+        } else {
+            item.setExportSkipped(true);
+            item.update();
         }
 
         try (TransactionContext context = transactionService.getContext()) {

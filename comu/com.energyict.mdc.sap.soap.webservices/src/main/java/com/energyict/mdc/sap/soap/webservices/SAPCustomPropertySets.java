@@ -90,6 +90,8 @@ public interface SAPCustomPropertySets {
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
 
     Optional<Instant> getFirstProfileIdSetDate(List<ChannelsContainer> channelsContainers, ReadingType readingType);
+
+    boolean isAnyProfileIdPresent(List<ChannelsContainer> channelsContainers, ReadingType readingType, Range<Instant> range);
     /**
      * This method returns start of the first LRN after the latest transition to operational stage
      * or the date of this transition, if no such LRN is present.
