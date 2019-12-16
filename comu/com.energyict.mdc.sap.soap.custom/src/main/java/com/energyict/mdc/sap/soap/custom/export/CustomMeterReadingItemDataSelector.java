@@ -96,14 +96,15 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+        String itemDescription = item.getDescription();
+
         this.currentExportInterval = adjustedExportPeriod(occurrence, item);
 
         warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
 
-        List<BaseReading> readings = getReadings(item, currentExportInterval);
-
-        String itemDescription = item.getDescription();
         if (!currentExportInterval.isEmpty() && sapCustomPropertySets.isAnyProfileIdPresent(item.getReadingContainer().getChannelsContainers(), item.getReadingType(), currentExportInterval)) {
+            List<BaseReading> readings = getReadings(item, currentExportInterval);
+
             if (!readings.isEmpty() && checkInterval(item.getReadingType())) {
                 readings = filterReadings(readings);
 
