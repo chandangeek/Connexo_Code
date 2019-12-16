@@ -326,7 +326,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return false;
     }
 
-    private void fillDevicesComTaskExecutions(Set<Device> devices, Reading reading, int index, SyncReplyIssue syncReplyIssue) {
+    private void fillDevicesComTaskExecutions(Set<Device> devices, Reading reading, int index, SyncReplyIssue syncReplyIssue) throws
+            FaultMessage {
         if (isDeviceMessageComTaskRequired(reading, index, syncReplyIssue)) {
             fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue);
         }
@@ -352,7 +353,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         });
     }
 
-    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index, Reading reading) {
+    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index, Reading reading) throws
+            FaultMessage {
         for (Device originDevice : devices) {
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
@@ -382,8 +384,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 if(reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
                     for (ComTaskExecution cte : comTaskExecutions) {
                         if (!cte.getComSchedule().isPresent()) {
-                            syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null,
-                                    cte.getComTask().getName(), device.getName()));
+                            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, cte.getComTask().getName(), device.getName())
+                                    .get();
                         }
                     }
                 }
