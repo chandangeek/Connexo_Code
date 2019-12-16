@@ -45,7 +45,7 @@ class UpgraderV10_3 implements Upgrader {
         ((UserServiceImpl) userService).getGrantPrivilege("privilege.administrate.userAndRole")
                 .ifPresent(grantPrivilege -> grantPrivilege.addGrantableCategory(userService.getDefaultPrivilegeCategory()));
 
-        userService.findUser("admin").ifPresent(user -> {
+        userService.findUser("admin", userService.getRealm()).ifPresent(user -> {
             user.getGroups().stream()
                     .forEach(group -> {
                         if (!group.getName().equals("DEFAULT_INSTALLER_ROLE")) {
