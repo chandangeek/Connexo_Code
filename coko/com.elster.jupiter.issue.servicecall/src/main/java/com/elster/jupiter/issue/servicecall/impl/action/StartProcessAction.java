@@ -67,7 +67,7 @@ public class StartProcessAction extends AbstractIssueAction {
             String errorInvalidMessage = getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
             String errorNotFoundMessage = getThesaurus().getString("error.flow.unavailable", "Connexo Flow is not available.");
             try {
-                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000");
                 if (!"".equals(jsonContent)) {
                     JSONObject jsnobject = new JSONObject(jsonContent);
                     arr = jsnobject.getJSONArray("processDefinitionList");

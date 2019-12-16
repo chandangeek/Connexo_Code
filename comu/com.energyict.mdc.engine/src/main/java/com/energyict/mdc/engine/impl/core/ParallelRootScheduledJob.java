@@ -287,6 +287,15 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
         }
 
         @Override
+        public void connectionNotExecuted() {
+        }
+
+        @Override
+        public boolean hasConnectionNotExecuted() {
+            return parallelCommandRoots.values().stream().allMatch(CommandRoot::hasConnectionNotExecuted);
+        }
+
+        @Override
         public List<? extends ComTaskExecution> getScheduledButNotPreparedComTaskExecutions() {
             return scheduledButNotPreparedComTaskExecutions;
         }

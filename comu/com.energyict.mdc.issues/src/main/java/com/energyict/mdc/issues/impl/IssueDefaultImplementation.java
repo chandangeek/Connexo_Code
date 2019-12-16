@@ -5,8 +5,13 @@
 package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.ObjectXmlMarshallAdapter;
 import com.energyict.mdc.upl.issue.Issue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Optional;
@@ -20,11 +25,14 @@ import java.util.stream.Stream;
  */
 public abstract class IssueDefaultImplementation implements Issue {
 
-    private final String description;
-    private final Object source;
-    private final Instant timestamp;
-    private final Object[] messageArguments;
+    private String description;
+    private Object source;
+    private Instant timestamp;
+    private Object[] messageArguments;
     private Optional<Exception> exception = Optional.empty();
+
+    public IssueDefaultImplementation() {
+    }
 
     public IssueDefaultImplementation(Thesaurus thesaurus, Instant timestamp, String description) {
         this(thesaurus, timestamp, null, description);
@@ -65,6 +73,8 @@ public abstract class IssueDefaultImplementation implements Issue {
      * {@inheritDoc}
      */
     @Override
+    @XmlAttribute
+    @XmlJavaTypeAdapter(ObjectXmlMarshallAdapter.class)
     public Object getSource () {
         return this.source;
     }
@@ -73,6 +83,8 @@ public abstract class IssueDefaultImplementation implements Issue {
      * {@inheritDoc}
      */
     @Override
+    @JsonIgnore
+    @XmlTransient
     public boolean isWarning () {
         return false;
     }
@@ -81,6 +93,8 @@ public abstract class IssueDefaultImplementation implements Issue {
      * {@inheritDoc}
      */
     @Override
+    @JsonIgnore
+    @XmlTransient
     public boolean isProblem () {
         return false;
     }

@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 /**
  * Monitors the exeuction of {@link ComTaskExecution}
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 2012-10-03 (12:44)
  */
 public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
-
+    private static final Logger LOGGER = Logger.getLogger(TimeOutMonitorImpl.class.getName());
     private static final TimeDuration DEFAULT_WAIT_TIME = new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private AtomicBoolean continueRunning;
@@ -41,7 +42,7 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
 
     public TimeOutMonitorImpl(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
         super();
-        this.initialize(comServer, comServerDAO, threadFactory);
+        initialize(comServer, comServerDAO, threadFactory);
     }
 
     private void initialize(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
@@ -52,7 +53,7 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
 
     @Override
     public ServerProcessStatus getStatus() {
-        return this.status;
+        return status;
     }
 
     public OutboundCapableComServer getComServer() {
@@ -61,36 +62,38 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
 
     @Override
     public void start() {
-        this.status = ServerProcessStatus.STARTING;
-        this.continueRunning = new AtomicBoolean(true);
-        self = this.threadFactory.newThread(this);
-        self.setName("Timeout monitor for " + this.comServer.getName());
+        status = ServerProcessStatus.STARTING;
+        continueRunning = new AtomicBoolean(true);
+        self = threadFactory.newThread(this);
+        self.setName("Timeout monitor for " + comServer.getName());
+        // the first time, execute the cleanup asynchronously, to not clash with the cleanup started on the outbound ComPorts
+        monitorTasks();
         self.start();
-        this.status = ServerProcessStatus.STARTED;
+        status = ServerProcessStatus.STARTED;
     }
 
     @Override
     public void shutdown() {
-        this.doShutdown();
+        doShutdown();
     }
 
     @Override
     public void shutdownImmediate() {
-        this.doShutdown();
+        doShutdown();
     }
 
     private void doShutdown() {
-        this.status = ServerProcessStatus.SHUTTINGDOWN;
-        this.continueRunning.set(false);
+        status = ServerProcessStatus.SHUTTINGDOWN;
+        continueRunning.set(false);
         self.interrupt();   // in case the thread was sleeping between detecting changes
     }
 
     @Override
     public void run() {
         while (continueRunning.get() && !Thread.currentThread().isInterrupted()) {
-            this.monitorTasks();
             try {
-                Thread.sleep(this.waitTime);
+                Thread.sleep(waitTime);
+                monitorTasks();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -100,9 +103,9 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
 
     private void monitorTasks() {
         try {
-            this.waitTime = this.releaseTimedOutTasks();
+            waitTime = releaseTimedOutTasks();
         } catch (RuntimeException e) {
-            this.waitTime = DEFAULT_WAIT_TIME.getMilliSeconds();
+            waitTime = DEFAULT_WAIT_TIME.getMilliSeconds();
         }
     }
 
@@ -121,7 +124,7 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
     }
 
     private ComServerLogger getLogger(ComServer comServer) {
-        return LoggerFactory.getLoggerFor(ComServerLogger.class, this.getServerLogLevel(comServer));
+        return LoggerFactory.getLoggerFor(ComServerLogger.class, getServerLogLevel(comServer));
     }
 
     private LogLevel getServerLogLevel(ComServer comServer) {
