@@ -29,8 +29,7 @@ public class AllTranslationKeysTest {
             if (uniqueKeys.containsKey(translationKey.getKey())) {
                 TranslationKey duplicate = uniqueKeys.get(translationKey.getKey());
                 fail("Translation key:" + this.toString(translationKey) + " is a duplicate for " + this.toString(duplicate));
-            }
-            else {
+            } else {
                 uniqueKeys.put(translationKey.getKey(), translationKey);
             }
         }

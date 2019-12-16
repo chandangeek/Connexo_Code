@@ -6,7 +6,9 @@ package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.upl.issue.Warning;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 
 /**
@@ -16,6 +18,10 @@ import java.time.Instant;
  * @since March 27, 2012 (11:35:36)
  */
 public class WarningImpl extends IssueDefaultImplementation implements Warning {
+
+    public WarningImpl() {
+        super();
+    }
 
     public WarningImpl(Thesaurus thesaurus, Instant timestamp, String description) {
         super(thesaurus, timestamp, description);
@@ -29,6 +35,8 @@ public class WarningImpl extends IssueDefaultImplementation implements Warning {
      * {@inheritDoc}
      */
     @Override
+    @JsonIgnore
+    @XmlTransient
     public boolean isWarning() {
         return true;
     }

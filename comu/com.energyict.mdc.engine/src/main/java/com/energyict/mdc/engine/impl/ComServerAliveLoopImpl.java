@@ -1,32 +1,35 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
+package com.energyict.mdc.engine.impl;
 
-package com.energyict.mdc.engine.impl.status;
-
-import com.elster.jupiter.tasks.TaskExecutor;
-import com.elster.jupiter.tasks.TaskOccurrence;
-
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 
 import java.time.Clock;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-public class ComServerAliveStatusHandler implements TaskExecutor {
+public class ComServerAliveLoopImpl implements Runnable {
 
+    private final ScheduledThreadPoolExecutor executor;
     private final Clock clock;
     private final EngineConfigurationService engineConfigurationService;
     private final StatusService statusService;
+    private final TransactionService transactionService;
 
-    public ComServerAliveStatusHandler(Clock clock, EngineConfigurationService engineConfigurationService, StatusService statusService) {
+    ComServerAliveLoopImpl(Clock clock, EngineConfigurationService engineConfigurationService, StatusService statusService, TransactionService transactionService) {
         this.clock = clock;
         this.engineConfigurationService = engineConfigurationService;
         this.statusService = statusService;
+        executor = new ScheduledThreadPoolExecutor(1);
+        this.transactionService = transactionService;
     }
 
-    @Override
-    public void execute(TaskOccurrence occurrence) {
+    private void updateStatus() {
         engineConfigurationService.findComServerBySystemName().ifPresent(
                 comServer -> {
                     ComServerStatus status = statusService.getStatus();
@@ -43,4 +46,13 @@ public class ComServerAliveStatusHandler implements TaskExecutor {
         );
     }
 
+    @Override
+    public void run() {
+        try (TransactionContext context = transactionService.getContext()) {
+            updateStatus();
+            executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
+            context.commit();
+        } catch (Exception ignored) {
+        }
+    }
 }

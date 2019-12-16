@@ -253,6 +253,10 @@ Ext.define('Wss.controller.Webservices', {
             var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
         }
         authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
+        if(authenticationMethod.data.id === 'NONE'){
+            record.set('username',null);
+            record.set('password',null);
+        }
         if(form.down('#userRoleField')) {
             var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
             if(userGroup && userGroup.get('id')==='all'){

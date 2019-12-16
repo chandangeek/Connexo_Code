@@ -33,6 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_VERSION_NOT_FOUND(19, Keys.FIRMWARE_VERSION_NOT_FOUND, "No firmware version with id {0} could be found"),
     FIRMWARE_VERSION_MISSING(20, Keys.FIRMWARE_VERSION_MISSING, "Firmware version is missing in the request"),
     FIRMWARE_ACTION_CHECK_VERSION(21, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version/image"),
+    INVALID_VALUE(22, "InvalidValue", "Invalid value"),
 
     SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
     FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE(1002, "FirmwareUpgradeOptionsAreDisabledForDeviceType", "Firmware upgrade options are disabled for device type"),

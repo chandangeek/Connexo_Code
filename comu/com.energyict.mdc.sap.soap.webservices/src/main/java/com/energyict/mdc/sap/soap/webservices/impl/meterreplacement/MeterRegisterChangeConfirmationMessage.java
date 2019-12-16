@@ -6,13 +6,17 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.Log;
@@ -24,7 +28,10 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
@@ -52,9 +59,11 @@ public class MeterRegisterChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
+            } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
+                confirmationMessage.setLog(createPartiallySuccessfulLog());
             } else {
                 confirmationMessage.setLog(createFailedLog());
             }
@@ -66,8 +75,8 @@ public class MeterRegisterChangeConfirmationMessage {
         public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), now));
-
-            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+            confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
+            confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
             return this;
         }
 
@@ -75,15 +84,26 @@ public class MeterRegisterChangeConfirmationMessage {
             return MeterRegisterChangeConfirmationMessage.this;
         }
 
-        private void createBody(UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage, ServiceCall child, Instant now) {
-            MeterRegisterChangeRequestDomainExtension extension = child.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
+        private void createBody(UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage, ServiceCall subParent, Instant now) {
+            SubMasterMeterRegisterChangeRequestDomainExtension extension = subParent.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
+                    .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
 
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
-            if (child.getState() == DefaultState.SUCCESSFUL) {
+            if (subParent.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
-            } else if (child.getState() == DefaultState.FAILED || child.getState() == DefaultState.CANCELLED) {
-                confirmationMessage.setLog(createFailedLog(extension.getErrorMessage()));
+            } else if (subParent.getState() == DefaultState.FAILED || subParent.getState() == DefaultState.PARTIAL_SUCCESS || subParent.getState() == DefaultState.CANCELLED) {
+                List<String> errorMessages = ServiceCallHelper.findChildren(subParent).stream()
+                        .map(child -> child.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()))
+                        .flatMap(Functions.asStream())
+                        .map(MeterRegisterChangeRequestDomainExtension::getErrorMessage)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                if (!errorMessages.isEmpty()) {
+                    confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessages) : createFailedLog(errorMessages));
+                } else {
+                    confirmationMessage.setLog(subParent.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog());
+                }
             }
         }
 
@@ -137,6 +157,26 @@ public class MeterRegisterChangeConfirmationMessage {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
             log.getItem().add(createLogItem(message));
+            return log;
+        }
+
+        private Log createFailedLog(List<String> messages) {
+            Log log = objectFactory.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
+            return log;
+        }
+
+        private Log createPartiallySuccessfulLog() {
+            Log log = objectFactory.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+            return log;
+        }
+
+        private Log createPartiallySuccessfulLog(List<String> messages) {
+            Log log = objectFactory.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
             return log;
         }
 

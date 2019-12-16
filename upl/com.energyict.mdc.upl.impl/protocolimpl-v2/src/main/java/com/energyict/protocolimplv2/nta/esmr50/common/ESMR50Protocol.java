@@ -111,7 +111,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "ESMR 5.0 - 2019-07-01";
+        return "ESMR 5.0 - 2019-12-05";
     }
 
     @Override
@@ -151,6 +151,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
                 }
             } catch (CommunicationException ex) {
                 journal("Association using the new frame counter has failed ("+ex.getLocalizedMessage()+")");
+                throw ex;
             } catch (Exception ex){
                 journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
                 throw ex;

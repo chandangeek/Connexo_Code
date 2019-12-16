@@ -7,6 +7,7 @@ Ext.define('Usr.model.MgmUserDirectoryUser', {
     fields: [
        'id',
         'name',
+        'dn',
         'status',
         {
             name: 'statusDisplay',

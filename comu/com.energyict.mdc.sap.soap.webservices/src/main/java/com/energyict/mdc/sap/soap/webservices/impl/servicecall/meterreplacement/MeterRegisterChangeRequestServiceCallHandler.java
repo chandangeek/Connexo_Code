@@ -20,15 +20,12 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.Optional;
 
 
-@Component(name = MeterRegisterChangeRequest.NAME, service = ServiceCallHandler.class,
-        property = "name=" + MeterRegisterChangeRequest.NAME, immediate = true)
-public class MeterRegisterChangeRequest implements ServiceCallHandler {
+@Component(name = MeterRegisterChangeRequestServiceCallHandler.NAME, service = ServiceCallHandler.class,
+        property = "name=" + MeterRegisterChangeRequestServiceCallHandler.NAME, immediate = true)
+public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "MeterRegisterChangeRequest";
     public static final String VERSION = "v1.0";
@@ -67,11 +64,16 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
     }
 
     private void processServiceCall(ServiceCall serviceCall) {
-        MeterRegisterChangeRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
-        Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
+        ServiceCall subParent = serviceCall.getParent().orElseThrow(() -> new IllegalStateException("Can not find parent for service call"));
+        SubMasterMeterRegisterChangeRequestDomainExtension subParentExtension = subParent.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
+                .orElseThrow(() -> new IllegalStateException("Can not find domain extension for parent service call"));
+        MeterRegisterChangeRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet())
+                .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
+
+        Optional<Device> device = sapCustomPropertySets.getDevice(subParentExtension.getDeviceId());
         if (device.isPresent()) {
             try {
-                sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), getZonedDate(extension.getEndDate(), extension.getTimeZone()));
+                sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), WebServiceActivator.getZonedDate(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } catch (SAPWebServiceException sapEx) {
                 failServiceCallWithException(extension, sapEx);
@@ -79,7 +81,7 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
                 failServiceCallWithException(extension, new SAPWebServiceException(thesaurus, MessageSeeds.ERROR_PROCESSING_METER_REPLACEMENT_REQUEST, e.getLocalizedMessage()));
             }
         } else {
-            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
+            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, subParentExtension.getDeviceId());
         }
     }
 
@@ -104,18 +106,5 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
         extension.setErrorMessage(e.getLocalizedMessage());
         serviceCall.update(extension);
         serviceCall.requestTransition(DefaultState.FAILED);
-    }
-
-    private Instant getZonedDate(Instant date, String timeZone) {
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId zoneId = utcZoneId;
-        try {
-            if (timeZone != null) {
-                zoneId = ZoneId.of(timeZone);
-            }
-        } catch (DateTimeException e) {
-            // No action, just use UTC zone
-        }
-        return date.atZone(zoneId).withZoneSameLocal(utcZoneId).toInstant();
     }
 }

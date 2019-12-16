@@ -3,19 +3,17 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
-import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MeterRegisterChangeMessage {
     private String id;
     private String uuid;
     private String deviceId;
-    private String lrn;
-    private Instant endDate;
-    private String timeZone;
+    private List<RegisterChangeMessage> registers = new ArrayList<>();
 
     public boolean isValid() {
-        return (id != null || uuid != null) && deviceId != null &&
-                lrn != null && endDate != null;
+        return (id != null || uuid != null) && deviceId != null;
     }
 
     public String getId() {
@@ -42,27 +40,7 @@ public class MeterRegisterChangeMessage {
         this.deviceId = deviceId;
     }
 
-    public String getLrn() {
-        return lrn;
-    }
-
-    public void setLrn(String lrn) {
-        this.lrn = lrn;
-    }
-
-    public Instant getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Instant endDate) {
-        this.endDate = endDate;
-    }
-
-    public String getTimeZone() {
-        return timeZone;
-    }
-
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
+    public List<RegisterChangeMessage> getRegisters() {
+        return registers;
     }
 }
