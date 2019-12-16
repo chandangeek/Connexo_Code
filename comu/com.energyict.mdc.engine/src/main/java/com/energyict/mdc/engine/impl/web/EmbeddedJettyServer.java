@@ -291,8 +291,9 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
                 this.jetty.setStopAtShutdown(true);
             }
             this.jetty.stop();
-        }
-        catch (Exception e) {
+        } catch (InterruptedException e) {
+            // ignore
+        } catch (Exception e) {
             this.shutdownFailureLogger.log(e, Logger.getLogger(EmbeddedJettyServer.class.getName()));
         }
     }

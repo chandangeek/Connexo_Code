@@ -51,7 +51,7 @@ public class DeviceProtocolInitializeCommand extends SimpleComCommand {
         } catch (ConnectionCommunicationException e) {
             throw e;
         } catch (Throwable e) {
-            Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getCause(), e);
+            Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getMessage(), e);
             addIssue(problem, CompletionCode.InitError);
         }
     }
