@@ -331,11 +331,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue);
         }
         if (isRegularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillLoadProfilesOrRegisterComTaskExecutions(devices, true, syncReplyIssue, index);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, true, syncReplyIssue, index, reading);
         }
 
         if (isIrregularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillLoadProfilesOrRegisterComTaskExecutions(devices, false, syncReplyIssue, index);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, false, syncReplyIssue, index, reading);
         }
     }
 
@@ -352,7 +352,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         });
     }
 
-    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index) {
+    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index, Reading reading) {
         for (Device originDevice : devices) {
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
@@ -379,6 +379,14 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             }
 
             if (!comTaskExecutions.isEmpty()) {
+                if(reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+                    for (ComTaskExecution cte : comTaskExecutions) {
+                        if (!cte.getComSchedule().isPresent()) {
+                            syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null,
+                                    cte.getComTask().getName(), device.getName()));
+                        }
+                    }
+                }
                 if (isRegular) {
                     syncReplyIssue.addDeviceRegularComTaskExecution(device.getId(), comTaskExecutions);
                 } else {
