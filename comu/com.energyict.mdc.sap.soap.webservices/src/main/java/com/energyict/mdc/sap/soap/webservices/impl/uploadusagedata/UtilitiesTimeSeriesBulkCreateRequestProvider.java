@@ -53,6 +53,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -186,8 +187,8 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     @Override
     List<UtilsTmeSersERPItmCrteReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
         ReadingType readingType = item.getItem().getReadingType();
-        TemporalAmount interval = readingType.getIntervalLength()
-                .orElse(Duration.ZERO);
+        Optional<Integer> setInterval = item.getItem().getReadingInterval();
+        TemporalAmount interval = setInterval.isPresent() ? Duration.ofMinutes(setInterval.get()) : readingType.getIntervalLength().orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
         Range<Instant> allReadingsRange = getRange(meterReading);

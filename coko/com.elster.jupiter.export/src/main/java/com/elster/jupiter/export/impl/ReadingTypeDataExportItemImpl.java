@@ -43,6 +43,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
+    private int readingInterval;
 
     private transient DataModel dataModel;
     private transient ReadingType readingType;
@@ -104,6 +105,12 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
         return selector.orElseThrow(IllegalStateException::new);
     }
 
+
+    @Override
+    public Optional<Integer> getReadingInterval() {
+        return Optional.ofNullable(readingInterval);
+    }
+
     @Override
     public void setLastRun(Instant lastRun) {
         this.lastRun = lastRun;
@@ -117,6 +124,11 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd) {
         this.lastExportedPeriodEnd = lastExportedPeriodEnd;
+    }
+
+    @Override
+    public void setReadingInterval(Integer readingInterval) {
+        this.readingInterval = readingInterval;
     }
 
     @Override

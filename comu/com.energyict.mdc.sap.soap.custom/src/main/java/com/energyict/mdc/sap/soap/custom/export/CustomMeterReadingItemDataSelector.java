@@ -130,6 +130,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
             readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
             MeterReadingImpl meterReading = asMeterReading(item, readings);
+            item.setReadingInterval(MINUTES_PER_HOUR);
             exportCount++;
             return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
         }
