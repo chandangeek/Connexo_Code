@@ -7,9 +7,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
@@ -33,9 +34,12 @@ import com.google.common.base.Strings;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class MeterRegisterBulkChangeConfirmationMessage {
@@ -68,7 +72,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
                 confirmationMessage.setLog(createPartiallySuccessfulLog());
             } else {
-                confirmationMessage.setLog(createFailedLog());
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_REQUEST_WAS_FAILED.getDefaultFormat()));
             }
 
             createBody(confirmationMessage, children, now);
@@ -135,7 +139,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
                 if (!errorMessages.isEmpty()) {
                     confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessages) : createFailedLog(errorMessages));
                 } else {
-                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog());
+                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog(MessageSeeds.BULK_REQUEST_WAS_FAILED.getDefaultFormat()));
                 }
             }
             return confirmationMessage;
@@ -194,52 +198,73 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         private Log createSuccessfulLog() {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
+            log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(),
+                    SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
+                    null));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
         private Log createPartiallySuccessfulLog() {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+            log.getItem().add(createLogItem(MessageSeeds.PARTIALLY_SUCCESSFUL.getDefaultFormat(),
+                    UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, SeverityCode.ERROR.getCode(),
+                    null));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
         private Log createPartiallySuccessfulLog(List<String> messages) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
-            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
-            return log;
-        }
-
-        private Log createFailedLog() {
-            Log log = objectFactory.createLog();
-            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message,
+                    UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, SeverityCode.ERROR.getCode(),
+                    null)));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
         private Log createFailedLog(List<String> messages) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                    SeverityCode.ERROR.getCode(), PROCESSING_ERROR_CATEGORY_CODE)));
             return log;
         }
 
         private Log createFailedLog(String message) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-            log.getItem().add(createLogItem(message));
+            log.getItem().add(createLogItem(message, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                    SeverityCode.ERROR.getCode(), PROCESSING_ERROR_CATEGORY_CODE));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
-        private LogItem createLogItem(String message) {
-            LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-            logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
-
+        private LogItem createLogItem(String message, String typeId, String severityCode, String categoryCode) {
             LogItem logItem = objectFactory.createLogItem();
-            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-            logItem.setCategoryCode(logItemCategoryCode);
+            if (!Strings.isNullOrEmpty(categoryCode)) {
+                LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
+                logItemCategoryCode.setValue(categoryCode);
+                logItem.setCategoryCode(logItemCategoryCode);
+            }
+            logItem.setSeverityCode(severityCode);
+            logItem.setTypeID(typeId);
             logItem.setNote(message);
 
             return logItem;
+        }
+
+        private void setMaximumLogItemSeverityCode(Log log) {
+            OptionalInt maxInt = log.getItem().stream().map(LogItem::getSeverityCode)
+                    .filter(Predicates.not(Strings::isNullOrEmpty))
+                    .mapToInt(Integer::parseInt)
+                    .max();
+            if (maxInt.isPresent()) {
+                Integer value = maxInt.getAsInt();
+                log.setMaximumLogItemSeverityCode(value.toString());
+            }
         }
     }
 }
