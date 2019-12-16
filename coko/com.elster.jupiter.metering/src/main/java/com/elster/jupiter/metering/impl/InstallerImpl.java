@@ -105,8 +105,7 @@ public class InstallerImpl implements FullInstaller {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         execute(dataModel,
                 "alter table MTR_READINGTYPE add constraint UK_MTR_READINGTYPE_ID unique (ID)",
-                "alter table MTR_READINGQUALITY add constraint PK_MTR_READINGQUALITY primary key (CHANNELID, READINGTIMESTAMP, TYPE, READINGTYPEID)",
-                "alter table MTR_READINGQUALITYJRNL add constraint PK_MTR_READINGQUALITY_JRNL primary key (CHANNELID, READINGTIMESTAMP, TYPE, READINGTYPEID, JOURNALTIME, VERSIONCOUNT )"
+                "alter table MTR_READINGQUALITY add constraint PK_MTR_READINGQUALITY primary key (CHANNELID, READINGTIMESTAMP, TYPE, READINGTYPEID)"
         );
 
         doTry(
