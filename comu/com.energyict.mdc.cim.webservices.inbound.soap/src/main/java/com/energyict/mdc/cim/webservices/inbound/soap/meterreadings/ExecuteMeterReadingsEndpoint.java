@@ -329,7 +329,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private void fillDevicesComTaskExecutions(Set<Device> devices, Reading reading, int index, SyncReplyIssue syncReplyIssue) throws
             FaultMessage {
         if (isDeviceMessageComTaskRequired(reading, index, syncReplyIssue)) {
-            fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue);
+            fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue, reading);
         }
         if (isRegularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
             fillLoadProfilesOrRegisterComTaskExecutions(devices, true, syncReplyIssue, index, reading);
@@ -340,17 +340,24 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private void fillDevicesMessagesComTaskExecutions(Set<Device> devices, SyncReplyIssue syncReplyIssue) {
-        devices.forEach(originDevice -> {
+    private void fillDevicesMessagesComTaskExecutions(Set<Device> devices, SyncReplyIssue syncReplyIssue, Reading reading) throws
+            FaultMessage {
+        for(Device originDevice:devices) {
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
                 Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
                 if (comTaskExecutionOptional.isPresent()) {
+                    if(reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+                        if (!comTaskExecutionOptional.get().getComSchedule().isPresent()) {
+                            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, comTaskExecutionOptional.get().getComTask().getName(), device.getName())
+                                    .get();
+                        }
+                    }
                     syncReplyIssue.addDeviceMessagesComTaskExecutions(device.getId(), comTaskExecutionOptional.get());
                 }
             }
-        });
+        }
     }
 
     private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index, Reading reading) throws
@@ -404,8 +411,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         syncReplyIssue.getReadingExistedLoadProfilesMap().get(index).forEach(loadProfileName -> {
                     ComTaskExecution comTaskExecution = getComTaskExecutionForLoadProfile(device.getComTaskExecutions(), loadProfileName)
                             .orElse(createComTaskExecutionForLoadProfile(device, loadProfileName));
-                    if (comTaskExecution != null) {
-                        comTaskExecutions.add(comTaskExecution);
+                    if (comTaskExecution != null ) {
+                        if(!comTaskExecution.getComSchedule().isPresent()) {
+                            comTaskExecutions.add(comTaskExecution);
+                        }
                     }else{
                         noComTaskExecutionLoadProfileList.add(loadProfileName);
                     }
@@ -425,7 +434,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     ComTaskExecution comTaskExecution = getComTaskExecutionForRegisterGroup(device.getComTaskExecutions(), loadProfileName)
                             .orElse(createComTaskExecutionForRegisterGroup(device, loadProfileName));
                     if (comTaskExecution != null) {
-                        comTaskExecutions.add(comTaskExecution);
+                        if(!comTaskExecution.getComSchedule().isPresent()) {
+                            comTaskExecutions.add(comTaskExecution);
+                        }
                     }else{
                         noComTaskExecutionRegisterGroupList.add(loadProfileName);
                     }
@@ -446,7 +457,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             ComTaskExecution comTaskExecution = getComTaskExecutionForReadingType(device.getComTaskExecutions(), isRegular, readingType)
                     .orElse(createComTaskExecutionForReadingType(device, isRegular, readingType));
             if (comTaskExecution != null) {
-                comTaskExecutions.add(comTaskExecution);
+                if(!comTaskExecution.getComSchedule().isPresent()) {
+                    comTaskExecutions.add(comTaskExecution);
+                }
             }else{
                 if(isRegular){
                     if(readingType.isRegular()){
