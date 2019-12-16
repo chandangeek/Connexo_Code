@@ -5,6 +5,7 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
@@ -46,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -57,6 +60,7 @@ import java.util.stream.Stream;
  */
 @Component(name = "com.energyict.mdc.dashboard", service = {DashboardService.class}, property = "name=DBS")
 public class DashboardServiceImpl implements DashboardService {
+    private static final Logger LOGGER = Logger.getLogger(DashboardServiceImpl.class.getName());// just for time measurement
 
     private volatile ConnectionTaskReportService connectionTaskReportService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
@@ -93,7 +97,12 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public TaskStatusOverview getConnectionTaskStatusOverview() {
-        return this.getConnectionTaskStatusOverview(this.connectionTaskReportService::getConnectionTaskStatusCount);
+        //return this.getConnectionTaskStatusOverview(this.connectionTaskReportService::getConnectionTaskStatusCount);
+        StopWatch watch = new StopWatch(true);// just for time measurement
+        TaskStatusOverview taskStatusOverview = this.getConnectionTaskStatusOverview(this.connectionTaskReportService::getConnectionTaskStatusCount);
+        watch.stop();// just for time measurement
+        LOGGER.log(Level.WARNING, "CONM1163: method: getConnectionTaskStatusOverview; " + watch.toString());// just for time measurement
+        return taskStatusOverview;
     }
 
     @Override
@@ -107,7 +116,12 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview() {
-        return this.getComSessionSuccessIndicatorOverview(this.connectionTaskReportService::getConnectionTaskLastComSessionSuccessIndicatorCount);
+        //return this.getComSessionSuccessIndicatorOverview(this.connectionTaskReportService::getConnectionTaskLastComSessionSuccessIndicatorCount);
+        StopWatch watch = new StopWatch(true);// just for time measurement
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = this.getComSessionSuccessIndicatorOverview(this.connectionTaskReportService::getConnectionTaskLastComSessionSuccessIndicatorCount);
+        watch.stop();// just for time measurement
+        LOGGER.log(Level.WARNING, "CONM1163: method: getComSessionSuccessIndicatorOverview; " + watch.toString());// just for time measurement
+        return comSessionSuccessIndicatorOverview;
     }
 
     @Override
@@ -385,9 +399,14 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public CommunicationTaskOverview getCommunicationTaskOverview() {
+        StopWatch watch = new StopWatch(true);// just for time measurement
         CommunicationTaskBreakdowns breakdowns = this.communicationTaskReportService.getCommunicationTaskBreakdowns();
         Map<DeviceType, List<Long>> heatMap = this.communicationTaskReportService.getComTasksDeviceTypeHeatMap();
-        return new CommunicationTaskOverviewImpl(breakdowns, heatMap);
+        //return new CommunicationTaskOverviewImpl(breakdowns, heatMap);
+        CommunicationTaskOverview communicationTaskOverview = new CommunicationTaskOverviewImpl(breakdowns, heatMap);
+        watch.stop();// just for time measurement
+        LOGGER.log(Level.WARNING, "CONM1163: method: getCommunicationTaskOverview; " + watch.toString()); // just for time measurement
+        return communicationTaskOverview;
     }
 
     @Override

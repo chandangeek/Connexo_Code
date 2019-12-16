@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.tasks.TaskStatus;
 
 import java.sql.Connection;
@@ -23,6 +24,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides code reuse opportunities for components that generate and execute SQL
@@ -42,6 +45,7 @@ import java.util.Optional;
  * @since 2015-10-05 (16:45)
  */
 abstract class AbstractBreakdownSqlExecutor {
+    private static final Logger LOGGER = Logger.getLogger(AbstractBreakdownSqlExecutor.class.getName());// just for time measurement
 
     static final int TYPE_COLUMN_NUMBER = 1;
     static final int STATUS_COLUMN_NUMBER = TYPE_COLUMN_NUMBER + 1;
@@ -61,9 +65,17 @@ abstract class AbstractBreakdownSqlExecutor {
     }
 
     List<BreakdownResult> breakdowns() {
+        StopWatch watch = new StopWatch(true);// just for time measurement
         try (Connection connection = this.dataModel.getConnection(true);
              PreparedStatement statement = this.statement(connection)) {
-            return this.fetchBreakdowns(statement);
+            watch.stop();// just for time measurement
+            LOGGER.log(Level.WARNING, "CONM1163: method: get connection and prepared statement(breakdowns); " + watch.toString()); // just for time measurement
+            watch.start();// just for time measurement
+            //return this.fetchBreakdowns(statement);
+            List<BreakdownResult> result = this.fetchBreakdowns(statement);
+            watch.stop();// just for time measurement
+            LOGGER.log(Level.WARNING, "CONM1163: method: breakdowns; " + watch.toString()); // just for time measurement
+            return result;
         }
         catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
