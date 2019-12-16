@@ -40,10 +40,6 @@ public class PropertySpecPossibleValuesImpl implements PropertySpecPossibleValue
         this.defaultValue = null;
         this.exhaustive = exhaustive;
         this.allValues = this.copyUniqueWithRespectForOrder(allValues, allValues.size());
-
-        if (!allValues.isEmpty()) {
-            defaultValue = this.allValues.get(0);
-        }
     }
 
     @SuppressWarnings("unchecked")

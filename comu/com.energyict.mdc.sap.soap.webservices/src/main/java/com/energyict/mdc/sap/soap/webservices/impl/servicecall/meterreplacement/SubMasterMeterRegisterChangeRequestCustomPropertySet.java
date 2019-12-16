@@ -9,10 +9,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -27,29 +24,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
-public class MeterRegisterChangeRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MeterRegisterChangeRequestDomainExtension> {
-    public static final String MODEL_NAME = "LR2";
+public class SubMasterMeterRegisterChangeRequestCustomPropertySet implements CustomPropertySet<ServiceCall, SubMasterMeterRegisterChangeRequestDomainExtension> {
+    public static final String MODEL_NAME = "LR3";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    public MeterRegisterChangeRequestCustomPropertySet() {
+    public SubMasterMeterRegisterChangeRequestCustomPropertySet() {
         // for OSGI purpose
     }
 
     @Inject
-    public MeterRegisterChangeRequestCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public SubMasterMeterRegisterChangeRequestCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
     public String getName() {
-        return MeterRegisterChangeRequestCustomPropertySet.class.getSimpleName();
+        return SubMasterMeterRegisterChangeRequestCustomPropertySet.class.getSimpleName();
     }
 
     @Override
@@ -63,7 +59,7 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
     }
 
     @Override
-    public PersistenceSupport<ServiceCall, MeterRegisterChangeRequestDomainExtension> getPersistenceSupport() {
+    public PersistenceSupport<ServiceCall, SubMasterMeterRegisterChangeRequestDomainExtension> getPersistenceSupport() {
         return new CustomPropertyPersistenceSupport();
     }
 
@@ -92,37 +88,26 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.javaName(), TranslationKeys.LRN)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish(),
-                this.propertySpecService
-                        .specForValuesOf(new InstantFactory())
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.END_DATE.javaName(), TranslationKeys.END_DATE)
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.TIME_ZONE.javaName(), TranslationKeys.TIME_ZONE)
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
     }
 
-    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterRegisterChangeRequestDomainExtension> {
-        private final String TABLE_NAME = "SAP_LR2_CR_SC_CPS";
-        private final String FK = "FK_SAP_LR2_CR_SC_CPS";
+    private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, SubMasterMeterRegisterChangeRequestDomainExtension> {
+        private final String TABLE_NAME = "SAP_LR3_CR_SC_CPS";
+        private final String FK = "FK_SAP_LR3_CR_SC_CPS";
 
         @Override
         public String componentName() {
@@ -145,8 +130,8 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
         }
 
         @Override
-        public Class<MeterRegisterChangeRequestDomainExtension> persistenceClass() {
-            return MeterRegisterChangeRequestDomainExtension.class;
+        public Class<SubMasterMeterRegisterChangeRequestDomainExtension> persistenceClass() {
+            return SubMasterMeterRegisterChangeRequestDomainExtension.class;
         }
 
         @Override
@@ -165,36 +150,14 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
-                    .upTo(Version.version(10, 7, 1))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .notNull()
-                    .upTo(Version.version(10, 7, 1))
                     .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.databaseName())
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
                     .varChar(NAME_LENGTH)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.javaName())
-                    .notNull()
-                    .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.END_DATE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.END_DATE.javaName())
-                    .notNull()
-                    .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.TIME_ZONE.databaseName())
-                    .varChar(NAME_LENGTH)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.TIME_ZONE.javaName())
-                    .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
-                    .varChar(NAME_LENGTH)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.javaName())
-                    .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
-                    .varChar(DESCRIPTION_LENGTH)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName())
                     .add();
         }
 

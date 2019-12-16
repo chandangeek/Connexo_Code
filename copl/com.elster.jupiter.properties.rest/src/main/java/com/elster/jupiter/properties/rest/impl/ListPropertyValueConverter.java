@@ -25,7 +25,6 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
 import com.elster.jupiter.util.HasId;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,8 +101,8 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<?> value = Arrays.asList(domainValue);
-             return value.stream().map(ListPropertyValueConverter::retrieveId).collect(Collectors.toList());
+            List<?> value = (List<?>) domainValue;
+            return value.stream().map(ListPropertyValueConverter::retrieveId).collect(Collectors.toList());
         }
         return null;
     }

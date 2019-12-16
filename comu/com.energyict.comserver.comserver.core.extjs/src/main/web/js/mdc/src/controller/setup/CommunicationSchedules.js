@@ -439,6 +439,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var store = this.getCommunicationScheduleEditForm().down('#communicationSchedulePreviewGrid').getStore(),
             storeData = [],
             lastScheduledDate,
+            offsetStart,
             intervalInMillis;
 
         if (schedule.every.timeUnit === 'minutes') {
@@ -462,9 +463,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         } else if (schedule.every.timeUnit === 'months') {
             lastScheduledDate = moment(startDate).clone().startOf('month');
         }
-
-
-        for (var i = 1; i < 6; i++) {
+        offsetStart = startDate > lastScheduledDate ? 1:0;
+        for (var i = offsetStart; i < offsetStart + 5; i++) {
             if (!schedule.lastDay) {
                 storeData.push({
                     date: lastScheduledDate.clone().add(schedule.every.timeUnit, schedule.every.count * i).add(schedule.offset.timeUnit, schedule.offset.count).toDate()

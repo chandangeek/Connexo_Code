@@ -7,9 +7,13 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.LogItemCategoryCode;
@@ -21,6 +25,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UtilitiesConnectionStatusChangeRequestID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UtilitiesConnectionStatusChangeResultCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UUID;
 
 import java.time.Instant;
 import java.util.List;
@@ -62,16 +67,26 @@ public class StatusChangeRequestCreateConfirmationMessage {
             confirmationMessage = OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfMsg();
         }
 
-        public Builder from(ServiceCall parent, List<ServiceCall> childs, Instant now) {
+        public Builder from(ServiceCall parent, List<ServiceCall> children, Instant now) {
             ConnectionStatusChangeDomainExtension extension = parent.getExtension(ConnectionStatusChangeDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            confirmationMessage.setMessageHeader(createHeader(extension.getUuid(), now));
-            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(parent, childs));
+            confirmationMessage.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), now));
+            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(parent, children));
+            // parent state still not changed before sending confirmation, so check children states
+            if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
+                confirmationMessage.setLog(createSuccessfulLog());
+            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+                confirmationMessage.setLog(createPartiallySuccessfulLog());
+            } else {
+                confirmationMessage.setLog(createFailedLog());
+            }
             return this;
         }
 
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getUuid(), now));
+            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
             confirmationMessage.setLog(createLog(PROCESSING_ERROR_CATEGORY_CODE, exceptionMessage));
             return this;
@@ -98,8 +113,9 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(String uuid, Instant now) {
+        private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+            header.setReferenceID(createID(requestId));
             header.setReferenceUUID(createUUID(uuid));
             header.setCreationDateTime(now);
 
@@ -161,8 +177,8 @@ public class StatusChangeRequestCreateConfirmationMessage {
             UtilitiesConnectionStatusChangeResultCode resultCode =
                     OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
             resultCode.setValue(serviceCall.getState().equals(DefaultState.SUCCESSFUL)
-                    ? ProcessingResultCode.SUCCESSFUL.getCode()
-                    : ProcessingResultCode.FAILED.getCode());
+                    ? ConnectionStatusProcessingResultCode.SUCCESSFUL.getCode()
+                    : ConnectionStatusProcessingResultCode.FAILED.getCode());
             deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
 
             return deviceConnectionStatus;
@@ -183,11 +199,53 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return log;
         }
 
-        private com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UUID createUUID(String uuid) {
-            com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.UUID messageUUID
-                    = OBJECT_FACTORY.createUUID();
+        private BusinessDocumentMessageID createID(String id) {
+            BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
+            messageID.setValue(id);
+            return messageID;
+        }
+
+        private UUID createUUID(String uuid) {
+            UUID messageUUID = OBJECT_FACTORY.createUUID();
             messageUUID.setValue(uuid);
             return messageUUID;
+        }
+
+        private Log createSuccessfulLog() {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
+            return log;
+        }
+
+        private Log createFailedLog() {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            return log;
+        }
+
+        private Log createFailedLog(String message) {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            log.getItem().add(createLogItem(message));
+            return log;
+        }
+
+        private Log createPartiallySuccessfulLog() {
+            Log log = OBJECT_FACTORY.createLog();
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+            return log;
+        }
+
+        private LogItem createLogItem(String message) {
+            LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
+            logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
+
+            LogItem logItem = OBJECT_FACTORY.createLogItem();
+            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
+            logItem.setCategoryCode(logItemCategoryCode);
+            logItem.setNote(message);
+
+            return logItem;
         }
 
         public StatusChangeRequestCreateConfirmationMessage build() {
