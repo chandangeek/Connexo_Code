@@ -74,7 +74,7 @@ class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribu
         if (this.value == null) {
             this.value = Optional.ofNullable(getSpecification()).map(specification -> specification.getValueFactory())
                     .map(valueFactory -> valueFactory.fromStringValue(stringValue))
-                    .orElse(stringValue);
+                    .orElse(null);
         }
         return value;
     }
