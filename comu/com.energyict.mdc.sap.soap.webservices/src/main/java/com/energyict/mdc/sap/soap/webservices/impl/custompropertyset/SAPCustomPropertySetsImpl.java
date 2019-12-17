@@ -937,30 +937,23 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
     @Override
     public Optional<Instant> getFirstProfileIdSetDate(List<ChannelsContainer> channelsContainers, ReadingType readingType) {
-        Optional<Range<Instant>> range = channelsContainers.stream()
+        return channelsContainers.stream()
                 .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange()))
                 .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
                 .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
                 .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
-                .map(e -> e.getValue().asRanges())
-                .flatMap(sR -> sR.stream())
+                .filter(p -> !p.getValue().isEmpty())
+                .flatMap(e -> e.getValue().asRanges().stream())
+                .map(r -> r.hasLowerBound() ? r.lowerEndpoint() : Instant.EPOCH)
                 .sorted()
                 .findFirst();
-
-        if (range.isPresent()) {
-            if (range.get().hasLowerBound()) {
-                return Optional.of(range.get().lowerEndpoint());
-            }
-            return Optional.of(Instant.EPOCH);
-        }
-        return Optional.empty();
     }
 
     @Override
     public boolean isAnyProfileIdPresent(List<ChannelsContainer> channelsContainers, ReadingType readingType, Range<Instant> range) {
-        Map<String, RangeSet<Instant>> profileRanges =  channelsContainers.stream()
+        return channelsContainers.stream()
                 .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(range))
                 .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(range)))
                 .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
@@ -968,8 +961,10 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
                 .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, RangeSets::union));
-        return !profileRanges.isEmpty();
+                .filter(p -> !p.getValue().isEmpty())
+                .flatMap(e -> e.getValue().asRanges().stream())
+                .findFirst()
+                .isPresent();
     }
 
     @Override
