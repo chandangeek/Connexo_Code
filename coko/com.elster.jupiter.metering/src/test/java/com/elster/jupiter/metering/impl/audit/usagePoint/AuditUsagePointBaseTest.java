@@ -57,7 +57,7 @@ import static org.mockito.Mockito.when;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AuditUsagePointBase {
+public abstract class AuditUsagePointBaseTest {
 
     protected final ApplicationType applicationType = ApplicationType.MDM_APPLICATION_KEY;
 
