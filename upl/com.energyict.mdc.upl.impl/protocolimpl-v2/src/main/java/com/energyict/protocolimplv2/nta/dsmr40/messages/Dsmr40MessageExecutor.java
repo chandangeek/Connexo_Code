@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
 import com.energyict.dlms.aso.*;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -12,18 +15,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -44,9 +36,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * @author sva
@@ -110,6 +100,10 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     changeConfigurationObjectFlag(CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON, true );
                 } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP)) {
                     changeConfigurationObjectFlag(CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON, false );
+                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBusClientRemoteCommission)) {
+                    mBusClientRemoteCommissioning(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ChangeMBusAttributes)) {
+                    changeMBusClientAttributes(pendingMessage);
                 } else {
                     collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);  // These messages are not specific for Dsmr 4.0, but can be executed by the super (= Dsmr 2.3) messageExecutor
@@ -131,6 +125,58 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         result.addCollectedMessages(super.executePendingMessages(notExecutedDeviceMessages));
         return result;
     }
+
+    private Unsigned16 getManufacturerId(String manufacturerId) {
+        char[] chars = manufacturerId.toCharArray();
+        int id = Integer.parseInt("" + ((chars[2] - 64) + (chars[1] - 64) * 32 + (chars[0] - 64) * 32 * 32));
+        return new Unsigned16(id);
+    }
+
+    private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) {
+        if (fixMbusHexShortId) {
+            return new Unsigned32(Integer.parseInt(indentificationNumber));
+        } else {
+            return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
+        }
+    }
+
+    private Unsigned8 getVersion(String version) {
+        return new Unsigned8(Integer.parseInt(version));
+    }
+
+    private Unsigned8 getDeviceType(String deviceType) {
+        return new Unsigned8(Integer.parseInt(deviceType, 16));
+    }
+
+
+    private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
+        int installChannel = getIntegerAttribute(pendingMessage);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), 9);
+        String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
+        MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
+        mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
+        mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
+        mbusClient.setVersion(mbusProvider.getVersion(shortId));
+        mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
+        mbusClient.installSlave(physicalAddress);
+    }
+
+    private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
+        int installChannel = getIntegerAttribute(pendingMessage);
+        int physicalAddress = getMBusPhysicalAddress(installChannel);
+        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(installChannel).getObisCode();
+
+        getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
+
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, 9);
+        mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
+        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties()
+                .getFixMbusHexShortId()));
+        mbusClient.setDeviceType(getDeviceType(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientDeviceType)));
+        mbusClient.setVersion(getVersion(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientVersion)));
+    }
+
 
     private void changeConfigurationObjectFlag(int bit, boolean state) throws IOException {
         getProtocol().journal("Setting configuration object " + OBISCODE_CONFIGURATION_OBJECT+" bit "+bit+" to "+state);

@@ -195,6 +195,7 @@ Ext.define('Mdc.view.setup.comserver.OfflineComServerEdit', {
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.server.onlineServer', 'MDC', 'Online ComServer'),
                     store: 'Mdc.store.ComServers',
                     queryMode: 'local',
+                    required: true,
                     displayField: 'name',
                     valueField: 'id'
                 },

@@ -1,6 +1,7 @@
 package com.elster.jupiter.util;
 
 import com.google.common.base.Strings;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -19,13 +20,21 @@ public class EngineUtil {
     }
 
     public static boolean isOnlineMode() {
-        String serverType = FrameworkUtil.getBundle(EngineUtil.class).getBundleContext().getProperty(SERVER_TYPE_PROPERTY_NAME);
-        return Strings.isNullOrEmpty(serverType) || EngineMode.ONLINE.name().equalsIgnoreCase(serverType);
+        Bundle bundle = FrameworkUtil.getBundle(EngineUtil.class);
+        if (bundle != null) {
+            String serverType = bundle.getBundleContext().getProperty(SERVER_TYPE_PROPERTY_NAME);
+            return Strings.isNullOrEmpty(serverType) || EngineMode.ONLINE.name().equalsIgnoreCase(serverType);
+        }
+        return true;
     }
 
     public static boolean isOfflineMode() {
-        String serverType = FrameworkUtil.getBundle(EngineUtil.class).getBundleContext().getProperty(SERVER_TYPE_PROPERTY_NAME);
-        return EngineMode.OFFLINE.name().equalsIgnoreCase(serverType);
+        Bundle bundle = FrameworkUtil.getBundle(EngineUtil.class);
+        if (bundle != null) {
+            String serverType = bundle.getBundleContext().getProperty(SERVER_TYPE_PROPERTY_NAME);
+            return EngineMode.OFFLINE.name().equalsIgnoreCase(serverType);
+        }
+        return false;
     }
 
 }

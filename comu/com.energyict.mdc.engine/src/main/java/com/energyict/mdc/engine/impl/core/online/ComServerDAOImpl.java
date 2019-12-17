@@ -888,8 +888,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void releaseInterruptedTasks(final ComPort comPort) {
         executeTransaction(() -> {
-            getConnectionTaskService().releaseInterruptedConnectionTasks(comPort);
             getCommunicationTaskService().releaseInterruptedComTasks(comPort);
+            LOGGER.info("Unlocked BUSY comTasks on comPort " + comPort);
+            getConnectionTaskService().releaseInterruptedConnectionTasks(comPort);
+            LOGGER.info("Unlocked BUSY connectionTasks on comPort " + comPort);
             return null;
         });
     }
@@ -897,70 +899,17 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public TimeDuration releaseTimedOutTasks(final ComPort comPort) {
         return executeTransaction(() -> {
+            TimeDuration timeDuration = getCommunicationTaskService().releaseTimedOutComTasks(comPort);
+            LOGGER.info("Unlocked comTasks timed out on comPort " + comPort);
             getConnectionTaskService().releaseTimedOutConnectionTasks(comPort);
-            return getCommunicationTaskService().releaseTimedOutComTasks(comPort);
+            LOGGER.info("Unlocked connectionTasks timed out on comPort " + comPort);
+            return timeDuration;
         });
     }
 
     @Override
     public void releaseTasksFor(final ComPort comPort) {
-        executeTransaction(() -> {
-            //first of all, lock the comport object so you don't run into a deadlock
-            ComPort lockedComPort = getEngineModelService().lockComPort(comPort);
-
-            List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
-            Set<ConnectionTask> lockedConnectionTasks = new HashSet<>();
-            lockedConnectionTasks.addAll(getLockedByComPort(comPort));
-
-            unlockComTasks(comPort, lockedConnectionTasks);
-            unlockConnectionTasks(comPort, lockedConnectionTasks);
-
-            return null;
-        });
-    }
-
-    /**
-     * Find and release any ComTaskExec executed by a ComPort
-     * <p>
-     * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
-     * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
-     * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session
-     */
-    private void unlockComTasks(ComPort comPort, Set<ConnectionTask> lockedConnectionTasks) {
-        int unlockedCount = 0;
-
-        for (ComTaskExecution comTaskExecution : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort)) {
-            if (comTaskExecution.getConnectionTask().isPresent()) {
-                lockedConnectionTasks.add(comTaskExecution.getConnectionTask().get());
-                try {
-                    getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
-                    ++unlockedCount;
-                } catch (Throwable t) {
-                    LOGGER.severe("Could not unlock comTask due to: " + t.getMessage());
-                }
-            }
-        }
-        LOGGER.info("Unlocked " + unlockedCount + " comTasks on comPort " + comPort);
-    }
-
-    private void unlockConnectionTasks(ComPort comPort, Set<ConnectionTask> lockedConnectionTasks) {
-        int unlockedCount = 0;
-        for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
-            try {
-                unlock(lockedConnectionTask);
-                ++unlockedCount;
-            } catch (Throwable t) {
-                LOGGER.severe("Could not unlock connectionTask due to: " + t.getMessage());
-            }
-        }
-        LOGGER.info("Unlocked " + unlockedCount + " connectionTasks on comPort " + comPort);
-    }
-
-    /**
-     * Find connections locked by a comPort
-     */
-    private List<ConnectionTask> getLockedByComPort(ComPort comPort) {
-        return getConnectionTaskService().findLockedByComPort(comPort);
+        releaseInterruptedTasks(comPort);
     }
 
     @Override
@@ -1214,7 +1163,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public synchronized <T> T executeTransaction(Transaction<T> transaction) {
+    public <T> T executeTransaction(Transaction<T> transaction) {
         return getTransactionService().execute(transaction);
     }
 
