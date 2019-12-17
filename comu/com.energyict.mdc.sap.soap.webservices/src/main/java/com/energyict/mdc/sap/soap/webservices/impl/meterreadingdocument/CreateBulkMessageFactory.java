@@ -25,7 +25,6 @@ import com.google.common.base.Strings;
 import java.time.Instant;
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.logging.Level;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
@@ -69,24 +68,29 @@ public class CreateBulkMessageFactory {
     }
 
     private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
-
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+        String uuid = java.util.UUID.randomUUID().toString();
 
-        if (!Strings.isNullOrEmpty(requestMessage.getId())){
+        if (!Strings.isNullOrEmpty(requestMessage.getId())) {
             BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
             id.setValue(requestMessage.getId());
             messageHeader.setReferenceID(id);
         }
 
-        if (!Strings.isNullOrEmpty(requestMessage.getUuid())){
-            UUID uuid = OBJECT_FACTORY.createUUID();
-            uuid.setValue(requestMessage.getUuid());
-            messageHeader.setReferenceUUID(uuid);
+        messageHeader.setUUID(createUUID(uuid));
+        if (!Strings.isNullOrEmpty(requestMessage.getUuid())) {
+            messageHeader.setReferenceUUID(createUUID(requestMessage.getUuid()));
         }
 
         messageHeader.setCreationDateTime(now);
 
         return messageHeader;
+    }
+
+    private UUID createUUID(String uuid) {
+        UUID messageUUID = OBJECT_FACTORY.createUUID();
+        messageUUID.setValue(uuid);
+        return messageUUID;
     }
 
     private SmrtMtrMtrRdngDocERPCrteConfMsg createBody(MeterReadingDocumentCreateMessage message,
@@ -97,6 +101,7 @@ public class CreateBulkMessageFactory {
         meterReadingDocumentID.setValue(message.getId());
 
         BusinessDocumentMessageHeader documentMessageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+        String uuid = java.util.UUID.randomUUID().toString();
 
         if (!Strings.isNullOrEmpty(message.getHeaderId())) {
             BusinessDocumentMessageID referenceId = OBJECT_FACTORY.createBusinessDocumentMessageID();
@@ -104,10 +109,9 @@ public class CreateBulkMessageFactory {
             documentMessageHeader.setReferenceID(referenceId);
         }
 
+        documentMessageHeader.setUUID(createUUID(uuid));
         if (!Strings.isNullOrEmpty(message.getHeaderUUID())) {
-            UUID uuid = OBJECT_FACTORY.createUUID();
-            uuid.setValue(message.getHeaderUUID());
-            documentMessageHeader.setReferenceUUID(uuid);
+            documentMessageHeader.setReferenceUUID(createUUID(message.getHeaderUUID()));
         }
 
         documentMessageHeader.setCreationDateTime(now);
@@ -135,7 +139,7 @@ public class CreateBulkMessageFactory {
         messages.forEach(message -> {
             if (!message.isValid()) {
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
-                        .add(createBody(message,  ProcessingResultCode.FAILED.getCode(), createLogItem(MessageSeeds.INVALID_METER_READING_DOCUMENT,
+                        .add(createBody(message, ProcessingResultCode.FAILED.getCode(), createLogItem(MessageSeeds.INVALID_METER_READING_DOCUMENT,
                                 PROCESSING_ERROR_CATEGORY_CODE,
                                 UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
                                 message.getId()), now));

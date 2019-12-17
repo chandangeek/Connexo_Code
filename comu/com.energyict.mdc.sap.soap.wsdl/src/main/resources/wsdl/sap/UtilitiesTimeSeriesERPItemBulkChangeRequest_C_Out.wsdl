@@ -673,8 +673,8 @@
     <xsd:sequence>
      <xsd:element name="Amount" minOccurs="0" type="Amount"/>
      <xsd:element name="Quantity" minOccurs="0" type="Quantity"/>
-     <xsd:element name="UTCValidityStartDateTime" type="GLOBAL_DateTime"/>
-     <xsd:element name="UTCValidityEndDateTime" type="GLOBAL_DateTime"/>
+     <xsd:element name="UTCValidityStartDateTime" type="xsd:dateTime"/>
+     <xsd:element name="UTCValidityEndDateTime" type="xsd:dateTime"/>
      <xsd:element name="ItemStatus" maxOccurs="unbounded" type="UtilsTmeSersERPItmChgReqItmSts"/>
     </xsd:sequence>
    </xsd:complexType>

@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -936,8 +937,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Instant> getFirstProfileIdSetDate(List<ChannelsContainer> channelsContainers, ReadingType readingType) {
-        return channelsContainers.stream()
+    public Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType) {
+        return readingContainer.getChannelsContainers().stream()
                 .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange()))
                 .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
                 .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)

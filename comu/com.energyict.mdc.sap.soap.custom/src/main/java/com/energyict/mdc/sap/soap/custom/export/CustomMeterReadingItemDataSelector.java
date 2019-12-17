@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
@@ -131,9 +132,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                         }
                     }
                 }
-
                 readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
                 MeterReadingImpl meterReading = asMeterReading(item, readings);
+                item.overrideReadingInterval(new TimeDuration(1, TimeDuration.TimeUnit.HOURS.getCode()));
                 exportCount++;
                 return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
             }
@@ -215,9 +216,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
     private Range<Instant> getIntervalFromFirstProfileId(Range<Instant> exportedDataInterval, ReadingTypeDataExportItem item) {
         Instant upperEndpoint = exportedDataInterval.upperEndpoint();
-        Optional<Instant> firstDate = sapCustomPropertySets.getFirstProfileIdSetDate(item.getReadingContainer().getChannelsContainers(), item.getReadingType());
+        Optional<Instant> firstDate = sapCustomPropertySets.getFirstDateWithSetProfileId(item.getReadingContainer(), item.getReadingType());
         if (firstDate.isPresent()) {
-            return (exportedDataInterval.hasUpperBound() && firstDate.get().isAfter(upperEndpoint)) ?
+            return (firstDate.get().isAfter(upperEndpoint)) ?
                     Range.openClosed(firstDate.get(), firstDate.get()) :
                     copy(exportedDataInterval).withOpenLowerBound(firstDate.get());
         }
