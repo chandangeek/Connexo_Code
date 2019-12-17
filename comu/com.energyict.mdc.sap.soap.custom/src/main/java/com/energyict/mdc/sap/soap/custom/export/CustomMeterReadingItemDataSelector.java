@@ -211,9 +211,9 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
     private Range<Instant> getIntervalFromFirstProfileId(Range<Instant> exportedDataInterval, ReadingTypeDataExportItem item) {
         Instant upperEndpoint = exportedDataInterval.upperEndpoint();
-        Optional<Instant> firstDate = sapCustomPropertySets.getFirstProfileIdSetDate(item.getReadingContainer().getChannelsContainers(), item.getReadingType());
+        Optional<Instant> firstDate = sapCustomPropertySets.getFirstDateWithSetProfileId(item.getReadingContainer(), item.getReadingType());
         if (firstDate.isPresent()) {
-            return (exportedDataInterval.hasUpperBound() && firstDate.get().isAfter(upperEndpoint)) ?
+            return (firstDate.get().isAfter(upperEndpoint)) ?
                     Range.openClosed(firstDate.get(), firstDate.get()) :
                     copy(exportedDataInterval).withOpenLowerBound(firstDate.get());
         }

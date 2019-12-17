@@ -13,11 +13,11 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -936,26 +936,18 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Instant> getFirstProfileIdSetDate(List<ChannelsContainer> channelsContainers, ReadingType readingType) {
-        Optional<Range<Instant>> range = channelsContainers.stream()
+    public Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType) {
+        return readingContainer.getChannelsContainers().stream()
                 .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange()))
                 .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
                 .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
                 .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
-                .map(e -> e.getValue().asRanges())
-                .flatMap(sR -> sR.stream())
-                .sorted()
-                .findFirst();
-
-        if (range.isPresent()) {
-            if (range.get().hasLowerBound()) {
-                return Optional.of(range.get().lowerEndpoint());
-            }
-            return Optional.of(Instant.EPOCH);
-        }
-        return Optional.empty();
+                .filter(p -> !p.getValue().isEmpty())
+                .flatMap(e -> e.getValue().asRanges().stream())
+                .map(r -> r.hasLowerBound() ? r.lowerEndpoint() : Instant.EPOCH)
+                .min(Instant::compareTo);
     }
 
     @Override
