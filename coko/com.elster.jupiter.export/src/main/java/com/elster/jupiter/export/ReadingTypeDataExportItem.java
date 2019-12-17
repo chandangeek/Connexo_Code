@@ -7,6 +7,7 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
@@ -32,6 +33,8 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     Optional<Instant> getLastExportedPeriodEnd();
 
+    Optional<TimeDuration> getRequestedReadingInterval();
+
     boolean isActive();
 
     Optional<? extends DataExportOccurrence> getLastOccurrence();
@@ -45,6 +48,8 @@ public interface ReadingTypeDataExportItem extends HasId {
     void setLastExportedDate(Instant lastExportedDate);
 
     void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd);
+
+    void overrideReadingInterval(TimeDuration readingInterval);
 
     void update();
 

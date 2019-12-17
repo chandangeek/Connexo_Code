@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -43,6 +44,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
+    private TimeDuration readingInterval;
 
     private transient DataModel dataModel;
     private transient ReadingType readingType;
@@ -104,6 +106,12 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
         return selector.orElseThrow(IllegalStateException::new);
     }
 
+
+    @Override
+    public Optional<TimeDuration> getRequestedReadingInterval() {
+        return Optional.ofNullable(readingInterval);
+    }
+
     @Override
     public void setLastRun(Instant lastRun) {
         this.lastRun = lastRun;
@@ -117,6 +125,11 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd) {
         this.lastExportedPeriodEnd = lastExportedPeriodEnd;
+    }
+
+    @Override
+    public void overrideReadingInterval(TimeDuration readingInterval) {
+        this.readingInterval = readingInterval;
     }
 
     @Override
