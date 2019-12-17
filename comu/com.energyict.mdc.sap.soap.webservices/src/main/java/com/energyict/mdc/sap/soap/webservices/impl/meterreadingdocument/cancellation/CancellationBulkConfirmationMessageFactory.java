@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
@@ -69,7 +68,7 @@ public class CancellationBulkConfirmationMessageFactory {
 
     private void createBody(SmrtMtrMtrRdngDocERPBulkCanclnConfMsg confirmMsg, List<CancelledMeterReadingDocument> documents, Instant now) {
         documents.stream()
-                .forEach(child ->confirmMsg.getSmartMeterMeterReadingDocumentERPCancellationConfirmationMessage().add(createChildMessage(child, now)));
+                .forEach(child -> confirmMsg.getSmartMeterMeterReadingDocumentERPCancellationConfirmationMessage().add(createChildMessage(child, now)));
     }
 
     private SmrtMtrMtrRdngDocERPCanclnConfMsg createChildMessage(CancelledMeterReadingDocument document, Instant now) {
@@ -142,10 +141,12 @@ public class CancellationBulkConfirmationMessageFactory {
             log.setMaximumLogItemSeverityCode(value.toString());
         }
     }
-    
+
     private BusinessDocumentMessageHeader createChildHeader(Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
+        String uuid = java.util.UUID.randomUUID().toString();
 
+        header.setUUID(createUUID(uuid));
         header.setCreationDateTime(now);
         return header;
     }
@@ -155,7 +156,7 @@ public class CancellationBulkConfirmationMessageFactory {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-        if (!Strings.isNullOrEmpty(requestId)){
+        if (!Strings.isNullOrEmpty(requestId)) {
             header.setReferenceID(createID(requestId));
         }
         header.setUUID(createUUID(uuid));
