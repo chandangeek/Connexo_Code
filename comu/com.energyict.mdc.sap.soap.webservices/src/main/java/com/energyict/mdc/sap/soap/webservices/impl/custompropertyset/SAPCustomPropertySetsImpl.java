@@ -947,8 +947,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .filter(p -> !p.getValue().isEmpty())
                 .flatMap(e -> e.getValue().asRanges().stream())
                 .map(r -> r.hasLowerBound() ? r.lowerEndpoint() : Instant.EPOCH)
-                .sorted()
-                .findFirst();
+                .min(Instant::compareTo);
     }
 
     @Override
