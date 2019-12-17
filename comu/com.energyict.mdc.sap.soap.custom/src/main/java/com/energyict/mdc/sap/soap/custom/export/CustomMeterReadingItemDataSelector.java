@@ -137,12 +137,11 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                 exportCount++;
                 return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
             }
-        } else {
-            item.setExportSkipped(true);
-            item.update();
         }
 
         try (TransactionContext context = transactionService.getContext()) {
+            item.setExportSkipped(true);
+            item.update();
             MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
