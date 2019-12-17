@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
@@ -130,7 +131,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
             readings.sort(Comparator.comparing(BaseReading::getTimeStamp));
             MeterReadingImpl meterReading = asMeterReading(item, readings);
-            item.setReadingInterval(MINUTES_PER_HOUR);
+            item.overrideReadingInterval(new TimeDuration(1, TimeDuration.TimeUnit.HOURS.getCode()));
             exportCount++;
             return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarker(currentExportInterval)));
         }

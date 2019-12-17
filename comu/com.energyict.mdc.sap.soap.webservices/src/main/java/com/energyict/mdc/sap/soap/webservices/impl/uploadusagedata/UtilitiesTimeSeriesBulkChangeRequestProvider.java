@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.streams.Functions;
@@ -188,8 +189,8 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     @Override
     List<UtilsTmeSersERPItmChgReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
         ReadingType readingType = item.getItem().getReadingType();
-        Optional<Integer> setInterval = item.getItem().getReadingInterval();
-        TemporalAmount interval = setInterval.isPresent() ? Duration.ofMinutes(setInterval.get()) : readingType.getIntervalLength().orElse(Duration.ZERO);
+        Optional<TimeDuration> requestedReadingInterval = item.getItem().getRequestedReadingInterval();
+        TemporalAmount interval = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : readingType.getIntervalLength().orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
         Range<Instant> allReadingsRange = getRange(meterReading);
