@@ -73,9 +73,6 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
     protected TariffCalendarExtractor getTariffCalendarExtractor () {return calendarExtractor;}
     protected NumberLookupExtractor getNumberLookupExtractor () {return numberLookupExtractor;}
     protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
-//    protected  get () {return ;}
-//    protected  get () {return ;}
-
 
     @Override
     public String getVersion() {
