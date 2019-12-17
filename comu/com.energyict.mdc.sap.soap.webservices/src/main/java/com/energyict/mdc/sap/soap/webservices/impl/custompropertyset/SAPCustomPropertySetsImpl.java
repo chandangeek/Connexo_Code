@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -932,6 +933,21 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(RegisteredCustomPropertySet::getCustomPropertySetId)
                 .filter(channelInfo.getId()::equals).isPresent();
+    }
+
+    @Override
+    public Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType) {
+        return readingContainer.getChannelsContainers().stream()
+                .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange()))
+                .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
+                .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
+                        .map(channel -> Pair.of(channel, ccAndRange.getLast())))
+                .flatMap(Functions.asStream())
+                .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
+                .filter(p -> !p.getValue().isEmpty())
+                .flatMap(e -> e.getValue().asRanges().stream())
+                .map(r -> r.hasLowerBound() ? r.lowerEndpoint() : Instant.EPOCH)
+                .min(Instant::compareTo);
     }
 
     @Override

@@ -14,4 +14,6 @@ public interface DefaultSelectorOccurrence {
 
     Range<Instant> getExportedDataInterval();
 
+    void updateExportedDataRange(Range<Instant> instantRange);
+
 }
