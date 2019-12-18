@@ -2,6 +2,7 @@ package com.energyict.mdc.upl.io;
 
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.journal.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -26,7 +27,7 @@ import java.util.Set;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @XmlAccessorType(XmlAccessType.NONE)
-public interface ConnectionType extends HasDynamicProperties{
+public interface ConnectionType extends HasDynamicProperties, ProtocolLoggingSupport{
 
     enum Property {
 
