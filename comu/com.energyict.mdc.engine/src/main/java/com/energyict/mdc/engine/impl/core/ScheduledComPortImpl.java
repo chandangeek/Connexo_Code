@@ -284,6 +284,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             scheduleAll(jobs, start);
         }else{
             getLogger().storeTaskQueueIsFull(storeTaskQueueLoadPercentage);
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
