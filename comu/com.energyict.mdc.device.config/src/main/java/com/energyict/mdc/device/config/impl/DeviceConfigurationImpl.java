@@ -1291,6 +1291,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         Optional<DeviceMessageEnablementImpl> enablement =
                 this.deviceMessageEnablements
                         .stream()
+                        .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                         .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
                         .findFirst();
         enablement.ifPresent(this::removeDeviceMessageEnablement);
@@ -1379,6 +1380,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         List<DeviceMessageEnablementImpl> obsoleteEnablements =
                 this.deviceMessageEnablements
                         .stream()
+                        .filter(enablement -> DeviceMessageId.find(enablement.getDeviceMessageDbValue()).isPresent())
                         .filter(enablement -> fileManagementRelated.contains(enablement.getDeviceMessageId()))
                         .collect(Collectors.toList());
         obsoleteEnablements.forEach(DeviceMessageEnablementImpl::prepareDelete);
