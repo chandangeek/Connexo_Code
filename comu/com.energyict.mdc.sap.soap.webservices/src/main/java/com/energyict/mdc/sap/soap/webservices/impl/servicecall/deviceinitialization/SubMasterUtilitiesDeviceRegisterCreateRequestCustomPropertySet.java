@@ -13,13 +13,11 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
 import com.google.inject.Module;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -84,7 +82,7 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impl
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 this.propertySpecService
                         .stringSpec()
                         .named(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
