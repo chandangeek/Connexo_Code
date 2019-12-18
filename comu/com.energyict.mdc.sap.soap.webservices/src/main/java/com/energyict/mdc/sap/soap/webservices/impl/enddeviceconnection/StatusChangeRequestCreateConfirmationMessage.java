@@ -31,10 +31,10 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import com.google.common.base.Strings;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
@@ -199,25 +199,23 @@ public class StatusChangeRequestCreateConfirmationMessage {
         }
 
         private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
-            List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> deviceConnectionStatuses = new ArrayList<>();
+            return message.getDeviceConnectionStatus().keySet().stream().map(sapDeviceId -> createConnectionStatus(sapDeviceId, now)).collect(Collectors.toList());
+        }
 
-            message.getDeviceConnectionStatus().keySet().forEach(sapDeviceId -> {
-                SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
-                        OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
-                deviceConnectionStatus.setProcessingDateTime(now);
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, Instant now) {
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
+                    OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
+            deviceConnectionStatus.setProcessingDateTime(now);
 
-                UtilitiesDeviceID deviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
-                deviceID.setValue(sapDeviceId);
-                deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
+            UtilitiesDeviceID deviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
+            deviceID.setValue(sapDeviceId);
+            deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
 
-                UtilitiesConnectionStatusChangeResultCode resultCode =
-                        OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
-                resultCode.setValue(ConnectionStatusProcessingResultCode.FAILED.getCode());
-                deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
-
-                deviceConnectionStatuses.add(deviceConnectionStatus);
-            });
-            return deviceConnectionStatuses;
+            UtilitiesConnectionStatusChangeResultCode resultCode =
+                    OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
+            resultCode.setValue(ConnectionStatusProcessingResultCode.FAILED.getCode());
+            deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
+            return deviceConnectionStatus;
         }
 
         private BusinessDocumentMessageID createID(String id) {
