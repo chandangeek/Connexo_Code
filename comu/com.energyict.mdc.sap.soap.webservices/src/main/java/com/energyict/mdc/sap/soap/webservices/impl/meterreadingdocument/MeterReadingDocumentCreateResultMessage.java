@@ -5,6 +5,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
@@ -22,6 +23,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreatereque
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.UtilitiesMeasurementTaskID;
+
+import com.google.common.base.Strings;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -78,18 +81,18 @@ public class MeterReadingDocumentCreateResultMessage {
             bulkResultMessage = BULK_OBJECT_FACTORY.createMtrRdngDocERPRsltBulkCrteReqMsg();
         }
 
-        public Builder from(ServiceCall parent, List<ServiceCall> children, Instant now) {
+        public Builder from(ServiceCall parent, List<ServiceCall> children, Instant now, String meteringSystemId) {
             documentsTotal = children.size();
             MasterMeterReadingDocumentCreateResultDomainExtension extension = parent.getExtensionFor(new MasterMeterReadingDocumentCreateResultCustomPropertySet()).get();
             MeterReadingDocumentCreateResultMessage.this.bulk = extension.isBulk();
 
             if (bulk) {
-                bulkResultMessage.setMessageHeader(createBulkHeader(extension, now));
+                bulkResultMessage.setMessageHeader(createBulkHeader(extension, now, meteringSystemId));
                 children.forEach(child -> {
                     MeterReadingDocumentCreateResultDomainExtension childExtension = child.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get();
                     if(!childExtension.isCancelledBySap()) {
                         com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMsg crteReqMsg = BULK_OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqMsg();
-                        crteReqMsg.setMessageHeader(createBulkHeader(extension, now));
+                        crteReqMsg.setMessageHeader(createDomumentHeader(childExtension/*extension*/, now, meteringSystemId));
                         crteReqMsg.setMeterReadingDocument(createBulkBody(child));
                         bulkResultMessage.getMeterReadingDocumentERPResultCreateRequestMessage().add(crteReqMsg);
                     }else{
@@ -97,7 +100,7 @@ public class MeterReadingDocumentCreateResultMessage {
                     }
                 });
             } else {
-                resultMessage.setMessageHeader(createHeader(extension, now));
+                resultMessage.setMessageHeader(createHeader(extension, now, meteringSystemId));
                 if (!children.isEmpty()) {
                     resultMessage.setMeterReadingDocument(createBody(children.get(0)));
                 }
@@ -105,45 +108,91 @@ public class MeterReadingDocumentCreateResultMessage {
             return this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(MasterMeterReadingDocumentCreateResultDomainExtension extension, Instant now) {
-            BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
-            id.setValue(extension.getReferenceID());
+        private BusinessDocumentMessageHeader createHeader(MasterMeterReadingDocumentCreateResultDomainExtension extension, Instant now, String meteringSystemId) {
 
             UUID uuid = OBJECT_FACTORY.createUUID();
             uuid.setValue(extension.getRequestUUID());
 
-            UUID referenceUuid = OBJECT_FACTORY.createUUID();
-            referenceUuid.setValue(extension.getReferenceUuid());
-
             BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-            messageHeader.setReferenceID(id);
+            if (!Strings.isNullOrEmpty(extension.getReferenceID())) {
+                BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
+                id.setValue(extension.getReferenceID());
+                messageHeader.setReferenceID(id);
+            }
+
             messageHeader.setUUID(uuid);
-            messageHeader.setReferenceUUID(referenceUuid);
+            if (!Strings.isNullOrEmpty(extension.getReferenceUuid())) {
+                UUID referenceUuid = OBJECT_FACTORY.createUUID();
+                referenceUuid.setValue(extension.getReferenceUuid());
+                messageHeader.setReferenceUUID(referenceUuid);
+            }
+
             messageHeader.setCreationDateTime(now);
+
+            messageHeader.setSenderBusinessSystemID(meteringSystemId);
+            messageHeader.setReconciliationIndicator(true);
 
             return messageHeader;
         }
 
-        private com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageHeader createBulkHeader(MasterMeterReadingDocumentCreateResultDomainExtension extension, Instant now) {
-            com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageID id =
-                    BULK_OBJECT_FACTORY.createBusinessDocumentMessageID();
-            id.setValue(extension.getReferenceID());
-
+        private com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageHeader createBulkHeader(MasterMeterReadingDocumentCreateResultDomainExtension extension, Instant now, String meteringSystemId) {
             com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UUID uuid =
                     BULK_OBJECT_FACTORY.createUUID();
             uuid.setValue(extension.getRequestUUID());
 
-            com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UUID referenceUuid =
-                    BULK_OBJECT_FACTORY.createUUID();
-            referenceUuid.setValue(extension.getReferenceUuid());
-
             com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageHeader messageHeader = BULK_OBJECT_FACTORY.createBusinessDocumentMessageHeader();
-            messageHeader.setReferenceID(id);
+            if (!Strings.isNullOrEmpty(extension.getReferenceID())) {
+                com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageID id =
+                        BULK_OBJECT_FACTORY.createBusinessDocumentMessageID();
+                id.setValue(extension.getReferenceID());
+                messageHeader.setReferenceID(id);
+            }
             messageHeader.setUUID(uuid);
-            messageHeader.setReferenceUUID(referenceUuid);
+
+            if (!Strings.isNullOrEmpty(extension.getReferenceUuid())) {
+                com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UUID referenceUuid =
+                        BULK_OBJECT_FACTORY.createUUID();
+                referenceUuid.setValue(extension.getReferenceUuid());
+                messageHeader.setReferenceUUID(referenceUuid);
+            }
+
+            messageHeader.setSenderBusinessSystemID(meteringSystemId);
+            messageHeader.setReconciliationIndicator(true);
+
             messageHeader.setCreationDateTime(now);
             return messageHeader;
         }
+
+
+
+        private com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageHeader createDomumentHeader(MeterReadingDocumentCreateResultDomainExtension extension, Instant now, String meteringSystemId) {
+            com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UUID uuid =
+                    BULK_OBJECT_FACTORY.createUUID();
+            uuid.setValue(java.util.UUID.randomUUID().toString());
+
+            com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageHeader messageHeader = BULK_OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+            if (!Strings.isNullOrEmpty(extension.getReferenceID())) {
+                com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageID id =
+                        BULK_OBJECT_FACTORY.createBusinessDocumentMessageID();
+                id.setValue(extension.getReferenceID());
+                messageHeader.setReferenceID(id);
+            }
+            messageHeader.setUUID(uuid);
+
+            if (!Strings.isNullOrEmpty(extension.getReferenceUuid())) {
+                com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UUID referenceUuid =
+                        BULK_OBJECT_FACTORY.createUUID();
+                referenceUuid.setValue(extension.getReferenceUuid());
+                messageHeader.setReferenceUUID(referenceUuid);
+            }
+
+            messageHeader.setSenderBusinessSystemID(meteringSystemId);
+            messageHeader.setReconciliationIndicator(true);
+
+            messageHeader.setCreationDateTime(now);
+            return messageHeader;
+        }
+
 
         private MtrRdngDocERPRsltCrteReqMtrRdngDoc createBody(ServiceCall child) {
             MeterReadingDocumentCreateResultDomainExtension childExtension = child.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get();

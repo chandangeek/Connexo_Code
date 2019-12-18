@@ -66,17 +66,20 @@ public class ServiceCallCommands {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     public ServiceCallCommands(Clock clock, MessageService messageService, MeteringService meteringService,
                                SAPCustomPropertySets sapCustomPropertySets, ServiceCallService serviceCallService,
-                               Thesaurus thesaurus) {
+                               Thesaurus thesaurus,
+                               WebServiceActivator webServiceActivator) {
         this.clock = clock;
         this.messageService = messageService;
         this.meteringService = meteringService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
+        this.webServiceActivator = webServiceActivator;
     }
 
     public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message) {
@@ -272,6 +275,8 @@ public class ServiceCallCommands {
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
+        childDomainExtension.setReferenceID(message.getHeaderId());
+        childDomainExtension.setReferenceUuid(message.getHeaderUUID());
 
         Optional<SAPMeterReadingDocumentReason> provider = WebServiceActivator.findReadingReasonProvider(childDomainExtension.getReadingReasonCode());
         if (provider.isPresent()) {
@@ -396,7 +401,7 @@ public class ServiceCallCommands {
 
         return MeterReadingDocumentRequestConfirmationMessage
                 .builder()
-                .from(requestMessage, clock.instant())
+                .from(requestMessage, clock.instant(), webServiceActivator.getMeteringSystemId())
                 .build();
     }
 
@@ -520,7 +525,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed) {
         MeterReadingDocumentRequestConfirmationMessage confirmationMessage =
                 MeterReadingDocumentRequestConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

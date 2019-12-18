@@ -17,6 +17,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,7 +57,31 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         switch (newState) {
             case ONGOING:
                 if (!oldState.equals(DefaultState.WAITING)) {
-                    sendResultMessage(serviceCall);
+                    List<ServiceCall> children = findChildren(serviceCall);
+                    if (children.isEmpty()){
+                        serviceCall.log(LogLevel.FINEST, "Do not send response. No readings to send.");
+                        serviceCall.requestTransition(DefaultState.FAILED);
+                        break;
+                    }
+
+                    List<ServiceCall> childrenForMessageList = new ArrayList<>();
+                    children.stream().
+                            forEach(chld -> {
+                                if (chld.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get().getReading() == null) {
+                                    chld.log(LogLevel.FINEST, "No readings to send.");
+                                    chld.requestTransition(DefaultState.ONGOING);
+                                    chld.requestTransition(DefaultState.FAILED);
+                                } else {
+                                    childrenForMessageList.add(chld);
+                                }
+                            });
+
+                    if (childrenForMessageList.isEmpty()){
+                        serviceCall.log(LogLevel.FINEST, "Do not send response. No readings to send.");
+                        serviceCall.requestTransition(DefaultState.FAILED);
+                        break;
+                    }
+                    sendResultMessage(serviceCall, childrenForMessageList);
                     setConfirmationTime(serviceCall);
                     serviceCall.requestTransition(DefaultState.WAITING);
                 }
@@ -65,7 +90,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 if (!oldState.equals(DefaultState.WAITING)) {
                     List<ServiceCall> children = findChildren(serviceCall);
                     if (!areAllCancelledBySap(children)) {
-                        sendResultMessage(serviceCall);
+                        sendResultMessage(serviceCall, children);
                     }
                 }
                 break;
@@ -150,10 +175,11 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 .allMatch(sc -> sc.getState().equals(DefaultState.WAITING) || sc.getState().equals(DefaultState.CANCELLED));
     }
 
-    private void sendResultMessage(ServiceCall serviceCall) {
+    private void sendResultMessage(ServiceCall serviceCall, List<ServiceCall> children) {
+
         MeterReadingDocumentCreateResultMessage resultMessage = MeterReadingDocumentCreateResultMessage
                 .builder()
-                .from(serviceCall, findChildren(serviceCall), clock.instant())
+                .from(serviceCall, children, clock.instant(), webServiceActivator.getMeteringSystemId())
                 .build();
 
         int childrenTotal = resultMessage.getDocumentsTotal();

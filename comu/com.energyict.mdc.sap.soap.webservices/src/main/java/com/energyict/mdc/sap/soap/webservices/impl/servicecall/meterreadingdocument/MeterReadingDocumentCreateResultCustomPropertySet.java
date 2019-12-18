@@ -223,6 +223,18 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .longSpec()
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName(), TranslationKeys.COM_TASK_EXECUTION_ID)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
+                        .describedAs(TranslationKeys.REFERENCE_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
+                        .describedAs(TranslationKeys.REFERENCE_UUID)
+                        .fromThesaurus(thesaurus)
                         .finish()
                 );
     }
@@ -366,6 +378,16 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .conversion(ColumnConversion.NUMBER2LONGWRAPPER)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName())
                     .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
         }
 
