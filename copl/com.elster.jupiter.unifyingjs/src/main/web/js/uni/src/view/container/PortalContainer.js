@@ -9,7 +9,7 @@ Ext.define('Uni.view.container.PortalContainer', {
     padding: '16px 0 0 0 ',
     layout: 'column',
     columnCount: 3,
-    portalWidgetHeight: 270,
+    portalWidgetHeight: 292,
 
     addPortalItem: function (model) {
         var me = this,

@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuditCustomPropertySetIT extends AuditAttributeBase {
+public class AuditCustomPropertySetIT extends AuditAttributeBaseTest {
 
     private static final String USAGEPOINT_NAME_2 = "UPName2";
     private static final ServiceKind SERVICE_KIND = ServiceKind.ELECTRICITY;

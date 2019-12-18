@@ -1121,7 +1121,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
 
                         propertyForm.updateRecord();
-                        if (me.processRecord) me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);
+                        if (me.processRecord && startProcessRecord) me.processValues = me.getProcessValues(me.processRecord, startProcessRecord);
 
                         var processValuesProperties = me.processValues && me.processValues.properties;
                         var propertyFormIsValid = propertyForm.isValid();
@@ -1130,7 +1130,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             Ext.Array.each(processValuesProperties, function (property){
                                 if (property.required && !(property.propertyValueInfo && property.propertyValueInfo.value)){
                                     propertyFormIsValid = false;
-                                    propertyForm.getPropertyField(property.key).markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                                    if (propertyForm && propertyForm.getPropertyField(property.key)){
+                                        propertyForm.getPropertyField(property.key).markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                                    }
                                 }
                             });
                         }

@@ -352,17 +352,20 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         /* Check if all processes from grid was selected or operator have chosen some specific processes */
         var record = this.getBulkRecord();
         var processName;
+
         if (record.get('allProcesses')){
             /* get process information get it from processBuffered */
             var processesStore = this.getStore('Mdc.processes.store.ProcessesBuffered');
             processNameToStart = processesStore.getAt(0).get('name');
             processObjectType = processesStore.getAt(0).get('type');
             processVersionToStart = processesStore.getAt(0).get('version');
+            processValue = processesStore.getAt(0).get('value');
         }else{
             var processes = record.get('processes');
             processNameToStart = processes[0].get('name');
             processObjectType = processes[0].get('type');
             processVersionToStart = processes[0].get('version');
+            processValue = processes[0].get('value');
         }
         /* Set name of selected process */
         widget.down('#processNameToRetry').setValue(processNameToStart);
@@ -412,13 +415,32 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                          success: function (startProcessRecord) {
                              globalStartProcessRecord = startProcessRecord;
                              if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
-                                 propertyForm.loadRecord(startProcessRecord);
-                                 propertyForm.show();
+                                 if (processObjectType === "Device"){
+                                     Ext.Ajax.suspendEvent("requestexception");
+                                     Ext.Ajax.request({
+                                            url: '/api/ddr/devices/byMRID/' + processValue,
+                                            method: 'GET',
+                                            timeout: 180000,
+                                            async: false,
+                                            success: function (response) {
+                                                if ( response && response.responseText ){
+                                                    propertyForm.context = {'id' : response.responseText};
+                                                }
+                                            },
+                                            callback: function(){
+                                                Ext.Ajax.resumeEvent("requestexception");
+                                                wizard.setLoading(false);
+                                                propertyForm.loadRecord(startProcessRecord);
+                                                propertyForm.show();
+                                            }
+                                     });
+                                 }else{
+                                      propertyForm.loadRecord(startProcessRecord);
+                                      propertyForm.show();
+                                 }
                              } else {
                                  propertyForm.hide();
                              }
-
-                             wizard.setLoading(false);
                          },
                          failure: function (record, operation) {
                             wizard.setLoading(false);

@@ -426,7 +426,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             fromConstraint = table.findMatchingConstraint(toConstraint);
             if (fromConstraint == null) {
                 // new constraint, or old one has been renamed and changed
-                if (!toConstraint.delayDdl()) {
+                if (!toConstraint.delayDdl() && !toConstraint.noDdl()) {
                     addConstraintDiffs.add(getAddConstraintDifference(toConstraint));
                 }
                 return Optional.empty();
@@ -437,7 +437,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 } else {
                     Pair<Difference, Difference> diffs = getDropRecreateConstraintDifferences(fromConstraint, toConstraint);
                     dropOrRenameConstraintDiffs.add(diffs.getFirst());
-                    if (!toConstraint.delayDdl()) {
+                    if (!toConstraint.delayDdl() && !toConstraint.noDdl()) {
                         addConstraintDiffs.add(diffs.getLast());
                     }
                 }
@@ -448,7 +448,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             getUpgradeDifferences(fromConstraint, toConstraint)
                     .ifPresent(diffs -> {
                         dropOrRenameConstraintDiffs.add(diffs.getFirst());
-                        if (!toConstraint.delayDdl()) {
+                        if (!toConstraint.delayDdl() && !toConstraint.noDdl()) {
                             addConstraintDiffs.add(diffs.getLast());
                         }
                     });

@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -190,21 +189,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         }
     },
     //from eiserver 8.11
-    MBUS_TRANSFER_FUAK(24020, "Set M-Bus Firmware Update Authentication Key (FUAK)") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
-            return Collections.emptyList();
-        }
-    },
-    //from eiserver 8.11
     MBUS_TRANSFER_P2KEY(24021, "Set M-Bus UserKey (P2)") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
-            return Collections.emptyList();
-        }
-    },
-    //from eiserver 8.11
-    MBUS_ESMR5_FIRMWARE_UPGRADE(24022, "MBus ESMR5 Firmware Upgrade") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();

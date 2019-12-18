@@ -1,13 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -16,20 +9,42 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -261,7 +276,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                             CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
                             // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber(), reg.getAttribute(), reg.getClassId())) {
                                 channelRegisters.add(reg);
                             }
                             coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
@@ -347,7 +362,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber(), registerUnit.getAttribute(), registerUnit.getClassId())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     DLMSAttribute scalerUnitAttribute = this.registerUnitMap.get(registerUnit);
                     AbstractDataType rawValue = ccoRegisterUnits.getAttribute(scalerUnitAttribute);
@@ -390,7 +405,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         int channelMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber(), registerUnit.getAttribute(), registerUnit.getClassId())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -403,10 +418,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      *
      * @param obisCode     the obiscode to check
      * @param serialNumber the serialNumber of the meter, related to the given obisCode
+     * @param attributeIndex
+     * @param classId
      * @return true if the obisCode is not a {@link com.energyict.dlms.cosem.Clock} object nor a Status object
      */
-    protected boolean isDataObisCode(ObisCode obisCode, String serialNumber) {
-        return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode, serialNumber));
+    protected boolean isDataObisCode(ObisCode obisCode, String serialNumber, int attributeIndex, int classId) {
+        return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode, serialNumber) || isCaptureTime(attributeIndex, classId));
     }
 
     protected boolean isStatusObisCode(ObisCode obisCode, String serialNumber) {
@@ -444,6 +461,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             return false;
         }
         return isStatusObisCode;
+    }
+
+    private boolean isCaptureTime(int attributeIndex, int classId) {
+        return (attributeIndex == 5 && classId == DLMSClassId.EXTENDED_REGISTER.getClassId()) || (attributeIndex == 6 && classId == DLMSClassId.DEMAND_REGISTER.getClassId());
     }
 
     /**

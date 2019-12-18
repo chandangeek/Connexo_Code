@@ -483,14 +483,18 @@ public class MultiThreadedScheduledComPortTest {
 
         MultiThreadedScheduledComPort scheduledComPort = new MultiThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
 
-        // Business method
-        scheduledComPort.start();
+        try {
+            // Business method
+            scheduledComPort.start();
 
-        countDownLatch.await();
+            countDownLatch.await();
 
-        // Asserts
-        verify(userService, never()).findUser(EngineServiceImpl.COMSERVER_USER); // the user should be 'cached' on the dao
-        verify(threadPrincipalService, times(numberOfSimultaneousConnections)).set(user, "MultiThreadedComPort", "Executing", Locale.ENGLISH);
+            // Asserts
+            verify(userService, never()).findUser(EngineServiceImpl.COMSERVER_USER); // the user should be 'cached' on the dao
+            verify(threadPrincipalService, times(numberOfSimultaneousConnections)).set(user, "MultiThreadedComPort", "Executing", Locale.ENGLISH);
+        } finally {
+            this.shutdown(scheduledComPort);
+        }
     }
 
     @Test(timeout = TIMEOUT)
@@ -518,13 +522,17 @@ public class MultiThreadedScheduledComPortTest {
 
         MultiThreadedScheduledComPort scheduledComPort = new MultiThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, threadFactory, serviceProvider);
 
-        // Business method
-        scheduledComPort.start();
+        try {
+            // Business method
+            scheduledComPort.start();
 
-        countDownLatch.await();
+            countDownLatch.await();
 
-        // Asserts
-        verify(threadFactory, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1)).newThread(any(Runnable.class)); // the plus 1 is for the ScheduledComPort
+            // Asserts
+            verify(threadFactory, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1)).newThread(any(Runnable.class)); // the plus 1 is for the ScheduledComPort
+        } finally {
+            this.shutdown(scheduledComPort);
+        }
     }
 
     @Test(timeout = TIMEOUT)
@@ -552,13 +560,17 @@ public class MultiThreadedScheduledComPortTest {
 
         MultiThreadedScheduledComPort scheduledComPort = new MultiThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, threadFactory, serviceProvider);
 
-        // Business method
-        scheduledComPort.start();
+        try {
+            // Business method
+            scheduledComPort.start();
 
-        countDownLatch.await();
+            countDownLatch.await();
 
-        // Asserts
-        verify(threadFactory, times(1)).newThread(any(Runnable.class));
+            // Asserts
+            verify(threadFactory, times(1)).newThread(any(Runnable.class));
+        } finally {
+            this.shutdown(scheduledComPort);
+        }
     }
 
     @Test
@@ -587,13 +599,17 @@ public class MultiThreadedScheduledComPortTest {
 
         MultiThreadedScheduledComPort scheduledComPort = new MultiThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, threadFactory, serviceProvider);
 
-        // Business method
-        scheduledComPort.start();
+        try {
+            // Business method
+            scheduledComPort.start();
 
-        countDownLatch.await();
+            countDownLatch.await();
 
-        // Asserts
-        verify(threadFactory, times(4)).newThread(any(Runnable.class));  // one for the comport - one for the parallelRoot - two for the workers
+            // Asserts
+            verify(threadFactory, times(4)).newThread(any(Runnable.class));  // one for the comport - one for the parallelRoot - two for the workers
+        } finally {
+            this.shutdown(scheduledComPort);
+        }
     }
 
     @Test
@@ -624,14 +640,18 @@ public class MultiThreadedScheduledComPortTest {
 
         MultiThreadedScheduledComPort scheduledComPort = new MultiThreadedScheduledComPort(runningComServer, comPort, comServerDAO, this.deviceCommandExecutor, threadFactory, serviceProvider);
 
-        // Business method
-        scheduledComPort.start();
+        try {
+            // Business method
+            scheduledComPort.start();
 
-        countDownLatch.await();
+            countDownLatch.await();
 
-        // despite the fact that we allow 1000 parallel connections, we will only be able to create 3 of them (and one for the comport)
-        // Asserts
-        verify(threadFactory, times(4)).newThread(any(Runnable.class));  // one for the comport - one for the parallelRoot - two for the workers
+            // despite the fact that we allow 1000 parallel connections, we will only be able to create 3 of them (and one for the comport)
+            // Asserts
+            verify(threadFactory, times(4)).newThread(any(Runnable.class));  // one for the comport - one for the parallelRoot - two for the workers
+        } finally {
+            this.shutdown(scheduledComPort);
+        }
     }
 
     private Answer<List<ComJob>> provideSingleJobFromDB(final List<ComJob> work, final AtomicBoolean returnActualWork, final CountDownLatch stopLatch) {
@@ -1059,8 +1079,6 @@ public class MultiThreadedScheduledComPortTest {
         ComServerDAO comServerDAOMock = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithWorkThatIsAlwaysStolenByOtherComponents");
         when(comServerDAOMock.refreshComPort(comPort)).thenReturn(comPort);
-        when(comServerDAOMock.isStillPending(anyLong())).thenReturn(false);
-        when(comServerDAOMock.areStillPending(anyCollection())).thenReturn(false);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, deviceMessageService, this.hexService, eventPublisher);
         when(this.simultaneousConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         final List<ComJob> noWork = new ArrayList<>(0);
@@ -1284,7 +1302,7 @@ public class MultiThreadedScheduledComPortTest {
             @Override
             protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
                 workDeliveredLatch.countDown();
-                return true;
+                return false;
             }
 
             @Override
