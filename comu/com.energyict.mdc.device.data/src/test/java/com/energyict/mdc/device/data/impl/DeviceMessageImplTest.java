@@ -120,7 +120,9 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId).map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                .filter(id -> DeviceMessageId.find(id).isPresent())
+                .map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         resetClock();
     }

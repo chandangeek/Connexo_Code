@@ -134,6 +134,7 @@ public class Dsmr50Properties extends DlmsProperties {
         return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, Dsmr50ConfigurationSupport.DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
     }
 
+    @Override
     public boolean useEquipmentIdentifierAsSerialNumber() {
         return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, Dsmr50ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
