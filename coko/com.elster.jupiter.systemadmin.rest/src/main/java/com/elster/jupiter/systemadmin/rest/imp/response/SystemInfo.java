@@ -22,4 +22,5 @@ public class SystemInfo {
     public String dbUser;
     public String dbMaxConnectionsNumber;
     public String dbMaxStatementsPerRequest;
+    public String environmentParameters;
 }
