@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class CustomMeterReadingSelector extends AbstractDataSelector {
 
+    private SAPCustomPropertySets sapCustomPropertySets;
     private MeterReadingSelectorConfig selectorConfig;
 
     @Inject
@@ -30,13 +32,14 @@ public class CustomMeterReadingSelector extends AbstractDataSelector {
         super(dataModel, transactionService, thesaurus);
     }
 
-    static CustomMeterReadingSelector from(DataModel dataModel, MeterReadingSelectorConfig selectorConfig, Logger logger) {
-        return dataModel.getInstance(CustomMeterReadingSelector.class).init(selectorConfig, logger);
+    static CustomMeterReadingSelector from(DataModel dataModel, MeterReadingSelectorConfig selectorConfig, SAPCustomPropertySets sapCustomPropertySets, Logger logger) {
+        return dataModel.getInstance(CustomMeterReadingSelector.class).init(selectorConfig, sapCustomPropertySets, logger);
     }
 
-    CustomMeterReadingSelector init(MeterReadingSelectorConfig selectorConfig, Logger logger) {
+    CustomMeterReadingSelector init(MeterReadingSelectorConfig selectorConfig, SAPCustomPropertySets sapCustomPropertySets, Logger logger) {
         super.init(logger);
         this.selectorConfig = selectorConfig;
+        this.sapCustomPropertySets = sapCustomPropertySets;
         return this;
     }
 
@@ -70,7 +73,7 @@ public class CustomMeterReadingSelector extends AbstractDataSelector {
 
     @Override
     CustomMeterReadingItemDataSelector getItemDataSelector() {
-        return getDataModel().getInstance(CustomMeterReadingItemDataSelector.class).init(getLogger());
+        return getDataModel().getInstance(CustomMeterReadingItemDataSelector.class).init(sapCustomPropertySets, getLogger());
     }
 
     private EndDeviceGroup getEndDeviceGroup() {

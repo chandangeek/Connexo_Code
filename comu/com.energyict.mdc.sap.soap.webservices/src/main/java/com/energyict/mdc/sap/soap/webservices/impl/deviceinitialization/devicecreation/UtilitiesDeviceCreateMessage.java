@@ -65,7 +65,7 @@ public class UtilitiesDeviceCreateMessage {
             return this;
         }
 
-        public UtilitiesDeviceCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+        public UtilitiesDeviceCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
             setSerialId(getSerialId(requestMessage));
             setDeviceId(getDeviceId(requestMessage));
             setMaterialId(getMaterialId(requestMessage));
@@ -111,9 +111,9 @@ public class UtilitiesDeviceCreateMessage {
                     .orElse(null);
         }
 
-        private String getDeviceId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+        private String getDeviceId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
             return Optional.ofNullable(requestMessage.getID())
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilitiesDeviceID::getValue)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilitiesDeviceID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
@@ -124,7 +124,7 @@ public class UtilitiesDeviceCreateMessage {
                     .orElse(null);
         }
 
-        private String getSerialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+        private String getSerialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
             return Optional.ofNullable(requestMessage.getSerialID())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
@@ -137,9 +137,9 @@ public class UtilitiesDeviceCreateMessage {
                     .orElse(null);
         }
 
-        private String getMaterialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+        private String getMaterialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
             return Optional.ofNullable(requestMessage.getMaterialID())
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.ProductInternalID::getValue)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.ProductInternalID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
@@ -152,10 +152,10 @@ public class UtilitiesDeviceCreateMessage {
                     .orElse(null);
         }
 
-        private String getManufacturer(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+        private String getManufacturer(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
             return Optional.ofNullable(requestMessage.getIndividualMaterialManufacturerInformation())
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getPartyInternalID)
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.PartyInternalID::getValue)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getPartyInternalID)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.PartyInternalID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
@@ -167,9 +167,9 @@ public class UtilitiesDeviceCreateMessage {
                     .orElse(null);
         }
 
-        private String getModelNumber(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+        private String getModelNumber(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
             return Optional.ofNullable(requestMessage.getIndividualMaterialManufacturerInformation())
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

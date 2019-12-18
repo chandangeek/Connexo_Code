@@ -165,10 +165,17 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUEST_UUID.javaName())
                     .notNull()
                     .add();
-            table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.databaseName())
+            Column oldReferenceId = table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.databaseName())
                     .varChar()
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7, 1))
+                    .add();
+            table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.databaseName())
+                    .varChar()
+                    .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .previously(oldReferenceId)
                     .add();
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
                     .varChar(NAME_LENGTH)
