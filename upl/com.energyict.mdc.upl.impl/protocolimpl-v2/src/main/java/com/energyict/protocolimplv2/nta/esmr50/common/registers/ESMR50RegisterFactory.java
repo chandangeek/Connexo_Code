@@ -13,7 +13,17 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DefinableLoadProfileAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.GSMDiagnosticAttributes;
+import com.energyict.dlms.cosem.attributes.LTEConnectionRejectionAttributes;
+import com.energyict.dlms.cosem.attributes.LTEMonitoringAttributes;
+import com.energyict.dlms.cosem.attributes.LTESetupAttributes;
+import com.energyict.dlms.cosem.attributes.MBusDiagnosticAttributes;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -24,11 +34,22 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.nta.esmr50.common.attributes.ESMR50MbusClientAttributes;
-import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.*;
-
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.EMeterConfigurationObject;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.GSMDiagnosticPSStatusVersion1;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEConnectionRejection;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticAdjacentCells;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticCSAttachement;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticCellInfo;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEDiagnosticStatus;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEMonitoringWrapper;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEMonitoringWrapperVersion0;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEPingAddress;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusConfigurationObject;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusEncryptionKeyStatus;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusFUAKStatus;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusFWTransferStatus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -261,8 +282,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
             }
             else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
-//                String bcd = ProtocolTools.getBCD(abstractDataType.longValue()); TODO implement getBCD in ProtocolTools
-                String bcd = "";
+                String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, bcd);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
