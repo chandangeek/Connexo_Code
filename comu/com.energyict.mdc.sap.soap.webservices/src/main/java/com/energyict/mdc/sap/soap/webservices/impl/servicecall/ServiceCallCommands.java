@@ -27,6 +27,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
+import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.ConnectionStatusProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
@@ -530,14 +531,14 @@ public class ServiceCallCommands {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, exceptionInfo, clock.instant())
-                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
                             .from(message, exceptionInfo, clock.instant())
-                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .withStatus(deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
@@ -548,14 +549,14 @@ public class ServiceCallCommands {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
                             .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
-                            .withSingleStatus(message.getId(), deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .withSingleStatus(message.getId(), deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
                             .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
-                            .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
+                            .withStatus(deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
