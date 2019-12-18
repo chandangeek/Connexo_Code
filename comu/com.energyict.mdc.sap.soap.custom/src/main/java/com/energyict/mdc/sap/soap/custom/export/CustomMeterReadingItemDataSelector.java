@@ -30,6 +30,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -62,6 +63,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
     private int exportCount;
     private int updateCount;
+    private SAPCustomPropertySets sapCustomPropertySets;
     private Logger logger;
 
     private Range<Instant> currentExportInterval;
@@ -75,7 +77,8 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         this.transactionService = transactionService;
     }
 
-    CustomMeterReadingItemDataSelector init(Logger logger) {
+    CustomMeterReadingItemDataSelector init(SAPCustomPropertySets sapCustomPropertySets, Logger logger) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
         this.logger = logger;
         return this;
     }
@@ -199,13 +202,24 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
                 .filter(interval -> Ranges.does(interval).overlap(readingsContainerInterval) || interval.isEmpty())
                 .map(interval -> interval.intersection(readingsContainerInterval))
                 .map(intersection -> Ranges.copy(intersection).asOpenClosed())
-                .orElse(exportedDataInterval);
+                .orElse(getIntervalFromFirstProfileId(exportedDataInterval, item));
     }
 
     private Range<Instant> getRangeSinceLastExport(Range<Instant> exportedDataInterval, Instant lastExport) {
         return (exportedDataInterval.hasUpperBound() && lastExport.isAfter(exportedDataInterval.upperEndpoint())) ?
                 Range.openClosed(lastExport, lastExport) :
                 copy(exportedDataInterval).withOpenLowerBound(lastExport);
+    }
+
+    private Range<Instant> getIntervalFromFirstProfileId(Range<Instant> exportedDataInterval, ReadingTypeDataExportItem item) {
+        Instant upperEndpoint = exportedDataInterval.upperEndpoint();
+        Optional<Instant> firstDate = sapCustomPropertySets.getFirstDateWithSetProfileId(item.getReadingContainer(), item.getReadingType());
+        if (firstDate.isPresent()) {
+            return (firstDate.get().isAfter(upperEndpoint)) ?
+                    Range.openClosed(firstDate.get(), firstDate.get()) :
+                    copy(exportedDataInterval).withOpenLowerBound(firstDate.get());
+        }
+        return Range.openClosed(upperEndpoint, upperEndpoint);
     }
 
     private Instant truncateToDays(Instant dateTime) {
