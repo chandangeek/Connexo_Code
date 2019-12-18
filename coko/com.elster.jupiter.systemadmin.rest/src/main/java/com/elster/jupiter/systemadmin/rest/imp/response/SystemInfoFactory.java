@@ -10,6 +10,7 @@ import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Map;
 
 public class SystemInfoFactory {
 
@@ -41,7 +42,27 @@ public class SystemInfoFactory {
         info.dbUser = this.bundleContext.getProperty(BootstrapService.JDBC_USER);
         info.dbMaxConnectionsNumber = getPropertyOrDefault(this.bundleContext.getProperty(BootstrapService.JDBC_POOLMAXLIMIT), BootstrapService.JDBC_POOLMAXLIMIT_DEFAULT);
         info.dbMaxStatementsPerRequest = getPropertyOrDefault(this.bundleContext.getProperty(BootstrapService.JDBC_POOLMAXSTATEMENTS), BootstrapService.JDBC_POOLMAXSTATEMENTS_DEFAULT);
+        info.environmentParameters = getEnvironmentParameters();
         return info;
+    }
+
+    private String getEnvironmentParameters() {
+        StringBuilder environment = new StringBuilder();
+
+        Map<String, String> env = System.getenv();
+        for (String envName : env.keySet()) {
+            environment.append("<li>");
+            environment.append(env).append("=");
+            String value = env.get(envName);
+            if (value.toLowerCase().contains("pass")){
+                environment.append("********************");
+            } else {
+                environment.append(value);
+            }
+            environment.append("</li>");
+        }
+
+        return environment.toString();
     }
 
     private String getPropertyOrDefault(String property, String defaultValue) {
