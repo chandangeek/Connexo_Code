@@ -275,14 +275,14 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     final void executeTasks() {
         int storeTaskQueueLoadPercentage = deviceCommandExecutor.getCurrentLoadPercentage();
-        if(storeTaskQueueLoadPercentage < 100) {
+        if (storeTaskQueueLoadPercentage < 100) {
             getLogger().lookingForWork(getThreadName());
             LOGGER.warning("[" + Thread.currentThread().getName() + "] looking for work");
             long start = System.currentTimeMillis();
             List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
             queriedForTasks();
             scheduleAll(jobs, start);
-        }else{
+        } else {
             getLogger().storeTaskQueueIsFull(storeTaskQueueLoadPercentage);
             try {
                 Thread.sleep(2000);
