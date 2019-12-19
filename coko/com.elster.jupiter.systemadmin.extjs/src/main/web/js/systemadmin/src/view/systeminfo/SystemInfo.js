@@ -44,9 +44,7 @@ Ext.define('Sam.view.systeminfo.SystemInfo', {
                 + '</ul>'
                 + '</tpl>'
                 + "<p><h2>{[Uni.I18n.translate('systemInfo.environmentParameters', 'SAM', 'Emvironment parameters')]}:</h2></p>"
-                + '<ul>'
-                + "{environmentParameters}"
-                + '</ul>',
+                + "{environmentParameters}",
                 itemSelector: 'div'
             }
         }

@@ -110,7 +110,12 @@ Ext.define('Sam.model.SystemInfo', {
         {
             name: 'environmentParameters',
             mapping: function (data) {
-                return data.environmentParameters;
+                output = '<ul>';
+                for (propName in data.environmentParameters) {
+                    output += '<li>' + propName + ': ' + data.environmentParameters[propName] + '</li>';
+                }
+                output += '</ul>';
+                return output;
             }
         },
         {
