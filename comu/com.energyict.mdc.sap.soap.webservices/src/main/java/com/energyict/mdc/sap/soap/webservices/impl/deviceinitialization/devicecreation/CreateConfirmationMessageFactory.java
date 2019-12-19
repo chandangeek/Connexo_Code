@@ -39,11 +39,11 @@ public class CreateConfirmationMessageFactory {
     public CreateConfirmationMessageFactory() {
     }
 
-    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(ServiceCall parent, ServiceCall serviceCall, Instant now) {
+    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(ServiceCall parent, ServiceCall serviceCall, String senderBusinessSystemId, Instant now) {
         MasterUtilitiesDeviceCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), now));
+        confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
 
         if (serviceCall.getState().equals(DefaultState.CANCELLED)) {
             confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
@@ -59,9 +59,9 @@ public class CreateConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Instant now) {
+    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), now));
+        confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         if (!message.getUtilitiesDeviceCreateMessages().isEmpty()) {
             confirmMsg.setUtilitiesDevice(createUtilitiesDevice(message.getUtilitiesDeviceCreateMessages().get(0).getDeviceId()));
         }
@@ -75,7 +75,7 @@ public class CreateConfirmationMessageFactory {
         confirmationMessage.setUtilitiesDevice(createUtilitiesDevice(extension.getDeviceId()));
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
         String uuid = UUID.randomUUID().toString();
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
@@ -86,6 +86,8 @@ public class CreateConfirmationMessageFactory {
         if (!Strings.isNullOrEmpty(referenceUuid)) {
             header.setReferenceUUID(createUUID(referenceUuid));
         }
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
@@ -101,7 +103,7 @@ public class CreateConfirmationMessageFactory {
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
-        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(null),
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(),
                 SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
                 null));
         setMaximumLogItemSeverityCode(log);

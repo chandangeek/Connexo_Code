@@ -229,6 +229,8 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }

@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -87,6 +88,16 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
@@ -179,6 +190,16 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                    .varChar()
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar()
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
