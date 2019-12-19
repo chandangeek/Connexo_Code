@@ -122,10 +122,10 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         execute(serviceCalls, timeout);
         DataSendingStatus.Builder dataSendingStatusBuilder = DataSendingStatus.builder();
         if (!createList.isEmpty()) {
-            processErrors(createDataResult, createList, dataSendingStatusBuilder, logger);
+            processErrors(createDataResult, createList, dataSendingStatusBuilder, logger, false);
         }
         if (!changeList.isEmpty()) {
-            processErrors(changeDataResult, changeList, dataSendingStatusBuilder, logger);
+            processErrors(changeDataResult, changeList, dataSendingStatusBuilder, logger, true);
         }
         return dataSendingStatusBuilder.build();
     }
@@ -155,11 +155,11 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                 .orElseThrow(() -> new DestinationFailedException(getThesaurus(), MessageSeeds.NO_WEBSERVICE_FOUND, endPoint.getName()));
     }
 
-    private void processErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger) {
-        getTransactionService().run(() -> doProcessErrors(dataSendingResult, data, statusBuilder, logger));
+    private void processErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, boolean changedData) {
+        getTransactionService().run(() -> doProcessErrors(dataSendingResult, data, statusBuilder, logger, changedData));
     }
 
-    private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger) {
+    private void doProcessErrors(DataSendingResult dataSendingResult, List<ExportData> data, DataSendingStatus.Builder statusBuilder, Logger logger, boolean changedData) {
         List<ServiceCallStatus> states = dataSendingResult.getFinalStatuses();
         Set<ServiceCall> unsuccessfulServiceCalls = states.stream()
                 .filter(Predicates.not(ServiceCallStatus::isSuccessful))
@@ -189,10 +189,18 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         Set<ReadingTypeDataExportItem> failedDataSources = Collections.emptySet();
         if (!unsuccessfulServiceCalls.isEmpty()) {
             failedDataSources = dataExportServiceCallType.getDataSources(unsuccessfulServiceCalls);
-            if (failedDataSources.isEmpty()) {
-                statusBuilder.withAllDataSourcesFailed(); // service calls keep no track of data sources; need to fail all them
+            if (failedDataSources.isEmpty()) { // service calls keep no track of data sources; need to fail them all
+                if (changedData) {
+                    statusBuilder.withAllDataSourcesFailedForChangedData();
+                } else {
+                    statusBuilder.withAllDataSourcesFailedForNewData();
+                }
             } else {
-                statusBuilder.withFailedDataSources(failedDataSources);
+                if (changedData) {
+                    statusBuilder.withFailedDataSourcesForChangedData(failedDataSources);
+                } else {
+                    statusBuilder.withFailedDataSourcesForNewData(failedDataSources);
+                }
             }
         }
         if (!dataSendingResult.sent) {
@@ -212,11 +220,19 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
                         logger.severe(getThesaurus().getSimpleFormat(MessageSeeds.WEB_SERVICE_EXPORT_NO_SERVICE_CALL).format(dataSource.getDescription()));
                     }
                 } else {
-                    statusBuilder.withAllDataSourcesFailed();
+                    if (changedData) { // no data sources in context; need to fail all the data
+                        statusBuilder.withAllDataSourcesFailedForChangedData();
+                    } else {
+                        statusBuilder.withAllDataSourcesFailedForNewData();
+                    }
                     break; // no need to go on, status is completely failed
                 }
             }
-            statusBuilder.withFailedDataSources(untrackedDataSources);
+            if (changedData) {
+                statusBuilder.withFailedDataSourcesForChangedData(untrackedDataSources);
+            } else {
+                statusBuilder.withFailedDataSourcesForNewData(untrackedDataSources);
+            }
         }
     }
 

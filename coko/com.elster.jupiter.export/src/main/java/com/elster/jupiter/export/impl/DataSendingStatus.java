@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DataSendingStatus {
     private boolean failed;
@@ -58,18 +59,22 @@ public class DataSendingStatus {
         return failed;
     }
 
-    public boolean isFailed(ReadingTypeDataExportItem item) {
+    public boolean isFailedForNewData(ReadingTypeDataExportItem item) {
         return allDataSourcesWithNewDataFailed || failedDataSourcesWithNewData.contains(item);
+    }
+
+    public boolean isFailedForChangedData(ReadingTypeDataExportItem item) {
+        return allDataSourcesWithChangedDataFailed || failedDataSourcesWithChangedData.contains(item);
     }
 
     public void throwExceptionIfFailed(Thesaurus thesaurus) {
         if (isFailed()) {
-            if (allDataSourcesWithNewDataFailed) {
+            if (allDataSourcesWithNewDataFailed || allDataSourcesWithChangedDataFailed) {
                 throw new DestinationFailedException(thesaurus, MessageSeeds.DATA_SENDING_FAILED_ALL_DATA_SOURCES);
             } else {
-                String dataSourcesString = failedDataSourcesWithNewData.stream()
-                        .map(dataSource -> '<' + dataSource.getDescription() + '>')
+                String dataSourcesString = Stream.concat(failedDataSourcesWithNewData.stream(), failedDataSourcesWithChangedData.stream())
                         .distinct()
+                        .map(dataSource -> '<' + dataSource.getDescription() + '>')
                         .sorted()
                         .collect(Collectors.joining(", "));
                 throw new DestinationFailedException(thesaurus, MessageSeeds.DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES, dataSourcesString);
@@ -79,6 +84,10 @@ public class DataSendingStatus {
 
     public class Builder {
         public Builder withFailedDataSource(ReadingTypeDataExportItem item) {
+            return withFailedDataSourceForNewData(item).withFailedDataSourceForChangedData(item);
+        }
+
+        public Builder withFailedDataSourceForNewData(ReadingTypeDataExportItem item) {
             failed = true;
             if (!allDataSourcesWithNewDataFailed) {
                 failedDataSourcesWithNewData.add(item);
@@ -86,7 +95,19 @@ public class DataSendingStatus {
             return this;
         }
 
+        public Builder withFailedDataSourceForChangedData(ReadingTypeDataExportItem item) {
+            failed = true;
+            if (!allDataSourcesWithChangedDataFailed) {
+                failedDataSourcesWithChangedData.add(item);
+            }
+            return this;
+        }
+
         public Builder withFailedDataSources(Collection<ReadingTypeDataExportItem> items) {
+            return withFailedDataSourcesForNewData(items).withFailedDataSourcesForChangedData(items);
+        }
+
+        public Builder withFailedDataSourcesForNewData(Collection<ReadingTypeDataExportItem> items) {
             if (!items.isEmpty()) {
                 failed = true;
                 if (!allDataSourcesWithNewDataFailed) {
@@ -96,16 +117,39 @@ public class DataSendingStatus {
             return this;
         }
 
+        public Builder withFailedDataSourcesForChangedData(Collection<ReadingTypeDataExportItem> items) {
+            if (!items.isEmpty()) {
+                failed = true;
+                if (!allDataSourcesWithChangedDataFailed) {
+                    failedDataSourcesWithChangedData.addAll(items);
+                }
+            }
+            return this;
+        }
+
         public Builder withAllDataSourcesFailed() {
+            return withAllDataSourcesFailedForNewData().withAllDataSourcesFailedForChangedData();
+        }
+
+        public Builder withAllDataSourcesFailedForNewData() {
             failed = true;
             failedDataSourcesWithNewData.clear();
             allDataSourcesWithNewDataFailed = true;
             return this;
         }
 
+        public Builder withAllDataSourcesFailedForChangedData() {
+            failed = true;
+            failedDataSourcesWithChangedData.clear();
+            allDataSourcesWithChangedDataFailed = true;
+            return this;
+        }
+
         public DataSendingStatus build() {
-            if (failed && failedDataSourcesWithNewData.isEmpty()) {
+            if (failed && !allDataSourcesWithNewDataFailed && !allDataSourcesWithChangedDataFailed
+                    && failedDataSourcesWithNewData.isEmpty() && failedDataSourcesWithChangedData.isEmpty()) {
                 allDataSourcesWithNewDataFailed = true;
+                allDataSourcesWithChangedDataFailed = true;
             }
             return DataSendingStatus.this;
         }

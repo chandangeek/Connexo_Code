@@ -158,8 +158,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -183,8 +185,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -207,8 +211,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -232,8 +238,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -252,8 +260,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceChange, times(2)).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -272,8 +282,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, newData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -291,8 +303,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(updatedData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
         verify(webServiceChange).call(eq(changeEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -310,8 +324,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, newData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isFalse();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(1)).set(PRINCIPAL); // per 1 started thread
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -331,8 +347,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isTrue();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isTrue();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
                 ": No data export confirmation has been received in the configured timeout.");
@@ -358,8 +376,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isTrue();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isTrue();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
                 ": Error!");
@@ -386,8 +406,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isTrue();
-        assertThat(status.isFailed(source2)).isTrue();
+        assertThat(status.isFailedForNewData(source1)).isTrue();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isTrue();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
                 ": Error!");
@@ -416,8 +438,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isTrue();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isTrue();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
                 ": Received error code, but no error has been provided.");
@@ -443,8 +467,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isTrue();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isTrue();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CHANGE_SERVICE_CALL_ID +
                 ": Unexpected state of the service call: REJECTED.");
@@ -503,10 +529,14 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(dataList, tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isTrue();
-        assertThat(status.isFailed(source2)).isFalse();
-        assertThat(status.isFailed(source3)).isTrue();
-        assertThat(status.isFailed(source4)).isTrue();
+        assertThat(status.isFailedForNewData(source1)).isTrue();
+        assertThat(status.isFailedForChangedData(source1)).isTrue();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source3)).isTrue();
+        assertThat(status.isFailedForChangedData(source3)).isFalse();
+        assertThat(status.isFailedForNewData(source4)).isTrue();
+        assertThat(status.isFailedForChangedData(source4)).isFalse();
 
         verify(logger).severe("Data export via web service isn't confirmed for service call " + CREATE_SERVICE_CALL_ID +
                 ": Error!");
@@ -581,8 +611,10 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(ImmutableList.of(newData, updatedData), tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isTrue();
-        assertThat(status.isFailed(source2)).isFalse();
+        assertThat(status.isFailedForNewData(source1)).isTrue();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isFalse();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
@@ -639,10 +671,14 @@ public class WebServiceDestinationImplTest {
         DataSendingStatus status = destination.send(dataList, tagReplacerFactory, logger);
 
         assertThat(status.isFailed()).isTrue();
-        assertThat(status.isFailed(source1)).isFalse();
-        assertThat(status.isFailed(source2)).isTrue();
-        assertThat(status.isFailed(source3)).isFalse();
-        assertThat(status.isFailed(source4)).isTrue();
+        assertThat(status.isFailedForNewData(source1)).isFalse();
+        assertThat(status.isFailedForChangedData(source1)).isFalse();
+        assertThat(status.isFailedForNewData(source2)).isFalse();
+        assertThat(status.isFailedForChangedData(source2)).isTrue();
+        assertThat(status.isFailedForNewData(source3)).isFalse();
+        assertThat(status.isFailedForChangedData(source3)).isFalse();
+        assertThat(status.isFailedForNewData(source4)).isFalse();
+        assertThat(status.isFailedForChangedData(source4)).isTrue();
 
         verify(threadPrincipalService, times(2)).set(PRINCIPAL); // per each of 2 started threads
         verify(webServiceCreate).call(eq(createEndPoint), dataStreamCaptor.capture(), any(DataExportWebService.ExportContext.class));
