@@ -9,6 +9,7 @@ import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SystemInfoFactory {
@@ -45,23 +46,20 @@ public class SystemInfoFactory {
         return info;
     }
 
-    private String getEnvironmentParameters() {
-        StringBuilder environment = new StringBuilder();
+    private Map<String, String> getEnvironmentParameters() {
+        Map<String, String> environment = new HashMap<>();
 
         Map<String, String> env = System.getenv();
         for (String envName : env.keySet()) {
-            environment.append("<li>");
-            environment.append(env).append("=");
             String value = env.get(envName);
             if (value.toLowerCase().contains("pass")){
-                environment.append("********************");
+                environment.put(value, "********************");
             } else {
-                environment.append(value);
+                environment.put(envName, value);
             }
-            environment.append("</li>");
         }
 
-        return environment.toString();
+        return environment;
     }
 
     private String getPropertyOrDefault(String property, String defaultValue) {
