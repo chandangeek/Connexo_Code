@@ -18,7 +18,7 @@ use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20190702";
+my $INSTALL_VERSION="v20191219";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -454,6 +454,9 @@ sub install_connexo {
 			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             update_properties_file_with_encrypted_password();
 
+			replace_in_file("$CONNEXO_DIR/Connexo.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+			replace_in_file("$CONNEXO_DIR/ConnexoService.vmoptions",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+
             if ("$ACTIVATE_SSO" eq "yes") {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME/apps/multisense/index.html");
             } else {
@@ -480,6 +483,7 @@ sub install_connexo {
 				copy("$CONNEXO_DIR/bin/start-connexo.temp","$CONNEXO_DIR/bin/start-connexo.sh") or die "File cannot be copied: $!";
 				chmod 0755,"$CONNEXO_DIR/bin/start-connexo.sh";
 				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
+				replace_in_file("$CONNEXO_DIR/bin/start-connexoInteractive.sh",'\${CONNEXO_DIR}',"$CONNEXO_DIR");
 				replace_in_file("$CONNEXO_DIR/bin/start-connexo.sh",'\${JAVA_HOME}',"$JAVA_HOME");
 				chmod 0755,"$CONNEXO_DIR/bin/stop-connexo.sh";
 			}
@@ -579,26 +583,21 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
         replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 9.0 ","set DISPLAYNAME=");
+
+
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			if ("$ACTIVATE_SSO" eq "yes") {
-				print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories/kie\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\n";
-			} else {
-				print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories/kie\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dcom.elster.jupiter.url=$CONNEXO_URL -Dcom.elster.jupiter.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dcom.elster.jupiter.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\n";
-			}
+			        print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M \"\n";
 			close($FH);
+
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
             (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
             (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
             (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
-			if ("$ACTIVATE_SSO" eq "yes") {
-				print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories/kie -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dconnexo.configuration=$replaceHOME/conf/connexo.properties -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\"\n";
-			} else {
-				print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories/kie -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dcom.elster.jupiter.url=$CONNEXO_URL -Dcom.elster.jupiter.user=$replaceACCOUNT -Dcom.elster.jupiter.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dconnexo.configuration=$replaceHOME/conf/connexo.properties -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\"\n";
-			}
+			            print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M \"\n";
 			close($FH);
 
 			open(my $FH,"> /etc/init.d/ConnexoTomcat$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoTomcat$SERVICE_VERSION: $!";
@@ -614,6 +613,43 @@ sub install_tomcat {
 			close($FH);
             chmod 0755,"/etc/init.d/ConnexoTomcat$SERVICE_VERSION";
 		}
+
+        print "Setting environment options into catalina.properties \n";
+
+        my $catalina = "$TOMCAT_BASE/$TOMCAT_DIR/conf/catalina.properties";
+        add_to_file($catalina, "\n\nCONNEXO PROPERTIES");
+        add_to_file($catalina, "org.uberfire.nio.git.dir=$replaceHOME");
+        add_to_file($catalina, "org.uberfire.metadata.index.dir=$replaceHOME");
+        add_to_file($catalina, "org.uberfire.nio.git.ssh.cert.dir=$replaceHOME");
+        add_to_file($catalina, "org.guvnor.m2repo.dir=$replaceHOME/repositories/kie   ");
+        add_to_file($catalina, "port.shutdown=$TOMCAT_SHUTDOWN_PORT   ");
+        add_to_file($catalina, "port.http=$TOMCAT_HTTP_PORT");
+        add_to_file($catalina, "flow.url=$FLOW_URL");
+        add_to_file($catalina, "connexo.url=$CONNEXO_URL");
+        add_to_file($catalina, "connexo.user=$replaceACCOUNT");
+        add_to_file($catalina, "connexo.password=$replacePASSWORD");
+        add_to_file($catalina, "btm.root=$replaceHOME");
+        add_to_file($catalina, "bitronix.tm.configuration=$replaceHOME/conf/btm-config.properties");
+        add_to_file($catalina, "jbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry ");
+        add_to_file($catalina, "org.kie.demo=false");
+        add_to_file($catalina, "org.kie.example=false");
+        add_to_file($catalina, "connexo.configuration=$replaceHOME/conf/connexo.properties");
+        add_to_file($catalina, "org.jboss.logging.provider=slf4j");
+        add_to_file($catalina, "org.uberfire.nio.git.ssh.algorithm=RSA");
+        add_to_file($catalina, "javax.net.ssl.trustStoreType=pkcs12");
+        add_to_file($catalina, "javax.net.ssl.trustStore=$replaceHOME/ssl/connexo-truststore.p12");
+        add_to_file($catalina, "javax.net.ssl.trustStorePassword=jupiter");
+        add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
+        add_to_file($catalina, "javax.net.ssl.keyStore=$replaceHOME/ssl/connexo-keystore.p12");
+        add_to_file($catalina, "javax.net.ssl.keyStorePassword=zoro2020");
+
+        if ("$ACTIVATE_SSO" ne "yes") {
+            add_to_file($catalina, "# Connexo properties required for non-SSO setup");
+            add_to_file($catalina, "com.elster.jupiter.url=$CONNEXO_URL");
+            add_to_file($catalina, "com.elster.jupiter.user=$replaceACCOUNT");
+            add_to_file($catalina, "com.elster.jupiter.password=$replacePASSWORD");
+        }
+
 	}
 }
 
@@ -847,14 +883,57 @@ sub activate_sso {
                 print $FH "\n";
                 print $FH "   RedirectMatch ^/\$ http://\${HOSTNAME}/apps/login/index.html\n";
                 print $FH "\n";
-                print $FH "   ProxyPass /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
-                print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow/\n";
-                print $FH "   ProxyPassReverse /flow/ http://\${HOSTNAME}/flow/\n";
-                print $FH "   ProxyPass /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
-                print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts/\n";
-                print $FH "   ProxyPassReverse /facts/ http://\${HOSTNAME}/facts/\n";
+                print $FH "   RedirectMatch /api(.+)\$ https://\${HOSTNAME}/api\$1 [P]\n";
+                print $FH "   RedirectMatch /public/api(.+)\$ https://\${HOSTNAME}/public/api\$1 [P]\n";
+                print $FH "   RedirectMatch /soap(.*)\$ https://\${HOSTNAME}/soap\$1 [P]\n";
+                print $FH "   RedirectMatch /rest(.*)\$ https://\${HOSTNAME}/rest\$1 [P]\n";
+                print $FH "   RedirectMatch /flow(.*)\$ https://\${HOSTNAME}/flow\$1/\n";
+                print $FH "   RedirectMatch /facts(.*)\$ https://\${HOSTNAME}/facts\$1/\n";
+                print $FH "   RedirectMatch /apps(.+)\$ https://\${HOSTNAME}/apps\$1\n"";
                 print $FH "\n";
+                print $FH "   ProxyPassReverse / http://\${HOSTNAME}:80/\n";
+                print $FH "   ProxyPassReverse / http://\${HOSTNAME}:443/\n";
+                print $FH "   DirectoryIndex index.html\n";
+                print $FH "\n";
+                print $FH "</VirtualHost>\n";
+                print $FH "\n\n";
+                print $FH "<VirtualHost ${HOSTNAME}:443>\n";
+                print $FH "   ServerName \${HOSTNAME}\n";
+                print $FH "\n";
+                print $FH "   SSLEngine on\n";
+                print $FH "   SSLProxyEngine On\n";
+                print $FH "   SSLProxyVerify none\n";
+                print $FH "\n";
+                print $FH "   SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1\n";
+                print $FH "   SSLCipherSuite HIGH:!aNULL:!MD5:!3DES\n";
+                print $FH "   SSLHonorCipherOrder on\n";
+                print $FH "\n";
+                print $FH "   # When you replace those, also do it in /etc/httpd/conf.d/ssl.conf \n";
+                print $FH "   SSLCertificateFile $CONNEXO_DIR/ssl/connexo-web-server.cert.pem\n";
+                print $FH "   SSLCertificateKeyFile $CONNEXO_DIR/ssl/private/connexo-web-server.key.pem\n";
+                print $FH "   SSLCACertificateFile $CONNEXO_DIR/ssl/connexo-trustchain.pem\n";
+                print $FH "   SSLCertificateChainFile $CONNEXO_DIR/connexo-trustchain.pem\n";
+                print $FH "\n";
+                print $FH "   RequestHeader set x-request-scheme https\n";
+                print $FH "\n";
+                print $FH "RewriteEngine On\n";
+                print $FH "   ProxyPreserveHost on\n";
+                print $FH "\n";
+                print $FH "AllowEncodedSlashes On\n";
+                print $FH "\n";
+                print $FH "   RedirectMatch ^/\$ https://\${HOSTNAME}/apps/login/index.html\n";
+                print $FH "   RedirectMatch /apps\$ https://\${HOSTNAME}/apps/login/index.html\n";
+                print $FH "\n";
+                print $FH "   ProxyPassReverse / http://\${HOSTNAME}/\n";
+                print $FH "   ProxyPassReverse / http://\${HOSTNAME}:80/\n";
+                print $FH "   ProxyPassReverse / http://\${HOSTNAME}:443/\n";
                 print $FH "   ProxyPassReverse / http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/\n";
+                print $FH "   ProxyPassReverse / http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/\n";
+                print $FH "\n";
+                print $FH "   ## Uncomment the lines below to disable automatic redirect to login page\n";
+                print $FH "   #ProxyPass / http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/\n";
+                print $FH "   #ProxyPassReverse   / http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/\n";
+                print $FH "\n";
                 print $FH "   DirectoryIndex index.html\n";
                 print $FH "\n";
                 print $FH "   RewriteRule ^/apps/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/apps/\$1 [P]\n";
@@ -862,6 +941,11 @@ sub activate_sso {
                 print $FH "   RewriteRule ^/rest(.*)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/rest\$1 [P]\n";
                 print $FH "   RewriteRule ^/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/api/\$1 [P]\n";
                 print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
+                print $FH "   RewriteRule ^/flow(.+)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/flow\$1 [P]\n";
+                print $FH "   RewriteRule ^/facts(.+)\$ http://\${HOSTNAME}:$TOMCAT_HTTP_PORT/facts\$1 [P]\n";
+                print $FH "\n";
+                print $FH "# Redirect index to login page\n";
+                print $FH "   RewriteRule ^$ /apps/login/index.html [L]\n";
                 print $FH "</VirtualHost>\n";
                 close $FH;
             }
