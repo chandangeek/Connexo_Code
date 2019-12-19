@@ -584,9 +584,6 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
         replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 9.0 ","set DISPLAYNAME=");
 
-        (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
-        (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
-        (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
@@ -596,6 +593,9 @@ sub install_tomcat {
 
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
+            (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
+            (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
+            (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
 			            print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M \"\n";
 			close($FH);
@@ -642,6 +642,43 @@ sub install_tomcat {
         add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
         add_to_file($catalina, "javax.net.ssl.keyStore=$replaceHOME/ssl/connexo-keystore.p12");
         add_to_file($catalina, "javax.net.ssl.keyStorePassword=zorro2020");
+
+        if ("$ACTIVATE_SSO" ne "yes") {
+            add_to_file($catalina, "# Connexo properties required for non-SSO setup");
+            add_to_file($catalina, "com.elster.jupiter.url=$CONNEXO_URL");
+            add_to_file($catalina, "com.elster.jupiter.user=$replaceACCOUNT");
+            add_to_file($catalina, "com.elster.jupiter.password=$replacePASSWORD");
+        }
+
+
+        print "Setting environment options into catalina.properties \n";
+
+        my $catalina = "$TOMCAT_BASE/$TOMCAT_DIR/conf/catalina.properties";
+        add_to_file($catalina, "\n\nCONNEXO PROPERTIES");
+        add_to_file($catalina, "org.uberfire.nio.git.dir=$replaceHOME");
+        add_to_file($catalina, "org.uberfire.metadata.index.dir=$replaceHOME");
+        add_to_file($catalina, "org.uberfire.nio.git.ssh.cert.dir=$replaceHOME");
+        add_to_file($catalina, "org.guvnor.m2repo.dir=$replaceHOME/repositories/kie   ");
+        add_to_file($catalina, "port.shutdown=$TOMCAT_SHUTDOWN_PORT   ");
+        add_to_file($catalina, "port.http=$TOMCAT_HTTP_PORT");
+        add_to_file($catalina, "flow.url=$FLOW_URL");
+        add_to_file($catalina, "connexo.url=$CONNEXO_URL");
+        add_to_file($catalina, "connexo.user=$replaceACCOUNT");
+        add_to_file($catalina, "connexo.password=$replacePASSWORD");
+        add_to_file($catalina, "btm.root=$replaceHOME");
+        add_to_file($catalina, "bitronix.tm.configuration=$replaceHOME/conf/btm-config.properties");
+        add_to_file($catalina, "jbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry ");
+        add_to_file($catalina, "org.kie.demo=false");
+        add_to_file($catalina, "org.kie.example=false");
+        add_to_file($catalina, "connexo.configuration=$replaceHOME/conf/connexo.properties");
+        add_to_file($catalina, "org.jboss.logging.provider=slf4j");
+        add_to_file($catalina, "org.uberfire.nio.git.ssh.algorithm=RSA");
+        add_to_file($catalina, "javax.net.ssl.trustStoreType=pkcs12");
+        add_to_file($catalina, "javax.net.ssl.trustStore=$replaceHOME/ssl/connexo-truststore.p12");
+        add_to_file($catalina, "javax.net.ssl.trustStorePassword=jupiter");
+        add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
+        add_to_file($catalina, "javax.net.ssl.keyStore=$replaceHOME/ssl/connexo-keystore.p12");
+        add_to_file($catalina, "javax.net.ssl.keyStorePassword=zoro2020");
 
         if ("$ACTIVATE_SSO" ne "yes") {
             add_to_file($catalina, "# Connexo properties required for non-SSO setup");
