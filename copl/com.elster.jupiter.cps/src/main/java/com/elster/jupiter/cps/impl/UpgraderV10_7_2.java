@@ -28,7 +28,7 @@ public class UpgraderV10_7_2 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 7, 1));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 7, 2));
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
             if (tableExists(connection, "T01_SAP_C01")) {
