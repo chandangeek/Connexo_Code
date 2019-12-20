@@ -111,7 +111,7 @@ public class CreateBulkConfirmationMessageFactory {
         UtilsDvceERPSmrtMtrCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
         confirmationMessage.setMessageHeader(createChildHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));
         confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
-        confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_ITEM_PROCESSING_WAS_NOT_STARTED.getDefaultFormat()));
+        confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_ITEM_PROCESSING_WAS_NOT_STARTED.getDefaultFormat(new Object[0])));
         return confirmationMessage;
     }
 
@@ -174,7 +174,7 @@ public class CreateBulkConfirmationMessageFactory {
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
-        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(),
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(new Object[0]),
                 SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
                 null));
         setMaximumLogItemSeverityCode(log);
@@ -185,7 +185,7 @@ public class CreateBulkConfirmationMessageFactory {
     private Log createPartiallySuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
-        log.getItem().add(createLogItem(MessageSeeds.PARTIALLY_SUCCESSFUL.getDefaultFormat(),
+        log.getItem().add(createLogItem(MessageSeeds.PARTIALLY_SUCCESSFUL.getDefaultFormat(new Object[0]),
                 UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, SeverityCode.ERROR.getCode(),
                 null));
         setMaximumLogItemSeverityCode(log);

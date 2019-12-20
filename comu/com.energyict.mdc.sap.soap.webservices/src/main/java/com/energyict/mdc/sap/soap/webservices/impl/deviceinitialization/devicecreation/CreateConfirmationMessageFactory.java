@@ -103,7 +103,7 @@ public class CreateConfirmationMessageFactory {
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
         log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
-        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(),
+        log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(new Object[0]),
                 SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
                 null));
         setMaximumLogItemSeverityCode(log);
