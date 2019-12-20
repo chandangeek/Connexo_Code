@@ -15,10 +15,6 @@
     <packaging>bundle</packaging>
     <name>[Mobile Subsystem] com.elster.jupiter.subsystem.offline</name>
 
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

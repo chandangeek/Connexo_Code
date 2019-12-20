@@ -18,10 +18,6 @@
         Contains custom logic for SAP
     </description>
 
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
