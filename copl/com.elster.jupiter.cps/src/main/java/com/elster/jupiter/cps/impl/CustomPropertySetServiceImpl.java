@@ -92,9 +92,9 @@ import java.util.stream.Stream;
 @Component(name = "com.elster.jupiter.cps",
         service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class},
         property = {
-            "name=" + CustomPropertySetService.COMPONENT_NAME,
-            "osgi.command.scope=cps",
-            "osgi.command.function=status"
+                "name=" + CustomPropertySetService.COMPONENT_NAME,
+                "osgi.command.scope=cps",
+                "osgi.command.function=status"
         })
 public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider {
 
@@ -254,7 +254,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class,
                 Version.version(10, 6), UpgraderV10_6.class,
-                Version.version(10, 7), UpgraderV10_7.class
+                Version.version(10, 7), UpgraderV10_7.class,
+                Version.version(10, 7, 1), UpgraderV10_7_1.class
         ));
         this.installed = true;
         this.registerAllCustomPropertySets();
@@ -628,7 +629,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> toListCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, List<T> customPropertyValuesEntities, Object... additionalPrimaryKeyValues) {
         List<CustomPropertySetValues> listProperties = new ArrayList<>();
-        for(T customPropertyValuesEntity: customPropertyValuesEntities) {
+        for (T customPropertyValuesEntity : customPropertyValuesEntities) {
             CustomPropertySetValues properties;
             if (customPropertySet.isVersioned()) {
                 Interval interval = DomainExtensionAccessor.getInterval(customPropertyValuesEntity);
@@ -1143,20 +1144,21 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             PersistenceSupport persistenceSupport = customPropertySet.getPersistenceSupport();
             Column domainReference =
                     table
-                        .column(persistenceSupport.domainColumnName())
-                        .notNull()
-                        .number()
-                        .conversion(ColumnConversion.NUMBER2LONG)
-                        .skipOnUpdate()
-                        .add();
+                            .column(persistenceSupport.domainColumnName())
+                            .notNull()
+                            .number()
+                            .conversion(ColumnConversion.NUMBER2LONG)
+                            .skipOnUpdate()
+                            .add();
             table
-                .foreignKey(persistenceSupport.domainForeignKeyName())
-                .on(domainReference)
-                .references(customPropertySet.getDomainClass())
-                .map(persistenceSupport.domainFieldName())
-                .add();
+                    .foreignKey(persistenceSupport.domainForeignKeyName())
+                    .on(domainReference)
+                    .references(customPropertySet.getDomainClass())
+                    .map(persistenceSupport.domainFieldName())
+                    .add();
             return domainReference;
         }
+
         /**
          * Adds a column and a foreign key to the specified {@link Table}
          * that references the {@link CustomPropertySet}.
@@ -1173,11 +1175,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     .skipOnUpdate()
                     .add();
             table
-                .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
-                .on(cps)
-                .references(RegisteredCustomPropertySet.class)
-                .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
-                .add();
+                    .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
+                    .on(cps)
+                    .references(RegisteredCustomPropertySet.class)
+                    .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
+                    .add();
             return cps;
         }
 
