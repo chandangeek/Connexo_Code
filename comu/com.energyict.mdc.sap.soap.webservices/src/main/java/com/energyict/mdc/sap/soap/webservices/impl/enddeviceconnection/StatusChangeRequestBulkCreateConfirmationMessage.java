@@ -104,18 +104,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
 
         public Builder withSingleStatus(String messageId, String deviceID, ConnectionStatusProcessingResultCode processingResultCode, Instant processDate) {
             if (messageId != null) {
-                UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
-                UtilitiesConnectionStatusChangeResultCode resultCode =
-                        OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
-                SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
-                        OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
-
-                id.setValue(deviceID);
-                resultCode.setValue(processingResultCode.getCode());
-
-                deviceConnectionStatus.setUtilitiesDeviceID(id);
-                deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
-                deviceConnectionStatus.setProcessingDateTime(processDate);
+                SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus = createConnectionStatus(deviceID, processingResultCode, processDate);
                 confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage()
                         .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
                         .filter(s -> s.getID() != null)
@@ -188,7 +177,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(m.getCategoryCode());
                         messageBody.setLog(createFailedLog(MessageSeeds.REQUEST_WAS_FAILED.getDefaultFormat()));
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
-                                .addAll(createDeviceConnectionStatuses(m, now));
+                                .addAll(createFailedDeviceConnectionStatuses(m, now));
                         return messageBody;
                     }).collect(Collectors.toList());
         }
@@ -200,7 +189,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(message.getId());
             messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(message.getCategoryCode());
             messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
-                    .addAll(createDeviceConnectionStatuses(message, now));
+                    .addAll(createFailedDeviceConnectionStatuses(message, now));
             return messageBody;
         }
 
@@ -228,11 +217,11 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return deviceConnectionStatus;
         }
 
-        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
-            return message.getDeviceConnectionStatus().keySet().stream().distinct().map(sapDeviceId -> createConnectionStatus(sapDeviceId, now)).collect(Collectors.toList());
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createFailedDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
+            return message.getDeviceConnectionStatus().keySet().stream().distinct().map(sapDeviceId -> createConnectionStatus(sapDeviceId, ConnectionStatusProcessingResultCode.FAILED, now)).collect(Collectors.toList());
         }
 
-        SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, Instant now) {
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, ConnectionStatusProcessingResultCode processingResutCode, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
                     OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
             deviceConnectionStatus.setProcessingDateTime(now);
@@ -243,7 +232,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
 
             UtilitiesConnectionStatusChangeResultCode resultCode =
                     OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
-            resultCode.setValue(ConnectionStatusProcessingResultCode.FAILED.getCode());
+            resultCode.setValue(processingResutCode.getCode());
             deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
             return deviceConnectionStatus;
         }
