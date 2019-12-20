@@ -396,7 +396,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
      * @return a string representation
      */
     public String toString() {
-        return getCount() + " " + getTimeUnit().description;
+        return Integer.toString(getCount()) + ' ' + getTimeUnit().description;
     }
 
     /**
