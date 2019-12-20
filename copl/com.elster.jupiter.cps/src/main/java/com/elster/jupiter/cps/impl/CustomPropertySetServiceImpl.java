@@ -255,7 +255,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 Version.version(10, 2), UpgraderV10_2.class,
                 Version.version(10, 6), UpgraderV10_6.class,
                 Version.version(10, 7), UpgraderV10_7.class,
-                Version.version(10, 7, 1), UpgraderV10_7_1.class
+                Version.version(10, 7, 1), UpgraderV10_7_2.class
         ));
         this.installed = true;
         this.registerAllCustomPropertySets();

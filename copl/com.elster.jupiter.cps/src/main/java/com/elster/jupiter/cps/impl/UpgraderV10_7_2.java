@@ -18,11 +18,11 @@ import java.sql.Statement;
 import java.util.stream.Stream;
 
 
-public class UpgraderV10_7_1 implements Upgrader {
+public class UpgraderV10_7_2 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject
-    public UpgraderV10_7_1(DataModel dataModel) {
+    public UpgraderV10_7_2(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
