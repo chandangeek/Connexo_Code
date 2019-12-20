@@ -25,4 +25,5 @@ public class SystemInfo {
     public String dbMaxConnectionsNumber;
     public String dbMaxStatementsPerRequest;
     public Map<String, String> environmentParameters;
+    public Map<String, Map<String, String>> trustStoreContent;
 }

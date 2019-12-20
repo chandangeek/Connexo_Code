@@ -641,7 +641,7 @@ sub install_tomcat {
         add_to_file($catalina, "javax.net.ssl.trustStorePassword=jupiter");
         add_to_file($catalina, "javax.net.ssl.keyStoreType=pkcs12");
         add_to_file($catalina, "javax.net.ssl.keyStore=$replaceHOME/ssl/connexo-keystore.p12");
-        add_to_file($catalina, "javax.net.ssl.keyStorePassword=zoro2020");
+        add_to_file($catalina, "javax.net.ssl.keyStorePassword=zorro2020");
 
         if ("$ACTIVATE_SSO" ne "yes") {
             add_to_file($catalina, "# Connexo properties required for non-SSO setup");

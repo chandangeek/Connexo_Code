@@ -42,9 +42,11 @@ Ext.define('Sam.view.systeminfo.SystemInfo', {
                 + '<li>{browserVersionInfo}</li>'
                 + '<li>{browserLanguageInfo}</li>'
                 + '</ul>'
-                + '</tpl>'
-                + "<p><h2>{[Uni.I18n.translate('systemInfo.environmentParameters', 'SAM', 'Emvironment parameters')]}:</h2></p>"
-                + "{environmentParameters}",
+                + "<p><h2>{[Uni.I18n.translate('systemInfo.environmentParameters', 'SAM', 'Environment parameters')]}:</h2></p>"
+                + "{environmentParameters}"
+                + "<p><h2>{[Uni.I18n.translate('systemInfo.trustStoreContent', 'SAM', 'TrustStore content')]}:</h2></p>"
+                + "{trustStoreContent}"
+                + '</tpl>',
                 itemSelector: 'div'
             }
         }

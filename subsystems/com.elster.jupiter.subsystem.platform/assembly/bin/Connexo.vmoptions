@@ -7,4 +7,4 @@
 -Djavax.net.ssl.trustStorePassword=jupiter
 -Djavax.net.ssl.keyStoreType=pkcs12
 -Djavax.net.ssl.keyStore=${CONNEXO_DIR}/ssl/connexo-keystore.p12
--Djavax.net.ssl.keyStorePassword=zoro2020
+-Djavax.net.ssl.keyStorePassword=zorro2020

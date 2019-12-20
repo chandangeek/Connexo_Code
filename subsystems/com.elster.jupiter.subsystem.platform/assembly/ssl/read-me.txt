@@ -31,7 +31,7 @@ ssl/connexo-truststore.p12
 
 ssl/connexo-keystore.p12
 ------------------------
-* password: zoro2020
+* password: zorro2020
 * this is should be used to store any private key material necessary for mutual TLS authentication (like web-services clients)
 * path to this file is set in several places:
     * Connexo.vmoptions, ConnexoService.vmoptions
