@@ -58,7 +58,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.json.JSONObject;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -1169,7 +1168,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         ReadingQualityRecord quality = mock(ReadingQualityRecord.class);
         when(quality.hasEstimatedCategory()).thenReturn(true);
         when(quality.getType()).thenReturn(qualityType);
-        when(quality.getId()).thenReturn(555L);
         when(quality.getComment()).thenReturn("Estimated by market rule 11");
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(qualityType);
         doReturn(Collections.singletonList(quality)).when(validationStatus).getReadingQualities();

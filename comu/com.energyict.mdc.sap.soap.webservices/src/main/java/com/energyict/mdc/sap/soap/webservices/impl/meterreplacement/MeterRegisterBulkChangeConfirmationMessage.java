@@ -7,9 +7,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
@@ -28,12 +29,17 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmat
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
+import com.google.common.base.Strings;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
+import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
 public class MeterRegisterBulkChangeConfirmationMessage {
@@ -66,7 +72,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
                 confirmationMessage.setLog(createPartiallySuccessfulLog());
             } else {
-                confirmationMessage.setLog(createFailedLog());
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_REQUEST_WAS_FAILED.getDefaultFormat()));
             }
 
             createBody(confirmationMessage, children, now);
@@ -76,7 +82,6 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         public Builder from(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkChgConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(messages.getRequestId(), messages.getUuid(), now));
-
             UtilsDvceERPSmrtMtrRegChgConfMsg confMsg = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confMsg.setUtilitiesDevice(createChildBody(message.getDeviceId()));
 
@@ -119,7 +124,6 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         private UtilsDvceERPSmrtMtrRegChgConfMsg createChildMessage(ServiceCall subParentServiceCall, Instant now) {
             SubMasterMeterRegisterChangeRequestDomainExtension extension = subParentServiceCall.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
                     .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
-
             UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
             confirmationMessage.setMessageHeader(createChildHeader(extension.getRequestId(), extension.getUuid(), now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
@@ -135,7 +139,7 @@ public class MeterRegisterBulkChangeConfirmationMessage {
                 if (!errorMessages.isEmpty()) {
                     confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog(errorMessages) : createFailedLog(errorMessages));
                 } else {
-                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog());
+                    confirmationMessage.setLog(subParentServiceCall.getState() == DefaultState.PARTIAL_SUCCESS ? createPartiallySuccessfulLog() : createFailedLog(MessageSeeds.BULK_REQUEST_WAS_FAILED.getDefaultFormat()));
                 }
             }
             return confirmationMessage;
@@ -153,9 +157,12 @@ public class MeterRegisterBulkChangeConfirmationMessage {
 
         private BusinessDocumentMessageHeader createChildHeader(String id, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-
-            header.setReferenceID(createID(id));
-            header.setReferenceUUID(createUUID(uuid));
+            if (!Strings.isNullOrEmpty(id)) {
+                header.setReferenceID(createID(id));
+            }
+            if (!Strings.isNullOrEmpty(uuid)){
+                header.setReferenceUUID(createUUID(uuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }
@@ -164,9 +171,13 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
-            header.setReferenceID(createID(requestId));
+            if (!Strings.isNullOrEmpty(requestId)) {
+                header.setReferenceID(createID(requestId));
+            }
             header.setUUID(createUUID(uuid));
-            header.setReferenceUUID(createUUID(referenceUuid));
+            if (!Strings.isNullOrEmpty(referenceUuid)) {
+                header.setReferenceUUID(createUUID(referenceUuid));
+            }
             header.setCreationDateTime(now);
             return header;
         }
@@ -187,52 +198,73 @@ public class MeterRegisterBulkChangeConfirmationMessage {
         private Log createSuccessfulLog() {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
+            log.getItem().add(createLogItem(MessageSeeds.OK_RESULT.getDefaultFormat(),
+                    SUCCESSFUL_PROCESSING_TYPE_ID, SeverityCode.INFORMATION.getCode(),
+                    null));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
         private Log createPartiallySuccessfulLog() {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
+            log.getItem().add(createLogItem(MessageSeeds.PARTIALLY_SUCCESSFUL.getDefaultFormat(),
+                    UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, SeverityCode.ERROR.getCode(),
+                    null));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
         private Log createPartiallySuccessfulLog(List<String> messages) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.PARTIALLY_SUCCESSFUL.getCode());
-            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
-            return log;
-        }
-
-        private Log createFailedLog() {
-            Log log = objectFactory.createLog();
-            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message,
+                    UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, SeverityCode.ERROR.getCode(),
+                    null)));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
         private Log createFailedLog(List<String> messages) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-            messages.stream().forEach(message -> log.getItem().add(createLogItem(message)));
+            messages.stream().forEach(message -> log.getItem().add(createLogItem(message, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                    SeverityCode.ERROR.getCode(), PROCESSING_ERROR_CATEGORY_CODE)));
             return log;
         }
 
         private Log createFailedLog(String message) {
             Log log = objectFactory.createLog();
             log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
-            log.getItem().add(createLogItem(message));
+            log.getItem().add(createLogItem(message, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
+                    SeverityCode.ERROR.getCode(), PROCESSING_ERROR_CATEGORY_CODE));
+            setMaximumLogItemSeverityCode(log);
             return log;
         }
 
-        private LogItem createLogItem(String message) {
-            LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
-            logItemCategoryCode.setValue(WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE);
-
+        private LogItem createLogItem(String message, String typeId, String severityCode, String categoryCode) {
             LogItem logItem = objectFactory.createLogItem();
-            logItem.setTypeID(UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID);
-            logItem.setCategoryCode(logItemCategoryCode);
+            if (!Strings.isNullOrEmpty(categoryCode)) {
+                LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
+                logItemCategoryCode.setValue(categoryCode);
+                logItem.setCategoryCode(logItemCategoryCode);
+            }
+            logItem.setSeverityCode(severityCode);
+            logItem.setTypeID(typeId);
             logItem.setNote(message);
 
             return logItem;
+        }
+
+        private void setMaximumLogItemSeverityCode(Log log) {
+            OptionalInt maxInt = log.getItem().stream().map(LogItem::getSeverityCode)
+                    .filter(Predicates.not(Strings::isNullOrEmpty))
+                    .mapToInt(Integer::parseInt)
+                    .max();
+            if (maxInt.isPresent()) {
+                Integer value = maxInt.getAsInt();
+                log.setMaximumLogItemSeverityCode(value.toString());
+            }
         }
     }
 }

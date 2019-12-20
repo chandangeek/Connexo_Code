@@ -150,6 +150,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(meterReadingData1.getItem().getDomainObject().getName()).thenReturn(DEVICE_NAME_1);
         when(meterReadingData1.getItem().getReadingType().getMRID()).thenReturn(MRID_1);
         when(meterReadingData1.getItem().getReadingType()).thenReturn(readingType);
+        when(meterReadingData1.getItem().getRequestedReadingInterval()).thenReturn(Optional.empty());
         when(meterReadingData1.getValidationData()).thenReturn(validationData);
         when(meterReadingData1.getMeterReading()).thenReturn(meterReading1);
 
@@ -184,6 +185,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
         when(meterReadingData2.getItem().getDomainObject().getName()).thenReturn(DEVICE_NAME_2);
         when(meterReadingData2.getItem().getReadingType().getMRID()).thenReturn(MRID_2);
         when(meterReadingData2.getItem().getReadingType()).thenReturn(readingType);
+        when(meterReadingData2.getItem().getRequestedReadingInterval()).thenReturn(Optional.empty());
         when(meterReadingData2.getValidationData()).thenReturn(validationData);
         when(meterReadingData2.getMeterReading()).thenReturn(meterReading2);
 

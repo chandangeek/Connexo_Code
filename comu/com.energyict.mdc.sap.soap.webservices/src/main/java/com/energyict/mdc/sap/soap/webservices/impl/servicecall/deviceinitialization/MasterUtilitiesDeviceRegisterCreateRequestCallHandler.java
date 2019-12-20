@@ -113,6 +113,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
             }
         }catch(Exception ex){
             //If we could not send registered notification due to any exception, we should continue to process service call
+            serviceCall.log(LogLevel.WARNING, "Exception while sending registered (bulk) notification: " + ex.getLocalizedMessage());
         }
     }
 

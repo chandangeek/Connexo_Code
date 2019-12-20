@@ -1048,7 +1048,9 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             secondDeviceConfiguration.activate();
             secondDeviceConfiguration.save();
 
-            final List<DeviceMessageId> deviceMessageIds = secondDeviceConfiguration.getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
+            final List<DeviceMessageId> deviceMessageIds = secondDeviceConfiguration.getDeviceMessageEnablements().stream()
+                    .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
+                    .map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
             deviceMessageIds.forEach(secondDeviceConfiguration::removeDeviceMessageEnablement);
             secondDeviceConfiguration.save();
 

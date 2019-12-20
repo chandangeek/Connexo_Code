@@ -43,6 +43,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -92,6 +93,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private CustomPropertySetService customPropertySetService;
     private boolean strategyChange = false;
     private TaskStatus taskStatus;
+    private ProtocolJournal protocolJournal;
 
     protected ScheduledConnectionTaskImpl() {
         super();
@@ -627,6 +629,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         connectionProperties.addAll(getDeviceIdentificationProperties());
         connectionProperties.addAll(getSIMcardProperties());
         connectionProperties.addAll(getConnectionProviderProperty());
+        connectionType.setProtocolJournaling(protocolJournal);
         return connectionType.connect(connectionProperties);
     }
 
@@ -703,6 +706,17 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     public CustomPropertySetService getCustomPropertySetService() {
         return this.customPropertySetService;
+    }
+
+    @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal) {
+        this.protocolJournal = protocolJournal;
+        getConnectionType().setProtocolJournaling(protocolJournal);
+    }
+
+    @Override
+    public void journal(String message) {
+        this.protocolJournal.addToJournal(message);
     }
 
     private enum PostingMode {

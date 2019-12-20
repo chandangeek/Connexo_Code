@@ -23,6 +23,7 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
@@ -120,6 +121,11 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
                 }
+            } else if (comTaskExecution.getComTask().getId() == firmwareCampaignOptional.get().getValidationComTaskId()) {
+                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
             }
         }
     }
@@ -164,6 +170,11 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         scheduleVerification(deviceInFirmwareCampaign, firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
                 }
+            } else if (comTaskExecution.getComTask().getId() == firmwareCampaignOptional.get().getValidationComTaskId()){
+                ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_LOST_ACTION).format());
             }
         }
     }
@@ -233,6 +244,5 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
-
     }
 }

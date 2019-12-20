@@ -5,6 +5,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.device.config.AbstractConnectionTypeDelegate;
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,5 +39,15 @@ public class ConnectionTypeWithPossibleValues extends AbstractConnectionTypeDele
 
     public Device getDevice() {
         return this.device;
+    }
+
+    @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal) {
+        getInnerConnectionType().setProtocolJournaling(protocolJournal);
+    }
+
+    @Override
+    public void journal(String message) {
+        getInnerConnectionType().journal(message);
     }
 }
