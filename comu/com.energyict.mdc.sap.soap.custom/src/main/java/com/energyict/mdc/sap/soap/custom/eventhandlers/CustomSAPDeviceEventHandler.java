@@ -18,7 +18,6 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.sap.soap.custom.TranslationInstaller;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
