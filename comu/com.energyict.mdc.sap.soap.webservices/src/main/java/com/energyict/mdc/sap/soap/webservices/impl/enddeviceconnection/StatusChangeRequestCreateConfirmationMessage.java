@@ -191,7 +191,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
         }
 
         private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createFailedDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
-            return message.getDeviceConnectionStatus().keySet().stream().distinct().map(sapDeviceId -> createConnectionStatus(sapDeviceId, ConnectionStatusProcessingResultCode.FAILED, now)).collect(Collectors.toList());
+            return message.getDeviceConnectionStatus().keySet().stream().map(sapDeviceId -> createConnectionStatus(sapDeviceId, ConnectionStatusProcessingResultCode.FAILED, now)).collect(Collectors.toList());
         }
 
         SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, ConnectionStatusProcessingResultCode processingResutCode, Instant now) {
