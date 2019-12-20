@@ -797,7 +797,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" or ct.comwindowend = 0) ");
             sqlBuilder.append(") t");
             sqlBuilder.append(" WHERE rn <= ");
-            sqlBuilder.addLong(1300);
+            sqlBuilder.addLong(5200);
             sqlBuilder.append(" ORDER BY t.nextexecutiontimestamp, t.priority, t.connectiontask");
             return mapper.fetcher(sqlBuilder);
         } else {
