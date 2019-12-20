@@ -135,11 +135,11 @@ public class WebServiceDestinationImplTest {
         when(dataExportService.getExportWebService(WEB_SERVICE_CHANGE)).thenReturn(Optional.of(webServiceChange));
 
         when(serviceCallType.startServiceCallAsync(eq("uuidCr"), eq(1L), anyCollectionOf(ReadingTypeDataExportItem.class))).thenReturn(createServiceCall);
-        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startServiceCall("uuidCr", 1, Collections.singleton(source1)))
+        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCr", 1, Collections.singleton(source1)))
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
         when(serviceCallType.getDataSources(Collections.singleton(createServiceCall))).thenReturn(Collections.singleton(source1));
         when(serviceCallType.startServiceCallAsync(eq("uuidCh"), eq(2L), anyCollectionOf(ReadingTypeDataExportItem.class))).thenReturn(changeServiceCall);
-        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startServiceCall("uuidCh", 2, Collections.singleton(source2)))
+        doAnswer(invocation -> invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCh", 2, Collections.singleton(source2)))
                 .when(webServiceChange).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
         when(serviceCallType.getDataSources(Collections.singleton(changeServiceCall))).thenReturn(Collections.singleton(source2));
         when(dataExportService.getDataExportServiceCallType()).thenReturn(serviceCallType);
@@ -505,16 +505,16 @@ public class WebServiceDestinationImplTest {
         when(serviceCallType.startServiceCallAsync("uuidCr1", 3, Collections.singleton(source2))).thenReturn(createServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startServiceCall("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
-            context.startServiceCall("uuidCr1", 3, Collections.singleton(source2));
+            context.startAndRegisterServiceCall("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
+            context.startAndRegisterServiceCall("uuidCr1", 3, Collections.singleton(source2));
             return null;
         })
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
         when(serviceCallType.startServiceCallAsync("uuidCh1", 4, ImmutableSet.of(source2, source4))).thenReturn(changeServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startServiceCall("uuidCh", 2, Collections.singleton(source1));
-            context.startServiceCall("uuidCh1", 4, ImmutableSet.of(source2, source4));
+            context.startAndRegisterServiceCall("uuidCh", 2, Collections.singleton(source1));
+            context.startAndRegisterServiceCall("uuidCh1", 4, ImmutableSet.of(source2, source4));
             return null;
         })
                 .when(webServiceChange).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
@@ -602,7 +602,7 @@ public class WebServiceDestinationImplTest {
     public void testMultipleDataNotFullySentDueToTimeout() {
         doAnswer(invocation -> {
             Thread.sleep(WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1000);
-            invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startServiceCall("uuidCr", 1, Collections.singleton(source1));
+            invocation.getArgumentAt(2, DataExportWebService.ExportContext.class).startAndRegisterServiceCall("uuidCr", 1, Collections.singleton(source1));
             return null;
         })
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
@@ -646,17 +646,17 @@ public class WebServiceDestinationImplTest {
         when(serviceCallType.startServiceCallAsync("uuidCr1", 3, Collections.singleton(source2))).thenReturn(createServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startServiceCall("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
-            context.startServiceCall("uuidCr1", 3, Collections.singleton(source2));
+            context.startAndRegisterServiceCall("uuidCr", 1, ImmutableSet.of(source1, source3, source4));
+            context.startAndRegisterServiceCall("uuidCr1", 3, Collections.singleton(source2));
             return null;
         })
                 .when(webServiceCreate).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));
         when(serviceCallType.startServiceCallAsync("uuidCh1", 4, ImmutableSet.of(source2, source4))).thenReturn(changeServiceCall1);
         doAnswer(invocation -> {
             DataExportWebService.ExportContext context = invocation.getArgumentAt(2, DataExportWebService.ExportContext.class);
-            context.startServiceCall("uuidCh", 2, Collections.singleton(source1));
+            context.startAndRegisterServiceCall("uuidCh", 2, Collections.singleton(source1));
             Thread.sleep(WebServiceDataExportServiceCallHandler.CHECK_PAUSE_IN_SECONDS * 1000);
-            context.startServiceCall("uuidCh1", 4, ImmutableSet.of(source2, source4));
+            context.startAndRegisterServiceCall("uuidCh1", 4, ImmutableSet.of(source2, source4));
             return null;
         })
                 .when(webServiceChange).call(any(EndPointConfiguration.class), any(), any(DataExportWebService.ExportContext.class));

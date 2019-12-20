@@ -310,7 +310,7 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         }
 
         @Override
-        public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources) {
+        public ServiceCall startAndRegisterServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> dataSources) {
             ServiceCall serviceCall = dataExportServiceCallType.startServiceCallAsync(uuid, timeout, dataSources);
             openServiceCalls.add(serviceCall);
             return serviceCall;

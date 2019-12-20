@@ -52,7 +52,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
-    protected volatile WebServiceActivator webServiceActivator;
+    volatile WebServiceActivator webServiceActivator;
 
     private int numberOfReadingsPerMsg;
 
@@ -221,7 +221,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                 }
                 Optional.ofNullable(timeout)
                         .map(TimeDuration::getMilliSeconds)
-                        .ifPresent(millis -> context.startServiceCall(uuid, millis, exportData.stream().map(MeterReadingData::getItem).collect(Collectors.toList())));
+                        .ifPresent(millis -> context.startAndRegisterServiceCall(uuid, millis, exportData.stream().map(MeterReadingData::getItem).collect(Collectors.toList())));
             }
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
