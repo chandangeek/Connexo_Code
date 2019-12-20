@@ -131,6 +131,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
@@ -153,6 +155,9 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
     private BusinessDocumentMessageHeader createChildHeader(Instant now) {
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
 
+        header.setUUID(createUUID(UUID.randomUUID().toString()));
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }

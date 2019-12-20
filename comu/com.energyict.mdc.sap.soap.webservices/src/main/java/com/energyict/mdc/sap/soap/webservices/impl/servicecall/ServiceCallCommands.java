@@ -67,17 +67,19 @@ public class ServiceCallCommands {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     public ServiceCallCommands(Clock clock, MessageService messageService, MeteringService meteringService,
                                SAPCustomPropertySets sapCustomPropertySets, ServiceCallService serviceCallService,
-                               Thesaurus thesaurus) {
+                               Thesaurus thesaurus, WebServiceActivator webServiceActivator) {
         this.clock = clock;
         this.messageService = messageService;
         this.meteringService = meteringService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
+        this.webServiceActivator = webServiceActivator;
     }
 
     public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message) {
@@ -98,7 +100,7 @@ public class ServiceCallCommands {
         if (message.isValid()) {
             if (!hasConnectionStatusChangeServiceCall(message.getId(), message.getUuid())) {
                 getServiceCallType(ServiceCallTypes.CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
-                    createChildServiceCall(serviceCallType, message, parent);
+                    createChildServiceCall(serviceCallType, messages, message, parent);
                 });
             } else {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, messages, message);
@@ -199,7 +201,8 @@ public class ServiceCallCommands {
     }
 
     private void createAndSendCommand(String id, EndDevice endDevice, ServiceCall serviceCall,
-                                      HeadEndInterface headEndInterface, StatusChangeRequestCreateMessage message) {
+                                      HeadEndInterface headEndInterface, StatusChangeRequestCreateMessage message,
+                                      StatusChangeRequestBulkCreateMessage messages) {
         EndDeviceCommand deviceCommand;
 
         switch (CategoryCode.findByCode(message.getCategoryCode())) {
@@ -215,7 +218,7 @@ public class ServiceCallCommands {
         }
 
         if (deviceCommand == null) {
-            sendProcessErrorWithStatus(MessageSeeds.INVALID_CATEGORY_CODE, message, id);
+            sendProcessErrorWithStatus(MessageSeeds.INVALID_CATEGORY_CODE, messages, message, id);
         } else {
             CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand,
                     message.getPlannedProcessingDateTime()
@@ -228,11 +231,11 @@ public class ServiceCallCommands {
         }
     }
 
-    private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message) {
+    private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message, StatusChangeRequestBulkCreateMessage messages) {
         serviceCall.log(LogLevel.INFO, "Handling breaker operations for device with SAP id " + deviceId);
         Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
         if (device.isPresent() && !device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
-            sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, message, deviceId);
+            sendProcessErrorWithStatus(MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, messages, message, deviceId);
             return;
         }
         Optional<EndDevice> endDevice = device.isPresent()
@@ -247,20 +250,20 @@ public class ServiceCallCommands {
                     .ifPresent(de -> headEndInterface
                             .ifPresent(hei -> {
                                 try {
-                                    createAndSendCommand(deviceId, ed, serviceCall, hei, message);
+                                    createAndSendCommand(deviceId, ed, serviceCall, hei, message, messages);
                                 } catch (LocalizedException le) {
-                                    sendProcessErrorWithStatus(le.getLocalizedMessage(), message, deviceId);
+                                    sendProcessErrorWithStatus(le.getLocalizedMessage(), messages, message, deviceId);
                                 }
                             }));
 
             if (!headEndInterface.isPresent()) {
-                sendProcessErrorWithStatus(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, message, deviceId);
+                sendProcessErrorWithStatus(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, messages, message, deviceId);
             } else if (!connectionStatusChangeDomainExtension.isPresent()) {
-                sendProcessErrorWithStatus(MessageSeeds.COULD_NOT_FIND_DOMAIN_EXTENSION, message, deviceId);
+                sendProcessErrorWithStatus(MessageSeeds.COULD_NOT_FIND_DOMAIN_EXTENSION, messages, message, deviceId);
             }
         });
         if (!endDevice.isPresent()) {
-            sendProcessErrorWithStatus(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, message, deviceId);
+            sendProcessErrorWithStatus(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, messages, message, deviceId);
         }
     }
 
@@ -319,7 +322,7 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(DefaultState.ONGOING);
 
         message.getDeviceConnectionStatus()
-                .forEach((key, value) -> sendCommand(serviceCall, key, message));
+                .forEach((key, value) -> sendCommand(serviceCall, key, message, null));
 
         List<ServiceCall> children = findChildren(serviceCall);
 
@@ -330,7 +333,7 @@ public class ServiceCallCommands {
         }
     }
 
-    private void createChildServiceCall(ServiceCallType serviceCallType, StatusChangeRequestCreateMessage message, ServiceCall parent) {
+    private void createChildServiceCall(ServiceCallType serviceCallType, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, ServiceCall parent) {
         ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
@@ -351,7 +354,7 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(DefaultState.ONGOING);
 
         message.getDeviceConnectionStatus()
-                .forEach((key, value) -> sendCommand(serviceCall, key, message));
+                .forEach((key, value) -> sendCommand(serviceCall, key, message, messages));
 
         List<ServiceCall> children = findChildren(serviceCall);
 
@@ -487,25 +490,17 @@ public class ServiceCallCommands {
     }
 
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
-        if (message.isBulk()) {
-            StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
-                    StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, messageSeed.translate(thesaurus), clock.instant())
-                            .build();
-            sendMessage(confirmationMessage);
-        } else {
-            StatusChangeRequestCreateConfirmationMessage confirmationMessage =
-                    StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, messageSeed.translate(thesaurus), clock.instant())
-                            .build();
-            sendMessage(confirmationMessage);
-        }
+        StatusChangeRequestCreateConfirmationMessage confirmationMessage =
+                StatusChangeRequestCreateConfirmationMessage.builder()
+                        .from(message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .build();
+        sendMessage(confirmationMessage);
     }
 
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage message) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                        .from(message, messageSeed.translate(thesaurus), clock.instant())
+                        .from(message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -513,7 +508,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message) {
         StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                        .from(messages, message, messageSeed.translate(thesaurus), clock.instant())
+                        .from(messages, message, messageSeed.translate(thesaurus), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -526,36 +521,36 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage, message.isBulk());
     }
 
-    private void sendProcessErrorWithStatus(String exceptionInfo, StatusChangeRequestCreateMessage message, String deviceId) {
-        if (message.isBulk()) {
+    private void sendProcessErrorWithStatus(String exceptionInfo, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String deviceId) {
+        if (message.isBulk() && messages != null) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, exceptionInfo, clock.instant())
+                            .from(messages, message, exceptionInfo, webServiceActivator.getMeteringSystemId(), clock.instant())
                             .withSingleStatus(message.getId(), deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, exceptionInfo, clock.instant())
+                            .from(message, exceptionInfo, webServiceActivator.getMeteringSystemId(), clock.instant())
                             .withStatus(deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         }
     }
 
-    private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message, String deviceId) {
-        if (message.isBulk()) {
+    private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String deviceId) {
+        if (message.isBulk() && messages != null) {
             StatusChangeRequestBulkCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestBulkCreateConfirmationMessage.builder(sapCustomPropertySets)
-                            .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
+                            .from(messages, message, messageSeed.translate(thesaurus, deviceId), webServiceActivator.getMeteringSystemId(), clock.instant())
                             .withSingleStatus(message.getId(), deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);
         } else {
             StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                     StatusChangeRequestCreateConfirmationMessage.builder()
-                            .from(message, messageSeed.translate(thesaurus, deviceId), clock.instant())
+                            .from(message, messageSeed.translate(thesaurus, deviceId), webServiceActivator.getMeteringSystemId(), clock.instant())
                             .withStatus(deviceId, ConnectionStatusProcessingResultCode.FAILED, clock.instant())
                             .build();
             sendMessage(confirmationMessage);

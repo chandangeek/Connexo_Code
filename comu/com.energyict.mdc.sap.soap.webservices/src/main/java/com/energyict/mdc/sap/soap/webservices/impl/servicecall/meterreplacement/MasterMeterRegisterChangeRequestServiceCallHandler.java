@@ -27,6 +27,7 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
     public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -88,14 +89,14 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
         if (extension.isBulk()) {
             MeterRegisterBulkChangeConfirmationMessage resultMessage = MeterRegisterBulkChangeConfirmationMessage
                     .builder()
-                    .from(serviceCall, clock.instant())
+                    .from(serviceCall, webServiceActivator.getMeteringSystemId(), clock.instant())
                     .build();
 
             WebServiceActivator.METER_REGISTER_BULK_CHANGE_CONFIRMATIONS.forEach(sender -> sender.call(resultMessage));
         } else {
             MeterRegisterChangeConfirmationMessage resultMessage = MeterRegisterChangeConfirmationMessage
                     .builder()
-                    .from(serviceCall, clock.instant())
+                    .from(serviceCall, webServiceActivator.getMeteringSystemId(), clock.instant())
                     .build();
 
             WebServiceActivator.METER_REGISTER_CHANGE_CONFIRMATIONS.forEach(sender -> sender.call(resultMessage));
@@ -120,5 +121,10 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }
