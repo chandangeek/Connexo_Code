@@ -275,7 +275,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         return sapCustomPropertySets.getProfileId(channel, range);
     }
 
-    private void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+    void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
     }
 }
