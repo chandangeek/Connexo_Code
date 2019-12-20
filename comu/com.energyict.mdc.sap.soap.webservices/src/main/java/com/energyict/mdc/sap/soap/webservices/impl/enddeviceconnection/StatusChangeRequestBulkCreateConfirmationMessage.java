@@ -88,14 +88,14 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
 
         public Builder from(StatusChangeRequestBulkCreateMessage messages, String exceptionMessage, String senderBusinessSystemId, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(messages.getId(), messages.getUuid(), senderBusinessSystemId, now));
-            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createBodies(messages, senderBusinessSystemId, now));
+            confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().addAll(createFailedBodies(messages, senderBusinessSystemId, now));
             confirmationMessage.setLog(createFailedLog(exceptionMessage));
             return this;
         }
 
         public Builder from(StatusChangeRequestBulkCreateMessage messages, StatusChangeRequestCreateMessage message, String exceptionMessage, String senderBusinessSystemId, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(messages.getId(), messages.getUuid(), senderBusinessSystemId, now));
-            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createBody(message, senderBusinessSystemId, now);
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg msg = createFailedBody(message, senderBusinessSystemId, now);
             msg.setLog(createFailedLog(exceptionMessage));
             confirmationMessage.getSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationMessage().add(msg);
             confirmationMessage.setLog(createFailedLog(exceptionMessage));
@@ -109,7 +109,10 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                         .stream().map(r -> r.getUtilitiesConnectionStatusChangeRequest())
                         .filter(s -> s.getID() != null)
                         .filter(s -> messageId.equals(s.getID().getValue()))
-                        .forEach(c -> { c.getDeviceConnectionStatus().clear(); c.getDeviceConnectionStatus().add(deviceConnectionStatus); });
+                        .forEach(c -> {
+                            c.getDeviceConnectionStatus().clear(); // clear all previously added device connection statuses, we need only on with deviceId
+                            c.getDeviceConnectionStatus().add(deviceConnectionStatus);
+                        });
             }
             return this;
         }
@@ -168,7 +171,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return messageBody;
         }
 
-        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createBodies(StatusChangeRequestBulkCreateMessage message, String senderBusinessSystemId, Instant now) {
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg> createFailedBodies(StatusChangeRequestBulkCreateMessage message, String senderBusinessSystemId, Instant now) {
             return message.getRequests().stream()
                     .map(m -> {
                         SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
@@ -182,7 +185,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     }).collect(Collectors.toList());
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createBody(StatusChangeRequestCreateMessage message, String senderBusinessSystemId, Instant now) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg createFailedBody(StatusChangeRequestCreateMessage message, String senderBusinessSystemId, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg messageBody = createBaseBody();
 
             messageBody.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));

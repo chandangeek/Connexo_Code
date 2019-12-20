@@ -93,7 +93,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, String senderBusinessSystemId, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));
-            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message, now));
+            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createFailedBody(message, now));
             confirmationMessage.setLog(createFailedLog(exceptionMessage));
             return this;
         }
@@ -101,7 +101,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
         public Builder withStatus(String deviceID, ConnectionStatusProcessingResultCode processingResultCode, Instant processDate) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus = createConnectionStatus(deviceID, processingResultCode, processDate);
             confirmationMessage.getUtilitiesConnectionStatusChangeRequest()
-                    .getDeviceConnectionStatus().clear();
+                    .getDeviceConnectionStatus().clear(); // clear all previously added device connection statuses, we need only on with deviceId
             confirmationMessage.getUtilitiesConnectionStatusChangeRequest()
                     .getDeviceConnectionStatus()
                     .add(deviceConnectionStatus);
@@ -155,7 +155,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return messageBody;
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createBody(StatusChangeRequestCreateMessage message, Instant now) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createFailedBody(StatusChangeRequestCreateMessage message, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq messageBody = createBaseBody();
 
             messageBody.getID().setValue(message.getId());

@@ -25,6 +25,7 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
@@ -51,6 +52,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    protected volatile WebServiceActivator webServiceActivator;
 
     private int numberOfReadingsPerMsg;
 
@@ -63,13 +65,15 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     AbstractUtilitiesTimeSeriesBulkRequestProvider(PropertySpecService propertySpecService,
                                                    DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                    SAPCustomPropertySets sapCustomPropertySets,
-                                                   ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
+                                                   ReadingNumberPerMessageProvider readingNumberPerMessageProvider,
+                                                   WebServiceActivator webServiceActivator) {
         setPropertySpecService(propertySpecService);
         setDataExportServiceCallType(dataExportServiceCallType);
         setThesaurus(thesaurus);
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
         setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
+        setWebServiceActivator(webServiceActivator);
     }
 
 
@@ -269,5 +273,9 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
     Map<String, RangeSet<Instant>> getTimeSlicedProfileId(Channel channel, Range<Instant> range) {
         return sapCustomPropertySets.getProfileId(channel, range);
+    }
+
+    private void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }

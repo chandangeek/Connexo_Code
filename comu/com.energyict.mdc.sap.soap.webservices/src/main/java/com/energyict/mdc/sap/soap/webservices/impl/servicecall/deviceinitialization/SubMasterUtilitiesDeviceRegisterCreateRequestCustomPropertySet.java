@@ -147,12 +147,12 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impl
             table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .since(Version.version(10, 7, 1))
+                    .since(Version.version(10, 7, 2))
                     .add();
             table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.databaseName())
                     .varChar()
                     .map(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName())
-                    .since(Version.version(10, 7, 1))
+                    .since(Version.version(10, 7, 2))
                     .add();
             table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(NAME_LENGTH)

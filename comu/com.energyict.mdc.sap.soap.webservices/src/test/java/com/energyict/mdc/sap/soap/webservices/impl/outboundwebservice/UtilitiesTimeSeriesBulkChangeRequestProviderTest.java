@@ -111,9 +111,9 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
                 bind(ReadingNumberPerMessageProvider.class).toInstance(readingNumberPerMessageProvider);
                 bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
                 bind(DataExportServiceCallType.class).toInstance(mock(DataExportServiceCallType.class));
+                bind(WebServiceActivator.class).toInstance(webServiceActivator);
             }
         });
-        provider.setWebServiceActivator(webServiceActivator);
         when(webServiceActivator.getMeteringSystemId()).thenReturn("HON");
 
         /* Prepare reading for 1st data*/

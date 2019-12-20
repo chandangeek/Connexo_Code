@@ -66,7 +66,6 @@ import java.util.stream.Collectors;
         property = {"name=" + UtilitiesTimeSeriesBulkChangeRequestProvider.NAME})
 public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkChangeRequestCOut, UtilsTmeSersERPItmBulkChgReqMsg, UtilsTmeSersERPItmChgReqMsg> implements ApplicationSpecific {
     public static final String NAME = "SAP TimeSeriesBulkChangeRequest";
-    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesTimeSeriesBulkChangeRequestProvider() {
         // for OSGi purposes
@@ -76,8 +75,9 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     public UtilitiesTimeSeriesBulkChangeRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                         SAPCustomPropertySets sapCustomPropertySets,
-                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
-        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider);
+                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider,
+                                                        WebServiceActivator webServiceActivator) {
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider, webServiceActivator);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        this.webServiceActivator = webServiceActivator;
+        // No action, just for binding WebServiceActivator
     }
 
     @Override

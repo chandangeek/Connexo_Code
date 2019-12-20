@@ -65,7 +65,6 @@ import java.util.stream.Collectors;
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
 public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg, UtilsTmeSersERPItmCrteReqMsg> implements ApplicationSpecific {
     public static final String NAME = "SAP TimeSeriesBulkCreateRequest";
-    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
         // for OSGi purposes
@@ -75,8 +74,9 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     public UtilitiesTimeSeriesBulkCreateRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                         SAPCustomPropertySets sapCustomPropertySets,
-                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
-        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider);
+                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider,
+                                                        WebServiceActivator webServiceActivator) {
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider, webServiceActivator);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        this.webServiceActivator = webServiceActivator;
+        // No action, just for binding WebServiceActivator
     }
 
     @Override

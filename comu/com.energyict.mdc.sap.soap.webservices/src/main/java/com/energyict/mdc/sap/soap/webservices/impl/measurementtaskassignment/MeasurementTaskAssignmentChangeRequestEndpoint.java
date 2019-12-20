@@ -138,14 +138,11 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     }
 
     private String getProfileId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
-        Optional<UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers> timeSeries = Optional.ofNullable(msg.getUtilitiesTimeSeries());
-        if (timeSeries.isPresent()) {
-            return Optional.ofNullable(timeSeries.get().getID())
-                    .map(UtilitiesTimeSeriesID::getValue)
-                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
-        }
-        return null;
+        return Optional.ofNullable(msg.getUtilitiesTimeSeries())
+                .map(ts -> ts.getID())
+                .map(UtilitiesTimeSeriesID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
     }
 
     private String getId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {

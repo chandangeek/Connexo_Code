@@ -193,12 +193,12 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar()
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .since(Version.version(10, 7, 1))
+                    .since(Version.version(10, 7, 2))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.databaseName())
                     .varChar()
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName())
-                    .since(Version.version(10, 7, 1))
+                    .since(Version.version(10, 7, 2))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(NAME_LENGTH)
