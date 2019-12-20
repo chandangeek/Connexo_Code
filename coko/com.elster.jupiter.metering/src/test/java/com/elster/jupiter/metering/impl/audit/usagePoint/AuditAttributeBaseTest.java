@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuditAttributeBase extends AuditUsagePointBase {
+public abstract class AuditAttributeBaseTest extends AuditUsagePointBaseTest {
 
     public void testCreateUsagePoint(Map<GeneralInfoAttribute, Object> attributesSet) {
         AuditService auditService = inMemoryBootstrapModule.getAuditService();

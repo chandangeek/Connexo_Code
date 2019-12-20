@@ -5,94 +5,25 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.orm.MacException;
+import com.elster.jupiter.util.EngineUtil;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
-import com.energyict.mdc.common.tasks.BasicCheckTask;
-import com.energyict.mdc.common.tasks.ClockTask;
-import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.FirmwareManagementTask;
-import com.energyict.mdc.common.tasks.LoadProfilesTask;
-import com.energyict.mdc.common.tasks.LogBooksTask;
-import com.energyict.mdc.common.tasks.MessagesTask;
-import com.energyict.mdc.common.tasks.RegistersTask;
-import com.energyict.mdc.common.tasks.TopologyTask;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.*;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.AlreadyExecutedComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
-import com.energyict.mdc.engine.impl.commands.collect.FirmwareManagementCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
-import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
-import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
-import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
-import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
-import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
-import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
-import com.energyict.mdc.engine.impl.commands.collect.StatusInformationCommand;
-import com.energyict.mdc.engine.impl.commands.collect.SynchronizeClockCommand;
-import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
-import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
-import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
-import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
-import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.*;
 import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.AlreadyExecutedComCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.BasicCheckCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateMeterEventsFromStatusFlagsCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.FirmwareManagementCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.ForceClockCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.LegacyLoadProfileLogBooksCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.LogBooksCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.MarkIntervalsAsBadTimeCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.MessagesCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLegacyLoadProfileLogBooksDataCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLoadProfileDataCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLogBooksCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadRegistersCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.RegisterCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.SetClockCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.StatusInformationCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.SynchronizeClockCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyLoadProfilesCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNumberCommandImpl;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.*;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLSmartMeterProtocolAdapter;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.elster.jupiter.appserver.AppService.SERVER_TYPE_PROPERTY_NAME;
+import java.util.*;
 
 public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommandImpl>, CanProvideDescriptionTitle {
 
@@ -151,77 +82,58 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     public void execute(ExecutionContext executionContext) {
-        createDeviceProtocolForMobileInstance();
+        if (EngineUtil.isOfflineMode())
+            createOfflineDeviceProtocol();
         basicCheckCommand = getBasicCheckCommandIfPresent(); // initialize it if present
         for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : comTaskExecutionComCommands.values()) {
-            try {
-                executionContext.start(comTaskExecutionComCommand);
-                if (hasBasicCheckFailedForThisGroupedDeviceCommand()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                } else if (commandRoot.hasConnectionErrorOccurred()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                }  else if (commandRoot.hasConnectionBeenInterrupted()) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                } else if (getCompletionCode().equals(CompletionCode.InitError)) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_INIT_ERROR);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                } else if (skipOtherComTaskExecutions) {
-                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
-                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+            if (comTaskExecutionComCommand.comCommands.size() > 0){
+                try {
+                    executionContext.start(comTaskExecutionComCommand);
+                    if (hasBasicCheckFailedForThisGroupedDeviceCommand()) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (commandRoot.hasConnectionErrorOccurred()) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (commandRoot.hasConnectionBeenInterrupted()) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (getCompletionCode().equals(CompletionCode.InitError)) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_INIT_ERROR);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    } else if (skipOtherComTaskExecutions) {
+                        Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
+                        comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                    }
+                    comTaskExecutionComCommand.execute(deviceProtocol, executionContext);
+                } finally {
+                    ComTaskExecutionSession.SuccessIndicator successIndicator;
+                    if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)
+                            || comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.Rescheduled)) {
+                        comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
+                        successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
+                    } else if (!comTaskExecutionComCommand.getProblems().isEmpty()) {
+                        comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
+                        executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
+                        successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
+                    } else {
+                        comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
+                        successIndicator = ComTaskExecutionSession.SuccessIndicator.Success;
+                    }
+                    executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), successIndicator);
                 }
-                comTaskExecutionComCommand.execute(deviceProtocol, executionContext);
-            } finally {
-                ComTaskExecutionSession.SuccessIndicator successIndicator;
-                if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)
-                        || comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.Rescheduled)) {
-                    comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
-                    successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
-                } else if (!comTaskExecutionComCommand.getProblems().isEmpty()) {
-                    comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
-                    executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
-                    successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
-                } else {
-                    comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
-                    successIndicator = ComTaskExecutionSession.SuccessIndicator.Success;
-                }
-                executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), successIndicator);
-            }
+            } else
+                completeComCommandWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR, comTaskExecutionComCommand);
         }
-    }
-
-    private boolean isEngineOffline() {
-        Bundle bundle = FrameworkUtil.getBundle(EngineService.class);
-        if (bundle != null) {
-            String serverType = bundle.getBundleContext().getProperty(SERVER_TYPE_PROPERTY_NAME);
-            return serverType != null && serverType.equalsIgnoreCase("offline");
-        }
-        return false;
     }
 
     /**
-     * Used only for com sever mobile for creating the actual device protocol
-     * DON'T USE THIS METHOD FOR ANOTHER PURPOSE!!
+     * Used in offline comserver to create the actual device protocol
      */
-    private void createDeviceProtocolForMobileInstance() {
-        if (isEngineOffline()) {
-            Object protocol = this.getServiceProvider().protocolPluggableService().createProtocol(offlineDevice.getDeviceProtocolPluggableClass().getJavaClassName());
-            if (protocol instanceof DeviceProtocol) {
-                deviceProtocol = (DeviceProtocol) protocol;
-            } else if (protocol instanceof com.energyict.mdc.upl.DeviceProtocol) {
-                //Adapt it from UPL to CXO DeviceProtocol if necessary
-                deviceProtocol = UPLDeviceProtocolAdapter.adapt((com.energyict.mdc.upl.DeviceProtocol) protocol).with(null);
-            } else {
-                // Must be a lecagy pluggable class
-                if (protocol instanceof com.energyict.mdc.upl.MeterProtocol) {
-                    protocol = new UPLMeterProtocolAdapter((com.energyict.mdc.upl.MeterProtocol) protocol);
-                } else if (protocol instanceof com.energyict.mdc.upl.SmartMeterProtocol) {
-                    protocol = new UPLSmartMeterProtocolAdapter((com.energyict.mdc.upl.SmartMeterProtocol) protocol);
-                }
-            }
-        }
+    private void createOfflineDeviceProtocol() {
+        String deviceProtocolPluggableName = offlineDevice.getDeviceProtocolPluggableClass().getName();
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.getServiceProvider().protocolPluggableService().findDeviceProtocolPluggableClassByName(deviceProtocolPluggableName);
+        deviceProtocol = deviceProtocolPluggableClass.get().getDeviceProtocol();
     }
 
     private CommandRoot.ServiceProvider getServiceProvider() {
@@ -286,6 +198,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     void executeForNoCommands(ExecutionContext executionContext) {
+        commandRoot.connectionNotExecuted();
         executeWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
 //        comTaskExecutionComCommands.keySet().forEach(cte -> {
 //            executionContext.comTaskExecutionFailed(cte);

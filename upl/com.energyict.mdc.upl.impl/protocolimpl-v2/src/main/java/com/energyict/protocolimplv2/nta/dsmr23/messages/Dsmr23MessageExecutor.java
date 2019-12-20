@@ -1,42 +1,17 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -49,19 +24,7 @@ import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
@@ -74,55 +37,13 @@ import com.energyict.sercurity.KeyRenewalInfo;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.DatatypeConverter;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.AdministrativeStatusAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DefaultResetWindowAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientDeviceType;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientManufacturerId;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_ChangeMBusClientVersion;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MBusSetupDeviceMessage_mBusClientShortId;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authenticationLevelAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encryptionLevelAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.p1InformationAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlConfigAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * @author sva
@@ -264,10 +185,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     mbusCommission(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Reset_MBus_Client)) {
                     mbusReset(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.MBusClientRemoteCommission)) {
-                    mBusClientRemoteCommissioning(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ChangeMBusAttributes)) {
-                    changeMBusClientAttributes(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL)) {
                     renewKey(pendingMessage);
                 } else {   //Unsupported message
@@ -345,55 +262,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         mbusClient.setDeviceType(0);
     }
 
-    private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
-        int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), 9);
-        String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
-        MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
-        mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
-        mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
-        mbusClient.setVersion(mbusProvider.getVersion(shortId));
-        mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
-        mbusClient.installSlave(physicalAddress);
-    }
 
-    private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
-        int installChannel = getIntegerAttribute(pendingMessage);
-        int physicalAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(installChannel).getObisCode();
-
-        getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
-
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, 9);
-        mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
-        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties()
-                .getFixMbusHexShortId()));
-        mbusClient.setDeviceType(getDeviceType(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientDeviceType)));
-        mbusClient.setVersion(getVersion(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientVersion)));
-    }
-
-    private Unsigned16 getManufacturerId(String manufacturerId) {
-        char[] chars = manufacturerId.toCharArray();
-        int id = Integer.parseInt("" + ((chars[2] - 64) + (chars[1] - 64) * 32 + (chars[0] - 64) * 32 * 32));
-        return new Unsigned16(id);
-    }
-
-    private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) {
-        if (fixMbusHexShortId) {
-            return new Unsigned32(Integer.parseInt(indentificationNumber));
-        } else {
-            return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
-        }
-    }
-
-    private Unsigned8 getVersion(String version) {
-        return new Unsigned8(Integer.parseInt(version));
-    }
-
-    private Unsigned8 getDeviceType(String deviceType) {
-        return new Unsigned8(Integer.parseInt(deviceType, 16));
-    }
 
     /**
      * Substracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
@@ -969,7 +838,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
 
-    private int getMBusPhysicalAddress(int installChannel) {
+    protected int getMBusPhysicalAddress(int installChannel) {
         int physicalAddress;
         if (installChannel == 0) {
             physicalAddress = (byte) this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();

@@ -82,13 +82,13 @@ public class MockComServerDAO implements ComServerDAO {
 
     public MockOnlineComServer addEmptyComServer() {
         MockOnlineComServer comServer = new MockOnlineComServer(HOST_NAME);
-        this.setMockProprerties(comServer);
+        this.setMockProperties(comServer);
         this.comServers.add(comServer);
         this.comServerClones.add(null);
         return comServer;
     }
 
-    private void setMockProprerties(MockOnlineComServer comServer) {
+    private void setMockProperties(MockOnlineComServer comServer) {
         comServer.setActive(true);
         comServer.setServerLogLevel(ComServer.LogLevel.INFO);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);

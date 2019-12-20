@@ -160,6 +160,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.continueRunning = new AtomicBoolean(true);
         self = this.threadFactory.newThread(this);
         self.setName(this.getThreadName());
+        cleanupBusyTasks(); // do the cleanup asynchronously, to not clash with the cleanup started by the TimeOutMonitor, for example
         self.start();
         this.status = ServerProcessStatus.STARTED;
     }
@@ -214,6 +215,19 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     public void run() {
         setThreadPrinciple();
 
+        while (continueRunning()) {
+            try {
+                doRun();
+            } catch (Throwable t) {
+                exceptionLogger.unexpectedError(t);
+                // Give the infrastructure some time to recover from e.g. unexpected SQL errors
+                reschedule();
+            }
+        }
+        status = ServerProcessStatus.SHUTDOWN;
+    }
+
+    private void cleanupBusyTasks() {
         try {
             comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
         } catch (PersistenceException e) {
@@ -221,22 +235,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             runningComServer.refresh(getComPort());
             continueRunning.set(false);
         }
-
-        while (continueRunning()) {
-            try {
-                doRun();
-            } catch (Throwable t) {
-                exceptionLogger.unexpectedError(t);
-                if (t instanceof PersistenceException) {
-                    runningComServer.refresh(getComPort());
-                    continueRunning.set(false);
-                } else {
-                    // Give the infrastructure some time to recover from e.g. unexpected SQL errors
-                    reschedule();
-                }
-            }
-        }
-        status = ServerProcessStatus.SHUTDOWN;
     }
 
     protected boolean continueRunning() {

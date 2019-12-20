@@ -1,14 +1,6 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles;
 
 
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
@@ -17,14 +9,23 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
-import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -297,7 +298,8 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 channelInfos.add(ci);
                 continue;
             }
-            if (!registerObject.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
+            if (!registerObject.getSerialNumber()
+                    .equalsIgnoreCase("") && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber(), registerObject.getAttribute(), registerObject.getClassId())) {
                 if (this.getRegisterUnitMap().containsKey(registerObject)) {
                     registerObject.getAttribute();
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);

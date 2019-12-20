@@ -517,17 +517,13 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             dataModel.register(this.getModule());
             upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
                     version(10, 4, 7), Upgrader_V10_4_7.class,
-                    version(10, 7, 1), Upgrader_V10_7_1.class));
+                    version(10, 4, 10), Upgrader_V10_4_10.class));
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
             setEngineProperty(SERVER_TYPE_PROPERTY_NAME, bundleContext.getProperty(SERVER_TYPE_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
             this.launchComServer();
-            try {
-                new ComServerAliveLoopImpl(clock, engineConfigurationService, statusService, transactionService).run();
-            } catch (Exception e) {
-                LOGGER.severe(e.getMessage());
-            }
+            new ComServerAliveLoopImpl(clock, engineConfigurationService, statusService, transactionService).run();
         } catch(Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
             // componentContext.disableComponent(componentContext.getBundleContext().getProperty(Constants.SERVICE_PID));

@@ -12,6 +12,8 @@ import com.energyict.mdc.engine.status.StatusService;
 import java.time.Clock;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ComServerAliveLoopImpl implements Runnable {
 
@@ -20,6 +22,7 @@ public class ComServerAliveLoopImpl implements Runnable {
     private final EngineConfigurationService engineConfigurationService;
     private final StatusService statusService;
     private final TransactionService transactionService;
+    private static final Logger LOGGER = Logger.getLogger(ComServerAliveLoopImpl.class.getName());
 
     ComServerAliveLoopImpl(Clock clock, EngineConfigurationService engineConfigurationService, StatusService statusService, TransactionService transactionService) {
         this.clock = clock;
@@ -52,7 +55,8 @@ public class ComServerAliveLoopImpl implements Runnable {
             updateStatus();
             executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
             context.commit();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 }

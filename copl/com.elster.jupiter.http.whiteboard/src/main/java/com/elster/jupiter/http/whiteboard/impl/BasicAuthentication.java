@@ -475,7 +475,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (isAuthenticated(user)) {
             User returnedUserByAuthentication = user.get();
             //required because user returned by auth has not yet lastSuccessfulLogin set.... This is a vamp. the login mechanism should be changed.
-            User usr = userService.findUser(returnedUserByAuthentication.getName()).orElse(returnedUserByAuthentication);
+            User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
             String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));

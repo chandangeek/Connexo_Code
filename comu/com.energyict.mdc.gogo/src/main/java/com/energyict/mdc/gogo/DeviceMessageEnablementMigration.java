@@ -99,7 +99,7 @@ public class DeviceMessageEnablementMigration implements Migrator {
     }
 
     private Principal getPrincipal() {
-        return this.userService.findUser("admin").get();
+        return this.userService.findUser("admin", userService.getRealm()).get();
     }
 
     private String getUpdateClause() {

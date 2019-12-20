@@ -14,34 +14,42 @@ import java.util.stream.Collectors;
 
 public class DataSendingStatus {
     private boolean failed;
-    private Set<ReadingTypeDataExportItem> failedDataSources;
-    private boolean allDataSourcesFailed;
+    private Set<ReadingTypeDataExportItem> failedDataSourcesWithNewData;
+    private Set<ReadingTypeDataExportItem> failedDataSourcesWithChangedData;
+    private boolean allDataSourcesWithNewDataFailed;
+    private boolean allDataSourcesWithChangedDataFailed;
 
     private DataSendingStatus() {
-        failedDataSources = new HashSet<>();
+        failedDataSourcesWithNewData = new HashSet<>();
+        failedDataSourcesWithChangedData = new HashSet<>();
     }
 
     public static DataSendingStatus success() {
         return new DataSendingStatus();
     }
 
-    public static DataSendingStatusBuilder failure() {
+    public static Builder failure() {
         DataSendingStatus result = new DataSendingStatus();
         result.failed = true;
-        return result.new DataSendingStatusBuilder();
+        return result.new Builder();
     }
 
-    public static DataSendingStatusBuilder builder() {
-        return new DataSendingStatus().new DataSendingStatusBuilder();
+    public static Builder builder() {
+        return new DataSendingStatus().new Builder();
     }
 
     public static DataSendingStatus merge(DataSendingStatus result1, DataSendingStatus result2) {
         DataSendingStatus result = new DataSendingStatus();
         result.failed = result1.isFailed() || result2.isFailed();
-        result.allDataSourcesFailed = result1.allDataSourcesFailed || result2.allDataSourcesFailed;
-        if (!result.allDataSourcesFailed) {
-            result.failedDataSources.addAll(result1.failedDataSources);
-            result.failedDataSources.addAll(result2.failedDataSources);
+        result.allDataSourcesWithNewDataFailed = result1.allDataSourcesWithNewDataFailed || result2.allDataSourcesWithNewDataFailed;
+        result.allDataSourcesWithChangedDataFailed = result1.allDataSourcesWithChangedDataFailed || result2.allDataSourcesWithChangedDataFailed;
+        if (!result.allDataSourcesWithNewDataFailed) {
+            result.failedDataSourcesWithNewData.addAll(result1.failedDataSourcesWithNewData);
+            result.failedDataSourcesWithNewData.addAll(result2.failedDataSourcesWithNewData);
+        }
+        if (!result.allDataSourcesWithChangedDataFailed) {
+            result.failedDataSourcesWithChangedData.addAll(result1.failedDataSourcesWithChangedData);
+            result.failedDataSourcesWithChangedData.addAll(result2.failedDataSourcesWithChangedData);
         }
         return result;
     }
@@ -51,15 +59,15 @@ public class DataSendingStatus {
     }
 
     public boolean isFailed(ReadingTypeDataExportItem item) {
-        return allDataSourcesFailed || failedDataSources.contains(item);
+        return allDataSourcesWithNewDataFailed || failedDataSourcesWithNewData.contains(item);
     }
 
     public void throwExceptionIfFailed(Thesaurus thesaurus) {
         if (isFailed()) {
-            if (allDataSourcesFailed) {
+            if (allDataSourcesWithNewDataFailed) {
                 throw new DestinationFailedException(thesaurus, MessageSeeds.DATA_SENDING_FAILED_ALL_DATA_SOURCES);
             } else {
-                String dataSourcesString = failedDataSources.stream()
+                String dataSourcesString = failedDataSourcesWithNewData.stream()
                         .map(dataSource -> '<' + dataSource.getDescription() + '>')
                         .distinct()
                         .sorted()
@@ -69,35 +77,35 @@ public class DataSendingStatus {
         }
     }
 
-    public class DataSendingStatusBuilder {
-        public DataSendingStatusBuilder withFailedDataSource(ReadingTypeDataExportItem item) {
+    public class Builder {
+        public Builder withFailedDataSource(ReadingTypeDataExportItem item) {
             failed = true;
-            if (!allDataSourcesFailed) {
-                failedDataSources.add(item);
+            if (!allDataSourcesWithNewDataFailed) {
+                failedDataSourcesWithNewData.add(item);
             }
             return this;
         }
 
-        public DataSendingStatusBuilder withFailedDataSources(Collection<ReadingTypeDataExportItem> items) {
+        public Builder withFailedDataSources(Collection<ReadingTypeDataExportItem> items) {
             if (!items.isEmpty()) {
                 failed = true;
-                if (!allDataSourcesFailed) {
-                    failedDataSources.addAll(items);
+                if (!allDataSourcesWithNewDataFailed) {
+                    failedDataSourcesWithNewData.addAll(items);
                 }
             }
             return this;
         }
 
-        public DataSendingStatusBuilder withAllDataSourcesFailed() {
+        public Builder withAllDataSourcesFailed() {
             failed = true;
-            failedDataSources.clear();
-            allDataSourcesFailed = true;
+            failedDataSourcesWithNewData.clear();
+            allDataSourcesWithNewDataFailed = true;
             return this;
         }
 
         public DataSendingStatus build() {
-            if (failed && failedDataSources.isEmpty()) {
-                allDataSourcesFailed = true;
+            if (failed && failedDataSourcesWithNewData.isEmpty()) {
+                allDataSourcesWithNewDataFailed = true;
             }
             return DataSendingStatus.this;
         }

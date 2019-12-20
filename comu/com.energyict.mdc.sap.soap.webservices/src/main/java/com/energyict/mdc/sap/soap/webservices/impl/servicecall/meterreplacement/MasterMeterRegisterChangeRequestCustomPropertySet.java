@@ -103,7 +103,6 @@ public class MasterMeterRegisterChangeRequestCustomPropertySet implements Custom
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish()
-
         );
     }
 

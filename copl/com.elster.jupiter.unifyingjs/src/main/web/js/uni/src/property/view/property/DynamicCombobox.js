@@ -10,6 +10,7 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
     ],
 
     store: null,
+    validComponent: true,
 
     initComponent: function() {
         var me = this,
@@ -24,7 +25,9 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
         if (!Ext.isEmpty(url) && entityType) {
             url = url.replace(re, entityType);
             me.store.getProxy().setUrl(url);
-        } else this.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+        } else{
+            me.validComponent = false;
+        }
     },
 
     getEditCmp: function () {
@@ -42,13 +45,17 @@ Ext.define('Uni.property.view.property.DynamicCombobox', {
             blankText: me.blankText,
             listeners: {
                 afterrender: function(combo) {
-                    var me = this;
                     //check if store is empty otherwise we trying to load it on each combo expand
-                    var propsStore = Ext.getStore('Uni.property.store.DynamicComboboxData') || Ext.create('Uni.property.store.DynamicComboboxData');
-                    propsStore.load(function(records, operation, success) {
-                         if (propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
-                         success ? me.clearInvalid() : me.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
-                    });
+                    var combo = this;
+                    if (me.validComponent){
+                        var propsStore = Ext.getStore('Uni.property.store.DynamicComboboxData') || Ext.create('Uni.property.store.DynamicComboboxData');
+                        propsStore.load(function(records, operation, success) {
+                             if (propsStore.getPropertiesData()) combo.bindStore(propsStore.getPropertiesData());
+                             success ? combo.clearInvalid() : combo.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+                        });
+                    }else{
+                        combo.markInvalid(Uni.I18n.translate('general.dynamicComboError', 'UNI', 'There is an error downloading data from server'));
+                    }
                 },
                 change: function(combo){
                     combo.clearInvalid();
