@@ -286,7 +286,7 @@ Ext.define('Mdc.controller.Main', {
                             route: 'offlinecomservers'
                         },
                         {
-                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Online communication servers'),
+                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
                             href: '#/administration/comservers',
                             privileges: Mdc.privileges.Communication.view,
                             route: 'comservers'

@@ -173,7 +173,7 @@ Ext.define('Imt.controller.Search', {
                 style: 'font-size: 22px; color: #71adc7; margin: 0px -22px 0px -22px;',
                 cls: 'icon-info'
             },
-            width: 690,
+            width: 720,
             height: 30,
             style: 'border: 1px solid #71adc7; border-radius: 10px; padding: 3px 0px 5px 32px;',
         });

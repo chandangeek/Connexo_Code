@@ -166,25 +166,12 @@ public class MeterReadingStorer {
                         toUpdate.add(existing.get());
                     }
                 } else {
-                    EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
-                    eventRecord.updateProperties(sourceEvent.getEventData());
-                    eventRecord.setmRID(sourceEvent.getMRID());
-                    eventRecord.setLogBookId(sourceEvent.getLogBookId());
-                    eventRecord.setReason(sourceEvent.getReason());
-                    eventRecord.setSeverity(sourceEvent.getSeverity());
-                    eventRecord.setStatus(sourceEvent.getStatus());
-                    eventRecord.setIssuerID(sourceEvent.getIssuerID());
-                    eventRecord.setIssuerTrackingID(sourceEvent.getIssuerTrackingID());
-                    eventRecord.setName(sourceEvent.getName());
-                    eventRecord.setDescription(sourceEvent.getDescription());
-                    eventRecord.setAliasName(sourceEvent.getAliasName());
-                    eventRecord.setLogBookPosition(sourceEvent.getLogBookPosition());
-                    eventRecord.setDeviceEventType(sourceEvent.getType());
-                    eventRecord.setReadingDateTime(readingDate);
-                    toCreate.add(eventRecord);
+                    toCreate.add(createEventRecord(found.get(), sourceEvent, readingDate));
                 }
             } else {
-                PrivateMessageSeeds.METER_EVENT_IGNORED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getName());
+                EndDeviceEventType endDeviceEventType = meteringService.createEndDeviceEventType(sourceEvent.getEventTypeCode());
+                toCreate.add(createEventRecord(endDeviceEventType, sourceEvent, readingDate));
+                PrivateMessageSeeds.UNEXPECTED_METER_EVENT_LOGGED.log(logger, thesaurus, sourceEvent.getEventTypeCode(), meter.getName());
             }
         }
         getEventMapper().persist(toCreate);
@@ -195,6 +182,25 @@ public class MeterReadingStorer {
         for (EndDeviceEventRecord endDeviceEventRecord : toUpdate) {
             eventService.postEvent(EventType.END_DEVICE_EVENT_UPDATED.topic(), endDeviceEventRecord);
         }
+    }
+
+    private EndDeviceEventRecord createEventRecord(EndDeviceEventType found, EndDeviceEvent sourceEvent, Instant readingDate) {
+        EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found, sourceEvent.getCreatedDateTime());
+        eventRecord.updateProperties(sourceEvent.getEventData());
+        eventRecord.setmRID(sourceEvent.getMRID());
+        eventRecord.setLogBookId(sourceEvent.getLogBookId());
+        eventRecord.setReason(sourceEvent.getReason());
+        eventRecord.setSeverity(sourceEvent.getSeverity());
+        eventRecord.setStatus(sourceEvent.getStatus());
+        eventRecord.setIssuerID(sourceEvent.getIssuerID());
+        eventRecord.setIssuerTrackingID(sourceEvent.getIssuerTrackingID());
+        eventRecord.setName(sourceEvent.getName());
+        eventRecord.setDescription(sourceEvent.getDescription());
+        eventRecord.setAliasName(sourceEvent.getAliasName());
+        eventRecord.setLogBookPosition(sourceEvent.getLogBookPosition());
+        eventRecord.setDeviceEventType(sourceEvent.getType());
+        eventRecord.setReadingDateTime(readingDate);
+        return eventRecord;
     }
 
     private DataMapper<EndDeviceEventRecord> getEventMapper() {
@@ -214,13 +220,13 @@ public class MeterReadingStorer {
     private void store(Reading reading) {
         boolean stored = false;
         for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
-            logger.log(Level.INFO, "Check if  "  + reading.getReadingTypeCode() +  " with reading date " + reading.getTimeStamp() + " included in " + channelsContainer.getInterval().toClosedRange());
+            logger.log(Level.INFO, "Check if  " + reading.getReadingTypeCode() + " with reading date " + reading.getTimeStamp() + " included in " + channelsContainer.getInterval().toClosedRange());
             if (channelsContainer.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
                 stored = true;
                 store(reading, channelsContainer);
             }
         }
-        logger.log(Level.INFO, "Reading " + reading.getReadingTypeCode() + " with value/text " + reading.getValue() + "/" + reading.getText() +  " stored: " + stored);
+        logger.log(Level.INFO, "Reading " + reading.getReadingTypeCode() + " with value/text " + reading.getValue() + "/" + reading.getText() + " stored: " + stored);
     }
 
     private void store(Reading reading, ChannelsContainer channelsContainer) {

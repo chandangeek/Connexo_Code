@@ -111,7 +111,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             return this;
         }
 
-        public Builder withSingleStatus(String messageId, String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
+        public Builder withSingleStatus(String messageId, String deviceID, ConnectionStatusProcessingResultCode processingResultCode, Instant processDate) {
             if (messageId != null) {
                 UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
                 UtilitiesConnectionStatusChangeResultCode resultCode =
@@ -138,6 +138,7 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
         private BusinessDocumentMessageHeader createHeader(String parentId, String referenceUuid, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             header.setCreationDateTime(now);
+            header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
             if (!Strings.isNullOrEmpty(parentId)){
                 header.setReferenceID(createID(parentId));
             }
@@ -194,6 +195,8 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(m.getId());
                         messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(m.getCategoryCode());
                         messageBody.setLog(createFailedLog(MessageSeeds.REQUEST_WAS_FAILED.getDefaultFormat()));
+                        messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
+                                .addAll(createDeviceConnectionStatuses(m, now));
                         return messageBody;
                     }).collect(Collectors.toList());
         }
@@ -204,7 +207,8 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
             messageBody.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
             messageBody.getUtilitiesConnectionStatusChangeRequest().getID().setValue(message.getId());
             messageBody.getUtilitiesConnectionStatusChangeRequest().getCategoryCode().setValue(message.getCategoryCode());
-
+            messageBody.getUtilitiesConnectionStatusChangeRequest().getDeviceConnectionStatus()
+                    .addAll(createDeviceConnectionStatuses(message, now));
             return messageBody;
         }
 
@@ -229,6 +233,26 @@ public class StatusChangeRequestBulkCreateConfirmationMessage {
                     : ConnectionStatusProcessingResultCode.FAILED.getCode());
             deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
 
+            return deviceConnectionStatus;
+        }
+
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
+            return message.getDeviceConnectionStatus().keySet().stream().map(sapDeviceId -> createConnectionStatus(sapDeviceId, now)).collect(Collectors.toList());
+        }
+
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, Instant now) {
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
+                    OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
+            deviceConnectionStatus.setProcessingDateTime(now);
+
+            UtilitiesDeviceID deviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
+            deviceID.setValue(sapDeviceId);
+            deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
+
+            UtilitiesConnectionStatusChangeResultCode resultCode =
+                    OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
+            resultCode.setValue(ConnectionStatusProcessingResultCode.FAILED.getCode());
+            deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
             return deviceConnectionStatus;
         }
 

@@ -426,7 +426,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public long getFrameCounterLimit() {
         try {
-            return this.properties.getTypedProperty(FRAME_COUNTER_LIMIT, 0);
+            return this.properties.getTypedProperty(FRAME_COUNTER_LIMIT, 0L);
         } catch (Exception ex){
             // catch any obsolete value (i.e. string)
             return 0;

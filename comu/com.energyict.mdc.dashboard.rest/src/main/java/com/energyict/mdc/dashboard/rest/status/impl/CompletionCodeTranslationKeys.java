@@ -20,7 +20,6 @@ public enum CompletionCodeTranslationKeys implements TranslationKey {
 
     OK(CompletionCode.Ok, "Successful"),
     CONFIGURATION_WARNING(CompletionCode.ConfigurationWarning, "Configuration warning"),
-    NOT_EXECUTED(CompletionCode.NotExecuted, "Not executed"),
     PROTOCOL_ERROR(CompletionCode.ProtocolError, "Protocol error"),
     CONFIGURATION_ERROR(CompletionCode.ConfigurationError, "Configuration error"),
     IO_ERROR(CompletionCode.IOError, "I/O error"),
@@ -29,7 +28,8 @@ public enum CompletionCodeTranslationKeys implements TranslationKey {
     INIT_ERROR(CompletionCode.InitError, "Initialization error"),
     TIMEOUT_ERROR(CompletionCode.TimeoutError, "Timeout error"),
     CONNECTION_ERROR(CompletionCode.ConnectionError, "Connection error"),
-    RESCHEDULED(CompletionCode.Rescheduled, "Rescheduled")
+    RESCHEDULED(CompletionCode.Rescheduled, "Rescheduled"),
+    NOT_EXECUTED(CompletionCode.NotExecuted, "Not executed")
     ;
 
     private CompletionCode completionCode;

@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
@@ -92,12 +93,12 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
         public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
             confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
-            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
+            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message, now));
             confirmationMessage.setLog(createFailedLog(exceptionMessage));
             return this;
         }
 
-        public Builder withStatus(String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
+        public Builder withStatus(String deviceID, ConnectionStatusProcessingResultCode processingResultCode, Instant processDate) {
             UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
             UtilitiesConnectionStatusChangeResultCode resultCode =
                     OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
@@ -121,6 +122,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
         private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
 
+            header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
             if (!Strings.isNullOrEmpty(requestId)) {
                 header.setReferenceID(createID(requestId));
             }
@@ -161,11 +163,13 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return messageBody;
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createBody(StatusChangeRequestCreateMessage message) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createBody(StatusChangeRequestCreateMessage message, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq messageBody = createBaseBody();
 
             messageBody.getID().setValue(message.getId());
             messageBody.getCategoryCode().setValue(message.getCategoryCode());
+
+            messageBody.getDeviceConnectionStatus().addAll(createDeviceConnectionStatuses(message, now));
 
             return messageBody;
         }
@@ -191,6 +195,26 @@ public class StatusChangeRequestCreateConfirmationMessage {
                     : ConnectionStatusProcessingResultCode.FAILED.getCode());
             deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
 
+            return deviceConnectionStatus;
+        }
+
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
+            return message.getDeviceConnectionStatus().keySet().stream().map(sapDeviceId -> createConnectionStatus(sapDeviceId, now)).collect(Collectors.toList());
+        }
+
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, Instant now) {
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
+                    OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
+            deviceConnectionStatus.setProcessingDateTime(now);
+
+            UtilitiesDeviceID deviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
+            deviceID.setValue(sapDeviceId);
+            deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
+
+            UtilitiesConnectionStatusChangeResultCode resultCode =
+                    OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
+            resultCode.setValue(ConnectionStatusProcessingResultCode.FAILED.getCode());
+            deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
             return deviceConnectionStatus;
         }
 

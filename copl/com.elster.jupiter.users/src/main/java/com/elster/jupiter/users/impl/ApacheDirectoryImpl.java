@@ -389,7 +389,13 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     private void putSecurityPrincipal(String name, Hashtable<String, Object> env, boolean useNameAsIs) {
         String principal;
         if (!useNameAsIs && getGroupName() == null) {
-            principal = "uid=" + name + "," + getBaseUser();
+            String baseUser = getBaseUser();
+            if (baseUser == null) {
+                principal = getDirectoryUser();
+                setBaseUser(principal);
+            } else {
+                principal = "uid=" + name + "," + baseUser;
+            }
         } else {
             principal = name;
             setBaseUser(name);
