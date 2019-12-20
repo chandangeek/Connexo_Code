@@ -16,12 +16,8 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>2.0.0-Heracles-SNAPSHOT</version>
+        <version>2.0.1-Heracles-SNAPSHOT</version>
     </parent>
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <dependencies>
         <dependency>

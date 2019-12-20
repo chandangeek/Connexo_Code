@@ -276,7 +276,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                             CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
                             // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber(), reg.getAttribute(), reg.getClassId())) {
+                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
                                 channelRegisters.add(reg);
                             }
                             coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
@@ -362,7 +362,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber(), registerUnit.getAttribute(), registerUnit.getClassId())) {
+            if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     DLMSAttribute scalerUnitAttribute = this.registerUnitMap.get(registerUnit);
                     AbstractDataType rawValue = ccoRegisterUnits.getAttribute(scalerUnitAttribute);
@@ -405,7 +405,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         int channelMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber(), registerUnit.getAttribute(), registerUnit.getClassId())) {
+            if (!"".equals(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -418,12 +418,10 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      *
      * @param obisCode     the obiscode to check
      * @param serialNumber the serialNumber of the meter, related to the given obisCode
-     * @param attributeIndex
-     * @param classId
      * @return true if the obisCode is not a {@link com.energyict.dlms.cosem.Clock} object nor a Status object
      */
-    protected boolean isDataObisCode(ObisCode obisCode, String serialNumber, int attributeIndex, int classId) {
-        return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode, serialNumber) || isCaptureTime(attributeIndex, classId));
+    protected boolean isDataObisCode(ObisCode obisCode, String serialNumber) {
+        return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode, serialNumber));
     }
 
     protected boolean isStatusObisCode(ObisCode obisCode, String serialNumber) {
@@ -461,10 +459,6 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             return false;
         }
         return isStatusObisCode;
-    }
-
-    private boolean isCaptureTime(int attributeIndex, int classId) {
-        return (attributeIndex == 5 && classId == DLMSClassId.EXTENDED_REGISTER.getClassId()) || (attributeIndex == 6 && classId == DLMSClassId.DEMAND_REGISTER.getClassId());
     }
 
     /**

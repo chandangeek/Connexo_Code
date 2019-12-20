@@ -264,6 +264,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .map(this.deviceMessageSpecificationService::getProtocolSupportedFirmwareOptionFor)
                         .filter(Optional::isPresent)
@@ -316,6 +317,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             return deviceProtocol.getSupportedMessages()
                     .stream()
                     .map(DeviceMessageSpec::getId)
+                    .filter(id -> DeviceMessageId.find(id).isPresent())
                     .map(DeviceMessageId::from)
                     .anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(dmid));
         }
@@ -329,6 +331,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             return deviceProtocol.getSupportedMessages()
                     .stream()
                     .map(DeviceMessageSpec::getId)
+                    .filter(id -> DeviceMessageId.find(id).isPresent())
                     .map(DeviceMessageId::from)
                     .anyMatch(dmid -> this.deviceMessageSpecificationService.canResumeFirmwareUpload(dmid));
         }
@@ -370,6 +373,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList())
                 .stream()

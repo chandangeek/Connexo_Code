@@ -19,7 +19,6 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.inject.Inject;

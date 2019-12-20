@@ -45,11 +45,9 @@ public class LoadProfileBuilder extends com.energyict.protocolimplv2.nta.dsmr23.
      *
      * @param obisCode     the obiscode to check
      * @param serialNumber the serialNumber of the meter, related to the given obisCode
-     * @param attributeIndex
-     * @param classId
      * @return true if the obisCode is not a {@link Clock} object nor a Status object
      */
-    protected boolean isDataObisCode(ObisCode obisCode, String serialNumber, int attributeIndex, int classId) {
+    protected boolean isDataObisCode(ObisCode obisCode, String serialNumber) {
         return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode, serialNumber));
     }
 

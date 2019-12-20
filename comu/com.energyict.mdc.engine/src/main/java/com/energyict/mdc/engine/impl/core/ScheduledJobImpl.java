@@ -23,8 +23,8 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
 
@@ -68,8 +68,17 @@ public abstract class ScheduledJobImpl extends JobExecution {
         return getExecutionContext().getComPortRelatedComChannel() != null;
     }
 
+
+    protected ProtocolJournal getJournal(){
+        // create a DEBUG-level journal link for the protocols and inject it to protocols
+        ProtocolJournal protocolJournal = a -> getExecutionContext().createJournalEntry(ComServer.LogLevel.DEBUG, a);
+        return protocolJournal;
+    }
+
+
     @Override
     protected ComPortRelatedComChannel findOrCreateComChannel(ConnectionTaskPropertyProvider propertyProvider) throws ConnectionException {
+        getConnectionTask().setProtocolJournaling(getJournal());
         return new ComPortRelatedComChannelImpl(
                 getConnectionTask().connect(getComPort(), propertyProvider.getProperties()),
                 getComPort(),
