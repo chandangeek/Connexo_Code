@@ -298,8 +298,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 channelInfos.add(ci);
                 continue;
             }
-            if (!registerObject.getSerialNumber()
-                    .equalsIgnoreCase("") && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber(), registerObject.getAttribute(), registerObject.getClassId())) {
+            if (!registerObject.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerObject.getObisCode(), registerObject.getSerialNumber())) {
                 if (this.getRegisterUnitMap().containsKey(registerObject)) {
                     registerObject.getAttribute();
                     ScalerUnit su = getScalerUnitForCapturedRegisterObject(registerObject, ccoRegisterUnits);
