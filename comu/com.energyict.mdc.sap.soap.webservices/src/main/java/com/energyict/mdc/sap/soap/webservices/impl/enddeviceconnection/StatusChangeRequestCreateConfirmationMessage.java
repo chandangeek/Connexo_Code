@@ -73,10 +73,10 @@ public class StatusChangeRequestCreateConfirmationMessage {
             confirmationMessage = OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfMsg();
         }
 
-        public Builder from(ServiceCall parent, List<ServiceCall> children, Instant now) {
+        public Builder from(ServiceCall parent, List<ServiceCall> children, String senderBusinessSystemId, Instant now) {
             ConnectionStatusChangeDomainExtension extension = parent.getExtension(ConnectionStatusChangeDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            confirmationMessage.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), now));
+            confirmationMessage.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(parent, children));
             // parent state still not changed before sending confirmation, so check children states
             if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
@@ -91,8 +91,8 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
+        public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, String senderBusinessSystemId, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message, now));
             confirmationMessage.setLog(createFailedLog(exceptionMessage));
             return this;
@@ -113,13 +113,15 @@ public class StatusChangeRequestCreateConfirmationMessage {
             deviceConnectionStatus.setProcessingDateTime(processDate);
 
             confirmationMessage.getUtilitiesConnectionStatusChangeRequest()
+                    .getDeviceConnectionStatus().clear();
+            confirmationMessage.getUtilitiesConnectionStatusChangeRequest()
                     .getDeviceConnectionStatus()
                     .add(deviceConnectionStatus);
 
             return this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, Instant now) {
+        private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, String senderBusinessSystemId, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
 
             header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
@@ -129,6 +131,8 @@ public class StatusChangeRequestCreateConfirmationMessage {
             if (!Strings.isNullOrEmpty(uuid)) {
                 header.setReferenceUUID(createUUID(uuid));
             }
+            header.setSenderBusinessSystemID(senderBusinessSystemId);
+            header.setReconciliationIndicator(true);
             header.setCreationDateTime(now);
 
             return header;
@@ -199,7 +203,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
         }
 
         private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
-            return message.getDeviceConnectionStatus().keySet().stream().map(sapDeviceId -> createConnectionStatus(sapDeviceId, now)).collect(Collectors.toList());
+            return message.getDeviceConnectionStatus().keySet().stream().distinct().map(sapDeviceId -> createConnectionStatus(sapDeviceId, now)).collect(Collectors.toList());
         }
 
         SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, Instant now) {

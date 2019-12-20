@@ -13,7 +13,9 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchan
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.LogItemCategoryCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.ObjectFactory;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilsTmeSersERPMsmtTskAssgmtChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers;
 
 import com.google.common.base.Strings;
 
@@ -35,15 +37,20 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         return confirmationMessage;
     }
 
-    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid) {
-        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id, uuid);
+    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid, String profileId) {
+        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id, uuid, profileId);
     }
 
     public class Builder {
 
-        private Builder(Instant now, String id, String uuid) {
+        private Builder(Instant now, String id, String uuid, String profileId) {
             confirmationMessage = OBJECT_FACTORY.createUtilsTmeSersERPMsmtTskAssgmtChgConfMsg();
             confirmationMessage.setMessageHeader(createHeader(now, id, uuid));
+            UtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers timeSeries = OBJECT_FACTORY.createUtilsTmeSersERPMsmtTskAssgmtChgConfUtilsTmeSers();
+            UtilitiesTimeSeriesID timeSeriesId = OBJECT_FACTORY.createUtilitiesTimeSeriesID();
+            timeSeriesId.setValue(profileId);
+            timeSeries.setID(timeSeriesId);
+            confirmationMessage.setUtilitiesTimeSeries(timeSeries);
         }
 
         public MeasurementTaskAssignmentChangeConfirmationMessage.Builder create() {

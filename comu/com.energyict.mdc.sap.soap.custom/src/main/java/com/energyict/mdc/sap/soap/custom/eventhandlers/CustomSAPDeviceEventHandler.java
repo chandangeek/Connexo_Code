@@ -18,6 +18,7 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.sap.soap.custom.TranslationInstaller;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
@@ -69,6 +70,7 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
+    private volatile WebServiceActivator webServiceActivator;
 
     private ObjectFactory objectFactory = new ObjectFactory();
     private CustomPropertySet mappingStatusCustomPropertySet;
@@ -205,6 +207,8 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
         BusinessDocumentMessageHeader messageHeader = objectFactory.createBusinessDocumentMessageHeader();
         messageHeader.setCreationDateTime(time);
         messageHeader.setUUID(createUUID());
+        messageHeader.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        messageHeader.setReconciliationIndicator(true);
         return messageHeader;
     }
 
@@ -267,5 +271,10 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
     @Reference
     public void setThesaurus(TranslationInstaller translationInstaller) {
         this.thesaurus = translationInstaller.getThesaurus();
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }

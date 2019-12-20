@@ -16,6 +16,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.ReadingNumberPerMessageProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeRequestProvider;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesERPItemBulkChangeRequestCOut;
@@ -66,6 +67,8 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
     @Mock
     private Clock clock;
     @Mock
+    private WebServiceActivator webServiceActivator;
+    @Mock
     private ReadingNumberPerMessageProvider readingNumberPerMessageProvider;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingType readingType;
@@ -110,6 +113,8 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
                 bind(DataExportServiceCallType.class).toInstance(mock(DataExportServiceCallType.class));
             }
         });
+        provider.setWebServiceActivator(webServiceActivator);
+        when(webServiceActivator.getMeteringSystemId()).thenReturn("HON");
 
         /* Prepare reading for 1st data*/
         when(reading1.getTimeStamp()).thenReturn(Instant.now());

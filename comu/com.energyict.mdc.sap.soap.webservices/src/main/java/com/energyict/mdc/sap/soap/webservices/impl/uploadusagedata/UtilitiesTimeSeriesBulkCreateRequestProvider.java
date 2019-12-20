@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
 public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg, UtilsTmeSersERPItmCrteReqMsg> implements ApplicationSpecific {
     public static final String NAME = "SAP TimeSeriesBulkCreateRequest";
+    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
         // for OSGi purposes
@@ -127,7 +128,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
 
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        // No action, just for binding WebServiceActivator
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -171,8 +172,10 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         return null;
     }
 
-    private static BusinessDocumentMessageHeader createMessageHeader(String uuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String uuid, Instant now) {
         BusinessDocumentMessageHeader header = new BusinessDocumentMessageHeader();
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setUUID(createUUID(uuid));
         header.setCreationDateTime(now);
         return header;
@@ -218,7 +221,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
 
-    private static UtilsTmeSersERPItmCrteReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet,
+    private UtilsTmeSersERPItmCrteReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet,
                                                                   MeterReading meterReading, TemporalAmount interval, String unit,
                                                                   Instant now, Map<Instant, String> readingStatuses) {
         UtilsTmeSersERPItmCrteReqMsg msg = new UtilsTmeSersERPItmCrteReqMsg();
