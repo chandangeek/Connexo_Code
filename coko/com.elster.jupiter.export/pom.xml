@@ -90,7 +90,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ftpclient</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
