@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.streams.Functions;
@@ -54,6 +55,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -73,8 +75,9 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     public UtilitiesTimeSeriesBulkChangeRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                         SAPCustomPropertySets sapCustomPropertySets,
-                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
-        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider);
+                                                        ReadingNumberPerMessageProvider readingNumberPerMessageProvider,
+                                                        WebServiceActivator webServiceActivator) {
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets, readingNumberPerMessageProvider, webServiceActivator);
     }
 
     @Override
@@ -126,7 +129,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        // No action, just for binding WebServiceActivator
+        super.setWebServiceActivator(webServiceActivator);
     }
 
     @Override
@@ -169,9 +172,11 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         return null;
     }
 
-    private static BusinessDocumentMessageHeader createMessageHeader(String uuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String uuid, Instant now) {
         BusinessDocumentMessageHeader header = new BusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }
@@ -187,8 +192,8 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     @Override
     List<UtilsTmeSersERPItmChgReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
         ReadingType readingType = item.getItem().getReadingType();
-        TemporalAmount interval = readingType.getIntervalLength()
-                .orElse(Duration.ZERO);
+        Optional<TimeDuration> requestedReadingInterval = item.getItem().getRequestedReadingInterval();
+        TemporalAmount interval = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : readingType.getIntervalLength().orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
         Range<Instant> allReadingsRange = getRange(meterReading);
@@ -217,7 +222,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     }
 
 
-    private static UtilsTmeSersERPItmChgReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now, Map<Instant, String> readingStatuses) {
+    private  UtilsTmeSersERPItmChgReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now, Map<Instant, String> readingStatuses) {
         UtilsTmeSersERPItmChgReqMsg msg = new UtilsTmeSersERPItmChgReqMsg();
         msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
         msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit, readingStatuses));
@@ -265,7 +270,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
     private static Quantity createQuantity(BigDecimal value, String unit) {
         Quantity quantity = new Quantity();
-        quantity.setUnitCode(unit);
+        quantity.setUnitCode(unit.toUpperCase());
         quantity.setValue(value);
         return quantity;
     }

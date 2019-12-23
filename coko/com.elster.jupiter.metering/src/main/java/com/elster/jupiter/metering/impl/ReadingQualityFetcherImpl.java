@@ -36,7 +36,7 @@ class ReadingQualityFetcherImpl implements ReadingQualityFetcher {
 
     ReadingQualityFetcherImpl(DataModel dataModel, CimChannel cimChannel) {
         this(dataModel, cimChannel.getChannel());
-        stream = stream.filter(where("readingType").isEqualTo(cimChannel.getReadingType()));
+        stream = stream.filter(where("readingTypeId").isEqualTo(((IReadingType) cimChannel.getReadingType()).getId()));
     }
 
     @Override

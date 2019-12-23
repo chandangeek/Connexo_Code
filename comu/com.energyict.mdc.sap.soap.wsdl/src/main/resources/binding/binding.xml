@@ -6,7 +6,8 @@
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
         xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
-        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        xmlns:sap="http://sap.com/xi/IS-U/Global2">
 
     <!-- Disable default wrapper style -->
     <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
@@ -16,9 +17,14 @@
         <jxb:globalBindings>
             <jxb:javaType
                     name="java.time.Instant"
-                    xmlType="xs:dateTime"
+                    xmlType="sap:GLOBAL_DateTime"
                     parseMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.unmarshalDateTime"
                     printMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.marshalDateTime"/>
+            <jxb:javaType
+                    name="java.time.Instant"
+                    xmlType="xs:dateTime"
+                    parseMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.unmarshalDateTime"
+                    printMethod="com.energyict.mdc.sap.soap.wsdl.impl.XsdDateTimeConverter.marshalDateTimeWithSystemDefaultZone"/>
             <jxb:javaType
                     name="java.time.Instant"
                     xmlType="xs:date"

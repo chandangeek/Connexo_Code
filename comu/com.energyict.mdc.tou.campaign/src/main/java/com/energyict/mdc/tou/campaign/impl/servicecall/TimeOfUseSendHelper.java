@@ -17,6 +17,7 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -73,11 +74,24 @@ public class TimeOfUseSendHelper {
                         .getExtension(TimeOfUseCampaignDomainExtension.class)
                         .orElse(null);
         if (timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
-            Optional<ComTaskExecution> verificationTask = timeOfUseItemDomainExtension.findOrCreateVerificationComTaskExecution();
-            if (verificationTask.isPresent()) {
-                if (!verificationTask.get().getConnectionTask().isPresent()) {
-                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
-                            .format(verificationTask.get().getComTask().getName()));
+            Optional<ComTaskExecution> verificationTaskOptional = timeOfUseItemDomainExtension.findOrCreateVerificationComTaskExecution();
+            if (verificationTaskOptional.isPresent()) {
+                ComTaskExecution verificationTask = verificationTaskOptional.get();
+                if (verificationTask.getConnectionTask().isPresent()) {
+                    ConnectionTask connectionTask = verificationTask.getConnectionTask().get();
+                    ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
+                    if (!(connectionTask.isActive() && (!timeOfUseCampaign.getValidationConnectionStrategy().isPresent()
+                            || connectionStrategy == timeOfUseCampaign.getValidationConnectionStrategy().get()))) {
+                        serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                                .format(thesaurus.getFormat(TranslationKeys.valueOf(timeOfUseCampaign.getValidationConnectionStrategy().get().name())).format(), verificationTask.getComTask()
+                                        .getName()));
+                        if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                            serviceCall.requestTransition(DefaultState.REJECTED);
+                        }
+                        return;
+                    }
+                } else {
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK).format(verificationTask.getComTask().getName()));
                     if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                         serviceCall.requestTransition(DefaultState.REJECTED);
                     }
@@ -124,7 +138,8 @@ public class TimeOfUseSendHelper {
                     }
                 } else {
                     serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                            .format(thesaurus.getFormat(TranslationKeys.valueOf(timeOfUseCampaign.getCalendarUploadConnectionStrategy().get().name())).format(), cteFromEnablement.getComTask().getName()));
+                            .format(thesaurus.getFormat(TranslationKeys.valueOf(timeOfUseCampaign.getCalendarUploadConnectionStrategy().get().name())).format(), cteFromEnablement.getComTask()
+                                    .getName()));
                     if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                         serviceCall.requestTransition(DefaultState.REJECTED);
                     }

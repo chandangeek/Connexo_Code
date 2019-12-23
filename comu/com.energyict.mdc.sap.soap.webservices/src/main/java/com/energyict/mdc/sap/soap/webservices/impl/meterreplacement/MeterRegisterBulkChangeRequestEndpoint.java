@@ -167,7 +167,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         MeterRegisterBulkChangeConfirmationMessage confirmationMessage =
                 MeterRegisterBulkChangeConfirmationMessage.builder()
-                        .from(messages, message, messageSeed, clock.instant())
+                        .from(messages, message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -176,7 +176,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         MeterRegisterBulkChangeConfirmationMessage confirmationMessage =
                 MeterRegisterBulkChangeConfirmationMessage.builder()
-                        .from(messages, messageSeed, clock.instant())
+                        .from(messages, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }

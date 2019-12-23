@@ -11,6 +11,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.TimeUtils;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -73,7 +74,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         Optional<Device> device = sapCustomPropertySets.getDevice(subParentExtension.getDeviceId());
         if (device.isPresent()) {
             try {
-                sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), WebServiceActivator.getZonedDate(extension.getEndDate(), extension.getTimeZone()));
+                sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } catch (SAPWebServiceException sapEx) {
                 failServiceCallWithException(extension, sapEx);

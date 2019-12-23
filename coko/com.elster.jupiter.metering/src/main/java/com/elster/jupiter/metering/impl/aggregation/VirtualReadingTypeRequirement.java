@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequireme
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.Pair;
@@ -284,9 +285,9 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(" ELSE " + CalculatedReadingRecordImpl.ESTIMATED_EDITED);
         sqlBuilder.append(" END) AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
-        sqlBuilder.append(" FROM mtr_readingquality WHERE readingtype = '");
-        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
-        sqlBuilder.append("' AND channelid = ");
+        sqlBuilder.append(" FROM mtr_readingquality WHERE readingtypeid = ");
+        sqlBuilder.addLong(((IReadingType)this.getPreferredChannel().getMainReadingType()).getId());
+        sqlBuilder.append(" AND channelid = ");
         sqlBuilder.addLong(this.getPreferredChannel().getId());
         sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')");
         if (rawDataPeriod.hasLowerBound()) {

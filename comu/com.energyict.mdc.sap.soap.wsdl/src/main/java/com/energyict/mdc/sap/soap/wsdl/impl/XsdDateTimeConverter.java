@@ -39,7 +39,15 @@ public class XsdDateTimeConverter {
         return DatatypeConverter.printDateTime(asCalendarUTC(dateTime));
     }
 
+    public static String marshalDateTimeWithSystemDefaultZone(Instant dateTime) {
+        return DatatypeConverter.printDateTime(asCalendar(dateTime));
+    }
+
     private static Calendar asCalendarUTC(Instant instant) {
         return GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")));
+    }
+
+    private static Calendar asCalendar(Instant localDateTime) {
+        return GregorianCalendar.from(localDateTime.atZone(ZoneId.systemDefault()));
     }
 }

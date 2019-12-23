@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.sap.soap.custom.TranslationInstaller;
 
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -31,18 +32,20 @@ public class CustomDataSelectorFactory implements DataSelectorFactory {
     static final String CUSTOM_READING_DATA_SELECTOR_NAME = "Device readings data selector [CST]";
 
     private volatile Thesaurus thesaurus;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     public CustomDataSelectorFactory() {
     }
 
     @Inject
-    public CustomDataSelectorFactory(Thesaurus thesaurus) {
+    public CustomDataSelectorFactory(Thesaurus thesaurus, SAPCustomPropertySets sapCustomPropertySets) {
         this.thesaurus = thesaurus;
+        this.setSAPCustomPropertySets(sapCustomPropertySets);
     }
 
     @Override
     public DataSelector createDataSelector(Map<String, Object> properties, Logger logger) {
-        return new CustomDelegatingDataSelector(logger);
+        return new CustomDelegatingDataSelector(sapCustomPropertySets, logger);
     }
 
     @Override
@@ -82,5 +85,10 @@ public class CustomDataSelectorFactory implements DataSelectorFactory {
     @Reference
     public void setThesaurus(TranslationInstaller translationInstaller) {
         this.thesaurus = translationInstaller.getThesaurus();
+    }
+
+    @Reference
+    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 }

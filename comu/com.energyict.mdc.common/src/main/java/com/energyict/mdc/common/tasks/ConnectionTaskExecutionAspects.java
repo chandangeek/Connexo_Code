@@ -7,6 +7,7 @@ package com.energyict.mdc.common.tasks;
 import com.energyict.mdc.common.comserver.ComPort;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.energyict.mdc.protocol.journal.ProtocolLoggingSupport;
 
 /**
  * Todo:
@@ -22,7 +23,7 @@ import aQute.bnd.annotation.ConsumerType;
  * @since 2012-09-27 (13:01)
  */
 @ConsumerType
-public interface ConnectionTaskExecutionAspects {
+public interface ConnectionTaskExecutionAspects extends ProtocolLoggingSupport {
 
     /**
      * Notifies this ConnectionTask that execution has been started.
