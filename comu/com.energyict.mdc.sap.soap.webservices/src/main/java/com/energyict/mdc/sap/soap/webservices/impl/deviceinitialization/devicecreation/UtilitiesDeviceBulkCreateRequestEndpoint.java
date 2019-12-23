@@ -5,7 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilitiesDeviceERPSmartMeterBulkCreateRequestCIn;
@@ -19,8 +19,8 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractCreateRequ
 
     @Inject
     UtilitiesDeviceBulkCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                             Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService, WebServiceActivator webServiceActivator) {
-        super(serviceCallCommands, endPointConfigurationService, clock, sapCustomPropertySets, ormService, webServiceActivator);
+                                             Clock clock, OrmService ormService, WebServiceActivator webServiceActivator, DeviceService deviceService) {
+        super(serviceCallCommands, endPointConfigurationService, clock, ormService, webServiceActivator, deviceService);
     }
 
     @Override
