@@ -51,18 +51,21 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     private final MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     MeasurementTaskAssignmentChangeRequestEndpoint(Clock clock,
                                                    DataExportService dataExportService,
                                                    MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
                                                    PropertySpecService propertySpecService,
-                                                   Thesaurus thesaurus) {
+                                                   Thesaurus thesaurus,
+                                                   WebServiceActivator webServiceActivator) {
         this.clock = clock;
         this.dataExportService = dataExportService;
         this.measurementTaskAssignmentChangeProcessor = measurementTaskAssignmentChangeProcessor;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -110,7 +113,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                             .findAny().get().getDisplayName());
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, message.getProfileId())
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), message.getProfileId())
                             .create()
                             .build();
             sendMessage(confirmationMessage);
@@ -119,7 +122,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = e.getLocalizedMessage();
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeed).format(e.getMessageArgs()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, profileId)
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), profileId)
                             .from(messageSeed.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
@@ -129,7 +132,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = messageSeeds.translate(thesaurus, e.getLocalizedMessage());
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(e.getLocalizedMessage()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, profileId)
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), profileId)
                             .from(messageSeeds.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);

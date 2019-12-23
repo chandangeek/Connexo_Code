@@ -159,6 +159,16 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
                         .describedAs(TranslationKeys.CANCELLED_BY_SAP_DESCRIPTION)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -276,6 +286,16 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
                     .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
         }
 
