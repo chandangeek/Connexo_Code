@@ -39,7 +39,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         READING("reading", "reading"),
         CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
         COM_TASK_EXECUTION_ID("comTaskExecutionId", "COM_TASK_EXECUTION_ID"),
-        REFERENCE_ID("referenceID", "reference_id"),
+        REFERENCE_ID("referenceID", "REFERENCE_ID"),
         REFERENCE_UUID("referenceUuid", "REFERENCE_UUID");
 
         FieldNames(String javaName, String databaseName) {
