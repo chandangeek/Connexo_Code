@@ -199,13 +199,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                 this.propertySpecService
                         .stringSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
-                        .describedAs(TranslationKeys.REFERENCE_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
-                        .describedAs(TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

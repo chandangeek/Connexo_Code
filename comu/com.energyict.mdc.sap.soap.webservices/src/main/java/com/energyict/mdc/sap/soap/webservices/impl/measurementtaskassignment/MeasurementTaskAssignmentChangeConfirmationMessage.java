@@ -35,15 +35,15 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         return confirmationMessage;
     }
 
-    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid) {
-        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id, uuid);
+    public static MeasurementTaskAssignmentChangeConfirmationMessage.Builder builder(Instant now, String id, String uuid, String meteringSystemId) {
+        return new MeasurementTaskAssignmentChangeConfirmationMessage().new Builder(now, id, uuid, meteringSystemId);
     }
 
     public class Builder {
 
-        private Builder(Instant now, String id, String uuid) {
+        private Builder(Instant now, String id, String uuid, String meteringSystemId) {
             confirmationMessage = OBJECT_FACTORY.createUtilsTmeSersERPMsmtTskAssgmtChgConfMsg();
-            confirmationMessage.setMessageHeader(createHeader(now, id, uuid));
+            confirmationMessage.setMessageHeader(createHeader(now, id, uuid, meteringSystemId));
         }
 
         public MeasurementTaskAssignmentChangeConfirmationMessage.Builder create() {
@@ -60,7 +60,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             return MeasurementTaskAssignmentChangeConfirmationMessage.this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(Instant now, String id, String uuid) {
+        private BusinessDocumentMessageHeader createHeader(Instant now, String id, String uuid, String meteringSystemId) {
             BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
             com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UUID newUUID = OBJECT_FACTORY.createUUID();
             newUUID.setValue(UUID.randomUUID().toString());
@@ -75,6 +75,9 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
                 referenceUUID.setValue(uuid);
                 messageHeader.setReferenceUUID(referenceUUID);
             }
+
+            messageHeader.setSenderBusinessSystemID(meteringSystemId);
+            messageHeader.setReconciliationIndicator(true);
             messageHeader.setCreationDateTime(now);
             return messageHeader;
         }

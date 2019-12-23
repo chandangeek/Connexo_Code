@@ -17,7 +17,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,40 +56,17 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         switch (newState) {
             case ONGOING:
                 if (!oldState.equals(DefaultState.WAITING)) {
-                    List<ServiceCall> children = findChildren(serviceCall);
-                    if (children.isEmpty()){
-                        serviceCall.log(LogLevel.FINEST, "Do not send response. No readings to send.");
-                        serviceCall.requestTransition(DefaultState.FAILED);
-                        break;
+                    if (sendResultMessage(serviceCall)) {
+                        setConfirmationTime(serviceCall);
+                        serviceCall.requestTransition(DefaultState.WAITING);
                     }
-
-                    List<ServiceCall> childrenForMessageList = new ArrayList<>();
-                    children.stream().
-                            forEach(chld -> {
-                                if (chld.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get().getReading() == null) {
-                                    chld.log(LogLevel.FINEST, "No readings to send.");
-                                    chld.requestTransition(DefaultState.ONGOING);
-                                    chld.requestTransition(DefaultState.FAILED);
-                                } else {
-                                    childrenForMessageList.add(chld);
-                                }
-                            });
-
-                    if (childrenForMessageList.isEmpty()){
-                        serviceCall.log(LogLevel.FINEST, "Do not send response. No readings to send.");
-                        serviceCall.requestTransition(DefaultState.FAILED);
-                        break;
-                    }
-                    sendResultMessage(serviceCall, childrenForMessageList);
-                    setConfirmationTime(serviceCall);
-                    serviceCall.requestTransition(DefaultState.WAITING);
                 }
                 break;
             case CANCELLED:
                 if (!oldState.equals(DefaultState.WAITING)) {
                     List<ServiceCall> children = findChildren(serviceCall);
                     if (!areAllCancelledBySap(children)) {
-                        sendResultMessage(serviceCall, children);
+                        sendResultMessage(serviceCall);
                     }
                 }
                 break;
@@ -175,12 +151,15 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 .allMatch(sc -> sc.getState().equals(DefaultState.WAITING) || sc.getState().equals(DefaultState.CANCELLED));
     }
 
-    private void sendResultMessage(ServiceCall serviceCall, List<ServiceCall> children) {
-
+    private boolean sendResultMessage(ServiceCall serviceCall) {
         MeterReadingDocumentCreateResultMessage resultMessage = MeterReadingDocumentCreateResultMessage
                 .builder()
-                .from(serviceCall, children, clock.instant(), webServiceActivator.getMeteringSystemId())
+                .from(serviceCall, findChildren(serviceCall), clock.instant(), webServiceActivator.getMeteringSystemId())
                 .build();
+
+        if (resultMessage.isBulk() && resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().isEmpty()){
+            return false;
+        }
 
         int childrenTotal = resultMessage.getDocumentsTotal();
         int childrenCanceledBySap = resultMessage.getDocumentsCancelledBySap();
@@ -197,6 +176,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         } else {
             WebServiceActivator.METER_READING_DOCUMENT_RESULTS.forEach(sender -> sender.call(resultMessage));
         }
+        return true;
     }
 
     private void setConfirmationTime(ServiceCall serviceCall) {

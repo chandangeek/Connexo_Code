@@ -40,7 +40,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         PROCESSING_DATE("processingDate", "processingDate"),
         CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
 
-        REFERENCE_ID("referenceID", "reference_id"),
+        REFERENCE_ID("referenceID", "REFERENCE_ID"),
         REFERENCE_UUID("referenceUuid", "REFERENCE_UUID");
 
         FieldNames(String javaName, String databaseName) {
