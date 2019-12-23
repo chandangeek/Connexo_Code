@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -15,6 +14,7 @@ import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 

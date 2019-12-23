@@ -53,7 +53,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             confirmationMessage.setUtilitiesTimeSeries(timeSeries);
         }
 
-        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder create() {
+        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder successful() {
             confirmationMessage.setLog(createSuccessfulLog());
             return this;
         }

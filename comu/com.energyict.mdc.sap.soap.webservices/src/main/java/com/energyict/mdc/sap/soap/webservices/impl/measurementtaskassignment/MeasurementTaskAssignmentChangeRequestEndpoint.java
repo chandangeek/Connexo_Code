@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -72,12 +73,12 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     public void utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> handleMessage(requestMessage));
+                    .ifPresent(this::handleMessage);
             return null;
         });
     }
 
-    public void handleMessage(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+    private void handleMessage(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
         String id = getId(msg);
         String uuid = getUuid(msg);
         String profileId = getProfileId(msg);
@@ -107,14 +108,13 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             }
 
             Optional<String> selectorName = Optional.ofNullable((String) getEndPointConfiguration().getPropertiesWithValue().get(EXPORTER.getKey()));
-            measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() :
-                    dataExportService.getAvailableSelectors().stream()
-                            .filter(s -> s.getName().equals(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR))
-                            .findAny().get().getDisplayName());
+            measurementTaskAssignmentChangeProcessor.process(message, selectorName.orElseGet(() -> dataExportService.getAvailableSelectors().stream()
+                    .filter(s -> s.getName().equals(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR))
+                    .findAny().get().getDisplayName()));
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), message.getProfileId())
-                            .create()
+                            .successful()
                             .build();
             sendMessage(confirmationMessage);
         } catch (SAPWebServiceException e) {
@@ -142,7 +142,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
     private String getProfileId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
         return Optional.ofNullable(msg.getUtilitiesTimeSeries())
-                .map(ts -> ts.getID())
+                .map(UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers::getID)
                 .map(UtilitiesTimeSeriesID::getValue)
                 .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                 .orElse(null);
@@ -181,14 +181,16 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         List<String> selectors = dataExportService.getAvailableSelectors()
                 .stream()
-                .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS)).map(s -> s.getDisplayName())
+                .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS)).map(DataSelectorFactory::getDisplayName)
                 .collect(Collectors.toList());
 
         if (selectors.size() > 1) {
             Optional<String> defaultValue = dataExportService.getAvailableSelectors()
                     .stream()
                     .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS))
-                    .filter(s -> s.isDefault()).map(s -> s.getDisplayName()).findFirst();
+                    .filter(DataSelectorFactory::isDefault)
+                    .map(DataSelectorFactory::getDisplayName)
+                    .findFirst();
             builder.add(propertySpecService
                     .specForValuesOf(new StringFactory())
                     .named(EXPORTER)
@@ -196,7 +198,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                     .fromThesaurus(thesaurus)
                     .markRequired()
                     .addValues(selectors)
-                    .setDefaultValue(defaultValue.isPresent() ? defaultValue.get() : null)
+                    .setDefaultValue(defaultValue.orElse(null))
                     .markExhaustive(PropertySelectionMode.COMBOBOX)
                     .finish());
         }
