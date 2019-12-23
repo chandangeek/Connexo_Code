@@ -83,16 +83,12 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return this;
     }
 
-    public int getExportCount() {
+    int getExportCount() {
         return exportCount;
     }
 
-    public int getUpdateCount() {
+    int getUpdateCount() {
         return updateCount;
-    }
-
-    Clock getClock() {
-        return clock;
     }
 
     @Override
@@ -158,7 +154,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return false;
     }
 
-    List<BaseReading> filterReadings(List<BaseReading> readings) {
+    private List<BaseReading> filterReadings(List<BaseReading> readings) {
         Map<Instant, BaseReading> map = new HashMap<>();
         for (BaseReading reading : readings) {
             if (reading.getTimeStamp().equals(reading.getTimeStamp().truncatedTo(ChronoUnit.HOURS))) {
@@ -168,16 +164,16 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return map.values().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
     }
 
-    List<BaseReading> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
+    private List<BaseReading> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
         return new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
     }
 
-    List<BaseReading> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
+    private List<BaseReading> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
         return new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since));
     }
 
     private Optional<? extends ReadingDataSelectorConfig> getDataSelectorConfig(DataExportOccurrence occurrence) {
-        return (occurrence.getTask()).getReadingDataSelectorConfig();
+        return occurrence.getTask().getReadingDataSelectorConfig();
     }
 
     private void warnIfExportPeriodCoversFuture(DataExportOccurrence occurrence, Range<Instant> exportInterval) {
@@ -197,7 +193,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return DefaultStructureMarker.createRoot(clock, "export").withPeriod(exportInterval);
     }
 
-    Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+    private Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getRange() : Range.all();
         Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
         return item.getLastExportedPeriodEnd()
@@ -229,7 +225,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return ZonedDateTime.ofInstant(dateTime, ZoneId.systemDefault()).truncatedTo(DAYS).toInstant();
     }
 
-    MeterReadingImpl asMeterReading(ReadingTypeDataExportItem item, List<BaseReading> readings) {
+    private MeterReadingImpl asMeterReading(ReadingTypeDataExportItem item, List<BaseReading> readings) {
         if (item.getReadingType().isRegular()) {
             return getMeterReadingWithIntervalBlock(item, readings);
         }
@@ -298,7 +294,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             readings = filterReadings(readings);
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             Map<Instant, String> readingStatuses = new HashMap<>();
-            readings.stream().forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
+            readings.forEach(r -> readingStatuses.put(r.getTimeStamp(), ReadingStatus.ACTUAL.getValue()));
             updateCount++;
             return Optional.of(new MeterReadingData(item, meterReading, null, readingStatuses, structureMarkerForUpdate()));
         }
@@ -342,10 +338,12 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     }
 
     private StructureMarker structureMarkerForUpdate() {
-        return DefaultStructureMarker.createRoot(getClock(), "update");
+        return DefaultStructureMarker.createRoot(clock, "update");
     }
 
     private Optional<DataExportStrategy> getExportStrategy(DataExportOccurrence dataExportOccurrence) {
-        return Optional.of(((MeterReadingSelectorConfig) dataExportOccurrence.getTask().getStandardDataSelectorConfig().get()).getStrategy());
+        return dataExportOccurrence.getTask().getStandardDataSelectorConfig()
+                .map(MeterReadingSelectorConfig.class::cast)
+                .map(MeterReadingSelectorConfig::getStrategy);
     }
 }
