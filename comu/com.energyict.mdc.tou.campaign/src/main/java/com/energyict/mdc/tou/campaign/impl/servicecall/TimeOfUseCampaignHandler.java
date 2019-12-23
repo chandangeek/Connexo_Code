@@ -98,7 +98,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         if (optionalTimeOfUseCampaignItem.isPresent()) {
             TimeOfUseItemDomainExtension timeOfUseCampaignItem = (TimeOfUseItemDomainExtension) optionalTimeOfUseCampaignItem.get();
             ServiceCall serviceCall = timeOfUseCampaignItem.getServiceCall();
-            if (serviceCall.getState().isOpen()) {
+            if (serviceCall.getState().equals(DefaultState.ONGOING)) {
                 TimeOfUseCampaign timeOfUseCampaign = serviceCall.getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
                 if (timeOfUseCampaignItem.getStepOfUpdate() == 0) {
                     if (isForCalendar(comTaskExecution)) {
@@ -160,7 +160,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         if (optionalTimeOfUseCampaignItem.isPresent()) {
             TimeOfUseItemDomainExtension timeOfUseCampaignItem = (TimeOfUseItemDomainExtension) optionalTimeOfUseCampaignItem.get();
             ServiceCall serviceCall = timeOfUseCampaignItem.getServiceCall();
-            if (serviceCall.getState().isOpen()) {
+            if (serviceCall.getState().equals(DefaultState.ONGOING)) {
                 TimeOfUseCampaign timeOfUseCampaign = serviceCall.getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class).get();
                 if (timeOfUseCampaignItem.getStepOfUpdate() == 0) {
                     if (isForCalendar(comTaskExecution)) {

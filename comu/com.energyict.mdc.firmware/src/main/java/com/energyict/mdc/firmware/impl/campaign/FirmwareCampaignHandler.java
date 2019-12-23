@@ -98,7 +98,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         if (deviceInFirmwareCampaignOptional.isPresent()) {
             DeviceInFirmwareCampaign deviceInFirmwareCampaign = deviceInFirmwareCampaignOptional.get();
             ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
-            if (serviceCall.getState().isOpen()) {
+            if (serviceCall.getState().equals(DefaultState.ONGOING)) {
                 FirmwareCampaign firmwareCampaign = serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get();
                 if (comTaskExecution.isFirmware()) {
                     Optional<DeviceMessage> deviceMessage = deviceInFirmwareCampaign.getDeviceMessage();
@@ -136,7 +136,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         if (deviceInFirmwareCampaignOptional.isPresent()) {
             DeviceInFirmwareCampaign deviceInFirmwareCampaign = deviceInFirmwareCampaignOptional.get();
             ServiceCall serviceCall = deviceInFirmwareCampaign.getServiceCall();
-            if (serviceCall.getState().isOpen()) {
+            if (serviceCall.getState().equals(DefaultState.ONGOING)) {
                 FirmwareCampaign firmwareCampaign = serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get();
                 if (comTaskExecution.isFirmware()) {
                     if (deviceInFirmwareCampaign.getDeviceMessage().isPresent() && deviceInFirmwareCampaign.getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
