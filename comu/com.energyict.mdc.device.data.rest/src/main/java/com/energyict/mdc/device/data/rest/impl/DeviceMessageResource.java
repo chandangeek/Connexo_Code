@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
 import static java.util.stream.Collectors.toList;
@@ -85,10 +84,7 @@ public class DeviceMessageResource {
         ((DeviceMessageQueryFilterImpl) deviceMessageQueryFilter).setDevice(device);
         ((DeviceMessageQueryFilterImpl) deviceMessageQueryFilter).setMessageCategories(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition());
 
-        List<DeviceMessageInfo> infos = resourceHelper.getDeviceMessages(deviceMessageQueryFilter, queryParameters).stream().
-                map(deviceMessage -> deviceMessageInfoFactory.asFullInfo(deviceMessage, uriInfo)).
-                collect(toList());
-
+        List<DeviceMessageInfo> infos = deviceMessageInfoFactory.asFullInfoWithCache(resourceHelper.getDeviceMessages(deviceMessageQueryFilter, queryParameters), uriInfo);
         return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infos, queryParameters)).build();
     }
 
@@ -169,7 +165,7 @@ public class DeviceMessageResource {
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
                         .map(DeviceMessageId::from)
-                        .collect(Collectors.toList())).orElse(Collections.emptyList());
+                        .collect(toList())).orElse(Collections.emptyList());
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration()
                 .getDeviceMessageEnablements()
                 .stream()
@@ -177,7 +173,7 @@ public class DeviceMessageResource {
                 .map(DeviceMessageId::find)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .collect(toList());
         return deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()
                 .flatMap(category ->
