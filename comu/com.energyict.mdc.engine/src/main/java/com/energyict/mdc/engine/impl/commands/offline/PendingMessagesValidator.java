@@ -17,6 +17,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Validates that a pending {@link DeviceMessage} is still valid since the time it was created.
@@ -55,7 +56,10 @@ class PendingMessagesValidator {
     }
 
     private boolean hasCalendarAttribute(DeviceMessage message) {
-        return this.messagesWithCalendarAttributes().contains(message.getDeviceMessageId());
+        return Stream.of(DeviceMessageId.values())
+                .filter(deviceMessage -> deviceMessage.dbValue() == message.getMessageId())
+                .findAny().map(deviceMessageId -> this.messagesWithCalendarAttributes().contains(message.getDeviceMessageId()))
+                .orElse(Boolean.FALSE);
     }
 
     private Set<DeviceMessageId> messagesWithCalendarAttributes() {

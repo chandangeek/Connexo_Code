@@ -1051,6 +1051,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         Set<ProtocolSupportedCalendarOptions> protocolSupportedCalendarOptions = deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList()))
                 .orElse(Collections.<DeviceMessageId>emptyList())

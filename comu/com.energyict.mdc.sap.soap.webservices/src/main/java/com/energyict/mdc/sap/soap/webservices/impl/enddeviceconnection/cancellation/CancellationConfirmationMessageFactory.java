@@ -35,9 +35,9 @@ public class CancellationConfirmationMessageFactory {
     public CancellationConfirmationMessageFactory() {
     }
 
-    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createMessage(String requestId, String uuid, CancelledStatusChangeRequestDocument document, Instant now) {
+    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createMessage(String requestId, String uuid, CancelledStatusChangeRequestDocument document, String senderBusinessSystemId, Instant now) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, now));
+        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, senderBusinessSystemId, now));
         if (document.getTotalRequests() == 0) {
             confirmMsg.setLog(createFailedLog(MessageSeeds.ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS, document.getId(), document.getCategoryCode()));
         } else if (document.getTotalRequests() > 0 && document.getCancelledRequests() == 0 && document.getNotCancelledRequests() == 0) {
@@ -54,16 +54,16 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
-    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), requestMessage.getUuid(), now));
+        confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), requestMessage.getUuid(), senderBusinessSystemId, now));
         confirmMsg.setLog(createFailedLog(messageSeed));
         return confirmMsg;
     }
 
-    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, String message, Instant now) {
+    public SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg createFailedMessage(StatusChangeRequestCancellationRequestMessage requestMessage, String message, String senderBusinessSystemId, Instant now) {
         SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), requestMessage.getUuid(), now));
+        confirmMsg.setMessageHeader(createMessageHeader(requestMessage.getRequestId(), requestMessage.getUuid(), senderBusinessSystemId, now));
         confirmMsg.setLog(createFailedLog(message));
         return confirmMsg;
     }
@@ -141,7 +141,7 @@ public class CancellationConfirmationMessageFactory {
             log.setMaximumLogItemSeverityCode(value.toString());
         }
     }
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
 
         String uuid = UUID.randomUUID().toString();
 
@@ -153,6 +153,8 @@ public class CancellationConfirmationMessageFactory {
         if (!Strings.isNullOrEmpty(referenceUuid)){
             header.setReferenceUUID(createUUID(referenceUuid));
         }
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }

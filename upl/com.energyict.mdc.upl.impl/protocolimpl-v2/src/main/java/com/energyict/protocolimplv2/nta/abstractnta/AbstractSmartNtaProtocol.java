@@ -240,6 +240,18 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return Dsmr23RegisterFactory.isElectricityMilliWatts(obisCode);
     }
 
+
+    @Override
+    public String getSerialNumber() {
+        if (getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()){
+            journal("Using Equipment-Identifier to identify the device");
+            return getMeterInfo().getEquipmentIdentifier();
+        } else {
+            journal("Using Serial-Number to identify the device");
+            return getMeterInfo().getSerialNr();
+        }
+    }
+
     /**
      * Return the serialNumber of the meter which corresponds with the B-Field of the given ObisCode
      *

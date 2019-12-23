@@ -26,7 +26,10 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchan
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -77,6 +80,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     public void handleMessage(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
         String id = getId(msg);
         String uuid = getUuid(msg);
+        String profileId = getProfileId(msg);
         try {
             MeasurementTaskAssignmentChangeRequestMessage message = MeasurementTaskAssignmentChangeRequestMessage.builder(thesaurus).from(msg, id, uuid).build();
 
@@ -109,7 +113,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                             .findAny().get().getDisplayName());
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId())
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), message.getProfileId())
                             .create()
                             .build();
             sendMessage(confirmationMessage);
@@ -118,7 +122,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = e.getLocalizedMessage();
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeed).format(e.getMessageArgs()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId())
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), profileId)
                             .from(messageSeed.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
@@ -128,12 +132,20 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = messageSeeds.translate(thesaurus, e.getLocalizedMessage());
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(e.getLocalizedMessage()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId())
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), profileId)
                             .from(messageSeeds.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
         }
+    }
+
+    private String getProfileId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+        return Optional.ofNullable(msg.getUtilitiesTimeSeries())
+                .map(ts -> ts.getID())
+                .map(UtilitiesTimeSeriesID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
     }
 
     private String getId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {

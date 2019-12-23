@@ -7,6 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,7 +32,9 @@ public class DeviceMessageCategoryInfo {
         info.deviceMessageEnablements = new ArrayList<>();
 
         for (DeviceMessageSpec message : messages) {
-            Optional<DeviceMessageEnablement> enablement = messageEnablements.stream().filter(e -> e.getDeviceMessageId() == message.getId()).findAny();
+            Optional<DeviceMessageEnablement> enablement = messageEnablements.stream()
+                    .filter(e -> DeviceMessageId.find(e.getDeviceMessageDbValue()).isPresent())
+                    .filter(e -> e.getDeviceMessageId() == message.getId()).findAny();
             if (enablement.isPresent()) {
                 info.deviceMessageEnablements.add(DeviceMessageInfo.from(message, enablement.get().getUserActions(), thesaurus));
             } else {

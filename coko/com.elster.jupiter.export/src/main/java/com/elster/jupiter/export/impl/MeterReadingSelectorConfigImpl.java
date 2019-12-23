@@ -106,7 +106,6 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
         readingTypeSet.retainAll(readingContainer.getReadingTypes(range));
         return readingTypeSet.stream()
                 .map(r -> getExportItems().stream()
-                        .map(ReadingTypeDataExportItem.class::cast)
                         .filter(item -> r.equals(item.getReadingType()))
                         .filter(i -> i.getReadingContainer().is(readingContainer))
                         .findAny()

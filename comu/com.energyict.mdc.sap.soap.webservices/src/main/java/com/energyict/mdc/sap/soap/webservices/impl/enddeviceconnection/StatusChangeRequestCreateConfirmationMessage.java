@@ -34,6 +34,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PROCESSING_ERROR_CATEGORY_CODE;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
@@ -72,10 +73,10 @@ public class StatusChangeRequestCreateConfirmationMessage {
             confirmationMessage = OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfMsg();
         }
 
-        public Builder from(ServiceCall parent, List<ServiceCall> children, Instant now) {
+        public Builder from(ServiceCall parent, List<ServiceCall> children, String senderBusinessSystemId, Instant now) {
             ConnectionStatusChangeDomainExtension extension = parent.getExtension(ConnectionStatusChangeDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-            confirmationMessage.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), now));
+            confirmationMessage.setMessageHeader(createHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(parent, children));
             // parent state still not changed before sending confirmation, so check children states
             if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
@@ -90,27 +91,17 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, Instant now) {
-            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), now));
-            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
+        public Builder from(StatusChangeRequestCreateMessage message, String exceptionMessage, String senderBusinessSystemId, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(message.getRequestId(), message.getUuid(), senderBusinessSystemId, now));
+            confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createFailedBody(message, now));
             confirmationMessage.setLog(createFailedLog(exceptionMessage));
             return this;
         }
 
-        public Builder withStatus(String deviceID, ProcessingResultCode processingResultCode, Instant processDate) {
-            UtilitiesDeviceID id = OBJECT_FACTORY.createUtilitiesDeviceID();
-            UtilitiesConnectionStatusChangeResultCode resultCode =
-                    OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
-            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
-                    OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
-
-            id.setValue(deviceID);
-            resultCode.setValue(processingResultCode.getCode());
-
-            deviceConnectionStatus.setUtilitiesDeviceID(id);
-            deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
-            deviceConnectionStatus.setProcessingDateTime(processDate);
-
+        public Builder withStatus(String deviceID, ConnectionStatusProcessingResultCode processingResultCode, Instant processDate) {
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus = createConnectionStatus(deviceID, processingResultCode, processDate);
+            confirmationMessage.getUtilitiesConnectionStatusChangeRequest()
+                    .getDeviceConnectionStatus().clear(); // clear all previously added device connection statuses, we need only on with deviceId
             confirmationMessage.getUtilitiesConnectionStatusChangeRequest()
                     .getDeviceConnectionStatus()
                     .add(deviceConnectionStatus);
@@ -118,15 +109,18 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, Instant now) {
+        private BusinessDocumentMessageHeader createHeader(String requestId, String uuid, String senderBusinessSystemId, Instant now) {
             BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
 
+            header.setUUID(createUUID(java.util.UUID.randomUUID().toString()));
             if (!Strings.isNullOrEmpty(requestId)) {
                 header.setReferenceID(createID(requestId));
             }
             if (!Strings.isNullOrEmpty(uuid)) {
                 header.setReferenceUUID(createUUID(uuid));
             }
+            header.setSenderBusinessSystemID(senderBusinessSystemId);
+            header.setReconciliationIndicator(true);
             header.setCreationDateTime(now);
 
             return header;
@@ -161,11 +155,13 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return messageBody;
         }
 
-        private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createBody(StatusChangeRequestCreateMessage message) {
+        private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createFailedBody(StatusChangeRequestCreateMessage message, Instant now) {
             SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq messageBody = createBaseBody();
 
             messageBody.getID().setValue(message.getId());
             messageBody.getCategoryCode().setValue(message.getCategoryCode());
+
+            messageBody.getDeviceConnectionStatus().addAll(createFailedDeviceConnectionStatuses(message, now));
 
             return messageBody;
         }
@@ -191,6 +187,26 @@ public class StatusChangeRequestCreateConfirmationMessage {
                     : ConnectionStatusProcessingResultCode.FAILED.getCode());
             deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
 
+            return deviceConnectionStatus;
+        }
+
+        private List<SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts> createFailedDeviceConnectionStatuses(StatusChangeRequestCreateMessage message, Instant now) {
+            return message.getDeviceConnectionStatus().keySet().stream().map(sapDeviceId -> createConnectionStatus(sapDeviceId, ConnectionStatusProcessingResultCode.FAILED, now)).collect(Collectors.toList());
+        }
+
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts createConnectionStatus(String sapDeviceId, ConnectionStatusProcessingResultCode processingResutCode, Instant now) {
+            SmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts deviceConnectionStatus =
+                    OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfDvceConncnSts();
+            deviceConnectionStatus.setProcessingDateTime(now);
+
+            UtilitiesDeviceID deviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
+            deviceID.setValue(sapDeviceId);
+            deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
+
+            UtilitiesConnectionStatusChangeResultCode resultCode =
+                    OBJECT_FACTORY.createUtilitiesConnectionStatusChangeResultCode();
+            resultCode.setValue(processingResutCode.getCode());
+            deviceConnectionStatus.setUtilitiesDeviceConnectionStatusProcessingResultCode(resultCode);
             return deviceConnectionStatus;
         }
 

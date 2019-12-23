@@ -63,6 +63,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
 
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
+                this.useEquipmentIdentifierAsSerialNumber(),
                 this.forcedDelayPropertySpec(),
                 this.pollingDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -87,6 +88,15 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // currently no properties are set ...
+    }
+
+
+    protected PropertySpec useEquipmentIdentifierAsSerialNumber() {
+        return this.propertySpecService.booleanSpec()
+                .named(DlmsProtocolProperties.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, PropertyTranslationKeys.V2_DLMS_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL)
+                .describedAs(PropertyTranslationKeys.V2_DLMS_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DESCRIPTION)
+                .setDefaultValue(false)
+                .finish();
     }
 
     protected PropertySpec ignoreDstStatusCode() {
