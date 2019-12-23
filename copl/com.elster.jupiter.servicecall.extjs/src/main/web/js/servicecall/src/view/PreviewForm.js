@@ -245,6 +245,8 @@ Ext.define('Scs.view.PreviewForm', {
                 isEdit: false,
                 defaults: {
                     xtype: 'container',
+                    style: {'word-break': 'break-all'},
+                    layout: 'fit',
                     resetButtonHidden: true,
                     labelWidth: 250
                 }
