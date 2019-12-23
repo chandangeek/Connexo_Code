@@ -347,6 +347,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                 .getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList())
                 .stream()
@@ -359,6 +360,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                 .getDeviceConfiguration()
                 .getDeviceMessageEnablements()
                 .stream()
+                .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                 .anyMatch(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
                         .equals(getDeviceMessageId()));
     }

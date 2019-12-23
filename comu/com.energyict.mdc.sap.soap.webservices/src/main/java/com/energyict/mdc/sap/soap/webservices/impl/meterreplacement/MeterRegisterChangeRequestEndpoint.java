@@ -161,7 +161,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         MeterRegisterChangeConfirmationMessage confirmationMessage =
                 MeterRegisterChangeConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }

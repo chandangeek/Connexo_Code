@@ -75,6 +75,7 @@ public class MultiElementDeviceServiceImplTest extends PersistenceIntegrationTes
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
+                .filter(id -> DeviceMessageId.find(id).isPresent())
                 .map(DeviceMessageId::from)
                 .forEach(each -> multiElementEnabledDeviceConfiguration.createDeviceMessageEnablement(each));
         ReadingType activeEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), Unit.get("kWh"));
@@ -94,6 +95,7 @@ public class MultiElementDeviceServiceImplTest extends PersistenceIntegrationTes
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
+                .filter(id -> DeviceMessageId.find(id).isPresent())
                 .map(DeviceMessageId::from)
                 .forEach(multiElementSlaveDeviceConfiguration::createDeviceMessageEnablement);
         multiElementSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType1).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>2.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
     <artifactId>mdc.sap.soap.custom</artifactId>
@@ -17,10 +17,6 @@
     <description>
         Contains custom logic for SAP
     </description>
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <dependencies>
         <dependency>

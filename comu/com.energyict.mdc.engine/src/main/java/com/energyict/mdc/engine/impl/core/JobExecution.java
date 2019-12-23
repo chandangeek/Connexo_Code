@@ -310,20 +310,20 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
-    protected void completeSuccessfulComSession() {
-        this.addCompletionEvent();
-        this.getExecutionContext().completeSuccessful();
+    protected void completeSuccessfulComSession(ComSession.SuccessIndicator reason) {
+        addCompletionEvent();
+        getExecutionContext().completeSuccessful(reason);
 
-        this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
+        getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
         doExecuteStoreCommand();
     }
 
     protected void completeFailedComSession(ComSession.SuccessIndicator reason) {
         ExecutionContext executionContext = this.getExecutionContext();
         if (executionContext != null) {
-            this.addCompletionEvent();
-            this.getExecutionContext().completeFailure(reason);
-            this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
+            addCompletionEvent();
+            getExecutionContext().completeFailure(reason);
+            getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
             doExecuteStoreCommand();
         } else {
             executionContext = new ExecutionContext(this, getConnectionTask(), getComPort(), serviceProvider);
@@ -339,12 +339,12 @@ public abstract class JobExecution implements ScheduledJob {
             if (!executionContext.connectionFailed()) {
                 executionContext.getStoreCommand().add(
                         new PublishConnectionCompletionEvent(
-                                this.getConnectionTask(),
-                                this.getComPort(),
-                                this.getSuccessfulComTaskExecutions(),
-                                this.getFailedComTaskExecutions(),
-                                this.getNotExecutedComTaskExecutions(),
-                                this.executionContext.getDeviceCommandServiceProvider()));
+                                getConnectionTask(),
+                                getComPort(),
+                                getSuccessfulComTaskExecutions(),
+                                getFailedComTaskExecutions(),
+                                getNotExecutedComTaskExecutions(),
+                                executionContext.getDeviceCommandServiceProvider()));
             }
         } else {
             // Failure was in the preparation that creates the ExecutionContext
@@ -356,7 +356,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected void completeOutsideComWindow() {
-        this.getExecutionContext().completeOutsideComWindow();
+        getExecutionContext().completeOutsideComWindow();
         doExecuteStoreCommand();
     }
 
@@ -364,7 +364,7 @@ public abstract class JobExecution implements ScheduledJob {
      * Store all the collected data and create a ComSession
      */
     protected Future<Boolean> doExecuteStoreCommand() {
-        return this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
+        return getDeviceCommandExecutor().execute(getExecutionContext().getStoreCommand(), getToken());
     }
 
     protected ExecutionContext newExecutionContext(ConnectionTask connectionTask, ComPort comPort) {
@@ -382,7 +382,9 @@ public abstract class JobExecution implements ScheduledJob {
     @Override
     public void reschedule() {
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
-        if (commandRoot.hasConnectionSetupError()) {
+        if (commandRoot.hasConnectionNotExecuted()) {
+            successIndicator = ComSession.SuccessIndicator.Not_Executed;
+        } else if (commandRoot.hasConnectionSetupError()) {
             successIndicator = ComSession.SuccessIndicator.SetupError;
         } else if (commandRoot.hasConnectionErrorOccurred()) {
             successIndicator = ComSession.SuccessIndicator.Broken;
@@ -392,8 +394,8 @@ public abstract class JobExecution implements ScheduledJob {
             successIndicator = ComSession.SuccessIndicator.Interrupted;
         }
 
-        if (successIndicator.equals(ComSession.SuccessIndicator.Success)) {
-            rescheduleSuccess();
+        if (successIndicator.equals(ComSession.SuccessIndicator.Success) || successIndicator.equals(ComSession.SuccessIndicator.Not_Executed)) {
+            rescheduleSuccess(successIndicator);
         } else {
             rescheduleFailure(successIndicator);
         }
@@ -407,8 +409,8 @@ public abstract class JobExecution implements ScheduledJob {
         this.completeFailedComSession(successIndicator);
     }
 
-    private void rescheduleSuccess() {
-        this.completeSuccessfulComSession();
+    private void rescheduleSuccess(ComSession.SuccessIndicator reason) {
+        completeSuccessfulComSession(reason);
     }
 
     public void doReschedule() {

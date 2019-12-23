@@ -22,71 +22,71 @@ import java.util.Currency;
 import java.util.Optional;
 
 public interface ReadingType extends IdentifiedObject {
-	MacroPeriod getMacroPeriod();
+    MacroPeriod getMacroPeriod();
 
-	Aggregate getAggregate();
+    Aggregate getAggregate();
 
-	TimeAttribute getMeasuringPeriod();
+    TimeAttribute getMeasuringPeriod();
 
-	Accumulation getAccumulation();
+    Accumulation getAccumulation();
 
-	FlowDirection getFlowDirection();
+    FlowDirection getFlowDirection();
 
-	Commodity getCommodity();
+    Commodity getCommodity();
 
-	MeasurementKind getMeasurementKind();
+    MeasurementKind getMeasurementKind();
 
-	RationalNumber getInterharmonic();
+    RationalNumber getInterharmonic();
 
-	RationalNumber getArgument();
+    RationalNumber getArgument();
 
-	int getTou();
+    int getTou();
 
-	int getCpp();
+    int getCpp();
 
-	int getConsumptionTier();
+    int getConsumptionTier();
 
-	Phase getPhases();
+    Phase getPhases();
 
-	MetricMultiplier getMultiplier();
+    MetricMultiplier getMultiplier();
 
-	ReadingTypeUnit getUnit();
+    ReadingTypeUnit getUnit();
 
-	Currency getCurrency();
+    Currency getCurrency();
 
-	Optional<TemporalAmount> getIntervalLength();
+    Optional<TemporalAmount> getIntervalLength();
 
-	Optional<ReadingType> getBulkReadingType();
+    Optional<ReadingType> getBulkReadingType();
 
-	boolean isBulkQuantityReadingType(ReadingType readingType);
+    boolean isBulkQuantityReadingType(ReadingType readingType);
 
-	Optional<ReadingType> getCalculatedReadingType();
+    Optional<ReadingType> getCalculatedReadingType();
 
-	boolean isRegular();
+    boolean isRegular();
 
-	default boolean isCumulative() {
-		return getAccumulation().isCumulative();
-	}
+    default boolean isCumulative() {
+        return getAccumulation().isCumulative();
+    }
 
-	long getVersion();
+    long getVersion();
 
-	void setDescription(String description);
+    void setDescription(String description);
 
-	void setAliasName(String alias);
+    void setAliasName(String alias);
 
-	boolean isActive();
+    boolean isActive();
 
-	void activate();
+    void activate();
 
-	void deactivate();
+    void deactivate();
 
-	void update();
+    void update();
 
-	/**
-	 * Using the {@link #getAliasName()} and some of the attributes of a ReadingType a more detailed aliasName is constructed.
-	 *
-	 * @return the full alias name
-	 * @since v1.1
-	 */
-	String getFullAliasName();
+    /**
+     * Using the {@link #getAliasName()} and some of the attributes of a ReadingType a more detailed aliasName is constructed.
+     *
+     * @return the full alias name
+     * @since v1.1
+     */
+    String getFullAliasName();
 }

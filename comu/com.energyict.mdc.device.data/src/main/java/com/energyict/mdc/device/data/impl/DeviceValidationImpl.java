@@ -182,7 +182,13 @@ class DeviceValidationImpl implements DeviceValidation {
 
     @Override
     public boolean allDataValidated(Channel channel) {
-        return device.findKoreChannels(channel).stream().filter(com.elster.jupiter.metering.Channel::hasData).allMatch(kore -> getEvaluator().isAllDataValidated(kore.getChannelsContainer()));
+        List<com.elster.jupiter.metering.Channel> filteredChannels = device.findKoreChannels(channel).stream()
+                .filter(com.elster.jupiter.metering.Channel::hasData).collect(Collectors.toList());
+        boolean validated = false;
+        if(filteredChannels.size() > 0){
+            validated = filteredChannels.stream().allMatch(kore -> getEvaluator().isAllDataValidated(kore.getChannelsContainer()));
+        }
+        return validated;
     }
 
     @Override

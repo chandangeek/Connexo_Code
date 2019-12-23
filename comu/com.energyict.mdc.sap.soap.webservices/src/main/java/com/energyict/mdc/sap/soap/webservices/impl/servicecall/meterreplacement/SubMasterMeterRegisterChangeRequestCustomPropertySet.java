@@ -34,7 +34,6 @@ public class SubMasterMeterRegisterChangeRequestCustomPropertySet implements Cus
     private volatile Thesaurus thesaurus;
 
     public SubMasterMeterRegisterChangeRequestCustomPropertySet() {
-        // for OSGI purpose
     }
 
     @Inject

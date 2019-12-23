@@ -1,13 +1,18 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.properties.ObjectXmlMarshallAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -75,10 +80,13 @@ public class IssueFactoryImpl implements IssueFactory {
     }
 
     private abstract static class Issue implements com.energyict.mdc.upl.issue.Issue {
-        private final Instant timestamp;
-        private final String description;
-        private final Object source;
-        private final Object[] messageArguments;
+        private Instant timestamp;
+        private String description;
+        private Object source;
+        private Object[] messageArguments;
+
+        protected Issue() {
+        }
 
         protected Issue(Instant timestamp, String description) {
             this(timestamp, description, null, new Object[0]);
@@ -102,27 +110,39 @@ public class IssueFactoryImpl implements IssueFactory {
         }
 
         @Override
+        @JsonIgnore
+        @XmlTransient
         public boolean isWarning() {
             return false;
         }
 
         @Override
+        @JsonIgnore
+        @XmlTransient
         public boolean isProblem() {
             return false;
         }
 
         @Override
+        @XmlAttribute
+        @XmlJavaTypeAdapter(ObjectXmlMarshallAdapter.class)
         public Object getSource() {
             return null;
         }
 
         @Override
+        @JsonIgnore
+        @XmlTransient
         public Optional<Exception> getException() {
             return Optional.empty();
         }
     }
 
-    private static class Warning extends IssueFactoryImpl.Issue implements com.energyict.mdc.upl.issue.Warning {
+    public static class Warning extends IssueFactoryImpl.Issue implements com.energyict.mdc.upl.issue.Warning {
+        public Warning() {
+            super();
+        }
+
         Warning(Instant timestamp, String description) {
             super(timestamp, description);
         }
@@ -132,12 +152,18 @@ public class IssueFactoryImpl implements IssueFactory {
         }
 
         @Override
+        @JsonIgnore
+        @XmlTransient
         public boolean isWarning() {
             return true;
         }
     }
 
-    private static class Problem extends IssueFactoryImpl.Issue implements com.energyict.mdc.upl.issue.Problem {
+    public static class Problem extends IssueFactoryImpl.Issue implements com.energyict.mdc.upl.issue.Problem {
+        public Problem() {
+            super();
+        }
+
         Problem(Instant timestamp, String description) {
             super(timestamp, description);
         }
@@ -147,6 +173,8 @@ public class IssueFactoryImpl implements IssueFactory {
         }
 
         @Override
+        @JsonIgnore
+        @XmlTransient
         public boolean isProblem() {
             return true;
         }

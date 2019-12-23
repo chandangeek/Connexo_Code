@@ -176,7 +176,7 @@ public class ProtocolGogo {
         }
 
         private boolean setupThreadPrinciple() {
-            Optional<User> admin = userService.findUser("admin");
+            Optional<User> admin = userService.findUser("admin", userService.getRealm());
             if (admin.isPresent()) {
                 threadPrincipalService.set(admin.get());
                 return true;

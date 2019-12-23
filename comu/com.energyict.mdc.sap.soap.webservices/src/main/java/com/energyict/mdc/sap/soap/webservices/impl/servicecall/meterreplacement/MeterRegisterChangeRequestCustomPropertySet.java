@@ -38,7 +38,6 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
     private volatile Thesaurus thesaurus;
 
     public MeterRegisterChangeRequestCustomPropertySet() {
-        // for OSGI purpose
     }
 
     @Inject

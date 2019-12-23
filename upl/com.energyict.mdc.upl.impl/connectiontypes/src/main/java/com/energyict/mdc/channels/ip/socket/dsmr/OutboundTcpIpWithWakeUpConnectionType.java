@@ -5,6 +5,7 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -73,6 +74,8 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
     private Long connTaskId = null;
 
     private java.util.logging.Logger logger;
+    private ProtocolJournal protocolJournal;
+
 
     public OutboundTcpIpWithWakeUpConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -126,7 +129,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
     private void waitBeforeMonitoring() {
         Duration waitingTime = getPropertyWaitingTime();
-        log("Sleeping "+waitingTime.getSeconds()+" seconds before pooling host property");
+        log("Sleeping "+waitingTime.getSeconds()+" seconds before verifying the host property");
         try {
             Thread.sleep(waitingTime.toMillis());
         } catch (InterruptedException e) {
@@ -140,7 +143,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         int poolRetries = getPropertyNumberOfPoolRetries().intValue();
 
         log("Monitoring the host property, waiting for the IP notification web-service to fill it: "
-                +poolRetries+" tries x "+connectTimeout.toMillis()+" milliseconds ...");
+                +poolRetries+" tries x "+connectTimeout.toMillis()+" milliseconds");
 
         while (poolRetries > 0){
             Optional<String> host = getUpdatedHostProperty();
@@ -149,13 +152,13 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
                     try {
                         Thread.sleep(connectTimeout.toMillis());
                         poolRetries--;
-                        log("\t host still not updated, waiting another "+poolRetries+" retries");
+                        log("Host still not updated, waiting another "+poolRetries+" retries");
                     } catch (InterruptedException e) {
                         logError("Waiting for host property to be updated interrupted, exiting! ("+e.getLocalizedMessage()+")");
                         return Optional.empty();
                     }
                 } else {
-                    log("Detected new host value: "+host.get()+" resuming with TCP/IP connection");
+                    log("Detected new host value: "+host.get()+" continuing with the TCP/IP connection");
                     return host;
                 }
             }
@@ -179,8 +182,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
 
     private void resetHostProperty() {
-        log("Resetting host property ...");
-
+        log("Resetting host property to " + WAITING_FOR_WAKEUP_TEMPORARY_HOST_VALUE);
         try {
             Services.devicePropertiesDelegate()
                     .setConnectionMethodProperty(
@@ -196,7 +198,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
 
     /**
-     * The following properties are transported to allow identificatin of device and connectiontask in MDC
+     * The following properties are transported to allow identification of device and connection-task in MDC
      * They are transported by raw value because of fancy class dependencies between bundles.
      *
      * Everything retreived here is set in
@@ -272,7 +274,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
      */
     private void createWakeupCall() throws ConnectionException {
         log("Creating WebService wake-up call");
-        WUTrigger wuTrigger = null;
+        WUTrigger wuTrigger;
         try {
             wuTrigger = getWUTrigger();
         } catch (ServiceException e) {
@@ -280,11 +282,12 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.WakeupCallFailed, e.getMessage());
         }
 
-        log("\t- building parameters & header");
+        log("Building web-service parameters & header");
         SubmitWUTrigger parameters = getParameters();
         GdspHeader gdspHeader = getGdspHeader();
 
-        log("\t- submitting WU trigger");
+        log("Submitting WU trigger");
+
         SubmitWUTriggerResponse swuTriggerResponse;
         try {
             swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
@@ -293,8 +296,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.WakeupCallFailed, e.getMessage());
         }
 
-        log("\t- response received, analyzing it");
-
+        trace("Response: \n"+swuTriggerResponse.toString());
         analyseResponse(swuTriggerResponse);
     }
 
@@ -303,7 +305,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         QName qName = new QName("http://ws.gdsp.vodafone.com/", "WUTriggerService");
         String wsdlSchema = getResource("wsdl/WUTriggerServiceConcrete_Incl_Schema.wsdl");
 
-        log("\t- service: "+qName.getNamespaceURI());
+        log("Web-service URI: "+qName.getNamespaceURI());
         WUTriggerService wuService = new WUTriggerServiceLocator(wsdlSchema,qName);
         WUTrigger wuTriggerPort = wuService.getWUTriggerPort();
 
@@ -311,13 +313,13 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         WUTriggerServiceLocator serviceLocator = (WUTriggerServiceLocator) stub._getService();
 
         String serviceEndpoint = getPropertyEndpointAddress() + getPropertySoapAction();
-        log("\t- endpoint: "+serviceEndpoint);
+        log("Web-service endpoint: "+serviceEndpoint);
 
         serviceLocator.setWUTriggerPortEndpointAddress(serviceEndpoint);
 
         int timeoutMilliseconds = (int) getPropertyRequestTimeout().toMillis();
         stub.setTimeout(timeoutMilliseconds);
-        log("\t- request timeout: "+timeoutMilliseconds+" milliseconds");
+        log("Web-service request timeout: "+timeoutMilliseconds+" milliseconds");
 
         //need also this for cached endpoint
         ((WUTriggerPortBindingStub) wuTriggerPort)._setProperty("javax.xml.rpc.service.endpoint.address", serviceEndpoint );
@@ -341,8 +343,12 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         SubmitWUTrigger parameters = new SubmitWUTrigger();
 
         String provider = getDeviceCasGprsProvider();
-        parameters.setOperatorName(provider);
-        log("\t\t- provider: "+provider);
+        if (provider!=null) {
+            parameters.setOperatorName(provider);
+            log("Operator name (provider) is " + provider);
+        } else {
+            logError("No operator name (provider) found in CAS!");
+        }
 
         /**
          * Vodafone = IMSI
@@ -351,11 +357,11 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         String deviceId;
         if ("Vodafone".equals(provider)){
             String imsi = getDeviceCasIMSI();
-            log("\t\t- operator is Vodafone, using IMSI: "+imsi+" as deviceId");
+            log("Operator is Vodafone, using IMSI: "+imsi+" as deviceId");
             deviceId = imsi;
         } else {
             String iccid = getDeviceCasICCID();
-            log("\t\t- other operator using ICCID: "+iccid+" as deviceId");
+            log("Other operator, using ICCID: "+iccid+" as deviceId");
             deviceId = iccid;
         }
         parameters.setDeviceId(deviceId);
@@ -368,11 +374,11 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
         String sourceId =  getPropertySourceId();
         parameters.setSourceId(sourceId);
-        log("\t\t- sourceId: "+sourceId);
+        log("Setting the sourceId: "+sourceId);
 
         String triggerType =  getPropertyTriggerType();
         parameters.setTriggerType(triggerType);
-        log("\t\t- triggerType: "+triggerType);
+        log("Setting the triggerType: "+triggerType);
 
         return parameters;
     }
@@ -382,12 +388,16 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         GdspCredentials value = new GdspCredentials();
 
         String userId = getPropertyUserId();
-        value.setUserId(userId);
-        log("\t\t- userId: "+userId);
+        if (!userId.isEmpty()) {
+            value.setUserId(userId);
+            log("Setting the userId: " + userId);
+        }
 
         String userPass = getPropertyUserPass();
-        value.setPassword(userPass);
-        log("\t\t- userPass: "+userPass.replaceAll("(?s).", "*"));
+        if (!userPass.isEmpty()) {
+            value.setPassword(userPass);
+            log("Setting the userPass: " + userPass.replaceAll("(?s).", "*"));
+        }
 
         gdspHeader.setGdspCredentials(value);
         return gdspHeader;
@@ -404,7 +414,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         String majorReturnCode = swuTriggerResponse.get_return().getReturnCode().getMajorReturnCode();
         String minorReturnCode = swuTriggerResponse.get_return().getReturnCode().getMinorReturnCode();
 
-        log(" - response major=["+majorReturnCode+"] minor=["+minorReturnCode+"]");
+        log("Response codes: major=["+majorReturnCode+"] minor=["+minorReturnCode+"]");
 
         if (majorReturnCode.equalsIgnoreCase(mrcRequestComplete)) {
             log("Wakeup trigger was sent successfully");
@@ -536,7 +546,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
     private String getPropertyWithValidator(String propertyName) throws ConnectionException {
         try {
             String value = (String) getProperty(propertyName, null);
-            return value;
+            return value.trim();
         } catch (Exception ex){
             String errorMessage = "Cannot get value of custom property ["+propertyName+"]";
             logError(errorMessage);
@@ -592,7 +602,6 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
     /**
      * Log messages to to give the poor delivery & support people some hints in case of trouble
-     * TODO: find a magic way to connect to journal, create an service, etc
      */
     private Logger getLogger() {
         if (this.logger==null) {
@@ -601,16 +610,46 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         return this.logger;
     }
 
+    @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal){
+        this.protocolJournal = protocolJournal;
+    }
+
+    @Override
+    public void journal(String message){
+        if (protocolJournal!=null){
+            try {
+                protocolJournal.addToJournal("[WakeUp] "+message);
+            } catch(Exception x){
+                //swallow
+            }
+        }
+    }
+
     private void logError(String errorMessage) {
         getLogger().severe("[Wakeup]" + getSession() + errorMessage);
+        journal("ERROR: "+errorMessage);
     }
 
     private void logError(Exception ex) {
         logError( ex.getLocalizedMessage()+ "\n"+ex.toString());
     }
 
-    private void log(String message) {
+    /**
+     * Trace message on the connexo log file only
+     * @param message
+     */
+    private void trace(String message) {
         getLogger().info("[Wakeup]" + getSession() + message);
+    }
+
+    /**
+     * Nice log messages, visible to the user in Gui and also on file
+     * @param message
+     */
+    private void log(String message) {
+       trace(message);
+        journal(message);
     }
 
 
