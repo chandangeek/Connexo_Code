@@ -32,6 +32,7 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -68,14 +69,14 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
             if (extension.isBulk()) {
                 StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
                         .builder(sapCustomPropertySets)
-                        .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                        .from(parent, ServiceCallHelper.findChildren(parent), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
 
                 WebServiceActivator.STATUS_CHANGE_REQUEST_BULK_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
             } else {
                 StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                         .builder(sapCustomPropertySets)
-                        .from(parent, ServiceCallHelper.findChildren(parent), clock.instant())
+                        .from(parent, ServiceCallHelper.findChildren(parent), webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
 
                 WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage, parent));
@@ -91,5 +92,10 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }

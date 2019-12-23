@@ -58,11 +58,11 @@ public class MeterRegisterChangeConfirmationMessage {
         private Builder() {
         }
 
-        public MeterRegisterChangeConfirmationMessage.Builder from(ServiceCall parent, Instant now) {
+        public MeterRegisterChangeConfirmationMessage.Builder from(ServiceCall parent, String senderBusinessSystemId, Instant now) {
             MasterMeterRegisterChangeRequestDomainExtension extension = parent.getExtensionFor(new MasterMeterRegisterChangeRequestCustomPropertySet()).get();
             ServiceCall child = parent.findChildren().stream().findFirst().orElseThrow(() -> new IllegalStateException("Unable to get child service call"));
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
                 confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
@@ -74,13 +74,13 @@ public class MeterRegisterChangeConfirmationMessage {
                 confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_WAS_FAILED.getDefaultFormat()));
             }
 
-            createBody(confirmationMessage, child, now);
+            createBody(confirmationMessage, child, senderBusinessSystemId, now);
             return this;
         }
 
-        public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, Instant now) {
+        public MeterRegisterChangeConfirmationMessage.Builder from(MeterRegisterChangeMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegChgConfMsg();
-            confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(message.getId(), message.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesDevice(createChildBody(message.getDeviceId()));
             confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat()));
             return this;
@@ -90,11 +90,11 @@ public class MeterRegisterChangeConfirmationMessage {
             return MeterRegisterChangeConfirmationMessage.this;
         }
 
-        private void createBody(UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage, ServiceCall subParent, Instant now) {
+        private void createBody(UtilsDvceERPSmrtMtrRegChgConfMsg confirmationMessage, ServiceCall subParent, String senderBusinessSystemId, Instant now) {
             SubMasterMeterRegisterChangeRequestDomainExtension extension = subParent.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
                     .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
 
-            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), now));
+            confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
             if (subParent.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
@@ -123,7 +123,7 @@ public class MeterRegisterChangeConfirmationMessage {
             return device;
         }
 
-        private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+        private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, String senderBusinessSystemId, Instant now) {
             String uuid = UUID.randomUUID().toString();
 
             BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
@@ -134,6 +134,8 @@ public class MeterRegisterChangeConfirmationMessage {
             if (!Strings.isNullOrEmpty(referenceUuid)) {
                 header.setReferenceUUID(createUUID(referenceUuid));
             }
+            header.setSenderBusinessSystemID(senderBusinessSystemId);
+            header.setReconciliationIndicator(true);
             header.setCreationDateTime(now);
             return header;
         }

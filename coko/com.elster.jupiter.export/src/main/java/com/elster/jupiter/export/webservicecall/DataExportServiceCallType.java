@@ -23,7 +23,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
+    ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> itemList);
 
     /**
      * Creates and starts a new service call in a new thread.
@@ -32,7 +32,7 @@ public interface DataExportServiceCallType {
      * @param timeout Timeout to wait for successful service call closure in milliseconds.
      * @return A new service call.
      */
-    ServiceCall startServiceCallAsync(String uuid, long timeout, List<ReadingTypeDataExportItem> itemList);
+    ServiceCall startServiceCallAsync(String uuid, long timeout, Collection<ReadingTypeDataExportItem> itemList);
 
 
     /**
@@ -65,5 +65,7 @@ public interface DataExportServiceCallType {
 
     List<ServiceCallStatus> getStatuses(Collection<ServiceCall> serviceCalls);
 
-    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall);
+    Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCall);
+
+    Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> serviceCalls);
 }

@@ -14,8 +14,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Optional;
 
 public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
@@ -23,6 +21,8 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extend
         DOMAIN("serviceCall", "SERVICE_CALL"),
 
         // provided
+        REQUEST_ID("requestId", "REQUEST_ID"),
+        UUID("uuid", "UUID"),
         DEVICE_ID("deviceId", "DEVICE_ID"),
         ;
 
@@ -45,9 +45,30 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extend
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String requestId;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String uuid;
+
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceId;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public String getDeviceId() {
         return deviceId;
@@ -60,11 +81,15 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extend
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
+        this.setRequestId((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
+        this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestId());
+        propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
     }
 

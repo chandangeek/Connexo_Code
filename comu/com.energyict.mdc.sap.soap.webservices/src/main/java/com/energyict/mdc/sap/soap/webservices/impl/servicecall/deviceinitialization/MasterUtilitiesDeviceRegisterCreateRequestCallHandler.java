@@ -33,6 +33,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile WebServiceActivator webServiceActivator;
 
 
     @Override
@@ -92,7 +93,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
         List<ServiceCall> children = findChildren(serviceCall);
         UtilitiesDeviceRegisterCreateConfirmationMessage resultMessage = UtilitiesDeviceRegisterCreateConfirmationMessage
                 .builder()
-                .from(serviceCall, children, clock.instant(), extension.isBulk())
+                .from(serviceCall, children, webServiceActivator.getMeteringSystemId(), clock.instant(), extension.isBulk())
                 .build();
         if (extension.isBulk()) {
             WebServiceActivator.UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION.forEach(sender -> sender.call(resultMessage));
@@ -171,5 +172,10 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }
