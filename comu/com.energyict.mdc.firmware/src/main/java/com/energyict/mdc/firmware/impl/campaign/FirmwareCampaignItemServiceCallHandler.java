@@ -45,7 +45,7 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
         if (serviceCall.getTargetObject().isPresent()) {
             serviceCallFilter.targetObject = serviceCall.getTargetObject().get();
-            if (serviceCallService.getServiceCallFinder(serviceCallFilter).stream().anyMatch(sc -> !sc.equals(serviceCall) && sc.getState().isOpen())) {
+            if (serviceCallService.getServiceCallFinder(serviceCallFilter).stream().anyMatch(sc -> !sc.equals(serviceCall) && sc.getState().isOpen() && sc.getType().equals(serviceCall.getType()))) {
                 throw new FirmwareCampaignException(thesaurus, DEVICE_PART_OF_CAMPAIGN);
             }
         }
