@@ -31,9 +31,9 @@ public class CancellationConfirmationMessageFactory {
     public CancellationConfirmationMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(String requestId, String uuid, CancelledMeterReadingDocument document, Instant now) {
+    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(String requestId, String uuid, CancelledMeterReadingDocument document, Instant now, String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPCanclnConfMsg confirmMsg = objectFactory.createSmrtMtrMtrRdngDocERPCanclnConfMsg();
-        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, now));
+        confirmMsg.setMessageHeader(createMessageHeader(requestId, uuid, now, senderBusinessSystemId));
         if (document.isSuccess()) {
             confirmMsg.setLog(createSuccessfulLog());
         } else {
@@ -44,9 +44,9 @@ public class CancellationConfirmationMessageFactory {
         return confirmMsg;
     }
 
-    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+    public SmrtMtrMtrRdngDocERPCanclnConfMsg createMessage(MeterReadingDocumentCancellationRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPCanclnConfMsg bulkConfirmationMessage = objectFactory.createSmrtMtrMtrRdngDocERPCanclnConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createMessageHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now));
+        bulkConfirmationMessage.setMessageHeader(createMessageHeader(requestMessage.getRequestID(), requestMessage.getUuid(), now, senderBusinessSystemId));
         bulkConfirmationMessage.setLog(objectFactory.createLog());
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeed, PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID));
         return bulkConfirmationMessage;
@@ -96,7 +96,7 @@ public class CancellationConfirmationMessageFactory {
         return logItem;
     }
 
-    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now) {
+    private BusinessDocumentMessageHeader createMessageHeader(String requestId, String referenceUuid, Instant now, String senderBusinessSystemId) {
 
         String uuid = UUID.randomUUID().toString();
 
@@ -108,6 +108,9 @@ public class CancellationConfirmationMessageFactory {
         if (!Strings.isNullOrEmpty(referenceUuid)){
             header.setReferenceUUID(createUUID(referenceUuid));
         }
+
+        header.setSenderBusinessSystemID(senderBusinessSystemId);
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }

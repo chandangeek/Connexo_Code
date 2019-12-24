@@ -37,9 +37,11 @@ public class CreateBulkMessageFactory {
     public CreateBulkMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPBulkCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
+    public SmrtMtrMtrRdngDocERPBulkCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
+                                                             Instant now,
+                                                             String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPBulkCrteConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now));
+        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now, senderBusinessSystemId));
         bulkConfirmationMessage.setLog(OBJECT_FACTORY.createLog());
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(MessageSeeds.OK_RESULT,
                 null,
@@ -47,14 +49,16 @@ public class CreateBulkMessageFactory {
         bulkConfirmationMessage.getLog().setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
         setMaximumLogItemSeverityCode(bulkConfirmationMessage.getLog());
 
-        createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages(), now);
+        createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages(), now, senderBusinessSystemId);
         return bulkConfirmationMessage;
     }
 
     public SmrtMtrMtrRdngDocERPBulkCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
-                                                             MessageSeeds messageSeeds, Instant now) {
+                                                             MessageSeeds messageSeeds,
+                                                             Instant now,
+                                                             String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPBulkCrteConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now));
+        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now, senderBusinessSystemId));
         bulkConfirmationMessage.setLog(OBJECT_FACTORY.createLog());
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeeds,
                 PROCESSING_ERROR_CATEGORY_CODE,
@@ -62,12 +66,14 @@ public class CreateBulkMessageFactory {
         bulkConfirmationMessage.getLog().setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
         setMaximumLogItemSeverityCode(bulkConfirmationMessage.getLog());
 
-        createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages(), now);
+        createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages(), now, senderBusinessSystemId);
 
         return bulkConfirmationMessage;
     }
 
-    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
+    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage,
+                                                       Instant now,
+                                                       String senderBusinessSystemId) {
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         String uuid = java.util.UUID.randomUUID().toString();
 
@@ -82,6 +88,8 @@ public class CreateBulkMessageFactory {
             messageHeader.setReferenceUUID(createUUID(requestMessage.getUuid()));
         }
 
+        messageHeader.setSenderBusinessSystemID(senderBusinessSystemId);
+        messageHeader.setReconciliationIndicator(true);
         messageHeader.setCreationDateTime(now);
 
         return messageHeader;
@@ -96,7 +104,8 @@ public class CreateBulkMessageFactory {
     private SmrtMtrMtrRdngDocERPCrteConfMsg createBody(MeterReadingDocumentCreateMessage message,
                                                        String docProcResultCode,
                                                        LogItem logItem,
-                                                       Instant now) {
+                                                       Instant now,
+                                                       String senderBusinessSystemId) {
         MeterReadingDocumentID meterReadingDocumentID = OBJECT_FACTORY.createMeterReadingDocumentID();
         meterReadingDocumentID.setValue(message.getId());
 
@@ -114,6 +123,8 @@ public class CreateBulkMessageFactory {
             documentMessageHeader.setReferenceUUID(createUUID(message.getHeaderUUID()));
         }
 
+        documentMessageHeader.setSenderBusinessSystemID(senderBusinessSystemId);
+        documentMessageHeader.setReconciliationIndicator(true);
         documentMessageHeader.setCreationDateTime(now);
 
         SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc document = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc();
@@ -135,25 +146,26 @@ public class CreateBulkMessageFactory {
 
     private void createAndValidateBody(SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage,
                                        List<MeterReadingDocumentCreateMessage> messages,
-                                       Instant now) {
+                                       Instant now,
+                                       String senderBusinessSystemId) {
         messages.forEach(message -> {
             if (!message.isValid()) {
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
                         .add(createBody(message, ProcessingResultCode.FAILED.getCode(), createLogItem(MessageSeeds.INVALID_METER_READING_DOCUMENT,
                                 PROCESSING_ERROR_CATEGORY_CODE,
                                 UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
-                                message.getId()), now));
+                                message.getId()), now, senderBusinessSystemId));
             } else if (!message.isBulkSupported()) {
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
                         .add(createBody(message, ProcessingResultCode.FAILED.getCode(), createLogItem(MessageSeeds.UNSUPPORTED_REASON_CODE,
                                 PROCESSING_ERROR_CATEGORY_CODE,
                                 UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID,
-                                message.getId()), now));
+                                message.getId()), now, senderBusinessSystemId));
             } else {
                 bulkConfirmationMessage.getSmartMeterMeterReadingDocumentERPCreateConfirmationMessage()
                         .add(createBody(message, ProcessingResultCode.SUCCESSFUL.getCode(), createLogItem(MessageSeeds.OK_RESULT,
                                 null,
-                                SUCCESSFUL_PROCESSING_TYPE_ID), now));
+                                SUCCESSFUL_PROCESSING_TYPE_ID), now, senderBusinessSystemId));
             }
         });
     }

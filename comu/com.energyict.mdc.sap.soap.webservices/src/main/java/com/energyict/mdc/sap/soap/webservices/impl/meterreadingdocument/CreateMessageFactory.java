@@ -34,9 +34,9 @@ public class CreateMessageFactory {
     public CreateMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
+    public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now, String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
-        confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
+        confirmationMessage.setMessageHeader(createHeader(requestMessage, now, senderBusinessSystemId));
 
         requestMessage.getMeterReadingDocumentCreateMessages()
                 .forEach(message -> {
@@ -69,10 +69,12 @@ public class CreateMessageFactory {
     }
 
     public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
-                                                         MessageSeeds messageSeeds, Instant now) {
+                                                         MessageSeeds messageSeeds,
+                                                         Instant now,
+                                                         String senderBusinessSystemId) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
 
-        confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
+        confirmationMessage.setMessageHeader(createHeader(requestMessage, now, senderBusinessSystemId));
         confirmationMessage.setLog(createLog(messageSeeds, PROCESSING_ERROR_CATEGORY_CODE, UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID, ProcessingResultCode.FAILED.getCode()));
         requestMessage.getMeterReadingDocumentCreateMessages()
                 .forEach(message -> {
@@ -81,7 +83,7 @@ public class CreateMessageFactory {
         return confirmationMessage;
     }
 
-    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
+    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now, String senderBusinessSystemId) {
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         String uuid = java.util.UUID.randomUUID().toString();
@@ -98,6 +100,9 @@ public class CreateMessageFactory {
         }
 
         messageHeader.setCreationDateTime(now);
+        messageHeader.setSenderBusinessSystemID(senderBusinessSystemId);
+        messageHeader.setReconciliationIndicator(true);
+
 
         return messageHeader;
     }

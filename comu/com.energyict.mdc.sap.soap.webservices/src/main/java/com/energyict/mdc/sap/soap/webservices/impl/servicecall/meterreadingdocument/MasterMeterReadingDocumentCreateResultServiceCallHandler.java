@@ -56,9 +56,10 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         switch (newState) {
             case ONGOING:
                 if (!oldState.equals(DefaultState.WAITING)) {
-                    sendResultMessage(serviceCall);
-                    setConfirmationTime(serviceCall);
-                    serviceCall.requestTransition(DefaultState.WAITING);
+                    if (sendResultMessage(serviceCall)) {
+                        setConfirmationTime(serviceCall);
+                        serviceCall.requestTransition(DefaultState.WAITING);
+                    }
                 }
                 break;
             case CANCELLED:
@@ -150,11 +151,15 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 .allMatch(sc -> sc.getState().equals(DefaultState.WAITING) || sc.getState().equals(DefaultState.CANCELLED));
     }
 
-    private void sendResultMessage(ServiceCall serviceCall) {
+    private boolean sendResultMessage(ServiceCall serviceCall) {
         MeterReadingDocumentCreateResultMessage resultMessage = MeterReadingDocumentCreateResultMessage
                 .builder()
-                .from(serviceCall, findChildren(serviceCall), clock.instant())
+                .from(serviceCall, findChildren(serviceCall), clock.instant(), webServiceActivator.getMeteringSystemId())
                 .build();
+
+        if (resultMessage.isBulk() && resultMessage.getBulkResultMessage().getMeterReadingDocumentERPResultCreateRequestMessage().isEmpty()){
+            return false;
+        }
 
         int childrenTotal = resultMessage.getDocumentsTotal();
         int childrenCanceledBySap = resultMessage.getDocumentsCancelledBySap();
@@ -171,6 +176,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         } else {
             WebServiceActivator.METER_READING_DOCUMENT_RESULTS.forEach(sender -> sender.call(resultMessage));
         }
+        return true;
     }
 
     private void setConfirmationTime(ServiceCall serviceCall) {

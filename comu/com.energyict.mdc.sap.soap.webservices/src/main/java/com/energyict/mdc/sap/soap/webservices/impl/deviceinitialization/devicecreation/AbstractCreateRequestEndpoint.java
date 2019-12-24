@@ -148,7 +148,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
                 UtilitiesDeviceCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -167,6 +167,8 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_CREATE_REQUEST);
 
         UtilitiesDeviceCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceCreateRequestDomainExtension();
+        childDomainExtension.setRequestId(message.getRequestId());
+        childDomainExtension.setUuid(message.getUuid());
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setMaterialId(message.getMaterialId());

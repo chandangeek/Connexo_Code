@@ -280,6 +280,8 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             childDomainExtension.setFutureCase(requestDomainExtension.isFutureCase());
             childDomainExtension.setLrn(requestDomainExtension.getLrn());
             childDomainExtension.setScheduledReadingDate(requestDomainExtension.getScheduledReadingDate());
+            childDomainExtension.setReferenceID(requestDomainExtension.getReferenceID());
+            childDomainExtension.setReferenceUuid(requestDomainExtension.getReferenceUuid());
 
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.METER_READING_DOCUMENT_CREATE_RESULT);
             ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType).extendedWith(childDomainExtension);
