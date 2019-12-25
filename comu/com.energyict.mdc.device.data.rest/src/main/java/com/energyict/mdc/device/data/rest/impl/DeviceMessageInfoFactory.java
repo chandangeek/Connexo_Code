@@ -38,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -70,11 +68,52 @@ public class DeviceMessageInfoFactory {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
         }
         info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
+        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
+            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
+            if (info.willBePickedUpByPlannedComTask) {
+                info.willBePickedUpByComTask = true; // shortcut
+            }
+        }
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
             info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
         }
-
         return info;
+    }
+
+    public List<DeviceMessageInfo> asFullInfoWithCache(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
+        Map<Integer, ComTask> preferredComTaskCache = new HashMap<>();
+        Map<DeviceMessageId, Boolean> userCanAdministrateCache = new HashMap<>();
+        Map<Integer, Boolean> willDeviceMessageBePickedUpByComTaskCache = new HashMap<>();
+        Map<Integer, Boolean> willBePickedUpByPlannedComTaskCache = new HashMap<>();
+
+        return deviceMessages.stream().
+                map(deviceMessage -> {
+                    Device device = (Device) deviceMessage.getDevice();
+                    DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+                    ComTask comTaskForDeviceMessage = preferredComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
+                            key -> deviceMessageService.getPreferredComTask(device, deviceMessage));
+                    if (comTaskForDeviceMessage!=null) {
+                        info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
+                    }
+
+                    info.userCanAdministrate = userCanAdministrateCache.computeIfAbsent(deviceMessage.getDeviceMessageId(),
+                            key -> deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId()));
+
+                    if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
+                        info.willBePickedUpByPlannedComTask = willBePickedUpByPlannedComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
+                                key -> this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage));
+                        if (info.willBePickedUpByPlannedComTask) {
+                            info.willBePickedUpByComTask = true; // shortcut
+                        }
+                    }
+
+                    if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+                        info.willBePickedUpByComTask = willDeviceMessageBePickedUpByComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
+                                key -> this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage));
+                    }
+                    return info;
+                }).
+                collect(toList());
     }
 
     public List<DeviceMessageInfo> asFasterInfo(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
@@ -133,14 +172,6 @@ public class DeviceMessageInfoFactory {
 
         info.creationDate = deviceMessage.getCreationDate();
         info.errorMessage = deviceMessage.getProtocolInfo();
-
-        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
-            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
-            if (info.willBePickedUpByPlannedComTask) {
-                info.willBePickedUpByComTask = true; // shortcut
-            }
-        }
-
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();

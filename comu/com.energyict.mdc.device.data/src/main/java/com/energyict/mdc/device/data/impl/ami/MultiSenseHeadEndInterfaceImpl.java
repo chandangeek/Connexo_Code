@@ -207,6 +207,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 

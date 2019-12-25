@@ -433,6 +433,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
                             .put(version(10, 7), UpgraderV10_7.class)
                             .put(version(10, 7, 1), UpgraderV10_7_1.class)
+                            .put(version(10, 7, 2), UpgraderV10_7_2.class)
                             .build());
         } catch (RuntimeException e) {
             e.printStackTrace();

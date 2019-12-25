@@ -44,17 +44,19 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final Thesaurus thesaurus;
     private final OrmService ormService;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     AbstractRegisterCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
                                           Clock clock, SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus,
-                                          OrmService ormService) {
+                                          OrmService ormService, WebServiceActivator webServiceActivator) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.thesaurus = thesaurus;
         this.ormService = ormService;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -144,6 +146,8 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.SUB_MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST);
 
         SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension childDomainExtension = new SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension();
+        childDomainExtension.setRequestId(message.getRequestId());
+        childDomainExtension.setUuid(message.getUuid());
         childDomainExtension.setDeviceId(message.getDeviceId());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
@@ -183,7 +187,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage = null;
         confirmationMessage =
                 UtilitiesDeviceRegisterCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

@@ -5,8 +5,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.common.protocol.ConnectionProperty;
@@ -15,20 +13,17 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.ConnectionTypeCustomPropertySetNameDetective;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToLoadCustomPropertySetClass;
-import com.energyict.mdc.protocols.tasks.AbstractConnectionTypeImpl;
-import com.energyict.mdc.protocols.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 import java.util.Optional;
@@ -193,5 +188,15 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.common.protoc
     @Override
     public void setXmlType(String ignore) {
         //Ignore, only used for JSON
+    }
+
+    @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal) {
+        uplConnectionType.setProtocolJournaling(protocolJournal);
+    }
+
+    @Override
+    public void journal(String message) {
+        uplConnectionType.journal(message);
     }
 }

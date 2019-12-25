@@ -34,6 +34,7 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile ServiceCallService serviceCallService;
     private volatile TransactionService transactionService;
+    private volatile WebServiceActivator webServiceActivator;
     private volatile Clock clock;
 
     public ConnectionStatusChangeMessageHandlerFactory() {
@@ -78,11 +79,11 @@ public class ConnectionStatusChangeMessageHandlerFactory implements MessageHandl
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService, transactionService, clock);
+        return new ConnectionStatusChangeHandler(jsonService, sapCustomPropertySets, serviceCallService, transactionService, clock, webServiceActivator);
     }
 
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
-        // No action, just for binding WebServiceActivator
+        this.webServiceActivator = webServiceActivator;
     }
 }

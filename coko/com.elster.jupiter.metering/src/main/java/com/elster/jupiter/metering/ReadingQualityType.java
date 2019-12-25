@@ -83,14 +83,9 @@ public final class ReadingQualityType {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        return code.equals(((ReadingQualityType) o).code);
+        return this == o
+                || o != null && getClass() == o.getClass()
+                && code.equals(((ReadingQualityType) o).code);
     }
 
     @Override

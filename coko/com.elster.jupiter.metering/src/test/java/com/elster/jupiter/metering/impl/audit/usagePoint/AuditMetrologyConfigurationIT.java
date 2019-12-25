@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AuditMetrologyConfigurationIT extends AuditAttributeBase {
+public class AuditMetrologyConfigurationIT extends AuditAttributeBaseTest {
 
     private static final String USAGEPOINT_NAME = "UPName";
     private static final String METROLOGY_CONFIGURATION_MRID = "metrologyConfiguration";

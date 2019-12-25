@@ -69,7 +69,7 @@ public enum TableSpecs {
             table.cache();
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+            Column discriminator = table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             table.column("OBISCODE").varChar(StringColumnLengthConstraints.DEFAULT_OBISCODE_LENGTH).notNull().map(MeasurementTypeImpl.Fields.OBIS_CODE.fieldName()).add();
             Column readingType = table.column("READINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.column("CUMULATIVE").number().conversion(NUMBER2BOOLEAN).notNull().map("cumulative").add();
@@ -78,7 +78,8 @@ public enum TableSpecs {
             table.column("INTERVALCODE").number().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
             table.column("TEMPLATEREGISTER").number().conversion(ColumnConversion.NUMBER2LONG).map("templateRegisterId").add();
             table.foreignKey("FK_MDS_MEASTP_READINGTYPE").on(readingType).references(ReadingType.class).map("readingType").add();
-            table.unique("UK_MDS_MTREADINGTYPE").on(readingType).add();
+            table.unique("UK_MDS_MTREADINGTYPE").on(readingType).upTo(Version.version(10, 7, 1)).add();
+            table.unique("UK_MDS_MTREADINGTYPE").on(readingType, discriminator).since(Version.version(10, 7, 1)).add();
             table.primaryKey("PK_MDS_MEASUREMENTTYPE").on(id).add();
         }
     },

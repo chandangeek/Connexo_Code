@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
@@ -87,4 +88,16 @@ public interface SAPCustomPropertySets {
     boolean doesRegisterHaveSapCPS(Register register);
 
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
+
+    /**
+     * This method returns first date of the Profile id set for the reading container
+     * In case of the first range doesn't have lower bound, then 1970-01-01T00:00:00Z date is returned.
+     */
+    Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType);
+
+    /**
+     * This method returns start of the first LRN after the latest transition to operational stage
+     * or the date of this transition, if no such LRN is present.
+     */
+    Optional<Instant> getStartDate(Device device);
 }

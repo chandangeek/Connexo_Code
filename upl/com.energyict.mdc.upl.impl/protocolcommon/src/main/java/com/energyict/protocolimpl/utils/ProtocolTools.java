@@ -1604,4 +1604,18 @@ public final class ProtocolTools {
         }
     }
 
+    public static String getBCD(long numBCD) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            while (numBCD > 0) {
+                byte bcd = (byte) (numBCD & 0xF);
+                sb.append(bcd);
+                numBCD >>>= (byte) 4;
+            }
+
+            return sb.reverse().toString();
+        } catch (Exception ex){
+            return ex.getMessage();
+        }
+    }
 }

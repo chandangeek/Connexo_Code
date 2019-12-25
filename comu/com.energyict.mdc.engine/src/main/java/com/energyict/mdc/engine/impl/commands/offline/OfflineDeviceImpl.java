@@ -590,6 +590,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage> deviceMessages) {
         return deviceMessages
                 .stream()
+                .filter(deviceMessage -> Optional.ofNullable(deviceMessage.getSpecification()).isPresent())
                 .filter(deviceMessage -> ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().isPresent()) //Downcast to CXO Device
                 .map(this::toOfflineDeviceMessage)
                 .collect(Collectors.toList());

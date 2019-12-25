@@ -39,20 +39,20 @@ public class MeterReadingDocumentRequestConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
+        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now, String senderBusinessSystemId) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, now, senderBusinessSystemId);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, now, senderBusinessSystemId);
             }
             return this;
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
+        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now, String senderBusinessSystemId) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now, senderBusinessSystemId);
             }
             return this;
         }

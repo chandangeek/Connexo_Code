@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-public class AuditGenInfoForElectricityIT extends AuditAttributeBase {
+public class AuditGenInfoForElectricityIT extends AuditAttributeBaseTest {
 
     private static final String USAGEPOINT_NAME = "UPName";
     private static final String USAGEPOINT_NAME_2 = "UPName2";

@@ -41,7 +41,7 @@ public class ESMR50ConfigurationSupport extends DlmsConfigurationSupport {
         return UPLPropertySpecFactory.specBuilder(IGNORE_DST_STATUS_BIT, false, PropertyTranslationKeys.V2_NTA_IGNORE_DST_STATUS_BIT, getPropertySpecService()::booleanSpec).finish();
     }
     private PropertySpec frameCounterLimit(){
-        return UPLPropertySpecFactory.specBuilder(FRAME_COUNTER_LIMIT, false, PropertyTranslationKeys.V2_NTA_FRAME_COUNTER_LIMIT, getPropertySpecService()::integerSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(FRAME_COUNTER_LIMIT, false, PropertyTranslationKeys.V2_NTA_FRAME_COUNTER_LIMIT,getPropertySpecService()::longSpec).finish();
     }
 
     private PropertySpec workingKeyLabelPhase1(){
