@@ -38,6 +38,8 @@ class SAPDeviceEventMappingLoader {
     private static final String PROPERTY_CSV_PATH_DEFAULT = "./sap/event-mapping.csv";
     private static final String PROPERTY_CSV_SEPARATOR_NAME = "com.elster.jupiter.sap.eventmapping.csv.separator";
     private static final String PROPERTY_CSV_SEPARATOR_DEFAULT = ";";
+    private static final String PROPERTY_DISABLE_PROPERTY_TAG = "com.elster.jupiter.sap.eventpropertytag.disable";
+    private static final String PROPERTY_DISABLE_PROPERTY_TAG_DEFAULT = "true";
 
     private static final String SERVICE_CALL_TYPE_NAME = TranslationKeys.SAP_EVENT_MAPPING_LOADING_SC_TYPE.getDefaultFormat();
     private static final String SERVICE_CALL_TYPE_VERSION = "1.0";
@@ -79,6 +81,7 @@ class SAPDeviceEventMappingLoader {
         setSecurityContext();
         String path = getProperty(PROPERTY_CSV_PATH_NAME, PROPERTY_CSV_PATH_DEFAULT);
         String separator = getProperty(PROPERTY_CSV_SEPARATOR_NAME, PROPERTY_CSV_SEPARATOR_DEFAULT);
+        formatter.setDisablePropertyTag(Boolean.valueOf(getProperty(PROPERTY_DISABLE_PROPERTY_TAG, PROPERTY_DISABLE_PROPERTY_TAG_DEFAULT)));
         ServiceCall serviceCall = createServiceCall(path, separator);
         try (InputStream input = Files.newInputStream(fileSystem.getPath(path));
              BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")))) {
