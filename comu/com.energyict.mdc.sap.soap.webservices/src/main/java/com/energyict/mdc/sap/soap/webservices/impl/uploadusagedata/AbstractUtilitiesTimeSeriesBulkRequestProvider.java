@@ -31,6 +31,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.TreeMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -40,7 +41,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -129,75 +132,85 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data, ExportContext context) {
-        List<TS> timeSeriesListToSend = new ArrayList<>();
-        Instant now = null;
-        long meterReadingDataNr = 0;
-        List<MeterReadingData> readingDataToSend = new ArrayList<>();
+
+        Instant now = getClock().instant();
         TimeDuration timeout = getTimeout(endPointConfiguration).filter(tout -> !tout.isEmpty()).orElse(null);
+        TreeMultimap<Long, TimeSeriesWrapperImpl> seriesMultimap = TreeMultimap.create();
 
         List<MeterReadingData> readingDataList = data.filter(MeterReadingData.class::isInstance)
                 .map(MeterReadingData.class::cast)
                 .collect(Collectors.toList());
+
         for (Iterator iterator = readingDataList.iterator(); iterator.hasNext(); ) {
             MeterReadingData meterReadingData = (MeterReadingData) iterator.next();
-
-            if (now == null){
-                now = getClock().instant();
-            }
-
             List<TS> timeSeriesListFromMeterData = prepareTimeSeries(meterReadingData, now);
-            /* Calculate number of readings that should be sent for this meterReadingData */
-            long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
 
-            if (numberOfItemsToSend >= numberOfReadingsPerMsg) {
-                /* It means that number of readings in one meterReadingData is more than or equal to allowed size.
-                /* Just send them and also previously kept readings */
-                if (meterReadingDataNr != 0) {
-                    sendPartOfData(endPointConfiguration, context, timeSeriesListToSend, readingDataToSend, now, timeout);
-                    meterReadingDataNr = 0;
-                    timeSeriesListToSend.clear();
-                    readingDataToSend.clear();
-                }
-                sendPartOfData(endPointConfiguration, context, timeSeriesListFromMeterData, Collections.singletonList(meterReadingData), now, timeout);
-                now = null;
-                continue;
+            /* Calculate number of readings that should be sent for this meterReadingData.
+             * numberOfItemsToSend is key for seriesMultimap */
+            Long numberOfItemsToSend = calculateNumberOfReadingsInTimeSeries(timeSeriesListFromMeterData);
+            if (numberOfItemsToSend != 0) {
+                TimeSeriesWrapperImpl tsWrapper = new TimeSeriesWrapperImpl();
+                tsWrapper.setTimeSeries(timeSeriesListFromMeterData);
+                tsWrapper.setMeterReadingData(meterReadingData);
+                seriesMultimap.put(numberOfItemsToSend, tsWrapper);
             }
+        }
+        /* Send one by one readings that exceed numberOfReadingsPerMsg */
+        List<Long> listToSend = seriesMultimap.keySet().stream().filter(numberOfItemsToSend->numberOfItemsToSend > numberOfReadingsPerMsg).collect(Collectors.toList());
+        if (!listToSend.isEmpty()) {
+            for (Iterator keyIterator = listToSend.iterator(); keyIterator.hasNext();) {
+                Long key = (Long)keyIterator.next();
+                seriesMultimap.get(key).stream().forEach(timeSeriesWrapper -> {
+                            sendPartOfData(endPointConfiguration, context,
+                                    timeSeriesWrapper.getTimeSeries(),
+                                    Collections.singletonList(timeSeriesWrapper.getMeterReadingData()),
+                                    now,
+                                    timeout);
+                        }
+                );
+                seriesMultimap.removeAll(key);
+            }
+        }
 
-            if (meterReadingDataNr < numberOfReadingsPerMsg) {
-                if (numberOfReadingsPerMsg - meterReadingDataNr >= numberOfItemsToSend) {
-                    /* If we have enough space in message for readings add it to message. If no send message without current readings.
-                     * Current readings will be sent in next message */
-                    readingDataToSend.add(meterReadingData);
-                    timeSeriesListToSend.addAll(timeSeriesListFromMeterData);
-                    meterReadingDataNr += numberOfItemsToSend;
-                    if (!iterator.hasNext()) {
-                        sendPartOfData(endPointConfiguration, context, timeSeriesListToSend, readingDataToSend, now, timeout);
-                        meterReadingDataNr = 0;
-                        now = null;
-                        timeSeriesListToSend.clear();
-                        readingDataToSend.clear();
-                    }
+        long timeSeriesNumber = 0;
+        List<TS> timeSerieslistToSend = new ArrayList<>();
+        List<MeterReadingData> meterReadingDataListToSend = new ArrayList<>();
+        NavigableSet<Long> keys = seriesMultimap.keySet();
+
+        while (!seriesMultimap.isEmpty()) {
+            long diff = numberOfReadingsPerMsg - timeSeriesNumber;
+            if (diff >= 0) {
+                /* Check if we have readingData  with number of readings less then free size in message */
+                Optional<Long> key = keys.stream().filter(value -> value <= diff).max(Long::compare);
+                if (!key.isPresent()) {
+                    /* No readings can be added to message. So send all that we already have in message */
+                    sendPartOfData(endPointConfiguration, context,
+                            timeSerieslistToSend,
+                            meterReadingDataListToSend,
+                            now, timeout);
+                    timeSerieslistToSend.clear();
+                    meterReadingDataListToSend.clear();
+                    timeSeriesNumber = 0;
                 } else {
-                    sendPartOfData(endPointConfiguration, context, timeSeriesListToSend, readingDataToSend, now, timeout);
-                    meterReadingDataNr = numberOfItemsToSend;
-                    timeSeriesListToSend.clear();
-                    timeSeriesListToSend.addAll(timeSeriesListFromMeterData);
-                    readingDataToSend.clear();
-                    readingDataToSend.add(meterReadingData);
-
-                    if (!iterator.hasNext()) {
-                        /* These were last readings. Just send them*/
-                        sendPartOfData(endPointConfiguration, context, timeSeriesListToSend, readingDataToSend, now, timeout);
+                    TimeSeriesWrapperImpl timeSeriesWrapper = seriesMultimap.get(key.get()).pollLast();
+                    timeSerieslistToSend.addAll(timeSeriesWrapper.getTimeSeries());
+                    meterReadingDataListToSend.add(timeSeriesWrapper.getMeterReadingData());
+                    timeSeriesNumber = timeSeriesNumber + key.get();
+                    if (seriesMultimap.get(key.get()).isEmpty()) {
+                        seriesMultimap.removeAll(key.get());
                     }
-                    now = null;
+                    if (seriesMultimap.isEmpty()) {
+                        sendPartOfData(endPointConfiguration,
+                                context,
+                                timeSerieslistToSend,
+                                meterReadingDataListToSend,
+                                now,
+                                timeout);
+                        timeSerieslistToSend.clear();
+                        meterReadingDataListToSend.clear();
+                        timeSeriesNumber = 0;
+                    }
                 }
-
-            } else {
-                sendPartOfData(endPointConfiguration, context, timeSeriesListToSend, readingDataToSend, now, timeout);
-                meterReadingDataNr = 0;
-                now = null;
-                timeSeriesListToSend.clear();
-                readingDataToSend.clear();
             }
         }
     }
@@ -277,5 +290,34 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
     void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    private class TimeSeriesWrapperImpl implements Comparable<TimeSeriesWrapperImpl> {
+
+        List<TS> timeSeries;
+        MeterReadingData meterReadingData;
+
+        public int compareTo(TimeSeriesWrapperImpl o) {
+            /* It doesn't matter in which order timeserieses will be stored in seriesMultimap for the same key */
+            return 1;
+        }
+
+
+        public void setTimeSeries(List<TS> series) {
+            timeSeries = series;
+        }
+
+
+        public List<TS> getTimeSeries() {
+            return timeSeries;
+        }
+
+        public void setMeterReadingData(MeterReadingData meterReadingData) {
+            this.meterReadingData = meterReadingData;
+        }
+
+        public MeterReadingData getMeterReadingData() {
+            return this.meterReadingData;
+        }
     }
 }
