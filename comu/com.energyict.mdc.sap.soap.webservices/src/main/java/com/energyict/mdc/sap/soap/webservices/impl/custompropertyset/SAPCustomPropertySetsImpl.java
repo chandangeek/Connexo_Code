@@ -845,7 +845,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                         businesObject, deviceId);
 
         for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
-            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_DELETE)) {
+            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_DELETE) &&
+                    (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty()
+                     && conflict.getValues().getProperty(property) != null)) {
                 return false;
             } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
                 customPropertySetService.setValuesVersionFor(customPropertySet,
@@ -860,7 +862,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
             } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)) {
                 if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
                     if (conflict.getValues().getEffectiveRange().hasUpperBound() &&
-                            (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty())) {
+                            (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty()
+                            && conflict.getValues().getProperty(property) != null)) {
                         return false;
                     }
                 } else {
