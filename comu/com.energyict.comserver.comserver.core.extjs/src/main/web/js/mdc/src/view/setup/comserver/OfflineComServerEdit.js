@@ -191,11 +191,13 @@ Ext.define('Mdc.view.setup.comserver.OfflineComServerEdit', {
                 },
                 {
                     xtype: 'combobox',
+                    itemId: 'onlineComServer',
                     name: 'onlineComServerId',
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.server.onlineServer', 'MDC', 'Online ComServer'),
                     store: 'Mdc.store.ComServers',
                     queryMode: 'local',
                     required: true,
+                    allowBlank: false,
                     displayField: 'name',
                     valueField: 'id'
                 },
