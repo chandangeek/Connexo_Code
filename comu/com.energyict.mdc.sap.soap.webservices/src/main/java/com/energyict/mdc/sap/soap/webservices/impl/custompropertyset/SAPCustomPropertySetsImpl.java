@@ -839,16 +839,21 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
         CustomPropertySetValues savedCustomPropertySetValues = CustomPropertySetValues.empty();
 
+        CustomPropertySetValues conflictingCustomPropertySetValues = CustomPropertySetValues.empty();
 
         OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService
                 .calculateOverlapsFor(customPropertySet,
                         businesObject, deviceId);
 
         for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
-            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_DELETE) &&
-                    (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty()
-                     && conflict.getValues().getProperty(property) != null)) {
-                return false;
+            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_DELETE)) {
+                if (conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty()
+                     || conflict.getValues().getProperty(property) == null) {
+                    conflict.getValues().propertyNames().stream().forEach(prop -> customPropertySetValues.setProperty(prop, conflict.getValues().getProperty(prop)));
+                    customPropertySetValues.setProperty(property, value);
+                } else {
+                    return false;
+                }
             } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
                 customPropertySetService.setValuesVersionFor(customPropertySet,
                         businesObject, CustomPropertySetValues.empty(), conflict.getConflictingRange(), deviceId);
@@ -865,6 +870,32 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                             (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty()
                             && conflict.getValues().getProperty(property) != null)) {
                         return false;
+                    } else {
+                        Instant endTime;
+                        if (conflict.getConflictingRange().hasLowerBound()) {
+                            endTime = conflict.getConflictingRange().lowerEndpoint();
+                        } else {
+                            endTime = null;
+                        }
+                        Instant startTime;
+                        if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
+                            startTime = conflict.getValues().getEffectiveRange().lowerEndpoint();
+                        } else {
+                            continue;
+                        }
+
+                        savedCustomPropertySetValues = CustomPropertySetValues.emptyDuring(getTimeInterval(startTime, endTime));
+                        for (String prop : conflict.getValues().propertyNames()) {
+                            savedCustomPropertySetValues.setProperty(prop, conflict.getValues().getProperty(prop));
+                        }
+                        conflictingCustomPropertySetValues = CustomPropertySetValues.emptyDuring(conflict.getConflictingRange());
+                        for (String prop : conflict.getValues().propertyNames()) {
+                            conflictingCustomPropertySetValues.setProperty(prop, conflict.getValues().getProperty(prop));
+                        }
+                        conflictingCustomPropertySetValues.setProperty(property, value);
+                        if (range.intersection(conflict.getConflictingRange()).hasUpperBound()) {
+                            range = getTimeInterval(range.intersection(conflict.getConflictingRange()).upperEndpoint(), range.upperEndpoint());
+                        }
                     }
                 } else {
                     Instant endTime;
@@ -883,11 +914,17 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                     }
 
                     savedCustomPropertySetValues = CustomPropertySetValues.emptyDuring(getTimeInterval(startTime, endTime));
-                    savedCustomPropertySetValues.setProperty(property, conflict.getValues().getProperty(property));
+                    for (String prop : conflict.getValues().propertyNames()) {
+                        savedCustomPropertySetValues.setProperty(prop, conflict.getValues().getProperty(prop));
+                    }
                 }
             }
         }
 
+        if (!conflictingCustomPropertySetValues.isEmpty()) {
+            customPropertySetService.setValuesVersionFor(customPropertySet,
+                    businesObject, conflictingCustomPropertySetValues, conflictingCustomPropertySetValues.getEffectiveRange(), deviceId);
+        }
         customPropertySetService.setValuesVersionFor(customPropertySet,
                 businesObject, customPropertySetValues, range, deviceId);
 
