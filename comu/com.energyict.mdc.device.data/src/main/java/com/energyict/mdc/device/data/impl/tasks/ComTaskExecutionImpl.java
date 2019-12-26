@@ -41,6 +41,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
@@ -251,13 +252,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return comPort.isPresent()
                 ||
                 (connectionTask.isPresent() && connectionTask.getOptional().isPresent()
-                    && (connectionTask.get().getExecutingComPort() != null)
-                    && comTaskStartedAfterConnectionStarted()
-                    && ((getNextExecutionTimestamp() != null
+                        && (connectionTask.get().getExecutingComPort() != null)
+                        && comTaskStartedAfterConnectionStarted()
+                        && ((getNextExecutionTimestamp() != null
                         && getNextExecutionTimestamp().isBefore(clock.instant())
                         && connectionTask.get().getLastCommunicationStart().isAfter(getNextExecutionTimestamp()))
                         || (getNextExecutionTimestamp() == null && isIgnoreNextExecutionSpecsForInbound()
-                            && connectionTask.get() instanceof InboundConnectionTask))
+                        && connectionTask.get() instanceof InboundConnectionTask))
                 );
     }
 
@@ -286,7 +287,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return taskStatus;
     }
 
-    public void setStatus(TaskStatus status){
+    public void setStatus(TaskStatus status) {
         this.taskStatus = status;
     }
 
@@ -593,7 +594,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     void recalculateNextAndPlannedExecutionTimestamp() {
-        Instant plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(clock.instant());
+        Instant plannedNextExecutionTimestamp = this.getComSchedule()
+                .filter(comSchedule -> comSchedule.getPlannedDate().isPresent())
+                .flatMap(ComSchedule::getPlannedDate)
+                .orElse(this.calculateNextExecutionTimestamp(clock.instant()));
         schedule(plannedNextExecutionTimestamp, plannedNextExecutionTimestamp);
     }
 

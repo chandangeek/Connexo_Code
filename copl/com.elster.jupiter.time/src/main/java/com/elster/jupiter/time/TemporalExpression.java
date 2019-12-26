@@ -224,7 +224,7 @@ public final class TemporalExpression implements ScheduleExpression {
         }
         offset.addTo(base, true);
 
-        if (!base.getTime().after(previous.getTime())) {
+        if (base.getTime().before(previous.getTime())) {
             every.addTo(base, false);
         }
 
