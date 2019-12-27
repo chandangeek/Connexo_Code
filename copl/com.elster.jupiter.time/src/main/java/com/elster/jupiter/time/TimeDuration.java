@@ -473,7 +473,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
                 // intentionally no break coded
             case WEEKS:
                 if (WEEKS.equals(timeUnit)) {
-                    calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+                    calendar.set(Calendar.DAY_OF_WEEK, 2);
                     // intentionally no break coded
                 }
             case DAYS:
