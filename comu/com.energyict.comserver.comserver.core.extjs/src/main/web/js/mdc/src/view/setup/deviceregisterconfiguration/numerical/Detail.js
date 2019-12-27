@@ -133,7 +133,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                 actionMenuXtype: 'deviceRegisterConfigurationActionMenu',
                                 attributeSetType: 'register',
                                 router: me.router,
-                                margin: '0 20'
+                                margin: '0 20 0 200'
                             },
                             {
                                 xtype: 'uni-button-action',
