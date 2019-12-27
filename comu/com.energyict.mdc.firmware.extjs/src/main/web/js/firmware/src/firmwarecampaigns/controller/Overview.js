@@ -96,7 +96,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             });
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('firmware.campaigns.cancel.msg', 'FWC', 'Cancel the firmware upload for all scheduled devices. Ongoing uploads will not be terminated and successful uploads will not be reversed.'),
+            msg: Uni.I18n.translate('firmware.campaigns.cancel.msg', 'FWC', 'Cancel the firmware upload for all scheduled devices. Cancelling of the campaign has started and will continue in the background.'),
             title: Uni.I18n.translate('firmware.campaigns.cancel.title', 'FWC', "Cancel firmware campaign '{0}'?", record.get('name'))
         });
     },

@@ -50,7 +50,7 @@ Ext.define('Isu.view.devicegroupfromissues.step.GeneralAttributes', {
                 width: 400,
                 style: 'margin: 0px 0px 10px -97px',
                 renderer: function () {
-                    return Uni.I18n.translate('devicegroupfromissues.wizard.step.generalAttributes.text.typeDescription', 'ISU', 'Static usage point group (based on search results)');
+                    return Uni.I18n.translate('devicegroupfromissues.wizard.step.generalAttributes.text.typeDescription', 'ISU', 'Static device group (based on search results)');
                 }
             },
             {
