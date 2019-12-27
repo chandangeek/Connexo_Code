@@ -119,15 +119,15 @@ public class SchedulingResource {
 
     private void filterAvailableSchedulesOnly(String deviceName, List<ComSchedule> comSchedules) {
         deviceService.findDeviceByName(deviceName).ifPresent(device -> {
-                List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-                List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-                Iterator<ComSchedule> iterator = comSchedules.iterator();
-                while(iterator.hasNext()) {
-                    ComSchedule comSchedule = iterator.next();
-                    if (!isValidComSchedule(comSchedule, comTaskEnablements, comTaskExecutions)) {
-                        iterator.remove();
-                    }
+            List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+            List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+            Iterator<ComSchedule> iterator = comSchedules.iterator();
+            while (iterator.hasNext()) {
+                ComSchedule comSchedule = iterator.next();
+                if (!isValidComSchedule(comSchedule, comTaskEnablements, comTaskExecutions)) {
+                    iterator.remove();
                 }
+            }
         });
     }
 
@@ -161,6 +161,8 @@ public class SchedulingResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
+        //to shift offset if first day in system calendar not monday
+        comScheduleInfo.temporalExpression.offset.count += (Calendar.getInstance().getFirstDayOfWeek() - 2) * 86400;
         ComScheduleBuilder comScheduleBuilder = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
                 comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate);
         comScheduleBuilder.mrid(comScheduleInfo.mRID);
@@ -193,6 +195,8 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
+        //to shift offset if first day in system calendar not monday
+        comScheduleInfo.temporalExpression.offset.count += (Calendar.getInstance().getFirstDayOfWeek() - 2) * 86400;
         ComSchedule comSchedule = resourceHelper.lockComScheduleOrThrowException(comScheduleInfo);
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression == null ? null : comScheduleInfo.temporalExpression.asTemporalExpression());
