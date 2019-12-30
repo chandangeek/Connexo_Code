@@ -57,7 +57,7 @@ public final class DLMSUtils {
             encodedLength[0] = (byte) length;
         } else {
             int bytes = 0;
-            while (length > (1 << (bytes * 8))) {
+            while (length >= (1 << (bytes * 8))) {
                 bytes++;
             }
             encodedLength = new byte[bytes + 1];
