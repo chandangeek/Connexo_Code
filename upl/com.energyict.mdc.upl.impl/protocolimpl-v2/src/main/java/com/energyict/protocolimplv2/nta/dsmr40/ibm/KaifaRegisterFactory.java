@@ -30,6 +30,10 @@ public class KaifaRegisterFactory extends Dsmr40RegisterFactory {
     public static final ObisCode PV_TIME_THRESHOLD_SWELL = ObisCode.fromString("1.2.12.44.0.255");
     public static final ObisCode NO_PV_VOLTAGE_SWELL_PHASE_1 = ObisCode.fromString("1.2.32.36.0.255");
     public static final ObisCode NO_PV_VOLTAGE_SAG_PHASE_1 = ObisCode.fromString("1.2.32.32.0.255");
+    public static final ObisCode NO_PV_VOLTAGE_SWELL_PHASE_2 = ObisCode.fromString("1.2.52.36.0.255");
+    public static final ObisCode NO_PV_VOLTAGE_SAG_PHASE_2 = ObisCode.fromString("1.2.52.32.0.255");
+    public static final ObisCode NO_PV_VOLTAGE_SWELL_PHASE_3 = ObisCode.fromString("1.2.72.36.0.255");
+    public static final ObisCode NO_PV_VOLTAGE_SAG_PHASE_3 = ObisCode.fromString("1.2.72.32.0.255");
 
     public KaifaRegisterFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -40,16 +44,16 @@ public class KaifaRegisterFactory extends Dsmr40RegisterFactory {
         ObisCode rObisCode = getCorrectedRegisterObisCode(register);
         if (rObisCode.equalsIgnoreBChannel(PV_VOLTAGE_SAG)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.VOLT)),
-                    null, null, null, new Date(), 0, "PV_VOLTAGE_SAG value: " + Long.toString(abstractDataType.longValue()));
+                    null, null, null, new Date(), 0, "PV_VOLTAGE_SAG value: " + abstractDataType.longValue());
         } else if (rObisCode.equalsIgnoreBChannel(PV_TIME_SAG)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)),
-                    null, null, null, new Date(), 0, "PV_TIME_SAG value: " + Long.toString(abstractDataType.longValue()));
+                    null, null, null, new Date(), 0, "PV_TIME_SAG value: " + abstractDataType.longValue());
         } else if (rObisCode.equalsIgnoreBChannel(PV_TIME_THRESHOLD_SWELL)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)),
-                    null, null, null, new Date(), 0, "PV_TIME_THRESHOLD_SWELL value: " + Long.toString(abstractDataType.longValue()));
+                    null, null, null, new Date(), 0, "PV_TIME_THRESHOLD_SWELL value: " + abstractDataType.longValue());
         } else if (rObisCode.equalsIgnoreBChannel(PV_THRESHOLD_VOLTAGE_SWELL)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.VOLT)),
-                    null, null, null, new Date(), 0, "PV_THRESHOLD_VOLTAGE_SWELL value: " + Long.toString(abstractDataType.longValue()));
+                    null, null, null, new Date(), 0, "PV_THRESHOLD_VOLTAGE_SWELL value: " + abstractDataType.longValue());
         }
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
     }
@@ -86,7 +90,11 @@ public class KaifaRegisterFactory extends Dsmr40RegisterFactory {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.REGISTER.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(NO_PV_VOLTAGE_SWELL_PHASE_1) ||
-                           rObisCode.equalsIgnoreBChannel(NO_PV_VOLTAGE_SAG_PHASE_1)) {
+                           rObisCode.equalsIgnoreBChannel(NO_PV_VOLTAGE_SAG_PHASE_1) ||
+                        rObisCode.equalsIgnoreBChannel(NO_PV_VOLTAGE_SWELL_PHASE_2) ||
+                        rObisCode.equalsIgnoreBChannel(NO_PV_VOLTAGE_SAG_PHASE_2) ||
+                        rObisCode.equalsIgnoreBChannel(NO_PV_VOLTAGE_SWELL_PHASE_3) ||
+                        rObisCode.equalsIgnoreBChannel(NO_PV_VOLTAGE_SAG_PHASE_3)) {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }
