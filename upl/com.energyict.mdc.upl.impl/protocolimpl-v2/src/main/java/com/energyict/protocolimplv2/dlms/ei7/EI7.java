@@ -61,4 +61,14 @@ public class EI7 extends A2 {
         connectWithRetries(publicDlmsSession);
         return publicDlmsSession;
     }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EI7 ThemisUno DLMS Protocol";
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2020-01-15 12:00:00 +0200 (Wen, 15 Ian 2020) $";
+    }
 }
