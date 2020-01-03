@@ -1,5 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr40.ibm;
 
+import com.energyict.common.framework.CryptoDlmsSession;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -15,22 +19,11 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.common.framework.CryptoDlmsSession;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.CryptoKaifaMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.CryptoKaifaMessaging;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
-import com.energyict.protocolimplv2.nta.dsmr40.messages.KaifaDsmr40MessageExecutor;
-import com.energyict.protocolimplv2.nta.dsmr40.messages.KaifaDsmr40Messaging;
-import com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50ConfigurationSupport;
-import com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50Properties;
 
 public class CryptoKaifa extends Kaifa {
     private CryptoKaifaMessaging cryptoMessaging;
@@ -43,7 +36,7 @@ public class CryptoKaifa extends Kaifa {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2019-12-31";
+        return "Crypto version: 2020-01-02";
     }
 
     @Override
