@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
@@ -69,6 +70,8 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
     @Mock
     private WebServiceActivator webServiceActivator;
     @Mock
+    private DeviceService deviceService;
+    @Mock
     private ReadingNumberPerMessageProvider readingNumberPerMessageProvider;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingType readingType;
@@ -112,6 +115,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProviderTest extends AbstractOu
                 bind(PropertySpecService.class).toInstance(mock(PropertySpecService.class));
                 bind(DataExportServiceCallType.class).toInstance(mock(DataExportServiceCallType.class));
                 bind(WebServiceActivator.class).toInstance(webServiceActivator);
+                bind(DeviceService.class).toInstance(deviceService);
             }
         });
         when(webServiceActivator.getMeteringSystemId()).thenReturn("HON");

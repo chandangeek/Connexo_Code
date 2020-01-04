@@ -11,12 +11,15 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,6 +33,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     private final MeteringService meteringService;
     private final Clock clock;
     private final Map<AdditionalProperties, Integer> properties;
+    private final DeviceService deviceService;
 
     private Integer readindCollectionInterval;
     private Integer readingDateWindow;
@@ -40,15 +44,17 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     private String deviceName;
     private boolean pastCase;
 
-    private SAPMeterReadingDocumentCollectionDataBuilder(MeteringService meteringService, Clock clock, Map<AdditionalProperties, Integer> properties) {
+    private SAPMeterReadingDocumentCollectionDataBuilder(MeteringService meteringService, Clock clock,
+                                                         Map<AdditionalProperties, Integer> properties, DeviceService deviceService) {
         this.meteringService = meteringService;
         this.clock = clock;
         this.properties = properties;
+        this.deviceService = deviceService;
     }
 
     public static SAPMeterReadingDocumentCollectionDataBuilder.Builder builder(MeteringService meteringService, Clock clock,
-                                                                               Map<AdditionalProperties, Integer> properties) {
-        return new SAPMeterReadingDocumentCollectionDataBuilder(meteringService, clock, properties).new Builder();
+                                                                               Map<AdditionalProperties, Integer> properties, DeviceService deviceService) {
+        return new SAPMeterReadingDocumentCollectionDataBuilder(meteringService, clock, properties, deviceService).new Builder();
     }
 
     public Integer getReadindCollectionInterval() {
@@ -91,12 +97,12 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
         long currentAttempt = domainExtension.getReadingAttempt() + 1;
         domainExtension.setReadingAttempt(currentAttempt);
 
-        if(closestReadingRecord.isPresent() && closestReadingRecord.get().getValue() != null) {
-            domainExtension.setReading(closestReadingRecord.get().getValue());
+        if (closestReadingRecord.isPresent() && closestReadingRecord.get().getValue() != null) {
+            domainExtension.setReading(getRoundedBigDecimal(closestReadingRecord.get().getValue()));
             domainExtension.setActualReadingDate(closestReadingRecord.get().getTimeStamp());
             serviceCall.update(domainExtension);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
-        }else {
+        } else {
             serviceCall.log(LogLevel.WARNING, "The reading isn't found.");
             long attempts = properties.get(AdditionalProperties.CHECK_SCHEDULED_READING_ATTEMPTS);
 
@@ -110,6 +116,25 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                 serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
             }
         }
+    }
+
+    private BigDecimal getRoundedBigDecimal(BigDecimal value) {
+        Optional<Integer> numberOfFractionDigits = deviceService.findDeviceByName(getDeviceName())
+                .map(device -> {
+                    if (isRegular()) {
+                        return device.getChannels().stream().filter(c -> c.getReadingType().equals(getMeterReadingType().get()))
+                                .findFirst()
+                                .map(com.energyict.mdc.common.device.data.Channel::getNrOfFractionDigits);
+                    } else {
+                        return device.getRegisters().stream().filter(r -> r.getReadingType().equals(getMeterReadingType().get()))
+                                .findFirst()
+                                .filter(r -> r instanceof NumericalRegister)
+                                .map(NumericalRegister.class::cast)
+                                .map(NumericalRegister::getNumberOfFractionDigits);
+                    }
+                }).orElse(Optional.empty());
+
+        return numberOfFractionDigits.isPresent() ? value.setScale(numberOfFractionDigits.get(), BigDecimal.ROUND_UP) : value;
     }
 
     public ServiceCall getServiceCall() {
