@@ -227,7 +227,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getData(Dsmr40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
     }
 
-    private void resetAlarmRegister() throws IOException {
+    protected void resetAlarmRegister() throws IOException {
         getCosemObjectFactory().getData(Dsmr23RegisterFactory.ALARM_REGISTER).setValueAttr(new Unsigned32(0));
     }
 

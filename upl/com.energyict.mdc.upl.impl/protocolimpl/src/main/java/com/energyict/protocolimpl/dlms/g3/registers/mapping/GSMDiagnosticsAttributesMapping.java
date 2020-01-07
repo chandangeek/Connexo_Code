@@ -112,10 +112,9 @@ public class GSMDiagnosticsAttributesMapping extends RegisterMapping {
                 return new RegisterValue(obisCode, abstractDataType.getOctetString().stringValue());
             case 249:
                 return new RegisterValue(obisCode, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get("")));
-            case 248:
-                return new RegisterValue(obisCode, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get("")));
             case 247:
-                return new RegisterValue(obisCode, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get("")));
+            case 248:
+                return new RegisterValue(obisCode, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get("")));
             default:
                 throw new NoSuchRegisterException("GSM Diagnostics attribute [" + obisCode.getE() + "] not supported!");
 
