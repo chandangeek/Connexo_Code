@@ -524,7 +524,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     protected CollectedRegister createUnsupportedRegister(OfflineRegister register) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
-        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(String.format("Register with OBIS code '%s' is not supported by the device", register.getObisCode())));
         return collectedRegister;
     }
 
