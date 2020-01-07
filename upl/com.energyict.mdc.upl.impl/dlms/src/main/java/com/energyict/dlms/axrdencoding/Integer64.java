@@ -9,11 +9,10 @@ import java.math.BigDecimal;
 public class Integer64 extends AbstractDataType {
 
     long value;
-    public static final int LENGTH = 8;
 
     /** Creates a new instance of Enum */
     public Integer64(byte[] berEncodedData, int offset) throws IOException {
-        if ((berEncodedData[offset] != AxdrType.LONG64.getTag()) && ((berEncodedData[offset] != AxdrType.LONG64_UNSIGNED.getTag()))) {
+        if ((berEncodedData[offset] != AxdrType.LONG64.getTag())) {
 			throw new ProtocolException("Integer64, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
