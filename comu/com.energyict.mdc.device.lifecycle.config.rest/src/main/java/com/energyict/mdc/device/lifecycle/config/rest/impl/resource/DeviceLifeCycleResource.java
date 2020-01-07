@@ -182,8 +182,8 @@ public class DeviceLifeCycleResource {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
         resourceHelper.checkDeviceLifeCycleUsages(deviceLifeCycle);
         FiniteStateMachine fsm = deviceLifeCycle.getFiniteStateMachine();
-        deviceLifeCycle.makeObsolete();
-        fsm.makeObsolete();
+        deviceLifeCycle.delete();
+        fsm.delete();
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
