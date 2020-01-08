@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -40,6 +41,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     private Instant scheduledReadingDate;
     private Optional<Channel> meterChannel;
     private Optional<ReadingType> meterReadingType;
+    private Optional<ReadingType> extraMeterReadingType;
     private ServiceCall serviceCall;
     private String deviceName;
     private boolean pastCase;
@@ -77,6 +79,10 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
         return meterReadingType;
     }
 
+    public Optional<ReadingType> getExtraMeterReadingType() {
+        return extraMeterReadingType;
+    }
+
     public String getDeviceName() {
         return deviceName;
     }
@@ -102,6 +108,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
             domainExtension.setActualReadingDate(closestReadingRecord.get().getTimeStamp());
             serviceCall.update(domainExtension);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+            serviceCall.log(LogLevel.INFO, "The reading is found.");
         } else {
             serviceCall.log(LogLevel.WARNING, "The reading isn't found.");
             long attempts = properties.get(AdditionalProperties.CHECK_SCHEDULED_READING_ATTEMPTS);
@@ -142,9 +149,32 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     }
 
     private List<BaseReadingRecord> getReadings() {
-        return getMeterReadingType()
+        serviceCall.log(LogLevel.INFO, "Try to get readings for data source");
+        List<BaseReadingRecord> readings = getMeterReadingType()
                 .map(this::getReadings)
                 .orElse(new ArrayList<>());
+
+        if (!isRegular() && readings.isEmpty() && getExtraMeterReadingType().isPresent()) {
+            serviceCall.log(LogLevel.INFO, "Try to get readings for extra data source");
+            readings = getExtraMeterReadingType()
+                    .map(this::getExtraReadings)
+                    .orElse(new ArrayList<>());
+        }
+        return readings;
+    }
+
+    private List<BaseReadingRecord> getExtraReadings(ReadingType readingType) {
+        return getExtraMeterChannel(readingType)
+                .flatMap(ch -> ch.getCimChannel(readingType))
+                .map(this::getReadings)
+                .orElse(new ArrayList<>());
+    }
+
+    private Optional<Channel> getExtraMeterChannel(ReadingType readingType) {
+        return deviceService.findDeviceByName(getDeviceName())
+                .flatMap(device -> device.getMeterActivation(scheduledReadingDate))
+                .map(MeterActivation::getChannelsContainer)
+                .flatMap(cc -> cc.getChannel(readingType));
     }
 
     private List<BaseReadingRecord> getReadings(ReadingType readingType) {
@@ -182,6 +212,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                         setDeviceName(domainExtension.getDeviceName());
                         setMeterChannel(domainExtension.getChannelId().longValue());
                         setMeterReadingType(domainExtension.getDataSource());
+                        setExtraMeterReadingType(domainExtension.getExtraDataSource());
                         setScheduledReadingDate(domainExtension.getScheduledReadingDate());
                         setReadindCollectionInterval(properties.get(AdditionalProperties.READING_COLLECTION_INTERVAL));
                         setReadingDateWindow(properties.get(AdditionalProperties.READING_DATE_WINDOW));
@@ -210,6 +241,16 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                     .findReadingTypes(Collections.singletonList(dataSource))
                     .stream()
                     .findFirst();
+            return this;
+        }
+
+        private SAPMeterReadingDocumentCollectionDataBuilder.Builder setExtraMeterReadingType(String extraDataSource) {
+            if (extraDataSource != null) {
+                SAPMeterReadingDocumentCollectionDataBuilder.this.extraMeterReadingType = meteringService
+                        .findReadingTypes(Collections.singletonList(extraDataSource))
+                        .stream()
+                        .findFirst();
+            }
             return this;
         }
 

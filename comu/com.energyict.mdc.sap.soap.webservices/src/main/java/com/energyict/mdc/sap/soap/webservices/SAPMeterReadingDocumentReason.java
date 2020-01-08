@@ -3,9 +3,12 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
+import com.elster.jupiter.util.Pair;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public interface SAPMeterReadingDocumentReason {
@@ -25,6 +28,12 @@ public interface SAPMeterReadingDocumentReason {
      * Date shift in seconds
      */
     long getShiftDate();
+
+    /**
+     * Data source interval
+     * @return
+     */
+    Optional<Pair<String, String>> getDataSourceInterval();
 
     /**
      * Using current dateTime support
