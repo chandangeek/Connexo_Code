@@ -57,6 +57,9 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
         throw new RuntimeException("Failed to send notification about event " + toString(event) + ": mapping csv hadn't been loaded properly.");
     };
 
+    private static final String METERING_SYSTEM_ID = "sap.soap.metering.system.id";
+    private static final String DEFAULT_METERING_SYSTEM_ID = "HON";
+
     private volatile BundleContext bundleContext;
     private volatile MeterEventCreateRequestProvider meterEventCreateRequestProvider;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
@@ -73,6 +76,7 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
     private ObjectFactory objectFactory = new ObjectFactory();
     private CustomPropertySet mappingStatusCustomPropertySet;
     private Function<EndDeviceEventRecord, Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt>> eventFormatter;
+    private String meteringSystemId;
 
     // For OSGi purposes
     public CustomSAPDeviceEventHandler() {
@@ -115,6 +119,7 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
         mappingStatusCustomPropertySet = injector.getInstance(SAPDeviceEventMappingStatusCustomPropertySet.class);
         customPropertySetService.addCustomPropertySet(mappingStatusCustomPropertySet);
         SAPDeviceEventMappingLoader eventMappingLoader = injector.getInstance(SAPDeviceEventMappingLoader.class);
+        meteringSystemId = getProperty(METERING_SYSTEM_ID, DEFAULT_METERING_SYSTEM_ID);
         try {
             ForwardedDeviceEventTypesFormatter formatter = eventMappingLoader.loadMapping();
             eventFormatter = formatter::filterAndFormat;
@@ -205,6 +210,8 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
         BusinessDocumentMessageHeader messageHeader = objectFactory.createBusinessDocumentMessageHeader();
         messageHeader.setCreationDateTime(time);
         messageHeader.setUUID(createUUID());
+        messageHeader.setSenderBusinessSystemID(getMeteringSystemId());
+        messageHeader.setReconciliationIndicator(true);
         return messageHeader;
     }
 
@@ -212,6 +219,15 @@ public class CustomSAPDeviceEventHandler implements TopicHandler {
         com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UUID uuid = objectFactory.createUUID();
         uuid.setValue(UUID.randomUUID().toString());
         return uuid;
+    }
+
+    public String getMeteringSystemId() {
+        return meteringSystemId;
+    }
+
+    private String getProperty(String name, String defaultValue) {
+        String value = bundleContext.getProperty(name);
+        return value == null ? defaultValue : value;
     }
 
     @Reference

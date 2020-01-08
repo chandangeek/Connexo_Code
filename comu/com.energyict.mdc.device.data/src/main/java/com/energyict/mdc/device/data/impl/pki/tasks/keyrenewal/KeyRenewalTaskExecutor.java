@@ -152,7 +152,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
             Optional<Instant> expirationTime = symmetricKeyWrapper.get().getExpirationTime();
             if (expirationTime.isPresent()) {
                 logger.log(Level.INFO, "Expiration time " + expirationTime);
-                long daysBetween = Math.abs(ChronoUnit.DAYS.between(Instant.now(), expirationTime.get()));
+                long daysBetween = Math.abs(ChronoUnit.DAYS.between(clock.instant(), expirationTime.get()));
                 logger.log(Level.INFO, "Days till expiration " + daysBetween);
                 return daysBetween <= keyRenewalExpitationDays;
             }
@@ -215,7 +215,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000");
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");

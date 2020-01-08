@@ -22,19 +22,17 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_ACTIVE_CPS(2002, "CouldNotFindActiveCPS", "Couldn''t find active custom property set {0}."),
 
     // Device
-    DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with serial id ''{0}'' already has SAP device identifier."),
+    DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with name ''{0}'' already has SAP device identifier."),
     REGISTER_ALREADY_HAS_LRN(4008, "RegisterAlreadyHasLrn", "Register ''{0}'' already has LRN (range is ''{1}'')"),
     CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN (range is ''{1}'')"),
     NO_SUCH_DEVICE(4015, "NoSuchDevice", "No device with id ''{0}''."),
     NO_DEVICE_TYPE_FOUND(4016, "NoDeviceTypeFound", "No device type found with name ''{0}''."),
-    NO_REGISTER_TYPE_FOUND(4017, "NoRegisterTypeFound", "No register type found with obis code ''{0}''"),
-    NO_LOAD_PROFILE_TYPE_FOUND(4018, "NoLoadProfileTypeFound", "No load profile type found with obis code ''{0}''"),
-    NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with obis code ''{0}''"),
-    NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with obis code ''{0}''"),
+    NO_REGISTER_TYPE_FOUND(4017, "NoRegisterTypeFound", "No register type found with reading type ''{0}''"),
+    NO_LOAD_PROFILE_TYPE_FOUND(4018, "NoLoadProfileTypeFound", "No load profile type found with reading type ''{0}''"),
+    NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with reading type ''{0}''"),
+    NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with reading type ''{0}''"),
     DATASOURCE_NOT_FOUND(4024, "DataSourceNotFound", "Couldn''t find data source on device ''{0}'' by LRN ''{1}'' for specified end date ''{2}''."),
-    INVALID_END_DATE(4025, "InvalidEndDate", "Received end date ''{0}'' isn''t in existing custom property set range ''{1}''."),
-
-    DEVICE_IS_NOT_ACTIVE(7008, "DeviceIsNotActive", "Device ''{0}'' isn''t in active state.");
+    INVALID_END_DATE(4025, "InvalidEndDate", "Received end date ''{0}'' isn''t in existing custom property set range ''{1}''.");
 
     private final int number;
     private final String key;

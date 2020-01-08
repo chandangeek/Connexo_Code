@@ -8,6 +8,7 @@ import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -293,6 +294,7 @@ public enum DeviceMessageId {
     TRANSFER_HES_CA_CONFIG_IMAGE(5035),
     LTE_MODEM_FIRMWARE_UPGRADE(5036),
     FIRMWARE_UPGRADE_DATA_CONCENTRATOR_MULTICAST_FIRMWARE_UPGRADE(5037),
+    MBUS_ESMR5_FIRMWARE_UPGRADE(5038),
 
     ZIGBEE_CONFIGURATION_CREATE_HAN_NETWORK(6001),
     ZIGBEE_CONFIGURATION_REMOVE_HAN_NETWORK(6002),
@@ -380,6 +382,7 @@ public enum DeviceMessageId {
     CHANGE_PSK_USING_SERVICE_KEY(7073),
     EXPORT_ALL_DEVICE_CERTIFICATES(7074),
     CHANGE_PSK_KEK(7075),
+    MBUS_TRANSFER_FUAK(7076),
 
     DEVICE_ACTIONS_BILLING_RESET(8001),
     DEVICE_ACTIONS_GLOBAL_METER_RESET(8002),
@@ -676,9 +679,7 @@ public enum DeviceMessageId {
     InstallWirelessMbusDevices(24017),
     ScanAndInstallWiredMbusDeviceForGivenMeterIdentification(24018),
     InstallWirelessMbusDeviceForGivenMeterIdentification(24019),
-    MBUS_TRANSFER_FUAK(24020),
     MBUS_TRANSFER_P2KEY(24021),
-    MBUS_ESMR5_FIRMWARE_UPGRADE(24022),
     MBUS_READ_DETAILED_VERSION_INFORMATION_TAG(24023),
 
     OPUS_CONFIGURATION_SET_OS_NUMBER(25001),
@@ -898,6 +899,12 @@ public enum DeviceMessageId {
                 .filter(dmi -> dmi.dbValue() == dbId)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId)));
+    }
+
+    public static Optional<DeviceMessageId> find(long dbId) {
+        return Arrays.stream(DeviceMessageId.values())
+                .filter(dmi -> dmi.dbValue() == dbId)
+                .findFirst();
     }
 
     public static Set<DeviceMessageId> fileManagementRelated() {

@@ -6,6 +6,12 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runners.model.Statement;
 
 import java.io.File;
 import java.net.URL;
@@ -17,13 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runners.model.Statement;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -797,6 +796,13 @@ public class ProtocolToolsTest {
         assertNotNull(ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss", dateToFormat));
         assertEquals("2009-02-14#12:31:30", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss", dateToFormat));
         assertEquals("2009-02-14#12:31:30,123", ProtocolTools.getFormattedDate("yyyy-MM-dd#HH:mm:ss,SSS", dateToFormat));
+    }
+
+    @Test
+    public void testBCD(){
+        assertEquals("12345678", ProtocolTools.getBCD(0x12345678));
+        assertEquals("12000000", ProtocolTools.getBCD(0x12000000));
+        assertEquals("3351827", ProtocolTools.getBCD(53811239));
     }
 
 }

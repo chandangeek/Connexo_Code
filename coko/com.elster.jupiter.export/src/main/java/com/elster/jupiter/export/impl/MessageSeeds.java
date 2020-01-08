@@ -72,7 +72,8 @@ public enum MessageSeeds implements MessageSeed {
     ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.WARNING),
 
     DATA_SENDING_FAILED_ALL_DATA_SOURCES(2000, "data.sending.failed.all.data.sources", "Failed to export all data to one or more destinations."),
-    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}.");
+    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}."),
+    WEB_SERVICE_EXPORT_NO_SERVICE_CALL(2002, "webservice.export.no.service.call", "Couldn''t find tracking service call for data source {0}.");
 
     private final int number;
     private final String key;

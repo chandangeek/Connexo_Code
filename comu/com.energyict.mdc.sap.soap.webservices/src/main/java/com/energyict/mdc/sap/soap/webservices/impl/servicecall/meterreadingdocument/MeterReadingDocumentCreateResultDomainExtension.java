@@ -38,7 +38,9 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         ACTUAL_READING_DATE("actualReadingDate", "actualReadingDate"),
         READING("reading", "reading"),
         CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
-        COM_TASK_EXECUTION_ID("comTaskExecutionId", "COM_TASK_EXECUTION_ID");
+        COM_TASK_EXECUTION_ID("comTaskExecutionId", "COM_TASK_EXECUTION_ID"),
+        REFERENCE_ID("referenceID", "REFERENCE_ID"),
+        REFERENCE_UUID("referenceUuid", "REFERENCE_UUID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -95,6 +97,11 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String cancelledBySap;
     private Long comTaskExecutionId;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String referenceID;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String referenceUuid;
 
     public MeterReadingDocumentCreateResultDomainExtension() {
         super();
@@ -249,6 +256,22 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.comTaskExecutionId = comTaskExecutionId;
     }
 
+    public String getReferenceID() {
+        return referenceID;
+    }
+
+    public void setReferenceID(String referenceID) {
+        this.referenceID = referenceID;
+    }
+
+    public String getReferenceUuid() {
+        return referenceUuid;
+    }
+
+    public void setReferenceUuid(String referenceUuid) {
+        this.referenceUuid = referenceUuid;
+    }
+
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
@@ -271,6 +294,8 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.setReading((BigDecimal) propertyValues.getProperty(FieldNames.READING.javaName()));
         this.setCancelledBySap((String) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
         this.setComTaskExecutionId((Long) propertyValues.getProperty(FieldNames.COM_TASK_EXECUTION_ID.javaName()));
+        this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
+        this.setReferenceUuid((String) propertyValues.getProperty(FieldNames.REFERENCE_UUID.javaName()));
     }
 
     @Override
@@ -292,6 +317,8 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         propertySetValues.setProperty(FieldNames.READING.javaName(), this.getReading());
         propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.getCancelledBySap());
         propertySetValues.setProperty(FieldNames.COM_TASK_EXECUTION_ID.javaName(), this.getComTaskExecutionId());
+        propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());
+        propertySetValues.setProperty(FieldNames.REFERENCE_UUID.javaName(), this.getReferenceUuid());
     }
 
     @Override

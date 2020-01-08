@@ -42,14 +42,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author Koenraad Vanderschaeve
@@ -186,7 +179,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
                 this.stringSpec("ChannelMap", PropertyTranslationKeys.IEC1107_CHANNEL_MAP),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.IEC1107_SERVER_LOWER_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.IEC1107_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ForceDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
@@ -219,7 +212,7 @@ public class Ferranti extends PluggableMeterProtocol implements ProtocolLink, Me
         iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
         iProfileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 3600);
         channelMap = properties.getTypedProperty("ChannelMap", new ChannelMap("0"));
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override

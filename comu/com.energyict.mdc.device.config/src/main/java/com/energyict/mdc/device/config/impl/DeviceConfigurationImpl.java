@@ -1291,6 +1291,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         Optional<DeviceMessageEnablementImpl> enablement =
                 this.deviceMessageEnablements
                         .stream()
+                        .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                         .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
                         .findFirst();
         enablement.ifPresent(this::removeDeviceMessageEnablement);
@@ -1321,6 +1322,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 }
             }
             java.util.Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = getDeviceMessageEnablements().stream()
+                    .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                     .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
                             .equals(deviceMessageId))
                     .findAny();
@@ -1357,7 +1359,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
         this.getDeviceMessageEnablements()
                 .stream()
-                .map(DeviceMessageEnablement::getDeviceMessageId)
+                .map(DeviceMessageEnablement::getDeviceMessageDbValue)
+                .map(DeviceMessageId::find)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .forEach(enabledDeviceMessageIds::add);
 
         return category.getMessageSpecifications()
@@ -1375,6 +1380,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         List<DeviceMessageEnablementImpl> obsoleteEnablements =
                 this.deviceMessageEnablements
                         .stream()
+                        .filter(enablement -> DeviceMessageId.find(enablement.getDeviceMessageDbValue()).isPresent())
                         .filter(enablement -> fileManagementRelated.contains(enablement.getDeviceMessageId()))
                         .collect(Collectors.toList());
         obsoleteEnablements.forEach(DeviceMessageEnablementImpl::prepareDelete);
@@ -1867,7 +1873,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         getPartialConnectionTasks().forEach(partialConnectionTask -> ((ServerPartialConnectionTask) partialConnectionTask)
                 .cloneForDeviceConfig(clone));
         getComTaskEnablements().forEach(comTaskEnablement -> ((ServerComTaskEnablement) comTaskEnablement).cloneForDeviceConfig(clone));
-        getDeviceMessageEnablements().forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement)
+        getDeviceMessageEnablements().stream().filter(dme -> DeviceMessageId.find(dme.getDeviceMessageDbValue()).isPresent())
+                .forEach(deviceMessageEnablement -> ((ServerDeviceMessageEnablement) deviceMessageEnablement)
                 .cloneForDeviceConfig(clone));
         getRegisterSpecs().forEach(registerSpec -> ((ServerRegisterSpec) registerSpec).cloneForDeviceConfig(clone));
         getLogBookSpecs().forEach(logBookSpec -> ((ServerLogBookSpec) logBookSpec).cloneForDeviceConfig(clone));

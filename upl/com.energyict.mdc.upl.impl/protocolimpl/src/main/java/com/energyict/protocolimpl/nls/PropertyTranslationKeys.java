@@ -185,6 +185,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     IEC1107_ADDRESS_DESCRIPTION("upl.property.iec1107.address.description", "DeviceId"),
     IEC1107_NODEID("upl.property.iec1107.nodeId", "Node Id"),
     IEC1107_NODEID_DESCRIPTION("upl.property.iec1107.nodeId.description", "Node Id"),
+    IEC1107_OFFLINE_NODEID("upl.property.iec1107.offlineNodeId", "Offline Node Id"),
+    IEC1107_OFFLINE_NODEID_DESCRIPTION("upl.property.iec1107.offlineNodeId.description", "Offline Node Id"),
     IEC1107_SERIALNUMBER("upl.property.iec1107.serialNumber", "Serialnumber"),
     IEC1107_SERIALNUMBER_DESCRIPTION("upl.property.iec1107.serialNumber.description", "Serialnumber"),
     IEC1107_PASSWORD("upl.property.iec1107.password", "Password"),

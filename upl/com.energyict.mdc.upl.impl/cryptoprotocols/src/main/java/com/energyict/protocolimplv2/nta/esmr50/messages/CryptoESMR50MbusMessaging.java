@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.esmr50.common.messages.ESMR50MbusMessaging;
 
@@ -21,9 +22,8 @@ public class CryptoESMR50MbusMessaging extends ESMR50MbusMessaging {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         List<DeviceMessageSpec> supportedMessages = super.getSupportedMessages();
-        supportedMessages.add(this.get(MBusSetupDeviceMessage.MBUS_TRANSFER_FUAK));
+        supportedMessages.add(this.get(SecurityMessage.MBUS_TRANSFER_FUAK));
         supportedMessages.add(this.get(MBusSetupDeviceMessage.MBUS_TRANSFER_P2KEY));
-        supportedMessages.add(this.get(MBusSetupDeviceMessage.MBUS_ESMR5_FIRMWARE_UPGRADE));
         supportedMessages.add(this.get(MBusSetupDeviceMessage.MBUS_READ_DETAILED_VERSION_INFORMATION_TAG));
         return supportedMessages;
     }

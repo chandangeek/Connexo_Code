@@ -38,7 +38,6 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
     private volatile Thesaurus thesaurus;
 
     public MeterRegisterChangeRequestCustomPropertySet() {
-        // for OSGI purpose
     }
 
     @Inject
@@ -90,22 +89,6 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.ID)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.javaName(), TranslationKeys.LRN)
@@ -181,23 +164,13 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
-                    .add();
-            Column oldRequestIdColumn = table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
-                    .varChar(NAME_LENGTH)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .notNull()
                     .upTo(Version.version(10, 7, 1))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
-                    .since(Version.version(10, 7, 1))
-                    .previously(oldRequestIdColumn)
-                    .add();
-            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.databaseName())
-                    .varChar(NAME_LENGTH)
-                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName())
-                    .since(Version.version(10, 7, 1))
+                    .notNull()
+                    .upTo(Version.version(10, 7, 1))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.LRN.databaseName())
                     .varChar(NAME_LENGTH)

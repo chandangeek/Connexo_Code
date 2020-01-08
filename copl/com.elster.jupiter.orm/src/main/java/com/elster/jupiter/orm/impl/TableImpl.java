@@ -501,7 +501,7 @@ public class TableImpl<T> implements Table<T> {
         return column("ID").number()
                 .notNull()
                 .conversion(ColumnConversion.NUMBER2LONG)
-                .sequence(name + "ID")
+                .sequence(sequence)
                 .skipOnUpdate()
                 .map("id")
                 .add();
@@ -745,7 +745,6 @@ public class TableImpl<T> implements Table<T> {
             throw new IllegalArgumentException();
         }
         this.indexOrganized = compressCount;
-
     }
 
     int getIotCompressCount() {

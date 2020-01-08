@@ -62,6 +62,12 @@ public interface MeterProtocol extends HasDynamicProperties, DeviceDescriptionSu
         RETRIES("Retries"),
         TIMEOUT("Timeout"),
         SECURITYLEVEL("SecurityLevel"),
+        SOFTWARE7E1("Software7E1"),
+        DISABLE_LOGOFF_COMMAND("DisableLogOffCommand"),
+        EXTENDED_PROFILE_STATUS("ExtendedProfileStatus"),
+        USE_SELECTIVE_ACCESS_BY_FROM_AND_TO_DATE("UseSelectiveAccessByFromAndToDate"),
+        EXTENDED_LOGGING("ExtendedLogging"),
+
         /**
          * The string used for the protocol ProfileInterval property
          */
@@ -74,6 +80,8 @@ public interface MeterProtocol extends HasDynamicProperties, DeviceDescriptionSu
          * The string used for the nodeId property
          */
         NODEID("NodeAddress"),
+        OFFLINE_NODEID("offline.NodeAddress"),
+
         MAXTIMEDIFF("MaximumTimeDiff"),
         MINTIMEDIFF("MinimumTimeDiff"),
 

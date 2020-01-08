@@ -24,6 +24,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7_1SimpleUpgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.Constants;
 import com.energyict.mdc.common.masterdata.ChannelType;
@@ -37,6 +38,7 @@ import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -302,7 +304,9 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", MasterDataService.COMPONENTNAME), dataModel, Installer.class, V10_2SimpleUpgrader.V10_2_UPGRADER);
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", MasterDataService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                V10_2SimpleUpgrader.VERSION, V10_2SimpleUpgrader.class,
+                V10_7_1SimpleUpgrader.VERSION, V10_7_1SimpleUpgrader.class));
     }
 
     @Override

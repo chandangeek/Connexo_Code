@@ -6,11 +6,10 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockRespondingFrameCounterHandler;
 import com.energyict.dlms.mocks.MockSecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-
-import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -37,6 +36,29 @@ public class SecurityContextTest {
 
         assertArrayEquals(new byte[]{(byte) 0x4B, (byte) 0x41, (byte) 0x4D, (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x90,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0A}, iv);
+    }
+
+    @Test
+    public void kaifaFirmwareCrashFrame(){
+        String globalKey    = "00000000000000000000000000000000";
+        String dedicatedKey = "00000000000000000000000000000000";
+        String authenticationKey = "00000000000000000000000000000000";
+
+        MockSecurityProvider msp = new MockSecurityProvider();
+        msp.setAuthenticationKey(DLMSUtils.hexStringToByteArray(authenticationKey));
+        msp.setGlobalkey(DLMSUtils.hexStringToByteArray(globalKey));
+        msp.setDedicatedKey(DLMSUtils.hexStringToByteArray(dedicatedKey));
+
+        SecurityContext sc = new SecurityContext(SecurityPolicy.SECURITYPOLICY_BOTH, 0, 0, systemTitle, msp, CipheringType.GLOBAL.getType(), false);
+
+        byte[] frame = DLMSUtils.getBytesFromHexString("$0F$BB$E8$95$46$AD$92$BA$0C$14$8D$CA$28$52$F3$02$39$6E$DB$0C$ED$06$F0$DF$27$D4$C3$6E$E1$46$1B$9A$EF$8B$67$06$19$ED$AB$E7$A7$EF$6F$97$FF$02$4F$69$B5$9C$B6$F1$93$D2$E4$C8$94$E9$9A$6B$71$48$CC$5E$82$D1$4A$21$8C$9C$4D$AA$64$D6$F4$3C$5C$06$23$AE$CB$3E$9B$D0$BD$8A$27$F7$C2$F6$5D$5E$1D$17$B8$F0$7F$A1$B4$8B$1B$CE$C4$CD$1D$01$B4$2B$3E$F4$C3$1F$1A$04$95$38$48$EC$BE$93$94$DE$33$9D$0B$56$51$31$8C$65$67$FF$F6$F5$0E$58$2E$78$60$8F$7F$4F$78$C4$4D$68$50$F3$9E$9A$46$AD$AE$82$E7$DE$0B$66$1A$E4$55$4F$C4$66$54$70$DA$D8$3D$93$1E$9C$41$9F$88$47$A8$9C$00$40$C4$AD$BE$8A$00$5A$2B$DA$2B$06$CF$6C$E2$E1$6D$FA$10$56$1C$06$96$F4$9D$DA$0D$96$33$C1$45$E0$D2$51$37$C0$9D$D0$12$CD$74$C4$4D$EB$05$5C$50$F1$F4$D4$17$13$67$65$3D$8B$33$7F$E7$A2$73", "$");
+        byte[] authTag= DLMSUtils.getBytesFromHexString("$87$25$94$50$B1$75$EE$7E$FA$87$08$BB", "$");
+        byte[] apdu = sc.createSecuredApdu(frame, authTag);
+
+        assertEquals(259, apdu.length);
+        assertArrayEquals(DLMSUtils.getBytesFromHexString("$82$01$00"), DLMSUtils.getSubArray(apdu, 0, 3));
+        assertArrayEquals(frame, DLMSUtils.getSubArray(apdu, apdu.length-frame.length-authTag.length, apdu.length-authTag.length));
+        assertArrayEquals(authTag, DLMSUtils.getSubArray(apdu, apdu.length-authTag.length, apdu.length));
     }
 
     @Test

@@ -23,7 +23,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     UNSATISFIED_TOU(10001, Constants.UNSATISFIED_TOU, "The metrology configuration has purposes that could not be matched by the calendar. Add another calendar or change the metrology configuration to be able to match these"),
     ILLEGAL_CURRENCY_CODE(10002, "currency.illegalcode", "Invalid currency code : ''{0}''"),
 
-    METER_EVENT_IGNORED(2001, "meter.event.ignored", "Ignored event {0} on meter {1}, since it is not defined in the system", Level.INFO),
+    UNEXPECTED_METER_EVENT_LOGGED(2001, "unexpected.meter.event.logged", "Added event {0} to the system on demand, because it was logged by meter {1}.", Level.INFO),
     READINGTYPE_IGNORED(2002, "readingtype.ignored", "Ignored data for reading type {0} on meter {1}, since reading type is not defined int the system", Level.INFO),
     NOMETERACTIVATION(2003, "meter.nometeractivation", "No meter activation found for meter {0} on {1}", Level.INFO),
     READINGTYPE_ADDED(2004, "readingtype.added", "Added reading type {0} for meter {1}", Level.INFO),

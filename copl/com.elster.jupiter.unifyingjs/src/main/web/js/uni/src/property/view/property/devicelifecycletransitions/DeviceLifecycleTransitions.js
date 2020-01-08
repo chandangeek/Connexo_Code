@@ -147,8 +147,8 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
         });
 
         me.loadDeviceTypes();
-        me.addDeviceConfigurationsView.down('#addTransitionAction').on('click', me.hideAddView, me, {single: true});
-        me.addDeviceConfigurationsView.down('#cancel').on('click', me.cancelAction, me, {single:true});
+        me.addDeviceConfigurationsView.down('#addTransitionAction').on('click', me.hideAddView, me);
+        me.addDeviceConfigurationsView.down('#cancel').on('click', me.cancelAction, me);
 
 
         Ext.suspendLayouts();
@@ -223,35 +223,42 @@ Ext.define('Uni.property.view.property.devicelifecycletransitions.DeviceLifecycl
             grid = me.down('#add-device-lifecycle-transition-grid'),
             store = grid.getStore(),
             emptyMessage = me.down('#add-device-lifecycle-transition-empty-text'),
-            id = view.down('#toTransition').getStore().findRecord(view.down('#toTransition').valueField || view.down('#toTransition').displayField, view.down('#toTransition').getValue()).get('values');
+            formError = view.down('#form-errors');
 
-        var valueToAdd = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (value) {
-            return value.id === id
-        });
+        if (view.isValid()) {
+            formError.hide();
+            var id = view.down('#toTransition').getStore().findRecord(view.down('#toTransition').valueField || view.down('#toTransition').displayField, view.down('#toTransition').getValue()).get('values');
 
+            var valueToAdd = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (value) {
+                return value.id === id
+            });
 
-        var modelToAdd = Ext.create('Uni.property.model.PropertyDeviceLifecycleTransition');
-        modelToAdd.set('deviceTypeName', view.down('#deviceType').getValue());
-        modelToAdd.set('deviceLifecycleName', view.down('#deviceLifecycle').getValue());
-        modelToAdd.set('stateTransitionName', view.down('#transition').getValue());
-        modelToAdd.set('fromStateName', view.down('#fromTransition').getValue());
-        modelToAdd.set('toStateName', view.down('#toTransition').getValue());
-        modelToAdd.set('id', id);
-        store.add(modelToAdd);
+            var modelToAdd = Ext.create('Uni.property.model.PropertyDeviceLifecycleTransition');
+            modelToAdd.set('deviceTypeName', view.down('#deviceType').getValue());
+            modelToAdd.set('deviceLifecycleName', view.down('#deviceLifecycle').getValue());
+            modelToAdd.set('stateTransitionName', view.down('#transition').getValue());
+            modelToAdd.set('fromStateName', view.down('#fromTransition').getValue());
+            modelToAdd.set('toStateName', view.down('#toTransition').getValue());
+            modelToAdd.set('id', id);
+            store.add(modelToAdd);
 
-        Ext.suspendLayouts();
-        me.setPseudoNavigation();
-        me.addDeviceConfigurationsView.destroy();
-        me.currentPageView.show();
-        if (store.getCount()) {
-            grid.show();
-            emptyMessage.hide();
-        } else {
-            grid.hide();
-            emptyMessage.show();
+            Ext.suspendLayouts();
+            me.setPseudoNavigation();
+            me.addDeviceConfigurationsView.destroy();
+            me.currentPageView.show();
+            if (store.getCount()) {
+                grid.show();
+                emptyMessage.hide();
+            } else {
+                grid.hide();
+                emptyMessage.show();
+            }
+            Ext.resumeLayouts(true);
         }
-
-        Ext.resumeLayouts(true);
+        else
+        {
+            formError.show();
+        }
     },
 
     setPseudoNavigation: function (toAddDeviceConfigurations) {

@@ -303,6 +303,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     @Override
+    public boolean useEquipmentIdentifierAsSerialNumber() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false);
+    }
+
+    @Override
     public long getTimeout() {
         return properties.getTypedProperty(TIMEOUT, Duration.ofMillis(DEFAULT_TIMEOUT.intValue())).toMillis();
     }
@@ -426,7 +431,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     @Override
     public long getFrameCounterLimit() {
         try {
-            return this.properties.getTypedProperty(FRAME_COUNTER_LIMIT, 0);
+            return this.properties.getTypedProperty(FRAME_COUNTER_LIMIT, 0L);
         } catch (Exception ex){
             // catch any obsolete value (i.e. string)
             return 0;

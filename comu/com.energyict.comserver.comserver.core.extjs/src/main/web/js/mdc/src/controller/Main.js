@@ -21,7 +21,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.zones.controller.Zones',
         'Mdc.property.SecuritySet',
         'Mdc.property.SecurityAccessors',
-        'Mdc.property.CertificateSecurityAccessors'
     ],
 
     controllers: [
@@ -184,7 +183,6 @@ Ext.define('Mdc.controller.Main', {
         Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         Uni.property.controller.Registry.addProperty('SECURITYACCESSORSOUTPUT', 'Mdc.property.SecuritySet');
         Uni.property.controller.Registry.addProperty('SERVICEKEYSSIGNATURESOUTPUT', 'Mdc.property.SecurityAccessors');
-        Uni.property.controller.Registry.addProperty('CERTSECURITYACCESSORSOUTPUT', 'Mdc.property.CertificateSecurityAccessors');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
@@ -282,13 +280,13 @@ Ext.define('Mdc.controller.Main', {
                     route: 'devicecommunication',
                     items: [
                         {
-                            text: Uni.I18n.translate('general.offlineComServers', 'MDC', 'Mobile Communication servers'),
+                            text: Uni.I18n.translate('general.offlineComServers', 'MDC', 'Mobile communication servers'),
                             href: '#/administration/offlinecomservers',
                             privileges: Mdc.privileges.Communication.view,
                             route: 'offlinecomservers'
                         },
                         {
-                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Online Communication servers'),
+                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
                             href: '#/administration/comservers',
                             privileges: Mdc.privileges.Communication.view,
                             route: 'comservers'

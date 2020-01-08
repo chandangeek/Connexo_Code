@@ -86,6 +86,7 @@ public class StatusChangeRequestBulkCreateMessage {
 
         private StatusChangeRequestCreateMessage getRequestMessage(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg msg) {
             return StatusChangeRequestCreateMessage.builder().from(getId(msg.getUtilitiesConnectionStatusChangeRequest()),
+                    getRequestId(msg),
                     getUuid(msg),
                     getCategoryCode(msg.getUtilitiesConnectionStatusChangeRequest()),
                     getUtilitiesServiceDisconnectionReasonCode(msg.getUtilitiesConnectionStatusChangeRequest()),
@@ -106,6 +107,14 @@ public class StatusChangeRequestBulkCreateMessage {
                     .orElse(null);
         }
 
+        private String getRequestId(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg changeRequest) {
+            return Optional.ofNullable(changeRequest.getMessageHeader())
+                    .map(m -> m.getID())
+                    .map(id -> id.getValue())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
         private String getUuid(SmrtMtrUtilsConncnStsChgReqERPBulkCrteReqMsg changeRequest) {
             return Optional.ofNullable(changeRequest.getMessageHeader())
                     .map(m -> m.getUUID())
@@ -117,7 +126,7 @@ public class StatusChangeRequestBulkCreateMessage {
         private String getUuid(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg changeRequest) {
             return Optional.ofNullable(changeRequest.getMessageHeader())
                     .map(m -> m.getUUID())
-                    .map(UUID::getValue)
+                    .map(uuid -> uuid.getValue())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

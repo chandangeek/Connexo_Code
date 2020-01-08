@@ -61,7 +61,7 @@ public enum TranslationKeys implements TranslationKey {
     END_DATE("endDate","Time slice end date"),
     RETURN_CODE("returnCode", "Return code"),
     SERIAL_ID("serialId", "Serial id"),
-    INTERVAL("interval","Interval length"),
+    RECURRENCE_CODE("recurrenceCode","Recurrence Code"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
     PROFILE_ID("profileId", "Profile id"),
@@ -79,6 +79,7 @@ public enum TranslationKeys implements TranslationKey {
     CANCELLED_BY_SAP_DESCRIPTION("cancelledBySapDescription", "The property is used to distinguish service call cancelled manually in Connexo / by SAP"),
     TIME_ZONE("timeZone", "Time zone"),
     COM_TASK_EXECUTION_ID("comTaskExecutionId", "Communication task execution id"),
+    DIVISION_CATEGORY("divisionCategory", "Division category code"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),

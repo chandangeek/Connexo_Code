@@ -16,7 +16,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -40,23 +40,24 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 
 public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
     private final Thesaurus thesaurus;
-    private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
     private final Clock clock;
     private final OrmService ormService;
     private final WebServiceActivator webServiceActivator;
+    private final DeviceService deviceService;
+
 
     @Inject
     public AbstractCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                         Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService, WebServiceActivator webServiceActivator) {
+                                         Clock clock, OrmService ormService, WebServiceActivator webServiceActivator, DeviceService deviceService) {
         this.thesaurus = webServiceActivator.getThesaurus();
-        this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.clock = clock;
         this.ormService = ormService;
         this.webServiceActivator = webServiceActivator;
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -148,7 +149,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
                 UtilitiesDeviceCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -167,6 +168,8 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_CREATE_REQUEST);
 
         UtilitiesDeviceCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceCreateRequestDomainExtension();
+        childDomainExtension.setRequestId(message.getRequestId());
+        childDomainExtension.setUuid(message.getUuid());
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setMaterialId(message.getMaterialId());
@@ -178,7 +181,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
-        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
+        deviceService.findDeviceByName(message.getSerialId()).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
     }
 }

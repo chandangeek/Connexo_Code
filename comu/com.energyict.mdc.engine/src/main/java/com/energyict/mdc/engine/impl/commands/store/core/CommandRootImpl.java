@@ -37,6 +37,7 @@ public class CommandRootImpl implements CommandRoot {
     private boolean connectionEstablished = true;
     private boolean connectionErrorOccurred;
     private boolean connectionInterrupted;
+    private boolean connectionNotExecuted;
     private ExecutionContext executionContext;
     private Set<GroupedDeviceCommand> groupedDeviceCommands = new LinkedHashSet<>();
     private Throwable generalSetupError;
@@ -168,6 +169,16 @@ public class CommandRootImpl implements CommandRoot {
     @Override
     public boolean hasConnectionBeenInterrupted() {
         return connectionInterrupted;
+    }
+
+    @Override
+    public void connectionNotExecuted() {
+        connectionNotExecuted = true;
+    }
+
+    @Override
+    public boolean hasConnectionNotExecuted() {
+        return connectionNotExecuted;
     }
 
     private void executeUnpreparedComTaskExecutions() {

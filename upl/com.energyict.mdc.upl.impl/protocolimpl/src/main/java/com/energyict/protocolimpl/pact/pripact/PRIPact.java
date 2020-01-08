@@ -51,14 +51,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author Koen
@@ -272,7 +265,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
                 this.stringSpec("LowKey", PropertyTranslationKeys.PACT_LOW_KEY),
                 this.integerSpec("PAKNET", PropertyTranslationKeys.PACT_PAKNET),
                 this.integerSpec("PACTLAN", PropertyTranslationKeys.PACT_PACTLAN),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.PACT_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.PACT_EXTENDED_LOGGING),
                 this.stringSpec("RegisterTimeZone", PropertyTranslationKeys.PACT_REGISTER_TIMEZONE),
                 this.integerSpec("StatusFlagChannel", PropertyTranslationKeys.PACT_STATUS_FLAG_CHANNEL),
                 this.integerSpec("Modulo", PropertyTranslationKeys.PACT_MODULO),
@@ -317,7 +310,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         pactMode = new PACTMode(
                 properties.getTypedProperty("PAKNET", 0),
                 properties.getTypedProperty("PACTLAN", 0));
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
         if (properties.getTypedProperty("RegisterTimeZone") == null) {
             registerTimeZone = null;
         } else {

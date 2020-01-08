@@ -13,10 +13,11 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -32,17 +33,18 @@ import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.TimeUtils;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -51,7 +53,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
@@ -229,7 +230,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (!getSapDeviceId(device).isPresent()) {
             setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber());
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getName());
         }
     }
 
@@ -364,20 +365,16 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
             if (cutRange.isPresent()) {
                 Optional<Device> device = deviceService.findDeviceById(e.getDeviceId());
                 if (device.isPresent()) {
-                    if (isDeviceActive(device.get())) {
-                        Pair<Long, ChannelSpec> key = Pair.of(e.getDeviceId(), e.getChannelSpec());
-                        List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
-                        try {
-                            Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
-                            if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
-                                list.add(Pair.of(rangeIntersection, range));
-                            }
-                            map.put(key, list);
-                        } catch (IllegalArgumentException ex) {
-                            // no intersection with interval (should never occur)
+                    Pair<Long, ChannelSpec> key = Pair.of(e.getDeviceId(), e.getChannelSpec());
+                    List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
+                    try {
+                        Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
+                        if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
+                            list.add(Pair.of(rangeIntersection, range));
                         }
-                    } else {
-                        throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_IS_NOT_ACTIVE, device.get().getName());
+                        map.put(key, list);
+                    } catch (IllegalArgumentException ex) {
+                        // no intersection with interval (should never occur)
                     }
                 }
             }
@@ -429,7 +426,10 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 Range<Instant> range = getRangeToUpdate(endDate, oldRange);
                 OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                         .getFirst(), device.getId());
-                Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range).stream().filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)).findFirst();
+                Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range)
+                        .stream()
+                        .filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER))
+                        .findFirst();
                 if (conflict.isPresent()) {
                     List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                             .getFirst(), device.getId());
@@ -438,24 +438,30 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                     List<CustomPropertySetValues> toRecreateAfterConflict = new ArrayList<>();
                     for (CustomPropertySetValues version : allVersions) {
                         if (!version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().hasUpperBound()
-                                && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange().upperEndpoint().equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
+                                && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange()
+                                .upperEndpoint()
+                                .equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
                             toRecreateBeforeConflict.add(version);
                         }
                         if (conflictRange.isPresent() && !version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasUpperBound() && version.getEffectiveRange().hasLowerBound()
-                                && (version.getEffectiveRange().lowerEndpoint().isAfter(versionToUpdate.getEffectiveRange().upperEndpoint()) || version.getEffectiveRange().lowerEndpoint().equals(versionToUpdate.getEffectiveRange().upperEndpoint()))) {
+                                && (version.getEffectiveRange().lowerEndpoint().isAfter(versionToUpdate.getEffectiveRange().upperEndpoint()) || version.getEffectiveRange()
+                                .lowerEndpoint()
+                                .equals(versionToUpdate.getEffectiveRange().upperEndpoint()))) {
                             toRecreateAfterConflict.add(version);
                         }
                     }
                     customPropertySetService.removeValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), device.getId());
                     for (CustomPropertySetValues version : toRecreateBeforeConflict) {
-                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                                .getFirst(), version, version.getEffectiveRange(), device.getId());
                     }
                     // set changed version
                     customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
                     customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(),
                             CustomPropertySetValues.emptyDuring(conflictRange.get()), conflictRange.get(), device.getId());
                     for (CustomPropertySetValues version : toRecreateAfterConflict) {
-                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                        customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                                .getFirst(), version, version.getEffectiveRange(), device.getId());
                     }
                 } else {
                     // set changed version
@@ -463,13 +469,13 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 }
             }
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, endDate);
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, TimeUtils.convertToUTC(endDate));
         }
     }
 
     private Range<Instant> getRangeToUpdate(Instant endDate, Range<Instant> oldRange) {
         if (oldRange.hasLowerBound()) {
-            if (endDate.isAfter(oldRange.lowerEndpoint()) && oldRange.hasUpperBound() && endDate.isBefore(oldRange.upperEndpoint()) || !oldRange.hasUpperBound() ) {
+            if (endDate.isAfter(oldRange.lowerEndpoint()) && oldRange.hasUpperBound() && endDate.isBefore(oldRange.upperEndpoint()) || !oldRange.hasUpperBound()) {
                 return Range.closedOpen(oldRange.lowerEndpoint(), endDate);
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_END_DATE, endDate, oldRange);
@@ -482,13 +488,13 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Interval> getLastProfileIdDateForChannelOnDevice(long deviceId, String channelMrid) {
+    public Optional<Interval> getLastProfileIdIntervalForChannelOnDevice(long deviceId, String readingTypeMrid) {
         return getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isNotNull())
                 .filter(e -> e.getDeviceId() == deviceId)
-                .filter(f -> f.getChannelSpec().getReadingType().getMRID().equals(channelMrid))
+                .filter(f -> f.getChannelSpec().getReadingType().getMRID().equals(readingTypeMrid))
                 .map(c -> c.getInterval())
                 .max(Comparator.comparingLong(m -> {
                     if (m.getEnd() != null) {
@@ -497,10 +503,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                         return Long.MAX_VALUE;
                     }
                 }));
-    }
-
-    private boolean isDeviceActive(Device device) {
-        return device.getState().getName().equals(DefaultState.ACTIVE.getKey());
     }
 
     private Condition getOverlappedCondition(Range<Instant> range) {
@@ -598,6 +600,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .findAny()
                 .map(ext -> Pair.of(ext.getRegisterSpec(), ext.getRegisteredCustomPropertySet()));
     }
+
     private Optional<Channel> getChannel(long deviceId, ReadingType readingType, Instant when) {
         return deviceService.findDeviceById(deviceId)
                 .flatMap(device -> device.getMeterActivation(when))
@@ -706,7 +709,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Range<Instant> range) {
-        lockLoadProfileTypeOrThrowException(channel.getLoadProfile());
+        lockLoadProfileTypeOrThrowException(channel);
         lockChannelSpecOrThrowException(channel.getChannelSpec());
 
         addChannelCustomPropertySetVersioned(channel, DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
@@ -760,23 +763,23 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     private void lockRegisterTypeOrThrowException(RegisterType registerType) {
         masterDataService
                 .findAndLockRegisterTypeById(registerType.getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_TYPE_FOUND, registerType.getObisCode()));
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_TYPE_FOUND, registerType.getReadingType().getFullAliasName()));
     }
 
-    private void lockLoadProfileTypeOrThrowException(LoadProfile loadProfile) {
+    private void lockLoadProfileTypeOrThrowException(com.energyict.mdc.common.device.data.Channel channel) {
         masterDataService
-                .findAndLockLoadProfileTypeById(loadProfile.getLoadProfileTypeId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfile.getLoadProfileTypeObisCode()));
+                .findAndLockLoadProfileTypeById(channel.getLoadProfile().getLoadProfileTypeId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, channel.getReadingType().getFullAliasName()));
     }
 
     private void lockRegisterSpecOrThrowException(RegisterSpec registerSpec) {
         deviceConfigurationService.findAndLockRegisterSpecById(registerSpec.getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, registerSpec.getObisCode()));
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, registerSpec.getReadingType().getFullAliasName()));
     }
 
     private void lockChannelSpecOrThrowException(ChannelSpec channelSpec) {
         deviceConfigurationService.findAndLockChannelSpecById(channelSpec.getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getObisCode()));
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getReadingType().getFullAliasName()));
     }
 
     private void setDeviceCPSProperty(Device device, String property, String value) {
@@ -800,7 +803,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (!setValuesVersionFor(registerInfo,
                 register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_ALREADY_HAS_LRN,
-                    register.getObisCode(), range.toString());
+                    register.getReadingType().getFullAliasName(), range.toString());
         }
 
         register.getRegisterSpec().save();
@@ -815,7 +818,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (!setValuesVersionFor(channelInfo,
                 channel.getChannelSpec(), channel.getDevice().getId(), channel.getObisCode(), property, value, range)) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
-                    channel.getObisCode(), range.toString());
+                    channel.getReadingType().getFullAliasName(), range.toString());
         }
 
         channel.getChannelSpec().save();
@@ -909,5 +912,97 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
                 .filter(f -> f.getCustomPropertySetId().equals(cpsId) && f.isViewableByCurrentUser())
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId));
+    }
+
+    public boolean doesRegisterHaveSapCPS(Register register) {
+        Optional<RegisteredCustomPropertySet> registerCPS = register.getDevice().getDeviceType()
+                .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
+
+        return registerCPS
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(RegisteredCustomPropertySet::getCustomPropertySetId)
+                .filter(registerInfo.getId()::equals).isPresent();
+
+    }
+
+    public boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel) {
+        Optional<RegisteredCustomPropertySet> channelCPS = channel.getDevice().getDeviceType()
+                .getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
+
+        return channelCPS
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .map(RegisteredCustomPropertySet::getCustomPropertySetId)
+                .filter(channelInfo.getId()::equals).isPresent();
+    }
+
+    @Override
+    public Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType) {
+        return readingContainer.getChannelsContainers().stream()
+                .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange()))
+                .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
+                .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
+                        .map(channel -> Pair.of(channel, ccAndRange.getLast())))
+                .flatMap(Functions.asStream())
+                .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
+                .filter(p -> !p.getValue().isEmpty())
+                .flatMap(e -> e.getValue().asRanges().stream())
+                .map(r -> r.hasLowerBound() ? r.lowerEndpoint() : Instant.EPOCH)
+                .min(Instant::compareTo);
+    }
+
+    @Override
+    public Optional<Instant> getStartDate(Device device) {
+        Optional<Instant> activationDate = getLstActivationDate(device.getMeter());
+        if (activationDate.isPresent()) {
+            Optional<Instant> lrnAfterDate = getFirstLrnDateAfterDate(device.getId(), activationDate.get());
+            if (lrnAfterDate.isPresent()) {
+                return lrnAfterDate;
+            }
+            return activationDate;
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Instant> getLstActivationDate(Meter meter) {
+        return meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
+                .filter(stateTimeSlice -> stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
+                .map(slice -> slice.getPeriod().lowerEndpoint())
+                .max(Comparator.comparing(date -> date.toEpochMilli())));
+    }
+
+    private Optional<Instant> getFirstLrnDateAfterDate(long deviceId, Instant date) {
+        Range<Instant> registerDateRange = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceRegisterSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .sorted(Order.ascending("startTime"))
+                .map(DeviceRegisterSAPInfoDomainExtension::getRange)
+                .findFirst()
+                .orElse(null);
+        Optional<Instant> registerDate = getLowerBound(registerDateRange, date);
+        Range<Instant> channelDateRange = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .sorted(Order.ascending("startTime"))
+                .map(DeviceChannelSAPInfoDomainExtension::getRange)
+                .findFirst()
+                .orElse(null);
+
+        Optional<Instant> channelDate = getLowerBound(channelDateRange, date);
+        if (registerDate.isPresent()) {
+            if (channelDate.isPresent() && registerDate.get().isAfter(channelDate.get())) {
+                return channelDate;
+            }
+            return registerDate;
+        }
+        return channelDate;
+    }
+
+    private Optional<Instant> getLowerBound(Range<Instant> range, Instant date) {
+        if (Optional.ofNullable(range).isPresent()) {
+            return (range.hasLowerBound() && range.lowerEndpoint().isAfter(date)) ? Optional.of(range.lowerEndpoint()) : Optional.empty();
+        }
+        return Optional.empty();
     }
 }
