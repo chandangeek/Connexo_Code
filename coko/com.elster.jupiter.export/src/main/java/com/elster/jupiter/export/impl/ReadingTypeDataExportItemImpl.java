@@ -47,7 +47,7 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
-    private boolean exportSkipped;
+    private boolean exportPostponed;
     @Size(min = 3, // 1 symbol per count + space + 1 symbol per unit
             max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String readingInterval;
@@ -120,8 +120,8 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public boolean isExportSkipped() {
-        return this.exportSkipped;
+    public boolean isExportPostponed() {
+        return exportPostponed;
     }
 
     @Override
@@ -140,8 +140,8 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
-    public void setExportSkipped(boolean exportSkipped) {
-        this.exportSkipped = exportSkipped;
+    public void postponeExport() {
+        this.exportPostponed = true;
     }
 
     @Override

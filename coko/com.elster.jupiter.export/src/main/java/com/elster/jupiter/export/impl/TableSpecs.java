@@ -212,7 +212,6 @@ enum TableSpecs {
             table.column("LASTEXPORTEDPERIODEND").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastExportedPeriodEnd").since(Version.version(10, 7, 1)).add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
             table.column("ACTIVE").bool().notNull().map("active").add();
-            table.column("EXPORT_SKIPPED").bool().map("exportSkipped").since(Version.version(10, 7, 2)).installValue("'N'").add();
             table.column("READING_INTERVAL").varChar().map("readingInterval").since(Version.version(10, 7, 2)).add();
 
             table.primaryKey("DES_PK_RTEXPITEM").on(idColumn).add();

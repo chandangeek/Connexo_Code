@@ -4,13 +4,13 @@
 
 package com.elster.jupiter.export;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -33,7 +33,7 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     Optional<Instant> getLastExportedPeriodEnd();
 
-    boolean isExportSkipped();
+    boolean isExportPostponed();
 
     Optional<TimeDuration> getRequestedReadingInterval();
 
@@ -51,7 +51,10 @@ public interface ReadingTypeDataExportItem extends HasId {
 
     void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd);
 
-    void setExportSkipped(boolean exportSkipped);
+    /**
+     * Only postponing export of new data is supported.
+     */
+    void postponeExport();
 
     void overrideReadingInterval(TimeDuration readingInterval);
 
