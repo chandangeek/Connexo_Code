@@ -1,10 +1,10 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs;
 
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.OAuthExceptionMapper;
+import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.filter.BasicAuthorizationFilter;
+import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.filter.BearerAuthorizationFilter;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.TokenService;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenRequest;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenResponse;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.impl.TokenServiceImpl;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.resource.TokenResource;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.resource.*;
@@ -23,12 +23,20 @@ public class SCIMApplication extends Application implements ApplicationSpecific 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
+                // Resources
                 ServiceProviderConfigResource.class,
                 ResourceTypeResource.class,
                 SchemaResource.class,
                 UserResource.class,
                 GroupResource.class,
-                TokenResource.class
+                TokenResource.class,
+
+                // Filters
+                BasicAuthorizationFilter.class,
+                BearerAuthorizationFilter.class,
+
+                // Exception mappers
+                OAuthExceptionMapper.class
         );
     }
 
@@ -44,9 +52,6 @@ public class SCIMApplication extends Application implements ApplicationSpecific 
             @Override
             protected void configure() {
                 bind(TokenServiceImpl.class).to(TokenService.class).in(Singleton.class);
-                bind(ExceptionFactory.class).to(ExceptionFactory.class);
-                bind(TokenRequest.class).to(TokenRequest.class);
-                bind(TokenResponse.class).to(TokenResponse.class);
             }
         };
     }

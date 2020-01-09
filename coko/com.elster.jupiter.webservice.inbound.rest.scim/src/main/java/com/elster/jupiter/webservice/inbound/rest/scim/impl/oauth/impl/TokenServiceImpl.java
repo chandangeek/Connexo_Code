@@ -30,7 +30,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public Jwt verifyToken(final String jws) {
+    public Jwt<?, ?> verifyToken(final String jws) {
         return Jwts.parser().setSigningKey(PRIVATE_KEY).parse(jws);
     }
 

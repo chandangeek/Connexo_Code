@@ -8,6 +8,6 @@ public interface TokenService {
 
     TokenResponse createTokenResponse(TokenRequest tokenRequest);
 
-    Jwt verifyToken(String jws);
+    Jwt<?, ?> verifyToken(String jws);
 
 }
