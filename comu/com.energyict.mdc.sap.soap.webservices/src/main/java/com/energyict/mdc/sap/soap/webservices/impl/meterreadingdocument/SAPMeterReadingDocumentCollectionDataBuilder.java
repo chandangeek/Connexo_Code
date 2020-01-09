@@ -45,6 +45,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     private ServiceCall serviceCall;
     private String deviceName;
     private boolean pastCase;
+    private boolean isExtraDataSource = false;
 
     private SAPMeterReadingDocumentCollectionDataBuilder(MeteringService meteringService, Clock clock,
                                                          Map<AdditionalProperties, Integer> properties, DeviceService deviceService) {
@@ -108,7 +109,11 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
             domainExtension.setActualReadingDate(closestReadingRecord.get().getTimeStamp());
             serviceCall.update(domainExtension);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
-            serviceCall.log(LogLevel.INFO, "The reading is found.");
+            if(isExtraDataSource){
+                serviceCall.log(LogLevel.INFO, "The reading is found on extra data source.");
+            }else{
+                serviceCall.log(LogLevel.INFO, "The reading is found on data source.");
+            }
         } else {
             serviceCall.log(LogLevel.WARNING, "The reading isn't found.");
             long attempts = properties.get(AdditionalProperties.CHECK_SCHEDULED_READING_ATTEMPTS);
@@ -149,13 +154,12 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     }
 
     private List<BaseReadingRecord> getReadings() {
-        serviceCall.log(LogLevel.INFO, "Try to get readings for data source");
         List<BaseReadingRecord> readings = getMeterReadingType()
                 .map(this::getReadings)
                 .orElse(new ArrayList<>());
 
         if (!isRegular() && readings.isEmpty() && getExtraMeterReadingType().isPresent()) {
-            serviceCall.log(LogLevel.INFO, "Try to get readings for extra data source");
+            isExtraDataSource = true;
             readings = getExtraMeterReadingType()
                     .map(this::getExtraReadings)
                     .orElse(new ArrayList<>());
