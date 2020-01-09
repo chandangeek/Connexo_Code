@@ -14,6 +14,7 @@ import java.util.Optional;
 public class UtilitiesDeviceRegisterCreateRequestMessage {
 
     private String requestID;
+    private String uuid;
     private boolean bulk;
     private List<UtilitiesDeviceRegisterCreateMessage> utilitiesDeviceRegisterCreateMessages = new ArrayList<>();
 
@@ -28,6 +29,10 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
         return requestID;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
     public List<UtilitiesDeviceRegisterCreateMessage> getUtilitiesDeviceRegisterCreateMessages() {
         return utilitiesDeviceRegisterCreateMessages;
     }
@@ -37,7 +42,7 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
     }
 
     public boolean isValid() {
-        return requestID != null;
+        return requestID != null || uuid != null;
     }
 
     public class Builder {
@@ -50,11 +55,12 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setRequestID(getRequestID(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
 
             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                     .builder()
-                    .from(requestMessage.getUtilitiesDevice())
+                    .from(requestMessage)
                     .build());
             return this;
         }
@@ -64,13 +70,14 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setRequestID(getRequestID(messageHeader));
+                        setUuid(getUuid(messageHeader));
                     });
 
             requestMessage.getUtilitiesDeviceERPSmartMeterRegisterCreateRequestMessage()
                     .forEach(message ->
                             utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
                                     .builder()
-                                    .from(message.getUtilitiesDevice())
+                                    .from(message)
                                     .build()));
             return this;
         }
@@ -83,6 +90,10 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
             UtilitiesDeviceRegisterCreateRequestMessage.this.requestID = requestID;
         }
 
+        private void setUuid(String uuid) {
+            UtilitiesDeviceRegisterCreateRequestMessage.this.uuid = uuid;
+        }
+
         private String getRequestID(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getID())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.BusinessDocumentMessageID::getValue)
@@ -93,6 +104,20 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
         private String getRequestID(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.BusinessDocumentMessageHeader header) {
             return Optional.ofNullable(header.getID())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.BusinessDocumentMessageHeader header) {
+            return Optional.ofNullable(header.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UUID::getValue)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

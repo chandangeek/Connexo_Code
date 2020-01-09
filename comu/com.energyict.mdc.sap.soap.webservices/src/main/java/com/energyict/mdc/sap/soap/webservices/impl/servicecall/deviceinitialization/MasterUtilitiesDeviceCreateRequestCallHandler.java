@@ -26,6 +26,7 @@ public class MasterUtilitiesDeviceCreateRequestCallHandler implements ServiceCal
     public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
+    private volatile WebServiceActivator webServiceActivator;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -85,7 +86,7 @@ public class MasterUtilitiesDeviceCreateRequestCallHandler implements ServiceCal
         MasterUtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MasterUtilitiesDeviceCreateRequestCustomPropertySet()).get();
         UtilitiesDeviceCreateConfirmationMessage resultMessage = UtilitiesDeviceCreateConfirmationMessage
                 .builder()
-                .from(serviceCall, findChildren(serviceCall), clock.instant(), extension.isBulk())
+                .from(serviceCall, findChildren(serviceCall), webServiceActivator.getMeteringSystemId(), clock.instant(), extension.isBulk())
                 .build();
         if (extension.isBulk()) {
             WebServiceActivator.UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION.forEach(sender -> sender.call(resultMessage));
@@ -128,5 +129,10 @@ public class MasterUtilitiesDeviceCreateRequestCallHandler implements ServiceCal
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 }

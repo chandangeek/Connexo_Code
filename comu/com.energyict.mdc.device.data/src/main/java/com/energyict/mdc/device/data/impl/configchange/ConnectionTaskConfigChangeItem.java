@@ -4,17 +4,19 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
+import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigChangeAction;
 import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
+import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -47,7 +49,11 @@ public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem {
         matchItems.stream().forEach(matchedConnectionTask
                 -> device.getConnectionTasks().stream()
                 .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == matchedConnectionTask.getOrigin().getId()).findFirst()
-                .ifPresent(updateConnectionTaskWithNewPartialConnectionTask(matchedConnectionTask.getDestination())));
+                .ifPresent(connectionTask->{
+                        updateConnectionTaskWithComPortPool(matchedConnectionTask.getDestination(), connectionTask);
+                        updateConnectionTaskWithNewConnectionStrategy(matchedConnectionTask.getDestination(), connectionTask);
+                        updateConnectionTaskWithNewPartialConnectionTask(matchedConnectionTask.getDestination(), connectionTask);
+                    }));
         removeItems.forEach(partialConnectionTask -> device.getConnectionTasks().stream().filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == partialConnectionTask.getId()).findAny().ifPresent(device::removeConnectionTask));
     }
 
@@ -61,13 +67,32 @@ public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem {
         final List<ConflictingConnectionMethodSolution> conflictsToMap = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream()
                 .filter(solutionsForMap()).collect(Collectors.toList());
         conflictsToMap.stream().forEach(conflictingConnectionMethodSolution -> device.getConnectionTasks().stream().filter(onSameConnectionTaskForOrigin(conflictingConnectionMethodSolution))
-                .forEach(updateConnectionTaskWithNewPartialConnectionTask(conflictingConnectionMethodSolution.getDestinationDataSource())));
+                .forEach(connectionTask->{
+                        updateConnectionTaskWithNewPartialConnectionTask(conflictingConnectionMethodSolution.getDestinationDataSource(), connectionTask);
+                }));
     }
 
-    private Consumer<ConnectionTask<?, ?>> updateConnectionTaskWithNewPartialConnectionTask(PartialConnectionTask destination) {
+    private void updateConnectionTaskWithNewPartialConnectionTask(PartialConnectionTask destination, ConnectionTask<?,?> connectionTask) {
         //noinspection unchecked
-        return connectionTask -> ((ServerConnectionTaskForConfigChange) connectionTask).setNewPartialConnectionTask(destination);
+        ((ServerConnectionTaskForConfigChange) connectionTask).setNewPartialConnectionTask(destination);
     }
+
+    private void updateConnectionTaskWithNewConnectionStrategy(PartialConnectionTask destination, ConnectionTask<?,?> connectionTask) {
+        if (connectionTask instanceof ScheduledConnectionTask) {
+            ((ScheduledConnectionTask) connectionTask).setConnectionStrategy(((PartialScheduledConnectionTaskImpl) destination).getConnectionStrategy());
+            TemporalExpression temporalExpression = null;
+            if (((PartialScheduledConnectionTaskImpl) destination).getNextExecutionSpecs() != null)
+                temporalExpression = ((PartialScheduledConnectionTaskImpl) destination).getNextExecutionSpecs().getTemporalExpression();
+            ((ScheduledConnectionTask) connectionTask).setNextExecutionSpecsFrom(temporalExpression);
+            connectionTask.save();
+        }
+    }
+
+    private void updateConnectionTaskWithComPortPool(PartialConnectionTask destination, ConnectionTask<?,?>  connectionTask) {
+        ((ConnectionTask)connectionTask).setComPortPool(destination.getComPortPool());
+        connectionTask.save();
+    }
+
 
     private Predicate<ConnectionTask<?, ?>> onSameConnectionTaskForOrigin(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution) {
         return connectionTask -> connectionTask.getPartialConnectionTask().getId() == conflictingConnectionMethodSolution.getOriginDataSource().getId();

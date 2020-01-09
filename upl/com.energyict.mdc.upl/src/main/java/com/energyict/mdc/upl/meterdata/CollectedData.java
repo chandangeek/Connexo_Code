@@ -2,12 +2,18 @@ package com.energyict.mdc.upl.meterdata;
 
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.upl.issue.Issue;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 /**
  * Provides basic functionality for a data object which is collected from a Device.
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public interface CollectedData {
 
     /**
@@ -45,5 +51,14 @@ public interface CollectedData {
      * to collect this type of CollectedData
      */
     boolean isConfiguredIn(DataCollectionConfiguration comTask);
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    default String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    default void setXmlType(String ignore) {
+    }
 
 }

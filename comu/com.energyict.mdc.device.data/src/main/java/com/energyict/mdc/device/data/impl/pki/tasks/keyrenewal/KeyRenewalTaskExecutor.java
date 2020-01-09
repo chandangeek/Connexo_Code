@@ -136,7 +136,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     private void printSecurityAccessors(List<SecurityAccessor> securityAccessors, Logger logger) {
         StringBuilder sb = new StringBuilder();
         securityAccessors.forEach(securityAccessor -> {
-            sb.append("Type=" + securityAccessor.getKeyAccessorType().getName());
+            sb.append("Type=" + securityAccessor.getKeyAccessorTypeReference().getName());
             sb.append(" Device=" + securityAccessor.getDevice().getName());
             sb.append('\n');
         });
@@ -145,14 +145,14 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
 
 
     private boolean deviceKeyExpired(SymmetricKeyAccessor symmetricKeyAccessor) {
-        logger.log(Level.INFO, "Checking key expiration, Type=" + symmetricKeyAccessor.getKeyAccessorType().getName()
+        logger.log(Level.INFO, "Checking key expiration, Type=" + symmetricKeyAccessor.getKeyAccessorTypeReference().getName()
                 + " Device=" + symmetricKeyAccessor.getDevice().getName());
-        Optional<SymmetricKeyWrapper> symmetricKeyWrapper = symmetricKeyAccessor.getActualValue();
+        Optional<SymmetricKeyWrapper> symmetricKeyWrapper = symmetricKeyAccessor.getActualPassphraseWrapperReference();
         if (symmetricKeyWrapper.isPresent()) {
             Optional<Instant> expirationTime = symmetricKeyWrapper.get().getExpirationTime();
             if (expirationTime.isPresent()) {
                 logger.log(Level.INFO, "Expiration time " + expirationTime);
-                long daysBetween = Math.abs(ChronoUnit.DAYS.between(Instant.now(), expirationTime.get()));
+                long daysBetween = Math.abs(ChronoUnit.DAYS.between(clock.instant(), expirationTime.get()));
                 logger.log(Level.INFO, "Days till expiration " + daysBetween);
                 return daysBetween <= keyRenewalExpitationDays;
             }
@@ -161,9 +161,9 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     }
 
     private boolean checkSecuritySets(SecurityAccessor securityAccessor) {
-        logger.log(Level.INFO, "Checking security sets, Type=" + securityAccessor.getKeyAccessorType().getName()
+        logger.log(Level.INFO, "Checking security sets, Type=" + securityAccessor.getKeyAccessorTypeReference().getName()
                 + " Device=" + securityAccessor.getDevice().getName());
-        long id = securityAccessor.getKeyAccessorType().getId();
+        long id = securityAccessor.getKeyAccessorTypeReference().getId();
         boolean result;
         List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
         securityAccessor.getDevice().getDeviceConfiguration().getSecurityPropertySets().forEach(
@@ -181,7 +181,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
 
     private boolean getActiveKeyRenewalProcesses(SecurityAccessor securityAccessor, TaskOccurrence taskOccurrence) {
         String filter = "?variableid=deviceId&variablevalue=" + securityAccessor.getDevice().getmRID() +
-                "&variableid=accessorType&variablevalue=" + securityAccessor.getKeyAccessorType().getName();
+                "&variableid=accessorType&variablevalue=" + securityAccessor.getKeyAccessorTypeReference().getName();
         Optional<ProcessDefinitionInfos> processDefinitionInfos = getBpmProcessDefinitions(taskOccurrence);
         if (!processDefinitionInfos.isPresent()) {
             String errorMsg = "No process definitions found";
@@ -207,7 +207,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
             logger.log(Level.INFO, "No running processes found");
             return false;
         }
-        logger.log(Level.INFO, "Found running processes for " + securityAccessor.getKeyAccessorType().getName() + " and " + securityAccessor.getDevice().getName());
+        logger.log(Level.INFO, "Found running processes for " + securityAccessor.getKeyAccessorTypeReference().getName() + " and " + securityAccessor.getDevice().getName());
         return true;
     }
 
@@ -215,7 +215,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000");
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");
@@ -238,7 +238,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     private void triggerBpmProcess(SecurityAccessor securityAccessor, TaskOccurrence taskOccurrence, Logger logger) {
         Map<String, Object> expectedParams = new HashMap<>();
         expectedParams.put("deviceId", securityAccessor.getDevice().getmRID());
-        expectedParams.put("accessorType", securityAccessor.getKeyAccessorType().getName());
+        expectedParams.put("accessorType", securityAccessor.getKeyAccessorTypeReference().getName());
 
         List<BpmProcessDefinition> bpmProcessDefinitions = bpmService.getAllBpmProcessDefinitions();
         Optional<BpmProcessDefinition> definition = bpmProcessDefinitions
@@ -250,7 +250,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
             if (!getActiveKeyRenewalProcesses(securityAccessor, taskOccurrence)) {
                 bpmService.startProcess(definition.get(), expectedParams);
                 logger.log(Level.INFO, "Key renewal process has been triggered on device " + securityAccessor.getDevice().getName()
-                        + " mrid = " + securityAccessor.getDevice().getmRID() + " for " + securityAccessor.getKeyAccessorType().getName());
+                        + " mrid = " + securityAccessor.getDevice().getmRID() + " for " + securityAccessor.getKeyAccessorTypeReference().getName());
                 keyRenewalBpmProcessCount++;
                 logger.log(Level.INFO, "Number of key renewal processes triggered  " + keyRenewalBpmProcessCount);
             }

@@ -43,12 +43,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -112,7 +107,6 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     private ProtocolChannelMap protocolChannelMap = null;
 
     private boolean software7E1;
-    private static final String PK_SOFTWARE_7E1 = "Software7E1";
 
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
@@ -128,7 +122,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                 PK_RETRIES,
                 PK_ECHO_CANCELLING,
                 ROUNDTRIPCORRECTION.getName(),
-                PK_SOFTWARE_7E1,
+                SOFTWARE7E1.getName(),
                 PK_CHANNEL_MAP);
     }
 
@@ -145,7 +139,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                 this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.IEC1107_FORCEDELAY),
                 this.integerSpec(PK_ECHO_CANCELLING, PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec(PK_IEC1107_COMPATIBLE, PropertyTranslationKeys.IEC1107_COMPATIBLE),
-                this.stringSpec(PK_SOFTWARE_7E1, PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP_DESCRIPTION).format()));
     }
 
@@ -208,7 +202,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                 pRountTripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName());
             }
 
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(PK_SOFTWARE_7E1, "0"));
+            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
 
             if (properties.getTypedProperty(Unilog.PK_CHANNEL_MAP) != null) {
                 this.pChannelMap = properties.getTypedProperty(Unilog.PK_CHANNEL_MAP);

@@ -14,11 +14,11 @@ public enum Privileges implements TranslationKey {
     RESOURCE_USAGE_POINT_GROUPS_DESCRIPTION("usagePointGroup.usagePointGroups.description", "Manage usage point groups"),
 
     //Privileges
-    ADMINISTER_USAGE_POINT_GROUP(Constants.ADMINISTER_USAGE_POINT_GROUP, "Administer"),
-    ADMINISTER_USAGE_POINT_ENUMERATED_GROUP(Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP, "Administer static usage point groups"),
+    ADMINISTER_USAGE_POINT_GROUP(Constants.ADMINISTER_USAGE_POINT_GROUP, "Administrate"),
+    ADMINISTER_USAGE_POINT_ENUMERATED_GROUP(Constants.ADMINISTER_USAGE_POINT_ENUMERATED_GROUP, "Administrate static usage point groups"),
     VIEW_USAGE_POINT_GROUP_DETAIL(Constants.VIEW_USAGE_POINT_GROUP_DETAIL, "View detail"),
-    ADMINISTER_VALIDATION_CONFIGURATION(Constants.ADMINISTER_VALIDATION_CONFIGURATION, "Administer validation configuration"),
-    ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administer estimation configuration")
+    ADMINISTER_VALIDATION_CONFIGURATION(Constants.ADMINISTER_VALIDATION_CONFIGURATION, "Administrate validation configuration"),
+    ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administrate estimation configuration")
     ;
 
     private final String key;

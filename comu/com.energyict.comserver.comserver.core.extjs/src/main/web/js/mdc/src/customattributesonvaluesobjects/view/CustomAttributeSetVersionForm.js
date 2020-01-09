@@ -62,7 +62,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 xtype: 'form',
                 ui: 'large',
                 title: me.router.getRoute().getTitle(),
-                width: 650,
+                width: 850,
                 items: [
                     {
                         xtype: 'uni-form-error-message',

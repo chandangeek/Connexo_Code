@@ -27,6 +27,14 @@ Ext.define('Dxp.view.datasources.Grid', {
                 return value ? Uni.DateTime.formatDateTimeShort(value) : Uni.I18n.translate('general.neverExported', 'DES', 'Never exported');
             },
             flex: 1
+        },
+        {
+            header: Uni.I18n.translate('general.lastExportedPeriodEnd', 'DES', 'Last exported period end'),
+            dataIndex: 'lastExportedPeriodEnd',
+            renderer: function (value) {
+                return value ? Uni.DateTime.formatDateTimeShort(value) : Uni.I18n.translate('general.neverExported', 'DES', 'Never exported');
+            },
+            flex: 1
         }
     ],
     columnsPerApp: {

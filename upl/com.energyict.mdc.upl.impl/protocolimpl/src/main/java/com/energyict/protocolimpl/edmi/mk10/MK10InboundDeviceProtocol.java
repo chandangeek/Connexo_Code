@@ -16,7 +16,7 @@ import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.edmi.common.packets.PushPacket;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;

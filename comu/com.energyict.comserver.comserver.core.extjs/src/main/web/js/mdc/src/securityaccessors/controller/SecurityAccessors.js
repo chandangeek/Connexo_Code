@@ -520,12 +520,14 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 me.deviceType = deviceType;
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 view = Ext.widget('security-accessor-add-to-device-type-form', {deviceTypeId: deviceTypeId});
-                store.load({
-                    callback: function (records, operation, success) {
-                        if (records === null || records.length === 0) {
-                            view.down('#btn-add-security-accessors').hide();
-                        }
-                    }
+                me.getApplication().on('changecontentevent', function(){
+                    store.on('load', function (store, records, success) {
+                          if (records === null || records.length === 0) {
+                               var btnAddSecurityAccessors = view && view.down('#btn-add-security-accessors');
+                               if (btnAddSecurityAccessors) btnAddSecurityAccessors.hide();
+                          }
+                    })
+                    store.load();
                 });
                 me.getApplication().fireEvent('changecontentevent', view);
             }

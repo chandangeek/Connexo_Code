@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAttribute;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import java.util.List;
  * @since 2013, Dec 2 (09:07)
  */
 public class PluggableClassImpl implements PluggableClass {
-    private final Provider<PluggableClassProperty> pluggableClassPropertyProvider;
+    private Provider<PluggableClassProperty> pluggableClassPropertyProvider;
 
     private long id;
     @NotNull
@@ -55,6 +56,10 @@ public class PluggableClassImpl implements PluggableClass {
     private EventService eventService;
     private Thesaurus thesaurus;
     private Clock clock;
+
+    public PluggableClassImpl() {
+        super();
+    }
 
     @Inject
     public PluggableClassImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, Provider<PluggableClassProperty> pluggableClassPropertyProvider) {
@@ -164,11 +169,13 @@ public class PluggableClassImpl implements PluggableClass {
     }
 
     @Override
+    @XmlAttribute
     public long getId() {
         return id;
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -176,7 +183,7 @@ public class PluggableClassImpl implements PluggableClass {
     @Override
     public void setName(String name)  {
         this.validateName(name);
-        if (!name.equals(this.getName())) {
+        if (dataModel != null && !name.equals(this.getName())) {
             this.validateUniqueName(name, this.pluggableType.toActualType());
         }
         this.name = name;

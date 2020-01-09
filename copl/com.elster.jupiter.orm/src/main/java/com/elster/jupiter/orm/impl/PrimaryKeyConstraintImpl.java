@@ -67,7 +67,7 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl<PrimaryKeyCons
         this.predecessor = (PrimaryKeyConstraintImpl) predecessor;
     }
 
-    static class BuilderImpl implements PrimaryKeyConstraint.Builder {
+    public static class BuilderImpl implements PrimaryKeyConstraint.Builder {
         private final PrimaryKeyConstraintImpl constraint;
 
         public BuilderImpl(TableImpl<?> table, String name) {
@@ -128,5 +128,10 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl<PrimaryKeyCons
             return this;
         }
 
+        @Override
+        public Builder noDdl() {
+            constraint.noDdl = true;
+            return this;
+        }
     }
 }

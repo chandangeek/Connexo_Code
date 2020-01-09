@@ -8,7 +8,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -29,7 +30,6 @@ public class CheckConfirmationTimeoutHandlerFactory  implements MessageHandlerFa
     private volatile TaskService taskService;
     private volatile Clock clock;
     private volatile ServiceCallService serviceCallService;
-    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     public CheckConfirmationTimeoutHandlerFactory() {
     }
@@ -43,7 +43,7 @@ public class CheckConfirmationTimeoutHandlerFactory  implements MessageHandlerFa
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CheckConfirmationTimeoutHandler(clock, serviceCallService, sapCustomPropertySets));
+        return taskService.createMessageHandler(new CheckConfirmationTimeoutHandler(clock, serviceCallService));
     }
 
     @Reference
@@ -62,7 +62,7 @@ public class CheckConfirmationTimeoutHandlerFactory  implements MessageHandlerFa
     }
 
     @Reference
-    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
-        this.sapCustomPropertySets = sapCustomPropertySets;
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 }

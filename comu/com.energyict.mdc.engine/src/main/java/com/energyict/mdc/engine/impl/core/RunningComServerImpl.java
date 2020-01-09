@@ -15,25 +15,14 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.comserver.ComPort;
-import com.energyict.mdc.common.comserver.ComPortPool;
-import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.HighPriorityComJob;
-import com.energyict.mdc.common.comserver.IPBasedInboundComPort;
-import com.energyict.mdc.common.comserver.InboundCapable;
-import com.energyict.mdc.common.comserver.InboundComPort;
-import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
-import com.energyict.mdc.common.comserver.OnlineComServer;
-import com.energyict.mdc.common.comserver.OutboundCapable;
-import com.energyict.mdc.common.comserver.OutboundCapableComServer;
-import com.energyict.mdc.common.comserver.OutboundComPort;
-import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.comserver.*;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -58,6 +47,7 @@ import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -82,8 +72,8 @@ import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -94,6 +84,7 @@ import java.util.stream.Collectors;
  */
 public class RunningComServerImpl implements RunningComServer, Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(RunningComServerImpl.class.getName());
     /**
      * The default queue size of the DeviceCommandExecutor
      * that is used for non {@link OnlineComServer}s.
@@ -165,7 +156,6 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         registerAsMBean();
         this.eventMechanism = new EventMechanism(embeddedWebServerFactory, operationalMonitor.getEventApiStatistics());
         this.comServerDAO = comServerDAO;
-
         this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
@@ -216,8 +206,53 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
+    RunningComServerImpl(OfflineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super();
+        this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
+        this.comServer = comServer;
+        this.comServerDAO = comServerDAO;
+        registerAsMBean();
+        EventPublisher eventPublisher = new EventPublisherImpl(this);
+        WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
+                new WebSocketEventPublisherFactoryImpl(
+                        this,
+                        serviceProvider.connectionTaskService(),
+                        serviceProvider.communicationTaskService(),
+                        serviceProvider.deviceService(),
+                        serviceProvider.engineConfigurationService(),
+                        serviceProvider.identificationService(),
+                        eventPublisher);
+        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory), operationalMonitor.getEventApiStatistics());
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
+        this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
+        this.addOutboundComPorts(comServer.getOutboundComPorts());
+        this.addInboundComPorts(comServer.getInboundComPorts());
+    }
+
+    RunningComServerImpl(OfflineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
+        super();
+        this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
+        this.comServer = comServer;
+        registerAsMBean();
+        this.eventMechanism = new EventMechanism(embeddedWebServerFactory, operationalMonitor.getEventApiStatistics());
+        this.comServerDAO = comServerDAO;
+        this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
+        this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
+        this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
+        this.addOutboundComPorts(comServer.getOutboundComPorts());
+        this.addInboundComPorts(comServer.getInboundComPorts());
+    }
+
     private Thesaurus getThesaurus(NlsService nlsService) {
-        return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
+        if (nlsService != null) {
+            return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
+        }
+        return null;
     }
 
     private void initialize(ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory) {
@@ -364,12 +399,19 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     protected void continueStartupAfterDAOStart() {
         this.startEventMechanism();
+        LOGGER.info("Event mechanism started");
         this.startDeviceCommandExecutor();
-        this.startOutboundComPorts();
-        this.startInboundComPorts();
-        startHighPriorityTaskScheduler();
+        LOGGER.info("DeviceCommandExecutor started");
         this.timeOutMonitor.start();
+        LOGGER.info("TimeOutMonitor started");
+        this.startOutboundComPorts();
+        LOGGER.info("OutboundComPorts started");
+        this.startInboundComPorts();
+        LOGGER.info("InboundComPorts started");
+        startHighPriorityTaskScheduler();
+        LOGGER.info("High priority task scheduler started");
         this.cleanupProcess.start();
+        LOGGER.info("Cleanup process started");
         self = this.threadFactory.newThread(this);
         self.setName("Changes monitor for " + this.comServer.getName());
         self.start();
@@ -377,8 +419,16 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.status = ServerProcessStatus.STARTED;
     }
 
+    @Override
+    public void restartAllComPorts() {
+        this.scheduledComPorts.forEach(ScheduledComPort::shutdown);
+        this.scheduledComPorts.forEach(ScheduledComPort::start);
+    }
+
     private void registerAsMBean() {
-        this.operationalMonitor = (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+        if (this.serviceProvider.managementBeanFactory() != null) {
+            this.operationalMonitor = (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor(this);
+        }
     }
 
     private void unregisterAsMBean() {
@@ -554,142 +604,54 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     @Override
     public void run() {
-        ComPort comPort = null;
-        while (continueRunning.get()) {
-            try {
-                comPort = this.forceRefreshQueue.poll(this.comServer.getChangesInterPollDelay().getMilliSeconds(), TimeUnit.MILLISECONDS);
-                while (comPort != null) {
-                    refreshComPort(comPort);
-                    comPort = this.forceRefreshQueue.poll();
-                }
-                this.monitorChanges();
-            } catch (PersistenceException e) {
-                getLogger().databaseErrorOccurredDuringUpdatingChanges(comServer, e.getMessage());
-                // DatabaseExceptions are caught and swallowed in ComPorts:
-                //      ScheduledComPortImpl#run
-                //      ComPortListenerImpl#run
-                if (comPort != null) {
-                    // database exception while refreshing a port, for safety will add it again for refresh
-                    refresh(comPort);
-                } else {
-                    findZombies();
-                }
-                sleepAfterDatabaseException();
-            } catch (InterruptedException e) {
-                // don't set interrupted flag otherwise the blocking poll will immediately throw another InterruptedException
-                getLogger().comServerExecutionInterrupted(comServer, e.getMessage());
-            } catch (Throwable e) {
-                // any other unexpected exception
-                getLogger().otherComServerException(comServer, e.getMessage());
-                addAllComServerPortsToRefreshQueue();
-                sleepAfterDatabaseException();
-            }
+        while (continueRunning.get() && !Thread.currentThread().isInterrupted()) {
+            monitorChanges();
         }
-        self.interrupt();
-        this.status = ServerProcessStatus.SHUTDOWN;
-    }
-
-    private void findZombies() {
-        //TODO: alternative clean-up method if everything fails, get from the database only the zombie tasks&ports and unlock them
-        /*
-        select
-            mdccomtaskexec.comport as comport,
-            mdcconnectiontask.comserver as comserver
-        from  mdccomtaskexec right join mdcconnectiontask
-        ON MDCcomTaskExec.connectiontask = mdcconnectiontask.id
-        where
-            (comport is not null and comserver is null)
-            or
-            (comserver is not null and comport is null);
-         */
-    }
-
-    private void addAllComServerPortsToRefreshQueue() {
-        for (ScheduledComPort scheduledComPort : this.scheduledComPorts) {
-            refresh(scheduledComPort.getComPort());
-        }
-        for (ComPortListener comPortListener : this.comPortListeners) {
-            refresh(comPortListener.getComPort());
-        }
-    }
-
-    private void sleepAfterDatabaseException() {
-        try {
-            Thread.sleep(getSchedulingInterPollDelayMillis());
-        } catch (InterruptedException e1) {
-            // don't set interrupted flag otherwise the blocking poll will immediately throw another InterruptedException
-        }
-    }
-
-    private void refreshComPort(ComPort comPort) {
-        // first check if we have database access
-        ComPort refreshedComPort = getComServerDAO().refreshComPort(comPort);
-        getLogger().tryToRefreshComPortAfterDatabaseException(comPort);
-        if (!refreshedComPort.isInbound()) {
-            refreshScheduledComPort((OutboundComPort) refreshedComPort);
-        } else {
-            refreshComPortListener((InboundComPort) refreshedComPort);
-        }
-        // releasing the connectionTasks which are busy by this comport
-        getComServerDAO().releaseTasksFor(comPort);
-        getLogger().successfullyRestartedComport(comPort);
-    }
-
-    private void refreshComPortListener(InboundComPort refreshedComPort) {
-        Optional<ComPortListener> comPortListener = getListenerFor(refreshedComPort);
-        if (comPortListener.isPresent()) {
-            comPortListener.get().shutdown();
-            this.comPortListeners.remove(comPortListener.get());
-        }
-        Optional<ComPortListener> rescheduled = this.add(refreshedComPort);
-        if (rescheduled.isPresent()) {
-            rescheduled.get().start();
-        }
-    }
-
-    private void refreshScheduledComPort(OutboundComPort refreshedComPort) {
-        Optional<ScheduledComPort> previouslyScheduledComPort = this.getSchedulerFor(refreshedComPort);
-        if (previouslyScheduledComPort.isPresent()) {
-            previouslyScheduledComPort.get().shutdown();
-            this.scheduledComPorts.remove(previouslyScheduledComPort.get());
-        }
-        Optional<ScheduledComPort> refreshed = this.add(refreshedComPort);
-        if (refreshed.isPresent()) {
-            refreshed.get().start();
-        }
+        status = ServerProcessStatus.SHUTDOWN;
     }
 
     private void monitorChanges() {
         try {
-            this.getLogger().monitoringChanges(this.getComServer());
-            ComServer newVersion = this.comServerDAO.refreshComServer(this.comServer);
-            this.operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(this.serviceProvider.clock().instant()));
+            Thread.sleep(getChangesInterPollDelayMillis());
+            getLogger().monitoringChanges(this.getComServer());
+            ComServer newVersion = comServerDAO.refreshComServer(comServer);
+            operationalMonitor.getOperationalStatistics().setLastCheckForChangesTimestamp(Date.from(serviceProvider.clock().instant()));
             if (newVersion == null) {
                 // ComServer was deleted or made obsolete, shutdown
-                this.shutdown();
-            } else if (newVersion == this.comServer) {
+                shutdown();
+            } else if (newVersion == comServer) {
                 // No changes found
             } else {
                 if (!newVersion.isActive()) {
                     // ComServer is no longer active, shutdown
-                    this.shutdown();
+                    shutdown();
                 } else {
                     comPortPoolsComPortBelongsToCache = new HashMap<>(); // Flush the cache
-                    this.resetLoggerHolder(newVersion);
-                    this.applyChanges((InboundCapable) newVersion);
-                    this.applyChanges((OutboundCapable) newVersion);
-                    this.applyDelayChanges(newVersion);
-                    this.notifyChangesApplied();
-                    String oldComServerName = this.comServer.getName();
-                    this.comServer = newVersion;
+                    resetLoggerHolder(newVersion);
+                    applyChanges((InboundCapable) newVersion);
+                    applyChanges((OutboundCapable) newVersion);
+                    applyDelayChanges(newVersion);
+                    notifyChangesApplied();
+                    String oldComServerName = comServer.getName();
+                    comServer = newVersion;
                     if (!oldComServerName.equals(newVersion.getName())) {
                         // Name changed, notify the ManagementBeanFactory
-                        this.serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
+                        serviceProvider.managementBeanFactory().renamed(oldComServerName, this);
                     }
                 }
             }
         } catch (UnderlyingSQLFailedException e) {
-            this.getLogger().monitorChangesFailed(this.comServer, e.getCause());
+            getLogger().monitorChangesFailed(comServer, e.getCause());
+        } catch (InterruptedException e) {
+            getLogger().comServerExecutionInterrupted(comServer, e.getMessage());
+            Thread.currentThread().interrupt();
+        } catch (PersistenceException e) {
+            getLogger().databaseErrorOccurredDuringUpdatingChanges(comServer, e.getMessage());
+            // DatabaseExceptions are caught and swallowed in ComPorts:
+            //      ScheduledComPortImpl#run
+            //      ComPortListenerImpl#run
+        } catch (Throwable e) {
+            getLogger().otherComServerException(comServer, e.getMessage());
         }
     }
 
@@ -1052,7 +1014,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     @Override
     public void eventClientRegistered() {
         ComServerMonitor monitor = this.getOperationalMonitor();
-        monitor.getEventApiStatistics().clientRegistered();
+        if (monitor != null) {
+            monitor.getEventApiStatistics().clientRegistered();
+        }
     }
 
     @Override
@@ -1064,7 +1028,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     @Override
     public void eventWasPublished() {
         ComServerMonitor monitor = this.getOperationalMonitor();
-        ((ServerEventAPIStatistics) monitor.getEventApiStatistics()).eventWasPublished();
+        if (monitor != null) {
+            ((ServerEventAPIStatistics) monitor.getEventApiStatistics()).eventWasPublished();
+        }
     }
 
     private ComServerLogger getLogger() {
@@ -1226,7 +1192,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private class EventMechanism {
         private final EmbeddedWebServerFactory embeddedWebServerFactory;
-        private final EmbeddedWebServer embeddedWebServer;
+        private EmbeddedWebServer embeddedWebServer;
         private final EventPublisher eventPublisher;
 
         private EventMechanism(EmbeddedWebServerFactory embeddedWebServerFactory, EventAPIStatistics eventAPIStatistics) {
@@ -1316,6 +1282,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         @Override
         public ProtocolPluggableService protocolPluggableService() {
             return serviceProvider.protocolPluggableService();
+        }
+
+        @Override
+        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+            return serviceProvider.deviceMessageSpecificationService();
         }
 
         @Override
@@ -1559,6 +1530,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         @Override
         public TimeOfUseCampaignService touService() {
             return serviceProvider.touService();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
         }
 
     }

@@ -190,6 +190,9 @@ public class LTEMonitoringProfileIntervals extends DLMSProfileIntervals {
         if (dataType.isInteger64()){
             return dataType.getInteger64().getValue();
         }
+        if (dataType.isUnsigned64()){
+            return dataType.getUnsigned64().getValue();
+        }
 
         return dataType.longValue();
     }

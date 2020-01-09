@@ -26,9 +26,11 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMes
 import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessagePrivilege;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidReleaseDateUpdate;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidTrackingInformation;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -163,6 +165,11 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                 .filter(deviceMessage -> deviceMessage.dbValue() == this.deviceMessageId)
                 .findAny()
                 .orElseThrow(() -> new IllegalDeviceMessageIdException(this.deviceMessageId, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED));
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DeviceIdentifierForAlreadyKnownDevice(this.getDevice().getId(), this.getDevice().getmRID());
     }
 
     @Override
@@ -340,6 +347,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                 .getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList())
                 .stream()
@@ -352,6 +360,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                 .getDeviceConfiguration()
                 .getDeviceMessageEnablements()
                 .stream()
+                .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                 .anyMatch(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
                         .equals(getDeviceMessageId()));
     }

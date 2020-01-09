@@ -282,6 +282,11 @@ public class AS300NProperties implements DlmsSessionProperties {
     }
 
     @Override
+    public boolean useEquipmentIdentifierAsSerialNumber() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false);
+    }
+
+    @Override
     public long getTimeout() {
         return properties.getTypedProperty(TIMEOUT, Duration.ofMillis(DEFAULT_TIMEOUT.intValue())).toMillis();
     }

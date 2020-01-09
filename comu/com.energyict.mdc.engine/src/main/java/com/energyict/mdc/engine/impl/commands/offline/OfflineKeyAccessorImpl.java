@@ -5,10 +5,13 @@ import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.util.Optional;
 
 public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements OfflineKeyAccessor {
@@ -24,8 +27,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     private Optional<T> actualValue;
     private Optional<T> tempValue;
     private int deviceId;
-
     private String deviceMRID;
+    private DeviceIdentifier deviceIdentifier;
     private Optional<T> wrappingKeyActualValue;
 
     public OfflineKeyAccessorImpl(SecurityAccessor securityAccessor, IdentificationService identificationService) {
@@ -43,8 +46,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     protected void goOffline() {
         setDeviceId((int) this.securityAccessor.getDevice().getId());
         setDeviceMRID(this.securityAccessor.getDevice().getmRID());
-        setSecurityAccessorType(this.securityAccessor.getKeyAccessorType());
-        setActualValue(this.securityAccessor.getActualValue());
+        setSecurityAccessorType(this.securityAccessor.getKeyAccessorTypeReference());
+        setActualValue(this.securityAccessor.getActualPassphraseWrapperReference());
         setTempValue(this.securityAccessor.getTempValue());
         //set wrapping key info
         Optional<SecurityAccessorType> wrappingKeyAssignedToAccessor = getWrappingKeyAssignedToAccessor();
@@ -53,8 +56,18 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
 
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+            @XmlElement(type = DeviceIdentifierByConnectionTypeAndProperty.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+        if (identificationService != null)
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        return deviceIdentifier;
     }
 
     public void setDeviceId(int deviceId) {
@@ -132,7 +145,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     private Optional<T> getWrappingKeyActualValue(Optional<SecurityAccessorType> wrappingKey) {
         if (wrappingKey.isPresent()) {
             Optional<SecurityAccessor> securityAccessorByName = device.getSecurityAccessorByName(wrappingKey.get().getName());
-            return securityAccessorByName.isPresent() ? securityAccessorByName.get().getActualValue() : Optional.empty();
+            return securityAccessorByName.isPresent() ? securityAccessorByName.get().getActualPassphraseWrapperReference() : Optional.empty();
         }
         return Optional.empty();
     }

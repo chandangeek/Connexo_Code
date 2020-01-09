@@ -19,7 +19,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
@@ -50,7 +49,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -63,9 +61,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 //import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 
-@Component(name = "com.energyict.mdc.tasks", service = { TaskService.class, ServerTaskService.class,
+@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class,
         MessageSeedProvider.class,
-        TranslationKeyProvider.class }, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
+        TranslationKeyProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
 public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, TranslationKeyProvider {
 
     private final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
@@ -85,8 +83,8 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
 
     @Inject
     public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService,
-            DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService,
-            UpgradeService upgradeService, UserService userService) {
+                           DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService,
+                           UpgradeService upgradeService, UserService userService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -193,7 +191,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
     @Override
     public Optional<ComTask> findAndLockComTaskByIdAndVersion(long id, long version) {
         return dataModel.mapper(ComTask.class).lockObjectIfVersion(version, id);
-    };
+    }
 
     @Override
     public Optional<ProtocolTask> findProtocolTask(long id) {

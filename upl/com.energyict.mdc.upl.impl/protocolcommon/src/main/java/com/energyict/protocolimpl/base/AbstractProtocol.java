@@ -52,15 +52,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * Abstract base class to create a new protocol.
@@ -72,11 +64,9 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     protected static final String PROP_TIMEOUT = TIMEOUT.getName();
     protected static final String PROP_RETRIES = RETRIES.getName();
     protected static final String PROP_FORCED_DELAY = "ForcedDelay";
-    protected static final String PROP_EXTENDED_LOGGING = "ExtendedLogging";
     protected static final String PROP_HALF_DUPLEX = "HalfDuplex";
 
     private static final String PROP_ECHO_CANCELING = "EchoCancelling";
-    private static final String PROP_SECURITY_LEVEL = SECURITYLEVEL.getName();
     private static final String PROP_PROTOCOL_COMPATIBLE = "ProtocolCompatible";
     private static final String PROP_CHANNEL_MAP = "ChannelMap";
     private static final String PROP_DTR_BEHAVIOUR = "DTRBehaviour";
@@ -244,14 +234,14 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.BASE_ADDRESS, false),
-                this.stringSpec(PROP_TIMEOUT, PropertyTranslationKeys.BASE_TIMEOUT, false),
-                this.integerSpec(PROP_RETRIES, PropertyTranslationKeys.BASE_RETRIES, false),
+                this.stringSpec(TIMEOUT.getName(), PropertyTranslationKeys.BASE_TIMEOUT, false),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.BASE_RETRIES, false),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.BASE_ROUNDTRIPCORRECTION, false),
                 // This class prefers security level to be of type int but subclasses prefer String and parse it into two properties :-(
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.BASE_NODEID, false),
                 this.integerSpec(PROP_ECHO_CANCELING, PropertyTranslationKeys.BASE_ECHO_CANCELLING, false),
                 this.integerSpec(PROP_PROTOCOL_COMPATIBLE, PropertyTranslationKeys.BASE_PROTOCOL_COMPATABLE, false),
-                this.integerSpec(PROP_EXTENDED_LOGGING, PropertyTranslationKeys.BASE_EXTENDED_LOGGING, false),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.BASE_EXTENDED_LOGGING, false),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.BASE_SERIALNUMBER, this.serialNumberIsRequired()),
                 ProtocolChannelMap.propertySpec(PROP_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP_DESCRIPTION).format()),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.BASE_PROFILE_INTERVAL, false),
@@ -301,14 +291,14 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "10000").trim()));
-            setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(PROP_RETRIES, 5));
+            setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim()));
+            setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(RETRIES.getName(), 5));
             roundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
             this.setSecurityLevelFrom(properties);
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             echoCancelling = properties.getTypedProperty(PROP_ECHO_CANCELING, 0);
             protocolCompatible = properties.getTypedProperty(PROP_PROTOCOL_COMPATIBLE, 1);
-            extendedLogging = properties.getTypedProperty(PROP_EXTENDED_LOGGING, 0);
+            extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             channelMap = properties.getTypedProperty(PROP_CHANNEL_MAP);
             if (channelMap != null) {
@@ -329,7 +319,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
 
     protected void setSecurityLevelFrom(TypedProperties properties) {
-        securityLevel = Integer.parseInt(properties.getTypedProperty(PROP_SECURITY_LEVEL, "1"));
+        securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1"));
     }
 
     protected int defaultForcedDelayPropertyValue() {

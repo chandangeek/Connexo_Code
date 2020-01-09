@@ -2,13 +2,13 @@
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
@@ -21,6 +21,7 @@
         <jetty-server.version>9.4.15.v20190215</jetty-server.version>
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
+        <jackson.version>2.10.0</jackson.version>
         <json.version>20090211</json.version>
         <javadoc.excluded.package.names>
             com.energyict.mdc.device.alarms.security:com.energyict.mdc.device.command.security:com.energyict.mdc.device.config.security:com.energyict.mdc.device.data.security:${line.separator}
@@ -376,6 +377,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.offline</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.pluggable</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
@@ -548,8 +555,19 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-jsr310</artifactId>
-				<version>2.10.0</version>
+				<version>${jackson.version}</version>
 				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jdk8</artifactId>
+				<version>${jackson.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-guava</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javassist</groupId>
@@ -623,6 +641,21 @@
 				<version>${jetty-server.version}</version>
 				<scope>provided</scope>
 			</dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-api</artifactId>
+                <version>${jetty-server.version}</version>
+            </dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-util</artifactId>
+				<version>${jetty-server.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-util-ajax</artifactId>
+				<version>${jetty-server.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -683,6 +716,7 @@
         <module>com.energyict.mdc.masterdata</module>
         <module>com.energyict.mdc.masterdata.rest</module>
         <module>com.energyict.mdc.metering</module>
+        <module>com.energyict.mdc.offline</module>
         <module>com.energyict.mdc.pluggable</module>
         <module>com.energyict.mdc.pluggable.rest</module>
         <module>com.energyict.mdc.processes.keyrenewal</module>
@@ -707,5 +741,6 @@
         <module>com.energyict.mdc.test.api.rest</module>
         <module>com.energyict.mdc.demo.customtask</module>
         <module>com.energyict.mdc.webservices.demo</module>
+        <module>com.energyict.mdc.sap.soap.custom</module>
     </modules>
 </project>

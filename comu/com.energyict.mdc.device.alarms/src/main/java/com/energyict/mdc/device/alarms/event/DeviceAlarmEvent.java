@@ -31,6 +31,7 @@ import com.energyict.mdc.device.alarms.impl.event.EventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.DeviceService;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.google.inject.Injector;
 
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate.DEVICE_IN_GROUP;
 
+@ProviderType
 public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     protected static final Logger LOGGER = Logger.getLogger(DeviceAlarmEvent.class.getName());
 
@@ -76,7 +78,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private static final String COMMA_SEPARATOR = ",";
     private static final String SEMI_COLON_SEPARATOR = ";";
 
-    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,  DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
+    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
         this.deviceAlarmService = deviceAlarmService;
         this.issueService = issueService;
         this.meteringService = meteringService;
@@ -148,13 +150,22 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
             return false;
         }
         List<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
+        List<String> deviceCodes = getDeviceCodes(triggeringEndDeviceEventTypes);
         if (isAllEventTypesList(inputTriggeringEventTypeList)) {
             return getLoggedEvents(relativePeriod.get()).size() >= eventCountThreshold;
-        } else if (getMatchingEventOccurenceCount(inputTriggeringEventTypeList, Collections.singletonList(this.getEventTypeMrid())) == 0) {
+        } else if (!matches(inputTriggeringEventTypeList, deviceCodes)) {
             return false;
         }
-        return getTotalOccurenceCount(getLoggedEvents(relativePeriod.get()), getEndDeviceEventTypes(triggeringEndDeviceEventTypes), getDeviceCodes(triggeringEndDeviceEventTypes)) >= eventCountThreshold;
+        return getTotalOccurrenceCount(getLoggedEvents(relativePeriod.get()), inputTriggeringEventTypeList, deviceCodes) >= eventCountThreshold;
     }
+
+    private boolean matches(List<String> inputTriggeringEventTypeList, List<String> deviceCodes) {
+        return getEventTypeMrid().equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())
+                ? deviceCodes.contains(this.getDeviceCode())
+                : getMatchingEventOccurenceCount(inputTriggeringEventTypeList, Collections.singletonList(getEventTypeMrid())) != 0;
+    }
+
+    public abstract String getDeviceCode();
 
     public boolean logOnSameAlarm(String raiseEventProps) {
         List<String> values = parseRawInputToList(raiseEventProps, COLON_SEPARATOR);
@@ -206,7 +217,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 .map(Optional::get).anyMatch(group -> group.isMember(endDevice.get(), Instant.now()));
     }
 
-    private void setCreationRule(int ruleId){
+    private void setCreationRule(int ruleId) {
         this.ruleId = ruleId;
     }
 
@@ -233,7 +244,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private int getTotalOccurenceCount(List<EndDeviceEventRecord> loggedEvents, List<String> triggeringEvents, List<String> deviceCodes) {
+    private int getTotalOccurrenceCount(List<EndDeviceEventRecord> loggedEvents, List<String> triggeringEvents, List<String> deviceCodes) {
         return getMatchingEventOccurenceCount(triggeringEvents, loggedEvents.stream()
                 .map(EndDeviceEventRecord::getEventTypeCode)
                 .filter(eventTypeMrid -> !eventTypeMrid.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode()))
@@ -336,10 +347,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     public Optional<? extends OpenIssue> findExistingIssue() {
         DeviceAlarmFilter filter = new DeviceAlarmFilter();
         Optional<CreationRule> rule = issueService.getIssueCreationService().findCreationRuleById(ruleId);
-        if(rule.isPresent()){
+        if (rule.isPresent()) {
             filter.setRule(rule.get());
             getEndDevice().ifPresent(filter::setDevice);
-            new ArrayList<String>(){{
+            new ArrayList<String>() {{
                 add(IssueStatus.OPEN);
                 add(IssueStatus.IN_PROGRESS);
                 add(IssueStatus.SNOOZED);

@@ -15,6 +15,7 @@ import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ComTaskCountInfo;
@@ -88,7 +89,13 @@ public class DeviceConnectionTaskInfoFactory {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {
                 TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
-                info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
+                if(scheduledConnectionTask.getTaskStatus().equals(TaskStatus.OnHold) && scheduledConnectionTask.getStatus().
+                        equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)) {
+                    info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),TranslationKeys.ACTIVE.getDefaultFormat());
+                } else {
+                    info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(),
+                            thesaurus.getFormat(taskStatusTranslationKey).format());
+                }
             }
             info.connectionStrategyInfo=new ConnectionStrategyInfo();
             info.connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();

@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -142,6 +141,26 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
 
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
+    },
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION(5009, "Upload firmware with version, KDL, hashcode and activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation),
+                    this.stringSpecWithDefaultAndOtherValues(service, firmwareUpdateImageTypeAttributeName,firmwareUpdateImageTypeAttributeNameDefaultTranslation,
+                            FirmwareImageType.ApplicationImage.getDescription(),
+                            FirmwareImageType.BootloaderImage.getDescription(),
+                            FirmwareImageType.MetrologyImage.getDescription(),
+                            FirmwareImageType.LanguageTableImage.getDescription()),
+                    this.stringSpec(service, firmwareUpdateKDLAttributeName, firmwareUpdateKDLAttributeNameDefaultTranslation),
+                    this.stringSpec(service, firmwareUpdateHashAttributeName, firmwareUpdateHashAttributeNameDefaultTranslation)
+            );
+        }
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
@@ -611,7 +630,22 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
             return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
         }
-    };
+    },
+    //from eiserver 8.11
+    MBUS_ESMR5_FIRMWARE_UPGRADE(5038, "MBus ESMR5 Firmware Upgrade") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+        }
+    },;
 
     private final long id;
     private final String defaultNameTranslation;

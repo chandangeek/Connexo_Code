@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -15,14 +16,20 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -33,23 +40,24 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 
 public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
     private final Thesaurus thesaurus;
-    private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
     private final Clock clock;
     private final OrmService ormService;
     private final WebServiceActivator webServiceActivator;
+    private final DeviceService deviceService;
+
 
     @Inject
     public AbstractCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                         Clock clock, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService, WebServiceActivator webServiceActivator) {
+                                         Clock clock, OrmService ormService, WebServiceActivator webServiceActivator, DeviceService deviceService) {
         this.thesaurus = webServiceActivator.getThesaurus();
-        this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.clock = clock;
         this.ormService = ormService;
         this.webServiceActivator = webServiceActivator;
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -61,9 +69,25 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         return thesaurus;
     }
 
-    void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
+    void handleRequestMessage(UtilitiesDeviceCreateRequestMessage requestMessage) {
+        SetMultimap<String, String> values = HashMultimap.create();
+        requestMessage.getUtilitiesDeviceCreateMessages().forEach(message -> {
+            values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), message.getSerialId());
+            values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getDeviceId());
+        });
+
+        saveRelatedAttributes(values);
+
+        if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
+            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                    UtilitiesDeviceCreateConfirmation.NAME);
+        }
+        createServiceCallAndTransition(requestMessage);
+    }
+
+    private void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
         if (message.isValid()) {
-            if (hasUtilDeviceRequestServiceCall(message.getRequestID())) {
+            if (hasUtilDeviceRequestServiceCall(message.getRequestID(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST).ifPresent(serviceCallType -> {
@@ -75,7 +99,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         }
     }
 
-    boolean isAnyActiveEndpoint(String name) {
+    private boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
                 .getEndPointConfigurationsForWebService(name)
                 .stream()
@@ -86,6 +110,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         MasterUtilitiesDeviceCreateRequestDomainExtension masterUtilitiesDeviceCreateRequestDomainExtension =
                 new MasterUtilitiesDeviceCreateRequestDomainExtension();
         masterUtilitiesDeviceCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+        masterUtilitiesDeviceCreateRequestDomainExtension.setUuid(requestMessage.getUuid());
         masterUtilitiesDeviceCreateRequestDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
@@ -107,20 +132,24 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         }
     }
 
-    private boolean hasUtilDeviceRequestServiceCall(String id) {
+    private boolean hasUtilDeviceRequestServiceCall(String id, String uuid) {
         Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceCreateRequestCustomPropertySet.MODEL_NAME);
-        if (dataModel.isPresent()) {
-            return dataModel.get().stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
-                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+        if (id != null) {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
+                    .orElse(false);
+        } else {
+            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
+                    .orElse(false);
         }
-        return false;
     }
 
     private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
                 UtilitiesDeviceCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -139,6 +168,8 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_CREATE_REQUEST);
 
         UtilitiesDeviceCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceCreateRequestDomainExtension();
+        childDomainExtension.setRequestId(message.getRequestId());
+        childDomainExtension.setUuid(message.getUuid());
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setMaterialId(message.getMaterialId());
@@ -150,7 +181,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
-        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
+        deviceService.findDeviceByName(message.getSerialId()).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
     }
 }

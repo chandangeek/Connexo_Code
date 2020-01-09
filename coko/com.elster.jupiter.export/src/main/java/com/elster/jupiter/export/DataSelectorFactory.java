@@ -15,7 +15,6 @@ import java.util.logging.Logger;
 
 @ConsumerType
 public interface DataSelectorFactory extends HasDynamicProperties, HasName {
-
     DataSelector createDataSelector(Map<String, Object> properties, Logger logger);
 
     void validateProperties(List<DataExportProperty> properties);

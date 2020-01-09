@@ -10,6 +10,10 @@
 
 package com.energyict.cbo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,8 +59,13 @@ public class Unit implements java.io.Serializable {
         }
     }
 
+    @XmlAttribute
     private BaseUnit baseUnit;
+    @XmlAttribute
     private int scale;
+
+    public Unit() {
+    }
 
     private Unit(BaseUnit baseUnit, int scale) {
         this.baseUnit = baseUnit;
@@ -146,6 +155,8 @@ public class Unit implements java.io.Serializable {
      *
      * @return the receiver's <CODE>BaseUnit</CODE> code
      */
+    @JsonIgnore
+    @XmlTransient
     public int getDlmsCode() {
         return baseUnit.getDlmsCode();
     }
@@ -158,6 +169,8 @@ public class Unit implements java.io.Serializable {
      *
      * @return true if the receiver is a "volume" unit.
      */
+    @JsonIgnore
+    @XmlTransient
     public boolean isVolumeUnit() {
         return baseUnit.isVolumeUnit();
     }
@@ -182,6 +195,8 @@ public class Unit implements java.io.Serializable {
      *
      * @return the corresponding "volume" unit or null
      */
+    @JsonIgnore
+    @XmlTransient
     public Unit getVolumeUnit() {
         BaseUnit volumeBase = baseUnit.getVolumeUnit();
         if (volumeBase == null) {
@@ -197,6 +212,8 @@ public class Unit implements java.io.Serializable {
      *
      * @return the corresponding "flow" unit or null
      */
+    @JsonIgnore
+    @XmlTransient
     public Unit getFlowUnit() {
         BaseUnit flowBase = baseUnit.getFlowUnit();
         if (flowBase == null) {
@@ -316,6 +333,8 @@ public class Unit implements java.io.Serializable {
      *
      * @return true if the unit is undefined, false otherwise.
      */
+    @JsonIgnore
+    @XmlTransient
     public boolean isUndefined() {
         return baseUnit.isUndefined();
     }
@@ -326,6 +345,8 @@ public class Unit implements java.io.Serializable {
      * @return true if the unit is undefined and has scale zero , false otherwise.
      */
 
+    @JsonIgnore
+    @XmlTransient
     public boolean isNeutral() {
         return isUndefined() && (getScale() == 0);
     }

@@ -235,8 +235,6 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         // MBus setup
         if (supportMBus) {
             supportedMessages.add(this.get(MBusSetupDeviceMessage.Commission_With_Channel));
-            supportedMessages.add(this.get(MBusSetupDeviceMessage.MBusClientRemoteCommission));
-            supportedMessages.add(this.get(MBusSetupDeviceMessage.ChangeMBusAttributes));
             supportedMessages.add(this.get(MBusSetupDeviceMessage.Reset_MBus_Client));
         }
 

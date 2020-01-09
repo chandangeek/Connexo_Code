@@ -214,10 +214,10 @@ public class CrlRequestTaskResource {
     private void createCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
         SecurityAccessor securityAccessor = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
-                .filter(sa -> sa.getKeyAccessorType().getId() == (Integer) info.securityAccessor.id)
-                .filter(sa -> sa.getActualValue().isPresent() &&
-                        sa.getActualValue().get() instanceof CertificateWrapper &&
-                        ((CertificateWrapper) sa.getActualValue().get()).getCertificate().isPresent())
+                .filter(sa -> sa.getKeyAccessorTypeReference().getId() == (Integer) info.securityAccessor.id)
+                .filter(sa -> sa.getActualPassphraseWrapperReference().isPresent() &&
+                        sa.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) sa.getActualPassphraseWrapperReference().get()).getCertificate().isPresent())
                 .findAny()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.id));
         String caName = info.caName;
@@ -247,10 +247,10 @@ public class CrlRequestTaskResource {
     private void updateCrlRequestTaskProperties(CrlRequestTaskPropertyInfo info, RecurrentTask recurrentTask) {
         SecurityAccessor securityAccessor = securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
-                .filter(sa -> sa.getKeyAccessorType().getId() == (Integer) info.securityAccessor.id)
-                .filter(sa -> sa.getActualValue().isPresent() &&
-                        sa.getActualValue().get() instanceof CertificateWrapper &&
-                        ((CertificateWrapper) sa.getActualValue().get()).getCertificate().isPresent())
+                .filter(sa -> sa.getKeyAccessorTypeReference().getId() == (Integer) info.securityAccessor.id)
+                .filter(sa -> sa.getActualPassphraseWrapperReference().isPresent() &&
+                        sa.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) sa.getActualPassphraseWrapperReference().get()).getCertificate().isPresent())
                 .findAny()
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KEY_ACCESSOR, info.securityAccessor.id));
         String caName = info.caName;
@@ -278,10 +278,10 @@ public class CrlRequestTaskResource {
     private List<IdWithNameInfo> getSecurityAccessors() {
         return securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.FILE_OPERATIONS)
                 .stream()
-                .filter(securityAccessor -> securityAccessor.getActualValue().isPresent() &&
-                        securityAccessor.getActualValue().get() instanceof CertificateWrapper &&
-                        ((CertificateWrapper) securityAccessor.getActualValue().get()).getCertificate().isPresent())
-                .map(SecurityAccessor::getKeyAccessorType)
+                .filter(securityAccessor -> securityAccessor.getActualPassphraseWrapperReference().isPresent() &&
+                        securityAccessor.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper &&
+                        ((CertificateWrapper) securityAccessor.getActualPassphraseWrapperReference().get()).getCertificate().isPresent())
+                .map(SecurityAccessor::getKeyAccessorTypeReference)
                 .map(securityAccessorType -> new IdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName()))
                 .collect(Collectors.toList());
     }

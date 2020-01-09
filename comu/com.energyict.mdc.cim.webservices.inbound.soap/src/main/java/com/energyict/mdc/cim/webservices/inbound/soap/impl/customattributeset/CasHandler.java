@@ -13,12 +13,14 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.FaultSituationHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.LoggerUtils;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.common.device.data.Device;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import javax.inject.Inject;
+import javax.validation.ValidationException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ public class CasHandler {
     private final LoggerUtils loggerUtils;
     private final MeterConfigFaultMessageFactory faultMessageFactory;
     private Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
     public CasHandler(CustomPropertySetService customPropertySetService, Thesaurus thesaurus,
@@ -40,6 +43,7 @@ public class CasHandler {
         this.clock = clock;
         this.faultMessageFactory = faultMessageFactory;
         this.loggerUtils = getLoggerUtils(thesaurus, faultMessageFactory);
+        this.thesaurus = thesaurus;
     }
 
     /**
@@ -113,7 +117,27 @@ public class CasHandler {
             }
         } catch (FaultMessage ex) {
             faultSituationHandler.logSevere(device, ex);
-        } catch (Exception ex) {
+        } catch (ValidationException ex) {
+            if(ex.getMessage().contains(thesaurus.getFormat(TranslationKeys.CARD_FORMAT).format().toLowerCase())){
+                faultSituationHandler.logException(device, ex,
+                        MessageSeeds.WRONG_ENUM_WALUE_FOR_ATTRIBUTE, thesaurus.getFormat(TranslationKeys.CARD_FORMAT).format(),
+                        thesaurus.getFormat(TranslationKeys.CARD_FORMAT_FULL_SIZE).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.CARD_FORMAT_MINI).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.CARD_FORMAT_MICRO).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.CARD_FORMAT_NANO).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.CARD_FORMAT_EMBEDDED).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.CARD_FORMAT_SW).format());
+            }
+            if(ex.getMessage().contains(thesaurus.getFormat(TranslationKeys.STATUS).format().toLowerCase())){
+                faultSituationHandler.logException(device, ex,
+                        MessageSeeds.WRONG_ENUM_WALUE_FOR_ATTRIBUTE, thesaurus.getFormat(TranslationKeys.STATUS).format(),
+                        thesaurus.getFormat(TranslationKeys.STATUS_ACTIVE).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.STATUS_DEMOLISHED).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.STATUS_INACTIVE).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.STATUS_PRE_ACTIVE).format()+", "+
+                        thesaurus.getFormat(TranslationKeys.STATUS_TEST).format());
+            }
+        } catch (Exception ex){
             faultSituationHandler.logException(device, ex,
                     MessageSeeds.CANT_ASSIGN_VALUES_FOR_CUSTOM_ATTRIBUTE_SET, newCasInfo.getId());
         }

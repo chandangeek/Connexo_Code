@@ -152,6 +152,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'dynamic-radiogroup',
                 itemId: 'firmware-management-option',
                 name: 'managementOption',
+                blankText: Uni.I18n.translate('general.radioGroup.blankText', 'FWC', 'You must select one item in this group'),
                 fieldLabel: Uni.I18n.translate('firmware.campaigns.firmwareManagementOption', 'FWC', 'Firmware management option'),
                 required: true,
                 allowBlank: false,
@@ -398,7 +399,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         me.callParent(arguments);
 
         Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
-           item.setTooltip('Restore to default empty value');
+           item.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'FWC', 'Restore to default empty value'));
         })
     },
 

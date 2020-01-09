@@ -7,12 +7,14 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned64;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.LTEModemSetup;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -37,6 +39,7 @@ import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFa
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEPingAddress;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,13 +49,18 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final ObisCode LTE_IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.5.44.0.0.255");
 
-    public static final String MBUS_DAILY_BILLING_OBISCODE = "0.x.99.2.0.255";
-    public static final String MBUS_MONTHLY_BILLING_OBISCODE = "0.x.98.1.0.255";
-    public static final String MBUS_LOAD_PROFILE_PERIOD_1 = "0.x.24.3.0.255";
-    public static final ObisCode MBUS_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
+    private static final String MBUS_DAILY_BILLING_OBISCODE = "0.x.99.2.0.255";
+    private static final String MBUS_MONTHLY_BILLING_OBISCODE = "0.x.98.1.0.255";
+    private static final String MBUS_LOAD_PROFILE_PERIOD_1 = "0.x.24.3.0.255";
+    private static final ObisCode MBUS_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
 
-    public ESMR50MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    private final DeviceMasterDataExtractor deviceMasterDataExtractor;
+
+    public ESMR50MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
+                                 IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor,
+                                 DeviceMasterDataExtractor deviceMasterDataExtractor) {
         super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor);
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
     //TODO verify all ESMR50 messages
     @Override
@@ -226,7 +234,8 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
 
     @Override
     protected ESMR50MbusMessageExecutor getMbusMessageExecutor() {
-        return new ESMR50MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
+        return new ESMR50MbusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory(),
+                this.deviceMasterDataExtractor);
     }
 
     private String getStringFromBitString(BitString bitString) {
@@ -263,7 +272,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
 
     }
 
-    public void setLTEFWLocation(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void setLTEFWLocation(OfflineDeviceMessage pendingMessage) throws IOException {
         byte[] fileAsOctetString = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.LTEModemFirmwareUgradeDownloadFileAttributeName), "");
         getProtocol().journal(" > file content (hex): " + ProtocolTools.getHexStringFromBytes(fileAsOctetString));
         if(fileAsOctetString != null) {
@@ -277,19 +286,19 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         }
     }
 
-    public void setLTEFWDownloadTime(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void setLTEFWDownloadTime(OfflineDeviceMessage pendingMessage) throws IOException {
         int lteFWDownloadTime = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.LTEModemFirmwareUgradeDownloadTimeoutAttributeName));
         getProtocol().journal("Setting LTE Firmware download time to " + lteFWDownloadTime + " seconds.");
         getCosemObjectFactory().getData(ESMR50RegisterFactory.LTE_FW_DOWNLOAD_TIME).setValueAttr(new Unsigned32(lteFWDownloadTime));
     }
 
-    public void doActivateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void doActivateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException {
         getProtocol().journal("Activating LTE Firmware image.");
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer(LTE_IMAGE_TRANSFER_OBIS);
         imageTransfer.imageActivation();
     }
 
-    public void doInitiateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException {
+    private void doInitiateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException {
         getProtocol().journal("Initiating LTE Firmware image transfer.");
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer(LTE_IMAGE_TRANSFER_OBIS);
         imageTransfer.initializeFOTA();
@@ -305,9 +314,10 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         return collectedMessage;
     }
 
+    @Override
     protected void resetAlarmRegister() throws IOException {
         getProtocol().journal("Handling message Reset Alarm register.");
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(-1L)); //TODO Value was originally Unsigned64, must create Unsigned64 data type
+        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned64(BigInteger.valueOf(-1L)));
     }
 
     /**

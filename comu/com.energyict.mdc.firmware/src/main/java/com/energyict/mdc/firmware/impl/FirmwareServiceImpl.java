@@ -264,6 +264,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .map(this.deviceMessageSpecificationService::getProtocolSupportedFirmwareOptionFor)
                         .filter(Optional::isPresent)
@@ -316,6 +317,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             return deviceProtocol.getSupportedMessages()
                     .stream()
                     .map(DeviceMessageSpec::getId)
+                    .filter(id -> DeviceMessageId.find(id).isPresent())
                     .map(DeviceMessageId::from)
                     .anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(dmid));
         }
@@ -329,6 +331,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             return deviceProtocol.getSupportedMessages()
                     .stream()
                     .map(DeviceMessageSpec::getId)
+                    .filter(id -> DeviceMessageId.find(id).isPresent())
                     .map(DeviceMessageId::from)
                     .anyMatch(dmid -> this.deviceMessageSpecificationService.canResumeFirmwareUpload(dmid));
         }
@@ -370,6 +373,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList())
                 .stream()
@@ -598,8 +602,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private void cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
         if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
             fwComTaskExecution.schedule(null);
+            fwComTaskExecution.updateNextExecutionTimestamp();
         }
-        fwComTaskExecution.updateNextExecutionTimestamp();
         cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
     }
 
@@ -657,8 +661,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public void validateFirmwareFileSignature(DeviceType deviceType, SecurityAccessor securityAccessor, File firmwareFile) {
         Optional<DeviceProtocolPluggableClass> protocol = deviceType.getDeviceProtocolPluggableClass();
-        if (protocol.isPresent() && securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
-            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
+        if (protocol.isPresent() && securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper) {
+            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualPassphraseWrapperReference().get();
             if (certificateWrapper.getCertificate().isPresent()) {
                 X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
                 PublicKey publicKey = x509Certificate.getPublicKey();

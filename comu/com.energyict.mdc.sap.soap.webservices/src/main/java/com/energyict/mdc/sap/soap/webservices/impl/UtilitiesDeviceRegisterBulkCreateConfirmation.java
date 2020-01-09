@@ -6,7 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationMessage;
 
 public interface UtilitiesDeviceRegisterBulkCreateConfirmation {
-    String NAME = "SAP UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_Out";
+    String NAME = "SAP SmartMeterRegisterBulkCreateConfirmation";
 
 
     /**

@@ -5,11 +5,14 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.ObjectXmlMarshallAdapter;
 import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.common.pluggable.PluggableClassUsageProperty;
-
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 
 /**
@@ -25,6 +28,10 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
     private Object value;
     private Range<Instant> activePeriod;
     private boolean inherited;
+
+    public PluggableClassUsagePropertyImpl() {
+        super();
+    }
 
     public PluggableClassUsagePropertyImpl (String name) {
         super();
@@ -44,16 +51,20 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
     }
 
     @Override
+    @XmlTransient
     public PluggableClass getPluggableClass () {
         return this.pluggableClass;
     }
 
     @Override
+    @XmlAttribute
     public String getName () {
         return this.name;
     }
 
     @Override
+    @XmlAttribute
+    @XmlJavaTypeAdapter(ObjectXmlMarshallAdapter.class)
     public Object getValue () {
         return this.value;
     }
@@ -63,11 +74,13 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
     }
 
     @Override
+    @XmlAttribute
     public boolean isInherited () {
         return inherited;
     }
 
     @Override
+    @XmlTransient
     public Range<Instant> getActivePeriod() {
         return this.activePeriod;
     }

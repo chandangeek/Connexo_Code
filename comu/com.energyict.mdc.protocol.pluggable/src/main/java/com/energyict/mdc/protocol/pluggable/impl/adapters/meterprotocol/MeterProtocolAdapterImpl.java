@@ -77,6 +77,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.exceptions.CommunicationException;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -633,6 +634,10 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         try {
             Optional<BreakerStatus> breakerStatus = this.getMeterProtocol().getBreakerStatus();
             breakerStatus.ifPresent(breakerStatusCollectedData::setBreakerStatus);
+            if (!breakerStatus.isPresent()) {
+                final Optional<BreakerStatus> breakerStatusUpl = this.getUplMeterProtocol().getBreakerStatus();
+                breakerStatusUpl.ifPresent(breakerStatusCollectedData::setBreakerStatus);
+            }
         } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
@@ -655,4 +660,14 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         return collectedCalendar;
     }
 
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
+    }
 }

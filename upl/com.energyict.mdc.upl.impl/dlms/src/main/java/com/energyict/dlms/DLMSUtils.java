@@ -7,7 +7,6 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
@@ -57,7 +56,7 @@ public final class DLMSUtils {
             encodedLength[0] = (byte) length;
         } else {
             int bytes = 0;
-            while (length > (1 << (bytes * 8))) {
+            while (length >= (1 << (bytes * 8))) {
                 bytes++;
             }
             encodedLength = new byte[bytes + 1];
@@ -212,9 +211,8 @@ public final class DLMSUtils {
                 return (exponent > 0) ? ((long) (((Math.pow(-1, signBit)) * Math.pow(2, exponent - 127)) * fraction)) : 0;
 
             case LONG64:
-                return ProtocolUtils.getLong(byteBuffer, iOffset + 1);
             case LONG64_UNSIGNED:
-                return getUnsignedIntFromBytes(byteBuffer, iOffset + 1, Integer64.LENGTH);
+                return ProtocolUtils.getLong(byteBuffer, iOffset + 1);
 
             default:
                 throw new ProtocolException("parseValue2long() error, unknown type " + byteBuffer[iOffset]);

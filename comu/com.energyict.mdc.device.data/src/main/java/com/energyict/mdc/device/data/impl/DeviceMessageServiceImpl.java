@@ -171,6 +171,7 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
 
                 Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements()
                         .stream()
+                        .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                         .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
                         .findFirst();
                 if (deviceMessageEnablementOptional.isPresent()) {

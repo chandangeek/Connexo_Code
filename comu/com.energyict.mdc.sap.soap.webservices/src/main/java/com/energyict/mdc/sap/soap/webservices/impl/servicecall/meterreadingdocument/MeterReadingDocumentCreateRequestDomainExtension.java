@@ -37,7 +37,11 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         CHANNEL_ID("channelId", "channelId"),
         DATA_SOURCE("dataSource", "dataSource"),
         FUTURE_CASE("futureCase", "futureCase"),
-        PROCESSING_DATE("processingDate", "processingDate");
+        PROCESSING_DATE("processingDate", "processingDate"),
+        CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
+
+        REFERENCE_ID("referenceID", "REFERENCE_ID"),
+        REFERENCE_UUID("referenceUuid", "REFERENCE_UUID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -88,6 +92,14 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean futureCase;
     private Instant processingDate;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String cancelledBySap;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String referenceID;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String referenceUuid;
+
 
     public MeterReadingDocumentCreateRequestDomainExtension() {
         super();
@@ -181,6 +193,43 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         this.processingDate = processingDate;
     }
 
+    public String getCancelledBySap() {
+        return cancelledBySap;
+    }
+
+    public void setCancelledBySap(String cancelledBySap) {
+        this.cancelledBySap = cancelledBySap;
+    }
+
+    public boolean isCancelledBySap() {
+        return cancelledBySap != null && cancelledBySap.toLowerCase().equals("yes");
+    }
+
+    public void setCancelledBySap(boolean isCancelledBySap) {
+        if(isCancelledBySap){
+            setCancelledBySap("Yes");
+        }else{
+            setCancelledBySap("No");
+        }
+    }
+
+    public String getReferenceID() {
+        return referenceID;
+    }
+
+    public void setReferenceID(String referenceID) {
+        this.referenceID = referenceID;
+    }
+
+    public String getReferenceUuid() {
+        return referenceUuid;
+    }
+
+    public void setReferenceUuid(String referenceUuid) {
+        this.referenceUuid = referenceUuid;
+    }
+
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -196,6 +245,9 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         this.setProcessingDate((Instant) propertyValues.getProperty(FieldNames.PROCESSING_DATE.javaName()));
         this.setDataSource((String) propertyValues.getProperty(FieldNames.DATA_SOURCE.javaName()));
         this.setChannelId((BigDecimal) propertyValues.getProperty(FieldNames.CHANNEL_ID.javaName()));
+        this.setCancelledBySap((String) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
+        this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
+        this.setReferenceUuid((String) propertyValues.getProperty(FieldNames.REFERENCE_UUID.javaName()));
     }
 
     @Override
@@ -211,9 +263,16 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         propertySetValues.setProperty(FieldNames.PROCESSING_DATE.javaName(), this.getProcessingDate());
         propertySetValues.setProperty(FieldNames.DATA_SOURCE.javaName(), this.getDataSource());
         propertySetValues.setProperty(FieldNames.CHANNEL_ID.javaName(), this.getChannelId());
+        propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.getCancelledBySap());
+        propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());
+        propertySetValues.setProperty(FieldNames.REFERENCE_UUID.javaName(), this.getReferenceUuid());
     }
 
     @Override
     public void validateDelete() {
+    }
+
+    public ServiceCall getServiceCall(){
+        return serviceCall.get();
     }
 }

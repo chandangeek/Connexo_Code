@@ -24,7 +24,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -130,7 +130,7 @@ public class CustomPropertySetServiceImplIT {
                 new NlsModule(),
                 new PubSubModule(),
                 new TransactionModule(),
-                new OrmModule(),
+                new H2OrmModule(),
                 new BasicPropertiesModule(),
                 new CustomPropertySetsModule(),
                 new UtilModule(this.clock),

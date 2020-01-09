@@ -73,7 +73,7 @@ import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300Configurat
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300Properties;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.HS3300RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3NodeState;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;

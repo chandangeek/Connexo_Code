@@ -13,7 +13,10 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.engine.config.ComServerAliveStatus;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -30,7 +33,7 @@ public enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar().map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
             table.column("ACTIVE").varChar(1).notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
-            Column obsoleteColumn = table.column("OBSOLETE_DATE").number().map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            Column obsoleteColumn = table.column("OBSOLETE_DATE").number().map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).conversion(NUMBER2INSTANT).add();
             table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.Fields.COMPORTTYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".timeUnitCode").add();
@@ -71,7 +74,7 @@ public enum TableSpecs {
             table.column("QUERYAPIPORT").number().conversion(ColumnConversion.NUMBER2INT).map("queryApiPort").since(version(10, 2)).installValue("0").add();
             table.column("EVENTREGISTRATIONPORT").number().conversion(ColumnConversion.NUMBER2INT).map("eventRegistrationPort").since(version(10, 2)).installValue("8888").add();
 
-            Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("obsoleteDate").add();
+            Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(NUMBER2INSTANT).map("obsoleteDate").add();
             Column onlineComServer = table.column("ONLINESERVERID").number().conversion(ColumnConversion.NUMBER2INT).add(); // DO NOT MAP
             table.column("QUEUESIZE").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskQueueSize").add();
             table.column("THREADPRIORITY").number().conversion(ColumnConversion.NUMBER2INT).map("storeTaskThreadPriority").add();
@@ -97,7 +100,7 @@ public enum TableSpecs {
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
             table.column("ACTIVE").varChar(1).notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("obsoleteDate").add();
+            Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(NUMBER2INSTANT).map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("type").add();
             // no mapping required for comPortPoolMembers
             // IPBasedInboundComPortImpl & OutboundComPortImpl
@@ -189,6 +192,24 @@ public enum TableSpecs {
                     .composition()
                     .add();
             table.primaryKey("PK_MDC_COMPORTPOOLPROPS").on(comPortPool, name).add();
+        }
+    },
+    MDC_COMALIVE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ComServerAliveStatus> table = dataModel.addTable(name(), ComServerAliveStatus.class).since(Version.version(10,7, 1));
+            table.map(ComServerAliveStatusImpl.class);
+            Column comServerColumn = table.column("COMSERVERID").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("ACTIVETIME").number().notNull().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.LAST_ACTIVE_TIME.getName()).add();
+            table.column("BLOCKED_SINCE").number().conversion(NUMBER2INSTANT).map(ComServerAliveStatusImpl.FieldNames.BLOCKED_SINCE.getName()).add();
+            table.column("BLOCK_TIME").number().conversion(NUMBER2INT).map(ComServerAliveStatusImpl.FieldNames.BLOCK_TIME.getName()).add();
+            table.column("UPDATE_FREQ").number().conversion(NUMBER2INT).notNull().map(ComServerAliveStatusImpl.FieldNames.UPDATE_FREQ.getName()).add();
+            table.primaryKey("PK_MDC_COMALIVE_COMSERVER").on(comServerColumn).add();
+            table.foreignKey("FK_MDC_COMALIVE_COMSERVER")
+                    .map("comServer")
+                    .on(comServerColumn)
+                    .references(ComServer.class)
+                    .add();
         }
     };
 

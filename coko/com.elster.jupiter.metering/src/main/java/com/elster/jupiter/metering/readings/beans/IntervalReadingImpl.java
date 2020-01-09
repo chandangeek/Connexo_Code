@@ -7,13 +7,21 @@ package com.elster.jupiter.metering.readings.beans;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+@XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public class IntervalReadingImpl extends BaseReadingImpl implements IntervalReading {
 
     private IntervalReadingImpl(Instant timeStamp, BigDecimal value) {
@@ -41,5 +49,14 @@ public class IntervalReadingImpl extends BaseReadingImpl implements IntervalRead
      */
     public static IntervalReadingImpl of(Instant timeStamp, BigDecimal value) {
         return of(timeStamp, value, Collections.<ReadingQuality>emptyList());
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

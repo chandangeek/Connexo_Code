@@ -190,7 +190,8 @@ public class ServiceCallImpl implements ServiceCall {
         return this.targetObject.getOptional();
     }
 
-    void setTargetObject(Object targetObject) {
+    @Override
+    public void setTargetObject(Object targetObject) {
         this.targetObject = dataModel.asRefAny(targetObject);
     }
 
@@ -357,5 +358,15 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public boolean canTransitionTo(DefaultState targetState) {
         return getType().getServiceCallLifeCycle().canTransition(getState(), targetState);
+    }
+
+    @Override
+    public void transitionWithLockIfPossible(DefaultState state) {
+        if (canTransitionTo(state)) {
+            ServiceCall serviceCall = serviceCallService.lockServiceCall(this.getId()).get();
+            if (serviceCall.canTransitionTo(state)) {
+                serviceCall.requestTransition(state);
+            }
+        }
     }
 }

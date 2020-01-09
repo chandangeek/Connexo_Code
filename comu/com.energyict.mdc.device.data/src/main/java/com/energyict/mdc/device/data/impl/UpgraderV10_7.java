@@ -134,4 +134,5 @@ public class UpgraderV10_7 implements Upgrader {
             throw new UnderlyingSQLFailedException(e);
         }
     }
+
 }

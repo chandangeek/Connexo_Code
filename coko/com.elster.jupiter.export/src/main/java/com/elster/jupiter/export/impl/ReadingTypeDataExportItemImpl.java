@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
@@ -13,19 +14,24 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
 
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem {
@@ -36,10 +42,14 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     private long id;
     private Instant lastRun;
     private Instant lastExportedDate;
+    private Instant lastExportedPeriodEnd;
     private String readingTypeMRId;
     private RefAny readingContainer;
     private Reference<ReadingDataSelectorConfig> selector = ValueReference.absent();
     private boolean active = true;
+    @Size(min = 3, // 1 symbol per count + space + 1 symbol per unit
+            max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
+    private String readingInterval;
 
     private transient DataModel dataModel;
     private transient ReadingType readingType;
@@ -92,8 +102,20 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     }
 
     @Override
+    public Optional<Instant> getLastExportedPeriodEnd() {
+        return Optional.ofNullable(lastExportedPeriodEnd);
+    }
+
+    @Override
     public ReadingDataSelectorConfig getSelector() {
         return selector.orElseThrow(IllegalStateException::new);
+    }
+
+
+    @Override
+    public Optional<TimeDuration> getRequestedReadingInterval() {
+        return Optional.ofNullable(readingInterval)
+                .map(TimeDuration::new);
     }
 
     @Override
@@ -104,6 +126,16 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void setLastExportedDate(Instant lastExportedDate) {
         this.lastExportedDate = lastExportedDate;
+    }
+
+    @Override
+    public void setLastExportedPeriodEnd(Instant lastExportedPeriodEnd) {
+        this.lastExportedPeriodEnd = lastExportedPeriodEnd;
+    }
+
+    @Override
+    public void overrideReadingInterval(TimeDuration readingInterval) {
+        this.readingInterval = readingInterval.toString();
     }
 
     @Override
@@ -143,7 +175,18 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
 
     @Override
     public String getDescription() {
-        return getDomainObject().getName() + ":" + getReadingType().getFullAliasName();
+        ReadingContainer readingContainer = getReadingContainer();
+        String description;
+        if (readingContainer instanceof Meter) {
+            description = ((Meter) readingContainer).getName();
+        } else if (readingContainer instanceof MetrologyContractChannelsContainer) {
+            MetrologyContractChannelsContainer metrologyContractChannelsContainer = (MetrologyContractChannelsContainer) readingContainer;
+            description = metrologyContractChannelsContainer.getUsagePoint().get().getName()
+                    + ':' + metrologyContractChannelsContainer.getMetrologyContract().getMetrologyPurpose().getName();
+        } else {
+            throw new IllegalStateException("Unexpected domain object linked to export item");
+        }
+        return description + ":" + getReadingType().getFullAliasName();
     }
 
     @Override
@@ -161,5 +204,17 @@ public class ReadingTypeDataExportItemImpl implements ReadingTypeDataExportItem 
     @Override
     public void clearCachedReadingContainer() {
         readingContainer.clearCachedObject();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this
+                || obj instanceof ReadingTypeDataExportItemImpl
+                && ((ReadingTypeDataExportItemImpl) obj).id == id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

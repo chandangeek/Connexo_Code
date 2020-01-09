@@ -25,6 +25,7 @@ import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 
 class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerLogBookSpec {
@@ -56,6 +57,7 @@ class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerL
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.get();
     }

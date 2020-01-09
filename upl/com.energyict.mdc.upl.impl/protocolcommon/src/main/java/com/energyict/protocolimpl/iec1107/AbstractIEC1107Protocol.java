@@ -50,15 +50,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author Koen
@@ -185,14 +177,14 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHO_CANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDEDLOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDEDLOGGING),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
                 ProtocolChannelMap.propertySpec("ChannelMap", false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.BASE_CHANNEL_MAP_DESCRIPTION).format()),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
                 this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
                 this.integerSpec("Scaler", PropertyTranslationKeys.IEC1107_SCALER),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCEDDELAY),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE7E1));
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE7E1));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -219,7 +211,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             echoCancelling = properties.getTypedProperty("EchoCancelling", 0);
             iec1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
-            extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+            extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             if (properties.getTypedProperty("ChannelMap") != null) {
                 channelMap = new ChannelMap(((String) properties.getTypedProperty("ChannelMap")));
@@ -229,7 +221,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
             requestHeader = properties.getTypedProperty("RequestHeader", 0);
             scaler = properties.getTypedProperty("Scaler", 0);
             forcedDelay = properties.getTypedProperty("ForcedDelay", 300);
-            software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+            software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

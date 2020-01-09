@@ -81,7 +81,7 @@ public class StartProcessWebServiceIssueAction extends AbstractIssueAction {
         if (value != null) {
             JSONArray arr = null;
             try {
-                String jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                String jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000");
                 if (!Checks.is(jsonContent).empty()) {
                     arr = new JSONObject(jsonContent).getJSONArray("processDefinitionList");
                 }

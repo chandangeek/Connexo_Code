@@ -40,6 +40,7 @@ public final class ComTaskExecutionOrganizer {
     public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<ComTaskExecution> comTaskExecutions) {
         Map<Device, DeviceOrganizedComTaskExecution> result = new LinkedHashMap<>();
         Map<DeviceKey, List<ComTaskExecution>> tasksPerDevice = groupComTaskExecutionsByDevice(comTaskExecutions);
+        makeSureComTaskWithoutCommandsAreLast(tasksPerDevice);
         makeSureBasicCheckIsInBeginningOfExecutions(tasksPerDevice);
         Map<Key, List<ComTaskExecution>> tasksPerDeviceAndSecurity = groupComTaskExecutionsBySecuritySet(tasksPerDevice);
 
@@ -196,6 +197,18 @@ public final class ComTaskExecutionOrganizer {
     private void makeSureBasicCheckIsInBeginningOfExecutions(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
         for (List<ComTaskExecution> comTaskExecutions : comTaskExecutionGroupsPerDevice.values()) {
             comTaskExecutions.sort(BasicCheckTasks.FIRST);
+        }
+    }
+
+    private void makeSureComTaskWithoutCommandsAreLast(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
+        for (List<ComTaskExecution> comTaskExecutions : comTaskExecutionGroupsPerDevice.values()) {
+            int countComTaskExecutions = 0;
+            while(comTaskExecutions.size() > 1 && comTaskExecutions.get(0).getProtocolTasks().size() == 0 && countComTaskExecutions < comTaskExecutions.size()){
+                countComTaskExecutions++;
+                ComTaskExecution moveComTaskExecution = comTaskExecutions.get(0);
+                comTaskExecutions.remove(moveComTaskExecution);
+                comTaskExecutions.add(moveComTaskExecution);
+            }
         }
     }
 

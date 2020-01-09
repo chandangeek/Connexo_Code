@@ -322,7 +322,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         this.comTask = comTask.get('comTask');
         var records = [];
-        store.each(function (record) {
+        store && store.each(function (record) {
             if(record.data['status']== 'connectionTaskStatusInActive'){
                 records.push(record)
             };

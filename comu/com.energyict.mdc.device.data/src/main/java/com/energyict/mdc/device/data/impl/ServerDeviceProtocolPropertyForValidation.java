@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 
 /**
  * Server-side interface for validation purposes

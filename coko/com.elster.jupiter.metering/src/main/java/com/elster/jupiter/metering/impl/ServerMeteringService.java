@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,6 +18,7 @@ import com.elster.jupiter.util.time.DayMonthTime;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Adds behavior to {@link MeteringService} that is specific
@@ -59,4 +61,6 @@ public interface ServerMeteringService extends MeteringService {
     GasDayOptions createGasDayOptions(DayMonthTime yearStart);
 
     boolean isCalendarEffectiveForAnyUsagePoint(Calendar calendar);
+
+    Optional<ReadingType> getReadingTypeById(long id);
 }
