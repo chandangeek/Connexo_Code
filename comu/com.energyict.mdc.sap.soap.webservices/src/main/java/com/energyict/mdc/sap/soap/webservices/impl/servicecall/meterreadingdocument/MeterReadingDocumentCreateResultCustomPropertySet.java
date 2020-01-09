@@ -143,6 +143,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName(), TranslationKeys.EXTRA_DATA_SOURCE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .booleanSpec()
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.FUTURE_CASE.javaName(), TranslationKeys.FUTURE_CASE)
                         .describedAs(TranslationKeys.FUTURE_CASE)
@@ -317,6 +322,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE.javaName())
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.EXTRA_DATA_SOURCE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.FUTURE_CASE.databaseName())
                     .bool()
