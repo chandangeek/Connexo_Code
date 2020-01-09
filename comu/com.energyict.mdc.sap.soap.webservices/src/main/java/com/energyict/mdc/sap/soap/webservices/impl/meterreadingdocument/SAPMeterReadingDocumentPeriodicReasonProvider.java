@@ -72,7 +72,7 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     }
 
     @Override
-    public Optional<Pair<String, String>> getDataSourceInterval() {
+    public Optional<Pair<String, String>> getExtraDataSourceMacroAndMeasuringCodes() {
         return Optional.of(dataSourceInterval);
     }
 

@@ -156,13 +156,13 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
     private List<BaseReadingRecord> getReadings() {
         List<BaseReadingRecord> readings = getMeterReadingType()
                 .map(this::getReadings)
-                .orElse(new ArrayList<>());
+                .orElseGet(ArrayList::new);
 
         if (!isRegular() && readings.isEmpty() && getExtraMeterReadingType().isPresent()) {
             isExtraDataSource = true;
             readings = getExtraMeterReadingType()
                     .map(this::getExtraReadings)
-                    .orElse(new ArrayList<>());
+                    .orElseGet(ArrayList::new);
         }
         return readings;
     }

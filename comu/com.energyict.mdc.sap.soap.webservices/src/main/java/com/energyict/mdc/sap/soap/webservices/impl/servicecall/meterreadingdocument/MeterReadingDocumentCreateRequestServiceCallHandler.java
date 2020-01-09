@@ -103,7 +103,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 }
 
                 if (!channel.get().isRegular()) {
-                    Optional<Pair<String, String>> dataSourceInterval = provider.getDataSourceInterval();
+                    Optional<Pair<String, String>> dataSourceInterval = provider.getExtraDataSourceMacroAndMeasuringCodes();
                     if (dataSourceInterval.isPresent() && !dataSourceInterval.get().equals(Pair.of(0, 0))) {
                         String extraDataSource = dataSourceInterval.get().getFirst()
                                 + extension.getDataSource().substring(1, 4)

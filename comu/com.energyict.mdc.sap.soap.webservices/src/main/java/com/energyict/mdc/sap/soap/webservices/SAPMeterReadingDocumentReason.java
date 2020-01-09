@@ -5,12 +5,13 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.util.Pair;
 
+import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface SAPMeterReadingDocumentReason {
     long SECONDS_IN_DAY = 86400; //24 hours
 
@@ -30,10 +31,10 @@ public interface SAPMeterReadingDocumentReason {
     long getShiftDate();
 
     /**
-     * Data source interval
+     * Pair of Macro and Measuring codes
      * @return
      */
-    Optional<Pair<String, String>> getDataSourceInterval();
+    Optional<Pair<String, String>> getExtraDataSourceMacroAndMeasuringCodes();
 
     /**
      * Using current dateTime support

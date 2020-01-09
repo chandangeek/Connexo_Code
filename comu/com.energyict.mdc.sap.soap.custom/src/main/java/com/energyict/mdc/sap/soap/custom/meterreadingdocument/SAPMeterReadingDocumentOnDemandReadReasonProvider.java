@@ -87,7 +87,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     }
 
     @Override
-    public Optional<Pair<String, String>> getDataSourceInterval() {
+    public Optional<Pair<String, String>> getExtraDataSourceMacroAndMeasuringCodes() {
         return Optional.empty();
     }
 
