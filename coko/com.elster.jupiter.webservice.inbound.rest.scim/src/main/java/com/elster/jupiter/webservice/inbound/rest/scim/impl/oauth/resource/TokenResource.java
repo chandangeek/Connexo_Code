@@ -30,6 +30,6 @@ public class TokenResource {
             throw new OAuthException(OAuthError.UNSUPPORTED_GRANT_TYPE);
         }
 
-        return tokenService.createTokenResponse(null);
+        return tokenService.createTokenResponse();
     }
 }

@@ -1,14 +1,18 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class TokenResponse {
 
+    @XmlElement(name = "access_token")
     private String accessToken;
 
+    @XmlElement(name = "token_type")
     private String tokenType;
 
+    @XmlElement(name = "expires_in")
     private String expirationDate;
 
     public TokenResponse() {

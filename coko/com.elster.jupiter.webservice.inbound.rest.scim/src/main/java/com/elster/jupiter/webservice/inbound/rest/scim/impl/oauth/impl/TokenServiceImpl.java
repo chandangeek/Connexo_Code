@@ -1,7 +1,6 @@
 package com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.impl;
 
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.TokenService;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenRequest;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenResponse;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
@@ -21,7 +20,7 @@ public class TokenServiceImpl implements TokenService {
     private static final char[] tokenType = new char[]{'b', 'e', 'a', 'r', 'e', 'r'};
 
     @Override
-    public TokenResponse createTokenResponse(final TokenRequest tokenRequest) {
+    public TokenResponse createTokenResponse() {
         return TokenResponse.TokenResponseBuilder.aTokenResponse()
                 .withAccessToken(createJwsWithSignatureAlgorith(signatureAlgorithm))
                 .withTokenType(String.valueOf(tokenType))
