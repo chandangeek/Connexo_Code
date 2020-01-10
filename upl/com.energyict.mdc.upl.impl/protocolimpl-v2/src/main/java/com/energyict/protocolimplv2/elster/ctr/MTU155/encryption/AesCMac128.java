@@ -3,9 +3,11 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 
 public class AesCMac128 {
 
@@ -16,6 +18,8 @@ public class AesCMac128 {
 
     private byte[] k1;
     private byte[] k2;
+
+    private Cipher aesCipher;
 
     public AesCMac128() {
         setKey(new byte[16]);
@@ -63,13 +67,19 @@ public class AesCMac128 {
     private byte[] encryptAES128(byte[] input) {
         SecretKey aeskey = new SecretKeySpec(encryptionKey, 0, 16, "AES");
         try {
-            Cipher aesCipher = Cipher.getInstance("AES/ECB/NOPADDING");
-            aesCipher.init(Cipher.ENCRYPT_MODE, aeskey);
-            return aesCipher.doFinal(input);
+            getCipher().init(Cipher.ENCRYPT_MODE, aeskey);
+            return getCipher().doFinal(input);
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+        if (aesCipher == null) {
+            aesCipher = Cipher.getInstance("AES/ECB/NOPADDING");
+        }
+        return aesCipher;
     }
 
     public byte[] getAesCMac128(byte[] message) {

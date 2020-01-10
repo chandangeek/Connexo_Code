@@ -267,7 +267,6 @@ public class CTREncryption {
     private byte[] encryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
-        cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         getAesCTRCipher().init(Cipher.ENCRYPT_MODE, aeskey, paramSpec);
         return getAesCTRCipher().doFinal(input);
     }
@@ -287,7 +286,6 @@ public class CTREncryption {
     private byte[] decryptAES128(byte[] input, byte[] iv) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
         SecretKey aeskey = new SecretKeySpec(keyC, 0, 16, "AES");
         AlgorithmParameterSpec paramSpec = new IvParameterSpec(iv);
-        cipher = Cipher.getInstance("AES/CTR/NOPADDING");
         getAesCTRCipher().init(Cipher.DECRYPT_MODE, aeskey, paramSpec);
         return getAesCTRCipher().doFinal(input);
     }
