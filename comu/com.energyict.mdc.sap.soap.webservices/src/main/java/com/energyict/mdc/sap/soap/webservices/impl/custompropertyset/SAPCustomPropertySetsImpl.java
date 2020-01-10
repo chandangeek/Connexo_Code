@@ -12,6 +12,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
@@ -53,6 +54,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
@@ -848,7 +850,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
             if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_DELETE)) {
                 if (conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty()
-                     || conflict.getValues().getProperty(property) == null) {
+                        || conflict.getValues().getProperty(property) == null) {
                     conflict.getValues().propertyNames().stream().forEach(prop -> customPropertySetValues.setProperty(prop, conflict.getValues().getProperty(prop)));
                     customPropertySetValues.setProperty(property, value);
                 } else {
@@ -970,7 +972,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
     @Override
     public Optional<Instant> getStartDate(Device device) {
-        Optional<Instant> activationDate = getLstActivationDate(device.getMeter());
+        Optional<Instant> activationDate = getLastActivationDate(device.getMeter());
         if (activationDate.isPresent()) {
             Optional<Instant> lrnAfterDate = getFirstLrnDateAfterDate(device.getId(), activationDate.get());
             if (lrnAfterDate.isPresent()) {
@@ -981,11 +983,22 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return Optional.empty();
     }
 
-    private Optional<Instant> getLstActivationDate(Meter meter) {
-        return meter.getStateTimeline().flatMap(stateTimeline -> stateTimeline.getSlices().stream()
-                .filter(stateTimeSlice -> stateTimeSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent())
-                .map(slice -> slice.getPeriod().lowerEndpoint())
-                .max(Comparator.comparing(date -> date.toEpochMilli())));
+    //get last date when device is moved from pre-operational to operational stage
+    private Optional<Instant> getLastActivationDate(Meter meter) {
+        List<StateTimeSlice> slices = meter.getStateTimeline().get().getSlices();
+        List<StateTimeSlice> fromPreOpToOpSlices = new ArrayList<>();
+
+        for (int i = 0; i < slices.size(); i++) {
+            if (slices.get(i).getState().getStage().isPresent() && slices.get(i).getState().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
+                if (i == 0) {
+                    fromPreOpToOpSlices.add(slices.get(i));
+                } else if (slices.get(i - 1).getState().getStage().get().getName().equals(EndDeviceStage.PRE_OPERATIONAL.getKey())) {
+                    fromPreOpToOpSlices.add(slices.get(i));
+                }
+            }
+        }
+        return fromPreOpToOpSlices.stream().map(slice -> slice.getPeriod().lowerEndpoint())
+                .max(Comparator.comparing(date -> date.toEpochMilli()));
     }
 
     private Optional<Instant> getFirstLrnDateAfterDate(long deviceId, Instant date) {
