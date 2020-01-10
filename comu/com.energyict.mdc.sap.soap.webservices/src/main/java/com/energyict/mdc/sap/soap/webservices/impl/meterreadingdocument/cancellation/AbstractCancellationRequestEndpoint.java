@@ -36,15 +36,18 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final OrmService ormService;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     public AbstractCancellationRequestEndpoint(EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
-                                               Thesaurus thesaurus, Clock clock, OrmService ormService) {
+                                               Thesaurus thesaurus, Clock clock, OrmService ormService,
+                                               WebServiceActivator webServiceActivator) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.ormService = ormService;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -69,7 +72,7 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
 
             MeterReadingDocumentCancellationConfirmationMessage confirmationMessage =
                     MeterReadingDocumentCancellationConfirmationMessage.builder()
-                            .from(message.getRequestID(), message.getUuid(), documents, clock.instant(), message.isBulk())
+                            .from(message.getRequestID(), message.getUuid(), documents, clock.instant(), message.isBulk(), webServiceActivator.getMeteringSystemId())
                             .build();
             sendMessage(confirmationMessage, message.isBulk());
         } else {
@@ -203,7 +206,7 @@ public abstract class AbstractCancellationRequestEndpoint extends AbstractInboun
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         MeterReadingDocumentCancellationConfirmationMessage confirmationMessage =
                 MeterReadingDocumentCancellationConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(message, messageSeed, clock.instant(), webServiceActivator.getMeteringSystemId())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

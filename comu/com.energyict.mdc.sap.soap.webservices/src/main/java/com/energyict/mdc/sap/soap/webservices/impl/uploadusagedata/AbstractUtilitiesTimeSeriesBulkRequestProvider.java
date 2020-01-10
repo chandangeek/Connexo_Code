@@ -10,6 +10,7 @@ import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -22,6 +23,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
@@ -34,6 +36,7 @@ import com.google.common.collect.SetMultimap;
 import com.google.common.collect.TreeMultimap;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -56,6 +59,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     volatile WebServiceActivator webServiceActivator;
+    private volatile DeviceService deviceService;
 
     private int numberOfReadingsPerMsg;
 
@@ -69,7 +73,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
                                                    DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                    SAPCustomPropertySets sapCustomPropertySets,
                                                    ReadingNumberPerMessageProvider readingNumberPerMessageProvider,
-                                                   WebServiceActivator webServiceActivator) {
+                                                   WebServiceActivator webServiceActivator, DeviceService deviceService) {
         setPropertySpecService(propertySpecService);
         setDataExportServiceCallType(dataExportServiceCallType);
         setThesaurus(thesaurus);
@@ -77,10 +81,11 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         setSapCustomPropertySets(sapCustomPropertySets);
         setReadingNumberPerMessageProvider(readingNumberPerMessageProvider);
         setWebServiceActivator(webServiceActivator);
+        setDeviceService(deviceService);
     }
 
 
-    void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider){
+    void setReadingNumberPerMessageProvider(ReadingNumberPerMessageProvider readingNumberPerMessageProvider) {
         numberOfReadingsPerMsg = readingNumberPerMessageProvider.getNumberOfReadingsPerMsg();
     }
 
@@ -127,8 +132,22 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
     }
 
     abstract List<TS> prepareTimeSeries(MeterReadingData item, Instant now);
+
     abstract MSG createMessageFromTimeSeries(List<TS> list, String uuid, SetMultimap<String, String> attributes, Instant now);
+
     abstract long calculateNumberOfReadingsInTimeSeries(List<TS> list);
+
+    BigDecimal getRoundedBigDecimal(BigDecimal value, MeterReadingData mrData) {
+        Optional<Integer> numberOfFractionDigits = Optional.empty();
+        if (mrData.getItem().getReadingContainer() instanceof Meter) {
+            numberOfFractionDigits = deviceService.findDeviceByMrid(((Meter) mrData.getItem().getReadingContainer()).getMRID())
+                    .flatMap(device -> device.getChannels().stream().filter(c -> c.getReadingType().equals(mrData.getItem().getReadingType()))
+                            .findFirst()
+                            .map(com.energyict.mdc.common.device.data.Channel::getNrOfFractionDigits));
+        }
+
+        return numberOfFractionDigits.isPresent() ? value.setScale(numberOfFractionDigits.get(), BigDecimal.ROUND_UP) : value;
+    }
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data, ExportContext context) {
@@ -292,6 +311,10 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         this.webServiceActivator = webServiceActivator;
     }
 
+    void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+    
     private class TimeSeriesWrapperImpl implements Comparable<TimeSeriesWrapperImpl> {
 
         List<TS> timeSeries;

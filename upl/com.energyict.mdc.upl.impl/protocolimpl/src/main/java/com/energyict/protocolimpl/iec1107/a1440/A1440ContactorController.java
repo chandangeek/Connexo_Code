@@ -89,6 +89,7 @@ public class A1440ContactorController extends AbstractContactorController {
 
     @Override
     public BreakerStatus getContactorState() throws IOException {
+        getLogger().info("*************************** CONTACTOR STATUS **************************");
         String contactorState = (String) getA1440Registry().getRegister(A1440Registry.CONTACTOR_STATUS);
         try {
             int breakerStatusCode = Integer.parseInt(contactorState);
