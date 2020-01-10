@@ -63,7 +63,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                 }
                 break;
             case CANCELLED:
-                if (!oldState.equals(DefaultState.WAITING)) {
+                if (!isConfirmationTimeAlreadySet(serviceCall)) {
                     List<ServiceCall> children = findChildren(serviceCall);
                     if (!areAllCancelledBySap(children)) {
                         sendResultMessage(serviceCall);
@@ -184,6 +184,11 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         Integer interval = webServiceActivator.getSapProperty(AdditionalProperties.CONFIRMATION_TIMEOUT); // in mins
         masterExtension.setConfirmationTime(clock.instant().plusSeconds(interval * 60));
         serviceCall.update(masterExtension);
+    }
+
+    private boolean isConfirmationTimeAlreadySet(ServiceCall serviceCall) {
+        MasterMeterReadingDocumentCreateResultDomainExtension masterExtension = serviceCall.getExtensionFor(new MasterMeterReadingDocumentCreateResultCustomPropertySet()).get();
+        return masterExtension.getConfirmationTime() != null;
     }
 
     private boolean areAllCancelledBySap(List<ServiceCall> children) {
