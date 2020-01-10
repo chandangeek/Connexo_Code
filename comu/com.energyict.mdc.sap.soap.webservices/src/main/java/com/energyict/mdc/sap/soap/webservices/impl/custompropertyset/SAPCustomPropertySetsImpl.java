@@ -935,20 +935,17 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType, Range<Instant> range) {
-        // FIXME: return date from range
+    public Map<String, RangeSet<Instant>> getProfileId(ReadingContainer readingContainer, ReadingType readingType, Range<Instant> range) {
         return readingContainer.getChannelsContainers().stream()
-                .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(range))
-                .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(range)))
-                .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
+                .map(cc -> Ranges.nonEmptyIntersection(cc.getInterval().toOpenClosedRange(), range)
+                        .map(intersection -> Pair.of(cc, intersection)))
+                .flatMap(Functions.asStream())
                 .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
                 .flatMap(channelAndRange -> getProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
                 .filter(profileIdAndRangeSet -> !profileIdAndRangeSet.getValue().isEmpty())
-                .flatMap(profileIdAndRangeSet -> profileIdAndRangeSet.getValue().asRanges().stream())
-                .map(profileIdRange -> profileIdRange.hasLowerBound() ? profileIdRange.lowerEndpoint() : Instant.EPOCH)
-                .min(Instant::compareTo);
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, RangeSets::union));
     }
 
     @Override
