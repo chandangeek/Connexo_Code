@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwt;
 
 public interface TokenService {
 
-    TokenResponse createTokenResponse();
+    TokenResponse createToken();
 
     Jwt<?, ?> verifyToken(String jws);
 

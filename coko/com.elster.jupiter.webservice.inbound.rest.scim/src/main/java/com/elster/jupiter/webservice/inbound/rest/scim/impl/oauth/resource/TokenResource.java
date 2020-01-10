@@ -2,7 +2,7 @@ package com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.resource;
 
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.OAuthError;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.OAuthException;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.filter.OAuthOnlyFilter;
+import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.filter.TokenResourceOnlyFilter;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.TokenService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenResponse;
 
@@ -11,6 +11,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 @Path("token")
+@TokenResourceOnlyFilter
 public class TokenResource {
 
     @Inject
@@ -19,7 +20,6 @@ public class TokenResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
-    @OAuthOnlyFilter
     public TokenResponse getToken(@FormParam("grant_type") String grantType) {
 
         if (grantType == null) {
@@ -30,6 +30,6 @@ public class TokenResource {
             throw new OAuthException(OAuthError.UNSUPPORTED_GRANT_TYPE);
         }
 
-        return tokenService.createTokenResponse();
+        return tokenService.createToken();
     }
 }

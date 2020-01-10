@@ -13,7 +13,7 @@ public class TokenResponse {
     private String tokenType;
 
     @XmlElement(name = "expires_in")
-    private String expirationDate;
+    private long expiresIn;
 
     public TokenResponse() {
     }
@@ -34,18 +34,19 @@ public class TokenResponse {
         this.tokenType = tokenType;
     }
 
-    public String getExpirationDate() {
-        return expirationDate;
+    public long getExpiresIn() {
+        return expiresIn;
     }
 
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setExpiresIn(long expiresIn) {
+        this.expiresIn = expiresIn;
     }
+
 
     public static final class TokenResponseBuilder {
         private String accessToken;
         private String tokenType;
-        private String expirationDate;
+        private long expiresIn;
 
         private TokenResponseBuilder() {
         }
@@ -64,16 +65,16 @@ public class TokenResponse {
             return this;
         }
 
-        public TokenResponseBuilder withExpirationDate(String expirationDate) {
-            this.expirationDate = expirationDate;
+        public TokenResponseBuilder withExpiresIn(long expiresIn) {
+            this.expiresIn = expiresIn;
             return this;
         }
 
         public TokenResponse build() {
             TokenResponse tokenResponse = new TokenResponse();
-            tokenResponse.expirationDate = this.expirationDate;
-            tokenResponse.tokenType = this.tokenType;
-            tokenResponse.accessToken = this.accessToken;
+            tokenResponse.setAccessToken(accessToken);
+            tokenResponse.setTokenType(tokenType);
+            tokenResponse.setExpiresIn(expiresIn);
             return tokenResponse;
         }
     }

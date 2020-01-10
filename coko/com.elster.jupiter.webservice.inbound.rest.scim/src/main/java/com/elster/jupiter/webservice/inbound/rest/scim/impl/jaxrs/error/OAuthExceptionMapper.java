@@ -9,9 +9,15 @@ public class OAuthExceptionMapper implements ExceptionMapper<OAuthException> {
 
     @Override
     public Response toResponse(OAuthException exception) {
+        return Response.status(exception.getOAuthError().httpCode)
+                .entity(createResponseDTOFromException(exception))
+                .build();
+    }
+
+    private OAuthErrorResponse createResponseDTOFromException(final OAuthException exception) {
         final OAuthErrorResponse oAuthErrorResponse = new OAuthErrorResponse();
         oAuthErrorResponse.setError(exception.getOAuthError().errorCode);
         oAuthErrorResponse.setErrorDescription(exception.getOAuthError().description);
-        return Response.status(exception.getOAuthError().httpCode).entity(oAuthErrorResponse).build();
+        return oAuthErrorResponse;
     }
 }

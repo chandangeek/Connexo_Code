@@ -4,38 +4,35 @@ import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenRespo
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class TokenResourceTest extends OAuthBaseTest {
-
-    @BeforeClass
-    public static void startUp() {
-    }
 
     @Test
     public void shouldReturnToken() {
         final Response httpResponse = target(TOKEN_RESOURCE_PATH)
                 .request(MediaType.APPLICATION_FORM_URLENCODED)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .header("Authorization", "Basic " + CLIENT_CREDENTIALS)
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + CLIENT_CREDENTIALS)
                 .buildPost(Entity.form(TOKEN_REQUEST_FORM_WITH_GRANT_TYPE_CLIENT_CREDENTIALS))
                 .invoke();
 
-        assertThat(httpResponse.getStatus()).isEqualTo(200);
+        assertThat(httpResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(httpResponse.getHeaders().getFirst(HttpHeaders.CACHE_CONTROL)).isEqualTo("no-store");
+        assertThat(httpResponse.getHeaders().getFirst("Pragma")).isEqualTo("no-cache");
 
         final TokenResponse tokenResponse = httpResponse.readEntity(TokenResponse.class);
 
         assertThat(tokenResponse.getAccessToken()).isNotEmpty();
         assertThat(tokenResponse.getTokenType()).containsSequence("bearer");
-        assertThat(tokenResponse.getExpirationDate()).isNotEmpty();
+        assertThat(tokenResponse.getExpiresIn()).isNotZero().isNotNegative();
 
         final Jwt<?, ?> jwt = parseJws(tokenResponse.getAccessToken());
 
@@ -45,9 +42,12 @@ public class TokenResourceTest extends OAuthBaseTest {
         assertThat(header.get("alg").toString()).contains("HS512");
 
         final Claims body = (Claims) jwt.getBody();
+        assertThat(body.get("iss").toString()).contains("connexo");
         assertThat(body.get("sub").toString()).contains("enexis");
         assertThat(body.get("exp").toString()).isNotEmpty();
         assertThat(body.get("iat").toString()).isNotEmpty();
+        assertThat(body.get("nbf").toString()).isNotEmpty();
+        assertThat(Long.parseLong(body.get("exp").toString())).isEqualTo(tokenResponse.getExpiresIn());
     }
 
     @Test
@@ -55,11 +55,11 @@ public class TokenResourceTest extends OAuthBaseTest {
         final Response httpResponse = target(TOKEN_RESOURCE_PATH)
                 .request(MediaType.APPLICATION_FORM_URLENCODED)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .header("Authorization", "Basic " + CLIENT_CREDENTIALS)
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + CLIENT_CREDENTIALS)
                 .buildPost(Entity.form(TOKEN_REQUEST_FORM_WITHOUT_GRANT_TYPE))
                 .invoke();
 
-        assertThat(httpResponse.getStatus()).isEqualTo(400);
+        assertThat(httpResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -67,23 +67,23 @@ public class TokenResourceTest extends OAuthBaseTest {
         final Response httpResponse = target(TOKEN_RESOURCE_PATH)
                 .request(MediaType.APPLICATION_FORM_URLENCODED)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
-                .header("Authorization", "Basic " + CLIENT_CREDENTIALS)
+                .header(HttpHeaders.AUTHORIZATION, "Basic " + CLIENT_CREDENTIALS)
                 .buildPost(Entity.form(TOKEN_REQUEST_FORM_WITH_GRANT_TYPE_UNKNOWN))
                 .invoke();
 
-        assertThat(httpResponse.getStatus()).isEqualTo(400);
+        assertThat(httpResponse.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
     public void shouldReturnInvalidClientErrorWhenAuthorizationHeaderIsMalformed() {
         final Response httpResponse = target(TOKEN_RESOURCE_PATH)
                 .request(MediaType.APPLICATION_FORM_URLENCODED)
-                .header("Authorization", "somerandomstringhere")
+                .header(HttpHeaders.AUTHORIZATION, "somerandomstringhere")
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .buildPost(Entity.form(TOKEN_REQUEST_FORM_WITH_GRANT_TYPE_CLIENT_CREDENTIALS))
                 .invoke();
 
-        assertThat(httpResponse.getStatus()).isEqualTo(401);
+        assertThat(httpResponse.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
@@ -94,18 +94,18 @@ public class TokenResourceTest extends OAuthBaseTest {
                 .buildPost(Entity.form(TOKEN_REQUEST_FORM_WITH_GRANT_TYPE_CLIENT_CREDENTIALS))
                 .invoke();
 
-        assertThat(httpResponse.getStatus()).isEqualTo(401);
+        assertThat(httpResponse.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Test
     public void shouldReturnInvalidClientErrorWhenAuthorizationHeaderIsNotSetToBasic() {
         final Response httpResponse = target(TOKEN_RESOURCE_PATH)
                 .request(MediaType.APPLICATION_FORM_URLENCODED)
-                .header("Authorization", "Bearer " + CLIENT_CREDENTIALS)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + CLIENT_CREDENTIALS)
                 .accept(MediaType.APPLICATION_JSON_TYPE)
                 .buildPost(Entity.form(TOKEN_REQUEST_FORM_WITH_GRANT_TYPE_CLIENT_CREDENTIALS))
                 .invoke();
 
-        assertThat(httpResponse.getStatus()).isEqualTo(401);
+        assertThat(httpResponse.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 }

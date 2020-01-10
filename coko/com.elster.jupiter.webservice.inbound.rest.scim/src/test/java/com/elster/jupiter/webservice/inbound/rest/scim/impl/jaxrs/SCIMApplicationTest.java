@@ -16,7 +16,7 @@ public class SCIMApplicationTest {
 
     @BeforeClass
     public static void setUp() {
-        scimApplication = new SCIMApplication();
+        scimApplication = new SCIMApplication(null);
     }
 
     @Test
