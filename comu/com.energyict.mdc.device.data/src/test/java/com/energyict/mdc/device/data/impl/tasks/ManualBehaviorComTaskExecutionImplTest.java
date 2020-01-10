@@ -604,7 +604,7 @@ public class ManualBehaviorComTaskExecutionImplTest extends AbstractComTaskExecu
     @Transactional
     public void manuallyScheduledNextExecutionSpecWithOffsetTest() {
         freezeClock(2014, 4, 4, 10, 12, 32, 123);
-        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0, TimeZone.getTimeZone("UTC"));
+        Instant fixedTimeStamp = createFixedTimeStamp(2014, 4, 5, 3, 0, 0, 0);
         ComTaskEnablement comTaskEnablement = enableComTask(true);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "TimeChecks", "TimeChecks", fixedTimeStamp);
