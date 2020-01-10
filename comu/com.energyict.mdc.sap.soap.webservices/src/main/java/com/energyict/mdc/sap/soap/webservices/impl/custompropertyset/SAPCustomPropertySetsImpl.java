@@ -77,6 +77,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -985,20 +986,20 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
     //get last date when device is moved from pre-operational to operational stage
     private Optional<Instant> getLastActivationDate(Meter meter) {
-        List<StateTimeSlice> slices = meter.getStateTimeline().get().getSlices();
-        List<StateTimeSlice> fromPreOpToOpSlices = new ArrayList<>();
-
-        for (int i = 0; i < slices.size(); i++) {
-            if (slices.get(i).getState().getStage().isPresent() && slices.get(i).getState().getStage().get().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
-                if (i == 0) {
-                    fromPreOpToOpSlices.add(slices.get(i));
-                } else if (slices.get(i - 1).getState().getStage().get().getName().equals(EndDeviceStage.PRE_OPERATIONAL.getKey())) {
-                    fromPreOpToOpSlices.add(slices.get(i));
+        Iterator<StateTimeSlice> stateTimeSliceIterator = meter.getStateTimeline().get().getSlices().listIterator();
+        boolean previouslyPreoperational = true;
+        StateTimeSlice fromPreOpToOpSlices = null;
+        while (stateTimeSliceIterator.hasNext()) {
+            StateTimeSlice currentSlice = stateTimeSliceIterator.next();
+            if (currentSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent()) {
+                if (previouslyPreoperational) {
+                    fromPreOpToOpSlices = currentSlice;
                 }
             }
+            previouslyPreoperational = currentSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.PRE_OPERATIONAL.getKey())).isPresent();
+
         }
-        return fromPreOpToOpSlices.stream().map(slice -> slice.getPeriod().lowerEndpoint())
-                .max(Comparator.comparing(date -> date.toEpochMilli()));
+        return Optional.ofNullable(fromPreOpToOpSlices).map(slice -> slice.getPeriod().lowerEndpoint());
     }
 
     private Optional<Instant> getFirstLrnDateAfterDate(long deviceId, Instant date) {
