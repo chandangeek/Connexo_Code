@@ -145,12 +145,10 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            item.postponeExport();
-            item.update();
             MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
-
+        item.postponeExport();
         return Optional.empty();
     }
 
