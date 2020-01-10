@@ -143,6 +143,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName(), TranslationKeys.EXTRA_DATA_SOURCE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .booleanSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.javaName(), TranslationKeys.FUTURE_CASE)
                         .describedAs(TranslationKeys.FUTURE_CASE)
@@ -158,6 +163,16 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .stringSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
                         .describedAs(TranslationKeys.CANCELLED_BY_SAP_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
@@ -268,6 +283,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE.javaName())
                     .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.databaseName())
                     .bool()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.javaName())
@@ -276,6 +296,16 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
                     .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
         }
 

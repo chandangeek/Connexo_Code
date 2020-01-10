@@ -60,7 +60,7 @@ public class MeasurementTaskAssignmentChangeConfirmationProvider extends Abstrac
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut> getService() {
         return UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut.class;
     }
 

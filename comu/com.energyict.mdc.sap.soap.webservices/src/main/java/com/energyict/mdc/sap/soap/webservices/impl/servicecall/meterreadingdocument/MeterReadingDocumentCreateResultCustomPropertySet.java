@@ -143,6 +143,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName(), TranslationKeys.EXTRA_DATA_SOURCE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .booleanSpec()
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.FUTURE_CASE.javaName(), TranslationKeys.FUTURE_CASE)
                         .describedAs(TranslationKeys.FUTURE_CASE)
@@ -185,6 +190,18 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                 this.propertySpecService
                         .longSpec()
                         .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName(), TranslationKeys.COM_TASK_EXECUTION_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
+                        .describedAs(TranslationKeys.REFERENCE_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
+                        .describedAs(TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
                 );
@@ -306,6 +323,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE.javaName())
                     .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.EXTRA_DATA_SOURCE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.FUTURE_CASE.databaseName())
                     .bool()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.FUTURE_CASE.javaName())
@@ -329,6 +351,16 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .conversion(ColumnConversion.NUMBER2LONGWRAPPER)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.COM_TASK_EXECUTION_ID.javaName())
                     .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_ID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
         }
 
