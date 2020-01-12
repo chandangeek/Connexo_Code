@@ -5,6 +5,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ComServerAliveLoopImpl implements Runnable {
+public class ComServerAliveLoopImpl implements Runnable, EngineService.DeactivationNotificationListener {
 
     private final ScheduledThreadPoolExecutor executor;
     private final Clock clock;
@@ -23,6 +24,7 @@ public class ComServerAliveLoopImpl implements Runnable {
     private final StatusService statusService;
     private final TransactionService transactionService;
     private static final Logger LOGGER = Logger.getLogger(ComServerAliveLoopImpl.class.getName());
+    private volatile boolean isStopped;
 
     ComServerAliveLoopImpl(Clock clock, EngineConfigurationService engineConfigurationService, StatusService statusService, TransactionService transactionService) {
         this.clock = clock;
@@ -51,12 +53,20 @@ public class ComServerAliveLoopImpl implements Runnable {
 
     @Override
     public void run() {
-        try (TransactionContext context = transactionService.getContext()) {
-            updateStatus();
-            executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
-            context.commit();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        if (!isStopped) {
+            try (TransactionContext context = transactionService.getContext()) {
+                updateStatus();
+                executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
+                context.commit();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
         }
+    }
+
+    @Override
+    public void engineServiceDeactivationStarted() {
+        isStopped = true;
+        executor.remove(this);
     }
 }
