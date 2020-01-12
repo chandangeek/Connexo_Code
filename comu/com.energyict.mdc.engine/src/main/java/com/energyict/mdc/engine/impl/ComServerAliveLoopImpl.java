@@ -24,7 +24,6 @@ public class ComServerAliveLoopImpl implements Runnable, EngineService.Deactivat
     private final StatusService statusService;
     private final TransactionService transactionService;
     private static final Logger LOGGER = Logger.getLogger(ComServerAliveLoopImpl.class.getName());
-    private volatile boolean isStopped;
 
     ComServerAliveLoopImpl(Clock clock, EngineConfigurationService engineConfigurationService, StatusService statusService, TransactionService transactionService) {
         this.clock = clock;
@@ -53,20 +52,17 @@ public class ComServerAliveLoopImpl implements Runnable, EngineService.Deactivat
 
     @Override
     public void run() {
-        if (!isStopped) {
-            try (TransactionContext context = transactionService.getContext()) {
-                updateStatus();
-                executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
-                context.commit();
-            } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
+        try (TransactionContext context = transactionService.getContext()) {
+            updateStatus();
+            executor.schedule(this, engineConfigurationService.getComServerStatusAliveFrequency(), TimeUnit.MINUTES);
+            context.commit();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
     @Override
     public void engineServiceDeactivationStarted() {
-        isStopped = true;
-        executor.remove(this);
+        executor.shutdownNow();
     }
 }
