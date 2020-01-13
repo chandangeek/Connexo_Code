@@ -386,7 +386,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.requestTransition(DefaultState.FAILED);
             if (e instanceof LimitsExceededForCommandException) {
                 Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException)e).getDeviceMessage();
-                deviceMessage.ifPresent(msg -> ((ServerDeviceMessage)msg).revokeNotNotifyUpdated());
+                deviceMessage.ifPresent(msg -> ((ServerDeviceMessage)msg).revokeWithNoUpdateNotification());
             }
             throw e;
         }

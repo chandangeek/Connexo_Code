@@ -94,10 +94,12 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                         resultTransition(parentServiceCall, children);
                     } else if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        // All children are closed - close parent even if it was still pending
                         resultTransition(parentServiceCall, children);
                     } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
                         parentServiceCall.requestTransition(DefaultState.PENDING);
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
+                        // All children are closed - close parent even if it was still scheduled
                         resultTransition(parentServiceCall, children);
                     }
                 } else if (areAllWaitingOrCancelled(children)) {
