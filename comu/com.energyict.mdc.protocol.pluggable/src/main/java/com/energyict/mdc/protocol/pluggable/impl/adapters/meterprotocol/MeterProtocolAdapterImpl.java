@@ -634,6 +634,10 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         try {
             Optional<BreakerStatus> breakerStatus = this.getMeterProtocol().getBreakerStatus();
             breakerStatus.ifPresent(breakerStatusCollectedData::setBreakerStatus);
+            if (!breakerStatus.isPresent()) {
+                final Optional<BreakerStatus> breakerStatusUpl = this.getUplMeterProtocol().getBreakerStatus();
+                breakerStatusUpl.ifPresent(breakerStatusCollectedData::setBreakerStatus);
+            }
         } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }

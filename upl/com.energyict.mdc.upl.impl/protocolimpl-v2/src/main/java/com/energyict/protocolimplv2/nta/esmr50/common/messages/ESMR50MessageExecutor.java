@@ -7,6 +7,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned64;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.LTEModemSetup;
@@ -38,6 +39,7 @@ import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFa
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.LTEPingAddress;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -312,9 +314,10 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         return collectedMessage;
     }
 
+    @Override
     protected void resetAlarmRegister() throws IOException {
         getProtocol().journal("Handling message Reset Alarm register.");
-        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned32(-1L)); //TODO Value was originally Unsigned64, must create Unsigned64 data type
+        getCosemObjectFactory().getData(ObisCode.fromString("0.0.97.98.0.255")).setValueAttr(new Unsigned64(BigInteger.valueOf(-1L)));
     }
 
     /**

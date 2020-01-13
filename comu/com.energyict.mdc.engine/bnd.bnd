@@ -29,6 +29,14 @@ Import-Package: !com.sun.jdi.*,\
     !sun.security.krb5.*,\
     !sun.security.util,\
     *
-Export-Package: com.energyict.mdc.engine.*
+Export-Package: \
+    com.energyict.mdc.engine,\
+    com.energyict.mdc.engine.exceptions,\
+    com.energyict.mdc.engine.impl.*,\
+    com.energyict.mdc.engine.issues,\
+    com.energyict.mdc.engine.monitor,\
+    com.energyict.mdc.engine.security,\
+    com.energyict.mdc.engine.status,\
+    com.energyict.mdc.engine.users
 Embed-Dependency: groupId=javassist|org.eclipse.jetty|org.eclipse.jetty.websocket
 Embed-Transitive: true

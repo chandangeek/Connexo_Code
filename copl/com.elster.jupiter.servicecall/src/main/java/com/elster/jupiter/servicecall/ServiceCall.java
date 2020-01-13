@@ -44,6 +44,8 @@ public interface ServiceCall extends HasId {
 
     Optional<?> getTargetObject();
 
+    void setTargetObject(Object targetObject);
+
     Optional<ServiceCall> getParent();
 
     ServiceCallType getType();

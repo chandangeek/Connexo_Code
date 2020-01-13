@@ -185,6 +185,10 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         setErrorMessage(MessageFormat.format(messageSeed.getDefaultFormat(), args));
     }
 
+    public ServiceCall getServiceCall(){
+        return serviceCall.get();
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);

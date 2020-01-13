@@ -1,7 +1,13 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.XdlmsApduTags;
 import com.energyict.dlms.cosem.attributeobjects.dataprotection.ProtectionType;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
@@ -28,7 +34,11 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
