@@ -183,7 +183,7 @@ class DataExportTaskExecutor implements TaskExecutor {
                 task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
                         .filter(item -> {
                             boolean needToUpdate = false;
-                            if (!dataSendingStatus.isFailedForNewData(item)) {
+                            if (!dataSendingStatus.isFailedForNewData(item) && !item.isExportPostponed()) {
                                 // move lastExportedPeriodEnd not to send these data as 'new' anymore
                                 // if we move lastExportedDate as well, unsent changed data will be lost next time
                                 occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedPeriodEnd(s.getExportedDataInterval().upperEndpoint()));

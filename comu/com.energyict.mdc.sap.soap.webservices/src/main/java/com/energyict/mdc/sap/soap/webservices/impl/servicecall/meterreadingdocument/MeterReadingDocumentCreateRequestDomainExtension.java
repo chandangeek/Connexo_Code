@@ -36,6 +36,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         DEVICE_NAME("deviceName", "deviceName"),
         CHANNEL_ID("channelId", "channelId"),
         DATA_SOURCE("dataSource", "dataSource"),
+        EXTRA_DATA_SOURCE("extraDataSource", "EXTRA_DATA_SOURCE"),
         FUTURE_CASE("futureCase", "futureCase"),
         PROCESSING_DATE("processingDate", "processingDate"),
         CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
@@ -89,6 +90,8 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
     private BigDecimal channelId;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String dataSource;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String extraDataSource;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean futureCase;
     private Instant processingDate;
@@ -177,6 +180,14 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         this.dataSource = dataSource;
     }
 
+    public String getExtraDataSource() {
+        return extraDataSource;
+    }
+
+    public void setExtraDataSource(String extraDataSource) {
+        this.extraDataSource = extraDataSource;
+    }
+
     public boolean isFutureCase() {
         return futureCase;
     }
@@ -244,6 +255,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         this.setFutureCase((Boolean) propertyValues.getProperty(FieldNames.FUTURE_CASE.javaName()));
         this.setProcessingDate((Instant) propertyValues.getProperty(FieldNames.PROCESSING_DATE.javaName()));
         this.setDataSource((String) propertyValues.getProperty(FieldNames.DATA_SOURCE.javaName()));
+        this.setExtraDataSource((String) propertyValues.getProperty(FieldNames.EXTRA_DATA_SOURCE.javaName()));
         this.setChannelId((BigDecimal) propertyValues.getProperty(FieldNames.CHANNEL_ID.javaName()));
         this.setCancelledBySap((String) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
         this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
@@ -262,6 +274,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         propertySetValues.setProperty(FieldNames.FUTURE_CASE.javaName(), this.isFutureCase());
         propertySetValues.setProperty(FieldNames.PROCESSING_DATE.javaName(), this.getProcessingDate());
         propertySetValues.setProperty(FieldNames.DATA_SOURCE.javaName(), this.getDataSource());
+        propertySetValues.setProperty(FieldNames.EXTRA_DATA_SOURCE.javaName(), this.getExtraDataSource());
         propertySetValues.setProperty(FieldNames.CHANNEL_ID.javaName(), this.getChannelId());
         propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.getCancelledBySap());
         propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());

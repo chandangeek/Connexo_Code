@@ -163,6 +163,10 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
             return false;
         }
 
+        if (!resultMessage.isBulk() && resultMessage.getResultMessage().getMeterReadingDocument() == null) {
+            return false;
+        }
+
         int childrenTotal = resultMessage.getDocumentsTotal();
         int childrenCanceledBySap = resultMessage.getDocumentsCancelledBySap();
         int childrenSuccessfullyProcessed = resultMessage.getDocumentsSuccessfullyProcessed();

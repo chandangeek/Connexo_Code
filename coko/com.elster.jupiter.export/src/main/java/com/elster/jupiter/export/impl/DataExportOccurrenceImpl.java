@@ -245,6 +245,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     @Override
     public void updateExportedDataRange(Range<Instant> instantRange) {
+        exportedDataRange = instantRange;
         exportedDataInterval = Interval.of(instantRange);
         exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
     }
