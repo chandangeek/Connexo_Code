@@ -7,6 +7,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
@@ -83,6 +84,11 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     @Override
     public long getShiftDate() {
         return dateShift* SECONDS_IN_DAY;
+    }
+
+    @Override
+    public Optional<Pair<String, String>> getExtraDataSourceMacroAndMeasuringCodes() {
+        return Optional.empty();
     }
 
     @Override

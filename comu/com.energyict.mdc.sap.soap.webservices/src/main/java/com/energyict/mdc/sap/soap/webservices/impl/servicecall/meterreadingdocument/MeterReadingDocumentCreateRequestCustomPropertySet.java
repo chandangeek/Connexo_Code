@@ -143,6 +143,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName(), TranslationKeys.EXTRA_DATA_SOURCE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .booleanSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.javaName(), TranslationKeys.FUTURE_CASE)
                         .describedAs(TranslationKeys.FUTURE_CASE)
@@ -277,6 +282,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE.javaName())
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.databaseName())
                     .bool()
