@@ -613,12 +613,12 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("COMMUNICATION_SESSION_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
             } else if (rObisCode.equalsIgnoreBChannel(BILLING_PERIODS)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("BILLING_PERIODS value: " + Long.toString(abstractDataType.longValue())));
-            } else if (rObisCode.equalsIgnoreBChannel(ERROR_REGISTER)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ERROR_REGISTER value: " + abstractDataType.getInteger64()));
-            } else if (rObisCode.equalsIgnoreBChannel(ALARM_REGISTER)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_REGISTER value: " + abstractDataType.getInteger64()));
-            } else if (rObisCode.equalsIgnoreBChannel(ALARM_FILTER)) { //TODO initially it was getUnsigned64
-                return new RegisterValue(register, new Quantity(abstractDataType.getInteger64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_FILTER value: " + abstractDataType.getInteger64()));
+            } else if (rObisCode.equalsIgnoreBChannel(ERROR_REGISTER)) {
+                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ERROR_REGISTER value: " + abstractDataType.getInteger64()));
+            } else if (rObisCode.equalsIgnoreBChannel(ALARM_REGISTER)) {
+                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_REGISTER value: " + abstractDataType.getInteger64()));
+            } else if (rObisCode.equalsIgnoreBChannel(ALARM_FILTER)) {
+                return new RegisterValue(register, new Quantity(abstractDataType.getUnsigned64().toBigDecimal(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("ALARM_FILTER value: " + abstractDataType.getInteger64()));
             } else if (rObisCode.equals(MODEM_FIRMWARE_SIGNATURE_OBISCODE)) {
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if (rObisCode.equals(AUXILIARY_FIRMWARE_VERSION)) {

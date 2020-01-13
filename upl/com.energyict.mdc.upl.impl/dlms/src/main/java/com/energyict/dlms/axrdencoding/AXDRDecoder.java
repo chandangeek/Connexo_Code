@@ -129,7 +129,7 @@ public final class AXDRDecoder {
                 case LONG64:
                     return new Integer64(data, offset);
                 case LONG64_UNSIGNED:
-                    return new Integer64(DLMSUtils.getUnsignedIntFromBytes(data, offset + 1, Integer64.LENGTH));  //+1 to skip the data type byte
+                    return new Unsigned64(data, offset);
                 case BOOLEAN:
                     return new BooleanObject(data, offset);
                 case FLOAT32:

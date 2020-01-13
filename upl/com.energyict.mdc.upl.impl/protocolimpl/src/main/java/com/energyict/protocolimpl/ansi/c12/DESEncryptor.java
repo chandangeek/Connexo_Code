@@ -15,10 +15,12 @@ import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.security.spec.KeySpec;
 /**
  *
@@ -50,20 +52,26 @@ public class DESEncryptor {
                 System.out.println("KV_DEBUG> Key format: " + secretKey.getFormat());
                 System.out.println("KV_DEBUG> Key algorithm: " + secretKey.getAlgorithm());
             }
-            cipher = Cipher.getInstance("DES");
             if (DEBUG>=1) {
-                System.out.println("KV_DEBUG> Cipher provider: " + cipher.getProvider());
-                System.out.println("KV_DEBUG> Cipher algorithm: " + cipher.getAlgorithm());
+                System.out.println("KV_DEBUG> Cipher provider: " + getCipher().getProvider());
+                System.out.println("KV_DEBUG> Cipher algorithm: " + getCipher().getAlgorithm());
             }
         } catch(Exception e) {
             throw new NestedIOException(e,"DESEncryptor, init, error "+e.toString());
         }
     }
 
+    private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+        if (cipher == null) {
+            cipher = Cipher.getInstance("DES");
+        }
+        return cipher;
+    }
+
     public byte[] encrypt(byte[] data) throws IOException {
         try {
-            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            byte[] result = cipher.doFinal(data);
+            getCipher().init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] result = getCipher().doFinal(data);
             if (DEBUG>=1) {
                 System.out.println("KV_DEBUG> encrypted data: " + ProtocolUtils.outputHexString(result));
             }
@@ -75,8 +83,8 @@ public class DESEncryptor {
 
     public byte[] decrypt(byte[] data) throws IOException {
         try {
-            cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            byte[] result = cipher.doFinal(data);
+            getCipher().init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] result = getCipher().doFinal(data);
             if (DEBUG>=1) {
                 System.out.println("KV_DEBUG> decrypted data: " + ProtocolUtils.outputHexString(result));
             }
