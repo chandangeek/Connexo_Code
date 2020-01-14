@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheAdapter;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.dialer.connection.ConnectionException;

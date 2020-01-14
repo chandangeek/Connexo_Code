@@ -220,6 +220,9 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     }
 
     private class OpticalConnectionType extends NoPropertiesConnectionType implements OpticalDriver {
+        public boolean enableHHUSignOn() {
+            return true;
+        }
     }
 
     private class NoPropertiesConnectionType implements ConnectionType {
