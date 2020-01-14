@@ -279,6 +279,11 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
+    void cancel(TaskOccurrence taskOccurrence){
+        TaskOccurrenceImpl newTaskOccurrence = createAdHocTaskOccurrence(taskOccurrence);
+    }
+
+    @Override
     public TaskOccurrenceImpl runNow(TaskExecutor executor) {
         TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence();
         taskOccurrence.start();

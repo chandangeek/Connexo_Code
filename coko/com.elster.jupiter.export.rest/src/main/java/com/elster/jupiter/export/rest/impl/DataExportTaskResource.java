@@ -644,6 +644,25 @@ public class DataExportTaskResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    @PUT
+    @Path("history/{historyId}/trigger/delete")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @Transactional
+    public Response triggerDeleteDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
+        dataExportService.findExportTask(historyInfo.task.id)
+                .ifPresent(exportTask ->
+                {
+                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
+                            .setId(historyId).stream()
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
+
+                    exportTask.cancel(dataExportOccurrence);
+                });
+        return Response.status(Response.Status.OK).build();
+    }
+
     @GET
     @Path("/{id}/datasources")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

@@ -34,6 +34,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
@@ -370,6 +371,11 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void retryNow(DataExportOccurrence dataExportOccurrence) {
         recurrentTask.get().triggerNow(((DataExportOccurrenceImpl) dataExportOccurrence).getTaskOccurrence());
+    }
+
+    @Override
+    public void cancel(DataExportOccurrence dataExportOccurrence) {
+        recurrentTask.get().cancel((dataExportOccurrence).getTaskOccurrence());
     }
 
     @Override
