@@ -279,7 +279,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
-    void cancel(TaskOccurrence taskOccurrence){
+    public void cancel(TaskOccurrence taskOccurrence){
         TaskOccurrenceImpl newTaskOccurrence = createAdHocTaskOccurrence(taskOccurrence);
     }
 
