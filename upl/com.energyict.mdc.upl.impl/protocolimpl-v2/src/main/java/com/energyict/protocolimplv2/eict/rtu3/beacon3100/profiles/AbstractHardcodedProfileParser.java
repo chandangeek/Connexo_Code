@@ -99,6 +99,9 @@ public abstract class AbstractHardcodedProfileParser extends DLMSProfileInterval
         if (dataType.isInteger64()){
             return dataType.getInteger64().getValue();
         }
+        if (dataType.isUnsigned64()){
+            return dataType.getUnsigned64().getValue();
+        }
         if (dataType.isTypeEnum()){
             return dataType.getTypeEnum().getValue();
         }

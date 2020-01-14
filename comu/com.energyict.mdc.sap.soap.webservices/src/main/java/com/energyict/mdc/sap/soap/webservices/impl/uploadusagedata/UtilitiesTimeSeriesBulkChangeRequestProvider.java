@@ -195,7 +195,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         return messageUUID;
     }
 
-    /* Prepare list of time serieses that should be sent */
+    /* Prepare list of time series that should be sent */
     @Override
     List<UtilsTmeSersERPItmChgReqMsg> prepareTimeSeries(MeterReadingData item, Instant now) {
         ReadingType readingType = item.getItem().getReadingType();

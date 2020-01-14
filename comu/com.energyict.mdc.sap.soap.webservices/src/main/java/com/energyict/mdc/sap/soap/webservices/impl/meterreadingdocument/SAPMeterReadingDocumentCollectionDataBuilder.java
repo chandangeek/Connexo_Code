@@ -254,6 +254,8 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                         .findReadingTypes(Collections.singletonList(extraDataSource))
                         .stream()
                         .findFirst();
+            }else{
+                SAPMeterReadingDocumentCollectionDataBuilder.this.extraMeterReadingType = Optional.empty();
             }
             return this;
         }

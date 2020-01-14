@@ -28,7 +28,7 @@ public class XsdDateTimeConverter {
     }
 
     public static String marshalDate(Instant date) {
-        return DateTimeFormatter.ISO_LOCAL_DATE.format(ZonedDateTime.ofInstant(date, ZoneId.of("UTC")));
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(ZonedDateTime.ofInstant(date, ZoneId.systemDefault()));
     }
 
     public static String marshalTime(LocalTime time) {
