@@ -100,8 +100,8 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         return dataModel.getInstance(ComTaskExecutionSessionImpl.class).init(comSession, comTaskExecution, comTask, device, interval, successIndicator);
     }
 
-    private List<ComTaskExecutionJournalEntry> getServerComTaskExecutionJournalEntries () {
-         return Collections.unmodifiableList(this.comTaskExecutionJournalEntries);
+    private List<ComTaskExecutionJournalEntry> getServerComTaskExecutionJournalEntries() {
+        return Collections.unmodifiableList(this.comTaskExecutionJournalEntries);
     }
 
     /**
@@ -115,7 +115,7 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     @Override
-    public Device getDevice () {
+    public Device getDevice() {
         return device.get();
     }
 
@@ -146,7 +146,7 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     @Override
-    public ComTaskExecution getComTaskExecution () {
+    public ComTaskExecution getComTaskExecution() {
         return comTaskExecution.get();
     }
 
@@ -156,7 +156,7 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     @Override
-    public List<ComTaskExecutionJournalEntry> getComTaskExecutionJournalEntries () {
+    public List<ComTaskExecutionJournalEntry> getComTaskExecutionJournalEntries() {
         return this.getServerComTaskExecutionJournalEntries();
     }
 
@@ -164,9 +164,10 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     public Finder<ComTaskExecutionJournalEntry> findComTaskExecutionJournalEntries(Set<ComServer.LogLevel> levels) {
         return DefaultFinder
                 .of(ComTaskExecutionJournalEntry.class,
-                         where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
-                    .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))), this.dataModel)
-                .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false);
+                        where(ComTaskExecutionJournalEntryImpl.Fields.ComTaskExecutionSession.fieldName()).isEqualTo(this)
+                                .and(where(ComTaskExecutionJournalEntryImpl.Fields.LogLevel.fieldName()).in(new ArrayList<>(levels))), this.dataModel)
+                .sorted(ComTaskExecutionJournalEntryImpl.Fields.timestamp.fieldName(), false)
+                .sorted("id", false);
     }
 
     @Override
@@ -239,7 +240,7 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
         return this;
     }
 
-    void determineHighestPriorityCompletionCodeAndErrorMessage(){
+    void determineHighestPriorityCompletionCodeAndErrorMessage() {
         highestPriorityCompletionCode = CompletionCode.Ok; // optimistic, but this will also solve the fact that we will log ok it the loglevel was higher then INFO
         highestPriorityErrorDescription = null;
         CheckAndUpdatePriorityJournalEntryVisitor visitor = new CheckAndUpdatePriorityJournalEntryVisitor();
@@ -247,7 +248,7 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     }
 
     private void checkAndUpdatePriority(ComCommandJournalEntry entry) {
-        if(entry.getCompletionCode().hasPriorityOver(highestPriorityCompletionCode)){
+        if (entry.getCompletionCode().hasPriorityOver(highestPriorityCompletionCode)) {
             highestPriorityCompletionCode = entry.getCompletionCode();
             highestPriorityErrorDescription = entry.getErrorDescription();
         }
