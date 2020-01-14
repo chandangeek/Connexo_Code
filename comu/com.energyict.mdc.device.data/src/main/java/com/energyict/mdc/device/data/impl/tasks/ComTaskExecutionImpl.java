@@ -24,13 +24,39 @@ import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.common.tasks.*;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TaskPriorityConstants;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
-import com.energyict.mdc.device.data.impl.*;
+import com.energyict.mdc.device.data.impl.CreateEventType;
+import com.energyict.mdc.device.data.impl.DeleteEventType;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.data.impl.EventType;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.PersistentIdObject;
+import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
+import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ManuallyScheduledNextExecSpecRequired;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SaveScheduled;
@@ -50,7 +76,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
@@ -595,7 +626,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     void recalculateNextAndPlannedExecutionTimestamp() {
         Instant plannedNextExecutionTimestamp = this.getComSchedule()
-                .filter(comSchedule -> comSchedule.getPlannedDate().isPresent())
                 .flatMap(ComSchedule::getPlannedDate)
                 .orElse(this.calculateNextExecutionTimestamp(clock.instant()));
         schedule(plannedNextExecutionTimestamp, plannedNextExecutionTimestamp);

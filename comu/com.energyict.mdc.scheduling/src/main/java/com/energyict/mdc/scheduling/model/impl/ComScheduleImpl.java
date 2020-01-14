@@ -46,8 +46,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
-@UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
+@UniqueName(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}")
+@UniqueMRID(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}")
 public final class ComScheduleImpl implements ComSchedule {
 
     private final Clock clock;
@@ -86,17 +86,17 @@ public final class ComScheduleImpl implements ComSchedule {
 
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
-    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.FIELD_IS_REQUIRED+"}")
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
+    @NotNull(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.TOO_LONG + "}")
     private String name;
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.TOO_LONG + "}")
     private String mRID;
-    @Size(min=1, groups = { NotObsolete.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}")
+    @Size(min = 1, groups = {NotObsolete.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND + "}")
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     @IsPresent
     private Reference<NextExecutionSpecsImpl> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
-    @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    @NotNull(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Instant startDate;
     private Instant obsoleteDate;
     @SuppressWarnings("unused") // Managed by ORM
@@ -141,12 +141,12 @@ public final class ComScheduleImpl implements ComSchedule {
 
     @Override
     public Optional<String> getmRID() {
-        return mRID==null?Optional.empty():Optional.of(mRID);
+        return mRID == null ? Optional.empty() : Optional.of(mRID);
     }
 
     @Override
     public void setmRID(String mRID) {
-        this.mRID = mRID!=null?mRID.trim():null;
+        this.mRID = mRID != null ? mRID.trim() : null;
     }
 
     @Override
@@ -167,14 +167,17 @@ public final class ComScheduleImpl implements ComSchedule {
     @Override
     public Optional<Instant> getPlannedDate() {
         Calendar calendar = Calendar.getInstance();
-        if (this.startDate!=null) {
+        if (this.startDate != null) {
             calendar.setTimeInMillis(this.startDate.toEpochMilli());
         }
         if (SchedulingStatus.PAUSED.equals(this.schedulingStatus)) {
             return Optional.empty();
-        }
-        else {
-            return Optional.of(this.getNextTimestamp(calendar).toInstant());
+        } else {
+            getNextExecutionSpecs().getTemporalExpression().getEvery().truncate(calendar);
+            while (calendar.getTime().before(Calendar.getInstance().getTime())) {
+                calendar.setTime(this.getNextTimestamp(calendar));
+            }
+            return Optional.of(calendar.getTime().toInstant());
         }
     }
 
@@ -184,7 +187,7 @@ public final class ComScheduleImpl implements ComSchedule {
             NextExecutionSpecsImpl nextExecutionSpecs = dataModel.getInstance(NextExecutionSpecsImpl.class);
             nextExecutionSpecs.setTemporalExpression(temporalExpression);
             this.nextExecutionSpecs.set(nextExecutionSpecs);
-        } else  {
+        } else {
             this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
         }
     }
@@ -192,8 +195,7 @@ public final class ComScheduleImpl implements ComSchedule {
     private void validate() {
         if (this.isObsolete()) {
             Save.CREATE.validate(dataModel, this, Obsolete.class);
-        }
-        else {
+        } else {
             Save.CREATE.validate(dataModel, this, NotObsolete.class);
         }
     }
@@ -291,8 +293,8 @@ public final class ComScheduleImpl implements ComSchedule {
     @Override
     public void removeComTask(ComTask comTask) {
         for (java.util.Iterator<ComTaskInComSchedule> iterator = comTaskUsages.iterator(); iterator.hasNext(); ) {
-            ComTaskInComSchedule next =  iterator.next();
-            if (next.getComTask().getId()==comTask.getId()) {
+            ComTaskInComSchedule next = iterator.next();
+            if (next.getComTask().getId() == comTask.getId()) {
                 iterator.remove();
             }
         }
@@ -349,7 +351,7 @@ public final class ComScheduleImpl implements ComSchedule {
         return isConfiguredToCollectDataOfClass(TopologyTask.class);
     }
 
-    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass (Class<T> protocolTaskClass) {
+    private <T extends ProtocolTask> boolean isConfiguredToCollectDataOfClass(Class<T> protocolTaskClass) {
         for (ComTask comTask : this.getComTasks()) {
             for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
                 if (protocolTaskClass.isAssignableFrom(protocolTask.getClass())) {
@@ -360,9 +362,11 @@ public final class ComScheduleImpl implements ComSchedule {
         return false;
     }
 
-    private interface NotObsolete {}
+    private interface NotObsolete {
+    }
 
-    private interface Obsolete {}
+    private interface Obsolete {
+    }
 
     @Override
     public boolean equals(Object o) {

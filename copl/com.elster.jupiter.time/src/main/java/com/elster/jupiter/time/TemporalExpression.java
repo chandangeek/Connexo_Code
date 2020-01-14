@@ -224,7 +224,7 @@ public final class TemporalExpression implements ScheduleExpression {
         }
         offset.addTo(base, true);
 
-        if ((every.getTimeUnitCode() > 10 && !base.getTime().after(previous.getTime())) || base.getTime().before(previous.getTime())) {
+        if (!base.getTime().after(previous.getTime())) {
             every.addTo(base, false);
         }
 
