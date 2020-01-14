@@ -30,10 +30,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.TreeMultimap;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -44,9 +44,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableSet;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -154,8 +152,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
 
         Instant now = getClock().instant();
         TimeDuration timeout = getTimeout(endPointConfiguration).filter(tout -> !tout.isEmpty()).orElse(null);
-        TreeMultimap<Long, TimeSeriesWrapperImpl> seriesMultimap = TreeMultimap.create();
-
+        LinkedListMultimap<Long, TimeSeriesWrapperImpl> seriesMultimap = LinkedListMultimap.create();
         List<MeterReadingData> readingDataList = data.filter(MeterReadingData.class::isInstance)
                 .map(MeterReadingData.class::cast)
                 .collect(Collectors.toList());
@@ -175,7 +172,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
             }
         }
         /* Send one by one readings that exceed numberOfReadingsPerMsg */
-        List<Long> listToSend = seriesMultimap.keySet().stream().filter(numberOfItemsToSend->numberOfItemsToSend > numberOfReadingsPerMsg).collect(Collectors.toList());
+        List<Long> listToSend = seriesMultimap.keySet().stream().filter(numberOfItemsToSend->numberOfItemsToSend >= numberOfReadingsPerMsg).collect(Collectors.toList());
         if (!listToSend.isEmpty()) {
             for (Iterator keyIterator = listToSend.iterator(); keyIterator.hasNext();) {
                 Long key = (Long)keyIterator.next();
@@ -194,41 +191,42 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         long timeSeriesNumber = 0;
         List<TS> timeSerieslistToSend = new ArrayList<>();
         List<MeterReadingData> meterReadingDataListToSend = new ArrayList<>();
-        NavigableSet<Long> keys = seriesMultimap.keySet();
-
+        Set<Long> keys = seriesMultimap.keySet();
         while (!seriesMultimap.isEmpty()) {
             long diff = numberOfReadingsPerMsg - timeSeriesNumber;
-            if (diff >= 0) {
-                /* Check if we have readingData  with number of readings less then free size in message */
-                Optional<Long> key = keys.stream().filter(value -> value <= diff).max(Long::compare);
-                if (!key.isPresent()) {
-                    /* No readings can be added to message. So send all that we already have in message */
-                    sendPartOfData(endPointConfiguration, context,
+            /* Check if we have readingData  with number of readings less then free size in message */
+            Optional<Long> key = keys.stream().filter(value -> value <= diff).max(Long::compare);
+            if (!key.isPresent()) {
+                /* No readings can be added to message. So send all that we already have in message */
+                sendPartOfData(endPointConfiguration, context,
+                        timeSerieslistToSend,
+                        meterReadingDataListToSend,
+                        now, timeout);
+                timeSerieslistToSend.clear();
+                meterReadingDataListToSend.clear();
+                timeSeriesNumber = 0;
+            } else {
+                int indexToPoll = seriesMultimap.get(key.get()).size() - 1;
+                TimeSeriesWrapperImpl timeSeriesWrapper = seriesMultimap.get(key.get()).get(indexToPoll);
+                timeSerieslistToSend.addAll(timeSeriesWrapper.getTimeSeries());
+                meterReadingDataListToSend.add(timeSeriesWrapper.getMeterReadingData());
+                seriesMultimap.get(key.get()).remove(indexToPoll);
+
+                timeSeriesNumber = timeSeriesNumber + key.get();
+                if (seriesMultimap.get(key.get()).isEmpty()) {
+                    seriesMultimap.removeAll(key.get());
+                    keys.remove(key.get());
+                }
+                if (seriesMultimap.isEmpty()) {
+                    sendPartOfData(endPointConfiguration,
+                            context,
                             timeSerieslistToSend,
                             meterReadingDataListToSend,
-                            now, timeout);
+                            now,
+                            timeout);
                     timeSerieslistToSend.clear();
                     meterReadingDataListToSend.clear();
                     timeSeriesNumber = 0;
-                } else {
-                    TimeSeriesWrapperImpl timeSeriesWrapper = seriesMultimap.get(key.get()).pollLast();
-                    timeSerieslistToSend.addAll(timeSeriesWrapper.getTimeSeries());
-                    meterReadingDataListToSend.add(timeSeriesWrapper.getMeterReadingData());
-                    timeSeriesNumber = timeSeriesNumber + key.get();
-                    if (seriesMultimap.get(key.get()).isEmpty()) {
-                        seriesMultimap.removeAll(key.get());
-                    }
-                    if (seriesMultimap.isEmpty()) {
-                        sendPartOfData(endPointConfiguration,
-                                context,
-                                timeSerieslistToSend,
-                                meterReadingDataListToSend,
-                                now,
-                                timeout);
-                        timeSerieslistToSend.clear();
-                        meterReadingDataListToSend.clear();
-                        timeSeriesNumber = 0;
-                    }
                 }
             }
         }
@@ -315,21 +313,14 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG, TS
         this.deviceService = deviceService;
     }
     
-    private class TimeSeriesWrapperImpl implements Comparable<TimeSeriesWrapperImpl> {
+    private class TimeSeriesWrapperImpl {
 
-        List<TS> timeSeries;
-        MeterReadingData meterReadingData;
-
-        public int compareTo(TimeSeriesWrapperImpl o) {
-            /* It doesn't matter in which order timeserieses will be stored in seriesMultimap for the same key */
-            return 1;
-        }
-
+        private List<TS> timeSeries;
+        private MeterReadingData meterReadingData;
 
         public void setTimeSeries(List<TS> series) {
             timeSeries = series;
         }
-
 
         public List<TS> getTimeSeries() {
             return timeSeries;
