@@ -28,6 +28,6 @@ public interface ServerDeviceMessage extends DeviceMessage {
      * This is required to revoke messages created with LimitsExceededForCommandException
      * to not decrement it if ot was not incremented during message creation.
      */
-    void revokeNotNotifyUpdated();
+    void revokeWithNoUpdateNotification();
 
 }

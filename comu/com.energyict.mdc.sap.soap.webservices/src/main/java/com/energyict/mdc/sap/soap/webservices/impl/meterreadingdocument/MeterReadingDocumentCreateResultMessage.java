@@ -118,7 +118,22 @@ public class MeterReadingDocumentCreateResultMessage {
             } else {
                 resultMessage.setMessageHeader(createHeader(extension, now, meteringSystemId));
                 if (!children.isEmpty()) {
-                    resultMessage.setMeterReadingDocument(createBody(children.get(0)));
+                    ServiceCall chldSrvCall = children.get(0);
+                    MeterReadingDocumentCreateResultDomainExtension chldExtension = chldSrvCall.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get();
+                    if (!chldExtension.isCancelledBySap()) {
+                        if (chldExtension.getReading() == null) {
+                            chldSrvCall.log(LogLevel.FINEST, "No readings to send.");
+                            if (!chldSrvCall.getState().equals(DefaultState.CANCELLED)) {
+                                chldSrvCall.requestTransition(DefaultState.ONGOING);
+                                chldSrvCall.requestTransition(DefaultState.FAILED);
+                                resultMessage.setMeterReadingDocument(null);
+                                parent.log(LogLevel.FINEST, "Do not send response. No readings to send.");
+                                parent.requestTransition(DefaultState.FAILED);
+                            }
+                        } else {
+                            resultMessage.setMeterReadingDocument(createBody(chldSrvCall));
+                        }
+                    }
                 }
             }
             return this;

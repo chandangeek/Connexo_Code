@@ -33,6 +33,9 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(EndDevice endDevice);
 
+    /**
+     * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
+     */
     @Deprecated
     Optional<String> getSapDeviceId(String deviceName);
 
@@ -89,11 +92,7 @@ public interface SAPCustomPropertySets {
 
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
 
-    /**
-     * This method returns first date of the Profile id set for the reading container
-     * In case of the first range doesn't have lower bound, then 1970-01-01T00:00:00Z date is returned.
-     */
-    Optional<Instant> getFirstDateWithSetProfileId(ReadingContainer readingContainer, ReadingType readingType);
+    Map<String, RangeSet<Instant>> getProfileId(ReadingContainer readingContainer, ReadingType readingType, Range<Instant> range);
 
     /**
      * This method returns start of the first LRN after the latest transition to operational stage

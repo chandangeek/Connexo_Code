@@ -23,10 +23,12 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.dlms.a2.A2;
+import com.energyict.protocolimplv2.dlms.a2.registers.FirmwareVersion;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.logging.Level;
 
 public class A2ProfileDataReader {
     private static final ObisCode HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.2.255");
@@ -102,12 +104,27 @@ public class A2ProfileDataReader {
                     // 2: split to 10 record lenght intervals
                     // 3: itterate
                     // 4: conatenate
+                    FirmwareVersion firmwareVersion = new FirmwareVersion(protocol.getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString("7.1.0.2.1.255")).getValueAttr().getOctetString());
+
                     Calendar fromCalendar = getFromCalendar(loadProfileReader);
                     Calendar toCalendar = getToCalendar(loadProfileReader);
                     List<IntervalData> intervalData = new ArrayList<>();
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode);
                     profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
-                    DataContainer buffer = profileGeneric.getBuffer(fromCalendar, toCalendar);
+                    DataContainer buffer;
+                    if (HOURLY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode()) && firmwareVersion.getMajor()==1 && firmwareVersion.getMinor()==4) {
+                        Calendar actualCalendar = Calendar.getInstance(protocol.getTimeZone());
+                        SelectiveEntryFilter filter = new SelectiveEntryFilter(fromCalendar, toCalendar, actualCalendar);
+                        protocol.getLogger().log(Level.INFO, "From Calendar " + fromCalendar.getTime());
+                        protocol.getLogger().log(Level.INFO, "To Calendar " + toCalendar.getTime());
+                        protocol.getLogger().log(Level.INFO, "Actual Calendar " + actualCalendar.getTime());
+                        protocol.getLogger().log(Level.INFO, "From Index : " + filter.getFromIndex() + ", To Index " + filter.getToIndex());
+                        buffer = profileGeneric.getBuffer(filter.getFromIndex(), filter.getToIndex(), 1, 0);
+                    }
+                    else {
+                        buffer = profileGeneric.getBuffer(fromCalendar, toCalendar);
+                    }
+
                     intervalData.addAll(readIntervalDataFromBuffer(correctedLoadProfileObisCode, buffer));
                     collectedLoadProfile.setCollectedIntervalData(intervalData, channelInfos);
                     collectedLoadProfile.setDoStoreOlderValues(true);

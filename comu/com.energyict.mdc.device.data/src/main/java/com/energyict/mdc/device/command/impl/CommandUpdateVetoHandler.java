@@ -59,12 +59,13 @@ public class CommandUpdateVetoHandler implements TopicHandler {
             if (deviceMessage.getStatus().equals(DeviceMessageStatus.CANCELED)) {
                 commandRuleService.commandDeleted(deviceMessage);
             } else {
-                long oldReleaseDate = (Long) localEvent.toOsgiEvent().getProperty("oldReleaseDate");
-                List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForUpdatedCommand(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
+                long oldReleaseDateProperty = (Long) localEvent.toOsgiEvent().getProperty("oldReleaseDate");
+                Instant oldReleaseDate = oldReleaseDateProperty == 0 ? deviceMessage.getReleaseDate() : Instant.ofEpochMilli(oldReleaseDateProperty);
+                List<ExceededCommandRule> exceededCommandRules = commandRuleService.limitsExceededForUpdatedCommand(deviceMessage, oldReleaseDate);
                 if (!exceededCommandRules.isEmpty()) {
                     throw new LimitsExceededForCommandException(thesaurus, exceededCommandRules, deviceMessage);
                 } else {
-                    commandRuleService.commandUpdated(deviceMessage, Instant.ofEpochMilli(oldReleaseDate));
+                    commandRuleService.commandUpdated(deviceMessage, oldReleaseDate);
                 }
             }
         } catch (MacException e) {

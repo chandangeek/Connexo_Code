@@ -20,7 +20,7 @@ import java.sql.SQLException;
         property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
 public class H2BootstrapService implements BootstrapService {
 
-    private static final String JDBC_URL = "jdbc:h2:./data/h2Offline;MVCC=TRUE;MODE=ORACLE;lock_timeout=5000";
+    private static final String JDBC_URL = "jdbc:h2:./store/h2Offline;MVCC=TRUE;MODE=ORACLE;lock_timeout=5000";
     private static final String USER = "OFFLINE";
     private static final String PASSWORD = "offline";
 

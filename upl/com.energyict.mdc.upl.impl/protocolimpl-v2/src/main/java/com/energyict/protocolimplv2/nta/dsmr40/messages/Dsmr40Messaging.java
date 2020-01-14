@@ -34,7 +34,11 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
 
         // firmware upgrade related - add message with additional attribute 'Image identifier'
         supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER));
-        supportedMessages.add(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER));
+
+        // firmware update with future activation date is not supported
+        supportedMessages.remove(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE));
+        supportedMessages.remove(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER));
+        supportedMessages.remove(this.get(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME));
 
         // Configuration change
         supportedMessages.add(this.get(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus));

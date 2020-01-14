@@ -523,7 +523,9 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             setEngineProperty(SERVER_TYPE_PROPERTY_NAME, bundleContext.getProperty(SERVER_TYPE_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
             this.launchComServer();
-            new ComServerAliveLoopImpl(clock, engineConfigurationService, statusService, transactionService).run();
+            ComServerAliveLoopImpl comServerAliveLoop = new ComServerAliveLoopImpl(clock, engineConfigurationService, statusService, transactionService);
+            register(comServerAliveLoop);
+            comServerAliveLoop.run();
         } catch(Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
             // componentContext.disableComponent(componentContext.getBundleContext().getProperty(Constants.SERVICE_PID));
