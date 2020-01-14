@@ -39,12 +39,12 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
 
     public static final String DEFAULT_TIMEZONE = "GMT";
 
-    private final DataModel dataModel;
-    private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
-    private final ProtocolPluggableService protocolPluggableService;
-    private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
-    private final CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
+    private DataModel dataModel;
+    private PropertySpecService propertySpecService;
+    private Thesaurus thesaurus;
+    private ProtocolPluggableService protocolPluggableService;
+    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    private CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
 
     /**
      * Gets the instance of the {@link CachingProtocol}.
@@ -59,6 +59,9 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
      * @return the hhuEnabler
      */
     public abstract HHUEnabler getHhuEnabler();
+
+    protected DeviceProtocolAdapterImpl() {
+    }
 
     protected DeviceProtocolAdapterImpl(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory) {
         super();
