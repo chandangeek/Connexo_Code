@@ -123,6 +123,11 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
             Optional<ComTaskExecution> comTaskExecution = findLastTaskExecution(device.get(), isRegular);
             ComTaskExecution execution;
             if (comTaskExecution.isPresent()) {
+                if (comTaskExecution.get().isOnHold()) {
+                    serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages is inactive");
+                    serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+                    return false;
+                }
                 execution = comTaskExecution.get();
             } else {
                 Optional<ComTaskEnablement> comTaskEnablement = getComTaskEnablementForDevice(device.get(), isRegular);
