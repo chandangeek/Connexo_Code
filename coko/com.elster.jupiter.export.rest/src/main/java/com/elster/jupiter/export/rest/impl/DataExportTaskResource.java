@@ -647,7 +647,7 @@ public class DataExportTaskResource {
     @PUT
     @Path("history/{historyId}/cancel")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK})
     @Transactional
     public Response cancelDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
         dataExportService.cancelExportTask(historyId, historyInfo.task.id);
