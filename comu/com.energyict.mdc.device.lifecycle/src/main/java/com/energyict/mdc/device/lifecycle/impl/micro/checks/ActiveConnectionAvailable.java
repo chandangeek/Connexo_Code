@@ -40,7 +40,8 @@ public class ActiveConnectionAvailable extends TranslatableServerMicroCheck {
                 DefaultTransition.INSTALL_INACTIVE_WITHOUT_COMMISSIONING,
                 DefaultTransition.INSTALL_AND_ACTIVATE,
                 DefaultTransition.INSTALL_INACTIVE,
-                DefaultTransition.ACTIVATE);
+                DefaultTransition.ACTIVATE,
+                DefaultTransition.DEACTIVATE);
     }
 
     private Optional<ConnectionTask<?, ?>> anyActiveConnectionTask(Device device) {

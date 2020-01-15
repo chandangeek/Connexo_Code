@@ -77,7 +77,10 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.exceptions.CommunicationException;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -94,27 +97,29 @@ import java.util.stream.Collectors;
  * @author gna
  * @since 29/03/12 - 9:08
  */
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
 public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implements DeviceProtocol, MeterProtocolAdapter {
 
     /**
      * The used <code>MeterProtocol</code> for which the adapter is working.
      */
-    private final MeterProtocol meterProtocol;
+    private MeterProtocol meterProtocol;
 
     /**
      * The use <code>IssueService</code> which can be used for this adapter.
      */
-    private final IssueService issueService;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private final MessageAdapterMappingFactory messageAdapterMappingFactory;
-    private final CollectedDataFactory collectedDataFactory;
-    private final Thesaurus thesaurus;
-    private final IdentificationService identificationService;
+    private IssueService issueService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private MessageAdapterMappingFactory messageAdapterMappingFactory;
+    private CollectedDataFactory collectedDataFactory;
+    private Thesaurus thesaurus;
+    private IdentificationService identificationService;
 
     /**
      * The used <code>RegisterProtocol</code> for which the adapter is working.
      */
-    private final RegisterProtocol registerProtocol;
+    private RegisterProtocol registerProtocol;
 
     /**
      * The DeviceSecuritySupport component that <i>can</i> be used during communication.
@@ -175,6 +180,9 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      * The used HHUEnabler.
      */
     private HHUEnabler hhuEnabler;
+
+    public MeterProtocolAdapterImpl(){
+    }
 
     public MeterProtocolAdapterImpl(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService, Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(propertySpecService, protocolPluggableService, thesaurus, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);

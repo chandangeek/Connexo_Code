@@ -399,6 +399,11 @@ public class ServiceCallCommands {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
+            MessageSeeds errorMessage = requestMessage.isBulk() ? MessageSeeds.BULK_REQUEST_WAS_FAILED : MessageSeeds.REQUEST_WAS_FAILED;
+            return MeterReadingDocumentRequestConfirmationMessage
+                    .builder()
+                    .from(requestMessage, errorMessage, clock.instant(), webServiceActivator.getMeteringSystemId())
+                    .build();
         }
 
         return MeterReadingDocumentRequestConfirmationMessage

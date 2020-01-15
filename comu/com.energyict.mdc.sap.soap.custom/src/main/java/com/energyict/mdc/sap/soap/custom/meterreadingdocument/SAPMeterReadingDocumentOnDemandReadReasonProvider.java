@@ -98,7 +98,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     @Override
     public boolean isBulk() {
-        return false;
+        return true;
     }
 
     @Override
