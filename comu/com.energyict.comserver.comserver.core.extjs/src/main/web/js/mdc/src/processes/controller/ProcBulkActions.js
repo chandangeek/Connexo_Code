@@ -484,7 +484,9 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                        }
                   }
             });
-            if (propertyFormIsValid) me.validateProcessesAction(wizard, record.get('allProcesses'), filter);
+            if (propertyFormIsValid){
+                me.validateProcessesAction(wizard, record.get('allProcesses'), filter);
+            }
         }
         /* In case if form is not valid we just do not anything and stay on card Step3. Error is shown for the invalid field */
 
