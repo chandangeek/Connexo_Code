@@ -139,7 +139,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                     ? checkTaskStatus(serviceCall, execution)
                     : runTask(serviceCall, execution);
         } else {
-            serviceCall.log(LogLevel.SEVERE, "Device " + deviceName + " couldn't be found");
+            serviceCall.log(LogLevel.SEVERE, "Couldn't find device " + deviceName);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
             return false;
         }
@@ -164,9 +164,9 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                 .getComTaskEnablements()
                 .stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
-                .filter(comTaskExecution -> comTaskExecution.getComTask().getProtocolTasks()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks()
                         .stream()
-                        .allMatch(protocolTask -> isRegular
+                        .anyMatch(protocolTask -> isRegular
                                 ? protocolTask instanceof LoadProfilesTask
                                 : protocolTask instanceof RegistersTask))
                 .findFirst();
