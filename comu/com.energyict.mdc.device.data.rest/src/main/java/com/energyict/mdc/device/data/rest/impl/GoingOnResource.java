@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.UserTaskInfo;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -19,6 +20,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -111,33 +113,41 @@ public class GoingOnResource {
         });
         List<GoingOnInfo> issues = new ArrayList<>();
         if(hasCurrentUserIssuePrivileges(appPrivileges)) {
-            issues = issueService.findIssues(issueFilter)
-                    .paged(0, 200)
+            Finder<? extends Issue> issueFinder = issueService.findIssues(issueFilter);
+            if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
+                issueFinder = issueFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+            }
+            issues = issueFinder
                     .sorted("urgency + impact", true)
                     .sorted("due_date", false)
-                    .stream()
-                    .map(goingOnInfoFactory::toGoingOnInfo)
+                    .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }
 
-        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(device, serviceCallService.nonFinalStates())
-                .stream()
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .collect(Collectors.toList());
+        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
+        serviceCallFilter.targetObject = device;
+        serviceCallFilter.states = serviceCallService.nonFinalStates().stream().map(Enum::name).collect(Collectors.toList());
+        Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
+        if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
+            serviceCallFinder = serviceCallFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+        }
+        List<GoingOnInfo> serviceCalls = serviceCallFinder.stream().map(goingOnInfoFactory::toGoingOnInfo).collect(Collectors.toList());
 
         List<GoingOnInfo> alarms = new ArrayList<>();
         if(hasCurrentUserAlarmPrivileges(appPrivileges)) {
-            alarms = deviceAlarmService.findAlarms(alarmFilter)
-                    .paged(0, 200)
+            Finder<? extends DeviceAlarm> alarmFinder = deviceAlarmService.findAlarms(alarmFilter);
+            if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
+                alarmFinder = alarmFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+            }
+            alarms = alarmFinder
                     .sorted("urgency + impact", true)
                     .sorted("due_date", false)
-                    .stream()
-                    .map(goingOnInfoFactory::toGoingOnInfo)
+                    .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }
 
         List<GoingOnInfo> processInstances = new ArrayList<>();
-        if(hasCurrentUserTasksPrivileges(appPrivileges)) {
+        if(hasCurrentUserTasksPrivileges(appPrivileges) && queryParameters.getStart().map(l -> l.equals(0)).orElse(Boolean.TRUE)) {
             processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
                     .processes
                     .stream()
@@ -148,7 +158,6 @@ public class GoingOnResource {
         List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances, alarms)
                 .flatMap(List::stream)
                 .sorted(GoingOnInfo.order())
-                .limit(200)
                 .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromPagedList("goingsOn", goingOnInfos, queryParameters)).build();
