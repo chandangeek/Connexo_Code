@@ -106,6 +106,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 type: 'rest',
                 url: '/api/ddr/devices/'+ encodeURIComponent(this.deviceId) +'/whatsgoingon',
                 startParam: null,
+                timeout: 120000,
                 limitParam: null,
                 reader: {
                     type: 'json',
@@ -117,6 +118,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 type: 'rest',
                 url: '/api/udr/usagepoints/'+ encodeURIComponent(this.usagePointId) +'/whatsgoingon',
                 startParam: null,
+                timeout: 120000,
                 limitParam: null,
                 reader: {
                     type: 'json',
