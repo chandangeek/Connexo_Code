@@ -71,6 +71,7 @@ public class GoingOnResource {
         List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances)
                 .flatMap(List::stream)
                 .sorted(GoingOnInfo.order())
+                .limit(200)
                 .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromPagedList("goingsOn", goingOnInfos, queryParameters)).build();

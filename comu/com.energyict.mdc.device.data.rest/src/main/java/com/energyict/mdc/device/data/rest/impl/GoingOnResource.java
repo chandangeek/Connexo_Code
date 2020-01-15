@@ -112,6 +112,9 @@ public class GoingOnResource {
         List<GoingOnInfo> issues = new ArrayList<>();
         if(hasCurrentUserIssuePrivileges(appPrivileges)) {
             issues = issueService.findIssues(issueFilter)
+                    .paged(0, 200)
+                    .sorted("urgency + impact", true)
+                    .sorted("due_date", false)
                     .stream()
                     .map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
@@ -125,6 +128,9 @@ public class GoingOnResource {
         List<GoingOnInfo> alarms = new ArrayList<>();
         if(hasCurrentUserAlarmPrivileges(appPrivileges)) {
             alarms = deviceAlarmService.findAlarms(alarmFilter)
+                    .paged(0, 200)
+                    .sorted("urgency + impact", true)
+                    .sorted("due_date", false)
                     .stream()
                     .map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
@@ -142,6 +148,7 @@ public class GoingOnResource {
         List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances, alarms)
                 .flatMap(List::stream)
                 .sorted(GoingOnInfo.order())
+                .limit(200)
                 .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromPagedList("goingsOn", goingOnInfos, queryParameters)).build();

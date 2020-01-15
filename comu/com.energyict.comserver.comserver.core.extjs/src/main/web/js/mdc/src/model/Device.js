@@ -134,6 +134,7 @@ Ext.define('Mdc.model.Device', {
     proxy: {
         type: 'rest',
         url: '/api/ddr/devices',
+        timeout: 60000,
         reader: {
             type: 'json'
         }
