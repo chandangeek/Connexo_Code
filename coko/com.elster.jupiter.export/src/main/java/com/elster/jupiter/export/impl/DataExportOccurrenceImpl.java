@@ -106,6 +106,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     }
 
     @Override
+    public void setStatus(DataExportStatus dataExportStatus){
+        status = dataExportStatus;
+    }
+
+    @Override
     public String getStatusName() {
         return this.thesaurus.getFormat(this.getStatus()).format();
     }

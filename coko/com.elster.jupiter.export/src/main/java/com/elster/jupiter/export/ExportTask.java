@@ -70,8 +70,6 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     void retryNow(DataExportOccurrence dataExportOccurrence);
 
-    void cancel(DataExportOccurrence dataExportOccurrence);
-
     void updateLastRun(Instant triggerTime);
 
     void setDataFormatterFactoryName(String formatter);

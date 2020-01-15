@@ -645,21 +645,12 @@ public class DataExportTaskResource {
     }
 
     @PUT
-    @Path("history/{historyId}/trigger/delete")
+    @Path("history/{historyId}/cancel")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.RUN_DATA_EXPORT_TASK})
     @Transactional
-    public Response triggerDeleteDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
-        dataExportService.findExportTask(historyInfo.task.id)
-                .ifPresent(exportTask ->
-                {
-                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
-                            .setId(historyId).stream()
-                            .findFirst()
-                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
-
-                    exportTask.cancel(dataExportOccurrence);
-                });
+    public Response cancelDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
+        dataExportService.cancelExportTask(historyId, historyInfo.task.id);
         return Response.status(Response.Status.OK).build();
     }
 

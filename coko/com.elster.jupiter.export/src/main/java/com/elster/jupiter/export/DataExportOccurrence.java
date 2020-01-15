@@ -26,6 +26,8 @@ public interface DataExportOccurrence {
 
     DataExportStatus getStatus();
 
+    void setStatus(DataExportStatus dataExportStatus);
+
     /**
      * Returns the name of the status of this DataExportOccurrence
      * in the user's preferred language.

@@ -71,6 +71,8 @@ public enum MessageSeeds implements MessageSeed {
     ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW(1052, "dataexport.item.created.nodata", "Item {0} doesn''t contain created data for the selected export window.", Level.WARNING),
     ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW(1053, "dataexport.item.changed.nodata", "Item {0} doesn''t contain changed data for the selected update window.", Level.WARNING),
 
+    OCCURRENCE_HAS_BEEN_CANCELLED(1054, "occurrence.has.been.cancelled", "The occurrence has been cancelled", Level.INFO),
+
     DATA_SENDING_FAILED_ALL_DATA_SOURCES(2000, "data.sending.failed.all.data.sources", "Failed to export all data to one or more destinations."),
     DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}.");
 

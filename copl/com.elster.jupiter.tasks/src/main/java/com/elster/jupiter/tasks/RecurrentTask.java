@@ -90,8 +90,6 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
 
     void triggerNow(TaskOccurrence taskOccurrence);
 
-    void cancel(TaskOccurrence taskOccurrence);
-
     int getLogLevel(Instant at);
 
     List<RecurrentTask> getNextRecurrentTasks();
