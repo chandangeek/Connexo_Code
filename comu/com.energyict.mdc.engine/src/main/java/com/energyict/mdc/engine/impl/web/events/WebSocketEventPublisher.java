@@ -22,6 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
@@ -147,11 +149,12 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     @Override
     public void onWebSocketText(String message) {
         try {
-            Request request = this.parser.parse(message);
+            String decoded = URLDecoder.decode(message, "UTF-8");
+            Request request = this.parser.parse(decoded);
             request.applyTo(this);
-            this.sendMessage("Copy " + message);  //No sense to send the message back  - just to debug
+            this.sendMessage("Copy " + decoded);  //No sense to send the message back  - just to debug
         }
-        catch (RequestParseException e) {
+        catch (RequestParseException | UnsupportedEncodingException e) {
             this.sendMessage("Message not understood:" + e.getMessage());
         }
     }

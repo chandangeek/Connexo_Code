@@ -162,7 +162,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Instant freezeClock(int year, int month, int day, int hour, int minute, int second, int millisecond) {
-        return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
+        return freezeClock(year, month, day, hour, minute, second, millisecond, Calendar.getInstance().getTimeZone());
     }
 
     protected Instant freezeClock(int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {

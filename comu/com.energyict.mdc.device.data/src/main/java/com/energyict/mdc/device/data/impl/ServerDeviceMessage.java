@@ -23,4 +23,11 @@ public interface ServerDeviceMessage extends DeviceMessage {
      */
     void moveTo(DeviceMessageStatus status);
 
+    /**
+     * Cancels/revokes this DeviceMessage without notify updated.
+     * This is required to revoke messages created with LimitsExceededForCommandException
+     * to not decrement it if ot was not incremented during message creation.
+     */
+    void revokeWithNoUpdateNotification();
+
 }
