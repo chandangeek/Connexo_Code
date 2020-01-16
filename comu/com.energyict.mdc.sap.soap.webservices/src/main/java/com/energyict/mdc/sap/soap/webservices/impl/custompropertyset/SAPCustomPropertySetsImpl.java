@@ -56,7 +56,6 @@ import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -111,7 +110,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile MasterDataService masterDataService;
-    private volatile DeviceDataModelService deviceDataModelService;
 
 
     private CustomPropertySet<Device, DeviceSAPInfoDomainExtension> deviceInfo;
@@ -125,7 +123,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Inject
     public SAPCustomPropertySetsImpl(DeviceService deviceService, CustomPropertySetService customPropertySetService,
                                      PropertySpecService propertySpecService, OrmService ormService,
-                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService, DeviceDataModelService deviceDataModelService) {
+                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService) {
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
         setPropertySpecService(propertySpecService);
@@ -133,7 +131,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
         setMasterDataService(masterDataService);
-        setDeviceDataModelService(deviceDataModelService);
     }
 
     @Activate
@@ -183,11 +180,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
-    }
-
-    @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
     }
 
     @Override
