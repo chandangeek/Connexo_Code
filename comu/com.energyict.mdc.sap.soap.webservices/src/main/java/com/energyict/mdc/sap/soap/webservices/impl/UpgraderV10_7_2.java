@@ -47,10 +47,10 @@ public class UpgraderV10_7_2 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 7, 2));
-        removeOldChannelAndRegisterSapCas();
+        removeOldChannelAndRegisterSapCasValues();
     }
 
-    private void removeOldChannelAndRegisterSapCas() {
+    private void removeOldChannelAndRegisterSapCasValues() {
         ImmutableList.Builder<String> sqlQueries = ImmutableList.builder();
         addSqlQueriesForChannels(sqlQueries);
         addSqlQueriesForRegister(sqlQueries);

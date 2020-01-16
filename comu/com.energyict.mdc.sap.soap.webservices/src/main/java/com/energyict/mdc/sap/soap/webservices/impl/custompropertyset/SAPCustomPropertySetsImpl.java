@@ -29,7 +29,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
@@ -55,7 +57,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -71,6 +72,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -92,6 +96,7 @@ import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
+@LiteralSql
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.SAPCustomPropertySets",
         service = {SAPCustomPropertySets.class, MessageSeedProvider.class, TranslationKeyProvider.class, TopicHandler.class},
         property = "name=" + SAPCustomPropertySetsImpl.COMPONENT_NAME, immediate = true)
@@ -647,7 +652,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
-        //Device historyDevice = device.getHistory(when).orElse(device);
         return device.getDeviceConfiguration().getChannelSpecs().stream()
                 .filter(spec -> readingTypes.contains(spec.getReadingType())).findAny();
     }
@@ -1058,11 +1062,12 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
     @Override
     public String getTopicMatcher() {
-        return EventType.DEVICE_CONFIGURATION_CHANGED.topic();
+        return "com/energyict/mdc/device/data/deviceconfiguration/CHANGED";
     }
 
     private void changeDomainObjectForChannelCas(Device source) {
-        List<ChannelSpec> channelSpecs = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+        DataModel dataModel = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME);
+        List<ChannelSpec> channelSpecs = dataModel
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
@@ -1071,31 +1076,25 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .distinct()
                 .collect(Collectors.toList());
 
-        channelSpecs.stream()
-                .forEach(spec -> {
-                    ReadingType specRT = spec.getReadingType();
-                    Optional<ChannelSpec> cs = source.getChannels().stream().map(c -> c.getChannelSpec()).filter(f -> f.getReadingType().equals(specRT)).findAny();
-                    if (cs.isPresent() && cs.get().getId() != spec.getId()) {
-                        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + DeviceChannelSAPInfoCustomPropertySet.TABLE_NAME + " SET ");
-                        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
-                        sqlBuilder.append(" = ");
-                        sqlBuilder.addLong(cs.get().getId());
-                        sqlBuilder.append(" WHERE ");
-                        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
-                        sqlBuilder.append(" = ");
-                        sqlBuilder.addLong(spec.getId());
-                        sqlBuilder.append(" AND ");
-                        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.name());
-                        sqlBuilder.append(" = ");
-                        sqlBuilder.addLong(source.getId());
-
-                        deviceDataModelService.executeUpdate(sqlBuilder);
-                    }
-                });
+        channelSpecs.forEach(spec -> {
+            ReadingType specRT = spec.getReadingType();
+            Optional<ChannelSpec> cs = source.getChannels().stream().map(c -> c.getChannelSpec()).filter(f -> f.getReadingType().equals(specRT)).findAny();
+            if (cs.isPresent() && cs.get().getId() != spec.getId()) {
+                try (Connection connection = dataModel.getConnection(true)) {
+                    this.executeUpdate(connection, createSqlToUpdateChannelSpec(DeviceChannelSAPInfoCustomPropertySet.TABLE_NAME,
+                            spec.getId(), cs.get().getId(), source.getId()));
+                    this.executeUpdate(connection, createSqlToUpdateChannelSpec(DeviceChannelSAPInfoCustomPropertySet.TABLE_NAME + "JRNL",
+                            spec.getId(), cs.get().getId(), source.getId()));
+                } catch (SQLException e) {
+                    throw new UnderlyingSQLFailedException(e);
+                }
+            }
+        });
     }
 
     private void changeDomainObjectForRegisterCas(Device source) {
-        List<RegisterSpec> registerSpecs = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+        DataModel dataModel = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME);
+        List<RegisterSpec> registerSpecs = dataModel
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .join(RegisterSpec.class)
                 .join(ReadingType.class)
@@ -1109,21 +1108,57 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                     ReadingType specRT = spec.getReadingType();
                     Optional<RegisterSpec> cs = source.getRegisters().stream().map(c -> c.getRegisterSpec()).filter(f -> f.getReadingType().equals(specRT)).findAny();
                     if (cs.isPresent() && cs.get().getId() != spec.getId()) {
-                        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + DeviceRegisterSAPInfoCustomPropertySet.TABLE_NAME + " SET ");
-                        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
-                        sqlBuilder.append(" = ");
-                        sqlBuilder.addLong(cs.get().getId());
-                        sqlBuilder.append(" WHERE ");
-                        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
-                        sqlBuilder.append(" = ");
-                        sqlBuilder.addLong(spec.getId());
-                        sqlBuilder.append(" AND ");
-                        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.databaseName());
-                        sqlBuilder.append(" = ");
-                        sqlBuilder.addLong(source.getId());
-
-                        deviceDataModelService.executeUpdate(sqlBuilder);
+                        try (Connection connection = dataModel.getConnection(true)) {
+                            this.executeUpdate(connection, createSqlToUpdateRegisterSpec(DeviceRegisterSAPInfoCustomPropertySet.TABLE_NAME,
+                                    spec.getId(), cs.get().getId(), source.getId()));
+                            this.executeUpdate(connection, createSqlToUpdateRegisterSpec(DeviceRegisterSAPInfoCustomPropertySet.TABLE_NAME + "JRNL",
+                                    spec.getId(), cs.get().getId(), source.getId()));
+                        } catch (SQLException e) {
+                            throw new UnderlyingSQLFailedException(e);
+                        }
                     }
                 });
+    }
+
+    private SqlBuilder createSqlToUpdateChannelSpec(String tableName, long oldValue, long newValue, long deviceId) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + tableName + " SET ");
+        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(newValue);
+        sqlBuilder.append(" WHERE ");
+        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(oldValue);
+        sqlBuilder.append(" AND ");
+        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.name());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(deviceId);
+
+        return sqlBuilder;
+    }
+
+    private SqlBuilder createSqlToUpdateRegisterSpec(String tableName, long oldValue, long newValue, long deviceId) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + tableName + " SET ");
+        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(newValue);
+        sqlBuilder.append(" WHERE ");
+        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(oldValue);
+        sqlBuilder.append(" AND ");
+        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(deviceId);
+
+        return sqlBuilder;
+    }
+
+    private void executeUpdate(Connection connection, SqlBuilder sqlBuilder) {
+        try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 }
