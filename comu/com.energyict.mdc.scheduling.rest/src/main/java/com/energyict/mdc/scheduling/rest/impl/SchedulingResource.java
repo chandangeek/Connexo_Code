@@ -119,15 +119,15 @@ public class SchedulingResource {
 
     private void filterAvailableSchedulesOnly(String deviceName, List<ComSchedule> comSchedules) {
         deviceService.findDeviceByName(deviceName).ifPresent(device -> {
-                List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-                List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-                Iterator<ComSchedule> iterator = comSchedules.iterator();
-                while(iterator.hasNext()) {
-                    ComSchedule comSchedule = iterator.next();
-                    if (!isValidComSchedule(comSchedule, comTaskEnablements, comTaskExecutions)) {
-                        iterator.remove();
-                    }
+            List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+            List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
+            Iterator<ComSchedule> iterator = comSchedules.iterator();
+            while (iterator.hasNext()) {
+                ComSchedule comSchedule = iterator.next();
+                if (!isValidComSchedule(comSchedule, comTaskEnablements, comTaskExecutions)) {
+                    iterator.remove();
                 }
+            }
         });
     }
 

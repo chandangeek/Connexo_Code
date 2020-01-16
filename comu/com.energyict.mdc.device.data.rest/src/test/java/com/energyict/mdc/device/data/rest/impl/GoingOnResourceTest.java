@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.device.data.Device;
@@ -26,7 +27,6 @@ import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +37,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
@@ -69,6 +70,9 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Mock
     Finder<? extends DeviceAlarm> alarmFinder;
+
+    @Mock
+    Finder<ServiceCall> serviceCallFinder;
 
     @Mock
     Issue issue;
@@ -124,6 +128,7 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issueService.findStatus(IssueStatus.OPEN)).thenReturn(Optional.of(openStatus));
         when(issueService.findStatus(IssueStatus.IN_PROGRESS)).thenReturn(Optional.of(inProgressStatus));
         doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
+        doReturn(issueFinder).when(issueFinder).sorted(anyString(), anyBoolean());
         doReturn(Collections.singletonList(issue)).when(issueFinder).find();
         doReturn(Collections.singletonList(issue).stream()).when(issueFinder).stream();
         when(issue.getReason()).thenReturn(reason);
@@ -137,9 +142,13 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issue.getAssignee()).thenReturn(issueAssignee);
         when(openStatus.getName()).thenReturn(IssueStatus.OPEN);
 
-        when(serviceCallService.findServiceCalls(any(), any())).thenReturn(new HashSet<>());
+        //when(serviceCallService.findServiceCalls(any(), any())).thenReturn(new HashSet<>());
+        when(serviceCallService.getServiceCallFinder(any())).thenReturn(serviceCallFinder);
+        doReturn(Collections.emptyList().stream()).when(serviceCallFinder).stream();
+
         doReturn(alarmFinder).when(deviceAlarmService).findAlarms(any(DeviceAlarmFilter.class), anyVararg());
         doReturn(Collections.singletonList(deviceAlarm).stream()).when(alarmFinder).stream();
+        doReturn(alarmFinder).when(alarmFinder).sorted(anyString(), anyBoolean());
         ProcessInstanceInfos infos = new ProcessInstanceInfos();
         when(bpmService.getRunningProcesses(any(), any(), any())).thenReturn(infos);
         when(deviceAlarm.getId()).thenReturn(1L);

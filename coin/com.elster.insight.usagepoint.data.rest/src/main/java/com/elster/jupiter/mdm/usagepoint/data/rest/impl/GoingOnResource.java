@@ -7,11 +7,15 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.UserTaskInfo;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
+
+import com.google.common.collect.Lists;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -57,16 +61,25 @@ public class GoingOnResource {
 
         List<GoingOnInfo> issues = Collections.emptyList();
 
-        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(usagePoint, serviceCallService.nonFinalStates())
-                .stream()
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .collect(Collectors.toList());
+        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
+        serviceCallFilter.targetObject = usagePoint;
+        serviceCallFilter.states = serviceCallService.nonFinalStates().stream().map(Enum::name).collect(Collectors.toList());
+        Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallFilter);
+        if(queryParameters.getLimit().isPresent() && queryParameters.getStart().isPresent()){
+            serviceCallFinder = serviceCallFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
+        }
+        List<GoingOnInfo> serviceCalls = serviceCallFinder.stream().map(goingOnInfoFactory::toGoingOnInfo).collect(Collectors.toList());
 
-        List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(usagePoint), appKey)
-                .processes
-                .stream()
-                .map(goingOnInfoFactory::toGoingOnInfo)
-                .collect(Collectors.toList());
+        List<GoingOnInfo> processInstances;
+        if(queryParameters.getStart().map(l -> l.equals(0)).orElse(Boolean.TRUE)) {
+            processInstances = bpmService.getRunningProcesses(auth, filterFor(usagePoint), appKey)
+                    .processes
+                    .stream()
+                    .map(goingOnInfoFactory::toGoingOnInfo)
+                    .collect(Collectors.toList());
+        }else {
+            processInstances = Lists.newArrayList();
+        }
 
         List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances)
                 .flatMap(List::stream)

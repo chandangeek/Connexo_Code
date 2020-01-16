@@ -454,12 +454,13 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var record = this.getBulkRecord(),
         step4Panel = wizard.down('processes-bulk-step4'),
         operation = record.get('operation'),
+        propertyFormIsValid = true,
         message, widget;
 
         var step3Panel = wizard.down('processes-bulk-step3');
         var propertyForm = step3Panel.down('retry-process').down('property-form');
 
-        if (propertyForm.isValid())
+        if (propertyFormIsValid = propertyForm.isValid())
         {
             propertyForm.updateRecord();
             globalStartProcessRecord = propertyForm.getRecord();
@@ -468,7 +469,24 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             var filter = processesStore.getProxy().encodeFilters(processesStore.filters.getRange());
 
             /* Validation.Check number of process instances that can be retried  */
-            me.validateProcessesAction(wizard, record.get('allProcesses'), filter);
+            var processValuesProperties = globalStartProcessRecord && globalStartProcessRecord.properties();
+            processValuesProperties.each(function (property){
+                  if (property.get('required')){
+                       var propertyKey = property.get('key');
+                       if (propertyKey && propertyForm){
+                           var propertyField = propertyForm.getPropertyField(propertyKey);
+                           if (propertyField.getValue()){
+                                propertyField.clearInvalid();
+                           }else{
+                                propertyFormIsValid = false;
+                                propertyField.markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                           }
+                       }
+                  }
+            });
+            if (propertyFormIsValid){
+                me.validateProcessesAction(wizard, record.get('allProcesses'), filter);
+            }
         }
         /* In case if form is not valid we just do not anything and stay on card Step3. Error is shown for the invalid field */
 
