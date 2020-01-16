@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.impl.MessageSeeds;
 import com.elster.jupiter.time.impl.TimeDurationUnitTranslationKeys;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,11 +18,23 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Period;
 import java.time.ZonedDateTime;
-import java.time.temporal.*;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.IsoFields;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalField;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import static com.elster.jupiter.time.TimeDuration.TimeUnit.*;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.DAYS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.HOURS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.MILLISECONDS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.MINUTES;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.MONTHS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.SECONDS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.WEEKS;
+import static com.elster.jupiter.time.TimeDuration.TimeUnit.YEARS;
 
 /**
  * represents a relative period in time
@@ -473,7 +486,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
                 // intentionally no break coded
             case WEEKS:
                 if (WEEKS.equals(timeUnit)) {
-                    calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+                    calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
                     // intentionally no break coded
                 }
             case DAYS:
