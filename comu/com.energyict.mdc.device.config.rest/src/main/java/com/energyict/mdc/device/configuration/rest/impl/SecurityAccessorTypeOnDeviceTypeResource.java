@@ -216,6 +216,25 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
         return Optional.of(findSecAccessorOnDeviceTypeOrThrowException(deviceType, wrapperAccessorId).getSecurityAccessorType());
     }
 
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
+    @Path("/{securityAccessorId}/wrappingSecurityAccessor")
+    public SecurityAccessorType getWrappingSecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        List<SecurityAccessorTypeOnDeviceType> securityAccessors = deviceType.getSecurityAccessors();
+        SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType = securityAccessors.stream()
+                .filter(sa -> sa.getSecurityAccessorType().getId() == securityAccessorId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE));
+        Optional<SecurityAccessorType> wrappingSecurityAccessorType = deviceType.getWrappingSecurityAccessorType(securityAccessorTypeOnDeviceType.getSecurityAccessorType());
+        if (wrappingSecurityAccessorType.isPresent()) {
+            return wrappingSecurityAccessorType.get();
+        }
+        return null;
+    }
+
     @DELETE
     @Transactional
     @Path("/{securityAccessorId}")
