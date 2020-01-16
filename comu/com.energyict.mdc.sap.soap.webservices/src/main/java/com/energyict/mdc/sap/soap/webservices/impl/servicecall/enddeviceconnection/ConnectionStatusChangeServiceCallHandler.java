@@ -39,7 +39,7 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case CANCELLED:
-                sendConfirmation(serviceCall);
+                sendConfirmation(serviceCall, oldState);
                 break;
             case FAILED:
             case PARTIAL_SUCCESS:
@@ -62,10 +62,12 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
         }
     }
 
-    private void sendConfirmation(ServiceCall parent) {
+    private void sendConfirmation(ServiceCall parent, DefaultState oldState) {
         ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
 
-        if (!extension.isCancelledBySap()) {
+        if (!extension.isCancelledBySap() && !oldState.equals(DefaultState.ONGOING)) {
+            // Send confirmation after cancelling from UI
+            // if not cancelling by timeout and not after ConnectionStatusChangeHandler which moves state to Ongoing before cancel
             if (extension.isBulk()) {
                 StatusChangeRequestBulkCreateConfirmationMessage responseMessage = StatusChangeRequestBulkCreateConfirmationMessage
                         .builder(sapCustomPropertySets)

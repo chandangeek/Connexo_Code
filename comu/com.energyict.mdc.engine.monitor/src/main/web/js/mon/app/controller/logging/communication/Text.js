@@ -77,7 +77,7 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
             addDelimiter = false;
 
         if (this.getDeviceNames()) {
-            criteriaInfo += ('Device name = ' + this.getDeviceNames());
+            criteriaInfo += ('Device name = ' + decodeURI(this.getDeviceNames()));
             addDelimiter = true;
         }
         if (this.getPortNames().length > 0) {
