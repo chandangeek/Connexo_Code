@@ -686,7 +686,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     public void stopComServer() {
         if (this.launcher != null) {
             System.out.println("Stopping ComServer " + HostName.getCurrent());
-            Thread.dumpStack();
             this.protocolDeploymentListenerRegistration.unregister();
             this.launcher.stopComServer();
             this.launcher = null;
