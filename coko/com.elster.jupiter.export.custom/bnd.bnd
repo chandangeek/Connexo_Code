@@ -1,3 +1,0 @@
--classpath: target/classes
--dsannotations: *
-Private-Package: com.elster.jupiter.export.custom

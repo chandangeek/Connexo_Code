@@ -8,6 +8,7 @@ import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -63,6 +64,8 @@ public enum DeviceMessageId {
     CONTACTOR_ACTION_WITH_ACTIVATION(1017),
     REMOTE_DISCONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION(1018),
     REMOTE_CONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION(1019),
+    CONTACTOR_CLOSE_AND_CLOSE_INVOICING_PERIOD_WITH_ACTIVATION_DATE(1020),
+    CHANGE_VALVE_ENABLE_PASSWORD(1021),
 
     ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS(2001),
     ALARM_CONFIGURATION_WRITE_ALARM_FILTER(2002),
@@ -251,6 +254,8 @@ public enum DeviceMessageId {
     CHANGE_LTE_APN_NAME(4075),
     CHANGE_LTE_PING_ADDRESS(4076),
     CONFIGURE_INTERFACE_LOCKOUT_PARAMETERS(4077),
+    CONFIGURE_AUTO_CONNECT_A2(4078),
+    CHANGE_SIM_PIN(4079),
 
     FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE(5001),
     FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE(5002),
@@ -260,6 +265,7 @@ public enum DeviceMessageId {
     FIRMWARE_UPGRADE_WITH_USER_FILE_VERSION_AND_ACTIVATE_DATE(5006),
     FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE(5007),
     FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE(5008),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION(5009),
     FIRMWARE_UPGRADE_UPGRADE_WAVE_CARD(5010),
     FIRMWARE_UPGRADE_PLC_PRIME_SET_FIRMWARE_UPGRADE_FILE(5011),
     FIRMWARE_UPGRADE_PLC_PRIME_START_FIRMWARE_UPGRADE_NODE_LIST(5012),
@@ -288,6 +294,7 @@ public enum DeviceMessageId {
     TRANSFER_HES_CA_CONFIG_IMAGE(5035),
     LTE_MODEM_FIRMWARE_UPGRADE(5036),
     FIRMWARE_UPGRADE_DATA_CONCENTRATOR_MULTICAST_FIRMWARE_UPGRADE(5037),
+    MBUS_ESMR5_FIRMWARE_UPGRADE(5038),
 
     ZIGBEE_CONFIGURATION_CREATE_HAN_NETWORK(6001),
     ZIGBEE_CONFIGURATION_REMOVE_HAN_NETWORK(6002),
@@ -375,6 +382,7 @@ public enum DeviceMessageId {
     CHANGE_PSK_USING_SERVICE_KEY(7073),
     EXPORT_ALL_DEVICE_CERTIFICATES(7074),
     CHANGE_PSK_KEK(7075),
+    MBUS_TRANSFER_FUAK(7076),
 
     DEVICE_ACTIONS_BILLING_RESET(8001),
     DEVICE_ACTIONS_GLOBAL_METER_RESET(8002),
@@ -671,9 +679,7 @@ public enum DeviceMessageId {
     InstallWirelessMbusDevices(24017),
     ScanAndInstallWiredMbusDeviceForGivenMeterIdentification(24018),
     InstallWirelessMbusDeviceForGivenMeterIdentification(24019),
-    MBUS_TRANSFER_FUAK(24020),
     MBUS_TRANSFER_P2KEY(24021),
-    MBUS_ESMR5_FIRMWARE_UPGRADE(24022),
     MBUS_READ_DETAILED_VERSION_INFORMATION_TAG(24023),
 
     OPUS_CONFIGURATION_SET_OS_NUMBER(25001),
@@ -893,6 +899,12 @@ public enum DeviceMessageId {
                 .filter(dmi -> dmi.dbValue() == dbId)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId)));
+    }
+
+    public static Optional<DeviceMessageId> find(long dbId) {
+        return Arrays.stream(DeviceMessageId.values())
+                .filter(dmi -> dmi.dbValue() == dbId)
+                .findFirst();
     }
 
     public static Set<DeviceMessageId> fileManagementRelated() {

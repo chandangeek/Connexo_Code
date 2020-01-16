@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheAdapter;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 

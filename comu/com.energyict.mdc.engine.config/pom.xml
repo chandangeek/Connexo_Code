@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Heracles-SNAPSHOT</version>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -114,6 +114,16 @@
             <artifactId>json</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -148,6 +158,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

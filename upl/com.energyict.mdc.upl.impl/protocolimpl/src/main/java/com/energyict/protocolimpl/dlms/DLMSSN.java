@@ -71,7 +71,6 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     private static final int PROPOSED_QOS = -1;
     private static final int PROPOSED_DLMS_VERSION = 6;
     private static final int MAX_PDU_SIZE = -1;
-    private static final String PROPNAME_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
     private static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
     private static final String PROPNAME_IIAP_SERVICE_CLASS = "IIAPServiceClass";
@@ -685,7 +684,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
                 this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.integerSpec(PROPNAME_EXTENDED_LOGGING, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
                 ProtocolChannelMap.propertySpec(PROPNAME_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CHANNEL_MAP_DESCRIPTION).format()),
@@ -735,7 +734,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
         iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
         // KV 19012004 get the serialNumber
         configuredSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
-        extendedLogging = properties.getTypedProperty(PROPNAME_EXTENDED_LOGGING, 0);
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
         addressingMode = properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, -1);
         connectionMode = properties.getTypedProperty(PROPNAME_CONNECTION, 0); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
         channelMap = properties.getTypedProperty(PROPNAME_CHANNEL_MAP);

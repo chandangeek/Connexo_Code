@@ -158,7 +158,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getDsmr40Messaging().applyMessages(messageEntries);
     }
 

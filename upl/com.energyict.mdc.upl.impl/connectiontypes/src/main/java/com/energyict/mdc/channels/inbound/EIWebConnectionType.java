@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -107,4 +108,14 @@ public class EIWebConnectionType implements ConnectionType {
         this.properties = properties;
     }
 
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
+    }
 }

@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles;
 
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -17,14 +18,14 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
-import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,6 +71,9 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
       LTE Monitoring load profile
     */
     public static final ObisCode LTE_MONITORING_LOAD_PROFILE = ObisCode.fromString("0.0.99.18.0.255");
+
+    // Gas Hourly load profile
+    private static final ObisCode MBUS_GAS_HOURLY_DUPLICATED_CHANNEL = ObisCode.fromString("0.x.24.2.3.255");
 
     private static final boolean DO_IGNORE_DST_STATUS_CODE = true;
 
@@ -224,13 +228,52 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders){
         List<CollectedLoadProfileConfiguration> loadProfileConfigurationList = super.fetchLoadProfileConfiguration(loadProfileReaders);
 
-        for (CollectedLoadProfileConfiguration lpc : loadProfileConfigurationList){
-            if (lpc.getObisCode().equals(LTE_MONITORING_LOAD_PROFILE)){
+        for (CollectedLoadProfileConfiguration lpc : loadProfileConfigurationList) {
+            if (lpc.getObisCode().equals(LTE_MONITORING_LOAD_PROFILE)) {
                 lpc.setChannelInfos(getLTEMonitoringChannelInfos(lpc));
+            } else if (lpc.getObisCode().equalsIgnoreBChannel(ESMR50Protocol.MBUS_LP1_OBISCODE)) {
+                List<ChannelInfo> channelInfos = lpc.getChannelInfos();
+                // remap duplicated 0.x.24.2.3.255 (timestamp) to 0.x.24.2.5.255
+                channelInfos.stream().filter(
+                        ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_GAS_HOURLY_DUPLICATED_CHANNEL) &&
+                              ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
+                ).forEach(
+                        ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
+                );
             }
         }
 
         return loadProfileConfigurationList;
+    }
+
+    private static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
+        final String[] obisLetters = obisCode.toString().split("\\.");
+        final String letter = String.valueOf(value);
+
+        switch (fieldNo) {
+            case 1:
+                obisLetters[0] = letter;
+                break;
+            case 2:
+                obisLetters[1] = letter;
+                break;
+            case 3:
+                obisLetters[2] = letter;
+                break;
+            case 4:
+                obisLetters[3] = letter;
+                break;
+            case 5:
+                obisLetters[4] = letter;
+                break;
+            case 6:
+                obisLetters[5] = letter;
+                break;
+            default:
+                break;
+        }
+
+        return ObisCode.fromString( String.join(".", obisLetters) );
     }
 
     protected List<ChannelInfo> getLTEMonitoringChannelInfos(CollectedLoadProfileConfiguration lpc) {

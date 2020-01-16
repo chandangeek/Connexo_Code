@@ -1,0 +1,796 @@
+def	b = 0-64													
+	7	b	0	0	0-9	255	Ch. $B	Complete combined gas ID		#$(E+1)		1	3, 4	6, 9, 10, 17, 18
+	7	b	0	0	255	255	Ch. $B	Gas ID				7	61	
+	7	b	0	1	0	0-99, 255	Ch. $B	Billing period counter (1)			#$F	1	3, 4	6, 17, 18
+	7	b	0	1	1	255	Ch. $B	No. of available billing periods (1)				1	3	6, 17, 18
+	7	b	0	1	2	255	Ch. $B	Time stamp of the most recent billing period (1)				1	3, 4	9
+	7	b	0	1	2	0-99	Ch. $B	Time stamp of the billing period (1)			#$F	1	3, 4	9
+	7	b	0	1	3	0-99, 255	Ch. $B	Billing period counter (2)			#$F	1	3, 4	6, 17, 18
+	7	b	0	1	4	255	Ch. $B	No. of available billing periods (2)				1	3	6, 17, 18
+	7	b	0	1	5	255	Ch. $B	Time stamp of the most recent billing period (2)				1	3, 4	9
+	7	b	0	1	5	0-99	Ch. $B	Time stamp of the billing period (2) VZ (last reset)			#$F	1	3, 4	9
+	7	b	0	1	6	0-99, 255	Ch. $B	Billing period counter (3)			#$F	1	3, 4	6, 17, 18
+	7	b	0	1	7	255	Ch. $B	No. of available billing periods (3)				1	3	6, 17, 18
+	7	b	0	1	8	255	Ch. $B	Time stamp of the most recent billing period (3)				1	3, 4	9
+	7	b	0	1	8	0-99	Ch. $B	Time stamp of the billing period (3) VZ (last reset)			#$F	1	3, 4	9
+	7	b	0	1	9	0-99, 255	Ch. $B	Billing period counter (4)			#$F	1	3, 4	6, 17, 18
+	7	b	0	1	10	255	Ch. $B	No. of available billing periods (4)				1	3	6, 17, 18
+	7	b	0	1	11	255	Ch. $B	Time stamp of the most recent billing period (4)				1	3, 4	9
+	7	b	0	1	11	0-99	Ch. $B	Time stamp of the billing period (4) VZ (last reset)			#$F	1	3, 4	9
+	7	b	0	2	0	255	Ch. $B	Program version				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	1	255	Ch. $B	Firmware version				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	2	255	Ch. $B	Software version				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	3	255	Ch. $B	Device version				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	8	255	Ch. $B	Active firmware signature				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	10	255	Ch. $B	Number of device channels				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	11	255	Ch. $B	Pressure sensor, serial no.				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	12	255	Ch. $B	Temperature sensor, serial no.				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	13	255	Ch. $B	Calculator, serial no.				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	14	255	Ch. $B	Volume sensor, serial no.				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	15	255	Ch. $B	Density sensor, serial no.				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	16	255	Ch. $B	Sensor (medium irrespective), serial no.				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	17	255	Ch. $B	Digital output configuration				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	2	18	255	Ch. $B	Analogue output configuration				1	3, 4	6, 9, 10, 17, 18
+	7	b	0	3	0	255	Ch. $B	Output pulse constant	Volume forward at metering conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	3	1	255	Ch. $B	Output pulse constant	Volume reverse at metering conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	3	2	255	Ch. $B	Output pulse constant	Volume absolute at metering conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	3	3	255	Ch. $B	Output pulse constant	Volume forward at base conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	3	4	255	Ch. $B	Output pulse constant	Volume reverse at base conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	3	5	255	Ch. $B	Output pulse constant	Volume absolute at base conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	4	0	255	Ch. $B	Conversion factor		$(E+1)		1	3, 4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	4	1	255	Ch. $B	Conversion factor		$(E+1)		1	3, 4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	4	2	255	Ch. $B	Conversion factor		$(E+1)		1	3, 4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	4	3	255	Ch. $B	Conversion factor		$(E+1)		1	3, 4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	4	4	255	Ch. $B	Conversion factor		$(E+1)		1	3, 4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	1	1-4	Ch. $B	Threshold power for over-consumption relative to measurement period 2 for indexes and index differences		Limit $E		3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	1	11-14	Ch. $B	Threshold power for over-consumption relative to measurement period 3 for indexes and index differences		Limit ($E-10)		3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	2	1-9	Ch. $B	Threshold limit for over-consumption relative to measurement period 2 for indexes and index differences		Rate ($E-10)		3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	2	11-19	Ch. $B	Threshold limit for over-consumption relative to measurement period 3 for indexes and index differences		Rate ($E-10)		3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	3	255	Ch. $B	Max. contracted consumption for recording interval 1				3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	4	255	Ch. $B	Max. contracted consumption for recording interval 2				3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	11	255	Ch. $B	Absolute temperature, min. limit setting, Tmin				3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	12	255	Ch. $B	Absolute temperature, max. limit setting, Tmax				3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	13	255	Ch. $B	Absolute pressure, min. limit setting, Pmin				3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	5	14	255	Ch. $B	Absolute pressure, max. limit setting, Pmax				3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	6	1	255	Ch. $B	Nominal values volume sensor	 Pressure			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	6	2	255	Ch. $B	Nominal values volume sensor	Temperature			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	6	3	255	Ch. $B	Nominal values volume sensor	Qmin			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	6	4	255	Ch. $B	Nominal values volume sensor	Qmax			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	7	0	255	Ch. $B	Input pulse constant	Volume forward at metering conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	7	1	255	Ch. $B	Input pulse constant	Volume reverse metering conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	7	2	255	Ch. $B	Input pulse constant	Volume absolute at metering conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	7	3	255	Ch. $B	Input pulse constant	Volume forward at base conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	7	4	255	Ch. $B	Input pulse constant	Volume reverse at base conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	7	5	255	Ch. $B	Input pulse constant	Volume absolute at base conditions			3	4	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	0	8	1	255	Ch. $B	Recording interval 1, for profile				1	3	6, 17, 18
+	7	b	0	8	2	255	Ch. $B	Recording interval 2, for profile				1	3	6, 17, 18
+	7	b	0	8	3	255	Ch. $B	Measurement period 1, for average value 1				1	3	6, 17, 18
+	7	b	0	8	4	255	Ch. $B	Measurement period 2, for average value 2				1	3	6, 17, 18
+	7	b	0	8	5	255	Ch. $B	Measurement period 3, for instantaneous value				1	3	6, 17, 18
+	7	b	0	8	6	255	Ch. $B	Measurement period 4, for test value 				1	3	6, 17, 18
+	7	b	0	8	10	255	Ch. $B	Billing period				1	3	6, 17, 18
+	7	b	0	8	11	255	Ch. $B	Process interval 1, default value 15 minutes				1	3	6, 17, 18
+	7	b	0	8	12	255	Ch. $B	Process interval 2, default value 1 hour				1	3	6, 17, 18
+	7	b	0	8	13	255	Ch. $B	Process interval 3, default value 1 day				1	3	6, 17, 18
+	7	b	0	8	14	255	Ch. $B	Process interval 4, default value 1 month				1	3	6, 17, 18
+	7	b	0	8	15	255	Ch. $B	Process interval 5, for process value, since last event				1	3	6, 17, 18
+	7	b	0	8	16	255	Ch. $B	Process interval 6, between last two events				1	3	6, 17, 18
+	7	b	0	8	17	255	Ch. $B	Measurement period 1, for indexes and index differences, default value 15 minutes				1	3	6, 17, 18
+	7	b	0	8	18	255	Ch. $B	Measurement period 2, for indexes and index differences, default value 1 hour				1	3	6, 17, 18
+	7	b	0	8	19	255	Ch. $B	Measurement period 3, for indexes and index differences, no default value				1	3	6, 17, 18
+	7	b	0	8	20	255	Ch. $B	Billing period 1, for indexes and index differences, default value 1 day				1	3	6, 17, 18
+	7	b	0	8	21	255	Ch. $B	Billing period 2, for indexes and index differences, default value 1 month				1	3	6, 17, 18
+	7	b	0	8	22	255	Ch. $B	Billing period 3, for indexes and index differences, default value 1 year				1	3	6, 17, 18
+	7	b	0	8	23	255	Ch. $B	Billing period 4, for indexes and index differences, no default value				1	3	6, 17, 18
+	7	b	0	8	25	255	Ch. $B	Averaging period 1, default value 5 minutes				1	3	6, 17, 18
+	7	b	0	8	26	255	Ch. $B	Averaging period 2, default value 15 minutes				1	3	6, 17, 18
+	7	b	0	8	27	255	Ch. $B	Averaging period 3, default value 1 hour				1	3	6, 17, 18
+	7	b	0	8	28	255	Ch. $B	Averaging period 4, no default value				1	3	6, 17, 18
+	7	b	0	8	29	255	Ch. $B	Averaging period 5, default value 1 day				1	3	6, 17, 18
+	7	b	0	8	30	255	Ch. $B	Averaging period 6, default value 1 month				1	3	6, 17, 18
+	7	b	0	8	31	255	Ch. $B	Averaging period 7, default value 1 year				1	3	6, 17, 18
+	7	b	0	8	32	255	Ch. $B	Averaging period 8, no default value				1	3	6, 17, 18
+	7	b	0	8	33	255	Ch. $B	Averaging period 9, since last event				1	3	6, 17, 18
+	7	b	0	8	34	255	Ch. $B	Averaging period 10, between two last events				1	3	6, 17, 18
+	7	b	0	8	35	255	Ch. $B	Number of sub-periods for averaging period 2				1	3	6, 17, 18
+	7	b	0	9	0	255	Ch. $B	No. of days since last reset				1	3	6, 17, 18
+	7	b	0	9	1	255	Ch. $B	Local time				1	3, 4	9
+	7	b	0	9	2	255	Ch. $B	Local date				1	3, 4	9
+	7	b	0	9	3	255	Ch. $B	Start of conventional gas day				1	3, 4	9
+	7	b	0	9	4	255	Ch. $B	Residual time shift				1	3, 4	5, 6, 15, 16, 17, 18
+	7	b	0	9	6	255	Ch. $B	Time of last reset (First billing period scheme if there are more than one)				1	3, 4	9
+	7	b	0	9	7	255	Ch. $B	Date of last reset (First billing period scheme if there are more than one)				1	3, 4	9
+	7	b	0	9	11	255	Ch. $B	Clock time shift limit				1	3, 4	6, 17, 18
+	7	b	0	9	12	255	Ch. $B	Billing period reset lockout time (First billing period scheme if there are more than one)				1	3, 4	6, 17, 18
+	7	b	0	9	13	255	Ch. $B	Time expired since last end of billing period (Second billing period scheme)				1	3, 4	6, 17, 18
+	7	b	0	9	14	255	Ch. $B	Time of last reset (Second billing period scheme)				1	3, 4	9
+	7	b	0	9	15	255	Ch. $B	Date of last reset (Second billing period scheme)				1	3, 4	9
+	7	b	0	9	16	255	Ch. $B	Billing period reset lockout time (Second billing period scheme)				1	3, 4	6, 17, 18
+	7	b	0	9	17	255	Ch. $B	Time expired since last end of billing period (Third billing period scheme)				1	3, 4	6, 17, 18
+	7	b	0	9	18	255	Ch. $B	Time of last reset (Third billing period scheme)				1	3, 4	9
+	7	b	0	9	19	255	Ch. $B	Date of last reset (Third billing period scheme)				1	3, 4	9
+	7	b	0	9	20	255	Ch. $B	Billing period reset lockout time (Third billing period scheme)				1	3, 4	6, 17, 18
+	7	b	0	9	21	255	Ch. $B	Time expired since last end of billing period (Fourth billing period scheme)				1	3, 4	6, 17, 18
+	7	b	0	9	22	255	Ch. $B	Time of last reset (Fourth billing period scheme)				1	3, 4	9
+	7	b	0	9	23	255	Ch. $B	Date of last reset (Fourth billing period scheme)				1	3, 4	9
+	7	b	0	9	24	255	Ch. $B	Billing period reset lockout time (Fourth billing period scheme)				1	3, 4	6, 17, 18
+	7	b	0	10	0	255	Ch. $B	Heating temperature f, current value				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	10	1	255	Ch. $B	Heating temperature, average 15 minutes				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	10	11	255	Ch. $B	Heating temperature, average 60 minutes				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	10	21	255	Ch. $B	Heating temperature, average day				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	10	31	255	Ch. $B	Heating temperature, average month				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	11	0	255	Ch. $B	Ambient device temperature g, current value				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	11	1	255	Ch. $B	Ambient device temperature, average 15 minutes				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	11	11	255	Ch. $B	Ambient device temperature, average 60 minutes				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	11	21	255	Ch. $B	Ambient device temperature, average day				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	11	31	255	Ch. $B	Ambient device temperature, average month				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	8	255	Ch. $B	Reference pressure of gas analysis				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	9	255	Ch. $B	Reference temperature of gas analysis				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	10	255	Ch. $B	Superior Wobbe number 0 °C				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	11	255	Ch. $B	Inferior Wobbe number 0 °C				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	12	255	Ch. $B	Methane number				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	13	255	Ch. $B	Total sulphur				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	14	255	Ch. $B	Hydrogen sulphide H2S				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	15	255	Ch. $B	Mercaptans				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	16	255	Ch. $B	Water dew point (DP H2O)				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	17	255	Ch. $B	Water (H2O) dew point outlet / normalised				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	18	255	Ch. $B	Hydrocarbon dew point (DP CXHY)				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	19	255	Ch. $B	Inferior calorific value Hi,n				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	20	255	Ch. $B	Water H2O				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	45	255	Ch. $B	Density (of gas), base conditions				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	46	255	Ch. $B	Relative density				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	54	255	Ch. $B	Superior calorific value Hs,n				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	60	255	Ch. $B	Nitrogen N2				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	61	255	Ch. $B	Hydrogen H2				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	62	255	Ch. $B	Oxygen O2				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	63	255	Ch. $B	Helium He				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	64	255	Ch. $B	Argon Ar				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	65	255	Ch. $B	Carbon monoxide CO				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	66	255	Ch. $B	Carbon dioxide CO2				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	67	255	Ch. $B	Methane CH4				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	68	255	Ch. $B	Ethene C2H4				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	69	255	Ch. $B	Ethane C2H6				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	70	255	Ch. $B	Propene C3H6				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	71	255	Ch. $B	Propane C3H8				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	72	255	Ch. $B	i-butane i-C4H10				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	73	255	Ch. $B	n-butane n-C4H10				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	74	255	Ch. $B	neo-pentane neo-C5H12				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	75	255	Ch. $B	i-pentane i-C5H12				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	76	255	Ch. $B	n-pentane n-C5H12				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	77	255	Ch. $B	Hexane C6H14				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	78	255	Ch. $B	Hexane share higher hydrocarbons C6H14 %				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	79	255	Ch. $B	Hexane+ C6 H14+				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	80	255	Ch. $B	Heptane C7H16				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	81	255	Ch. $B	Octane C8H18				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	82	255	Ch. $B	Nonane C9H20				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	83	255	Ch. $B	Decane C10H22				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	12	84	255	Ch. $B	Tetrahydrothiophene				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	1	255	Ch. $B	Internal pipe diameter				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	2	255	Ch. $B	Orifice diameter				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	3	255	Ch. $B	Pressure type (orifice fitting)				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	4	255	Ch. $B	Flow coefficient (alfa)				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	5	255	Ch. $B	Expansion coefficient (epsilon)				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	6	255	Ch. $B	Reflux coefficient				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	7	255	Ch. $B	Isoentropic coefficient				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	8	255	Ch. $B	Dynamic viscosity				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	9	255	Ch. $B	Differential pressure dp for cut off				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	13	10	255	Ch. $B	Reynold number				1	3, 4	5, 6, 15, 16, 17, 18
+	7	b	0	14	1	255	Ch. $B	K0 Densimeter Coefficient				1	3, 4	5, 6, 15, 16, 17, 18, 23, 24
+	7	b	0	14	2	255	Ch. $B	K2 Densimeter Coefficient				1	3, 4	5, 6, 15, 16, 17, 18
+	7	b	0	14	10	255	Ch. $B	Densimeter period for instanteneous measurement				1	3, 4	5, 6, 15, 16, 17, 18, 23, 25
+	7	b	0	14	11	255	Ch. $B	Densimeter period for measurement period 15 minutes				1	3, 4	5, 6, 15, 16, 17, 19
+def	e = 0-127													
+	7	b	0	15	e	255	Ch. $B	Sensor manager objects		$(E+1)		67		
+def	c0 = 1-8, 11-16, 21-26, 31-36, 61-66													
+N0C			1					Forward undisturbed meter volume						
+N0C			2					Forward disturbed meter volume						
+N0C			3					Forward absolute meter volume						
+N0C			4					Reverse undisturbed meter volume						
+N0C			5					Reverse disturbed meter volume						
+N0C			6					Reverse absolute meter volume						
+N0C			7					Forward absolute meter volume (encoder)						
+N0C			8					Reverse absolute meter volume (encoder)						
+N0C			11					Forward undisturbed converter volume						
+N0C			12					Forward disturbed converter volume						
+N0C			13					Forward absolute converter volume						
+N0C			14					Reverse undisturbed converter volume						
+N0C			15					Reverse disturbed converter volume						
+N0C			16					Reverse absolute converter volume						
+N0C			21					Forward undisturbed logger volume						
+N0C			22					Forward disturbed logger volume						
+N0C			23					Forward absolute logger volume						
+N0C			24					Reverse undisturbed logger volume						
+N0C			25					Reverse disturbed logger volume						
+N0C			26					Reverse absolute logger volume						
+N0C			31					Forward undisturbed energy						
+N0C			32					Forward disturbed energy 						
+N0C			33					Forward absolute energy						
+N0C			34					Reverse undisturbed energy						
+N0C			35					Reverse disturbed energy						
+N0C			36					Reverse absolute energy						
+N0C			61					Forward undisturbed mass						
+N0C			62					Forward disturbed mass						
+N0C			63					Forward absolute mass						
+N0C			64					Reverse undisturbed mass						
+N0C			65					Reverse disturbed mass						
+N0C			66					Reverse absolute mass						
+def	f = 0-99, 101-126, 255													
+	7	b	c0	0	0-63	f	Ch. $B	$0	Index, Value at metering conditions, Current	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	1	0-63	f	Ch. $B	$0	Index, Corrected value, Current	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	2	0-63	f	Ch. $B	$0	Index, Value at base conditions / “Converted value”, Current	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	3	0-63	f	Ch. $B	$0	Index, Current redundant value at metering conditions, Current	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	6	0-63	f	Ch. $B	$0	Value relative to measurement period 1, Index difference, Value at metering conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	7	0-63	f	Ch. $B	$0	Value relative to measurement period 1, Index difference, Corrected value, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	8	0-63	f	Ch. $B	$0	Value relative to measurement period 1, Index difference, Value at base conditions, Current, period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	9	0-63	f	Ch. $B	$0	Value relative to measurement period 1, Index difference, Value at metering conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	10	0-63	f	Ch. $B	$0	Value relative to measurement period 1, Index difference, Corrected value, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	11	0-63	f	Ch. $B	$0	Value relative to measurement period 1, Index difference, Value at base conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	12	0-63	f	Ch. $B	$0	Value relative to measurement period 2, Index difference, Value at metering conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	13	0-63	f	Ch. $B	$0	Value relative to measurement period 2, Index difference, Corrected value, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	14	0-63	f	Ch. $B	$0	Value relative to measurement period 2, Index difference, Value at base conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	15	0-63	f	Ch. $B	$0	Value relative to measurement period 2, Index difference, Value at metering conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	16	0-63	f	Ch. $B	$0	Value relative to measurement period 2, Index difference, Corrected value, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	17	0-63	f	Ch. $B	$0	Value relative to measurement period 2, Index difference, Value at base conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	18	0-63	f	Ch. $B	$0	Value relative to measurement period 3, Index difference, Value at metering conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	19	0-63	f	Ch. $B	$0	Value relative to measurement period 3, Index difference, Corrected value, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	20	0-63	f	Ch. $B	$0	Value relative to measurement period 3, Index difference, Value at base conditions, Current, period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	21	0-63	f	Ch. $B	$0	Value relative to measurement period 3, Index difference, Value at metering conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	22	0-63	f	Ch. $B	$0	Value relative to measurement period 3, Index difference, Corrected value, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	23	0-63	f	Ch. $B	$0	Value relative to measurement period 3, Index difference, Value at base conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	24	0-63	f	Ch. $B	$0	Values relative to billing period 1, Index, Value at metering conditions, Historical 	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	25	0-63	f	Ch. $B	$0	Values relative to billing period 1, Index, Corrected value, Historical	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	26	0-63	f	Ch. $B	$0	Values relative to billing period 1, Index, Value at base conditions, Historical	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	27	0-63	f	Ch. $B	$0	Value relative to billing period 1, Index difference, Value at metering conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	28	0-63	f	Ch. $B	$0	Value relative to billing period 1, Index difference, Corrected value, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	29	0-63	f	Ch. $B	$0	Value relative to billing period 1, Index difference, Value at base conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	30	0-63	f	Ch. $B	$0	Value relative to billing period 1, Index difference, Value at metering conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	31	0-63	f	Ch. $B	$0	Value relative to billing period 1, Index difference, Corrected value, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	32	0-63	f	Ch. $B	$0	Value relative to billing period 1, Index difference, Value at base conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	33	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 1, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	34	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 1, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	35	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 1, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	36	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 2, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	37	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 2, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	38	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 2, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	39	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 3, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	40	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 3, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	41	0-63	f	Ch. $B	$0	Values relative to billing period 1, Maximum of Index differences over measurement period 3, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	42	0-63	f	Ch. $B	$0	Values relative to billing period 2, Index, Value at metering conditions, Historical 	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	43	0-63	f	Ch. $B	$0	Values relative to billing period 2, Index, Corrected value, Historical	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	44	0-63	f	Ch. $B	$0	Values relative to billing period 2, Index, Value at base conditions, Historical	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	45	0-63	f	Ch. $B	$0	Value relative to billing period 2, Index difference, Value at metering conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	46	0-63	f	Ch. $B	$0	Value relative to billing period 2, Index difference, Corrected value, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	47	0-63	f	Ch. $B	$0	Value relative to billing period 2, Index difference, Value at base conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	48	0-63	f	Ch. $B	$0	Value relative to billing period 2, Index difference, Value at metering conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	49	0-63	f	Ch. $B	$0	Value relative to billing period 2, Index difference, Corrected value, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	50	0-63	f	Ch. $B	$0	Value relative to billing period 2, Index difference, Value at base conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	51	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 1, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	52	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 1, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	53	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 1, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	54	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 2, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	55	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 2, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	56	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 2, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	57	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 3, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	58	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 3, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	59	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over measurement period 3, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	60	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over billing period 1, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	61	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over billing period 1, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	62	0-63	f	Ch. $B	$0	Values relative to billing period 2, Maximum of Index differences over billing period 1, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	63	0-63	f	Ch. $B	$0	Values relative to billing period 3, Index, Value at metering conditions, Historical 	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	64	0-63	f	Ch. $B	$0	Values relative to billing period 3, Index, Corrected value, Historical	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	65	0-63	f	Ch. $B	$0	Values relative to billing period 3, Index, Value at base conditions, Historical	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	66	0-63	f	Ch. $B	$0	Value relative to billing period 3, Index difference, Value at metering conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	67	0-63	f	Ch. $B	$0	Value relative to billing period 3, Index difference, Corrected value, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	68	0-63	f	Ch. $B	$0	Value relative to billing period 3, Index difference, Value at base conditions, Current period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	69	0-63	f	Ch. $B	$0	Value relative to billing period 3, Index difference, Value at metering conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	70	0-63	f	Ch. $B	$0	Value relative to billing period 3, Index difference, Corrected value, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	71	0-63	f	Ch. $B	$0	Value relative to billing period 3, Index difference, Value at base conditions, Last period	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	72	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 1, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	73	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 1, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	74	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 1, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	75	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 2, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	76	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 2, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	77	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 2, Value at base conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	78	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 3, Value at metering conditions	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	79	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 3, Corrected value	Rate $E (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	80	0-63	f	Ch. $B	$0	Values relative to billing period 3, Maximum of Index differences over measurement period 3, Value at base conditions	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	81	0-63	f	Ch. $B	$0	Values relative to billing period 4, Index, Value at metering conditions, Historical 	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	82	0-63	f	Ch. $B	$0	Values relative to billing period 4, Index, Corrected value, Historical	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	83	0-63	f	Ch. $B	$0	Values relative to billing period 4, Index, Value at base conditions, Historical	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	84	0-63	f	Ch. $B	$0	Value relative to billing period 4, Index difference, Value at metering conditions, Current period	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	85	0-63	f	Ch. $B	$0	Value relative to billing period 4, Index difference, Corrected value, Current period	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	86	0-63	f	Ch. $B	$0	Value relative to billing period 4, Index difference, Value at base conditions, Current period	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	87	0-63	f	Ch. $B	$0	Value relative to billing period 4, Index difference, Value at metering conditions, Last period	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	88	0-63	f	Ch. $B	$0	Value relative to billing period 4, Index difference, Corrected value, Last period	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	89	0-63	f	Ch. $B	$0	Value relative to billing period 4, Index difference, Value at base conditions, Last period	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	90	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 1, Value at metering conditions	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	91	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 1, Corrected value	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	92	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 1, Value at base conditions	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	93	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 2, Value at metering conditions	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	94	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 2, Corrected value	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	95	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 2, Value at base conditions	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	96	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 3, Value at metering conditions	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	97	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 3, Corrected value	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c0	98	0-63	f	Ch. $B	$0	Values relative to billing period 4, Maximum of Index differences over measurement period 3, Value at base conditions	Rate $E (0 is total) (0 is total)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	0	0	f	Ch. $B	Flow rate	Instantaneous, Current value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	1	0	f	Ch. $B	Flow rate	Instantaneous, Corrected value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	2	0	f	Ch. $B	Flow rate	Instantaneous, Value at base conditions / “Converted value”		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	13	0	f	Ch. $B	Flow rate	Instantaneous, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	15	0	f	Ch. $B	Flow rate	Current average for averaging period 1, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	16	0	f	Ch. $B	Flow rate	Current average for averaging period 1, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	17	0	f	Ch. $B	Flow rate	Current average for averaging period 1, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	18	0	f	Ch. $B	Flow rate	Current average for averaging period 1, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	19	0	f	Ch. $B	Flow rate	Last average for averaging period 1, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	20	0	f	Ch. $B	Flow rate	Last average for averaging period 1, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	21	0	f	Ch. $B	Flow rate	Last average for averaging period 1, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	22	0	f	Ch. $B	Flow rate	Last average for averaging period 1, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	23	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	24	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 2, Corrected value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	25	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	26	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	27	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	28	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 3, Corrected value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	29	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	30	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to measurement period 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	31	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to billing period 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	32	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to billing period 1, Corrected value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	33	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to billing period 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	34	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 1 relative to billing period 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	35	0	f	Ch. $B	Flow rate	Current average for averaging period 2, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	36	0	f	Ch. $B	Flow rate	Current average for averaging period 2, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	37	0	f	Ch. $B	Flow rate	Current average for averaging period 2, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	38	0	f	Ch. $B	Flow rate	Current average for averaging period 2, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	39	0	f	Ch. $B	Flow rate	Last average for averaging period 2, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	40	0	f	Ch. $B	Flow rate	Last average for averaging period 2, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	41	0	f	Ch. $B	Flow rate	Last average for averaging period 2, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	42	0	f	Ch. $B	Flow rate	Last average for averaging period 2, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	43	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	44	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 2, Corrected value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	45	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	46	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	47	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	48	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 3, Corrected value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	49	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	50	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to measurement period 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	51	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to billing period 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	52	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to billing period 1, Corrected value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	53	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to billing period 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	54	0	f	Ch. $B	Flow rate	Maximum of last averages for averaging period 2 relative to billing period 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	55	0	f	Ch. $B	Flow rate	Current average for averaging period 3, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	56	0	f	Ch. $B	Flow rate	Current average for averaging period 3, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	57	0	f	Ch. $B	Flow rate	Current average for averaging period 3, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	58	0	f	Ch. $B	Flow rate	Current average for averaging period 3, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	59	0	f	Ch. $B	Flow rate	Last average for averaging period 3, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	60	0	f	Ch. $B	Flow rate	Last average for averaging period 3, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	61	0	f	Ch. $B	Flow rate	Last average for averaging period 3, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	62	0	f	Ch. $B	Flow rate	Last average for averaging period 3, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	63	0	f	Ch. $B	Flow rate	Current average for averaging period 4, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	64	0	f	Ch. $B	Flow rate	Current average for averaging period 4, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	65	0	f	Ch. $B	Flow rate	Current average for averaging period 4, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	66	0	f	Ch. $B	Flow rate	Current average for averaging period 4, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	67	0	f	Ch. $B	Flow rate	Last average for averaging period 4, Value at metering conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	68	0	f	Ch. $B	Flow rate	Last average for averaging period 4, Corrected value		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	69	0	f	Ch. $B	Flow rate	Last average for averaging period 4, Value at base conditions 		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	43	70	0	f	Ch. $B	Flow rate	Last average for averaging period 4, Value at standard conditions		Billing period $F (255 is current)	3, 4, 5	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+def	c1=41, 42, 44-49													
+N1C			41					Absolute temperature						
+N1C			42					Absolute pressure						
+N1C			44					Velocity of sound						
+N1C			45					Density (of gas)						
+N1C			46					Relative density						
+N1C			47					Gauge pressure						
+N1C			48					Differential pressure						
+N1C			49					Density of air						
+	7	b	c1	0	0	255	Ch. $B	$1	Instantaneous, Current value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	2	0	255	Ch. $B	$1	Instantaneous Value at base conditions / “Converted value” 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	3	0	255	Ch. $B	$1	Instantaneous, Backup value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	10	0	255	Ch. $B	$1	Instantaneous, Actual value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	11	0	255	Ch. $B	$1	Instantaneous, Preset value		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	13	0	255	Ch. $B	$1	Instantaneous, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	15	0	255	Ch. $B	$1	Average, current interval, process interval 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	16	0	255	Ch. $B	$1	Average, current interval, process interval 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	17	0	255	Ch. $B	$1	Average, current interval, process interval 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	18	0	255	Ch. $B	$1	Minimum, current interval, process interval 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	19	0	255	Ch. $B	$1	Minimum, current interval, process interval 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	20	0	255	Ch. $B	$1	Minimum, current interval, process interval 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	21	0	255	Ch. $B	$1	Maximum, current interval, process interval 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	22	0	255	Ch. $B	$1	Maximum, current interval, process interval 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	23	0	255	Ch. $B	$1	Maximum, current interval, process interval 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	24	0	255	Ch. $B	$1	Average, last interval, process interval 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	25	0	255	Ch. $B	$1	Average, last interval, process interval 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	26	0	255	Ch. $B	$1	Average, last interval, process interval 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	27	0	255	Ch. $B	$1	Minimum, last interval, process interval 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	28	0	255	Ch. $B	$1	Minimum, last interval, process interval 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	29	0	255	Ch. $B	$1	Minimum, last interval, process interval 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	30	0	255	Ch. $B	$1	Maximum, last interval, process interval 1, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	31	0	255	Ch. $B	$1	Maximum, last interval, process interval 1, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	32	0	255	Ch. $B	$1	Maximum, last interval, process interval 1, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	33	0	255	Ch. $B	$1	Average, current interval, process interval 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	34	0	255	Ch. $B	$1	Average, current interval, process interval 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	35	0	255	Ch. $B	$1	Average, current interval, process interval 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	36	0	255	Ch. $B	$1	Minimum, current interval, process interval 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	37	0	255	Ch. $B	$1	Minimum, current interval, process interval 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	38	0	255	Ch. $B	$1	Minimum, current interval, process interval 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	39	0	255	Ch. $B	$1	Maximum, current interval, process interval 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	40	0	255	Ch. $B	$1	Maximum, current interval, process interval 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	41	0	255	Ch. $B	$1	Maximum, current interval, process interval 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	42	0	255	Ch. $B	$1	Average, last interval, process interval 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	43	0	255	Ch. $B	$1	Average, last interval, process interval 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	44	0	255	Ch. $B	$1	Average, last interval, process interval 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	45	0	255	Ch. $B	$1	Minimum, last interval, process interval 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	46	0	255	Ch. $B	$1	Minimum, last interval, process interval 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	47	0	255	Ch. $B	$1	Minimum, last interval, process interval 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	48	0	255	Ch. $B	$1	Maximum, last interval, process interval 2, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	49	0	255	Ch. $B	$1	Maximum, last interval, process interval 2, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	50	0	255	Ch. $B	$1	Maximum, last interval, process interval 2, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	51	0	255	Ch. $B	$1	Average, current interval, process interval 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	52	0	255	Ch. $B	$1	Average, current interval, process interval 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	53	0	255	Ch. $B	$1	Average, current interval, process interval 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	54	0	255	Ch. $B	$1	Minimum, current interval, process interval 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	55	0	255	Ch. $B	$1	Minimum, current interval, process interval 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	56	0	255	Ch. $B	$1	Minimum, current interval, process interval 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	57	0	255	Ch. $B	$1	Maximum, current interval, process interval 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	58	0	255	Ch. $B	$1	Maximum, current interval, process interval 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	59	0	255	Ch. $B	$1	Maximum, current interval, process interval 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	60	0	255	Ch. $B	$1	Average, last interval, process interval 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	61	0	255	Ch. $B	$1	Average, last interval, process interval 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	62	0	255	Ch. $B	$1	Average, last interval, process interval 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	63	0	255	Ch. $B	$1	Minimum, last interval, process interval 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	64	0	255	Ch. $B	$1	Minimum, last interval, process interval 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	65	0	255	Ch. $B	$1	Minimum, last interval, process interval 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	66	0	255	Ch. $B	$1	Maximum, last interval, process interval 3, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	67	0	255	Ch. $B	$1	Maximum, last interval, process interval 3, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	68	0	255	Ch. $B	$1	Maximum, last interval, process interval 3, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	69	0	255	Ch. $B	$1	Average, current interval, process interval 4, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	70	0	255	Ch. $B	$1	Average, current interval, process interval 4, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	71	0	255	Ch. $B	$1	Average, current interval, process interval 4, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	72	0	255	Ch. $B	$1	Minimum, current interval, process interval 4, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	73	0	255	Ch. $B	$1	Minimum, current interval, process interval 4, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	74	0	255	Ch. $B	$1	Minimum, current interval, process interval 4, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	75	0	255	Ch. $B	$1	Maximum, current interval, process interval 4, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	76	0	255	Ch. $B	$1	Maximum, current interval, process interval 4, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	77	0	255	Ch. $B	$1	Maximum, current interval, process interval 4, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	78	0	255	Ch. $B	$1	Average, last interval, process interval 4, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	79	0	255	Ch. $B	$1	Average, last interval, process interval 4, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	80	0	255	Ch. $B	$1	Average, last interval, process interval 4, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	81	0	255	Ch. $B	$1	Minimum, last interval, process interval 4, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	82	0	255	Ch. $B	$1	Minimum, last interval, process interval 4, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	83	0	255	Ch. $B	$1	Minimum, last interval, process interval 4, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	84	0	255	Ch. $B	$1	Maximum, last interval, process interval 4, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	85	0	255	Ch. $B	$1	Maximum, last interval, process interval 4, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	86	0	255	Ch. $B	$1	Maximum, last interval, process interval 4, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	87	0	255	Ch. $B	$1	Average, process interval 5, interval since last event, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	88	0	255	Ch. $B	$1	Average, process interval 5, interval since last event, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	89	0	255	Ch. $B	$1	Average, process interval 5, interval since last event, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	90	0	255	Ch. $B	$1	Average, process interval 6, interval between last two events, Value at metering conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	91	0	255	Ch. $B	$1	Average, process interval 6, interval between last two events, Value at base conditions 		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c1	92	0	255	Ch. $B	$1	Average, process interval 6, interval between last two events, Value at standard conditions		Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+def	c2 = 51-55													
+N2C			51					Correction factor						
+N2C			52					Conversion factor						
+N2C			53					Compressibility factor						
+N2C			54					Superior calorific value						
+N2C			55					Gas law deviation coefficient (= compressibility factor ratio)						
+def	d3 = 0, 2, 3, 10, 11, 12													
+N3D				0					Current value at metering conditions					
+N3D				2					Current value at base conditions / “Converted Value”					
+N3D				3					Backup					
+N3D				10					Actual					
+N3D				11					Preset					
+N3D				12					Method					
+	7	b	c2	d3	0	255	Ch. $B	$2	$3	Process independent current value	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	1	255	Ch. $B	$2	$3	Weighted value (e.g. Superior calorific value)	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	11	255	Ch. $B	$2	$3	Average, current interval, averaging period 1 	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	12	255	Ch. $B	$2	$3	Average, last interval, averaging period 1 	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	13	255	Ch. $B	$2	$3	Average, current interval, averaging period 2	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	14	255	Ch. $B	$2	$3	Average, last interval, averaging period 2	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	15	255	Ch. $B	$2	$3	Average, current interval, averaging period 3	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	16	255	Ch. $B	$2	$3	Average, last interval, averaging period 3	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	17	255	Ch. $B	$2	$3	Average, current interval, averaging period 4	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	18	255	Ch. $B	$2	$3	Average, last interval, averaging period 4	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	19	255	Ch. $B	$2	$3	Average, current interval, averaging period 5	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	20	255	Ch. $B	$2	$3	Average, last interval, averaging period 5	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	21	255	Ch. $B	$2	$3	Average, current interval, averaging period 6	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	22	255	Ch. $B	$2	$3	Average, last interval, averaging period 6	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	23	255	Ch. $B	$2	$3	Average, current interval, averaging period 7	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	24	255	Ch. $B	$2	$3	Average, last interval, averaging period 7	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	25	255	Ch. $B	$2	$3	Average, current interval, averaging period 8	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	26	255	Ch. $B	$2	$3	Average, last interval, averaging period 8	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	27	255	Ch. $B	$2	$3	Average, averaging period 9, interval since last event	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	c2	d3	28	255	Ch. $B	$2	$3	Average, averaging period 10, interval between last two events	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+def	d4 = 8-20, 60-84													
+N4D				8				Natural gas analysis	Reference pressure of gas analysis					
+N4D				9				Natural gas analysis	Reference temperature of gas analysis					
+N4D				10				Natural gas analysis	Superior Wobbe index 0 °C					
+N4D				11				Natural gas analysis	Inferior Wobbe index 0 °C					
+N4D				12				Natural gas analysis	Methane number					
+N4D				13				Natural gas analysis	Total sulphur					
+N4D				14				Natural gas analysis	Hydrogen sulphide H2S					
+N4D				15				Natural gas analysis	Mercaptans					
+N4D				16				Natural gas analysis	Water dew point (DP H2O)					
+N4D				17				Natural gas analysis	Water (H2O) dew point outlet / normalised					
+N4D				18				Natural gas analysis	Hydrocarbon dew point (DP CXHY)					
+N4D				19				Natural gas analysis	Inferior calorific value Hi,n					
+N4D				20				Natural gas analysis	Water H2O					
+N4D				60				Natural gas analysis	Nitrogen N2					
+N4D				61				Natural gas analysis	Hydrogen H2					
+N4D				62				Natural gas analysis	Oxygen O2					
+N4D				63				Natural gas analysis	Helium He					
+N4D				64				Natural gas analysis	Argon Ar					
+N4D				65				Natural gas analysis	Carbon monoxide CO					
+N4D				66				Natural gas analysis	Carbon dioxide CO2					
+N4D				67				Natural gas analysis	Methane CH4					
+N4D				68				Natural gas analysis	Ethene C2H4					
+N4D				69				Natural gas analysis	Ethane C2H6					
+N4D				70				Natural gas analysis	Propene C3H6					
+N4D				71				Natural gas analysis	Propane C3H8					
+N4D				72				Natural gas analysis	i-butane i-C4H10					
+N4D				73				Natural gas analysis	n-butane n-C4H10					
+N4D				74				Natural gas analysis	neo-pentane neo-C5H12					
+N4D				75				Natural gas analysis	i-pentane i-C5H12					
+N4D				76				Natural gas analysis	n-pentane n-C5H12					
+N4D				77				Natural gas analysis	Hexane C6H14					
+N4D				78				Natural gas analysis	Hexane share higher hydrocarbons C6H14 %					
+N4D				79				Natural gas analysis	Hexane+ C6H14+					
+N4D				80				Natural gas analysis	Heptane C7H16					
+N4D				81				Natural gas analysis	Octane C8H18					
+N4D				82				Natural gas analysis	Nonane C9H20					
+N4D				83				Natural gas analysis	Decane C10H22					
+N4D				84				Natural gas analysis	Tetrahydrothiophene C4H8S					
+	7	b	70	d4	0	255	Ch. $B	Natural gas analysis	$4	Process independent current value	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	1	255	Ch. $B	Natural gas analysis	$4	Weighted value (e.g. CO2 in [GJ / t])	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	11	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 1 	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	12	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 1 	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	13	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 2	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	14	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 2	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	15	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 3	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	16	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 3	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	17	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 4	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	18	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 4	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	19	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 5	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	20	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 5	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	21	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 6	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	22	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 6	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	23	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 7	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	24	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 7	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	25	255	Ch. $B	Natural gas analysis	$4	Average, current interval, averaging period 8	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	26	255	Ch. $B	Natural gas analysis	$4	Average, last interval, averaging period 8	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	27	255	Ch. $B	Natural gas analysis	$4	Average, averaging period 9, interval since last event	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	70	d4	28	255	Ch. $B	Natural gas analysis	$4	Average, averaging period 10, interval between last two events	Billing period $F (255 is current)	3, 4	7	5, 6, 9, 10, 13, 15, 16, 17, 18, 20, 21, 23, 24
+	7	b	96	5	0	255	Ch. $B	Internal operating status, global				1, 3, 4, 63	7,61	2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	1	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	2	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	3	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	4	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	5	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	6	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	7	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	8	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	5	9	255	Ch. $B	Internal operating status		(status word #$E)		1, 3, 4, 63		2, 4, 6, 9, 17, 18, 21
+	7	b	96	50-99	0-255	0-255	Ch. $B	Manufacturer specific				1, 3, 4, 7, 61, 63		*
+	7	b	98	1	e	255	Ch. $B	Gas related data of billing period (with billing period scheme 1 if there are more than one schemes available)				7		
+	7	b	98	2	e	255	Ch. $B	Gas related data of billing period (with billing period scheme 2)				7		
+	7	b	98	3	e	255	Ch. $B	Gas related data of billing period (with billing period scheme 3)				7		
+	7	b	98	4	e	255	Ch. $B	Gas related data of billing period (with billing period scheme 4)				7		
+	7	b	98	11	e	255	Ch. $B	Gas related data of event triggered billing profile 				7		
+	7	b	99	1	4	255	Ch. $B	Load profile with recording interval 1		#$(E+1)		7		
+	7	b	99	2	4	255	Ch. $B	Load profile with recording interval 2		#$(E+1)		7		
+	7	b	99	3	4	255	Ch. $B	Profile of maxima with recording interval 1				7		
+	7	b	99	4	4	255	Ch. $B	Profile of maxima with recording interval 2				7		
+def	d5 = 1-8, 11-16, 21-26, 31-36, 61-66													
+N5D				1					Forward undisturbed meter volume					
+N5D				2					Forward disturbed meter volume					
+N5D				3					Forward absolute meter volume					
+N5D				4					Reverse undisturbed meter volume					
+N5D				5					Reverse disturbed meter volume					
+N5D				6					Reverse absolute meter volume					
+N5D				7					Forward absolute meter volume (encoder)					
+N5D				8					Reverse absolute meter volume (encoder)					
+N5D				11					Forward undisturbed converter volume					
+N5D				12					Forward disturbed converter volume					
+N5D				13					Forward absolute converter volume					
+N5D				14					Reverse undisturbed converter volume					
+N5D				15					Reverse disturbed converter volume					
+N5D				16					Reverse absolute converter volume					
+N5D				21					Forward undisturbed logger volume					
+N5D				22					Forward disturbed logger volume					
+N5D				23					Forward absolute logger volume					
+N5D				24					Reverse undisturbed logger volume					
+N5D				25					Reverse disturbed logger volume					
+N5D				26					Reverse absolute logger volume					
+N5D				31					Forward undisturbed energy					
+N5D				32					Forward disturbed energy 					
+N5D				33					Forward absolute energy					
+N5D				34					Reverse undisturbed energy					
+N5D				35					Reverse disturbed energy					
+N5D				36					Reverse absolute energy					
+N5D				61					Forward undisturbed mass					
+N5D				62					Forward disturbed mass					
+N5D				63					Forward absolute mass					
+N5D				64					Reverse undisturbed mass					
+N5D				65					Reverse disturbed mass					
+N5D				66					Reverse absolute mass					
+def	e6 = 0-3, 6-98													
+N6E					0					Index, Value at metering conditions, Current				
+N6E					1					Index, Corrected value, Current				
+N6E					2					Index, Value at base conditions / “Converted value”, Current				
+N6E					3					Index, Current redundant value at metering conditions, Current				
+N6E					6					Values relative to measurement period 1, Index difference, Value at metering conditions, Current period				
+N6E					7					Values relative to measurement period 1, Index difference, Corrected value, Current period				
+N6E					8					Values relative to measurement period 1, Index difference, Value at base conditions, Current period				
+N6E					9					Values relative to measurement period 1, Index difference, Value at metering conditions, Last period				
+N6E					10					Values relative to measurement period 1, Index difference, Corrected value, Last period				
+N6E					11					Values relative to measurement period 1, Index difference, Value at base conditions, Last period				
+N6E					12					Values relative to measurement period 2, Index difference, Value at metering conditions, Current period				
+N6E					13					Values relative to measurement period 2, Index difference, Corrected value, Current period				
+N6E					14					Values relative to measurement period 2, Index difference, Value at base conditions, Current period				
+N6E					15					Values relative to measurement period 2, Index difference, Value at metering conditions, Last period				
+N6E					16					Values relative to measurement period 2, Index difference, Corrected value, Last period				
+N6E					17					Values relative to measurement period 2, Index difference, Value at base conditions, Last period				
+N6E					18					Values relative to measurement period 3, Index difference, Value at metering conditions, Current period				
+N6E					19					Values relative to measurement period 3, Index difference, Corrected value, Current period				
+N6E					20					Values relative to measurement period 3, Index difference, Value at base conditions, Current period				
+N6E					21					Values relative to measurement period 3, Index difference, Value at metering conditions, Last period				
+N6E					22					Values relative to measurement period 3, Index difference, Corrected value, Last period				
+N6E					23					Values relative to measurement period 3, Index difference, Value at base conditions, Last period				
+N6E					24					Values relative to billing period 1, Index, Value at metering conditions, Historical 				
+N6E					25					Values relative to billing period 1, Index, Corrected value, Historical				
+N6E					26					Values relative to billing period 1, Index, Value at base conditions, Historical				
+N6E					27					Values relative to billing period 1, Index difference, Value at metering conditions, Current period				
+N6E					28					Values relative to billing period 1, Index difference, Corrected value, Current period				
+N6E					29					Values relative to billing period 1, Index difference, Value at base conditions, Current period				
+N6E					30					Values relative to billing period 1, Index difference, Value at metering conditions, Last period				
+N6E					31					Values relative to billing period 1, Index difference, Corrected value, Last period				
+N6E					32					Values relative to billing period 1, Index difference, Value at base conditions, Last period				
+N6E					33					Values relative to billing period 1, Maximum of Index differences over measurement period 1, Value at metering conditions				
+N6E					34					Values relative to billing period 1, Maximum of Index differences over measurement period 1, Corrected value				
+N6E					35					Values relative to billing period 1, Maximum of Index differences over measurement period 1, Value at base conditions				
+N6E					36					Values relative to billing period 1, Maximum of Index differences over measurement period 2, Value at metering conditions				
+N6E					37					Values relative to billing period 1, Maximum of Index differences over measurement period 2, Corrected value				
+N6E					38					Values relative to billing period 1, Maximum of Index differences over measurement period 2, Value at base conditions				
+N6E					39					Values relative to billing period 1, Maximum of Index differences over measurement period 3, Value at metering conditions				
+N6E					40					Values relative to billing period 1, Maximum of Index differences over measurement period 3, Corrected value				
+N6E					41					Values relative to billing period 1, Maximum of Index differences over measurement period 3, Value at base conditions				
+N6E					42					Values relative to billing period 2, Index, Value at metering conditions, Historical 				
+N6E					43					Values relative to billing period 2, Index, Corrected value, Historical				
+N6E					44					Values relative to billing period 2, Index, Value at base conditions, Historical				
+N6E					45					Values relative to billing period 2, Index difference, Value at metering conditions, Current period				
+N6E					46					Values relative to billing period 2, Index difference, Corrected value, Current period				
+N6E					47					Values relative to billing period 2, Index difference, Value at base conditions, Current period				
+N6E					48					Values relative to billing period 2, Index difference, Value at metering conditions, Last period				
+N6E					49					Values relative to billing period 2, Index difference, Corrected value, Last period				
+N6E					50					Values relative to billing period 2, Index difference, Value at base conditions, Last period				
+N6E					51					Values relative to billing period 2, Maximum of Index differences over measurement period 1, Value at metering conditions				
+N6E					52					Values relative to billing period 2, Maximum of Index differences over measurement period 1, Corrected value				
+N6E					53					Values relative to billing period 2, Maximum of Index differences over measurement period 1, Value at base conditions				
+N6E					54					Values relative to billing period 2, Maximum of Index differences over measurement period 2, Value at metering conditions				
+N6E					55					Values relative to billing period 2, Maximum of Index differences over measurement period 2, Corrected value				
+N6E					56					Values relative to billing period 2, Maximum of Index differences over measurement period 2, Value at base conditions				
+N6E					57					Values relative to billing period 2, Maximum of Index differences over measurement period 3, Value at metering conditions				
+N6E					58					Values relative to billing period 2, Maximum of Index differences over measurement period 3, Corrected value				
+N6E					59					Values relative to billing period 2, Maximum of Index differences over measurement period 3, Value at base conditions				
+N6E					60					Values relative to billing period 2, Maximum of Index differences over billing period 1, Value at metering conditions				
+N6E					61					Values relative to billing period 2, Maximum of Index differences over billing period 1, Corrected value				
+N6E					62					Values relative to billing period 2, Maximum of Index differences over billing period 1, Value at base conditions				
+N6E					63					Values relative to billing period 3, Index, Value at metering conditions, Historical 				
+N6E					64					Values relative to billing period 3, Index, Corrected value, Historical				
+N6E					65					Values relative to billing period 3, Index, Value at base conditions, Historical				
+N6E					66					Values relative to billing period 3, Index difference, Value at metering conditions, Current period				
+N6E					67					Values relative to billing period 3, Index difference, Corrected value, Current period				
+N6E					68					Values relative to billing period 3, Index difference, Value at base conditions, Current period				
+N6E					69					Values relative to billing period 3, Index difference, Value at metering conditions, Last period				
+N6E					70					Values relative to billing period 3, Index difference, Corrected value, Last period				
+N6E					71					Values relative to billing period 3, Index difference, Value at base conditions, Last period				
+N6E					72					Values relative to billing period 3, Maximum of Index differences over measurement period 1, Value at metering conditions				
+N6E					73					Values relative to billing period 3, Maximum of Index differences over measurement period 1, Corrected value				
+N6E					74					Values relative to billing period 3, Maximum of Index differences over measurement period 1, Value at base conditions				
+N6E					75					Values relative to billing period 3, Maximum of Index differences over measurement period 2, Value at metering conditions				
+N6E					76					Values relative to billing period 3, Maximum of Index differences over measurement period 2, Corrected value				
+N6E					77					Values relative to billing period 3, Maximum of Index differences over measurement period 2, Value at base conditions				
+N6E					78					Values relative to billing period 3, Maximum of Index differences over measurement period 3, Value at metering conditions				
+N6E					79					Values relative to billing period 3, Maximum of Index differences over measurement period 3, Corrected value				
+N6E					80					Values relative to billing period 3, Maximum of Index differences over measurement period 3, Value at base conditions				
+N6E					81					Values relative to billing period 4, Index, Value at metering conditions, Historical 				
+N6E					82					Values relative to billing period 4, Index, Corrected value, Historical				
+N6E					83					Values relative to billing period 4, Index, Value at base conditions, Historical				
+N6E					84					Values relative to billing period 4, Index difference, Value at metering conditions, Current period				
+N6E					85					Values relative to billing period 4, Index difference, Corrected value, Current period				
+N6E					86					Values relative to billing period 4, Index difference, Value at base conditions, Current period				
+N6E					87					Values relative to billing period 4, Index difference, Value at metering conditions, Last period				
+N6E					88					Values relative to billing period 4, Index difference, Corrected value, Last period				
+N6E					89					Values relative to billing period 4, Index difference, Value at base conditions, Last period				
+N6E					90					Values relative to billing period 4, Maximum of Index differences over measurement period 1, Value at metering conditions				
+N6E					91					Values relative to billing period 4, Maximum of Index differences over measurement period 1, Corrected value				
+N6E					92					Values relative to billing period 4, Maximum of Index differences over measurement period 1, Value at base conditions				
+N6E					93					Values relative to billing period 4, Maximum of Index differences over measurement period 2, Value at metering conditions				
+N6E					94					Values relative to billing period 4, Maximum of Index differences over measurement period 2, Corrected value				
+N6E					95					Values relative to billing period 4, Maximum of Index differences over measurement period 2, Value at base conditions				
+N6E					96					Values relative to billing period 4, Maximum of Index differences over measurement period 3, Value at metering conditions				
+N6E					97					Values relative to billing period 4, Maximum of Index differences over measurement period 3, Corrected value				
+N6E					98					Values relative to billing period 4, Maximum of Index differences over measurement period 3, Value at base conditions				
+	7	b	99	d5	e6	f		Load profile for indexes and index differences of volume, mass and energy 	$5	$6	Billing period $F (255 is current)	7		
+def	d7 = 41, 42, 44-49													
+N7D	7	b	99	41	255	255			Absolute temperature					
+N7D	7	b	99	42	255	255			Absolute pressure					
+N7D	7	b	99	44	255	255			Velocity of sound					
+N7D	7	b	99	45	255	255			Density (of gas)					
+N7D	7	b	99	46	255	255			Relative density					
+N7D	7	b	99	47	255	255			Gauge pressure					
+N7D	7	b	99	48	255	255			Differential pressure					
+N7D	7	b	99	49	255	255			Density of air					
+def	e8 = 0, 2, 13, 24-32, 42-50, 60-68, 78-86, 90-92													
+N8E					0					Instantaneous, Current value at metering conditions				
+N8E					2					Instantaneous Value at base conditions / “Converted value” 				
+N8E					13					Instantaneous, Value at standard conditions				
+N8E					24					Average, last interval, process interval 1, Value at metering conditions				
+N8E					25					Average, last interval, process interval 1, Value at base conditions 				
+N8E					26					Average, last interval, process interval 1, Value at standard conditions				
+N8E					27					Minimum, last interval, process interval 1, Value at metering conditions				
+N8E					28					Minimum, last interval, process interval 1, Value at base conditions 				
+N8E					29					Minimum, last interval, process interval 1, Value at standard conditions				
+N8E					30					Maximum, last interval, process interval 1, Value at metering conditions				
+N8E					31					Maximum, last interval, process interval 1, Value at base conditions 				
+N8E					32					Maximum, last interval, process interval 1, Value at standard conditions				
+N8E					42					Average, last interval, process interval 2, Value at metering conditions				
+N8E					43					Average, last interval, process interval 2, Value at base conditions 				
+N8E					44					Average, last interval, process interval 2, Value at standard conditions				
+N8E					45					Minimum, last interval, process interval 2, Value at metering conditions				
+N8E					46					Minimum, last interval, process interval 2, Value at base conditions 				
+N8E					47					Minimum, last interval, process interval 2, Value at standard conditions				
+N8E					48					Maximum, last interval, process interval 2, Value at metering conditions				
+N8E					49					Maximum, last interval, process interval 2, Value at base conditions 				
+N8E					50					Maximum, last interval, process interval 2, Value at standard conditions				
+N8E					60					Average, last interval, process interval 3, Value at metering conditions				
+N8E					61					Average, last interval, process interval 3, Value at base conditions 				
+N8E					62					Average, last interval, process interval 3, Value at standard conditions				
+N8E					63					Minimum, last interval, process interval 3, Value at metering conditions				
+N8E					64					Minimum, last interval, process interval 3, Value at base conditions 				
+N8E					65					Minimum, last interval, process interval 3, Value at standard conditions				
+N8E					66					Maximum, last interval, process interval 3, Value at metering conditions				
+N8E					67					Maximum, last interval, process interval 3, Value at base conditions 				
+N8E					68					Maximum, last interval, process interval 3, Value at standard conditions				
+N8E					78					Average, last interval, process interval 4, Value at metering conditions				
+N8E					79					Average, last interval, process interval 4, Value at base conditions 				
+N8E					80					Average, last interval, process interval 4, Value at standard conditions				
+N8E					81					Minimum, last interval, process interval 4, Value at metering conditions				
+N8E					82					Minimum, last interval, process interval 4, Value at base conditions 				
+N8E					83					Minimum, last interval, process interval 4, Value at standard conditions				
+N8E					84					Maximum, last interval, process interval 4, Value at metering conditions				
+N8E					85					Maximum, last interval, process interval 4, Value at base conditions 				
+N8E					86					Maximum, last interval, process interval 4, Value at standard conditions				
+N8E					90					Average, process interval 6, interval between last two events, Value at metering conditions				
+N8E					91					Average, process interval 6, interval between last two events, Value at base conditions 				
+N8E					92					Average, process interval 6, interval between last two events, Value at standard conditions				
+	7	b	99	d7	e8	f	Ch. $B	Load profile for process values	$7	$8	Billing period $F (255 is current)	7		
+def	d9 = 0-2, 13, 19-22, 39-42, 59-62, 67-70													
+N9E					0				Flow rate	Instantaneous, Current value at metering conditions				
+N9E					1				Flow rate	Instantaneous, Corrected value				
+N9E					2				Flow rate	Instantaneous, Value at base conditions / “Converted value”				
+N9E					13				Flow rate	Instantaneous, Value at standard conditions				
+N9E					19				Flow rate	Last average for averaging period 1, Value at metering conditions				
+N9E					20				Flow rate	Last average for averaging period 1, Corrected value				
+N9E					21				Flow rate	Last average for averaging period 1, Value at base conditions 				
+N9E					22				Flow rate	Last average for averaging period 1, Value at standard conditions				
+N9E					39				Flow rate	Last average for averaging period 2, Value at metering conditions				
+N9E					40				Flow rate	Last average for averaging period 2, Corrected value				
+N9E					41				Flow rate	Last average for averaging period 2, Value at base conditions 				
+N9E					42				Flow rate	Last average for averaging period 2, Value at standard conditions				
+N9E					59				Flow rate	Last average for averaging period 3, Value at metering conditions				
+N9E					60				Flow rate	Last average for averaging period 3, Corrected value				
+N9E					61				Flow rate	Last average for averaging period 3, Value at base conditions 				
+N9E					62				Flow rate	Last average for averaging period 3, Value at standard conditions				
+N9E					67				Flow rate	Last average for averaging period 4, Value at metering conditions				
+N9E					68				Flow rate	Last average for averaging period 4, Corrected value				
+N9E					69				Flow rate	Last average for averaging period 4, Value at base conditions 				
+N9E					70				Flow rate	Last average for averaging period 4, Value at standard conditions				
+	7	b	99	43	d9	f	Ch. $B	Load profile for	Flow rate	$9	Billing period $F (255 is current)	7		
+	7	b	99	99	0	255	Ch. $B	Certification data log		#$(E+1)	Billing period $F (255 is current)	7		
+	7	b	99	99	1	255	Ch. $B	Load profile with recording interval 15 minutes			Billing period $F (255 is current)	7		
+	7	b	99	99	2	255	Ch. $B	Load profile with recording interval 60 minutes			Billing period $F (255 is current)	7		
+	7	b	99	99	3	255	Ch. $B	Load profile with recording interval day			Billing period $F (255 is current)	7		
+	7	b	99	99	4	255	Ch. $B	Load profile with recording interval month			Billing period $F (255 is current)	7		
+	7	128-254	0-255	0-255	0-255	0-255	Ch. $B	Manufacturer specific				*		*
+	7	b	128-254	0-255	0-255	0-255	Ch. $B	Manufacturer specific				*		*
+	7	b	0-254	128-254	0-255	0-255	Ch. $B	Manufacturer specific				*		*
+	7	b	0-254	0-254	128-254	0-255	Ch. $B	Manufacturer specific				*		*
+	7	b	0-254	0-254	0-254	128-254	Ch. $B	Manufacturer specific				*		*

@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -442,6 +443,7 @@ public class DeviceBuilderTest {
 	}
 
 	@Test
+	@Ignore //remove test as now is possible to change shipment date via ws independent of the device state
 	public void testPrepareChangeFrom_ShipmentDateNotInStock() {
 		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
 		try {

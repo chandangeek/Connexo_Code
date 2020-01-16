@@ -4,85 +4,81 @@
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractOutboundWebserviceTest;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateConfirmationProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegBulkCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfMsg;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 
-import static org.mockito.Matchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class UtilitiesDeviceRegisterBulkCreateConfirmationTest extends AbstractOutboundWebserviceTest {
-
-    @Mock
-    private UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut port;
+public class UtilitiesDeviceRegisterBulkCreateConfirmationTest extends AbstractOutboundWebserviceTest<UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut> {
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private UtilsDvceERPSmrtMtrRegCrteConfMsg msgMock;
     @Mock
     private UtilsDvceERPSmrtMtrRegBulkCrteConfMsg confirmationMessage;
     @Mock
     private UtilitiesDeviceRegisterCreateConfirmationMessage outboundMessage;
 
-    UtilitiesDeviceRegisterBulkCreateConfirmationProvider provider;
+    private List<UtilsDvceERPSmrtMtrRegCrteConfMsg> msgList;
+
+    private UtilitiesDeviceRegisterBulkCreateConfirmationProvider provider;
 
     @Before
     public void setUp() {
-        provider = spy(new UtilitiesDeviceRegisterBulkCreateConfirmationProvider());
-        when(webServiceCallOccurrence.getId()).thenReturn(1l);
-        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
-        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
-        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
-        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
+        msgList = Collections.singletonList(msgMock);
+        when(webServiceCallOccurrence.getId()).thenReturn(1L);
         when(outboundMessage.getBulkConfirmationMessage()).thenReturn(Optional.of(confirmationMessage));
-        when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
+        when(confirmationMessage.getUtilitiesDeviceERPSmartMeterRegisterCreateConfirmationMessage()).thenReturn(msgList);
+        when(msgMock.getUtilitiesDevice().getID().getValue()).thenReturn("UtilDeviceID");
+
+        provider = getProviderInstance(UtilitiesDeviceRegisterBulkCreateConfirmationProvider.class);
     }
 
     @Test
     public void testCall() {
-        when(provider.using(anyString())).thenReturn(requestSender);
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(WebServiceActivator.URL_PROPERTY, getURL());
-        properties.put("epcId", 1l);
-
-        provider.addRequestConfirmationPort(port, properties);
         provider.call(outboundMessage);
 
-        verify(provider).using("utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut");
-        verify(requestSender).send(confirmationMessage);
+        SetMultimap<String,String> values = ImmutableSetMultimap.of(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), "UtilDeviceID");
+        verify(endpoint).utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut(confirmationMessage);
+        verify(webServiceCallOccurrence).saveRelatedAttributes(values);
     }
 
     @Test
     public void testCallWithoutPort() {
-        inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
-        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
-        expectedException.expect(LocalizedException.class);
-        expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_Out'.");
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(Collections.emptyList());
 
-        provider.call(outboundMessage);
+        assertThatThrownBy(() -> provider.call(outboundMessage))
+                .isInstanceOf(LocalizedException.class)
+                .hasMessage("No web service endpoints are available to send the request using 'SAP SmartMeterRegisterBulkCreateConfirmation'.");
     }
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut.class);
+        assertThat(provider.getService()).isSameAs(UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOutService.class);
+        assertThat(provider.get()).isInstanceOf(UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOutService.class);
     }
 }

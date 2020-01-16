@@ -86,7 +86,7 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getWaveFlowMessages().applyMessages(messageEntries);
     }
 

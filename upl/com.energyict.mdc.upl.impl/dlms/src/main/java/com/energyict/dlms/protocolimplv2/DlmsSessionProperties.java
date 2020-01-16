@@ -22,6 +22,7 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
     String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
     String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
+    String POLLING_DELAY = "PollingDelay";
 
     /** Property indicating whether the public client is pre-established or not. */
     String PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED = "PublicClient-PreEstablished";
@@ -190,6 +191,18 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * For V2 protocols, this is received in the init() method in the offlineDevice.
      */
     void setSerialNumber(String serialNumber);
+
+    /**
+     * Most devices have the serial-number stored in the standard Obis-Code 0-0:96.1.0.255, but some devices store here
+     * only a short id, and the the full serial number in the EquipmentIdentifier Obis-Code (0-0:96.1.1.255).
+     *
+     * The value reported by the protocol as "SerialNumber" must match the one configured in Connexo GUI. This check is
+     * performed during the basic-check task.
+     *
+     * @return true  = equipment-identifier obis-code will be used to report back the 'serial-number'
+     *         false = standard serial number obis-code will be used
+     */
+    boolean useEquipmentIdentifierAsSerialNumber();
 
     /**
      * Indicates how to construct the ID of MBus meters.

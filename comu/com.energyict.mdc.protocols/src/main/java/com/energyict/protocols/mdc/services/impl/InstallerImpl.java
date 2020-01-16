@@ -13,6 +13,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.system.SystemModeService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
@@ -53,16 +54,18 @@ public class InstallerImpl implements FullInstaller {
     private final DeviceService deviceService;
     private final SecurityManagementService securityManagementService;
     private final DataVaultService dataVaultService;
+    private final SystemModeService systemModeService;
 
     private KeyAccessorValuePersister keyAccessorValuePersister;
 
     @Inject
-    InstallerImpl(DataModel dataModel, DeviceService deviceService, SecurityManagementService securityManagementService, DataVaultService dataVaultService) {
+    InstallerImpl(DataModel dataModel, DeviceService deviceService, SecurityManagementService securityManagementService, DataVaultService dataVaultService, SystemModeService systemModeService) {
         super();
         this.dataModel = dataModel;
         this.deviceService = deviceService;
         this.securityManagementService = securityManagementService;
         this.dataVaultService = dataVaultService;
+        this.systemModeService = systemModeService;
     }
 
     @Override
@@ -76,15 +79,20 @@ public class InstallerImpl implements FullInstaller {
 
     private boolean checkTableExists() {
         final boolean[] tableExists = {false};
-        String sql = "SELECT * FROM user_tables where table_name = 'PR1_DLMS_SECURITY'";
         dataModel.useConnectionNotRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
-                ResultSet rs = statement.executeQuery(sql);
+                ResultSet rs = statement.executeQuery(createCheckTableExistsSql());
                 tableExists[0] = rs.next();
             }
         });
 
         return tableExists[0];
+    }
+
+    private String createCheckTableExistsSql() {
+        if (systemModeService.isOnlineMode())
+            return "SELECT * FROM user_tables where table_name = 'PR1_DLMS_SECURITY'";
+        return "SELECT * FROM information_schema.tables where table_name = 'PR1_DLMS_SECURITY'";
     }
 
     private void moveSecurityAttributesToKeyAccessors(Logger logger) {

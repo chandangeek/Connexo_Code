@@ -25,6 +25,10 @@ import java.math.BigDecimal;
 @XmlRootElement
 public class SioSerialConnectionType extends AbstractSerialConnectionType {
 
+    public SioSerialConnectionType(){
+        super();
+    }
+
     public SioSerialConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }

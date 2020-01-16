@@ -34,9 +34,9 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECFQueryResponseStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECQueryResponseStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;

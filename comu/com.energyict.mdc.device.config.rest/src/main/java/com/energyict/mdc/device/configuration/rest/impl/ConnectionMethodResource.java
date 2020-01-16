@@ -176,6 +176,9 @@ public class ConnectionMethodResource {
                 for (PropertySpec propertySpec : partialConnectionTask.getPluggableClass().getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, connectionMethodInfo.properties);
                     if (propertyValue != null) {
+                        if (propertyValue instanceof String) {
+                            propertyValue = ((String) propertyValue).trim();
+                        }
                         partialConnectionTask.setProperty(propertySpec.getName(), propertyValue);
                     } else {
                         partialConnectionTask.removeProperty(propertySpec.getName());

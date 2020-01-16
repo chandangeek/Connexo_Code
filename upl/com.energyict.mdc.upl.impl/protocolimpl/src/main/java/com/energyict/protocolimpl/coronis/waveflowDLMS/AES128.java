@@ -8,6 +8,7 @@ import java.security.*;
 public class AES128 {
 
     private byte[] encryptionKey;
+    private Cipher aesCBCCipher;
 
     public AES128(byte[] encryptionKey) {
         setKey(encryptionKey);
@@ -21,7 +22,6 @@ public class AES128 {
         SecretKeySpec skeySpec = new SecretKeySpec(encryptionKey, "AES");
 
         // Instantiate the cipher
-        Cipher cipher;
 		try {
 
 	        // build the initialization vector.  This example is all zeros, but it 
@@ -29,12 +29,10 @@ public class AES128 {
 	        byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	        IvParameterSpec ivspec = new IvParameterSpec(iv);
 	        // initialize the cipher for encrypt mode
-	        cipher = Cipher.getInstance("AES/CBC/NoPadding");
-			cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivspec);
+	        getAesCBCCipher().init(Cipher.DECRYPT_MODE, skeySpec, ivspec);
 			
-	        byte[] data = cipher.doFinal(encryptedData);
+	        byte[] data = getAesCBCCipher().doFinal(encryptedData);
 	        return data;
-    	
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (NoSuchPaddingException e) {
@@ -59,7 +57,6 @@ public class AES128 {
         SecretKeySpec skeySpec = new SecretKeySpec(encryptionKey, "AES");
 
         // Instantiate the cipher
-        Cipher cipher;
 		try {
 			
 	        // build the initialization vector.  This example is all zeros, but it 
@@ -67,13 +64,12 @@ public class AES128 {
 	        byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	        IvParameterSpec ivspec = new IvParameterSpec(iv);
 	        // initialize the cipher for encrypt mode
-	        cipher = Cipher.getInstance("AES/CBC/NoPadding"); //PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, skeySpec, ivspec);
+			getAesCBCCipher().init(Cipher.ENCRYPT_MODE, skeySpec, ivspec);
 			
 //			cipher = Cipher.getInstance("AES");
 //	        cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
 			
-	        byte[] encrypted = cipher.doFinal(data);
+	        byte[] encrypted = getAesCBCCipher().doFinal(data);
 	        return encrypted; 
     	
 		} catch (NoSuchAlgorithmException e) {
@@ -92,4 +88,10 @@ public class AES128 {
         return null;
     }
 
+    private Cipher getAesCBCCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+    	if (aesCBCCipher == null) {
+			aesCBCCipher = Cipher.getInstance("AES/CBC/NoPadding");
+		}
+    	return aesCBCCipher;
+	}
 }

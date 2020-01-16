@@ -15,8 +15,8 @@ import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

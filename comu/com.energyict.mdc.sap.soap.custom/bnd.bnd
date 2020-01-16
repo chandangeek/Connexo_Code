@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.energyict.mdc.sap.soap.custom.*
+Export-Package: !com.energyict.mdc.sap.soap.custom.*

@@ -1,13 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.LoadProfileConfigurationException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -16,20 +9,42 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
-import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**

@@ -61,7 +61,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.RecurrenceSelectionProps',
         'Uni.property.view.property.RadioGroup',
         'Uni.property.view.property.EventTime',
-        'Uni.property.view.property.StartAlarmProcess',
+        'Uni.property.view.property.ProcessCombo',
         'Uni.property.view.property.CalendarWithEventCode',
         'Uni.property.view.property.MaximumAbsoluteDifference',
         'Uni.property.view.property.NoneOrBigDecimal',
@@ -72,13 +72,15 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         'Uni.property.view.property.Recurrence',
         'Uni.property.view.property.Task',
-		'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
+        'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
         'Uni.property.view.property.ServiceCallIssueType',
         'Uni.property.view.property.ServiceCallIssueState',
         'Uni.property.view.property.CustomEventTypeReference',
         'Uni.property.view.property.comtasks.ComTasks',
         'Uni.property.view.property.webservices.WebServiceIssue',
-        'Uni.property.view.property.CloseIssueForm'
+        'Uni.property.view.property.WebServiceCombo',
+        'Uni.property.view.property.CloseIssueForm',
+        'Uni.property.view.property.DynamicCombobox'
     ],
 
     /**
@@ -91,7 +93,7 @@ Ext.define('Uni.property.controller.Registry', {
         ASSIGN_ISSUE_FORM: 'Uni.property.view.property.AssignIssueForm',
         MAILTO: 'Uni.property.view.property.MailTo',
         BOOLEAN: 'Uni.property.view.property.Boolean',
-        BPM_PROCESS: 'Uni.property.view.property.StartAlarmProcess',
+        BPM_PROCESS: 'Uni.property.view.property.ProcessCombo',
         CLOCK: 'Uni.property.view.property.DateTime',
         CLOSE_ISSUE_FORM: 'Uni.property.view.property.CloseIssueForm',
         CODETABLE: 'Uni.property.view.property.CodeTable',
@@ -148,13 +150,14 @@ Ext.define('Uni.property.controller.Registry', {
         REGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
         ANY_READINGTYPE: 'Uni.property.view.property.ReadingType',
         INTEGER: 'Uni.property.view.property.Number',
-        WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference',
+        WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.WebServiceCombo',
         ENDDEVICEGROUPLIST: 'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
         SERVICE_CALL: 'Uni.property.view.property.ServiceCallIssueType',
         SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState',
         CUSTOM_EVENT_TYPE: 'Uni.property.view.property.CustomEventTypeReference',
         EXCLUDED_COM_TASKS: 'Uni.property.view.property.comtasks.ComTasks',
         ENDPOINT_CONFIGURATION_LIST: 'Uni.property.view.property.webservices.WebServiceIssue',
+        DYNAMIC_COMBOBOX: 'Uni.property.view.property.DynamicCombobox'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
@@ -174,6 +177,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.PropertyCommunicationTasksCurrentValue',
         'Uni.property.store.PropertyEndDeviceGroups',
         'Uni.property.store.PropertyWebServices',
+        'Uni.property.store.DynamicComboboxData'
     ],
 
     /**

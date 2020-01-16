@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
@@ -13,7 +14,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterAlarmParser;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.nio.ByteBuffer;
 import java.util.Date;

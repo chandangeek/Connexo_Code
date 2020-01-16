@@ -2,4 +2,5 @@
 -dsannotations: * 
 Private-Package: com.elster.jupiter.users.impl
 Export-Package: com.elster.jupiter.users,\
+	com.elster.jupiter.users.privileges,\
 	com.elster.jupiter.users.security

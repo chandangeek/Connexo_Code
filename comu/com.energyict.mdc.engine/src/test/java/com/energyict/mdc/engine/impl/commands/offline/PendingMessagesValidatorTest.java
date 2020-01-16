@@ -107,6 +107,7 @@ public class PendingMessagesValidatorTest {
     @Test
     public void messageWithoutAllowedCalendarAttributeValue() {
         when(this.deviceMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND);
+        when(this.deviceMessage.getMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND.dbValue());
         DeviceMessageAttribute calendarNameAttribute = mock(DeviceMessageAttribute.class);
         when(calendarNameAttribute.getDeviceMessage()).thenReturn(this.deviceMessage);
         when(calendarNameAttribute.getName()).thenReturn("Name");

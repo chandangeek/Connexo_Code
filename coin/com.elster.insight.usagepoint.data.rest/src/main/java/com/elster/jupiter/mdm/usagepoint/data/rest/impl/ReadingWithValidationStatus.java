@@ -98,6 +98,12 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
                     .map(ReadingQuality.class::cast)
                     .filter(readingQuality -> !hasValidatedOkReadingQualityType(readingQuality))
                     .collect(Collectors.toList());
+
+            // check if it was Manually accepted (3.10.1)
+            if (this.calculatedReadingRecord != null && persistedReadingQualities.stream().anyMatch(type -> "3.10.1".equals(type.getTypeCode()))) {
+                readingQualities.addAll(this.calculatedReadingRecord.getReadingQualities());
+            }
+
             readingQualities.addAll(persistedReadingQualities);
         }
         return readingQualities;

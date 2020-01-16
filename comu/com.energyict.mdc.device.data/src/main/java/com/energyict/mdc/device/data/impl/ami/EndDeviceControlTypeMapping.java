@@ -118,7 +118,8 @@ public enum EndDeviceControlTypeMapping {
             Collections.singletonList(DeviceMessageId.SECURITY_AGREE_NEW_AUTHENTICATION_KEY),
             Collections.singletonList(DeviceMessageId.SECURITY_AGREE_NEW_ENCRYPTION_KEY),
             Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_TEMPORARY_KEY),
-            Collections.singletonList(DeviceMessageId.SECURITY_KEY_RENEWAL)
+            Collections.singletonList(DeviceMessageId.SECURITY_KEY_RENEWAL),
+            Collections.singletonList(DeviceMessageId.MBUS_TRANSFER_FUAK)
     ) {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {

@@ -25,7 +25,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolcommon.exceptions.CodingException;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 
 import java.util.ArrayList;
 import java.util.Date;

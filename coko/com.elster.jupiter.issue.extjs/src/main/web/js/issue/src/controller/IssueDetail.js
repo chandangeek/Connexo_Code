@@ -33,116 +33,156 @@ Ext.define('Isu.controller.IssueDetail', {
             store = me.getIssueStore(),
             processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widgetXtype,
-            issueModel,
             widget;
 
-        if (issueType === 'datacollection' || issueType === 'devicelifecycle' || issueType === 'task' || issueType === 'servicecall' || issueType === 'webservice') {
-            processStore.getProxy().setUrl(id);
-            processStore.load(function (records) {
-            });
+        switch (issueType){
+            case 'datacollection':
+            case 'devicelifecycle':
+            case 'task':
+            case 'servicecall':
+            case 'webservice':
+                processStore.getProxy().setUrl(id);
+                processStore.load();
+                break;
+            default:
+                break;
         }
 
-        if (store.getCount()) {
-            var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
-            if (issueActualType != issueType) {
-                queryString.issueType = issueActualType;
-                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-                issueType = issueActualType;
-            }
+        var storeParams = {};
+
+        if (queryString && queryString.meter){
+            storeParams['filters'] = [{property: 'meter',  value : queryString.meter}]
         }
 
-        if (issueType === 'datacollection') {
-            widgetXtype = 'data-collection-issue-detail';
-            issueModel = 'Idc.model.Issue';
-        } else if (issueType === 'datavalidation' && Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'MDC') {
-            widgetXtype = 'data-validation-issue-detail';
-            issueModel = 'Idv.model.Issue';
-            me.nonEstimatedDataStore = 'Idv.store.NonEstimatedDataStore';
-            /* } else if (issueType === 'usagepointdatavalidation' && Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'INS') {
-             widgetXtype = 'data-validation-issue-detail';
-             issueModel = 'Imt.datavalidation.model.Issue';
-
-             */
-        } else if (issueType === 'devicelifecycle') {
-            widgetXtype = 'device-lifecycle-issue-detail';
-            issueModel = 'Idl.model.Issue';
-            me.transitionStore = 'Idl.store.TransitionStore';
-        } else if (issueType === 'task') {
-            widgetXtype = 'task-issue-detail';
-            issueModel = 'Itk.model.Issue';
-            me.taskStore = 'Itk.store.OccurrenceStore';
-        } else if (issueType === 'servicecall') {
-            widgetXtype = 'servicecall-issue-detail';
-            issueModel = 'Isc.model.Issue';
-            me.serviceCallLogStore = 'Isc.store.Logs'
-        } else if(issueType ==='manual'){
-            widgetXtype = 'manual-issue-detail';
-            issueModel='Isu.model.ManualIssue';
-         } else if (issueType === 'webservice') {
-            widgetXtype = 'webservice-issue-detail';
-            issueModel = 'Iws.model.Issue';
-            me.webServiceLogStore = 'Iws.store.Logs'
-        } else {
-            widgetXtype = me.widgetXtype;
-            issueModel = me.issueModel;
-        }
-
-        widget = Ext.widget(widgetXtype, {
-            router: router,
-            issuesListLink: me.makeLinkToList(router)
-        });
-
-        me.widget = widget;
-        me.getApplication().fireEvent('changecontentevent', widget);
-        me.issueModel = issueModel;
-        widget.setLoading(true);
-
-        me.getModel(issueModel).load(id, {
-            callback: function () {
-                widget.setLoading(false);
-            },
-            success: function (record) {
-                if (!widget.isDestroyed) {
-                    Ext.getStore('Isu.store.Clipboard').set('issue', record);
-                    me.getApplication().fireEvent('issueLoad', record);
-                    Ext.suspendLayouts();
-                    widget.down('#issue-detail-top-title').setTitle(record.get('title'));
-                    if (issueType === 'datacollection') {
-                        me.loadDataCollectionIssueDetails(widget, record);
-                    } else {
-                        widget.down('#issue-detail-form').loadRecord(record);
-                    }
-                    Ext.resumeLayouts(true);
-                    var subEl = new Ext.get('issue-status-field-sub-tpl');
-                    subEl.setHTML(record.get('statusDetail'));
-
-                    if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
-                        me.getActionMenu().record = record;
-                    }
-                    else if (widget.down('#issue-detail-action-menu')) {
-                        widget.down('#issue-detail-action-menu').record = record;
-                    }
-                    me.loadComments(record, issueType);
+        var callback = function(){
+            if (store.getCount()) {
+                var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
+                if (issueActualType != issueType) {
+                    queryString.issueType = issueActualType;
+                    window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                    issueType = issueActualType;
                 }
-            },
-            failure: function () {
-                router.getRoute(router.currentRoute.replace('/view', '')).forward();
             }
-        });
-        if ((issueType === 'datavalidation') || (issueType == 'usagepointdatavalidation')) {
-            me.addValidationBlocksWidget(widget);
+
+            widgetXtype = me.settingsForCurrentIssueType(issueType);
+
+            widget = Ext.widget(widgetXtype, {
+                router: router,
+                issuesListLink: me.makeLinkToList(router)
+            });
+
+            me.widget = widget;
+            me.getApplication().fireEvent('changecontentevent', widget);
+            widget.setLoading(true);
+
+            me.getModel(me.issueModel).load(id, {
+                callback: function () {
+                    widget.setLoading(false);
+                },
+                success: function (record) {
+                    if (!widget.isDestroyed) {
+                        Ext.getStore('Isu.store.Clipboard').set('issue', record);
+                        me.getApplication().fireEvent('issueLoad', record);
+                        Ext.suspendLayouts();
+                        widget.down('#issue-detail-top-title').setTitle(record.get('title'));
+                        if (issueType === 'datacollection') {
+                            me.loadDataCollectionIssueDetails(widget, record);
+                        } else {
+                            widget.down('#issue-detail-form').loadRecord(record);
+                        }
+                        Ext.resumeLayouts(true);
+                        var subEl = new Ext.get('issue-status-field-sub-tpl');
+                        subEl.setHTML(record.get('statusDetail'));
+
+                        if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
+                            me.getActionMenu().record = record;
+                        }
+                        else if (widget.down('#issue-detail-action-menu')) {
+                            widget.down('#issue-detail-action-menu').record = record;
+                        }
+                        me.loadComments(record, issueType);
+                    }
+                },
+                failure: function () {
+                    router.getRoute(router.currentRoute.replace('/view', '')).forward();
+                }
+            });
+
+            me.setAdditionalSettingsForCurrentIssue(issueType, widget);
         }
-        if ((issueType === 'devicelifecycle')) {
-            me.addTransitionBlocksWidget(widget);
+        storeParams.callback = callback;
+        store.load(storeParams);
+    },
+
+    settingsForCurrentIssueType: function(issueType){
+        var me = this,
+            widgetXtype;
+        switch (issueType){
+            case 'datacollection':
+                widgetXtype = 'data-collection-issue-detail';
+                me.issueModel = 'Idc.model.Issue';
+                break;
+            case 'datavalidation':
+                if (Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] == 'MDC'){
+                    widgetXtype = 'data-validation-issue-detail';
+                    me.issueModel = 'Idv.model.Issue';
+                    me.nonEstimatedDataStore = 'Idv.store.NonEstimatedDataStore';
+                }
+                break;
+            case 'devicelifecycle':
+                widgetXtype = 'device-lifecycle-issue-detail';
+                me.issueModel = 'Idl.model.Issue';
+                me.transitionStore = 'Idl.store.TransitionStore';
+                break;
+            case 'task':
+                widgetXtype = 'task-issue-detail';
+                me.issueModel = 'Itk.model.Issue';
+                me.taskStore = 'Itk.store.OccurrenceStore';
+                break;
+            case 'servicecall':
+                widgetXtype = 'servicecall-issue-detail';
+                me.issueModel = 'Isc.model.Issue';
+                me.serviceCallLogStore = 'Isc.store.Logs';
+                break;
+            case 'manual':
+                widgetXtype = 'manual-issue-detail';
+                me.issueModel='Isu.model.ManualIssue';
+                break;
+            case 'webservice':
+                widgetXtype = 'webservice-issue-detail';
+                me.issueModel = 'Iws.model.Issue';
+                me.webServiceLogStore = 'Iws.store.Logs';
+                break;
+            default:
+                widgetXtype = me.widgetXtype;
+                me.issueModel = me.issueModel;
+                break;
         }
-        if ((issueType === 'task')) {
-            me.addTaskOccurrenceWidget(widget);
-        }
-        if ((issueType === 'servicecall')) {
-            me.addServiceCallIssueLogs(widget);
-        }
-        if (issueType === 'webservice') {
-            me.addWebServiceIssueLogs(widget);
+        return widgetXtype;
+    },
+
+    setAdditionalSettingsForCurrentIssue: function(issueType, widget){
+        var me = this;
+
+        switch (issueType){
+            case 'datavalidation':
+            case 'usagepointdatavalidation':
+                me.addValidationBlocksWidget(widget);
+                break;
+            case 'devicelifecycle':
+                me.addTransitionBlocksWidget(widget);
+                break;
+            case 'task':
+                me.addTaskOccurrenceWidget(widget);
+                break;
+            case 'servicecall':
+                me.addServiceCallIssueLogs(widget);
+                break;
+            case 'webservice':
+                me.addWebServiceIssueLogs(widget);
+                break;
+             default:
+                break;
         }
     },
 
@@ -617,6 +657,22 @@ Ext.define('Isu.controller.IssueDetail', {
                 });
 
                 Ext.getStore('Isc.store.Logs').loadData(data);
+                panel.bindStore(Ext.getStore('Isc.store.Logs'), true);
+                panel.addDocked({
+                xtype: 'toolbar',
+                itemId: 'components-list-top-toolbar',
+                items: [
+                    '->',
+                    {
+                        xtype: 'exporterbutton',
+                        itemId: 'components-exporter-button',
+                        ui: 'icon',
+                        iconCls: 'icon-file-download',
+                        text: '',
+                        component: 'servicecall-issue-detail-log'
+                    }
+                ]
+            })
             }
 
             detailsForm && detailsForm.loadRecord(rec);
@@ -644,6 +700,22 @@ Ext.define('Isu.controller.IssueDetail', {
                     }, log))
                 });
                 Ext.getStore('Iws.store.Logs').loadData(data);
+                panel.bindStore(Ext.getStore('Iws.store.Logs'), true);
+                panel.addDocked({
+                xtype: 'toolbar',
+                itemId: 'components-list-top-toolbar',
+                items: [
+                    '->',
+                    {
+                        xtype: 'exporterbutton',
+                        itemId: 'components-exporter-button',
+                        ui: 'icon',
+                        iconCls: 'icon-file-download',
+                        text: '',
+                        component: 'webservice-issue-detail-log'
+                    }
+                ]
+            })
             }
 
             detailsForm && detailsForm.loadRecord(rec);

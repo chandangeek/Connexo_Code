@@ -25,13 +25,15 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
-        'Wss.store.Roles'
+        'Wss.store.Roles',
+        'Wss.store.RelatedAttributeStore'
     ],
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
         'Wss.model.endpoint.Occurrence',
-        'Wss.model.Log'
+        'Wss.model.Log',
+        'Wss.model.RelatedAttributeModel'
     ],
 
     refs: [
@@ -251,6 +253,10 @@ Ext.define('Wss.controller.Webservices', {
             var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
         }
         authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
+        if(authenticationMethod.data.id === 'NONE'){
+            record.set('username',null);
+            record.set('password',null);
+        }
         if(form.down('#userRoleField')) {
             var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
             if(userGroup && userGroup.get('id')==='all'){

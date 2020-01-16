@@ -185,7 +185,7 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         this.messageProtocol.applyMessages(messageEntries);
     }
 

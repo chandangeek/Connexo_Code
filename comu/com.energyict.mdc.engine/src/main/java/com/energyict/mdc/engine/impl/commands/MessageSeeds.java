@@ -89,7 +89,8 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     ANY_CHANNEL_OBIS_CODE_REQUIRES_SERIAL_NUMBER(5069, "anyChannelObisCodeRequiresSerialNumber", "The device serial number is required to resolve the x (any channel) in OBIS code ''{0}''"),
     COULD_NOT_PARSE_OBIS_CODE(5070, "couldNotParseObisCode", "Not a valid obis code: {0}"),
     NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED(5071, "notExecutedDueToConnectionInterrupted", "Communication task will be rescheduled due to an interrupted connection"),
-    COLLECTED_DATA_ISSUE(5072, "collectedDataIssue","Collected data issue for message ''{0}'': {1}");
+    COLLECTED_DATA_ISSUE(5072, "collectedDataIssue","Collected data issue for message ''{0}'': {1}"),
+    FAILED_TO_PARSE_IDENTIFIER_DATA(5073, "failedToParseIdentifierData", "Unable to parse the identifier: {0}");
 
     private final int number;
     private final String key;

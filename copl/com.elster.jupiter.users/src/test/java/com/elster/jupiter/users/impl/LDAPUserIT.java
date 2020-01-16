@@ -6,12 +6,13 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.users.LdapUser;
+
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LDAPUserIT extends EqualsContractTest {
@@ -19,6 +20,7 @@ public class LDAPUserIT extends EqualsContractTest {
 
     private static final String USER_NAME = "userName";
     private static final String OTHER_USER_NAME = "otherserName";
+    private static final String USER_DN = "ou_group, uid=userName";
     private static final boolean STATUS_ACTIVE = true;
 
     @Before
@@ -35,21 +37,21 @@ public class LDAPUserIT extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (ldapUser == null) {
-            ldapUser =  new LdapUserImpl().init(USER_NAME, STATUS_ACTIVE);
+            ldapUser =  new LdapUserImpl().init(USER_NAME, USER_DN, STATUS_ACTIVE);
 
         }
         return ldapUser;
     }
 
     @Override
-         protected Object getInstanceEqualToA() {
-        LdapUser ldapUserB =  new LdapUserImpl().init(USER_NAME, STATUS_ACTIVE);
+    protected Object getInstanceEqualToA() {
+        LdapUser ldapUserB =  new LdapUserImpl().init(USER_NAME, USER_DN, STATUS_ACTIVE);
         return ldapUserB;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        LdapUser ldapUserC =  new LdapUserImpl().init(OTHER_USER_NAME, STATUS_ACTIVE);
+        LdapUser ldapUserC =  new LdapUserImpl().init(OTHER_USER_NAME, USER_DN, STATUS_ACTIVE);
         return Collections.singletonList(ldapUserC);
     }
 

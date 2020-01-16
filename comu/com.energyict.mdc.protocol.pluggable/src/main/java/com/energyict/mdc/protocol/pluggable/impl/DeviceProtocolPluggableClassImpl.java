@@ -32,6 +32,7 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
@@ -46,6 +47,8 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.Device;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -65,19 +68,24 @@ import java.util.stream.Stream;
 @HasValidProperties(groups = {Save.Update.class, Save.Create.class})
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 
-    private final CustomPropertySetService customPropertySetService;
-    private final PropertySpecService propertySpecService;
-    private final CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
-    private final ProtocolPluggableService protocolPluggableService;
-    private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
-    private final CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
-    private final MessageAdapterMappingFactory messageAdapterMappingFactory;
-    private final DataModel dataModel;
-    private final IssueService issueService;
-    private final CollectedDataFactory collectedDataFactory;
-    private final MeteringService meteringService;
-    private final IdentificationService identificationService;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private CustomPropertySetService customPropertySetService;
+    private PropertySpecService propertySpecService;
+    private CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
+    private ProtocolPluggableService protocolPluggableService;
+    private SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    private CapabilityAdapterMappingFactory capabilityAdapterMappingFactory;
+    private MessageAdapterMappingFactory messageAdapterMappingFactory;
+    private DataModel dataModel;
+    private IssueService issueService;
+    private CollectedDataFactory collectedDataFactory;
+    private MeteringService meteringService;
+    private IdentificationService identificationService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private DeviceProtocol deviceProtocol;
+
+    public DeviceProtocolPluggableClassImpl() {
+        super();
+    }
 
     @Inject
     public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IdentificationService identificationService, DeviceMessageSpecificationService deviceMessageSpecificationService, CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
@@ -279,10 +287,27 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = UPLDeviceProtocolAdapter.class),
+            @XmlElement(type = DeviceProtocolAdapterImpl.class),
+            @XmlElement(type = MeterProtocolAdapterImpl.class),
+            @XmlElement(type = SmartMeterProtocolAdapterImpl.class),
+    })
     public DeviceProtocol getDeviceProtocol() {
-        DeviceProtocol deviceProtocol = this.newInstance();
-        deviceProtocol.copyProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
+        if (protocolPluggableService != null) {
+            deviceProtocol = this.newInstance();
+            deviceProtocol.copyProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
+        }
         return deviceProtocol;
+    }
+
+    public void setDeviceProtocol(DeviceProtocol deviceProtocol) {
+        if (protocolPluggableService != null) {
+            this.deviceProtocol = this.newInstance();
+            this.deviceProtocol.copyProperties(this.getProperties(deviceProtocol.getPropertySpecs()));
+        } else {
+            this.deviceProtocol = deviceProtocol;
+        }
     }
 
     @Override
@@ -298,5 +323,16 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     protected DeleteEventType deleteEventType() {
         return DeleteEventType.DEVICEPROTOCOL;
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

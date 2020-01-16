@@ -135,7 +135,7 @@ Ext.define('Login.controller.Login', {
                     if (referrer) {
                         apps.forEach(function (app) {
                             if (app.data.url && referrer.indexOf(app.data.url.replace('#', ''))!=-1){
-                                location.href = referrer;
+                                window.location.href = encodeURI(referrer);
                                 useReferrer = true;
                                 me.getLoginViewport().destroy();
                                 return;

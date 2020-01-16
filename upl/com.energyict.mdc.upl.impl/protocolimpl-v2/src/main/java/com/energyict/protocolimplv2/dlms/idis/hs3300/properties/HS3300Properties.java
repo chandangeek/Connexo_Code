@@ -128,6 +128,7 @@ public class HS3300Properties extends IDISProperties {
     /**
      * False by default, to return the serial number of the connected e-meter
      */
+    @Override
     public boolean useEquipmentIdentifierAsSerialNumber() {
         return getProperties().getTypedProperty(HS3300ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, HS3300ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }

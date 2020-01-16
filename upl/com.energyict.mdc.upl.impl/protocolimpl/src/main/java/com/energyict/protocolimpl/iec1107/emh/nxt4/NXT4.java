@@ -238,7 +238,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         getMessages().applyMessages(messageEntries);
     }
 

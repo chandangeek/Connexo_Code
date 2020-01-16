@@ -19,7 +19,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.Temporals;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 

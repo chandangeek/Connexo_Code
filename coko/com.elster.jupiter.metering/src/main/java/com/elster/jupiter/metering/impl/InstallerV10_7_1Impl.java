@@ -5,7 +5,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -35,7 +34,7 @@ public class InstallerV10_7_1Impl implements FullInstaller {
     private void upgradeMeasurementKindForAverageVoltage() {
         Optional<? extends ReadingTypeTemplate> readingTypeTemplateOpt = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE);
         if (readingTypeTemplateOpt.isPresent()) {
-            ReadingTypeTemplateAttribute attribute = readingTypeTemplateOpt.get().getAttribute(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND);
+            readingTypeTemplateOpt.get().getAttribute(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND);
             readingTypeTemplateOpt.get().startUpdate()
                     .setAttribute(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, 158, 158)
                     .done();

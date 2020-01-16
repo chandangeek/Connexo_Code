@@ -336,7 +336,7 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                 view = 'retry-process';
                 widget = Ext.widget(view, {
                     labelWidth: 120,
-                    controlsWidth: 500
+                    controlsWidth: 850
                 });
                 break;
         }
@@ -352,17 +352,20 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         /* Check if all processes from grid was selected or operator have chosen some specific processes */
         var record = this.getBulkRecord();
         var processName;
+
         if (record.get('allProcesses')){
             /* get process information get it from processBuffered */
             var processesStore = this.getStore('Mdc.processes.store.ProcessesBuffered');
             processNameToStart = processesStore.getAt(0).get('name');
             processObjectType = processesStore.getAt(0).get('type');
             processVersionToStart = processesStore.getAt(0).get('version');
+            processValue = processesStore.getAt(0).get('value');
         }else{
             var processes = record.get('processes');
             processNameToStart = processes[0].get('name');
             processObjectType = processes[0].get('type');
             processVersionToStart = processes[0].get('version');
+            processValue = processes[0].get('value');
         }
         /* Set name of selected process */
         widget.down('#processNameToRetry').setValue(processNameToStart);
@@ -412,13 +415,32 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
                          success: function (startProcessRecord) {
                              globalStartProcessRecord = startProcessRecord;
                              if (startProcessRecord && startProcessRecord.properties() && startProcessRecord.properties().count()) {
-                                 propertyForm.loadRecord(startProcessRecord);
-                                 propertyForm.show();
+                                 if (processObjectType === "Device"){
+                                     Ext.Ajax.suspendEvent("requestexception");
+                                     Ext.Ajax.request({
+                                            url: '/api/ddr/devices/byMRID/' + processValue,
+                                            method: 'GET',
+                                            timeout: 180000,
+                                            async: false,
+                                            success: function (response) {
+                                                if ( response && response.responseText ){
+                                                    propertyForm.context = {'id' : response.responseText};
+                                                }
+                                            },
+                                            callback: function(){
+                                                Ext.Ajax.resumeEvent("requestexception");
+                                                wizard.setLoading(false);
+                                                propertyForm.loadRecord(startProcessRecord);
+                                                propertyForm.show();
+                                            }
+                                     });
+                                 }else{
+                                      propertyForm.loadRecord(startProcessRecord);
+                                      propertyForm.show();
+                                 }
                              } else {
                                  propertyForm.hide();
                              }
-
-                             wizard.setLoading(false);
                          },
                          failure: function (record, operation) {
                             wizard.setLoading(false);
@@ -432,12 +454,13 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
         var record = this.getBulkRecord(),
         step4Panel = wizard.down('processes-bulk-step4'),
         operation = record.get('operation'),
+        propertyFormIsValid = true,
         message, widget;
 
         var step3Panel = wizard.down('processes-bulk-step3');
         var propertyForm = step3Panel.down('retry-process').down('property-form');
 
-        if (propertyForm.isValid())
+        if (propertyFormIsValid = propertyForm.isValid())
         {
             propertyForm.updateRecord();
             globalStartProcessRecord = propertyForm.getRecord();
@@ -446,7 +469,24 @@ Ext.define('Mdc.processes.controller.ProcBulkActions', {
             var filter = processesStore.getProxy().encodeFilters(processesStore.filters.getRange());
 
             /* Validation.Check number of process instances that can be retried  */
-            me.validateProcessesAction(wizard, record.get('allProcesses'), filter);
+            var processValuesProperties = globalStartProcessRecord && globalStartProcessRecord.properties();
+            processValuesProperties.each(function (property){
+                  if (property.get('required')){
+                       var propertyKey = property.get('key');
+                       if (propertyKey && propertyForm){
+                           var propertyField = propertyForm.getPropertyField(propertyKey);
+                           if (propertyField.getValue()){
+                                propertyField.clearInvalid();
+                           }else{
+                                propertyFormIsValid = false;
+                                propertyField.markInvalid(Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'));
+                           }
+                       }
+                  }
+            });
+            if (propertyFormIsValid){
+                me.validateProcessesAction(wizard, record.get('allProcesses'), filter);
+            }
         }
         /* In case if form is not valid we just do not anything and stay on card Step3. Error is shown for the invalid field */
 

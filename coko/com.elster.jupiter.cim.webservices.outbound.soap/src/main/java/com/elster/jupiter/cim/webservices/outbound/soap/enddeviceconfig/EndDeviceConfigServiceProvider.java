@@ -4,6 +4,7 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.EndDeviceConfigExtendedDataFactory;
+import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.metering.EndDeviceAttributesProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -19,6 +20,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -188,8 +191,14 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
             methodName = "changedEndDeviceConfig";
             message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED);
         }
+        SetMultimap<String, String> values = HashMultimap.create();
+        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), endDevice.getMRID());
+        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), endDevice.getSerialNumber());
+        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), endDevice.getName());
+
         using(methodName)
                 .toEndpoints(endPointConfigurations)
+                .withRelatedAttributes(values)
                 .send(message);
     }
 

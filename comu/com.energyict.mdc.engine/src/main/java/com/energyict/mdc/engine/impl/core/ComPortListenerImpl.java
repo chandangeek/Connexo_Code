@@ -147,6 +147,7 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         this.continueRunning = new AtomicBoolean(true);
         this.self = this.threadFactory.newThread(this);
         this.self.setName(this.getThreadName());
+        cleanupBusyTasks();
         this.self.start();
         this.status = ServerProcessStatus.STARTED;
     }
@@ -173,8 +174,6 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     public void run () {
         setThreadPrinciple();
 
-        this.comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
-
         while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 this.doRun();
@@ -190,6 +189,16 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
             }
         }
         this.status = ServerProcessStatus.SHUTDOWN;
+    }
+
+    private void cleanupBusyTasks() {
+        try {
+            comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+        } catch (PersistenceException e) {
+            logUnexpectedError(e);
+            runningComServer.refresh(getComPort());
+            continueRunning.set(false);
+        }
     }
 
     private void logUnexpectedError(Throwable throwable) {

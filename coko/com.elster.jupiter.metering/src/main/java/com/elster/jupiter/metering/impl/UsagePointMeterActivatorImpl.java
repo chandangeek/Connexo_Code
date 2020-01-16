@@ -143,12 +143,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
                     meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
         }
-        meter.getStateTimeline().ifPresent(stateTimeline -> stateTimeline.getSlices().forEach(stateTimeSlice -> {
-            Optional<Stage> stage = stateTimeSlice.getState().getStage();
-            if (stage.isPresent() && EndDeviceStage.fromKey(stage.get().getName()).equals(EndDeviceStage.POST_OPERATIONAL)) {
-                throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
-                        meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
-            }
+        meter.getStateTimeline().ifPresent(stateTimeline -> stateTimeline.getSlices().stream()
+                .max(Comparator.comparing(stateTimeSlice -> stateTimeSlice.getPeriod().lowerEndpoint())).ifPresent(stateTimeSlice -> {
+                    Optional<Stage> stage = stateTimeSlice.getState().getStage();
+                    if (stage.isPresent() && EndDeviceStage.fromKey(stage.get().getName()).equals(EndDeviceStage.POST_OPERATIONAL)) {
+                        throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
+                                meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
+                    }
         }));
     }
 

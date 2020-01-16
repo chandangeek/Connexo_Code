@@ -244,18 +244,23 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
+                    String errorMessage = "Load profile with obiscode " + config.getObisCode() + " is not supported by the device";
+                    collectedMessage.setDeviceProtocolInformation(errorMessage);
+                    getProtocol().journal(errorMessage);
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMessage));
                     return collectedMessage;
                 }
             }
 
             List<CollectedLoadProfile> loadProfileData = getProtocol().getLoadProfileData(Arrays.asList(fullLpr));
-            CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0));
+            CollectedMessage collectedMessage = createCollectedMessageWithLoadProfileData(pendingMessage, loadProfileData.get(0), fullLpr);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
             return collectedMessage;
         } catch (SAXException e) {              //Failed to parse XML data
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getLocalizedMessage());
+            getProtocol().journal(e.getLocalizedMessage());
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
             return collectedMessage;
         }
@@ -296,7 +301,10 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
+                    String errorMessage = "Load profile with obiscode " + config.getObisCode() + " is not supported by the device";
+                    collectedMessage.setDeviceProtocolInformation(errorMessage);
+                    getProtocol().journal(errorMessage);
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMessage));
                     return collectedMessage;
                 }
             }
@@ -339,6 +347,8 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         } catch (SAXException e) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getLocalizedMessage());
+            getProtocol().journal(e.getLocalizedMessage());
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
             return collectedMessage;
         }

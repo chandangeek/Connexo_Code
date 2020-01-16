@@ -40,13 +40,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -85,15 +79,8 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
      * Property keys
      */
     protected static final String PK_NODE_PREFIX = "NodeIdPrefix";
-    public static final String PK_TIMEOUT = TIMEOUT.getName();
-    public static final String PK_RETRIES = RETRIES.getName();
     private static final String PK_SHOULD_DISCONNECT = "ShouldDisconnect";
-    private static final String PK_PASSWORD = PASSWORD.getName();
-    private static final String PK_SERIALNUMBER = SERIALNUMBER.getName();
-    private static final String PK_NODEID = NODEID.getName();
     private static final String PK_ROUNDTRIPCORRECTION = ROUNDTRIPCORRECTION.getName();
-    private static final String PK_CORRECTTIME = CORRECTTIME.getName();
-    public static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_FORCE_DELAY = "ForceDelay";
     private static final String PK_READ_UNIT1_SERIALNUMBER = "ReadUnit1SerialNumber";
     private static final String PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE = "ReadProfileDataBeforeConfigChange";
@@ -184,15 +171,15 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(PK_SERIALNUMBER, PropertyTranslationKeys.LANDISGYR_SERIALNUMBER),
-                this.stringSpecofExactLength(PK_NODEID, 7, PropertyTranslationKeys.LANDISGYR_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.LANDISGYR_SERIALNUMBER),
+                this.stringSpecofExactLength(NODEID.getName(), 7, PropertyTranslationKeys.LANDISGYR_NODEID),
                 this.stringSpec(PK_NODE_PREFIX, PropertyTranslationKeys.LANDISGYR_NODE_PREFIX),
-                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.LANDISGYR_TIMEOUT),
-                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.LANDISGYR_RETRIES),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.LANDISGYR_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.LANDISGYR_RETRIES),
                 this.integerSpec(PK_ROUNDTRIPCORRECTION, PropertyTranslationKeys.LANDISGYR_ROUNDTRIPCORRECTION),
-                this.integerSpec(PK_CORRECTTIME, PropertyTranslationKeys.LANDISGYR_CORRECTTIME),
+                this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.LANDISGYR_CORRECTTIME),
                 this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.LANDISGYR_FORCE_DELAY),
-                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.LANDISGYR_EXTENDED_LOGGING),
+                this.stringSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.LANDISGYR_EXTENDED_LOGGING),
                 this.stringSpec(PK_SHOULD_DISCONNECT, PropertyTranslationKeys.LANDISGYR_SHOULD_DISCONNECT),
                 this.stringSpec(PK_READ_UNIT1_SERIALNUMBER, PropertyTranslationKeys.LANDISGYR_READ_UNIT1_SERIALNUMBER),
                 this.stringSpec(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, PropertyTranslationKeys.LANDISGYR_READ_PROFILE_DATA_BEFORE_CONFIG_CHANGE));
@@ -216,12 +203,12 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        if (properties.getTypedProperty(PK_SERIALNUMBER) != null) {
-            pSerialNumber = properties.getTypedProperty(PK_SERIALNUMBER);
+        if (properties.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            pSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
         }
 
-        if (properties.getTypedProperty(PK_NODEID) != null) {
-            pNodeId = getpNodePrefix(properties) + properties.getTypedProperty(PK_NODEID);
+        if (properties.getTypedProperty(NODEID.getName()) != null) {
+            pNodeId = getpNodePrefix(properties) + properties.getTypedProperty(NODEID.getName());
 
             //Replace integer.parse because of overflow, REGEX is cleaner as well
             Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
@@ -231,8 +218,8 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
             }
         }
 
-        if (properties.getTypedProperty(PK_PASSWORD) != null) {
-            String pwd = properties.getTypedProperty(PK_PASSWORD, "    ");
+        if (properties.getTypedProperty(PASSWORD.getName()) != null) {
+            String pwd = properties.getTypedProperty(PASSWORD.getName(), "    ");
             pPassword = new byte[4];
             pPassword[0] = pwd.getBytes()[0];
             pPassword[1] = pwd.getBytes()[1];
@@ -240,28 +227,28 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
             pPassword[3] = pwd.getBytes()[3];
         }
 
-        if (properties.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = properties.getTypedProperty(PK_TIMEOUT);
+        if (properties.getTypedProperty(TIMEOUT.getName()) != null) {
+            pTimeout = properties.getTypedProperty(TIMEOUT.getName());
         }
 
-        if (properties.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = properties.getTypedProperty(PK_RETRIES);
+        if (properties.getTypedProperty(RETRIES.getName()) != null) {
+            pRetries = properties.getTypedProperty(RETRIES.getName());
         }
 
-        if (properties.getTypedProperty(PK_ROUNDTRIPCORRECTION) != null) {
-            pRountTripCorrection = properties.getTypedProperty(PK_ROUNDTRIPCORRECTION);
+        if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+            pRountTripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName());
         }
 
-        if (properties.getTypedProperty(PK_CORRECTTIME) != null) {
-            pCorrectTime = properties.getTypedProperty(PK_CORRECTTIME);
+        if (properties.getTypedProperty(CORRECTTIME.getName()) != null) {
+            pCorrectTime = properties.getTypedProperty(CORRECTTIME.getName());
         }
 
         if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
             pForceDelay = properties.getTypedProperty(PK_FORCE_DELAY);
         }
 
-        if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (properties.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            pExtendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName());
         }
 
         if (properties.getTypedProperty(PK_SHOULD_DISCONNECT) != null) {

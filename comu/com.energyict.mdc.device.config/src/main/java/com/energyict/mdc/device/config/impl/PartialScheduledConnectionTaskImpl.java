@@ -37,7 +37,7 @@ import javax.validation.constraints.NotNull;
  * Provides an implementation for an {@link PartialScheduledConnectionTask}
  *
  * @author sva
- * @since 22/01/13 - 17:27
+ * @since 22/01/13 - 17:27setInitiationTask
  */
 @NextExecutionSpecsRequiredForMinimizeConnections(groups = {Save.Create.class, Save.Update.class})
 @NextExecutionSpecsValidForComWindow(groups = {Save.Create.class, Save.Update.class})
@@ -51,6 +51,10 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     @Range(min = 1, max = 16, message = '{' + MessageSeeds.Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + '}', groups = {Save.Create.class, Save.Update.class})
     private int numberOfSimultaneousConnections = 1;
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
+
+    public PartialScheduledConnectionTaskImpl() {
+        super();
+    }
 
     @Inject
     PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {

@@ -13,7 +13,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.h2.H2OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -80,7 +80,7 @@ public class NlsServiceIT {
                     new MockModule(),
                     inMemoryBootstrapModule,
                     new DomainUtilModule(),
-                    new OrmModule(),
+                    new H2OrmModule(),
                     new UtilModule(),
                     new ThreadSecurityModule(),
                     new PubSubModule(),

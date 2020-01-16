@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+    dlms-elster module contains the ElsterDlmsLibrary with some modifications.
+    Starting ElsterDlmsLibrary is 1.0.14.6772
+    For more info about ElsterDlmsLibrary contact Joerg.Osse@Honeywell.com
+    -->
+
+    <artifactId>dlms-elster</artifactId>
+    <name>ElsterDlmsLibrary</name>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>protocols</artifactId>
+        <version>3.0.0-Heracles-SNAPSHOT</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.57</version>
+            <scope>compile</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

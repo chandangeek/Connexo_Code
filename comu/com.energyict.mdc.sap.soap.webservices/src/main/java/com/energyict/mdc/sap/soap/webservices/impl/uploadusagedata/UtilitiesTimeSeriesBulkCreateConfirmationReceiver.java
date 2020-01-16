@@ -8,38 +8,44 @@ import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmBulkCrteConfMsg;
-
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmCrteConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmCrteConfUtilsTmeSers;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-@Component(name = UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME,
+@Component(name = "com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateConfirmationReceiver",
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME})
 public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn, ApplicationSpecific {
-    static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateConfirmation_C_In";
-    private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
+    static final String NAME = "SAP TimeSeriesBulkCreateConfirmation";
+    private static final Set<String> FAILURE_CODES = ImmutableSet.of(ProcessingResultCode.FAILED.getCode());
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
@@ -72,6 +78,12 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
     @Override
     public void utilitiesTimeSeriesERPItemBulkCreateConfirmationCIn(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
         runInTransactionWithOccurrence(() -> {
+            SetMultimap<String, String> values = HashMultimap.create();
+            getCreateConfirmationMessages(confirmation).stream()
+                    .map(UtilitiesTimeSeriesBulkCreateConfirmationReceiver::getProfileId)
+                    .flatMap(Functions.asStream())
+                    .forEach(value -> values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(), value));
+            saveRelatedAttributes(values);
             Optional<String> uuid = findReferenceUuid(confirmation);
             ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
                     .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
@@ -84,6 +96,19 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
         });
     }
 
+    private static List<UtilsTmeSersERPItmCrteConfMsg> getCreateConfirmationMessages(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
+        return Optional.ofNullable(confirmation)
+                .map(UtilsTmeSersERPItmBulkCrteConfMsg::getUtilitiesTimeSeriesERPItemCreateConfirmationMessage)
+                .orElse(Collections.emptyList());
+    }
+
+    private static Optional<String> getProfileId(UtilsTmeSersERPItmCrteConfMsg message) {
+        return Optional.ofNullable(message)
+                .map(UtilsTmeSersERPItmCrteConfMsg::getUtilitiesTimeSeries)
+                .map(UtilsTmeSersERPItmCrteConfUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue);
+    }
+
     private static Optional<String> findReferenceUuid(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
         return Optional.ofNullable(confirmation)
                 .map(UtilsTmeSersERPItmBulkCrteConfMsg::getMessageHeader)
@@ -91,13 +116,7 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
     }
 
     private static Optional<String> findReferenceUuid(BusinessDocumentMessageHeader header) {
-        return Stream.<Supplier<Optional<String>>>of(
-                () -> Optional.ofNullable(header.getReferenceID()).map(BusinessDocumentMessageID::getValue),
-                () -> Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue))
-                .map(Supplier::get)
-                .filter(Optional::isPresent)
-                .findFirst()
-                .map(Optional::get);
+        return Optional.ofNullable(header.getReferenceUUID()).map(UUID::getValue);
     }
 
     private static boolean isConfirmed(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
@@ -139,12 +158,12 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
             } catch (NumberFormatException e) {
                 return item2;
             }
-            return i1 < i2 ? item2 : item1;
+            return i1 < i2 ? item2 : i2 < i1 ? item1 : item1.getNote() == null ? item2 : item1;
         }
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

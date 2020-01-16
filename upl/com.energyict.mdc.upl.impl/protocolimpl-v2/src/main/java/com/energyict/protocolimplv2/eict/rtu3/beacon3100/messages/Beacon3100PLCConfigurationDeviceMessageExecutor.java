@@ -14,8 +14,8 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 

@@ -230,10 +230,10 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.integerSpec("RequestHeader", PropertyTranslationKeys.IEC1107_REQUESTHEADER),
                 this.integerSpec("Scaler", PropertyTranslationKeys.IEC1107_SCALER),
                 this.integerSpec("DataReadout", PropertyTranslationKeys.IEC1107_DATAREADOUT),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec("VDEWCompatible", PropertyTranslationKeys.IEC1107_VDEWCOMPATIBLE),
                 this.integerSpec("LoadProfileNumber", PropertyTranslationKeys.IEC1107_LOADPROFILE_NUMBER, Range.closed(MIN_LOADPROFILE, MAX_LOADPROFILE)),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("RS485RtuPlusServer", PropertyTranslationKeys.IEC1107_RS485RTU_PLUS_SERVER),
                 this.integerSpec(PR_LIMIT_MAX_NR_OF_DAYS, PropertyTranslationKeys.IEC1107_LIMIT_MAX_NR_OF_DAYS),
                 this.stringSpec(INVERT_BILLING_ORDER, PropertyTranslationKeys.IEC1107_INVERT_BILLING_ORDER),
@@ -281,10 +281,10 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         this.protocolChannelMap = properties.getTypedProperty("ChannelMap", new ProtocolChannelMap("0:0:0:0:0:0"));
         this.scaler = properties.getTypedProperty("Scaler", 0);
         this.dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
-        this.extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        this.extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
         this.vdewCompatible = properties.getTypedProperty("VDEWCompatible", 0);
         this.loadProfileNumber = properties.getTypedProperty("LoadProfileNumber", 1);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         this.failOnUnitMismatch = properties.getTypedProperty("FailOnUnitMismatch", 0);
         this.halfDuplex = properties.getTypedProperty("HalfDuplex", 0);
         this.rs485RtuPlusServer = properties.getTypedProperty("RS485RtuPlusServer", 0);
@@ -905,7 +905,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public void applyMessages(List messageEntries) throws IOException {
+    public void applyMessages(List<MessageEntry> messageEntries) throws IOException {
         this.a1440Messages.applyMessages(messageEntries);
     }
 

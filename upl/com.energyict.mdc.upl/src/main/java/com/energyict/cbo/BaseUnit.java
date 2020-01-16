@@ -10,6 +10,10 @@
 
 package com.energyict.cbo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -633,8 +637,13 @@ public class BaseUnit implements java.io.Serializable {
         return units.values().iterator();
     }
 
+    @XmlAttribute
     private int dlmsCode;
+    @XmlAttribute
     private String name;
+
+    public BaseUnit() {
+    }
 
     private BaseUnit(int dlmsCode, String name) {
         this.dlmsCode = dlmsCode;
@@ -709,6 +718,8 @@ public class BaseUnit implements java.io.Serializable {
      *
      * @return true if the unit is undefined, false otherwise
      */
+    @JsonIgnore
+    @XmlTransient
     public boolean isUndefined() {
         return dlmsCode == UNITLESS;
     }
@@ -721,6 +732,8 @@ public class BaseUnit implements java.io.Serializable {
      *
      * @return true if the receiver is a "volume" unit.
      */
+    @JsonIgnore
+    @XmlTransient
     public boolean isVolumeUnit() {
         switch (dlmsCode) {
             case CUBICMETER:
@@ -759,6 +772,8 @@ public class BaseUnit implements java.io.Serializable {
      *
      * @return true if the receiver is a flow unit.
      */
+    @JsonIgnore
+    @XmlTransient
     public boolean isFlowUnit() {
         switch (dlmsCode) {
             case CUBICMETERPERHOUR:
@@ -793,6 +808,8 @@ public class BaseUnit implements java.io.Serializable {
      *
      * @return the corresponding "flow" unit or null
      */
+    @JsonIgnore
+    @XmlTransient
     public BaseUnit getFlowUnit() {
         if (isFlowUnit()) {
             return this;
@@ -858,6 +875,8 @@ public class BaseUnit implements java.io.Serializable {
      *
      * @return the corresponding "volume" unit or null
      */
+    @JsonIgnore
+    @XmlTransient
     public BaseUnit getVolumeUnit() {
         if (isVolumeUnit()) {
             return this;

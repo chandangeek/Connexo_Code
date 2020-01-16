@@ -3,3 +3,4 @@
 
 Private-Package: com.energyict.mdc.sap.soap.wsdl.impl
 Export-Package: com.energyict.mdc.sap.soap.wsdl.webservices.*
+Import-Package: com.sun.xml.internal.bind, *

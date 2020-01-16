@@ -11,10 +11,10 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
@@ -89,7 +89,7 @@ public class CollectedRegisterListDeviceCommandTest {
         when(comServerDAO.findOfflineRegister(any(RegisterIdentifier.class), any(Instant.class))).thenReturn(Optional.of(offlineRegister));
         when(offlineRegister.getRegisterId()).thenReturn(REGISTER_ID);
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
-        when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
+        when(offlineRegister.getOverFlow()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
@@ -189,7 +189,7 @@ public class CollectedRegisterListDeviceCommandTest {
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // asserts
-        assertThat(journalMessage).contains("{deviceIdentifier: device having id 1; nr of collected registers: 1}");
+        assertThat(journalMessage).contains("{deviceIdentifier: id 1; nr of collected registers: 1}");
     }
 
     private DeviceRegisterList getDeviceRegisterList() {

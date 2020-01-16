@@ -17,6 +17,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.CollectedLoadProfileHelper;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
@@ -59,9 +60,9 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
         loadProfileLogBooksData = ((MeterProtocolAdapter) deviceProtocol).getLoadProfileLogBooksData(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(),
                 legacyLoadProfileLogBooksCommand.getLogBookReaders());
 
-        removeUnwantedChannels(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(), loadProfileLogBooksData);
+        CollectedLoadProfileHelper.removeUnwantedChannels(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(), loadProfileLogBooksData);
         verifyReceivedChannelInfo();
-        addReadingTypesToChannelInfos(loadProfileLogBooksData, legacyLoadProfileLogBooksCommand.getLoadProfileReaders());
+        CollectedLoadProfileHelper.addReadingTypesToChannelInfos(loadProfileLogBooksData, legacyLoadProfileLogBooksCommand.getLoadProfileReaders());
 
         this.legacyLoadProfileLogBooksCommand.addListOfCollectedDataItems(loadProfileLogBooksData);
     }
@@ -80,7 +81,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
                 CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
                 legacyLoadProfileLogBooksCommand.getLoadProfileReaders()
                         .stream()
-                        .filter(lpr -> lpr.getProfileObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
+                        .filter(lpr -> lpr.getProfileObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode()))
                         .findAny()
                         .ifPresent(lpr -> {
                             List<Issue> issues = new ArrayList<>();
@@ -96,7 +97,7 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
 
     private List<Issue> verifyLocalChannelConfiguration(CollectedLoadProfile collectedLoadProfile, ChannelInfo localChannelInfo) {
         List<Issue> issues = new ArrayList<>();
-        ObisCode loadProfileConfigurationObisCode = collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode();
+        ObisCode loadProfileConfigurationObisCode = collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode();
         Optional<Problem> incorrectChannelUnitProblem = Optional.empty();
         for (ChannelInfo meterChannelInfo : collectedLoadProfile.getChannelInfo()) {
             if (match(localChannelInfo, meterChannelInfo)) {

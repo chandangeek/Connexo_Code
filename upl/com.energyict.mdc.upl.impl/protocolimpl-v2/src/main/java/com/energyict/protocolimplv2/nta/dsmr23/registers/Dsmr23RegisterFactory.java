@@ -30,7 +30,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 
 import java.io.IOException;
@@ -364,17 +364,17 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                         } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_IDENTIFICATION_NUMBER)) {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
-                        }else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_MANUFACTURER_ID)) {
+                        } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_MANUFACTURER_ID)) {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
-                        }else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_VERSION)) {
+                        } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_VERSION)) {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
-                        }else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_DEVICE_TYPE)) {
+                        } else if (rObisCode.equalsIgnoreBChannel(MBUS_CLIENT_DEVICE_TYPE)) {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
-                        } else {
-                            protocol.journal(Level.WARNING, "Register with ObisCode " + rObisCode + " is not supported by the protocol and will not be ignor.");
+                        } else if (!isAlreadyAdded(rObisCode)) {
+                            protocol.journal(Level.WARNING, "Register with ObisCode " + rObisCode + " is not supported by the protocol and will be ignored.");
                         }
                     }
                 }
@@ -383,6 +383,10 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         }
 
         return null;
+    }
+
+    private boolean isAlreadyAdded(ObisCode obisCode) {
+        return this.registerMap.keySet().stream().anyMatch(or -> or.getObisCode().equals(obisCode));
     }
 
     public ObisCode getCorrectedRegisterObisCode(OfflineRegister register) {
@@ -520,7 +524,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     protected CollectedRegister createUnsupportedRegister(OfflineRegister register) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
-        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+        collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(String.format("Register with OBIS code '%s' is not supported by the device", register.getObisCode())));
         return collectedRegister;
     }
 

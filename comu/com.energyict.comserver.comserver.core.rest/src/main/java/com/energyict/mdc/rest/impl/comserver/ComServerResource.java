@@ -4,12 +4,11 @@
 
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.elster.jupiter.rest.util.ConcurrentModificationException;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.security.Privileges;
 
@@ -35,19 +34,23 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 @Path("/comservers")
 public class ComServerResource {
 
     private final EngineConfigurationService engineConfigurationService;
+    private final EngineService engineService;
     private final Provider<ComServerComPortResource> comServerComPortResourceProvider;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ResourceHelper resourceHelper;
     private final ComServerInfoFactory comServerInfoFactory;
 
     @Inject
-    public ComServerResource(EngineConfigurationService engineConfigurationService,
+    public ComServerResource(EngineConfigurationService engineConfigurationService, EngineService engineService,
                              Provider<ComServerComPortResource> comServerComPortResourceProvider, ConcurrentModificationExceptionFactory conflictFactory, ComServerInfoFactory comServerInfoFactory, ResourceHelper resourceHelper) {
         this.engineConfigurationService = engineConfigurationService;
+        this.engineService = engineService;
         this.comServerComPortResourceProvider = comServerComPortResourceProvider;
         this.conflictFactory = conflictFactory;
         this.comServerInfoFactory = comServerInfoFactory;
@@ -66,8 +69,25 @@ public class ComServerResource {
     }
 
     private Stream<ComServer> getSortedComServers(JsonQueryParameters queryParameters) {
-        return engineConfigurationService.findAllComServers().from(queryParameters).stream()
+        Finder<ComServer> comServers;
+        if (queryParameters.getFilter().isPresent()) {
+            comServers = getFilteredComservers(queryParameters);
+        } else {
+            comServers = engineConfigurationService.findAllComServers();
+        }
+        return comServers.from(queryParameters).stream()
                 .sorted(Comparator.comparing(ComServer::getName, String.CASE_INSENSITIVE_ORDER));
+    }
+
+    private Finder<ComServer> getFilteredComservers(JsonQueryParameters queryParameters) {
+        Finder<ComServer> comServers;JsonQueryFilter filter = queryParameters.getFilter().get();
+        if (filter.hasProperty("comServerType")) {
+            Condition condition = where("class").isEqualTo(filter.getString("comServerType"));
+            comServers = engineConfigurationService.filterComServers(condition);
+        } else {
+            comServers = engineConfigurationService.findAllComServers();
+        }
+        return comServers;
     }
 
     @GET @Transactional
@@ -149,6 +169,9 @@ public class ComServerResource {
                             .supplier());
             comServer.setActive(info.active);
             comServer.update();
+            if (comServer.isActive()) {
+                engineService.activateComServer();
+            }
         }
         return comServerInfoFactory.asInfo(comServer, comServer.getComPorts(), engineConfigurationService);
     }

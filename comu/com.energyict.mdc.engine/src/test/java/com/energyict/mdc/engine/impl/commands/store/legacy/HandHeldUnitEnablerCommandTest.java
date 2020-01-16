@@ -52,6 +52,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -218,6 +220,9 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     }
 
     private class OpticalConnectionType extends NoPropertiesConnectionType implements OpticalDriver {
+        public boolean enableHHUSignOn() {
+            return true;
+        }
     }
 
     private class NoPropertiesConnectionType implements ConnectionType {
@@ -278,6 +283,17 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
 
         @Override
         public void copyProperties(TypedProperties properties) {
+        }
+
+        @Override
+        @XmlElement(name = "type")
+        public String getXmlType() {
+            return this.getClass().getName();
+        }
+
+        @Override
+        public void setXmlType(String ignore) {
+            //Ignore, only used for JSON
         }
 
     }

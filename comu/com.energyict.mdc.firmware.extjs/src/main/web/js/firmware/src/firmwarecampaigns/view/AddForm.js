@@ -111,7 +111,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         xtype: 'displayfield',
                         itemId: 'no-device-group',
                         hidden: true,
-                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'EST', 'No device group defined yet.') + '</div>',
+                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceGroup', 'FWC', 'No device group defined yet.') + '</div>',
                         htmlEncode: false,
                         width: 235
                     },
@@ -152,6 +152,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'dynamic-radiogroup',
                 itemId: 'firmware-management-option',
                 name: 'managementOption',
+                blankText: Uni.I18n.translate('general.radioGroup.blankText', 'FWC', 'You must select one item in this group'),
                 fieldLabel: Uni.I18n.translate('firmware.campaigns.firmwareManagementOption', 'FWC', 'Firmware management option'),
                 required: true,
                 allowBlank: false,
@@ -232,7 +233,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 allowBlank: false,
                 forceSelection: true,
                 emptyText: Uni.I18n.translate(
-                    'general.calendarUploadComTask.empty',
+                    'general.comTask.empty',
                     'FWC',
                     'Select communication task ...'
                 ),
@@ -333,17 +334,29 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id'
+                        valueField: 'id',
+                        listeners: {
+                            change: function (checkBox, value) {
+                                if (this.originalValue !== value) {
+                                    me.down('#fwc-campaign-validation-connection-strategy-reset').enable();
+                                } else {
+                                    me.down('#fwc-campaign-validation-connection-strategy-reset').disable();
+
+                                }
+                            }
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-validation-connection-strategy-reset',
                         handler: function() {
                             this.down('[name=validationConnectionStrategy]').reset();
+                            me.down('#fwc-campaign-validation-connection-strategy-reset').disable();
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: false,
+                        disabled: true
                     }
                 ]
             },
@@ -386,7 +399,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         me.callParent(arguments);
 
         Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
-           item.setTooltip('Restore to default empty value');
+           item.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'FWC', 'Restore to default empty value'));
         })
     },
 

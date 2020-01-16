@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * This placeholder is a runtime-mock of KeyAccessors. Whenever the KeyAccessors for a device are retrieved from domain (Device::getKeyAccessors()),
+ * This placeholder is a runtime-mock of KeyAccessors. Whenever the KeyAccessors for a device are retrieved from domain (Device::getSecurityAccessors()),
  * only those KeyAccessors that actually exist are listed (surprised?), however, front end wants to display property specs even for the none-existing
  * security accessors, that is, KeyAccessorType (on device type) that do not (yet) have a KeyAccessor on the device. That's where this object comes in: it serves
  * as place holder for the to-be-created KeyAccessors. This holder returns just enough info for MdcPropertyUtils and FrontEnd to do their job.
- * So REST does not use Device::getKeyAccessors() but instead builds its own list using Device::getKeyAccessor(KAT)
+ * So REST does not use Device::getSecurityAccessors() but instead builds its own list using Device::getKeyAccessor(KAT)
  */
 public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     private final SecurityManagementService securityManagementService;
@@ -51,12 +51,12 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     }
 
     @Override
-    public SecurityAccessorType getKeyAccessorType() {
+    public SecurityAccessorType getKeyAccessorTypeReference() {
         return kat;
     }
 
     @Override
-    public Optional getActualValue() {
+    public Optional getActualPassphraseWrapperReference() {
         return Optional.of(new SecurityValueWrapper() {
             @Override
             public Optional<Instant> getExpirationTime() {
@@ -76,8 +76,8 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
             @Override
             public Map<String, Object> getProperties() {
                 Map<String, Object> properties = new HashMap<>();
-                if (getKeyAccessorType().getKeyType().getCryptographicType().equals(CryptographicType.TrustedCertificate)) {
-                    getKeyAccessorType().getTrustStore().ifPresent(ts -> properties.put("trustStore", ts));
+                if (getKeyAccessorTypeReference().getKeyType().getCryptographicType().equals(CryptographicType.TrustedCertificate)) {
+                    getKeyAccessorTypeReference().getTrustStore().ifPresent(ts -> properties.put("trustStore", ts));
                 }
                 return properties;
             }
@@ -90,7 +90,7 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     }
 
     @Override
-    public void setActualValue(SecurityValueWrapper newWrapperValue) {
+    public void setActualPassphraseWrapperReference(SecurityValueWrapper newWrapperValue) {
 
     }
 

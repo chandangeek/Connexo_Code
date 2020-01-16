@@ -64,7 +64,7 @@ public class NXT4Messages implements MessageProtocol {
         return msg.write(this.meterProtocol);
     }
 
-    public void applyMessages(List messageEntries) {
+    public void applyMessages(List<MessageEntry> messageEntries) {
     }
 
     public String writeTag(MessageTag tag) {

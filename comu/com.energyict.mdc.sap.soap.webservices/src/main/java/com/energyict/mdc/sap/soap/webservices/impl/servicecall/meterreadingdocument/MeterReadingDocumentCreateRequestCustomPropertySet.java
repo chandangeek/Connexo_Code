@@ -5,12 +5,9 @@
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument;
 
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -20,13 +17,9 @@ import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -37,12 +30,8 @@ import java.util.Set;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
-@Component(name = "MeterReadingDocumentCreateRequestCustomPropertySet",
-        service = CustomPropertySet.class,
-        property = "name=" + MeterReadingDocumentCreateRequestCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
-        immediate = true)
 public class MeterReadingDocumentCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MeterReadingDocumentCreateRequestDomainExtension> {
-    public static final String CUSTOM_PROPERTY_SET_NAME = "MeterReadingDocumentCreateRequestCustomPropertySet";
+    public static final String MODEL_NAME = "MR1";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -54,30 +43,6 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
     public MeterReadingDocumentCreateRequestCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
     @Override
@@ -178,6 +143,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName(), TranslationKeys.EXTRA_DATA_SOURCE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .booleanSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.javaName(), TranslationKeys.FUTURE_CASE)
                         .describedAs(TranslationKeys.FUTURE_CASE)
@@ -187,6 +157,22 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .specForValuesOf(new InstantFactory())
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.PROCESSING_DATE.javaName(), TranslationKeys.PROCESSING_DATE)
                         .describedAs(TranslationKeys.PROCESSING_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
+                        .describedAs(TranslationKeys.CANCELLED_BY_SAP_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.javaName(), TranslationKeys.REFERENCE_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
@@ -198,7 +184,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
 
         @Override
         public String componentName() {
-            return "MR1";
+            return MODEL_NAME;
         }
 
         @Override
@@ -297,9 +283,29 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE.javaName())
                     .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.EXTRA_DATA_SOURCE.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.databaseName())
                     .bool()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.javaName())
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
+                    .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_ID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 2))
                     .add();
         }
 

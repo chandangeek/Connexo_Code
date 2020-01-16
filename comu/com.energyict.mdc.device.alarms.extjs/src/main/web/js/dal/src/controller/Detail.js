@@ -102,50 +102,55 @@ Ext.define('Dal.controller.Detail', {
         issueModel = me.issueModel;
 
         processStore.getProxy().setUrl(id);
-        processStore.load(function (records) {
-        });
+        processStore.load();
+        var alarmHandlerCallback = function(rec){
+            widget = Ext.widget(widgetXtype, {
+                router: router,
+                issuesListLink: me.makeLinkToList(router)
+            });
+            me.widget = widget;
+            me.getApplication().fireEvent('changecontentevent', widget);
+            me.issueModel = issueModel;
+            widget.setLoading(true);
 
-        widget = Ext.widget(widgetXtype, {
-            router: router,
-            issuesListLink: me.makeLinkToList(router)
-        });
-        me.widget = widget;
-        me.getApplication().fireEvent('changecontentevent', widget);
-        me.issueModel = issueModel;
-        widget.setLoading(true);
+            me.getModel(issueModel).load(id, {
+                callback: function () {
+                    widget.setLoading(false);
+                },
+                success: function (record) {
+                    if (!widget.isDestroyed) {
+                        Ext.getStore('Isu.store.Clipboard').set('issue', record);
+                        me.getApplication().fireEvent('issueLoad', record);
+                        Ext.suspendLayouts();
+                        widget.down('#issue-detail-top-title').setTitle(record.get('title'));
 
-        me.getModel(issueModel).load(id, {
-            callback: function () {
-                widget.setLoading(false);
-            },
-            success: function (record) {
-                if (!widget.isDestroyed) {
-                    Ext.getStore('Isu.store.Clipboard').set('issue', record);
-                    me.getApplication().fireEvent('issueLoad', record);
-                    Ext.suspendLayouts();
-                    widget.down('#issue-detail-top-title').setTitle(record.get('title'));
+                        me.getIssueDetailForm().loadRecord(record);
+                        var subEl = new Ext.get('alarm-status-field-sub-tpl');
 
-                    me.getIssueDetailForm().loadRecord(record);
-                    var subEl = new Ext.get('alarm-status-field-sub-tpl');
+                        subEl.setHTML('<div>' + record.get('statusDetailCleared') + '</div>'
+                            + '<div>' + record.get('statusDetailSnoozed') + '</div>');
 
-                    subEl.setHTML('<div>' + record.get('statusDetailCleared') + '</div>'
-                        + '<div>' + record.get('statusDetailSnoozed') + '</div>');
-
-                    Ext.resumeLayouts(true);
-                    if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
-                        me.getActionMenu().record = record;
+                        Ext.resumeLayouts(true);
+                        if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
+                            me.getActionMenu().record = record;
+                        }
+                        else if (widget.down('#alarm-detail-action-menu')) {
+                            widget.down('#alarm-detail-action-menu').record = record;
+                        }
+                        me.loadComments(record, 'alarm');
+                        me.loadRelatedEvents(widget, record);
                     }
-                    else if (widget.down('#alarm-detail-action-menu')) {
-                        widget.down('#alarm-detail-action-menu').record = record;
-                    }
-                    me.loadComments(record, 'alarm');
-                    me.loadRelatedEvents(widget, record);
+                },
+                failure: function () {
+                    router.getRoute(router.currentRoute.replace('/view', '')).forward();
                 }
-            },
-            failure: function () {
-                router.getRoute(router.currentRoute.replace('/view', '')).forward();
-            }
-        });
+            });
+        }
+        var params = {callback: alarmHandlerCallback};
+        if (queryString && queryString.meter){
+            params['filters'] = [{property: 'meter',  value : queryString.meter}]
+        }
+        store.load(params);
     },
 
     makeLinkToList: function (router) {

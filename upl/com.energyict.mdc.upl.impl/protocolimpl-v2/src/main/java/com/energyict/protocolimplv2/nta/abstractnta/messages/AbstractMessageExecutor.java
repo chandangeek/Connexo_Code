@@ -43,12 +43,13 @@ import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
-import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.sercurity.KeyRenewalInfo;
 
@@ -169,8 +170,8 @@ public abstract class AbstractMessageExecutor {
         return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
     }
 
-    protected CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile) {
-        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLoadProfile);
+    protected CollectedMessage createCollectedMessageWithLoadProfileData(OfflineDeviceMessage message, CollectedLoadProfile collectedLoadProfile, LoadProfileReader loadProfileReader) {
+        return this.collectedDataFactory.createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()), collectedLoadProfile, loadProfileReader);
     }
 
     protected CollectedMessage createCollectedMessageWithRegisterData(OfflineDeviceMessage message, List<CollectedRegister> collectedRegisters) {

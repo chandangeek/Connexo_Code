@@ -43,6 +43,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.utils.ComServerModeUtil;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -60,12 +61,7 @@ import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.TimeDateKey;
 
@@ -217,12 +213,13 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
+                this.stringSpec(OFFLINE_NODEID.getName(), PropertyTranslationKeys.IEC1107_OFFLINE_NODEID),
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
-                this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.integerSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec("MeterType", PropertyTranslationKeys.IEC1107_METER_TYPE),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.stringSpec("BreakBeforeConnect", PropertyTranslationKeys.IEC1107_BREAK_BEFORE_CONNECT),
 
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.IEC1107_ADDRESSING_MODE),
@@ -247,8 +244,8 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-        strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName(), "");
         iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 2);
         if (iSecurityLevel != 0) {
             if (strPassword == null || strPassword.isEmpty()) {
@@ -261,17 +258,24 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         iTimeout = properties.getTypedProperty(TIMEOUT.getName(), 10000);
         iProtocolRetries = properties.getTypedProperty(RETRIES.getName(), 5);
         iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
-        nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        if (ComServerModeUtil.isOnline()) {
+            nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        }
+        else {
+            nodeId = properties.getTypedProperty(OFFLINE_NODEID.getName(), "");
+        }
+
+
         iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
         iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 0);
-        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        extendedLogging = properties.getTypedProperty(EXTENDED_LOGGING.getName(), 0);
 
         // 0 = 16 TOU registers type (most in the UK)
         // 1 = 32 TOU registers type (Portugal, etc...)
         // -1 = use identification string from signon later...
         abba1700MeterType = new ABBA1700MeterType(properties.getTypedProperty("MeterType", -1));
         forcedDelay = properties.getTypedProperty("ForcedDelay", 300);
-        this.soft7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.soft7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(SOFTWARE7E1.getName(), "0"));
         this.breakBeforeConnect = !"0".equalsIgnoreCase(properties.getTypedProperty("BreakBeforeConnect", "0"));
     }
 
@@ -282,7 +286,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-07-15 15:30:00 +0300 (Mon, 15 Jul 2019)$";
+        return "$Date: 2019-11-28$";
     }
 
     @Override
@@ -549,7 +553,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         int baudrate = discoverInfo.getBaudrate();
         TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
-        properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
+        properties.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");
         setUPLProperties(properties);
         init(serialCommunicationChannel.getInputStream(), serialCommunicationChannel.getOutputStream(), null, null);
@@ -606,7 +610,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     @Override
-    public void applyMessages(final List messageEntries) throws IOException {
+    public void applyMessages(final List<MessageEntry> messageEntries) throws IOException {
         this.messages.applyMessages(messageEntries);
     }
 

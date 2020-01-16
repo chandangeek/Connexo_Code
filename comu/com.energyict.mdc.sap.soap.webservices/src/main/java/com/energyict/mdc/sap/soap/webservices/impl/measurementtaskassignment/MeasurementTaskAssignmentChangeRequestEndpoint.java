@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -14,16 +15,26 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeProcessor;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers;
+
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -41,59 +52,69 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     private final MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
+    private final WebServiceActivator webServiceActivator;
 
     @Inject
     MeasurementTaskAssignmentChangeRequestEndpoint(Clock clock,
                                                    DataExportService dataExportService,
                                                    MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
                                                    PropertySpecService propertySpecService,
-                                                   Thesaurus thesaurus) {
+                                                   Thesaurus thesaurus,
+                                                   WebServiceActivator webServiceActivator) {
         this.clock = clock;
         this.dataExportService = dataExportService;
         this.measurementTaskAssignmentChangeProcessor = measurementTaskAssignmentChangeProcessor;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
     public void utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestCIn(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> handleMessage(requestMessage));
+                    .ifPresent(this::handleMessage);
             return null;
         });
     }
 
-    public void handleMessage(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
-
-        MeasurementTaskAssignmentChangeRequestMessage message = MeasurementTaskAssignmentChangeRequestMessage.builder().from(msg).build();
-        if (!message.hasValidId()) {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-            return;
-        }
-
-        if (!message.arePeriodsValid()) {
-            sendProcessError(message, MessageSeeds.INVALID_TIME_PERIOD);
-            return;
-        }
-
-        if (Ranges.doAnyRangesIntersect(message.getRoles().stream()
-                .filter(role -> !WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode()))
-                .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
-            sendProcessError(message, MessageSeeds.TIME_PERIODS_INTERSECT);
-            return;
-        }
-
+    private void handleMessage(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+        String id = getId(msg);
+        String uuid = getUuid(msg);
+        String profileId = getProfileId(msg);
         try {
+            MeasurementTaskAssignmentChangeRequestMessage message = MeasurementTaskAssignmentChangeRequestMessage.builder(thesaurus).from(msg, id, uuid).build();
+
+            SetMultimap<String, String> values = HashMultimap.create();
+            values.put(SapAttributeNames.SAP_UTILITIES_TIME_SERIES_ID.getAttributeName(),
+                    message.getProfileId());
+            message.getRoles().forEach(role ->
+                    values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(),
+                            role.getLrn()));
+
+            saveRelatedAttributes(values);
+            if (!message.isValid()) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            }
+
+            if (!message.arePeriodsValid()) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_TIME_PERIOD);
+            }
+
+            if (Ranges.doAnyRangesIntersect(message.getRoles().stream()
+                    .filter(role -> !WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode()))
+                    .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.TIME_PERIODS_INTERSECT);
+            }
+
             Optional<String> selectorName = Optional.ofNullable((String) getEndPointConfiguration().getPropertiesWithValue().get(EXPORTER.getKey()));
-            measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() :
-                    dataExportService.getAvailableSelectors().stream()
-                            .filter(s -> s.getName().equals(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR))
-                            .findAny().get().getDisplayName());
+            measurementTaskAssignmentChangeProcessor.process(message, selectorName.orElseGet(() -> dataExportService.getAvailableSelectors().stream()
+                    .filter(s -> s.getName().equals(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR))
+                    .findAny().get().getDisplayName()));
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
-                            .create()
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), message.getProfileId())
+                            .successful()
                             .build();
             sendMessage(confirmationMessage);
         } catch (SAPWebServiceException e) {
@@ -101,8 +122,8 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = e.getLocalizedMessage();
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeed).format(e.getMessageArgs()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
-                            .from(messageSeed.getLevel().getName(), String.valueOf(messageSeed.getNumber()), errorMessage)
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), profileId)
+                            .from(messageSeed.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
@@ -111,25 +132,47 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             String errorMessage = messageSeeds.translate(thesaurus, e.getLocalizedMessage());
             log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(e.getLocalizedMessage()));
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
-                            .from(messageSeeds.getLevel().getName(), messageSeeds.code(), errorMessage)
+                    MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id, uuid, webServiceActivator.getMeteringSystemId(), profileId)
+                            .from(messageSeeds.getLevel(), errorMessage)
                             .build();
             sendMessage(confirmationMessage);
             throw e;
         }
     }
 
+    private String getProfileId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+        return Optional.ofNullable(msg.getUtilitiesTimeSeries())
+                .map(UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers::getID)
+                .map(UtilitiesTimeSeriesID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getId(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+        Optional<BusinessDocumentMessageHeader> header = Optional.ofNullable(msg.getMessageHeader());
+        if (header.isPresent()) {
+            return Optional.ofNullable(header.get().getID())
+                    .map(BusinessDocumentMessageID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    private String getUuid(UtilsTmeSersERPMsmtTskAssgmtChgReqMsg msg) {
+        Optional<BusinessDocumentMessageHeader> header = Optional.ofNullable(msg.getMessageHeader());
+        if (header.isPresent()) {
+            return Optional.ofNullable(header.get().getUUID())
+                    .map(UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+        return null;
+    }
+
     private void sendMessage(MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage) {
         WebServiceActivator.MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS
                 .forEach(service -> service.call(confirmationMessage));
-    }
-
-    private void sendProcessError(MeasurementTaskAssignmentChangeRequestMessage message, MessageSeeds messageSeed, Object... args) {
-        MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
-                        .from(messageSeed.getLevel().getName(), messageSeed.code(), messageSeed.translate(thesaurus, args))
-                        .build();
-        sendMessage(confirmationMessage);
     }
 
     @Override
@@ -138,14 +181,16 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         List<String> selectors = dataExportService.getAvailableSelectors()
                 .stream()
-                .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS)).map(s -> s.getDisplayName())
+                .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS)).map(DataSelectorFactory::getDisplayName)
                 .collect(Collectors.toList());
 
         if (selectors.size() > 1) {
             Optional<String> defaultValue = dataExportService.getAvailableSelectors()
                     .stream()
                     .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS))
-                    .filter(s -> s.isDefault()).map(s -> s.getDisplayName()).findFirst();
+                    .filter(DataSelectorFactory::isDefault)
+                    .map(DataSelectorFactory::getDisplayName)
+                    .findFirst();
             builder.add(propertySpecService
                     .specForValuesOf(new StringFactory())
                     .named(EXPORTER)
@@ -153,7 +198,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                     .fromThesaurus(thesaurus)
                     .markRequired()
                     .addValues(selectors)
-                    .setDefaultValue(defaultValue.isPresent() ? defaultValue.get() : null)
+                    .setDefaultValue(defaultValue.orElse(null))
                     .markExhaustive(PropertySelectionMode.COMBOBOX)
                     .finish());
         }

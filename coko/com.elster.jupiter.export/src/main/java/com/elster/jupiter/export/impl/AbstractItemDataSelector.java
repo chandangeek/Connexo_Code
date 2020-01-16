@@ -28,6 +28,7 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
@@ -42,6 +43,7 @@ import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -144,7 +146,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, currentExportInterval);
             exportCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarker(currentExportInterval)));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarker(currentExportInterval)));
         }
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -274,7 +276,8 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         if (!item.getReadingType().isRegular()) {
             return;
         }
-        TemporalAmount intervalLength = item.getReadingType().getIntervalLength().get();
+        Optional<TimeDuration> requestedReadingInterval = item.getRequestedReadingInterval();
+        TemporalAmount intervalLength = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : item.getReadingType().getIntervalLength().orElse(Duration.ZERO);
         List<ZonedDateTime> zonedDateTimes = instants.stream()
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
@@ -296,7 +299,8 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         if (instants.isEmpty()) {
             return;
         }
-        TemporalAmount intervalLength = item.getReadingType().getIntervalLength().get();
+        Optional<TimeDuration> requestedReadingInterval = item.getRequestedReadingInterval();
+        TemporalAmount intervalLength = requestedReadingInterval.isPresent() ? requestedReadingInterval.get().asTemporalAmount() : item.getReadingType().getIntervalLength().orElse(Duration.ZERO);
         List<ZonedDateTime> zonedDateTimes = instants.stream()
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
@@ -447,7 +451,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
             updateCount++;
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, null, structureMarkerForUpdate()));
         }
 
         try (TransactionContext context = transactionService.getContext()) {

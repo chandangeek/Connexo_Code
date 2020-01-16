@@ -165,6 +165,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
+                .filter(id -> DeviceMessageId.find(id).isPresent())
                 .map(DeviceMessageId::from)
                 .forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
         dataLoggerConfiguration.activate();
@@ -208,6 +209,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
+                .filter(id -> DeviceMessageId.find(id).isPresent())
                 .map(DeviceMessageId::from)
                 .forEach(configurationForSlaveWithLoadProfiles::createDeviceMessageEnablement);
         configurationForSlaveWithLoadProfiles.activate();
@@ -245,6 +247,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
+                .filter(id -> DeviceMessageId.find(id).isPresent())
                 .map(DeviceMessageId::from)
                 .forEach(configurationForSlaveWithRegisters::createDeviceMessageEnablement);
         configurationForSlaveWithRegisters.activate();

@@ -57,7 +57,7 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 dataIndex: 'suspendUntilTime',
                 flex: 1,
                 renderer: function(value) {
-                    return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
+                    return value ? Uni.I18n.translate('general.yes', 'APR', 'Yes') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
                 }
             },
             {

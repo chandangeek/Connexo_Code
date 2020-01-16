@@ -58,8 +58,8 @@ public class SyncReplyIssue {
     private Map<Integer, Set<String>> readingExistedRegisterGroupsMap;
 
     // ComTask Executions
-    private Map<Long, ComTaskExecution> deviceRegularComTaskExecutionMap;
-    private Map<Long, ComTaskExecution> deviceIrregularComTaskExecutionMap;
+    private Map<Long, Set<ComTaskExecution>> deviceRegularComTaskExecutionMap;
+    private Map<Long, Set<ComTaskExecution>> deviceIrregularComTaskExecutionMap;
     private Map<Long, ComTaskExecution> deviceMessagesComTaskExecutionMap;
 
     // additional errors to be sent synchroneously
@@ -298,33 +298,33 @@ public class SyncReplyIssue {
         this.readingExistedRegisterGroupsMap = readingExistedRegisterGroupsMap;
     }
 
-    public void addDeviceRegularComTaskExecution(Long deviceId, ComTaskExecution deviceRegularComTaskExecutions) {
+    public void addDeviceRegularComTaskExecution(Long deviceId, Set<ComTaskExecution> deviceRegularComTaskExecutions) {
         getDeviceRegularComTaskExecutionMap().put(deviceId, deviceRegularComTaskExecutions);
     }
 
-    public Map<Long, ComTaskExecution> getDeviceRegularComTaskExecutionMap() {
+    public Map<Long, Set<ComTaskExecution>> getDeviceRegularComTaskExecutionMap() {
         if (deviceRegularComTaskExecutionMap == null) {
             deviceRegularComTaskExecutionMap = new HashMap<>();
         }
         return deviceRegularComTaskExecutionMap;
     }
 
-    public void setDeviceRegularComTaskExecutionMap(Map<Long, ComTaskExecution> deviceRegularComTaskExecutionMap) {
+    public void setDeviceRegularComTaskExecutionMap(Map<Long, Set<ComTaskExecution>> deviceRegularComTaskExecutionMap) {
         this.deviceRegularComTaskExecutionMap = deviceRegularComTaskExecutionMap;
     }
 
-    public void addDeviceIrregularComTaskExecution(Long deviceId, ComTaskExecution deviceIrRegularComTaskExecutions) {
+    public void addDeviceIrregularComTaskExecution(Long deviceId, Set<ComTaskExecution> deviceIrRegularComTaskExecutions) {
         getDeviceIrregularComTaskExecutionMap().put(deviceId, deviceIrRegularComTaskExecutions);
     }
 
-    public Map<Long, ComTaskExecution> getDeviceIrregularComTaskExecutionMap() {
+    public Map<Long, Set<ComTaskExecution>> getDeviceIrregularComTaskExecutionMap() {
         if (deviceIrregularComTaskExecutionMap == null) {
             deviceIrregularComTaskExecutionMap = new HashMap<>();
         }
         return deviceIrregularComTaskExecutionMap;
     }
 
-    public void setDeviceIrregularComTaskExecutionMap(Map<Long, ComTaskExecution> deviceIrregularComTaskExecutionMap) {
+    public void setDeviceIrregularComTaskExecutionMap(Map<Long, Set<ComTaskExecution>> deviceIrregularComTaskExecutionMap) {
         this.deviceIrregularComTaskExecutionMap = deviceIrregularComTaskExecutionMap;
     }
 

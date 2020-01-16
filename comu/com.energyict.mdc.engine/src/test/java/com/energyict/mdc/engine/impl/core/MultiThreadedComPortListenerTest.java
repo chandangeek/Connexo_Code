@@ -150,6 +150,7 @@ public class MultiThreadedComPortListenerTest {
             when(serviceProvider.threadFactory()).thenReturn(threadFactory);
             when(serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
             when(serviceProvider.clock()).thenReturn(this.clock);
+            when(serviceProvider.comServerDAO()).thenReturn(mock(ComServerDAO.class));
             when(serviceProvider.inboundComPortConnectorFactory())
                     .thenReturn(new InboundComPortConnectorFactoryImpl(
                             this.serialComponentService,
@@ -194,6 +195,7 @@ public class MultiThreadedComPortListenerTest {
             when(serviceProvider.threadFactory()).thenReturn(threadFactory);
             when(serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
             when(serviceProvider.clock()).thenReturn(this.clock);
+            when(serviceProvider.comServerDAO()).thenReturn(mock(ComServerDAO.class));
             when(serviceProvider.inboundComPortConnectorFactory())
                     .thenReturn(new InboundComPortConnectorFactoryImpl(
                             this.serialComponentService,

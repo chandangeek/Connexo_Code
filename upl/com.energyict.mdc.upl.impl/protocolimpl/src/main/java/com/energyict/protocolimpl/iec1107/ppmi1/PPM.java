@@ -53,13 +53,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -150,10 +144,7 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
      * Property keys specific for PPM protocol.
      */
     private static final String PK_OPUS = "OPUS";
-    private static final String PK_TIMEOUT = "Timeout";
-    private static final String PK_RETRIES = "Retries";
     private static final String PK_FORCE_DELAY = "ForcedDelay";
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
 
     /**
      * The historical data register contains data for 4 days
@@ -260,9 +251,9 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
                 this.stringSpec(PK_OPUS, PropertyTranslationKeys.IEC1107_OPUS),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
-                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.stringSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.IEC1107_FORCEDELAY),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1));
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -297,19 +288,19 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
         if (p.getTypedProperty(PK_OPUS) != null) {
             pOpus = p.getTypedProperty(PK_OPUS);
         }
-        if (p.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        if (p.getTypedProperty(TIMEOUT.getName()) != null) {
+            pTimeout = p.getTypedProperty(TIMEOUT.getName());
         }
-        if (p.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = p.getTypedProperty(PK_RETRIES);
+        if (p.getTypedProperty(RETRIES.getName()) != null) {
+            pRetries = p.getTypedProperty(RETRIES.getName());
         }
-        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            pExtendedLogging = p.getTypedProperty(EXTENDED_LOGGING.getName());
         }
         if (p.getTypedProperty(PK_FORCE_DELAY) != null) {
             pForceDelay = p.getTypedProperty(PK_FORCE_DELAY);
         }
-        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override

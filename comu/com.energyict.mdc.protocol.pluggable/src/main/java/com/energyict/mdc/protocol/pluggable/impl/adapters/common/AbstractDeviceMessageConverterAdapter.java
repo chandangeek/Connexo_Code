@@ -173,7 +173,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     private CollectedMessage delegatePendingMessageToProtocol(MessageEntry messageEntry, OfflineDeviceMessage offlineDeviceMessage) {
         MessageResult messageResult;
         CollectedMessage collectedMessage;
-        collectedMessage = this.collectedDataFactory.createCollectedMessage(offlineDeviceMessage.getIdentifier());
+        collectedMessage = this.collectedDataFactory.createCollectedMessage(offlineDeviceMessage.getMessageIdentifier());
         try {
             messageResult = this.messageProtocol.queryMessage(messageEntry);
             collectedMessage.setNewDeviceMessageStatus(getNewDeviceMessageStatus(messageResult));

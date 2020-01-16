@@ -11,10 +11,13 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -31,10 +34,13 @@ public enum TranslationKeys implements TranslationKey {
     READING_REASON_CODE("readingReasonCode", "Reading reason code"),
     SCHEDULED_READING_DATE("scheduledReadingDate", "Scheduled reading date"),
     DATA_SOURCE("dataSource", "Data source"),
+    EXTRA_DATA_SOURCE("extraDataSource", "Extra data source"),
     FUTURE_CASE("futureCase", "Future case"),
     PROCESSING_DATE("processingDate", "Processing date"),
-    REQUEST_UUID("requestID", "Request ID"),
+    REQUEST_ID("requestID", "Request ID"),
+    UUID("UUID", "UUID"),
     REFERENCE_ID("referenceID", "Reference ID"),
+    REFERENCE_UUID("referenceUUID", "Reference UUID"),
     ATTEMPT_NUMBER("attemptNumber", "Attempt number"),
     ACTUAL_READING_DATE("actualReadingDate", "Actual reading date"),
     READING("reading", "Reading"),
@@ -56,7 +62,7 @@ public enum TranslationKeys implements TranslationKey {
     END_DATE("endDate","Time slice end date"),
     RETURN_CODE("returnCode", "Return code"),
     SERIAL_ID("serialId", "Serial id"),
-    INTERVAL("interval","Interval length"),
+    RECURRENCE_CODE("recurrenceCode","Recurrence Code"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
     PROFILE_ID("profileId", "Profile id"),
@@ -68,11 +74,20 @@ public enum TranslationKeys implements TranslationKey {
     MODEL_NUMBER("modelNumber", "Model number"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
     MATERIAL_ID("materialId", "Material id"),
+    NEXT_READING_ATTEMPT_DATE("nextReadingAttemptDate", "Next reading attempt date"),
+    READING_ATTEMPT("readingAttempt", "Reading attempt"),
+    CANCELLED_BY_SAP("cancelledBySap", "Cancelled by SAP"),
+    CANCELLED_BY_SAP_DESCRIPTION("cancelledBySapDescription", "The property is used to distinguish service call cancelled manually in Connexo / by SAP"),
+    TIME_ZONE("timeZone", "Time zone"),
+    COM_TASK_EXECUTION_ID("comTaskExecutionId", "Communication task execution id"),
+    DIVISION_CATEGORY("divisionCategory", "Division category code"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
     CHECK_CONFIRMATION_TIMEOUT_SUBSCRIBER_NAME(CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_SUBSCRIBER, CheckConfirmationTimeoutHandlerFactory.CHECK_CONFIRMATION_TIMEOUT_TASK_DISPLAYNAME),
     CHECK_SCHEDULED_REQUEST_SUBSCRIBER_NAME(CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_SUBSCRIBER, CheckScheduledRequestHandlerFactory.CHECK_SCHEDULED_REQUEST_TASK_DISPLAYNAME),
+    UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME(UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER, UpdateSapExportTaskHandlerFactory.UPDATE_SAP_EXPORT_TASK_DISPLAYNAME),
+    CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER_NAME(CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_SUBSCRIBER, CheckStatusChangeCancellationHandlerFactory.CHECK_STATUS_CHANGE_CANCELLATION_TASK_DISPLAYNAME),
 
     // CPS
     CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.connection.status.change",
@@ -87,6 +102,8 @@ public enum TranslationKeys implements TranslationKey {
             UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName()),
     UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.utilities.device.register.create.request",
             UtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
+    MASTER_CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.master.connection.status.change",
+            MasterConnectionStatusChangeCustomPropertySet.class.getSimpleName()),
 
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
