@@ -57,6 +57,8 @@ class KeyStoreDataVault implements DataVault {
     // we use same password for both store and keys within
     private final char[] password = {'1', '#', 'g', 'W', 'X', 'i', 'A', 'E', 'y', '9', 'R', 'n', 'b', '6', 'M', '%', 'C', 'o', 'j', 'E'};
 
+    private Cipher cipher;
+
     @Inject
     KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
         this.random = random;
@@ -87,7 +89,7 @@ class KeyStoreDataVault implements DataVault {
             byte[] concatenated = concatenateFields(cipherText, iv, (byte) encryptionKeyId);
 
             return new String(java.util.Base64.getEncoder().encode(concatenated));
-        } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | CertificateException | IOException e) {
+        } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             throw exceptionFactory.newException(MessageSeeds.ENCRYPTION_FAILED, e.getLocalizedMessage());
         }
     }
@@ -117,29 +119,36 @@ class KeyStoreDataVault implements DataVault {
 
             final Cipher cipher = getDecryptionCipherForKey(encryptionKeyId, iv);
             return cipher.doFinal(cipherText);
-        } catch (IllegalBlockSizeException | BadPaddingException | UnrecoverableKeyException | InvalidKeyException | NoSuchAlgorithmException | KeyStoreException | NoSuchPaddingException | InvalidAlgorithmParameterException | CertificateException | IOException e) {
-            throw exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED);
+        } catch (IllegalBlockSizeException | BadPaddingException | UnrecoverableKeyException | InvalidKeyException | NoSuchAlgorithmException | KeyStoreException | NoSuchPaddingException | InvalidAlgorithmParameterException e) {
+            throw exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED, e);
         }
     }
 
     @Override
     public void createVault(OutputStream stream) throws LocalizedException {
         try {
-            KeyStoreLoader.generate(stream, KEYSTORE_TYPE, new KeyStoreAliasGenerator(KEY_STORE_ALIAS_GENERATOR.getPreffix(), 16), password);
+            KeyStoreLoader.generate(stream, KEYSTORE_TYPE, KEY_STORE_ALIAS_GENERATOR, password);
         } catch (Exception e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_CREATION_FAILED, e.getLocalizedMessage());
         }
     }
 
-    private Cipher getEncryptionCipherForKey(int keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, IOException, CertificateException {
-        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
+    private Cipher getEncryptionCipherForKey(int keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException {
+        cipher = getCipher();
         cipher.init(CipherMode.encrypt.asInt(), createKeySpecForKey(keyAlias));
         return cipher;
     }
 
-    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IOException, CertificateException {
-        Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
+    private Cipher getDecryptionCipherForKey(int keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+        cipher = getCipher();
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
+        return cipher;
+    }
+
+    private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
+        if (cipher == null) {
+            cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
+        }
         return cipher;
     }
 

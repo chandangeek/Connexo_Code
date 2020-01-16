@@ -6,6 +6,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTaskOverview;
@@ -26,11 +27,14 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by bvn on 9/18/14.
  */
 public class ConnectionOverviewInfoFactory {
+    private static final Logger LOGGER = Logger.getLogger(ConnectionOverviewInfoFactory.class.getName());// just for time measurement
 
     private final BreakdownFactory breakdownFactory;
     private final OverviewFactory overviewFactory;
@@ -94,11 +98,14 @@ public class ConnectionOverviewInfoFactory {
     }
 
     public ConnectionOverviewInfo asWidgetInfo(){
+        StopWatch watch = new StopWatch(true);// just for time measurement
         ConnectionOverviewInfo info = new ConnectionOverviewInfo();
         TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview();
         ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview();
         SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
         info.connectionSummary = summaryInfoFactory.from(summaryData);
+        watch.stop();// just for time measurement
+        LOGGER.log(Level.WARNING, "CONM1163: method: asWidgetInfo; " + watch.toString());// just for time measurement
         return info;
     }
 

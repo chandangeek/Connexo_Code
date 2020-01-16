@@ -479,6 +479,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private void shutdown(boolean immediate) {
         this.getLogger().shuttingDown(this.getComServer());
+        Thread.dumpStack();
         this.doShutdown();
         this.shutdownNestedServerProcesses(immediate);
         if (!immediate) {

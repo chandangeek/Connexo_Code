@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
@@ -48,6 +49,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,6 +62,7 @@ import java.util.stream.Stream;
  */
 @LiteralSql
 public class CommunicationTaskReportServiceImpl implements CommunicationTaskReportService {
+    private static final Logger LOGGER = Logger.getLogger(CommunicationTaskReportServiceImpl.class.getName());// just for time measurement
 
     private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
     private static final String DEVICE_STAGE_ALIAS_NAME = "enddevices";
@@ -266,7 +270,12 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     @Override
     public Map<DeviceType, List<Long>> getComTasksDeviceTypeHeatMap() {
-        return this.getComTasksDeviceTypeHeatMap(null);
+        //return this.getComTasksDeviceTypeHeatMap(null);
+        StopWatch watch = new StopWatch(true);// just for time measurement
+        Map<DeviceType, List<Long>> map = this.getComTasksDeviceTypeHeatMap(null);
+        watch.stop();// just for time measurement
+        LOGGER.log(Level.WARNING, "CONM1163: method: getComTasksDeviceTypeHeatMap; " + watch.toString()); // just for time measurement
+        return map;
     }
 
     @Override
@@ -334,6 +343,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     private Map<Long, Map<CompletionCode, Long>> fetchComTaskHeatMapCounters(PreparedStatement statement) throws SQLException {
         Map<Long, Map<CompletionCode, Long>> counters = new HashMap<>();
         try (ResultSet resultSet = statement.executeQuery()) {
+            resultSet.setFetchSize(SqlBuilder.FETCH_SIZE);
             while (resultSet.next()) {
                 long businessObjectId = resultSet.getLong(1);
                 int completionCodeOrdinal = resultSet.getInt(2);
