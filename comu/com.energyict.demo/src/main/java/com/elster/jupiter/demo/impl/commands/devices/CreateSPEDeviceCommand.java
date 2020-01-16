@@ -30,7 +30,7 @@ import java.util.Random;
 
 public class CreateSPEDeviceCommand {
     private static final List<DeviceTypeTpl> SPE_DEVICE_TYPES = Arrays.asList(DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Elster_A1800,
-            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38);
+            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38, DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS);
 
     private final DeviceService deviceService;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
@@ -136,7 +136,8 @@ public class CreateSPEDeviceCommand {
             this.deviceConfiguration = configurations.get(new Random().nextInt(configurations.size()));
         }
         String name = Constants.Device.STANDARD_PREFIX + this.serialNumber;
-        Device device = Builders.from(DeviceBuilder.class)
+
+        DeviceBuilder deviceBuilder = Builders.from(DeviceBuilder.class)
                 .withName(name)
                 .withShippingDate(this.clock.instant().minusSeconds(60))
                 .withSerialNumber(this.serialNumber)
@@ -145,9 +146,11 @@ public class CreateSPEDeviceCommand {
                 .withPostBuilder(this.connectionsDevicePostBuilderProvider.get()
                         .withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get())
                         .withHost(this.host))
-                .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
-                .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get())
-                .get();
+                .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get());
+        if (deviceTypeTpl != DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS) {
+            deviceBuilder.withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder());
+        }
+        Device device = deviceBuilder.get();
         if (this.withLocation || this.withUsagePoint || this.shouldBeActive) {
             device = deviceService.findDeviceByName(name).get();
         }

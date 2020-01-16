@@ -44,9 +44,14 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
     public void accept(Device device) {
         random = new Random(device.getId());
         setChannelSAPInfoCPS(device);
-        setDeviceSAPInfoCPS(device);
+        setEndDeviceSAPInfoCPS(device);
         setEMeterInfoCPS(device);
+        setDeviceSAPInfoCPS(device);
+        setDeviceRegisterSAPInfoCPS(device);
+        setDeviceChannelSAPInfoCPS(device);
     }
+
+
 
     private void setChannelSAPInfoCPS(Device device) {
         for (Channel channel : device.getChannels()) {
@@ -66,7 +71,7 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
         }
     }
 
-    private void setDeviceSAPInfoCPS(Device device) {
+    private void setEndDeviceSAPInfoCPS(Device device) {
         Optional<CustomPropertySet> customPropertySet = device.getDeviceType().getCustomPropertySets().stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                 .filter(cps -> cps.getId().equals(AttachDeviceSAPInfoCPSPostBuilder.CPS_ID))
@@ -96,6 +101,49 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
             values.setProperty("maxVoltage", Quantity.create(BigDecimal.valueOf(voltages[random.nextInt(voltages.length)]), 0, "V"));
 
             this.customPropertySetService.setValuesFor(customPropertySet.get(), device, values);
+        }
+    }
+
+    private void setDeviceChannelSAPInfoCPS(Device device) {
+        Optional<CustomPropertySet> customPropertySet = device.getDeviceType().getCustomPropertySets().stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .filter(cps -> cps.getId().equals("DeviceChannelSAPInfoCustomPropertySet"))
+                .findFirst();
+        if (customPropertySet.isPresent()) {
+            CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
+            values.setProperty("device", device.getId());
+            values.setProperty("channelSpec", null);
+            values.setProperty("logicalRegisterNumber", null);
+            values.setProperty("profileId", null);
+            this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), device, values, values.getEffectiveRange());
+        }
+    }
+
+    private void setDeviceRegisterSAPInfoCPS(Device device) {
+        Optional<CustomPropertySet> customPropertySet = device.getDeviceType().getCustomPropertySets().stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .filter(cps -> cps.getId().equals("DeviceRegisterSAPInfoCustomPropertySet"))
+                .findFirst();
+        if (customPropertySet.isPresent()) {
+            CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
+            values.setProperty("device", device.getId());
+            values.setProperty("registerSpec", null);
+            values.setProperty("logicalRegisterNumber", null);
+            this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), device, values, values.getEffectiveRange());
+        }
+    }
+
+    private void setDeviceSAPInfoCPS(Device device) {
+        Optional<CustomPropertySet> customPropertySet = device.getDeviceType().getCustomPropertySets().stream()
+                .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                .filter(cps -> cps.getId().equals("DeviceSAPInfoCustomPropertySet"))
+                .findFirst();
+        if (customPropertySet.isPresent()) {
+            CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
+            values.setProperty("deviceIdentifier", device.getMeter().getMRID());
+            values.setProperty("deviceLocation", device.getLocation().orElse(null));
+            values.setProperty("pointOfDelivery", null);
+            this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), device, values, values.getEffectiveRange());
         }
     }
 

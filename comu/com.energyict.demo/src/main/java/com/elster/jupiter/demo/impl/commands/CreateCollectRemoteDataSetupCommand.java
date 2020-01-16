@@ -34,6 +34,7 @@ import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
 import com.elster.jupiter.demo.impl.templates.MetrologyConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortTpl;
+import com.elster.jupiter.demo.impl.templates.ReadingTypeTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.demo.impl.templates.RegisteredDevicesKpiTpl;
@@ -41,12 +42,12 @@ import com.elster.jupiter.demo.impl.templates.UsagePointDataQualityKpiTpl;
 import com.elster.jupiter.demo.impl.templates.UsagePointGroupTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -131,6 +132,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         boolean withInsight = licenseService.getLicenseForApplication("INS").isPresent();
         executeTransaction(() -> {
             createComBackground();
+            createReadingTypes();
             createRegisterTypes();
             createRegisterGroups();
             createLogBookTypes();
@@ -204,6 +206,11 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Builders.from(OutboundTCPComPortPoolTpl.OUTBOUND_TCP).get();
     }
 
+    private void createReadingTypes() {
+        Builders.from(ReadingTypeTpl.GAS_MASTER_VALUE).get();
+        Builders.from(ReadingTypeTpl.VALVE_STATE).get();
+    }
+
     private void createRegisterTypes() {
         Builders.from(RegisterTypeTpl.SECONDARY_BULK_A_PLUS).get();
         Builders.from(RegisterTypeTpl.SECONDARY_BULK_A_MINUS).get();
@@ -211,6 +218,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2).get();
         Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1).get();
         Builders.from(RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2).get();
+        Builders.from(RegisterTypeTpl.GAS_MASTER_VALUE).get();
+        Builders.from(RegisterTypeTpl.VALVE_STATE).get();
     }
 
     private void createRegisterGroups() {
@@ -270,7 +279,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createDeviceStructure() {
         Stream.of(
-                DeviceTypeTpl.AM540_DLMS
+                DeviceTypeTpl.AM540_DLMS,
+                DeviceTypeTpl.Elster_AS220_AS1440_AM500_MBUS_SLAVE
         ).forEach(deviceTypeTpl -> {
             executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
         });
@@ -280,7 +290,8 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 DeviceTypeTpl.Iskra_38,
                 DeviceTypeTpl.Landis_Gyr_ZMD,
                 DeviceTypeTpl.Siemens_7ED,
-                DeviceTypeTpl.BEACON_3100)
+                DeviceTypeTpl.BEACON_3100,
+                DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS)
                 .forEach(deviceTypeTpl -> {
                     executeTransaction(() -> createDeviceStructureForDeviceType(deviceTypeTpl));
                     executeTransaction(() -> createDevices(deviceTypeTpl));
@@ -296,15 +307,16 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Iskra_38 || deviceTypeTpl == DeviceTypeTpl.Landis_Gyr_ZMD) {
             createDevices(Builders.from(DeviceConfigurationTpl.PROSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
-        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Actaris_SL7000 || deviceTypeTpl == DeviceTypeTpl.Siemens_7ED) {
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_A1800 || deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 ||
+                deviceTypeTpl == DeviceTypeTpl.Actaris_SL7000 || deviceTypeTpl == DeviceTypeTpl.Siemens_7ED) {
             createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
         if (deviceTypeTpl == DeviceTypeTpl.BEACON_3100) {
             createDevices(Builders.from(DeviceConfigurationTpl.DEFAULT_BEACON).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
         }
-        /*if (deviceTypeTpl == DeviceTypeTpl.AM540_DLMS) {
-            createDevices(Builders.from(DeviceConfigurationTpl.DEFAULT_AM540).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
-        }*/
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS) {
+            createDevices(Builders.from(DeviceConfigurationTpl.CONSUMERS).withDeviceType(deviceType).get(), deviceTypeTpl, deviceCount);
+        }
     }
 
     private void createDevices(DeviceConfiguration configuration, DeviceTypeTpl deviceTypeTpl, int deviceCount) {
@@ -320,6 +332,10 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 String devicename = createBeaconDevice(configuration, serialNumber, deviceTypeTpl);
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.AM540_DLMS).get();
                 createBeaconSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AM540).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.AM540_DLMS, devicename);
+            } else if (deviceTypeTpl == DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS) {
+                String devicename = createBeaconDevice(configuration, serialNumber, deviceTypeTpl);
+                DeviceType deviceType = Builders.from(DeviceTypeTpl.Elster_AS220_AS1440_AM500_MBUS_SLAVE).get();
+                createSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AS220_SLAVE).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.Elster_AS220_AS1440_AM500_MBUS_SLAVE, devicename);
             } else {
                 String devicename = createDevice(configuration, serialNumber, deviceTypeTpl);
                 if (deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
@@ -345,7 +361,11 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
 
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl) {
         DeviceType deviceType = Builders.from(deviceTypeTpl).withPostBuilder(this.attachDeviceTypeCPSPostBuilderProvider.get()).get();
-        if (deviceTypeTpl != DeviceTypeTpl.BEACON_3100 && deviceTypeTpl != DeviceTypeTpl.AM540_DLMS) {
+        if (deviceTypeTpl == DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS) {
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS, deviceTypeTpl);
+        } else if (deviceTypeTpl == DeviceTypeTpl.Elster_AS220_AS1440_AM500_MBUS_SLAVE) {
+            createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.DEFAULT_AS220_SLAVE, deviceTypeTpl);
+        } else if (deviceTypeTpl != DeviceTypeTpl.BEACON_3100 && deviceTypeTpl != DeviceTypeTpl.AM540_DLMS) {
             createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.PROSUMERS, deviceTypeTpl);
             createDeviceConfigurationWithDevices(deviceType, DeviceConfigurationTpl.CONSUMERS, deviceTypeTpl);
         }
@@ -458,6 +478,17 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceCommand.setSerialNumber(Constants.Device.BEACON_SLAVE_PREFIX + serialNumber);
         createDeviceCommand.withComSchedule(ComScheduleTpl.DAILY_READ_ALL);
         createDeviceCommand.withSecurityAccesors(ImmutableMap.of("PSK", "730E84DC18DDD0B20DFD6E1E53705D96"));
+        createDeviceCommand.linkTo(deviceName);
+        createDeviceCommand.run();
+    }
+
+    private void createSlaveDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceType, String deviceName) {
+        CreateHANDeviceCommand createDeviceCommand = this.createHANDeviceCommandProvider.get();
+        createDeviceCommand.setDeviceTypeTpl(deviceType);
+        createDeviceCommand.setDeviceConfiguration(configuration);
+        createDeviceCommand.setDeviceName(Constants.Device.STANDARD_PREFIX + serialNumber);
+        createDeviceCommand.setSerialNumber(Constants.Device.STANDARD_PREFIX + serialNumber);
+        createDeviceCommand.withComSchedule(ComScheduleTpl.DAILY_READ_ALL);
         createDeviceCommand.linkTo(deviceName);
         createDeviceCommand.run();
     }
