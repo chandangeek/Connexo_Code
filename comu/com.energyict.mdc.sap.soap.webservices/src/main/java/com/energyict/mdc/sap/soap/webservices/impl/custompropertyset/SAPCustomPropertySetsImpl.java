@@ -12,6 +12,8 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
@@ -27,7 +29,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
@@ -38,6 +42,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.TimeUtils;
@@ -51,6 +56,7 @@ import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -66,6 +72,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -87,10 +96,11 @@ import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
+@LiteralSql
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.SAPCustomPropertySets",
-        service = {SAPCustomPropertySets.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        service = {SAPCustomPropertySets.class, MessageSeedProvider.class, TranslationKeyProvider.class, TopicHandler.class},
         property = "name=" + SAPCustomPropertySetsImpl.COMPONENT_NAME, immediate = true)
-public class SAPCustomPropertySetsImpl implements MessageSeedProvider, TranslationKeyProvider, SAPCustomPropertySets {
+public class SAPCustomPropertySetsImpl implements MessageSeedProvider, TranslationKeyProvider, SAPCustomPropertySets, TopicHandler {
     static final String COMPONENT_NAME = "SCA"; // only for translations
     private static final TemporalAmount LESS_THAN_TIME_STEP = Duration.ofNanos(1);
 
@@ -101,6 +111,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile MasterDataService masterDataService;
+    private volatile DeviceDataModelService deviceDataModelService;
+
 
     private CustomPropertySet<Device, DeviceSAPInfoDomainExtension> deviceInfo;
     private CustomPropertySet<ChannelSpec, DeviceChannelSAPInfoDomainExtension> channelInfo;
@@ -113,7 +125,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Inject
     public SAPCustomPropertySetsImpl(DeviceService deviceService, CustomPropertySetService customPropertySetService,
                                      PropertySpecService propertySpecService, OrmService ormService,
-                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService) {
+                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService, DeviceDataModelService deviceDataModelService) {
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
         setPropertySpecService(propertySpecService);
@@ -121,6 +133,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
         setMasterDataService(masterDataService);
+        setDeviceDataModelService(deviceDataModelService);
     }
 
     @Activate
@@ -170,6 +183,11 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
+        this.deviceDataModelService = deviceDataModelService;
     }
 
     @Override
@@ -634,8 +652,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
-        Device historyDevice = device.getHistory(when).orElse(device);
-        return historyDevice.getDeviceConfiguration().getChannelSpecs().stream()
+        return device.getDeviceConfiguration().getChannelSpecs().stream()
                 .filter(spec -> readingTypes.contains(spec.getReadingType())).findAny();
     }
 
@@ -1033,5 +1050,115 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
             return (range.hasLowerBound() && range.lowerEndpoint().isAfter(date)) ? Optional.of(range.lowerEndpoint()) : Optional.empty();
         }
         return Optional.empty();
+    }
+
+    @Override
+    public void handle(LocalEvent localEvent) {
+        Device source = (Device) localEvent.getSource();
+
+        changeDomainObjectForChannelCas(source);
+        changeDomainObjectForRegisterCas(source);
+    }
+
+    @Override
+    public String getTopicMatcher() {
+        return "com/energyict/mdc/device/data/deviceconfiguration/CHANGED";
+    }
+
+    private void changeDomainObjectForChannelCas(Device source) {
+        DataModel dataModel = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME);
+        List<ChannelSpec> channelSpecs = dataModel
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .join(ChannelSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(source.getId()))
+                .map(ext -> ext.getChannelSpec())
+                .distinct()
+                .collect(Collectors.toList());
+
+        channelSpecs.forEach(spec -> {
+            ReadingType specRT = spec.getReadingType();
+            Optional<ChannelSpec> cs = source.getChannels().stream().map(c -> c.getChannelSpec()).filter(f -> f.getReadingType().equals(specRT)).findAny();
+            if (cs.isPresent() && cs.get().getId() != spec.getId()) {
+                try (Connection connection = dataModel.getConnection(true)) {
+                    this.executeUpdate(connection, createSqlToUpdateChannelSpec(DeviceChannelSAPInfoCustomPropertySet.TABLE_NAME,
+                            spec.getId(), cs.get().getId(), source.getId()));
+                    this.executeUpdate(connection, createSqlToUpdateChannelSpec(DeviceChannelSAPInfoCustomPropertySet.TABLE_NAME + "JRNL",
+                            spec.getId(), cs.get().getId(), source.getId()));
+                } catch (SQLException e) {
+                    throw new UnderlyingSQLFailedException(e);
+                }
+            }
+        });
+    }
+
+    private void changeDomainObjectForRegisterCas(Device source) {
+        DataModel dataModel = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME);
+        List<RegisterSpec> registerSpecs = dataModel
+                .stream(DeviceRegisterSAPInfoDomainExtension.class)
+                .join(RegisterSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(source.getId()))
+                .map(ext -> ext.getRegisterSpec())
+                .distinct()
+                .collect(Collectors.toList());
+
+        registerSpecs.stream()
+                .forEach(spec -> {
+                    ReadingType specRT = spec.getReadingType();
+                    Optional<RegisterSpec> cs = source.getRegisters().stream().map(c -> c.getRegisterSpec()).filter(f -> f.getReadingType().equals(specRT)).findAny();
+                    if (cs.isPresent() && cs.get().getId() != spec.getId()) {
+                        try (Connection connection = dataModel.getConnection(true)) {
+                            this.executeUpdate(connection, createSqlToUpdateRegisterSpec(DeviceRegisterSAPInfoCustomPropertySet.TABLE_NAME,
+                                    spec.getId(), cs.get().getId(), source.getId()));
+                            this.executeUpdate(connection, createSqlToUpdateRegisterSpec(DeviceRegisterSAPInfoCustomPropertySet.TABLE_NAME + "JRNL",
+                                    spec.getId(), cs.get().getId(), source.getId()));
+                        } catch (SQLException e) {
+                            throw new UnderlyingSQLFailedException(e);
+                        }
+                    }
+                });
+    }
+
+    private SqlBuilder createSqlToUpdateChannelSpec(String tableName, long oldValue, long newValue, long deviceId) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + tableName + " SET ");
+        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(newValue);
+        sqlBuilder.append(" WHERE ");
+        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(oldValue);
+        sqlBuilder.append(" AND ");
+        sqlBuilder.append(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.name());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(deviceId);
+
+        return sqlBuilder;
+    }
+
+    private SqlBuilder createSqlToUpdateRegisterSpec(String tableName, long oldValue, long newValue, long deviceId) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + tableName + " SET ");
+        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(newValue);
+        sqlBuilder.append(" WHERE ");
+        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(oldValue);
+        sqlBuilder.append(" AND ");
+        sqlBuilder.append(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.databaseName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(deviceId);
+
+        return sqlBuilder;
+    }
+
+    private void executeUpdate(Connection connection, SqlBuilder sqlBuilder) {
+        try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 }
