@@ -30,14 +30,22 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
 
     @Override
     public List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions) {
+        long fetchComTaskDuration = 0;
+        long addToGroupDuration = 0;
+        long start;
         while (comTaskExecutions.hasNext()) {
+            start = System.currentTimeMillis();
             ComTaskExecution comTaskExecution = comTaskExecutions.next();
+            fetchComTaskDuration += (System.currentTimeMillis() - start);
             if (continueFetching(comTaskExecution)) {
+                start = System.currentTimeMillis();
                 add(comTaskExecution);
+                addToGroupDuration += (System.currentTimeMillis() - start);
             } else {
                 break;
             }
         }
+        LOGGER.warning("perf - fetchComTaskDuration=" + fetchComTaskDuration + ", addToGroupDuration=" + addToGroupDuration);
         jobs.addAll(groups.values());
         return jobs;
     }
