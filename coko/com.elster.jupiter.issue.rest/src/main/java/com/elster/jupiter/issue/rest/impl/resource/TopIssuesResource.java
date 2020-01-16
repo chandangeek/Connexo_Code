@@ -96,7 +96,6 @@ public class TopIssuesResource extends BaseResource {
         Condition conditionUser = where(USER).isEqualTo(currentUser);
         Condition conditionNullUser = where(USER).isNull();
         Condition conditionWG = where(WORKGROUP).in(currentUser.getWorkGroups());
-        //Order[] orders = {Order.ascending(DUEDATE), Order.descending(PRIORITYTOTAL)};
         List<OpenIssue> issues = issueQuery.select(
                 conditionReason.
                         and(conditionStatus).
