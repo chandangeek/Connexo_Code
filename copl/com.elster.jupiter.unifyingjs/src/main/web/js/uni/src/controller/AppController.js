@@ -233,9 +233,9 @@ Ext.define('Uni.controller.AppController', {
     },
 
     redirectToLogin: function () {
-        window.location = '/apps/login/index.html?expired&page='
+        window.location = encodeURI('/apps/login/index.html?expired&page='
         + window.location.pathname
-        + window.location.hash;
+        + window.location.hash);
     },
 
     getApplicationTitle: function (callback) {

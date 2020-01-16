@@ -34,6 +34,7 @@ public enum TranslationKeys implements TranslationKey {
     READING_REASON_CODE("readingReasonCode", "Reading reason code"),
     SCHEDULED_READING_DATE("scheduledReadingDate", "Scheduled reading date"),
     DATA_SOURCE("dataSource", "Data source"),
+    EXTRA_DATA_SOURCE("extraDataSource", "Extra data source"),
     FUTURE_CASE("futureCase", "Future case"),
     PROCESSING_DATE("processingDate", "Processing date"),
     REQUEST_ID("requestID", "Request ID"),

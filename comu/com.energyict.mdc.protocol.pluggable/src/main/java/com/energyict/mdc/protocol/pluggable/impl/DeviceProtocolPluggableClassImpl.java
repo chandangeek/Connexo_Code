@@ -32,6 +32,7 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
@@ -47,6 +48,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -285,7 +287,12 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    @XmlElement(type = UPLDeviceProtocolAdapter.class)
+    @XmlElements( {
+            @XmlElement(type = UPLDeviceProtocolAdapter.class),
+            @XmlElement(type = DeviceProtocolAdapterImpl.class),
+            @XmlElement(type = MeterProtocolAdapterImpl.class),
+            @XmlElement(type = SmartMeterProtocolAdapterImpl.class),
+    })
     public DeviceProtocol getDeviceProtocol() {
         if (protocolPluggableService != null) {
             deviceProtocol = this.newInstance();

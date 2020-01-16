@@ -160,21 +160,21 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
 
                 SetMultimap<String, String> values = HashMultimap.create();
-                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice().forEach(device->{
-                    if (!device.getNames().isEmpty()){
+                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice().forEach(device -> {
+                    if (!device.getNames().isEmpty()) {
 
                         values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), device.getNames().get(0).getName());
                     }
-                    if (device.getMRID() != null){
+                    if (device.getMRID() != null) {
                         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
                     }
 
                 });
-                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(usp->{
-                    if (!usp.getNames().isEmpty()){
+                getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(usp -> {
+                    if (!usp.getNames().isEmpty()) {
                         values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), usp.getNames().get(0).getName());
                     }
-                    if (usp.getMRID() != null){
+                    if (usp.getMRID() != null) {
                         values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), usp.getMRID());
                     }
                 });
@@ -328,31 +328,36 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
     private void fillDevicesComTaskExecutions(Set<Device> devices, Reading reading, int index, SyncReplyIssue syncReplyIssue) {
         if (isDeviceMessageComTaskRequired(reading, index, syncReplyIssue)) {
-            fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue);
+            fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue, reading);
         }
         if (isRegularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillLoadProfilesOrRegisterComTaskExecutions(devices, true, syncReplyIssue, index);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, true, syncReplyIssue, index, reading);
         }
 
         if (isIrregularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
-            fillLoadProfilesOrRegisterComTaskExecutions(devices, false, syncReplyIssue, index);
+            fillLoadProfilesOrRegisterComTaskExecutions(devices, false, syncReplyIssue, index, reading);
         }
     }
 
-    private void fillDevicesMessagesComTaskExecutions(Set<Device> devices, SyncReplyIssue syncReplyIssue) {
-        devices.forEach(originDevice -> {
+    private void fillDevicesMessagesComTaskExecutions(Set<Device> devices, SyncReplyIssue syncReplyIssue, Reading reading) {
+        for (Device originDevice : devices) {
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
                 Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
                 if (comTaskExecutionOptional.isPresent()) {
+                    if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+                        if (!comTaskExecutionOptional.get().getComSchedule().isPresent()) {
+                            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null, device.getName()));
+                        }
+                    }
                     syncReplyIssue.addDeviceMessagesComTaskExecutions(device.getId(), comTaskExecutionOptional.get());
                 }
             }
-        });
+        }
     }
 
-    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index) {
+    private void fillLoadProfilesOrRegisterComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue, int index, Reading reading) {
         for (Device originDevice : devices) {
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
@@ -371,11 +376,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             //we should find comTaskExecution by Load profile type/Register groups.
             //Otherwise we should find comTaskExecution for reading types
             if (syncReplyIssue.getReadingExistedLoadProfilesMap().containsKey(index)) {
-                comTaskExecutions.addAll(fillLoadProfilesComTaskExecutions(device, syncReplyIssue, index));
-            }else if(syncReplyIssue.getReadingExistedRegisterGroupsMap().containsKey(index)){
-                comTaskExecutions.addAll(fillRegisterGroupsComTaskExecutions(device, syncReplyIssue, index));
+                comTaskExecutions.addAll(fillLoadProfilesComTaskExecutions(device, syncReplyIssue, index, reading));
+            } else if (syncReplyIssue.getReadingExistedRegisterGroupsMap().containsKey(index)) {
+                comTaskExecutions.addAll(fillRegisterGroupsComTaskExecutions(device, syncReplyIssue, index, reading));
             } else {
-                comTaskExecutions.addAll(fillReadingTypesComTaskExecutions(device, syncReplyIssue, isRegular));
+                comTaskExecutions.addAll(fillReadingTypesComTaskExecutions(device, syncReplyIssue, isRegular, reading));
             }
 
             if (!comTaskExecutions.isEmpty()) {
@@ -388,7 +393,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private Set<ComTaskExecution> fillLoadProfilesComTaskExecutions(Device device, SyncReplyIssue syncReplyIssue, int index){
+    private Set<ComTaskExecution> fillLoadProfilesComTaskExecutions(Device device, SyncReplyIssue syncReplyIssue, int index, Reading reading) {
         Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
         List<String> noComTaskExecutionLoadProfileList = new ArrayList<>();
         syncReplyIssue.getReadingExistedLoadProfilesMap().get(index).forEach(loadProfileName -> {
@@ -396,19 +401,22 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                             .orElse(createComTaskExecutionForLoadProfile(device, loadProfileName));
                     if (comTaskExecution != null) {
                         comTaskExecutions.add(comTaskExecution);
-                    }else{
+                    } else {
                         noComTaskExecutionLoadProfileList.add(loadProfileName);
                     }
                 }
         );
-        if(!noComTaskExecutionLoadProfileList.isEmpty()){
+        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+            filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
+        }
+        if (!noComTaskExecutionLoadProfileList.isEmpty()) {
             syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILE_NAMES, null,
                     device.getName(), noComTaskExecutionLoadProfileList.stream().collect(Collectors.joining(";"))));
         }
         return comTaskExecutions;
     }
 
-    private Set<ComTaskExecution> fillRegisterGroupsComTaskExecutions(Device device, SyncReplyIssue syncReplyIssue, int index){
+    private Set<ComTaskExecution> fillRegisterGroupsComTaskExecutions(Device device, SyncReplyIssue syncReplyIssue, int index, Reading reading) {
         Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
         List<String> noComTaskExecutionRegisterGroupList = new ArrayList<>();
         syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index).forEach(loadProfileName -> {
@@ -416,19 +424,22 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                             .orElse(createComTaskExecutionForRegisterGroup(device, loadProfileName));
                     if (comTaskExecution != null) {
                         comTaskExecutions.add(comTaskExecution);
-                    }else{
+                    } else {
                         noComTaskExecutionRegisterGroupList.add(loadProfileName);
                     }
                 }
         );
-        if(!noComTaskExecutionRegisterGroupList.isEmpty()){
+        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+            filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
+        }
+        if (!noComTaskExecutionRegisterGroupList.isEmpty()) {
             syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_REGISTER_GROUP, null,
                     device.getName(), noComTaskExecutionRegisterGroupList.stream().collect(Collectors.joining(";"))));
         }
         return comTaskExecutions;
     }
 
-    private Set<ComTaskExecution> fillReadingTypesComTaskExecutions(Device device, SyncReplyIssue syncReplyIssue, boolean isRegular){
+    private Set<ComTaskExecution> fillReadingTypesComTaskExecutions(Device device, SyncReplyIssue syncReplyIssue, boolean isRegular, Reading reading) {
         Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
         List<com.elster.jupiter.metering.ReadingType> noComTaskExecutionReadingTypeList = new ArrayList<>();
 
@@ -437,24 +448,33 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     .orElse(createComTaskExecutionForReadingType(device, isRegular, readingType));
             if (comTaskExecution != null) {
                 comTaskExecutions.add(comTaskExecution);
-            }else{
-                if(isRegular){
-                    if(readingType.isRegular()){
+            } else {
+                if (isRegular) {
+                    if (readingType.isRegular()) {
                         noComTaskExecutionReadingTypeList.add(readingType);
                     }
-                }else{
-                    if(!readingType.isRegular()){
+                } else {
+                    if (!readingType.isRegular()) {
                         noComTaskExecutionReadingTypeList.add(readingType);
                     }
                 }
             }
         }
-
-        if(!noComTaskExecutionReadingTypeList.isEmpty()){
+        if (reading.getScheduleStrategy().equals(ScheduleStrategy.USE_SCHEDULE.getName())) {
+            filterComTasksWithSchedule(comTaskExecutions, device, syncReplyIssue);
+        }
+        if (!noComTaskExecutionReadingTypeList.isEmpty()) {
             syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_READING_TYPES, null,
-                    device.getName(), noComTaskExecutionReadingTypeList.stream().map(rt->rt.getFullAliasName()).collect(Collectors.joining(";"))));
+                    device.getName(), noComTaskExecutionReadingTypeList.stream().map(rt -> rt.getFullAliasName()).collect(Collectors.joining(";"))));
         }
         return comTaskExecutions;
+    }
+
+    private void filterComTasksWithSchedule(Set<ComTaskExecution> comTaskExecutions, Device device, SyncReplyIssue syncReplyIssue) {
+        comTaskExecutions.removeIf(cte -> !cte.getComSchedule().isPresent());
+        if (comTaskExecutions.isEmpty()) {
+            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null, device.getName()));
+        }
     }
 
     private ComTaskExecution createComTaskExecutionForReadingType(Device device, boolean isRegular, com.elster.jupiter.metering.ReadingType readingType) {
@@ -486,7 +506,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return comTaskExecutions;
     }
 
-    private Optional<ComTaskExecution> getComTaskExecutionForLoadProfile(Collection<ComTaskExecution> comTaskExecutions,  String loadProfileName) {
+    private Optional<ComTaskExecution> getComTaskExecutionForLoadProfile(Collection<ComTaskExecution> comTaskExecutions, String loadProfileName) {
         return comTaskExecutions.stream()
                 .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
                 .filter(comTaskExecution -> !comTaskExecution.isOnHold())
@@ -497,7 +517,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .findAny();
     }
 
-    private Optional<ComTaskExecution> getComTaskExecutionForRegisterGroup(Collection<ComTaskExecution> comTaskExecutions,  String registerGroupName) {
+    private Optional<ComTaskExecution> getComTaskExecutionForRegisterGroup(Collection<ComTaskExecution> comTaskExecutions, String registerGroupName) {
         return comTaskExecutions.stream()
                 .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
                 .filter(comTaskExecution -> !comTaskExecution.isOnHold())
@@ -702,7 +722,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         for (Map<Long, Set<ComTaskExecution>> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
             if (!deviceComTaskExecutionMap.isEmpty()) {
                 Set<ComTaskExecution> comTaskExecutions = deviceComTaskExecutionMap.get(device.getId());
-                comTaskExecutions.forEach(comTaskExecution->{
+                comTaskExecutions.forEach(comTaskExecution -> {
                     if (comTaskExecution != null) {
                         if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
                             isOk.set(true);

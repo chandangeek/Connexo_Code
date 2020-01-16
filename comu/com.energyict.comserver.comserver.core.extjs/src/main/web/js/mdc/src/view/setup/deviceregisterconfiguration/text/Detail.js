@@ -98,7 +98,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                                 itemId: 'custom-attribute-sets-placeholder-form-id',
                                 actionMenuXtype: 'deviceRegisterConfigurationActionMenu',
                                 attributeSetType: 'register',
-                                router: me.router
+                                router: me.router,
+                                margin: '0 20'
                             },
                             {
                                 xtype: 'uni-button-action',
