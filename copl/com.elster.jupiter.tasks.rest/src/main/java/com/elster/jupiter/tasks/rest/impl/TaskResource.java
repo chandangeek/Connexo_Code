@@ -244,12 +244,10 @@ public class TaskResource {
         Principal principal = (Principal) securityContext.getUserPrincipal();
         Locale locale = determineLocale(principal);
 
-        Instant instant = suspendTime == 0 ? null : Instant.ofEpochMilli(suspendTime);
+        Instant instant = Instant.ofEpochMilli(suspendTime);
 
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if(instant != null){
-            recurrentTask.setSuspendUntil(instant);
-        }
+        recurrentTask.setSuspendUntil(instant);
         TaskInfo taskInfo = new TaskInfo(recurrentTask, thesaurus, timeService, locale, clock);
         return taskInfo;
 

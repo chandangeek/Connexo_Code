@@ -38,7 +38,6 @@ Ext.define('Apr.model.Task', {
         {
             name: 'suspendUntilTime',
             type: 'number',
-            useNull:true
         },
         {
             name: 'lastRunStatusString',
