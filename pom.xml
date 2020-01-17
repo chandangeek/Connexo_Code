@@ -95,7 +95,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
+        <!--repository>
             <id>JBoss</id>
             <name>JBoss repository</name>
             <url>https://repository.jboss.com/maven2/</url>
@@ -105,7 +105,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </repository>
+        </repository-->
     </repositories>
 
     <!-- Plugin repository specification -->
