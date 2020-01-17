@@ -3166,7 +3166,8 @@ Ext.define('Dxp.controller.Tasks', {
     showHistoryGridMenu: function(menu){
          var record = menu.record;
          if (record){
-            menu.down('#cancel-history').setVisible(record.get('status') === 'Ongoing')
+            var statusId = record.get('status') && record.get('status').statusId;
+            menu.down('#cancel-history').setVisible(statusId === 0)//Ongoing
          }
     },
 
