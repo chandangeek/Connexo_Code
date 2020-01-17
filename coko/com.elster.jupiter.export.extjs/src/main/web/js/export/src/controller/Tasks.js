@@ -260,7 +260,8 @@ Ext.define('Dxp.controller.Tasks', {
                 click: this.switchSortingOrder
             },
             '#history-grid-action-menu': {
-                click: this.historyGridActionMenu
+                click: this.historyGridActionMenu,
+                show: this.showHistoryGridMenu
             },
             'data-export-tasks-run-with-parameters #run-export-task-button': {
                 click: this.runWithParameters
@@ -3162,6 +3163,13 @@ Ext.define('Dxp.controller.Tasks', {
         me.updateSortingToolbarAndResults();
     },
 
+    showHistoryGridMenu: function(menu){
+         var record = menu.record;
+         if (record){
+            menu.down('#cancel-history').setVisible(record.get('status') === 'Ongoing')
+         }
+    },
+
     historyGridActionMenu: function(menu, item){
         var me = this;
 
@@ -3173,7 +3181,12 @@ Ext.define('Dxp.controller.Tasks', {
                     Uni.I18n.translate('general.retryExportTaskx', 'DES', "Retry export task {0}?", [menu.record.data.name]),
                     Uni.I18n.translate('exportTasks.runMsgStartedOn', 'DES', "Data export task started on {0} will be queued to run at the earliest possible time.", [menu.record.get('startedOn_formatted')])
             );
-                break
+            break;
+            case 'cancelHistory':
+                me.submitHistoryCancelTask(menu.record);
+            break;
+            default:
+            break;
         }
     },
 
@@ -3230,6 +3243,33 @@ Ext.define('Dxp.controller.Tasks', {
                     confWindow.setVisible(true);
                 } else {
                     confWindow.destroy();
+                }
+            }
+        });
+    },
+
+    submitHistoryCancelTask: function (record) {
+        var me = this,
+            id = record.get('id'),
+            taskModel = me.getModel('Dxp.model.DataExportTaskHistory'),
+            grid,
+            store,
+            index,
+            view;
+
+        Ext.Ajax.request({
+            url: '/api/export/dataexporttask/history/' + id + '/cancel',
+            method: 'PUT',
+            jsonData: record.getProxy().getWriter().getRecordData(record),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.cancelQueued', 'DES', 'Export task run is cancelled'));
+            },
+            failure: function (response) {
+                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'DES', 'Couldn\'t perform your action');
+                var res = Ext.decode(response.responseText, true);
+
+                if (res && res.errors && res.errors.length) {
+                    me.getApplication().getController('Uni.controller.Error').showError(titleText, res.errors[0].msg, res.errorCode);
                 }
             }
         });
