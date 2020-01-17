@@ -30,7 +30,7 @@ import java.util.List;
 
 public class CreateHANDeviceCommand {
     private static final List<DeviceTypeTpl> SPE_DEVICE_TYPES = Arrays.asList(DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Elster_A1800,
-            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38, DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS);
+            DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38, DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_DLMS);
 
     private final DeviceService deviceService;
     private final TopologyService topologyService;

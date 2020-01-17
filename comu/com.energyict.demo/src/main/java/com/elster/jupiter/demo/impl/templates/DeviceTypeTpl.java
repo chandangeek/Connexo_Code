@@ -171,13 +171,13 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
             Arrays.asList(KeyAccessorTpl.PSK),
             true),
-    Elster_AS220_AS1440_AM500_DLMS("Elster AS220/AS1440 AM500 DLMS", "com.energyict.protocolimpl.dlms.as220.AS220", 1, OutboundTCPComPortPoolTpl.ORANGE,
+    ELSTER_AS220_AS1440_AM500_DLMS("Elster AS220/AS1440 AM500 DLMS", "com.energyict.protocolimpl.dlms.as220.AS220", 1, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.DAILY_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.MONTHLY_ELECTRICITY_A_PLUS),
             Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG), false),
-    Elster_AS220_AS1440_AM500_MBUS_SLAVE("AS220/AS1440 AM500 Mbus Slave", "com.energyict.protocolimpl.dlms.as220.GasDevice", 0, OutboundTCPComPortPoolTpl.ORANGE,
+    ELSTER_AS220_AS1440_AM500_MBUS_SLAVE("Elster AS220/AS1440 AM500 Mbus Slave", "com.energyict.protocolimpl.dlms.as220.GasDevice", 0, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.asList(RegisterTypeTpl.GAS_MASTER_VALUE, RegisterTypeTpl.VALVE_STATE),
-            Collections.singletonList(LoadProfileTypeTpl.HOURLY_GAS),
+            Arrays.asList(LoadProfileTypeTpl.HOURLY_GAS, LoadProfileTypeTpl.MASTER_GAS),
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG), false)
     ;
 
