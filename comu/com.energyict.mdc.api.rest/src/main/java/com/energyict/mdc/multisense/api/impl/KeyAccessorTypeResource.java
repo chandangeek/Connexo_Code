@@ -34,6 +34,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -276,5 +277,29 @@ public class KeyAccessorTypeResource {
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>(value, null);
         return propertyInfo;
     }
-}
 
+    /**
+     * Get the wrapping key name for a keyAccessorType for a device.
+     *
+     * @param mrid mRID of device for which the key will be updated
+     * @param keyAccessorTypeId Identifier of the security accessor type
+     * @param uriInfo uriInfo
+     * @summary returns the wrapping key name for the device / keyAccessorType
+     */
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{keyAccessorTypeId}/wrappingKey")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public String getKeyAccessorTypeWrappingKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId, @Context UriInfo uriInfo) {
+        DeviceType deviceType = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
+                .getDeviceType();
+        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(keyAccessorTypeId, deviceType);
+        Optional<SecurityAccessorType> wrappingSecurityAccessorType = deviceType.getWrappingSecurityAccessorType(securityAccessorType);
+        if (wrappingSecurityAccessorType.isPresent()) {
+            return wrappingSecurityAccessorType.get().getName();
+        }
+        return null;
+    }
+}
