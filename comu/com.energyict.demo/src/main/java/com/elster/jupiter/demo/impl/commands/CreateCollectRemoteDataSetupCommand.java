@@ -333,9 +333,10 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.AM540_DLMS).get();
                 createBeaconSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AM540).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.AM540_DLMS, devicename);
             } else if (deviceTypeTpl == DeviceTypeTpl.Elster_AS220_AS1440_AM500_DLMS) {
-                String devicename = createBeaconDevice(configuration, serialNumber, deviceTypeTpl);
+                String devicename = createDevice(configuration, serialNumber, deviceTypeTpl);
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.Elster_AS220_AS1440_AM500_MBUS_SLAVE).get();
-                createSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AS220_SLAVE).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.Elster_AS220_AS1440_AM500_MBUS_SLAVE, devicename);
+                createSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AS220_SLAVE).withDeviceType(deviceType).get(),
+                         serialNumber, Constants.Device.GAS_PREFIX, DeviceTypeTpl.Elster_AS220_AS1440_AM500_MBUS_SLAVE, devicename);
             } else {
                 String devicename = createDevice(configuration, serialNumber, deviceTypeTpl);
                 if (deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
@@ -482,12 +483,12 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceCommand.run();
     }
 
-    private void createSlaveDevice(DeviceConfiguration configuration, String serialNumber, DeviceTypeTpl deviceType, String deviceName) {
+    private void createSlaveDevice(DeviceConfiguration configuration, String serialNumber, String prefix, DeviceTypeTpl deviceType, String deviceName) {
         CreateHANDeviceCommand createDeviceCommand = this.createHANDeviceCommandProvider.get();
         createDeviceCommand.setDeviceTypeTpl(deviceType);
         createDeviceCommand.setDeviceConfiguration(configuration);
-        createDeviceCommand.setDeviceName(Constants.Device.STANDARD_PREFIX + serialNumber);
-        createDeviceCommand.setSerialNumber(Constants.Device.STANDARD_PREFIX + serialNumber);
+        createDeviceCommand.setDeviceName(prefix + serialNumber);
+        createDeviceCommand.setSerialNumber(prefix + serialNumber);
         createDeviceCommand.withComSchedule(ComScheduleTpl.DAILY_READ_ALL);
         createDeviceCommand.linkTo(deviceName);
         createDeviceCommand.run();
