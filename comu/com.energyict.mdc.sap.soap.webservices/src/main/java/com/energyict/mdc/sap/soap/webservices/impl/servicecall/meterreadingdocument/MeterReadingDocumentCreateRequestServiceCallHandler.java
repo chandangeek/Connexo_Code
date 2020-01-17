@@ -81,7 +81,6 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 extension.setChannelId(new BigDecimal(channel.get().getId()));
                 channel.get().getReadingTypes()
                         .stream()
-                        .filter(ReadingType::isCumulative)
                         .findFirst()
                         .ifPresent(readingType -> extension.setDataSource(readingType.getMRID()));
             } else {
