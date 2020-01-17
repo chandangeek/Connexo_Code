@@ -149,8 +149,11 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
         if (customPropertySet.isPresent()) {
             CustomPropertySetValues values = CustomPropertySetValues.empty();
             values.setProperty("deviceIdentifier", device.getMeter().getMRID());
-//            values.setProperty("deviceLocation", device.getLocation().orElse(null));
-//            values.setProperty("pointOfDelivery", null);
+            device.getLocation().ifPresent(
+                    location ->
+                            values.setProperty("deviceLocation", location.toString())
+            );
+            values.setProperty("pointOfDelivery", null);
             this.customPropertySetService.setValuesFor(customPropertySet.get(), device, values);
         }
     }
