@@ -134,7 +134,7 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
                 CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
                 values.setProperty("device", device.getId());
                 values.setProperty("registerSpec", register.getRegisterSpec());
-                values.setProperty("logicalRegisterNumber", register.getObisCode());
+                values.setProperty("logicalRegisterNumber", register.getObisCode().getValue());
                 this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), register.getRegisterSpec(), values,
                         values.getEffectiveRange(), device.getId());
             }
