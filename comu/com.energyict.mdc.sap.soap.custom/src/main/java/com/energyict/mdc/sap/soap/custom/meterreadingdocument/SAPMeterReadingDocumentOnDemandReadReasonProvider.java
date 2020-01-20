@@ -111,14 +111,17 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     @Override
     public void process(SAPMeterReadingDocumentCollectionData collectionData) {
-        if (hasCommunicationConnection(collectionData.getServiceCall(), collectionData.getDeviceName(), collectionData.isRegular(),
-                collectionData.getScheduledReadingDate(), collectionData.getMeterReadingType())) {
+        if (hasCommunicationConnection(collectionData)) {
             collectionData.calculate();
         }
     }
 
-    private boolean hasCommunicationConnection(ServiceCall serviceCall, String deviceName, boolean isRegular,
-                                               Instant scheduledReadingDate, Optional<ReadingType> meterReadingType) {
+    private boolean hasCommunicationConnection(SAPMeterReadingDocumentCollectionData collectionData) {
+        ServiceCall serviceCall = collectionData.getServiceCall();
+        String deviceName = collectionData.getDeviceName();
+        boolean isRegular = collectionData.isRegular();
+        Instant scheduledReadingDate = collectionData.getScheduledReadingDate();
+        Optional<ReadingType> meterReadingType = collectionData.getMeterReadingType();
 
         if (!meterReadingType.isPresent()) {
             // unreachable case
@@ -161,7 +164,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                 .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
                 .filter(comTaskExecution -> comTaskExecution.getComTask().getProtocolTasks()
                         .stream()
-                        .allMatch(protocolTask -> {
+                        .anyMatch(protocolTask -> {
                             if (isRegular) {
                                 return protocolTask instanceof LoadProfilesTask && hasReadingType((LoadProfilesTask) protocolTask, readingType);
                             } else {
