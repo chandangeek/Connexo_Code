@@ -291,14 +291,14 @@ public class KeyAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{keyAccessorTypeId}/wrappingKey")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public String getKeyAccessorTypeWrappingKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId, @Context UriInfo uriInfo) {
+    public SecurityAccessorType getKeyAccessorTypeWrappingKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId, @Context UriInfo uriInfo) {
         DeviceType deviceType = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getDeviceType();
         SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(keyAccessorTypeId, deviceType);
         Optional<SecurityAccessorType> wrappingSecurityAccessorType = deviceType.getWrappingSecurityAccessorType(securityAccessorType);
         if (wrappingSecurityAccessorType.isPresent()) {
-            return wrappingSecurityAccessorType.get().getName();
+            return wrappingSecurityAccessorType.get();
         }
         return null;
     }
