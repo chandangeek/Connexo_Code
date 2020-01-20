@@ -34,7 +34,6 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -279,27 +278,26 @@ public class KeyAccessorTypeResource {
     }
 
     /**
-     * Get the wrapping key name for a keyAccessorType for a device.
+     * Get the wrapping key info for a keyAccessorType for a device.
      *
-     * @param mrid mRID of device for which the key will be updated
+     * @param mrid mRID of device for which the the wrapping key info is needed
      * @param keyAccessorTypeId Identifier of the security accessor type
+     * @param fieldSelection field selection
      * @param uriInfo uriInfo
-     * @summary returns the wrapping key name for the device / keyAccessorType
+     * @summary returns the wrapping key info for the device / keyAccessorType
      */
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{keyAccessorTypeId}/wrappingKey")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public SecurityAccessorType getKeyAccessorTypeWrappingKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId, @Context UriInfo uriInfo) {
+    public KeyAccessorTypeInfo getKeyAccessorTypeWrappingKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceType deviceType = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getDeviceType();
         SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(keyAccessorTypeId, deviceType);
-        Optional<SecurityAccessorType> wrappingSecurityAccessorType = deviceType.getWrappingSecurityAccessorType(securityAccessorType);
-        if (wrappingSecurityAccessorType.isPresent()) {
-            return wrappingSecurityAccessorType.get();
-        }
-        return null;
+        SecurityAccessorType wrappingSecurityAccessorType = deviceType.getWrappingSecurityAccessorType(securityAccessorType)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_WRAPPING_KEYACCESSOR_FOR_DEVICE));
+        return keyAccessorTypeInfoFactory.from(wrappingSecurityAccessorType, uriInfo, fieldSelection.getFields());
     }
 }
