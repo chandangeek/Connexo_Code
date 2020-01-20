@@ -235,6 +235,37 @@ public class TableSqlGenerator {
 		return sb.toString();
 	}
 
+	String updateSqlWithoutVersionIncrease(List<ColumnImpl> columns) {
+		StringBuilder sb = new StringBuilder("update ");
+		sb.append(table.getQualifiedName());
+		sb.append(" set ");
+		String separator = "";
+		for (Column each : columns) {
+			sb.append(separator);
+			sb.append(each.getName());
+			sb.append(" = ?");
+			separator = ", ";
+		}
+		for (Column each : table.getAutoUpdateColumns()) {
+			sb.append(separator);
+			sb.append(each.getName());
+			sb.append("=  ?");
+			separator = ", ";
+		}
+		for (Column each : table.getUpdateValueColumns()) {
+			sb.append(separator);
+			sb.append(each.getName());
+			sb.append(" = ");
+			sb.append(each.getUpdateValue());
+			separator = ", ";
+		}
+
+		sb.append(" where ");
+		addPrimaryKey(sb);
+
+		return sb.toString();
+	}
+
     public String auditTrailSql() {
         StringBuilder sb = new StringBuilder("insert into ADT_AUDIT_TRAIL");
         sb.append(" (ID, DOMAINCONTEXT, MODTIMESTART, MODTIMEEND, PKDOMAIN, PKCONTEXT1, PKCONTEXT2, OPERATION, CREATETIME, USERNAME)");
