@@ -62,31 +62,39 @@ Ext.define('Yfn.controller.Main', {
             var proxy = reportsStore.getProxy();
             proxy.setExtraParam('category', 'MDC');
             //proxy.setExtraParam('subCategory', 'Device');
-            reportsStore.load(function (records) {
-                var reportsItems = [];
-                Ext.each(records, function (record) {
-                    var reportDescription = record.get('description');
-                    var reportUUID = record.get('reportUUID');
-                    var reportName = record.get('name');
-                    reportsItems.push({
-                        text: reportName,
-                        tooltip: reportDescription,
-                        href: '#/workspace/generatereport?reportUUID=' + reportUUID//+'&subCategory=Device'
-                        //,hrefTarget: '_blank'
-                    });
-                });
-                reportsItems.sort(function (item1, item2) {
-                    if (item1.text < item2.text) {
-                        return -1;
-                    } else if (item1.text > item2.text) {
-                        return 1;
+            me.setLoading();
+            Ext.Ajax.suspendEvent('requestexception');
+            reportsStore.load({
+                callback: function (records, options, success) {
+                    var reportsItems = [];
+                    if (success) {
+                        Ext.each(records, function (record) {
+                            var reportDescription = record.get('description');
+                            var reportUUID = record.get('reportUUID');
+                            var reportName = record.get('name');
+                            reportsItems.push({
+                                text: reportName,
+                                tooltip: reportDescription,
+                                href: '#/workspace/generatereport?reportUUID=' + reportUUID//+'&subCategory=Device'
+                                //,hrefTarget: '_blank'
+                            });
+                        });
+                        reportsItems.sort(function (item1, item2) {
+                            if (item1.text < item2.text) {
+                                return -1;
+                            } else if (item1.text > item2.text) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        });
                     } else {
-                        return 0;
+                        reportsItems.push('Connexo Facts is not available');
                     }
-                });
-
-                portalContainer.refresh(reportsItems);
-
+                    portalContainer.refresh(reportsItems);
+                    Ext.Ajax.resumeEvent('requestexception');
+                    portalContainer.setLoading(false);
+                }
             });
         }
     },
