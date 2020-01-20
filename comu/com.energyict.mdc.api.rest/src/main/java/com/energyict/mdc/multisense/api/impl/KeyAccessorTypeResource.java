@@ -281,7 +281,7 @@ public class KeyAccessorTypeResource {
      * Get the wrapping key info for a keyAccessorType for a device.
      *
      * @param mrid mRID of device for which the the wrapping key info is needed
-     * @param keyAccessorTypeId Identifier of the security accessor type
+     * @param name The name of the keyAccessorType
      * @param fieldSelection field selection
      * @param uriInfo uriInfo
      * @summary returns the wrapping key info for the device / keyAccessorType
@@ -289,13 +289,13 @@ public class KeyAccessorTypeResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{keyAccessorTypeId}/wrappingKey")
+    @Path("/{keyAccessorTypeName}/wrappingkey")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public KeyAccessorTypeInfo getKeyAccessorTypeWrappingKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public KeyAccessorTypeInfo getKeyAccessorTypeWrappingKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceType deviceType = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getDeviceType();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(keyAccessorTypeId, deviceType);
+        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(name, deviceType);
         SecurityAccessorType wrappingSecurityAccessorType = deviceType.getWrappingSecurityAccessorType(securityAccessorType)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_WRAPPING_KEYACCESSOR_FOR_DEVICE));
         return keyAccessorTypeInfoFactory.from(wrappingSecurityAccessorType, uriInfo, fieldSelection.getFields());
