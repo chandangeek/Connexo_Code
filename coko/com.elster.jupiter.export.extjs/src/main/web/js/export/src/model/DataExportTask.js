@@ -36,7 +36,8 @@ Ext.define('Dxp.model.DataExportTask', {
         },
         {
             name: 'suspendUntilExport',
-            type:'number'
+            type:'number',
+            useNull:true
         },
         {
             name: 'lastExportOccurrence',
