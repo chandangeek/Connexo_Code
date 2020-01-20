@@ -49,17 +49,25 @@ import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
-import com.energyict.mdc.device.data.impl.*;
+import com.energyict.mdc.device.data.impl.CreateEventType;
+import com.energyict.mdc.device.data.impl.DeleteEventType;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.data.impl.EventType;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.PersistentIdObject;
+import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
+import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ManuallyScheduledNextExecSpecRequired;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SaveScheduled;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SharedScheduleComScheduleRequired;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.impl.ComScheduleImpl;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
@@ -68,7 +76,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
@@ -270,13 +283,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return comPort.isPresent()
                 ||
                 (connectionTask.isPresent() && connectionTask.getOptional().isPresent()
-                    && (connectionTask.get().getExecutingComPort() != null)
-                    && comTaskStartedAfterConnectionStarted()
-                    && ((getNextExecutionTimestamp() != null
+                        && (connectionTask.get().getExecutingComPort() != null)
+                        && comTaskStartedAfterConnectionStarted()
+                        && ((getNextExecutionTimestamp() != null
                         && getNextExecutionTimestamp().isBefore(clock.instant())
                         && connectionTask.get().getLastCommunicationStart().isAfter(getNextExecutionTimestamp()))
                         || (getNextExecutionTimestamp() == null && isIgnoreNextExecutionSpecsForInbound()
-                            && connectionTask.get() instanceof InboundConnectionTask))
+                        && connectionTask.get() instanceof InboundConnectionTask))
                 );
     }
 
@@ -305,7 +318,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return taskStatus;
     }
 
-    public void setStatus(TaskStatus status){
+    public void setStatus(TaskStatus status) {
         this.taskStatus = status;
     }
 
@@ -612,7 +625,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     void recalculateNextAndPlannedExecutionTimestamp() {
-        Instant plannedNextExecutionTimestamp = this.calculateNextExecutionTimestamp(clock.instant());
+        Instant plannedNextExecutionTimestamp = this.getComSchedule()
+                .flatMap(ComSchedule::getPlannedDate)
+                .orElse(this.calculateNextExecutionTimestamp(clock.instant()));
         schedule(plannedNextExecutionTimestamp, plannedNextExecutionTimestamp);
     }
 
@@ -1217,7 +1232,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
-    @XmlElement(type = ComScheduleImpl.class)
+    @JsonIgnore
+    @XmlTransient
     public Optional<ComSchedule> getComSchedule() {
         return this.comSchedule.getOptional();
     }

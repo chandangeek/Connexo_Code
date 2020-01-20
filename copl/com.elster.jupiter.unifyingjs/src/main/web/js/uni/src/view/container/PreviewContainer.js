@@ -238,7 +238,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
             return;
         }
 
-        if (activeIndex !== 1) {
+        if (activeIndex !== 1 && me.items.getCount() !== 0) {
             me.getLayout().setActiveItem(1);
         }
     },

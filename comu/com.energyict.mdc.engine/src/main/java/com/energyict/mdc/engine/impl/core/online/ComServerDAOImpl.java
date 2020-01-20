@@ -11,7 +11,14 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.*;
+import com.elster.jupiter.pki.HsmKey;
+import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.SymmetricKeyWrapper;
+import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
@@ -53,13 +60,23 @@ import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.topology.*;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
+import com.energyict.mdc.device.topology.G3NodeState;
+import com.energyict.mdc.device.topology.Modulation;
+import com.energyict.mdc.device.topology.ModulationScheme;
+import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.LookupEntry;
@@ -95,9 +112,25 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
-import com.energyict.mdc.upl.offline.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
@@ -117,7 +150,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -888,8 +928,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void releaseInterruptedTasks(final ComPort comPort) {
         executeTransaction(() -> {
-            getConnectionTaskService().releaseInterruptedConnectionTasks(comPort);
             getCommunicationTaskService().releaseInterruptedComTasks(comPort);
+            LOGGER.info("Unlocked BUSY comTasks on comPort " + comPort);
+            getConnectionTaskService().releaseInterruptedConnectionTasks(comPort);
+            LOGGER.info("Unlocked BUSY connectionTasks on comPort " + comPort);
             return null;
         });
     }
@@ -897,70 +939,17 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public TimeDuration releaseTimedOutTasks(final ComPort comPort) {
         return executeTransaction(() -> {
+            TimeDuration timeDuration = getCommunicationTaskService().releaseTimedOutComTasks(comPort);
+            LOGGER.info("Unlocked comTasks timed out on comPort " + comPort);
             getConnectionTaskService().releaseTimedOutConnectionTasks(comPort);
-            return getCommunicationTaskService().releaseTimedOutComTasks(comPort);
+            LOGGER.info("Unlocked connectionTasks timed out on comPort " + comPort);
+            return timeDuration;
         });
     }
 
     @Override
     public void releaseTasksFor(final ComPort comPort) {
-        executeTransaction(() -> {
-            //first of all, lock the comport object so you don't run into a deadlock
-            ComPort lockedComPort = getEngineModelService().lockComPort(comPort);
-
-            List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
-            Set<ConnectionTask> lockedConnectionTasks = new HashSet<>();
-            lockedConnectionTasks.addAll(getLockedByComPort(comPort));
-
-            unlockComTasks(comPort, lockedConnectionTasks);
-            unlockConnectionTasks(comPort, lockedConnectionTasks);
-
-            return null;
-        });
-    }
-
-    /**
-     * Find and release any ComTaskExec executed by a ComPort
-     * <p>
-     * Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
-     * Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
-     * but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session
-     */
-    private void unlockComTasks(ComPort comPort, Set<ConnectionTask> lockedConnectionTasks) {
-        int unlockedCount = 0;
-
-        for (ComTaskExecution comTaskExecution : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort)) {
-            if (comTaskExecution.getConnectionTask().isPresent()) {
-                lockedConnectionTasks.add(comTaskExecution.getConnectionTask().get());
-                try {
-                    getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
-                    ++unlockedCount;
-                } catch (Throwable t) {
-                    LOGGER.severe("Could not unlock comTask due to: " + t.getMessage());
-                }
-            }
-        }
-        LOGGER.info("Unlocked " + unlockedCount + " comTasks on comPort " + comPort);
-    }
-
-    private void unlockConnectionTasks(ComPort comPort, Set<ConnectionTask> lockedConnectionTasks) {
-        int unlockedCount = 0;
-        for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
-            try {
-                unlock(lockedConnectionTask);
-                ++unlockedCount;
-            } catch (Throwable t) {
-                LOGGER.severe("Could not unlock connectionTask due to: " + t.getMessage());
-            }
-        }
-        LOGGER.info("Unlocked " + unlockedCount + " connectionTasks on comPort " + comPort);
-    }
-
-    /**
-     * Find connections locked by a comPort
-     */
-    private List<ConnectionTask> getLockedByComPort(ComPort comPort) {
-        return getConnectionTaskService().findLockedByComPort(comPort);
+        releaseInterruptedTasks(comPort);
     }
 
     @Override
@@ -995,16 +984,17 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
                 Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
                 Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
+                DeviceIdentifier deviceIdentifier = getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
                 ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().stream().forEach(each -> {
                     if (!each.getIntervalBlocks().isEmpty()) {
                         // Add interval readings
-                        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(loadProfileIdentifier.getDeviceIdentifier());
+                        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier);
                         if (meterReadingsEntry != null) {
                             meterReadingsEntry.getLast().addAllIntervalBlocks(each.getIntervalBlocks());
                         } else {
                             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                             meterReading.addAllIntervalBlocks(each.getIntervalBlocks());
-                            meterReadings.put(loadProfileIdentifier.getDeviceIdentifier(), Pair.of(loadProfileIdentifier.getDeviceIdentifier(), meterReading));
+                            meterReadings.put(deviceIdentifier, Pair.of(deviceIdentifier, meterReading));
                         }
                         // Add last reading updater
                         Instant existingLastReading = lastReadings.get(loadProfileIdentifier);
@@ -1019,7 +1009,6 @@ public class ComServerDAOImpl implements ComServerDAO {
                 Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
                 // do update the loadprofile
                 lastReadings.entrySet().stream().forEach(entrySet -> {
-                    DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
                     List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
                     if (functionList == null) {
                         functionList = new ArrayList<>();

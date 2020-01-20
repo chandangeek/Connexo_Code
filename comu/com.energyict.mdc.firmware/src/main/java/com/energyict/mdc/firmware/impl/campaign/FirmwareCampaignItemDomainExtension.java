@@ -36,6 +36,7 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -249,11 +250,23 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     .format(getDevice().getName(), getDevice().getDeviceType().getName()));
             failed = true;
         }
-        Optional<ComTaskExecution> firmwareComTaskExecution = findOrCreateFirmwareComTaskExecution();
-        if (firmwareComTaskExecution.isPresent()) {
-            if (!firmwareComTaskExecution.get().getConnectionTask().isPresent()) {
+        Optional<ComTaskExecution> firmwareComTaskExecutionOptional = findOrCreateFirmwareComTaskExecution();
+        if (firmwareComTaskExecutionOptional.isPresent()) {
+            ComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionOptional.get();
+            if (firmwareComTaskExecution.getConnectionTask().isPresent()) {
+                ConnectionTask connectionTask = firmwareComTaskExecution.getConnectionTask().get();
+                ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
+                FirmwareCampaignDomainExtension campaign = getFirmwareCampaign();
+                if (!(connectionTask.isActive() && (!campaign.getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign
+                        .getFirmwareUploadConnectionStrategy().get()))) {
+                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                            .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExecution.getComTask()
+                                    .getName()));
+                    failed = true;
+                }
+            } else {
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
-                        .format(firmwareComTaskExecution.get().getComTask().getName()));
+                        .format(firmwareComTaskExecution.getComTask().getName()));
                 failed = true;
             }
         } else {
@@ -265,11 +278,23 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     .format(getDevice().getName()));
             failed = true;
         }
-        Optional<ComTaskExecution> verificationComTaskExecution = findOrCreateVerificationComTaskExecution();
-        if (verificationComTaskExecution.isPresent()) {
-            if (!verificationComTaskExecution.get().getConnectionTask().isPresent()) {
+        Optional<ComTaskExecution> verificationComTaskExecutionOptional = findOrCreateVerificationComTaskExecution();
+        if (verificationComTaskExecutionOptional.isPresent()) {
+            ComTaskExecution verificationComTaskExecution = verificationComTaskExecutionOptional.get();
+            if (verificationComTaskExecution.getConnectionTask().isPresent()) {
+                ConnectionTask connectionTask = verificationComTaskExecution.getConnectionTask().get();
+                ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
+                FirmwareCampaignDomainExtension campaign = getFirmwareCampaign();
+                if (!(connectionTask.isActive() && (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign
+                        .getValidationConnectionStrategy().get()))) {
+                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                            .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(), verificationComTaskExecution.getComTask()
+                                    .getName()));
+                    failed = true;
+                }
+            } else {
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
-                        .format(verificationComTaskExecution.get().getComTask().getName()));
+                        .format(verificationComTaskExecution.getComTask().getName()));
                 failed = true;
             }
         } else {
@@ -400,12 +425,12 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             } else {
                 serviceCallService.lockServiceCall(getServiceCall().getId());
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                        .format(campaign.getFirmwareUploadConnectionStrategy().get().name(), firmwareComTaskExec.getComTask().getName()));
+                        .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExec.getComTask().getName()));
                 getServiceCall().requestTransition(DefaultState.REJECTED);
             }
         } else {
             serviceCallService.lockServiceCall(getServiceCall().getId());
-            getServiceCall().log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             getServiceCall().requestTransition(DefaultState.REJECTED);
         }
     }

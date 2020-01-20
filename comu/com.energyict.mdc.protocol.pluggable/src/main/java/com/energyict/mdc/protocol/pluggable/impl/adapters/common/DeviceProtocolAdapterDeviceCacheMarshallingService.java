@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
 
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheAdapter;
 import org.osgi.service.component.annotations.Component;
 
 import javax.xml.bind.JAXBContext;

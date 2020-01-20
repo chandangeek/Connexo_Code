@@ -24,6 +24,8 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         DOMAIN("serviceCall", "SERVICE_CALL"),
 
         // provided
+        REQUEST_ID("requestId", "REQUEST_ID"),
+        UUID("uuid", "UUID"),
         DEVICE_ID("deviceId", "DEVICE_ID"),
         SERIAL_ID("serialId", "SERIAL_ID"),
         DEVICE_TYPE("deviceType", "DEVICE_TYPE"),
@@ -56,6 +58,11 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String requestId;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String uuid;
+
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceId;
@@ -84,6 +91,22 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public String getSerialId() {
         return serialId;
@@ -162,9 +185,15 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         setErrorMessage(MessageFormat.format(messageSeed.getDefaultFormat(), args));
     }
 
+    public ServiceCall getServiceCall(){
+        return serviceCall.get();
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
+        this.setRequestId((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
+        this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
         this.setSerialId((String) propertyValues.getProperty(FieldNames.SERIAL_ID.javaName()));
         this.setDeviceType((String) propertyValues.getProperty(FieldNames.DEVICE_TYPE.javaName()));
@@ -178,6 +207,8 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestId());
+        propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
         propertySetValues.setProperty(FieldNames.SERIAL_ID.javaName(), this.getSerialId());
         propertySetValues.setProperty(FieldNames.DEVICE_TYPE.javaName(), this.getDeviceType());

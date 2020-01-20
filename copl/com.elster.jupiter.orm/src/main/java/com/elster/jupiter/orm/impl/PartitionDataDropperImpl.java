@@ -64,19 +64,12 @@ public class PartitionDataDropperImpl implements DataDropper {
         return "select partition_name, high_value from user_tab_partitions where table_name = ?";
     }
 
-    private String dropPartitionSql(String tableName, String partitionName) {
-        return new StringBuilder("ALTER TABLE ")
-                .append(tableName)
-                .append(" DROP PARTITION ")
-                .append(partitionName)
-                .append(" UPDATE GLOBAL INDEXES")
-                .toString();
-    }
-
 
     private void dropPartition(String tableName, String partitionName, Connection connection) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(dropPartitionSql(tableName, partitionName));
+        try (PreparedStatement statement = connection.prepareStatement("ALTER TABLE ? DROP PARTITION ? UPDATE GLOBAL INDEXES")) {
+            statement.setString(1, tableName);
+            statement.setString(2, partitionName);
+            statement.executeUpdate();
         }
     }
 

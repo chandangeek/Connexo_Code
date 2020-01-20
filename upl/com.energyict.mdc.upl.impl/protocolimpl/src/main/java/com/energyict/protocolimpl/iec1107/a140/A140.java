@@ -50,11 +50,7 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * @author fbo
@@ -79,13 +75,6 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     private static final int DEBUG = 0;
 
     private static final long FORCE_DELAY = 350;
-
-    /**
-     * Property keys specific for A140 protocol.
-     */
-    private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
-    private static final String PK_RETRIES = Property.RETRIES.getName();
-    private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
 
     /**
      * Property Default values
@@ -151,12 +140,12 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
-                this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC1107_TIMEOUT),
-                this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC1107_RETRIES),
+                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
+                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
                 this.integerSpec(CORRECTTIME.getName(), PropertyTranslationKeys.IEC1107_CORRECTTIME),
-                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
-                this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1));
+                this.stringSpec(EXTENDED_LOGGING.getName(), PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
+                this.stringSpec(SOFTWARE7E1.getName(), PropertyTranslationKeys.IEC1107_SOFTWARE_7E1));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -173,42 +162,42 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     @Override
     public void setUPLProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
-        if (p.getTypedProperty(Property.ADDRESS.getName()) != null) {
-            pAddress = p.getTypedProperty(Property.ADDRESS.getName());
+        if (p.getTypedProperty(ADDRESS.getName()) != null) {
+            pAddress = p.getTypedProperty(ADDRESS.getName());
         }
 
-        if (p.getTypedProperty(Property.NODEID.getName()) != null) {
-            pNodeId = p.getTypedProperty(Property.NODEID.getName());
+        if (p.getTypedProperty(NODEID.getName()) != null) {
+            pNodeId = p.getTypedProperty(NODEID.getName());
         }
 
-        if (p.getTypedProperty(Property.SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getTypedProperty(Property.SERIALNUMBER.getName());
+        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
         }
 
-        if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
-            pPassword = p.getTypedProperty(Property.PASSWORD.getName());
+        if (p.getTypedProperty(PASSWORD.getName()) != null) {
+            pPassword = p.getTypedProperty(PASSWORD.getName());
         }
 
-        if (p.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        if (p.getTypedProperty(TIMEOUT.getName()) != null) {
+            pTimeout = p.getTypedProperty(TIMEOUT.getName());
         }
 
-        if (p.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = p.getTypedProperty(PK_RETRIES);
+        if (p.getTypedProperty(RETRIES.getName()) != null) {
+            pRetries = p.getTypedProperty(RETRIES.getName());
         }
 
-        if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
-            pRountTripCorrection = p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName());
+        if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+            pRountTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
         }
 
-        if (p.getTypedProperty(Property.CORRECTTIME.getName()) != null) {
-            pCorrectTime = p.getTypedProperty(Property.CORRECTTIME.getName());
+        if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
+            pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
         }
 
-        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(EXTENDED_LOGGING.getName()) != null) {
+            pExtendedLogging = p.getTypedProperty(EXTENDED_LOGGING.getName());
         }
-        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty(SOFTWARE7E1.getName(), "0"));
     }
 
     @Override
@@ -347,7 +336,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
         TypedProperties p = com.energyict.mdc.upl.TypedProperties.empty();
         p.setProperty("SecurityLevel", "0");
-        p.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
+        p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
         p.setProperty("IEC1107Compatible", "1");
         setUPLProperties(p);
 

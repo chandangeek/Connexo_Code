@@ -21,17 +21,20 @@ public class CryptoDSMR23Properties extends Dsmr23Properties {
 
     @Override
     public SecurityProvider getSecurityProvider() {
-        boolean replayAttackPrevention = replayAttackPreventionEnabled();
-        if (useCryptoServer()) {
-            this.securityProvider = new CryptoDSMR23SecurityProviderReplayAttack(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), replayAttackPrevention);
-        } else {
-            if(replayAttackPrevention){
-                this.securityProvider = new ESMR50SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+        if (securityProvider==null) {
+            boolean replayAttackPrevention = replayAttackPreventionEnabled();
+            if (useCryptoServer()) {
+                this.securityProvider = new CryptoDSMR23SecurityProviderReplayAttack(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), replayAttackPrevention);
             } else {
-                this.securityProvider = new NTASecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
-            }
+                if (replayAttackPrevention) {
+                    this.securityProvider = new ESMR50SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+                } else {
+                    this.securityProvider = new NTASecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+                }
 
+            }
         }
         return this.securityProvider;
     }
+
 }

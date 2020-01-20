@@ -24,10 +24,12 @@ import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterBulkChangeConfir
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
 
@@ -80,8 +82,10 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
                                 .build();
                         SetMultimap<String, String> values = HashMultimap.create();
                         message.getMeterRegisterChangeMessages().forEach(msg -> {
-                            Optional.ofNullable(msg.getLrn())
-                                    .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                            msg.getRegisters().forEach(register -> {
+                                Optional.ofNullable(register.getLrn())
+                                        .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
+                            });
                             Optional.ofNullable(msg.getDeviceId())
                                     .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
                         });
@@ -133,14 +137,15 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         requestMessage.getMeterRegisterChangeMessages()
                 .forEach(bodyMessage -> {
                     if (bodyMessage.isValid()) {
-                        createChildServiceCall(serviceCall, bodyMessage);
+                        createSubParentServiceCall(serviceCall, requestMessage, bodyMessage);
+                    } else {
+                        sendProcessError(requestMessage, bodyMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
                     }
                 });
         if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 
@@ -158,11 +163,20 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         return false;
     }
 
-    private void sendProcessError(MeterRegisterBulkChangeRequestMessage message, MessageSeeds messageSeed) {
+    private void sendProcessError(MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message, MessageSeeds messageSeed) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         MeterRegisterBulkChangeConfirmationMessage confirmationMessage =
                 MeterRegisterBulkChangeConfirmationMessage.builder()
-                        .from(message, messageSeed, clock.instant())
+                        .from(messages, message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .build();
+        sendMessage(confirmationMessage);
+    }
+
+    private void sendProcessError(MeterRegisterBulkChangeRequestMessage messages, MessageSeeds messageSeed) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+        MeterRegisterBulkChangeConfirmationMessage confirmationMessage =
+                MeterRegisterBulkChangeConfirmationMessage.builder()
+                        .from(messages, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -172,20 +186,44 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
                 .forEach(service -> service.call(message));
     }
 
-    private void createChildServiceCall(ServiceCall parent, MeterRegisterChangeMessage message) {
+    private void createSubParentServiceCall(ServiceCall parent, MeterRegisterBulkChangeRequestMessage messages, MeterRegisterChangeMessage message) {
+        ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.SUB_MASTER_METER_REGISTER_CHANGE_REQUEST);
+
+        SubMasterMeterRegisterChangeRequestDomainExtension subParentDomainExtension = new SubMasterMeterRegisterChangeRequestDomainExtension();
+        subParentDomainExtension.setRequestId(message.getId());
+        subParentDomainExtension.setUuid(message.getUuid());
+        subParentDomainExtension.setDeviceId(message.getDeviceId());
+
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
+                .extendedWith(subParentDomainExtension);
+        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
+        ServiceCall subParent = serviceCallBuilder.create();
+
+        message.getRegisters().forEach(register -> {
+            if (register.isValid()) {
+                createChildServiceCall(subParent, register);
+            } else {
+                sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            }
+        });
+        if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
+            subParent.requestTransition(DefaultState.PENDING);
+        } else {
+            subParent.requestTransition(DefaultState.REJECTED);
+        }
+    }
+
+
+    private void createChildServiceCall(ServiceCall subParent, RegisterChangeMessage message) {
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.METER_REGISTER_CHANGE_REQUEST);
 
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
-        childDomainExtension.setRequestId(message.getId());
-        childDomainExtension.setUuid(message.getUuid());
-        childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setEndDate(message.getEndDate());
         childDomainExtension.setTimeZone(message.getTimeZone());
 
-        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
+        ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
-        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
     }
 }

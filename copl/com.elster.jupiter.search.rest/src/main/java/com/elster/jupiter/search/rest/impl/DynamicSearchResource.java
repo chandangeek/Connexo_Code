@@ -199,7 +199,7 @@ public class DynamicSearchResource {
 
     private SearchDomain findSearchDomainOrThrowException(@PathParam("domain") String domainId) {
         return searchService.findDomain(domainId).
-                orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_SEARCH_DOMAIN, domainId));
+                orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_SEARCH_DOMAIN, org.apache.commons.text.StringEscapeUtils.escapeHtml4(domainId)));
     }
 
     @GET
@@ -215,7 +215,7 @@ public class DynamicSearchResource {
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))
                 .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, org.apache.commons.text.StringEscapeUtils.escapeHtml4(property)));
         List<SearchablePropertyConstriction> searchablePropertyConstrictions =
                 searchableProperty.getConstraints().stream().
                         map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
@@ -238,7 +238,7 @@ public class DynamicSearchResource {
         SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
                 .filter(prop -> property.equals(prop.getName()))
                 .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, org.apache.commons.text.StringEscapeUtils.escapeHtml4(property)));
 
         PropertyInfo propertyInfo = searchCriterionInfoFactory.asSingleObjectWithValues(searchableProperty, uriInfo, searchLocationService.findLocations(jsonQueryFilter.getString("displayValue")));
         return Response.ok().entity(propertyInfo).build();

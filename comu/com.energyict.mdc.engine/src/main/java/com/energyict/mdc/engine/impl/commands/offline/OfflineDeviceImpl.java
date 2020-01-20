@@ -214,7 +214,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         allSecurityAccessors.addAll( this.device.getSecurityAccessors() );
 
         setAllKeyAccessors(convertToOfflineKeyAccessors( allSecurityAccessors ));
-        setSecurityPropertySetAttributeToKeyAccessorTypeMapping(this.device);
+        setSecurityPropertySetAttributeToKeyAccessorType(this.device);
         if (context.needsPendingMessages()) {
             try {
                 serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
@@ -590,6 +590,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage> deviceMessages) {
         return deviceMessages
                 .stream()
+                .filter(deviceMessage -> Optional.ofNullable(deviceMessage.getSpecification()).isPresent())
                 .filter(deviceMessage -> ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().isPresent()) //Downcast to CXO Device
                 .map(this::toOfflineDeviceMessage)
                 .collect(Collectors.toList());
@@ -706,7 +707,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         this.securityPropertySetAttributeToKeyAccessorTypeMapping = securityPropertySetAttributeToKeyAccessorTypeMapping;
     }
 
-    private void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(Device device) {
+    private void setSecurityPropertySetAttributeToKeyAccessorType(Device device) {
         securityPropertySetAttributeToKeyAccessorTypeMapping = new HashMap<>();
         device.getDeviceConfiguration().getSecurityPropertySets().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
 

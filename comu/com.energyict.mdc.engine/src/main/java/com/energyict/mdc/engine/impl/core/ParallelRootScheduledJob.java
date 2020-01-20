@@ -32,6 +32,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
 
@@ -64,7 +65,7 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
             this.createExecutionContext();
             commandRoot = prepareAll(getComTaskExecutions());
 
-            if (!commandRoot.hasGeneralSetupErrorOccurred() && !commandRoot.getCommands().isEmpty()) {
+            if (!commandRoot.hasGeneralSetupErrorOccurred() && hasCommandsToExecute()) {
                 connectionEstablished = this.establishConnectionFor(this.getComPort());
                 if (connectionEstablished) {
 
@@ -112,6 +113,15 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private boolean hasCommandsToExecute() {
+        for (GroupedDeviceCommand groupedDeviceCommand : ((ParallelCommandRoot) commandRoot).groupedDeviceCommands) {
+            if (groupedDeviceCommand.getCommands().size() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void combineJournals(ComSessionBuilder rootComSessionBuilder, ComSessionBuilder workerBuilder) {
@@ -284,6 +294,15 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
         @Override
         public boolean hasConnectionBeenInterrupted() {
             return parallelCommandRoots.values().stream().filter(CommandRoot::hasConnectionBeenInterrupted).findFirst().isPresent();
+        }
+
+        @Override
+        public void connectionNotExecuted() {
+        }
+
+        @Override
+        public boolean hasConnectionNotExecuted() {
+            return parallelCommandRoots.values().stream().allMatch(CommandRoot::hasConnectionNotExecuted);
         }
 
         @Override

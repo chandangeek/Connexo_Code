@@ -6,8 +6,10 @@ package com.elster.jupiter.time;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.joda.time.DateTimeConstants;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -67,7 +69,7 @@ public final class TemporalExpression implements ScheduleExpression {
     /**
      * Creates a new instance of TemporalExpression.
      *
-     * @param every  the frequency of the new TemporalExpression
+     * @param every the frequency of the new TemporalExpression
      * @param offset the offset to apply to the frequency
      */
     public TemporalExpression(TimeDuration every, TimeDuration offset) {
@@ -124,10 +126,12 @@ public final class TemporalExpression implements ScheduleExpression {
         return buffer.toString();
     }
 
+    @JsonIgnore
+    @XmlTransient
     public Offsets getOffsetInDaysHoursMinutes() {
         TimeDuration offsetTD = getOffset();
-        int offsetInMinutes = offsetTD==null ? 0 : offsetTD.getCount();
-        if (offsetTD!=null && offsetTD.getTimeUnitCode() != Calendar.MINUTE) {
+        int offsetInMinutes = offsetTD == null ? 0 : offsetTD.getCount();
+        if (offsetTD != null && offsetTD.getTimeUnitCode() != Calendar.MINUTE) {
             offsetInMinutes = offsetTD.getSeconds() / SECONDS_IN_MINUTE;
         }
         int days = 0;
@@ -164,9 +168,9 @@ public final class TemporalExpression implements ScheduleExpression {
 
         Calendar localTime = Calendar.getInstance();
         localTime.setTimeZone(definitionTimeZone);
-        if (every.getTimeUnitCode() == Calendar.MONTH){
+        if (every.getTimeUnitCode() == Calendar.MONTH) {
             localTime.set(Calendar.DAY_OF_MONTH, offset.getDays() + 1); //+1 because EiServer has 0-based days
-        } else if (every.getTimeUnitCode() == Calendar.WEEK_OF_YEAR){
+        } else if (every.getTimeUnitCode() == Calendar.WEEK_OF_YEAR) {
             localTime.set(Calendar.DAY_OF_WEEK, offset.getDays() + 1);
         }
         localTime.set(Calendar.HOUR_OF_DAY, offset.getHours());
@@ -278,6 +282,8 @@ public final class TemporalExpression implements ScheduleExpression {
         return Objects.hash(every, offset);
     }
 
+    @JsonIgnore
+    @XmlTransient
     public boolean isLastDay() {
         return this.indicatesLastOfMonth();
     }

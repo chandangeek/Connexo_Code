@@ -128,5 +128,10 @@ public class PrimaryKeyConstraintImpl extends TableConstraintImpl<PrimaryKeyCons
             return this;
         }
 
+        @Override
+        public Builder noDdl() {
+            constraint.noDdl = true;
+            return this;
+        }
     }
 }

@@ -10,10 +10,10 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
 import com.google.inject.Module;
@@ -87,6 +87,16 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impl
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
+                        .named(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName(), TranslationKeys.UUID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
@@ -134,6 +144,16 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impl
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+            table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.databaseName())
+                    .varChar()
+                    .map(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.databaseName())
+                    .varChar()
+                    .map(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.UUID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
             table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())

@@ -71,6 +71,7 @@ public class DeviceMessagesResource {
         List<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .filter(id-> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 
@@ -106,7 +107,9 @@ public class DeviceMessagesResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info.deviceConfiguration);
 
         Set<DeviceMessageId> existingEnablements = deviceConfiguration.getDeviceMessageEnablements()
-                .stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toSet());
+                .stream()
+                .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
+                .map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toSet());
 
         for (Long messageId : info.messageIds) {
             DeviceMessageSpec messageSpec = deviceMessageSpecificationService.findMessageSpecById(messageId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, messageId));
@@ -149,7 +152,7 @@ public class DeviceMessagesResource {
         List<DeviceMessageEnablement> deviceMessageEnablements = deviceConfiguration.getDeviceMessageEnablements();
 
         for (DeviceMessageEnablement deviceMessageEnablement : deviceMessageEnablements) {
-            if (enablementInfo.messageIds.contains(deviceMessageEnablement.getDeviceMessageId().dbValue())) {
+            if (enablementInfo.messageIds.contains(deviceMessageEnablement.getDeviceMessageDbValue())) {
                 Arrays.asList(DeviceMessageUserAction.values()).stream().forEach(deviceMessageEnablement::removeDeviceMessageUserAction);
                 enablementInfo.privileges.stream().map(p -> p.privilege).forEach(deviceMessageEnablement::addDeviceMessageUserAction);
             }

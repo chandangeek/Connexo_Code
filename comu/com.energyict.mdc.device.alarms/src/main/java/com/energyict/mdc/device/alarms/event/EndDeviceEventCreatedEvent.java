@@ -54,6 +54,10 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
         return endDeviceEventType;
     }
 
+    @Override
+    public String getDeviceCode() {
+        return deviceCode;
+    }
 
     @Override
     public void apply(Issue issue) {

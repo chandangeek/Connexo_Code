@@ -15,7 +15,10 @@ Ext.define('Apr.view.taskoverview.Setup', {
         'Apr.view.taskoverview.SortMenu',
         'Apr.store.Tasks'
     ],
-    content: [
+    initComponent: function () {
+        var me = this;
+
+        me.content = [
         {
             ui: 'large',
             title: Uni.I18n.translate('general.taskOverview', 'APR', 'Task overview'),
@@ -60,6 +63,7 @@ Ext.define('Apr.view.taskoverview.Setup', {
                     }
                 }
             ]
-        }
-    ]
+        }]
+        me.callParent(arguments);
+    }
 });

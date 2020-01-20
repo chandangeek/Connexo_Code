@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Optional;
 
 class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
 
@@ -71,7 +72,9 @@ class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribu
     @Override
     public Object getValue() {
         if (this.value == null) {
-            this.value = getSpecification().getValueFactory().fromStringValue(stringValue);
+            this.value = Optional.ofNullable(getSpecification()).map(specification -> specification.getValueFactory())
+                    .map(valueFactory -> valueFactory.fromStringValue(stringValue))
+                    .orElse(null);
         }
         return value;
     }

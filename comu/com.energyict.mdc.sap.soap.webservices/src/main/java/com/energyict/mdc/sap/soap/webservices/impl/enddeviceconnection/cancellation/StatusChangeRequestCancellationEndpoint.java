@@ -48,6 +48,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     private final ServiceCallService serviceCallService;
     private final Clock clock;
     private final OrmService ormService;
+    private final WebServiceActivator webServiceActivator;
     private static final CancellationConfirmationMessageFactory MESSAGE_FACTORY = new CancellationConfirmationMessageFactory();
 
     @Inject
@@ -55,12 +56,14 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                                             ServiceCallService serviceCallService,
                                             Clock clock,
                                             OrmService ormService,
-                                            Thesaurus thesaurus) {
+                                            Thesaurus thesaurus,
+                                            WebServiceActivator webServiceActivator) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.ormService = ormService;
         this.thesaurus = thesaurus;
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Override
@@ -117,7 +120,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
             if (message.isValid()) {
                 CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
 
-                sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, clock.instant()));
+                sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, webServiceActivator.getMeteringSystemId(), clock.instant()));
             } else {
                 sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
@@ -129,10 +132,10 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
     }
 
     private CancelledStatusChangeRequestDocument cancelRequestServiceCalls(StatusChangeRequestCancellationRequestMessage message) {
-        Optional<ConnectionStatusChangeDomainExtension> extension = getRequestExtension(message.getRequestId(), message.getCategoryCode());
+        Optional<ConnectionStatusChangeDomainExtension> extension = getRequestExtension(message.getId(), message.getCategoryCode());
 
         if (!extension.isPresent()) {
-            return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), 0, 0, 0);
+            return new CancelledStatusChangeRequestDocument(message.getId(), message.getCategoryCode(), 0, 0, 0);
         }
         String documentId = extension.get().getId();
         int cancelledRequests = 0;
@@ -141,7 +144,7 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         List<ServiceCall> serviceCalls = ServiceCallHelper.findChildren(parent);
         if (!parent.getState().isOpen()) {
             // send already processed message
-            return new CancelledStatusChangeRequestDocument(message.getRequestId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
+            return new CancelledStatusChangeRequestDocument(message.getId(), message.getCategoryCode(), serviceCalls.size(), 0, 0);
         }
         for (ServiceCall serviceCall : serviceCalls) {
             try {
@@ -184,12 +187,12 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, MessageSeeds messageSeed) {
         log(LogLevel.SEVERE, thesaurus.getSimpleFormat(messageSeed).format());
-        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, clock.instant()));
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant()));
     }
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg) {
         log(LogLevel.SEVERE, msg);
-        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, msg, clock.instant()));
+        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, msg, webServiceActivator.getMeteringSystemId(), clock.instant()));
     }
 
     private void sendMessage(SmrtMtrUtilsConncnStsChgReqERPCanclnConfMsg confirmationMessage) {

@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.export.DataExportService;
@@ -38,6 +40,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -94,6 +97,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
@@ -149,13 +154,14 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final Logger LOGGER = Logger.getLogger(WebServiceActivator.class.getName());
     private static final String DEVICE_TYPES_MAPPING = "com.elster.jupiter.sap.device.types.mapping";
     private static final String DEFAULT_DEVICE_TYPES_MAPPING = "MTREAHW0MV:A1860;MTREAHW0LV:AS3500";
+    public static final String REGISTER_RECURRENCE_CODE = "com.elster.jupiter.sap.register.recurrencecode";
+    public static final String REGISTER_DIVISION_CATEGORY_CODE = "com.elster.jupiter.sap.register.divisioncategorycode";
 
-    public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
-    public static final String URL_PROPERTY = "url";
     public static final String APPLICATION_NAME = "MultiSense";
-    public static final String METERING_SYSTEM_ID = "CXO";
+    public static final String DEFAULT_METERING_SYSTEM_ID = "HON";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
+    public static final String SUCCESSFUL_PROCESSING_TYPE_ID = "000";
     public static final String UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID = "001";
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -185,6 +191,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_NEW_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.new.data.endpoint";
     public static final String EXPORT_TASK_UPDATED_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.updated.data.endpoint";
 
+    private static final String METERING_SYSTEM_ID = "sap.soap.metering.system.id";
     private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
     private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
@@ -254,6 +261,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private final Map<AdditionalProperties, Integer> sapProperties = new HashMap<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private Map<String, String> deviceTypesMap;
+    private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
+    private Map<String, CIMPattern> divisionCategoryCodeMap;
+    private String meteringSystemId;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -291,12 +301,24 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return deviceTypesMap;
     }
 
+    public Map<String, Pair<MacroPeriod, TimeAttribute>> getRecurrenceCodeMap() {
+        return recurrenceCodeMap;
+    }
+
+    public Map<String, CIMPattern> getDivisionCategoryCodeMap() {
+        return divisionCategoryCodeMap;
+    }
+
     public Map<AdditionalProperties, Integer> getSapProperties() {
         return sapProperties;
     }
 
     public Integer getSapProperty(AdditionalProperties property) {
         return sapProperties.get(property);
+    }
+
+    public String getMeteringSystemId() {
+        return meteringSystemId;
     }
 
     public WebServiceActivator() {
@@ -427,23 +449,69 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
 
+        meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
+
         loadDeviceTypesMap();
         createOrUpdateUpdateSapExportTask();
         createOrUpdateSearchDataSourceTask();
         createOrUpdateCheckConfirmationTimeoutTask();
         createOrUpdateCheckScheduledRequestTask();
         createOrUpdateCheckStatusChangeCancellationTask();
+
+        loadRecurrenceCodeMap();
+        loadDivisionCategoryCodeMap();
     }
 
     private void loadDeviceTypesMap() {
         try {
             String strMap = Optional.ofNullable(getPropertyValue(bundleContext, DEVICE_TYPES_MAPPING)).orElse(DEFAULT_DEVICE_TYPES_MAPPING);
             deviceTypesMap = Arrays.stream(strMap.split(";"))
+                    .map(String::trim)
                     .map(s -> s.split(":"))
                     .collect(Collectors.toMap(e -> e[0], e -> e[1]));
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, MessageSeeds.ERROR_LOADING_PROPERTY.getDefaultFormat(DEVICE_TYPES_MAPPING, ex.getLocalizedMessage()));
             deviceTypesMap = Collections.emptyMap();
+        }
+    }
+
+    private void loadRecurrenceCodeMap() {
+        try {
+            Optional<String> strMap = Optional.ofNullable(getPropertyValue(bundleContext, REGISTER_RECURRENCE_CODE));
+            if (strMap.isPresent()) {
+                recurrenceCodeMap = Arrays.stream(strMap.get().split(";"))
+                        .map(String::trim)
+                        .map(s -> s.split(":"))
+                        .collect(Collectors.toMap(e -> e[0].trim(), e -> {
+                            String[] codes = e[1].split(",");
+                            return Pair.of(MacroPeriod.get(Integer.parseInt(codes[0].trim())), TimeAttribute.get(Integer.parseInt(codes[1].trim())));
+                        }));
+             } else {
+                recurrenceCodeMap = Collections.emptyMap();
+            }
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, MessageSeeds.ERROR_LOADING_PROPERTY.getDefaultFormat(REGISTER_RECURRENCE_CODE, ex.getLocalizedMessage()));
+            recurrenceCodeMap = Collections.emptyMap();
+        }
+    }
+
+    private void loadDivisionCategoryCodeMap() {
+        try {
+            Optional<String> strMap = Optional.ofNullable(getPropertyValue(bundleContext, REGISTER_DIVISION_CATEGORY_CODE));
+            if (strMap.isPresent()) {
+                divisionCategoryCodeMap = Arrays.stream(strMap.get().split(";"))
+                        .map(String::trim)
+                        .map(s -> s.split(":"))
+                        .collect(Collectors.toMap(e -> e[0].trim(), e -> {
+                            String[] codes = e[1].trim().split("\\.");
+                            return CIMPattern.parseFromString(codes);
+                        }));
+            } else {
+                divisionCategoryCodeMap = Collections.emptyMap();
+            }
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, MessageSeeds.ERROR_LOADING_PROPERTY.getDefaultFormat(REGISTER_DIVISION_CATEGORY_CODE, ex.getLocalizedMessage()));
+            divisionCategoryCodeMap = Collections.emptyMap();
         }
     }
 
@@ -578,6 +646,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MasterConnectionStatusChangeDomainExtension.class.getName(),
                 new MasterConnectionStatusChangeCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(SubMasterMeterRegisterChangeRequestDomainExtension.class.getName(),
+                new SubMasterMeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
 
         return customPropertySetsMap;
     }

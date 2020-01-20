@@ -6,6 +6,10 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -32,6 +36,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -63,11 +68,52 @@ public class DeviceMessageInfoFactory {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
         }
         info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
+        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
+            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
+            if (info.willBePickedUpByPlannedComTask) {
+                info.willBePickedUpByComTask = true; // shortcut
+            }
+        }
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
             info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
         }
-
         return info;
+    }
+
+    public List<DeviceMessageInfo> asFullInfoWithCache(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
+        Map<Integer, ComTask> preferredComTaskCache = new HashMap<>();
+        Map<DeviceMessageId, Boolean> userCanAdministrateCache = new HashMap<>();
+        Map<Integer, Boolean> willDeviceMessageBePickedUpByComTaskCache = new HashMap<>();
+        Map<Integer, Boolean> willBePickedUpByPlannedComTaskCache = new HashMap<>();
+
+        return deviceMessages.stream().
+                map(deviceMessage -> {
+                    Device device = (Device) deviceMessage.getDevice();
+                    DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+                    ComTask comTaskForDeviceMessage = preferredComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
+                            key -> deviceMessageService.getPreferredComTask(device, deviceMessage));
+                    if (comTaskForDeviceMessage!=null) {
+                        info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
+                    }
+
+                    info.userCanAdministrate = userCanAdministrateCache.computeIfAbsent(deviceMessage.getDeviceMessageId(),
+                            key -> deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId()));
+
+                    if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
+                        info.willBePickedUpByPlannedComTask = willBePickedUpByPlannedComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
+                                key -> this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage));
+                        if (info.willBePickedUpByPlannedComTask) {
+                            info.willBePickedUpByComTask = true; // shortcut
+                        }
+                    }
+
+                    if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+                        info.willBePickedUpByComTask = willDeviceMessageBePickedUpByComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
+                                key -> this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage));
+                    }
+                    return info;
+                }).
+                collect(toList());
     }
 
     public List<DeviceMessageInfo> asFasterInfo(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
@@ -126,14 +172,6 @@ public class DeviceMessageInfoFactory {
 
         info.creationDate = deviceMessage.getCreationDate();
         info.errorMessage = deviceMessage.getProtocolInfo();
-
-        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
-            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
-            if (info.willBePickedUpByPlannedComTask) {
-                info.willBePickedUpByComTask = true; // shortcut
-            }
-        }
-
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();
@@ -141,12 +179,32 @@ public class DeviceMessageInfoFactory {
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
                 deviceMessage.getAttributes().stream()
                         .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                        .map(DeviceMessageAttribute::getSpecification).collect(toList()),
+                        .map(DeviceMessageAttribute::getSpecification)
+                        .filter(Objects::nonNull)
+                        .collect(toList()),
                 typedProperties,
                 info.properties
         );
+        if(typedProperties.size() > 0 && info.properties.size() < typedProperties.size()){
+            HashMap<String, PropertyInfo> props = new HashMap<>();
+            info.properties.stream().forEach(p -> props.put(p.key, p));
+            typedProperties.stream().filter(e-> Objects.isNull(props.get(e.getKey())))
+                    .forEach(entry -> props.put(entry.getKey(), getArchivedProperty(entry)));
+            info.properties.clear();
+            deviceMessage.getAttributes().forEach(a -> info.properties.add((PropertyInfo) props.get(a.getName())));
+        }
 
         return info;
+    }
+
+    private PropertyInfo getArchivedProperty(Map.Entry<String, Object> entry){
+        String name = thesaurus.getString(entry.getKey(), null);
+        String key = entry.getKey();
+        String decription = "Description for " + key;
+        PropertyValueInfo propertyValueInfo = new PropertyValueInfo(entry.getValue(), null, null, null);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
+        propertyTypeInfo.simplePropertyType = SimplePropertyType.UNKNOWN;
+        return  new PropertyInfo(name, key, decription, propertyValueInfo, propertyTypeInfo, true);
     }
 
     private Boolean getUserCanAdministrateFromCache(Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache, DeviceMessage deviceMessage, Device device) {

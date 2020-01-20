@@ -285,6 +285,6 @@ public class FirmwareUtils {
     }
 
     private Principal getPrincipal() {
-        return this.userService.findUser("admin").get();
+        return this.userService.findUser("admin", userService.getRealm()).get();
     }
 }

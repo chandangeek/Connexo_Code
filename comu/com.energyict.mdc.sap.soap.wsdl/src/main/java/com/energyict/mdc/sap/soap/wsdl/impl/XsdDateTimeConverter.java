@@ -28,7 +28,7 @@ public class XsdDateTimeConverter {
     }
 
     public static String marshalDate(Instant date) {
-        return DateTimeFormatter.ISO_LOCAL_DATE.format(ZonedDateTime.ofInstant(date, ZoneId.of("UTC")));
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(ZonedDateTime.ofInstant(date, ZoneId.systemDefault()));
     }
 
     public static String marshalTime(LocalTime time) {
@@ -39,7 +39,15 @@ public class XsdDateTimeConverter {
         return DatatypeConverter.printDateTime(asCalendarUTC(dateTime));
     }
 
+    public static String marshalDateTimeWithSystemDefaultZone(Instant dateTime) {
+        return DatatypeConverter.printDateTime(asCalendar(dateTime));
+    }
+
     private static Calendar asCalendarUTC(Instant instant) {
         return GregorianCalendar.from(ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")));
+    }
+
+    private static Calendar asCalendar(Instant localDateTime) {
+        return GregorianCalendar.from(localDateTime.atZone(ZoneId.systemDefault()));
     }
 }

@@ -132,7 +132,9 @@ public abstract class PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(DeviceMessageSpec::getId)
+                .filter(id -> DeviceMessageId.find(id).isPresent())
+                .map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
         securityPropertySetBuilder.authenticationLevel(anySecurityLevel);
@@ -160,7 +162,7 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Instant freezeClock(int year, int month, int day, int hour, int minute, int second, int millisecond) {
-        return freezeClock(year, month, day, hour, minute, second, millisecond, utcTimeZone);
+        return freezeClock(year, month, day, hour, minute, second, millisecond, Calendar.getInstance().getTimeZone());
     }
 
     protected Instant freezeClock(int year, int month, int day, int hour, int minute, int second, int millisecond, TimeZone timeZone) {

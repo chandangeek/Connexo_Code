@@ -22,6 +22,7 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
 
         DOMAIN("serviceCall", "service_call"),
         ID("id", "id"),
+        REQUEST_ID("requestId", "REQUEST_ID"),
         UUID("uuid", "UUID"),
         CATEGORY_CODE("categoryCode", "category_code"),
         CONFIRMATION_URL("confirmationURL", "confirmation_url"), //up to 10.7
@@ -51,8 +52,11 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String id;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String requestId;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String uuid;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -69,6 +73,14 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 
     public String getUuid() {
@@ -127,6 +139,7 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     public void copyFrom(ServiceCall domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(domainInstance);
         this.setId((String) propertyValues.getProperty(FieldNames.ID.javaName()));
+        this.setRequestId((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
         this.setUuid((String) propertyValues.getProperty(FieldNames.UUID.javaName()));
         this.setCategoryCode((String) propertyValues.getProperty(FieldNames.CATEGORY_CODE.javaName()));
         this.setReasonCode((String) propertyValues.getProperty(FieldNames.REASON_CODE.javaName()));
@@ -138,6 +151,7 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.ID.javaName(), this.getId());
+        propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestId());
         propertySetValues.setProperty(FieldNames.UUID.javaName(), this.getUuid());
         propertySetValues.setProperty(FieldNames.CATEGORY_CODE.javaName(), this.getCategoryCode());
         propertySetValues.setProperty(FieldNames.REASON_CODE.javaName(), this.getReasonCode());

@@ -15,7 +15,7 @@ public enum Privileges implements TranslationKey {
     RESOURCE_ESTIMATION_RULES_DESCRIPTION("estimation.estimations.manage.description", "Manage estimation"),
 
     //Privileges
-    ADMINISTRATE_ESTIMATION_CONFIGURATION(Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, "Administer configuration"),
+    ADMINISTRATE_ESTIMATION_CONFIGURATION(Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, "Administrate configuration"),
     VIEW_ESTIMATION_CONFIGURATION(Constants.VIEW_ESTIMATION_CONFIGURATION, "View configuration"),
     UPDATE_ESTIMATION_CONFIGURATION(Constants.UPDATE_ESTIMATION_CONFIGURATION, "Update configuration"),
     UPDATE_SCHEDULE_ESTIMATION_TASK(Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, "Update schedule"),
@@ -23,7 +23,7 @@ public enum Privileges implements TranslationKey {
     FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE(Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE, "Fine tune device estimation"),
     FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION(Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION, "Fine tune device configuration estimation"),
     VIEW_ESTIMATION_TASK(Constants.VIEW_ESTIMATION_TASK, "View task"),
-    ADMINISTRATE_ESTIMATION_TASK(Constants.ADMINISTRATE_ESTIMATION_TASK, "Administer task"),
+    ADMINISTRATE_ESTIMATION_TASK(Constants.ADMINISTRATE_ESTIMATION_TASK, "Administrate task"),
     ESTIMATE_MANUAL(Constants.ESTIMATE_MANUAL, "Estimate manual"),
     ESTIMATE_WITH_RULE(Constants.ESTIMATE_WITH_RULE, "Estimate with rule"),
     EDIT_WITH_ESTIMATOR(Constants.EDIT_WITH_ESTIMATOR, "Edit with estimator")
