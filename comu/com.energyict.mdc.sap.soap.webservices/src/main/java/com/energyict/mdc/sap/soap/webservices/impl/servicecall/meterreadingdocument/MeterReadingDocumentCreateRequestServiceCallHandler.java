@@ -81,7 +81,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 extension.setChannelId(new BigDecimal(channel.get().getId()));
                 channel.get().getReadingTypes()
                         .stream()
-                        .reduce((a, b) -> b) // findLast
+                        .reduce((a, b) -> b) // we need the collected reading type from the channel, it should be the last
                         .ifPresent(readingType -> extension.setDataSource(readingType.getMRID()));
             } else {
                 serviceCall.log(LogLevel.WARNING, "The channel/register isn't found.");
