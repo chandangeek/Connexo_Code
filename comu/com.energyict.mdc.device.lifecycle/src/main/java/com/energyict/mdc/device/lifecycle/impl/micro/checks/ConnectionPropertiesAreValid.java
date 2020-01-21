@@ -16,6 +16,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,13 +50,15 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
         }
 
         boolean isHasExecution = false;
+        List<ConnectionTask<?,?>> deviceConnectionTasks = device.getConnectionTasks();
         for(ComTaskEnablement comTaskEnablement:device.getDeviceConfiguration().getComTaskEnablements()){
             for(ComTaskExecution comTaskExecution:device.getComTaskExecutions()){
                 if(comTaskEnablement.getComTask().getId() == comTaskExecution.getComTask().getId()) {
                     Optional<ConnectionTask<?,?>> connectionTask = comTaskExecution.getConnectionTask();
                     if (connectionTask.isPresent()) {
                         isHasExecution = true;
-                        if(isHasHostOrPort(connectionTask.get().getTypedProperties())){
+                        ConnectionTask devConnectionTask = deviceConnectionTasks.stream().filter(ct-> ct.getId()==connectionTask.get().getId()).findFirst().get();
+                        if(connectionTask.get().getPluggableClass().getPropertySpecs().size()!=0 && isHasntHostOrPort(devConnectionTask.getTypedProperties())){
                             return true;
                         }
                         if(connectionTask.get().getProperties().stream()
@@ -71,10 +74,12 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                     isHasExecution = false;
                 }
             }
+
             if(!isHasExecution){
                 Optional<PartialConnectionTask> connectionTask = comTaskEnablement.getPartialConnectionTask();
                 if (connectionTask.isPresent()) {
-                    if(isHasHostOrPort(connectionTask.get().getTypedProperties())){
+                    ConnectionTask devConnectionTask = deviceConnectionTasks.stream().filter(ct-> ct.getName().equals(connectionTask.get().getName())).findFirst().get();
+                    if(connectionTask.get().getPluggableClass().getPropertySpecs().size()!=0 && isHasntHostOrPort(devConnectionTask.getTypedProperties())){
                         return true;
                     }
                     if(connectionTask.get().getProperties().stream()
@@ -90,7 +95,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
         return false;
     }
 
-    private boolean isHasHostOrPort(TypedProperties typedProperties){
+    private boolean isHasntHostOrPort(TypedProperties typedProperties){
         return typedProperties.getTypedProperty("host") == null || typedProperties.getTypedProperty("portNumber") == null;
     }
 }
