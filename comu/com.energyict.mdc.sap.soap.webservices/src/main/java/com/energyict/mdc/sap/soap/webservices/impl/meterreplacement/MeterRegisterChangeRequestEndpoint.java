@@ -23,6 +23,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.RegisterCreateRequestHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
@@ -52,11 +53,12 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final OrmService ormService;
     private final WebServiceActivator webServiceActivator;
+    private final RegisterCreateRequestHandler registerCreateRequestHandler;
 
     @Inject
     MeterRegisterChangeRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
                                        Thesaurus thesaurus, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
-                                       OrmService ormService, WebServiceActivator webServiceActivator) {
+                                       OrmService ormService, WebServiceActivator webServiceActivator, RegisterCreateRequestHandler registerCreateRequestHandler) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
@@ -64,6 +66,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.ormService = ormService;
         this.webServiceActivator = webServiceActivator;
+        this.registerCreateRequestHandler = registerCreateRequestHandler;
     }
 
     @Override
@@ -88,11 +91,15 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                         Optional.ofNullable(message.getDeviceId())
                                 .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
                         saveRelatedAttributes(values);
-                        if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
-                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                                    MeterRegisterChangeConfirmation.NAME);
+                        if (message.getRegisters().size() == 1) {
+                            if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
+                                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                        MeterRegisterChangeConfirmation.NAME);
+                            }
+                            createServiceCallAndTransition(message);
+                        } else if (message.getRegisters().size() > 1) {
+                            registerCreateRequestHandler.handleRequestMessage(message);
                         }
-                        createServiceCallAndTransition(message);
                     });
             return null;
         });
@@ -184,13 +191,14 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         ServiceCall subParent = serviceCallBuilder.create();
 
-        message.getRegisters().forEach(register -> {
+        if (message.getRegisters().size() == 1) {
+            RegisterChangeMessage register = message.getRegisters().get(0);
             if (register.isValid()) {
                 createChildServiceCall(subParent, register);
             } else {
                 sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
             }
-        });
+        }
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
             subParent.requestTransition(DefaultState.PENDING);
         } else {
@@ -203,7 +211,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
 
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
         childDomainExtension.setLrn(message.getLrn());
-        childDomainExtension.setEndDate(message.getEndDate());
+        childDomainExtension.setEndDate(message.getCalculatedEndDate());
         childDomainExtension.setTimeZone(message.getTimeZone());
 
         ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)

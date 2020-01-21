@@ -978,56 +978,36 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<Instant> getStartDate(Device device) {
-        Optional<Instant> activationDate = getLastActivationDate(device.getMeter());
-        if (activationDate.isPresent()) {
-            Optional<Instant> lrnAfterDate = getFirstLrnDateAfterDate(device.getId(), activationDate.get());
-            if (lrnAfterDate.isPresent()) {
-                return lrnAfterDate;
-            }
-            return activationDate;
+    public Optional<Instant> getStartDate(Device device, Instant now) {
+        Optional<Instant> activeLrnStartDate = getFirstActiveLrnStartDate(device.getId(), now);
+        if (activeLrnStartDate.isPresent()) {
+            return activeLrnStartDate;
         }
         return Optional.empty();
     }
 
-    //get last date when device is moved from pre-operational to operational stage
-    private Optional<Instant> getLastActivationDate(Meter meter) {
-        Iterator<StateTimeSlice> stateTimeSliceIterator = meter.getStateTimeline().get().getSlices().listIterator();
-        boolean previouslyPreoperational = true;
-        StateTimeSlice fromPreOpToOpSlices = null;
-        while (stateTimeSliceIterator.hasNext()) {
-            StateTimeSlice currentSlice = stateTimeSliceIterator.next();
-            if (currentSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())).isPresent()) {
-                if (previouslyPreoperational) {
-                    fromPreOpToOpSlices = currentSlice;
-                }
-            }
-            previouslyPreoperational = currentSlice.getState().getStage().filter(stage -> stage.getName().equals(EndDeviceStage.PRE_OPERATIONAL.getKey())).isPresent();
-
-        }
-        return Optional.ofNullable(fromPreOpToOpSlices).map(slice -> slice.getPeriod().lowerEndpoint());
-    }
-
-    private Optional<Instant> getFirstLrnDateAfterDate(long deviceId, Instant date) {
+    private Optional<Instant> getFirstActiveLrnStartDate(long deviceId, Instant now) {
         Range<Instant> registerDateRange = getDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where("startTime").isGreaterThanOrEqual(now)))
                 .sorted(Order.ascending("startTime"))
                 .map(DeviceRegisterSAPInfoDomainExtension::getRange)
                 .findFirst()
                 .orElse(null);
-        Optional<Instant> registerDate = getLowerBound(registerDateRange, date);
+        Optional<Instant> registerDate = getLowerBound(registerDateRange);
         Range<Instant> channelDateRange = getDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where("startTime").isGreaterThanOrEqual(now)))
                 .sorted(Order.ascending("startTime"))
                 .map(DeviceChannelSAPInfoDomainExtension::getRange)
                 .findFirst()
                 .orElse(null);
 
-        Optional<Instant> channelDate = getLowerBound(channelDateRange, date);
+        Optional<Instant> channelDate = getLowerBound(channelDateRange);
         if (registerDate.isPresent()) {
             if (channelDate.isPresent() && registerDate.get().isAfter(channelDate.get())) {
                 return channelDate;
@@ -1037,9 +1017,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return channelDate;
     }
 
-    private Optional<Instant> getLowerBound(Range<Instant> range, Instant date) {
+    private Optional<Instant> getLowerBound(Range<Instant> range) {
         if (Optional.ofNullable(range).isPresent()) {
-            return (range.hasLowerBound() && range.lowerEndpoint().isAfter(date)) ? Optional.of(range.lowerEndpoint()) : Optional.empty();
+            return range.hasLowerBound() ? Optional.of(range.lowerEndpoint()) : Optional.empty();
         }
         return Optional.empty();
     }
