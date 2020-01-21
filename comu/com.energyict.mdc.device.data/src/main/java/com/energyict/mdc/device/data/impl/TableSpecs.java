@@ -650,25 +650,25 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ComTaskExecutionJournalEntry> table = dataModel.addTable(name(), ComTaskExecutionJournalEntry.class);
             table.map(ComTaskExecutionJournalEntryImpl.IMPLEMENTERS);
-            Column id = table.addAutoIdColumn();
+            Column id = table.addAutoIdColumn().upTo(version(10, 7, 2));
             table.addDiscriminatorColumn("DISCRIMINATOR", "varchar2(1 char)");
-            Column comtaskexecsession = table.column("COMTASKEXECSESSION").number().notNull().add();
+            Column comTaskExecSession = table.column("COMTASKEXECSESSION").number().notNull().add();
             Column timestamp = table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
-            table.column("ERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("errorDescription").add();
-            table.column("COMMANDDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("commandDescription").add();
-            table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
-            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
-            table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
             table.column("LOGLEVEL").number().notNull().conversion(NUMBER2ENUM).map("logLevel").add();
-            table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
-                    on(comtaskexecsession).
-                    references(DDC_COMTASKEXECSESSION.name()).
-                    onDelete(CASCADE).
-                    map("comTaskExecutionSession").
-                    composition().
-                    reverseMap("comTaskExecutionJournalEntries").
-                    add();
-            table.primaryKey("PK_DDC_COMTASKJOURNALENTRY").on(id).add();
+            table.column("ERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("errorDescription").add();
+            table.column("COMPLETIONCODE").number().conversion(NUMBER2ENUM).map("completionCode").add();
+            table.column("COMMANDDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("commandDescription").add();
+            table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
+            table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).upTo(version(10, 7, 2)).add();
+            table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION")
+                    .on(comTaskExecSession)
+                    .references(DDC_COMTASKEXECSESSION.name())
+                    .onDelete(CASCADE)
+                    .map("comTaskExecutionSession")
+                    .composition()
+                    .reverseMap("comTaskExecutionJournalEntries")
+                    .add();
+            table.primaryKey("PK_DDC_COMTASKJOURNALENTRY").on(id).upTo(version(10, 7, 2)).add();
             table.autoPartitionOn(timestamp, LifeCycleClass.LOGGING);
         }
     },
