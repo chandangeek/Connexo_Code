@@ -5,9 +5,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 
 import com.elster.jupiter.util.Checks;
 
-import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestMessage;
-import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeMessage;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -79,20 +76,6 @@ public class UtilitiesDeviceRegisterCreateMessage {
                                                 .from(message)
                                                 .build()));
                     });
-            return this;
-        }
-
-        public UtilitiesDeviceRegisterCreateMessage.Builder from(MeterRegisterChangeMessage requestMessage) {
-            setRequestId(requestMessage.getId());
-            setUuid(requestMessage.getUuid());
-            setDeviceId(requestMessage.getDeviceId());
-
-            if (requestMessage.getRegisters().size() > 1) {
-                utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
-                        .builder()
-                        .from(requestMessage.getRegisters().get(requestMessage.getRegisters().size() - 1))
-                        .build());
-            }
             return this;
         }
 

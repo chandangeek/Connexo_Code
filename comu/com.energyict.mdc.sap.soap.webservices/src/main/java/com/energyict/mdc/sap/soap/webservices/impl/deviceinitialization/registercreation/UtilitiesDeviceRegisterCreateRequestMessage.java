@@ -4,8 +4,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestMessage;
-import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegBulkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg;
 
@@ -81,32 +79,6 @@ public class UtilitiesDeviceRegisterCreateRequestMessage {
                                     .builder()
                                     .from(message)
                                     .build()));
-            return this;
-        }
-
-        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(MeterRegisterBulkChangeRequestMessage requestMessage) {
-            bulk = true;
-            setRequestID(requestMessage.getRequestId());
-            setUuid(requestMessage.getUuid());
-
-            requestMessage.getMeterRegisterChangeMessages()
-                    .forEach(message ->
-                            utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
-                                    .builder()
-                                    .from(message)
-                                    .build()));
-            return this;
-        }
-
-        public UtilitiesDeviceRegisterCreateRequestMessage.Builder from(MeterRegisterChangeMessage requestMessage) {
-            bulk = false;
-            setRequestID(requestMessage.getId());
-            setUuid(requestMessage.getUuid());
-
-            utilitiesDeviceRegisterCreateMessages.add(UtilitiesDeviceRegisterCreateMessage
-                    .builder()
-                    .from(requestMessage)
-                    .build());
             return this;
         }
 

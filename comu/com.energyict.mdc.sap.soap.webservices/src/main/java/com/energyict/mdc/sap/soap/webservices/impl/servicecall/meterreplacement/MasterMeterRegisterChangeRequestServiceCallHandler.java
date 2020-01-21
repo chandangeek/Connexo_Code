@@ -7,6 +7,8 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeConfirmationMessage;
@@ -16,7 +18,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component(name = MasterMeterRegisterChangeRequestServiceCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + MasterMeterRegisterChangeRequestServiceCallHandler.NAME, immediate = true)
@@ -28,6 +32,7 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
 
     private volatile Clock clock;
     private volatile WebServiceActivator webServiceActivator;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -101,7 +106,38 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
 
             WebServiceActivator.METER_REGISTER_CHANGE_CONFIRMATIONS.forEach(sender -> sender.call(resultMessage));
         }
+
+        try {
+            List<String> deviceIds = findIdsOfActiveDevicesWithLRN(ServiceCallHelper.findChildren(serviceCall));
+            if (!deviceIds.isEmpty()) {
+                if (extension.isBulk()) {
+                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.forEach(sender -> sender.call(deviceIds));
+                } else {
+                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0)));
+                }
+            }
+        } catch(Exception ex) {
+            //If we could not send registered notification due to any exception, we should continue to process service call
+            serviceCall.log(LogLevel.WARNING, "Exception while sending registered (bulk) notification: " + ex.getLocalizedMessage());
+        }
     }
+
+    private List<String> findIdsOfActiveDevicesWithLRN(List<ServiceCall> children) {
+        List<String> deviceIds = new ArrayList<>();
+        children.forEach(child -> {
+            SubMasterMeterRegisterChangeRequestDomainExtension extension = child.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet()).get();
+            if (extension.isCreateRequest()) {
+                String deviceId = extension.getDeviceId();
+                Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
+                if (device.isPresent() && (child.getState() == DefaultState.SUCCESSFUL || ServiceCallHelper.hasAnyChildState(ServiceCallHelper.findChildren(child), DefaultState.SUCCESSFUL))) {
+                    deviceIds.add(deviceId);
+                }
+            }
+        });
+
+        return deviceIds;
+    }
+
 
     private void resultTransition(ServiceCall parent) {
         List<ServiceCall> children = ServiceCallHelper.findChildren(parent);
@@ -126,5 +162,10 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    @Reference
+    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 }

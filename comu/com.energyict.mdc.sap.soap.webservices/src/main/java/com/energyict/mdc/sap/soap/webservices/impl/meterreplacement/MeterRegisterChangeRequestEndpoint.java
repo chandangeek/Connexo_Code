@@ -22,8 +22,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.RegisterCreateRequestHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
@@ -53,12 +53,11 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final OrmService ormService;
     private final WebServiceActivator webServiceActivator;
-    private final RegisterCreateRequestHandler registerCreateRequestHandler;
 
     @Inject
     MeterRegisterChangeRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
                                        Thesaurus thesaurus, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
-                                       OrmService ormService, WebServiceActivator webServiceActivator, RegisterCreateRequestHandler registerCreateRequestHandler) {
+                                       OrmService ormService, WebServiceActivator webServiceActivator) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
@@ -66,7 +65,6 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.ormService = ormService;
         this.webServiceActivator = webServiceActivator;
-        this.registerCreateRequestHandler = registerCreateRequestHandler;
     }
 
     @Override
@@ -91,15 +89,17 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
                         Optional.ofNullable(message.getDeviceId())
                                 .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
                         saveRelatedAttributes(values);
-                        if (message.getRegisters().size() == 1) {
-                            if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
-                                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
-                                        MeterRegisterChangeConfirmation.NAME);
-                            }
-                            createServiceCallAndTransition(message);
-                        } else if (message.getRegisters().size() > 1) {
-                            registerCreateRequestHandler.handleRequestMessage(message);
+                        if (!isAnyActiveEndpoint(MeterRegisterChangeConfirmation.NAME)) {
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                    MeterRegisterChangeConfirmation.NAME);
                         }
+                        if (message.getRegisters().size() > 1) {
+                            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredNotification.NAME)) {
+                                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                        UtilitiesDeviceRegisteredNotification.NAME);
+                            }
+                        }
+                        createServiceCallAndTransition(message);
                     });
             return null;
         });
@@ -185,19 +185,27 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         subParentDomainExtension.setRequestId(message.getId());
         subParentDomainExtension.setUuid(message.getUuid());
         subParentDomainExtension.setDeviceId(message.getDeviceId());
+        if (message.getRegisters().size() == 1) {
+            subParentDomainExtension.setCreateRequest(false);
+        } else {
+            subParentDomainExtension.setCreateRequest(true);
+        }
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(subParentDomainExtension);
         sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         ServiceCall subParent = serviceCallBuilder.create();
 
+        RegisterChangeMessage register;
         if (message.getRegisters().size() == 1) {
-            RegisterChangeMessage register = message.getRegisters().get(0);
-            if (register.isValid()) {
-                createChildServiceCall(subParent, register);
-            } else {
-                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-            }
+            register = message.getRegisters().get(0);
+        } else {
+            register = message.getRegisters().get(message.getRegisters().size() - 1);
+        }
+        if (register.isValid()) {
+            createChildServiceCall(subParent, register);
+        } else {
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
             subParent.requestTransition(DefaultState.PENDING);
@@ -211,8 +219,13 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
 
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
         childDomainExtension.setLrn(message.getLrn());
-        childDomainExtension.setEndDate(message.getCalculatedEndDate());
+        childDomainExtension.setEndDate(message.getEndDate());
+        childDomainExtension.setCreateEndDate(message.getCreateEndDate());
         childDomainExtension.setTimeZone(message.getTimeZone());
+        childDomainExtension.setObis(message.getObis());
+        childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());
+        childDomainExtension.setDivisionCategory(message.getDivisionCategory());
+        childDomainExtension.setStartDate(message.getStartDate());
 
         ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);

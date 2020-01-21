@@ -11,7 +11,7 @@ public class RegisterChangeMessage {
     private String lrn;
     private Instant startDate;
     private Instant endDate;
-    private Instant calculatedEndDate;
+    private Instant createEndDate;
     private String timeZone;
     private String obis;
     private String recurrenceCode;
@@ -37,16 +37,16 @@ public class RegisterChangeMessage {
         this.startDate = startDate;
     }
 
+    public Instant getCreateEndDate() {
+        return createEndDate;
+    }
+
+    public void setCreateEndDate(Instant createEndDate) {
+        this.createEndDate = createEndDate;
+    }
+
     public Instant getEndDate() {
         return endDate;
-    }
-
-    public Instant getCalculatedEndDate() {
-        return calculatedEndDate;
-    }
-
-    public void setCalculatedEndDate(Instant calculatedEndDate) {
-        this.calculatedEndDate = calculatedEndDate;
     }
 
     public void setEndDate(Instant endDate) {

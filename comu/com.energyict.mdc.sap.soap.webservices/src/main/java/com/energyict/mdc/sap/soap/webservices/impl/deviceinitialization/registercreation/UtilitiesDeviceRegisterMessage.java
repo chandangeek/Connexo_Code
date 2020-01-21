@@ -5,8 +5,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 
 import com.elster.jupiter.util.Checks;
 
-import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.RegisterChangeMessage;
-
 import java.time.Instant;
 import java.util.Optional;
 
@@ -80,18 +78,6 @@ public class UtilitiesDeviceRegisterMessage {
             setStartDate(requestMessage.getStartDate());
             setEndDate(requestMessage.getEndDate());
             setTimeZone(getTimeZone(requestMessage));
-
-            return this;
-        }
-
-        public UtilitiesDeviceRegisterMessage.Builder from(RegisterChangeMessage requestMessage) {
-            setObis(requestMessage.getObis());
-            setRecurrenceCode(requestMessage.getRecurrenceCode());
-            setLrn(requestMessage.getLrn());
-            setDivisionCategory(requestMessage.getDivisionCategory());
-            setStartDate(requestMessage.getStartDate());
-            setEndDate(requestMessage.getEndDate());
-            setTimeZone(requestMessage.getTimeZone());
 
             return this;
         }

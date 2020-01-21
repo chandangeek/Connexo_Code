@@ -89,8 +89,8 @@ public class MeterRegisterChangeMessageBuilder {
         RegisterChangeMessage register = new RegisterChangeMessage();
         register.setLrn(getLrn(reg));
         register.setStartDate(reg.getStartDate());
-        register.setEndDate(reg.getEndDate());
-        register.setCalculatedEndDate(calculateEndDate(reg));
+        register.setEndDate(calculateEndDate(reg));
+        register.setCreateEndDate(reg.getEndDate());
         register.setTimeZone(getTimeZone(reg));
         register.setObis(getObis(reg));
         register.setRecurrenceCode(getRecurrenceCode(reg));
