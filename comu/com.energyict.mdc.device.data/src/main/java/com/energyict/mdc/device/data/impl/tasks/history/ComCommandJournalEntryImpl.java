@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.tasks.history.ComCommandJournalEntry;
@@ -13,7 +11,6 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.common.tasks.history.JournalEntryVisitor;
 
-import javax.inject.Inject;
 import java.time.Instant;
 
 /**
@@ -27,11 +24,6 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
     private CompletionCode completionCode;
     private String commandDescription;
 
-    @Inject
-    ComCommandJournalEntryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super(ComCommandJournalEntry.class, dataModel, eventService, thesaurus);
-    }
-
     @Override
     public CompletionCode getCompletionCode () {
         return completionCode;
@@ -40,16 +32,6 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
     @Override
     public String getCommandDescription () {
         return this.commandDescription;
-    }
-
-    @Override
-    protected void doDelete() {
-        this.dataModel.remove(this);
-    }
-
-    @Override
-    protected void validateDelete() {
-        // Nothing to validate right now
     }
 
     @Override
@@ -63,8 +45,7 @@ public class ComCommandJournalEntryImpl extends ComTaskExecutionJournalEntryImpl
     }
 
     private ComCommandJournalEntryImpl init(ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription) {
-        this.init(timestamp, this.logLevelFor(completionCode), errorDescription);
-        this.setComTaskExecutionSession(comTaskExecutionSession);
+        this.init(comTaskExecutionSession, timestamp, this.logLevelFor(completionCode), errorDescription);
         this.completionCode = completionCode;
         this.commandDescription = commandDescription;
         return this;

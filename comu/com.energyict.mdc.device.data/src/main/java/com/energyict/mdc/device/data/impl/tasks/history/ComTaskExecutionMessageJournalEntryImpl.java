@@ -4,14 +4,11 @@
 
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionMessageJournalEntry;
 import com.energyict.mdc.common.tasks.history.JournalEntryVisitor;
 
-import javax.inject.Inject;
 import java.time.Instant;
 
 /**
@@ -26,24 +23,9 @@ public class ComTaskExecutionMessageJournalEntryImpl
 
     private String message;
 
-    @Inject
-    ComTaskExecutionMessageJournalEntryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super(ComTaskExecutionMessageJournalEntry.class, dataModel, eventService, thesaurus);
-    }
-
     @Override
     public String getMessage () {
         return this.message;
-    }
-
-    @Override
-    protected void doDelete() {
-        // No specific actions required for deletion of this entity
-    }
-
-    @Override
-    protected void validateDelete() {
-        // No specific actions required to validate the deletion of this entity
     }
 
     @Override
@@ -56,8 +38,7 @@ public class ComTaskExecutionMessageJournalEntryImpl
     }
 
     private ComTaskExecutionMessageJournalEntryImpl init(Instant timestamp, ComTaskExecutionSessionImpl comTaskExecutionSession, ComServer.LogLevel logLevel, String message, String errorDescription) {
-        this.init(timestamp, logLevel, errorDescription);
-        this.setComTaskExecutionSession(comTaskExecutionSession);
+        this.init(comTaskExecutionSession, timestamp, logLevel, errorDescription);
         this.message = message;
         return this;
     }

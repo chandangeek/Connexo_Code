@@ -4,9 +4,6 @@
 
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -18,20 +15,20 @@ import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.Map;
 
-public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutionJournalEntry> extends PersistentIdObject<T> implements ComTaskExecutionJournalEntry {
-
+public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutionJournalEntry> implements ComTaskExecutionJournalEntry {
     public static long ComCommandJournalEntryImplDiscriminator = 0;
     public static long ComTaskExecutionMessageJournalEntryImplDiscriminator = 1;
 
-    public static final Map<String, Class<? extends ComTaskExecutionJournalEntry>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends ComTaskExecutionJournalEntry>>of(
-                    String.valueOf(ComCommandJournalEntryImplDiscriminator), ComCommandJournalEntryImpl.class,
-                    String.valueOf(ComTaskExecutionMessageJournalEntryImplDiscriminator), ComTaskExecutionMessageJournalEntryImpl.class);
+    public static final Map<String, Class<? extends ComTaskExecutionJournalEntry>> IMPLEMENTERS = ImmutableMap.of(
+            String.valueOf(ComCommandJournalEntryImplDiscriminator), ComCommandJournalEntryImpl.class,
+            String.valueOf(ComTaskExecutionMessageJournalEntryImplDiscriminator), ComTaskExecutionMessageJournalEntryImpl.class
+    );
 
     enum Fields {
         ComTaskExecutionSession("comTaskExecutionSession"),
         LogLevel("logLevel"),
         timestamp("timestamp");
+
         private final String fieldName;
 
         Fields(String fieldName) {
@@ -47,29 +44,21 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
     private Instant timestamp;
     private ComServer.LogLevel logLevel;
     private String errorDescription;
-    private Instant modDate;
 
-    ComTaskExecutionJournalEntryImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
-        super(domainClass, dataModel, eventService, thesaurus);
-    }
-
-    protected void init(Instant timestamp, ComServer.LogLevel logLevel, String errorDescription) {
+    protected void init(ComTaskExecutionSession comTaskExecutionSession, Instant timestamp, ComServer.LogLevel logLevel, String errorDescription) {
+        this.comTaskExecutionSession.set(comTaskExecutionSession);
         this.timestamp = timestamp;
         this.logLevel = logLevel;
         this.errorDescription = errorDescription;
     }
 
     @Override
-    public ComTaskExecutionSession getComTaskExecutionSession () {
+    public ComTaskExecutionSession getComTaskExecutionSession() {
         return this.comTaskExecutionSession.get();
     }
 
-    protected void setComTaskExecutionSession(ComTaskExecutionSession comTaskExecutionSession) {
-        this.comTaskExecutionSession.set(comTaskExecutionSession);
-    }
-
     @Override
-    public Instant getTimestamp () {
+    public Instant getTimestamp() {
         return this.timestamp;
     }
 
@@ -79,8 +68,7 @@ public abstract class ComTaskExecutionJournalEntryImpl<T extends ComTaskExecutio
     }
 
     @Override
-    public String getErrorDescription () {
+    public String getErrorDescription() {
         return errorDescription;
     }
-
 }

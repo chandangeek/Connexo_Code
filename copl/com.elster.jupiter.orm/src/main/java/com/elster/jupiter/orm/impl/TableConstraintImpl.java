@@ -184,7 +184,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         Objects.requireNonNull(getTable());
         Objects.requireNonNull(name);
         if (this.getColumns().isEmpty()) {
-            throw new IllegalArgumentException("Column list should not be emty");
+            throw new IllegalArgumentException("Column list should not be empty");
         }
     }
 
