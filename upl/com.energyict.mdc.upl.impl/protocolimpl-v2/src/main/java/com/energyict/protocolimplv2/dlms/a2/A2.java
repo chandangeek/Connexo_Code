@@ -348,27 +348,27 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return getA2Messaging().getSupportedMessages();
+        return getProtocolMessaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return getA2Messaging().executePendingMessages(pendingMessages);
+        return getProtocolMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getA2Messaging().updateSentMessages(sentMessages);
+        return getProtocolMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return getA2Messaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+        return getProtocolMessaging().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return getA2Messaging().prepareMessageContext(device, offlineDevice, deviceMessage);
+        return getProtocolMessaging().prepareMessageContext(device, offlineDevice, deviceMessage);
     }
 
     @Override
@@ -398,7 +398,7 @@ public class A2 extends AbstractDlmsProtocol {
         return "$Date: 2019-11-29 12:00:00 +0200 (Fri, 29 Sep 2019) $";
     }
 
-    private A2Messaging getA2Messaging() {
+    protected A2Messaging getProtocolMessaging() {
         if (messaging == null) {
             messaging = new A2Messaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
         }

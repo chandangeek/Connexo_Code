@@ -678,6 +678,38 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.simPincode, DeviceMessageConstants.simPincodeDefaultTranslation)
             );
         }
+    },
+    WRITE_PUSH_SCHEDULER(4080, "Write push scheduler") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.simPincode, DeviceMessageConstants.simPincodeDefaultTranslation)
+            );
+        }
+    },
+    CONFIGURE_PUSH_SETUP_EI7(4081, "Configure push setup for EI7 protocol") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.autoConnectMode, DeviceMessageConstants.autoConnectModeDefaultTranslation, AutoConnectMode.SpecifiedTime.description, AutoConnectMode.InsideWindow.description),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitions, DeviceMessageConstants.autoConnectRepetitionsDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitionsDelay, DeviceMessageConstants.autoConnectRepetitionsDelayDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.windowAttributeName, DeviceMessageConstants.windowAttributeDefaultTranslation, getPossibleValues(1, 2)),
+                    this.stringSpec(service, DeviceMessageConstants.autoConnectDestionation1, DeviceMessageConstants.autoConnectDestionation1DefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.portNumberAttributeName, DeviceMessageConstants.portNumberAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.autoConnectDayMap, DeviceMessageConstants.autoConnectDayMapDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.autoConnectGSMRegistrationTimeout, DeviceMessageConstants.autoConnectGSMRegistrationTimeoutDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeout, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeoutDefaultTranslation)
+            );
+        }
+    },
+    WRITE_ORPHAN_STATE(4082, "Write orphan state") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.simPincode, DeviceMessageConstants.simPincodeDefaultTranslation)
+            );
+        }
     };
 
     public enum VPNAuthenticationType {

@@ -104,4 +104,15 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
         return Optional.empty();
     }
 
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public NlsService getNlsService() {
+        return nlsService;
+    }
+
+    public Converter getConverter() {
+        return converter;
+    }
 }

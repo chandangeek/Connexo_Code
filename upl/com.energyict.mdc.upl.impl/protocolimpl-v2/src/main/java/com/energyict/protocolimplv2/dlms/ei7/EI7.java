@@ -15,12 +15,15 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dlms.a2.A2;
+import com.energyict.protocolimplv2.dlms.ei7.messages.EI7Messaging;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 
 public class EI7 extends A2 {
+
+    private EI7Messaging messaging = null;
 
     public EI7(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory, nlsService, converter, messageFileExtractor);
@@ -60,6 +63,13 @@ public class EI7 extends A2 {
         getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
         connectWithRetries(publicDlmsSession);
         return publicDlmsSession;
+    }
+
+    protected EI7Messaging getProtocolMessaging() {
+        if (messaging == null) {
+            messaging = new EI7Messaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
+        }
+        return messaging;
     }
 
     @Override
