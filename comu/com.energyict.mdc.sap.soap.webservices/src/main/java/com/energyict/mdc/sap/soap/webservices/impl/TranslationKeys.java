@@ -81,7 +81,7 @@ public enum TranslationKeys implements TranslationKey {
     TIME_ZONE("timeZone", "Time zone"),
     COM_TASK_EXECUTION_ID("comTaskExecutionId", "Communication task execution id"),
     DIVISION_CATEGORY("divisionCategory", "Division category code"),
-    INITIAL_SCHEDULED_READING_DATE("initialScheduledReadingDate", "Initial scheduled reading date"),
+    REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "Requested scheduled reading date"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),

@@ -30,9 +30,7 @@ import com.google.common.base.Strings;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MeterReadingDocumentCreateResultMessage {
 
@@ -232,7 +230,7 @@ public class MeterReadingDocumentCreateResultMessage {
             meterReadingDocumentID.setValue(childExtension.getMeterReadingDocumentId());
             meterReadingDocument.setID(meterReadingDocumentID);
             meterReadingDocument.setMeterReadingReasonCode(childExtension.getReadingReasonCode());
-            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getInitialScheduledReadingDate());
+            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getRequestedScheduledReadingDate());
 
             MtrRdngDocERPRsltCrteReqUtilsMsmtTsk mtrRdngDocERPRsltCrteReqUtilsMsmtTsk = OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqUtilsMsmtTsk();
             MtrRdngDocERPRsltCrteReqUtilsDvce mtrRdngDocERPRsltCrteReqUtilsDvce = OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqUtilsDvce();
@@ -266,7 +264,7 @@ public class MeterReadingDocumentCreateResultMessage {
             meterReadingDocumentID.setValue(childExtension.getMeterReadingDocumentId());
             meterReadingDocument.setID(meterReadingDocumentID);
             meterReadingDocument.setMeterReadingReasonCode(childExtension.getReadingReasonCode());
-            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getInitialScheduledReadingDate());
+            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getRequestedScheduledReadingDate());
 
             com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UtilitiesDeviceID utilitiesDeviceID = BULK_OBJECT_FACTORY.createUtilitiesDeviceID();
             utilitiesDeviceID.setValue(childExtension.getDeviceId().toString());

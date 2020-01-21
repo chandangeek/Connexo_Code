@@ -126,7 +126,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.INITIAL_SCHEDULED_READING_DATE.javaName(), TranslationKeys.INITIAL_SCHEDULED_READING_DATE)
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName(), TranslationKeys.REQUESTED_SCHEDULED_READING_DATE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -367,10 +367,10 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REFERENCE_UUID.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
-            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.INITIAL_SCHEDULED_READING_DATE.databaseName())
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.INITIAL_SCHEDULED_READING_DATE.javaName())
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
         }

@@ -42,7 +42,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         COM_TASK_EXECUTION_ID("comTaskExecutionId", "COM_TASK_EXECUTION_ID"),
         REFERENCE_ID("referenceID", "REFERENCE_ID"),
         REFERENCE_UUID("referenceUuid", "REFERENCE_UUID"),
-        INITIAL_SCHEDULED_READING_DATE("initialScheduledReadingDate", "INITIAL_SCHEDULED_READING_DATE");
+        REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "REQUESTED_READING_DATE");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -107,7 +107,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String referenceUuid;
 
-    private Instant initialScheduledReadingDate;
+    private Instant requestedScheduledReadingDate;
 
     public MeterReadingDocumentCreateResultDomainExtension() {
         super();
@@ -286,12 +286,12 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.referenceUuid = referenceUuid;
     }
 
-    public Instant getInitialScheduledReadingDate() {
-        return initialScheduledReadingDate;
+    public Instant getRequestedScheduledReadingDate() {
+        return requestedScheduledReadingDate;
     }
 
-    public void setInitialScheduledReadingDate(Instant initialScheduledReadingDate) {
-        this.initialScheduledReadingDate = initialScheduledReadingDate;
+    public void setRequestedScheduledReadingDate(Instant requestedScheduledReadingDate) {
+        this.requestedScheduledReadingDate = requestedScheduledReadingDate;
     }
 
     @Override
@@ -318,7 +318,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.setComTaskExecutionId((Long) propertyValues.getProperty(FieldNames.COM_TASK_EXECUTION_ID.javaName()));
         this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
         this.setReferenceUuid((String) propertyValues.getProperty(FieldNames.REFERENCE_UUID.javaName()));
-        this.setInitialScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.INITIAL_SCHEDULED_READING_DATE.javaName()));
+        this.setRequestedScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName()));
     }
 
     @Override
@@ -343,7 +343,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         propertySetValues.setProperty(FieldNames.COM_TASK_EXECUTION_ID.javaName(), this.getComTaskExecutionId());
         propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());
         propertySetValues.setProperty(FieldNames.REFERENCE_UUID.javaName(), this.getReferenceUuid());
-        propertySetValues.setProperty(FieldNames.INITIAL_SCHEDULED_READING_DATE.javaName(), this.getInitialScheduledReadingDate());
+        propertySetValues.setProperty(FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName(), this.getRequestedScheduledReadingDate());
     }
 
     @Override
