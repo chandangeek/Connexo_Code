@@ -195,7 +195,6 @@ public class MeterReadingDocumentCreateResultMessage {
         }
 
 
-
         private com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.BusinessDocumentMessageHeader createBulkItemHeader(MeterReadingDocumentCreateResultDomainExtension extension, Instant now, String meteringSystemId) {
             com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UUID uuid =
                     BULK_OBJECT_FACTORY.createUUID();
@@ -233,7 +232,7 @@ public class MeterReadingDocumentCreateResultMessage {
             meterReadingDocumentID.setValue(childExtension.getMeterReadingDocumentId());
             meterReadingDocument.setID(meterReadingDocumentID);
             meterReadingDocument.setMeterReadingReasonCode(childExtension.getReadingReasonCode());
-            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getScheduledReadingDate());
+            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getInitialScheduledReadingDate());
 
             MtrRdngDocERPRsltCrteReqUtilsMsmtTsk mtrRdngDocERPRsltCrteReqUtilsMsmtTsk = OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqUtilsMsmtTsk();
             MtrRdngDocERPRsltCrteReqUtilsDvce mtrRdngDocERPRsltCrteReqUtilsDvce = OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqUtilsDvce();
@@ -267,7 +266,7 @@ public class MeterReadingDocumentCreateResultMessage {
             meterReadingDocumentID.setValue(childExtension.getMeterReadingDocumentId());
             meterReadingDocument.setID(meterReadingDocumentID);
             meterReadingDocument.setMeterReadingReasonCode(childExtension.getReadingReasonCode());
-            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getScheduledReadingDate());
+            meterReadingDocument.setScheduledMeterReadingDate(childExtension.getInitialScheduledReadingDate());
 
             com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.UtilitiesDeviceID utilitiesDeviceID = BULK_OBJECT_FACTORY.createUtilitiesDeviceID();
             utilitiesDeviceID.setValue(childExtension.getDeviceId().toString());
@@ -291,7 +290,7 @@ public class MeterReadingDocumentCreateResultMessage {
                 meterReadingDocument.setResult(result);
                 documentsSuccessfullyProcessed++;
             }
-            
+
             return meterReadingDocument;
         }
 

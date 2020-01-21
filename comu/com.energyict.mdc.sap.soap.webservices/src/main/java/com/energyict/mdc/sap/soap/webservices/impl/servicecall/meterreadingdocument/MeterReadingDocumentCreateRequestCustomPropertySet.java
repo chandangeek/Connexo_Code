@@ -126,6 +126,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.INITIAL_SCHEDULED_READING_DATE.javaName(), TranslationKeys.INITIAL_SCHEDULED_READING_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.SCHEDULED_READING_DATE.javaName(), TranslationKeys.SCHEDULED_READING_DATE)
                         .describedAs(TranslationKeys.SCHEDULED_READING_DATE)
                         .fromThesaurus(thesaurus)
@@ -305,6 +310,12 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.INITIAL_SCHEDULED_READING_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.INITIAL_SCHEDULED_READING_DATE.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
         }
