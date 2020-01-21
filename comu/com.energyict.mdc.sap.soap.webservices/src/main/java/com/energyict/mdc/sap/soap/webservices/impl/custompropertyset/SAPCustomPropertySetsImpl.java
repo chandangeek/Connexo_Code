@@ -991,8 +991,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where("startTime").isGreaterThanOrEqual(now)))
-                .sorted(Order.ascending("startTime"))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
                 .map(DeviceRegisterSAPInfoDomainExtension::getRange)
                 .findFirst()
                 .orElse(null);
@@ -1001,8 +1001,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
-                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where("startTime").isGreaterThanOrEqual(now)))
-                .sorted(Order.ascending("startTime"))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
+                .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
                 .map(DeviceChannelSAPInfoDomainExtension::getRange)
                 .findFirst()
                 .orElse(null);
