@@ -631,7 +631,6 @@ Ext.define('Uni.service.Search', {
         me.filters.add(filter);
         me.onFilterChange(filter);
         me.saveState();
-        me.changedFiltersNotYetApplied = me.bulkAction == true ? false : true;
         Ext.resumeLayouts(true);
     },
 
@@ -685,6 +684,7 @@ Ext.define('Uni.service.Search', {
             });
 
         }
+        me.changedFiltersNotYetApplied = me.bulkAction;
         me.fireEvent('change', me.filters, filter);
 
     },
