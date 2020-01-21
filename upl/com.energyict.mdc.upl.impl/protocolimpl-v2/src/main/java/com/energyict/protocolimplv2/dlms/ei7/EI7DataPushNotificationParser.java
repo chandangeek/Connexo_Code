@@ -4,15 +4,16 @@
 
 package com.energyict.protocolimplv2.dlms.ei7;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.identifiers.*;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.DataParseException;
@@ -20,7 +21,8 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 public class EI7DataPushNotificationParser {
@@ -63,7 +65,6 @@ public class EI7DataPushNotificationParser {
         }
 
         int length = ProtocolTools.getIntFromBytes(header, 6, 2);
-
         byte[] frame = new byte[length];
         readBytes = getComChannel().read(frame);
         if (readBytes != length) {
