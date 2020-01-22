@@ -51,29 +51,28 @@
 
     <!-- Repositories specification. -->
     <repositories>
-        <repository>
-            <id>eict-public-snapshots</id>
-            <name>EnergyICT snapshots repository group</name>
-            <url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
-            </url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>eict-public</id>
-            <name>EnergyICT public repository group</name>
-            <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
-            <releases>
+		<repository>
+            <id>eict-releases</id>
+            <name>EnergyICT releases repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+			<releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+		<repository>
+			<id>eict-snapshots</id>
+            <name>EnergyICT snapshots repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+			<releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+		</repository>
         <repository>
             <id>eict-third-party</id>
             <name>EnergyICT public releases repository</name>
@@ -85,27 +84,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <!--repository>
-            <id>JBoss</id>
-            <name>JBoss repository</name>
-            <url>https://repository.jboss.com/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository-->
     </repositories>
 
     <!-- Plugin repository specification -->
@@ -122,25 +100,14 @@
             </snapshots>
         </pluginRepository>
         <pluginRepository>
-            <id>plugin-snapshots</id>
+            <id>eict-plugins-snapshots</id>
             <name>EnergyICT plugin repository</name>
-            <url>http://linux2.eict.local/nexus/content/repositories/plugins-snapshots/</url>
+            <url>http://source.eict.vpdc/nexus/content/repositories/plugins-snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>eict-public</id>
-            <name>EnergyICT public repository group</name>
-            <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
         <pluginRepository>
@@ -508,7 +475,8 @@
                                     <comparisonVersion>${baseline}</comparisonVersion>
                                     <failOnError>true</failOnError>
                                     <artifactRepoIds>
-                                        <artifactRepoId>eict-public</artifactRepoId>
+                                        <artifactRepoId>eict-releases</artifactRepoId>
+                                        <artifactRepoId>eict-snapshots</artifactRepoId>
                                     </artifactRepoIds>
                                 </configuration>
                             </execution>

@@ -279,6 +279,7 @@ public class ServiceCallCommands {
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
         childDomainExtension.setReferenceID(message.getHeaderId());
         childDomainExtension.setReferenceUuid(message.getHeaderUUID());
+        childDomainExtension.setRequestedScheduledReadingDate(message.getScheduledMeterReadingDate());
 
         Optional<SAPMeterReadingDocumentReason> provider = WebServiceActivator.findReadingReasonProvider(childDomainExtension.getReadingReasonCode());
         if (provider.isPresent()) {

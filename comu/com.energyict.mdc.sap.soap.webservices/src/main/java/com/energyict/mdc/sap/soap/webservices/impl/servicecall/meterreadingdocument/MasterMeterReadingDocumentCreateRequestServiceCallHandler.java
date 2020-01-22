@@ -280,6 +280,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             childDomainExtension.setExtraDataSource(requestDomainExtension.getExtraDataSource());
             childDomainExtension.setFutureCase(requestDomainExtension.isFutureCase());
             childDomainExtension.setLrn(requestDomainExtension.getLrn());
+            childDomainExtension.setRequestedScheduledReadingDate(requestDomainExtension.getRequestedScheduledReadingDate());
             childDomainExtension.setScheduledReadingDate(requestDomainExtension.getScheduledReadingDate());
             childDomainExtension.setReferenceID(requestDomainExtension.getReferenceID());
             childDomainExtension.setReferenceUuid(requestDomainExtension.getReferenceUuid());

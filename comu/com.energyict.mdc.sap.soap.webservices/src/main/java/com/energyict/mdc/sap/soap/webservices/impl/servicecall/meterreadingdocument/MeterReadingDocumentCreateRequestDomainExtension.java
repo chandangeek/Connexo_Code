@@ -42,7 +42,9 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap"),
 
         REFERENCE_ID("referenceID", "REFERENCE_ID"),
-        REFERENCE_UUID("referenceUuid", "REFERENCE_UUID");
+        REFERENCE_UUID("referenceUuid", "REFERENCE_UUID"),
+
+        REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "REQUESTED_READING_DATE");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -102,6 +104,8 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
     private String referenceID;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String referenceUuid;
+
+    private Instant requestedScheduledReadingDate;
 
 
     public MeterReadingDocumentCreateRequestDomainExtension() {
@@ -217,9 +221,9 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
     }
 
     public void setCancelledBySap(boolean isCancelledBySap) {
-        if(isCancelledBySap){
+        if (isCancelledBySap) {
             setCancelledBySap("Yes");
-        }else{
+        } else {
             setCancelledBySap("No");
         }
     }
@@ -238,6 +242,14 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
 
     public void setReferenceUuid(String referenceUuid) {
         this.referenceUuid = referenceUuid;
+    }
+
+    public Instant getRequestedScheduledReadingDate() {
+        return requestedScheduledReadingDate;
+    }
+
+    public void setRequestedScheduledReadingDate(Instant requestedScheduledReadingDate) {
+        this.requestedScheduledReadingDate = requestedScheduledReadingDate;
     }
 
 
@@ -260,6 +272,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         this.setCancelledBySap((String) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
         this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
         this.setReferenceUuid((String) propertyValues.getProperty(FieldNames.REFERENCE_UUID.javaName()));
+        this.setRequestedScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName()));
     }
 
     @Override
@@ -279,13 +292,14 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.getCancelledBySap());
         propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());
         propertySetValues.setProperty(FieldNames.REFERENCE_UUID.javaName(), this.getReferenceUuid());
+        propertySetValues.setProperty(FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName(), this.getRequestedScheduledReadingDate());
     }
 
     @Override
     public void validateDelete() {
     }
 
-    public ServiceCall getServiceCall(){
+    public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
 }
