@@ -94,7 +94,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                     sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                 } else {
-                    processDeviceRegisterCreation(extension);
+                    processDeviceRegisterCreation(extension, device.get());
                 }
             } catch (SAPWebServiceException sapEx) {
                 failServiceCallWithException(extension, sapEx);
@@ -129,50 +129,41 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         serviceCall.requestTransition(DefaultState.FAILED);
     }
 
-    private void processDeviceRegisterCreation(MeterRegisterChangeRequestDomainExtension extension) {
-        ServiceCall subParent = extension.getServiceCall().getParent().orElseThrow(() -> new IllegalStateException("Can not find parent for service call"));
-        SubMasterMeterRegisterChangeRequestDomainExtension subParentExtension = subParent.getExtensionFor(new SubMasterMeterRegisterChangeRequestCustomPropertySet())
-                .orElseThrow(() -> new IllegalStateException("Can not find domain extension for parent service call"));
+    private void processDeviceRegisterCreation(MeterRegisterChangeRequestDomainExtension extension, Device device) {
+        String recurrence = extension.getRecurrenceCode();
+        String obis = extension.getObis();
+        String divisionCategory = extension.getDivisionCategory();
+        CIMPattern cimPattern = null;
 
-        Optional<Device> device = sapCustomPropertySets.getDevice(subParentExtension.getDeviceId());
-        if (device.isPresent()) {
-            String recurrence = extension.getRecurrenceCode();
-            String obis = extension.getObis();
-            String divisionCategory = extension.getDivisionCategory();
-            CIMPattern cimPattern = null;
+        if (recurrence == null) {
+            recurrence = "0";
+        }
 
-            if (recurrence == null) {
-                recurrence = "0";
-            }
+        if (obis == null && divisionCategory == null) {
+            failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
+            return;
+        }
 
-            if (obis == null && divisionCategory == null) {
-                failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
+        Pair<MacroPeriod, TimeAttribute> period = webServiceActivator.getRecurrenceCodeMap().get(recurrence);
+        if (period == null) {
+            failServiceCall(extension, MessageSeeds.NO_UTILITIES_MEASUREMENT_RECURRENCE_CODE_MAPPING, recurrence,
+                    WebServiceActivator.REGISTER_RECURRENCE_CODE);
+            return;
+        }
+
+        if (divisionCategory != null) {
+            cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
+            if (cimPattern == null) {
+                failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
+                        WebServiceActivator.REGISTER_DIVISION_CATEGORY_CODE);
                 return;
             }
+        }
 
-            Pair<MacroPeriod, TimeAttribute> period = webServiceActivator.getRecurrenceCodeMap().get(recurrence);
-            if (period == null) {
-                failServiceCall(extension, MessageSeeds.NO_UTILITIES_MEASUREMENT_RECURRENCE_CODE_MAPPING, recurrence,
-                        WebServiceActivator.REGISTER_RECURRENCE_CODE);
-                return;
-            }
-
-            if (divisionCategory != null) {
-                cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
-                if (cimPattern == null) {
-                    failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
-                            WebServiceActivator.REGISTER_DIVISION_CATEGORY_CODE);
-                    return;
-                }
-            }
-
-            if (period.getFirst() == MacroPeriod.NOTAPPLICABLE && period.getLast() == TimeAttribute.NOTAPPLICABLE) {
-                processRegister(device.get(), extension.getServiceCall(), obis, period, cimPattern);
-            } else {
-                processChannel(device.get(), extension.getServiceCall(), obis, period, cimPattern);
-            }
+        if (period.getFirst() == MacroPeriod.NOTAPPLICABLE && period.getLast() == TimeAttribute.NOTAPPLICABLE) {
+            processRegister(device, extension.getServiceCall(), obis, period, cimPattern);
         } else {
-            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, subParentExtension.getDeviceId());
+            processChannel(device, extension.getServiceCall(), obis, period, cimPattern);
         }
     }
 

@@ -74,6 +74,7 @@ public class MasterMeterRegisterChangeRequestServiceCallHandler implements Servi
             case FAILED:
             case SUCCESSFUL:
             case PARTIAL_SUCCESS:
+            case REJECTED:
                 if (ServiceCallHelper.isLastChild(ServiceCallHelper.findChildren(parentServiceCall))) {
                     if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);

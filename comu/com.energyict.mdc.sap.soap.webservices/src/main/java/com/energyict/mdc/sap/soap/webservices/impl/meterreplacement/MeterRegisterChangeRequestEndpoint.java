@@ -187,8 +187,10 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         subParentDomainExtension.setDeviceId(message.getDeviceId());
         if (message.getRegisters().size() == 1) {
             subParentDomainExtension.setCreateRequest(false);
-        } else {
+        } else if (message.getRegisters().size() > 1) {
             subParentDomainExtension.setCreateRequest(true);
+        } else {
+            subParentDomainExtension.setCreateRequest(false);
         }
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
@@ -199,8 +201,12 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         RegisterChangeMessage register;
         if (message.getRegisters().size() == 1) {
             register = message.getRegisters().get(0);
-        } else {
+        } else if (message.getRegisters().size() > 1) {
             register = message.getRegisters().get(message.getRegisters().size() - 1);
+        } else {
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            subParent.requestTransition(DefaultState.REJECTED);
+            return;
         }
         if (register.isValid()) {
             createChildServiceCall(subParent, register);
