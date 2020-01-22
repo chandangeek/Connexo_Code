@@ -58,6 +58,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -435,6 +436,20 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7, 1), UpgraderV10_7_1.class)
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
                             .build());
+
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                List<Long> dataExportTaskIds = this.findExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
+                List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
+                        .withExportTask(dataExportTaskIds)
+                        .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
+                        .find();
+                dataExportOccurrences.stream()
+                        .forEach(o -> {
+                            ((IDataExportOccurrence) o).end(DataExportStatus.FAILED);
+                            ((IDataExportOccurrence) o).update();
+                        });
+                transactionContext.commit();
+            }
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;

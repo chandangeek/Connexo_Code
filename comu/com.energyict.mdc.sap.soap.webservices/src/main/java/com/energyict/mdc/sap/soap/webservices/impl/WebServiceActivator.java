@@ -103,8 +103,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
-import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 import com.google.common.collect.ImmutableMap;
@@ -539,7 +539,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         List<ServiceCall> serviceCalls = dataExportService.getDataExportServiceCallType().findServiceCalls(DefaultState.ONGOING);
         serviceCalls.stream()
                 .forEach(sC -> dataExportService.getDataExportServiceCallType()
-                        .tryFailingServiceCall(sC, MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
+                .tryFailingServiceCall(sC, MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
     }
 
     private void createOrUpdateCheckStatusChangeCancellationTask() {
