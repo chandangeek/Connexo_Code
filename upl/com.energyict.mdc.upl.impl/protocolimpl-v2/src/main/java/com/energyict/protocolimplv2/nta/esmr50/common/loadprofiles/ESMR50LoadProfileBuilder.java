@@ -247,7 +247,7 @@ public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40Lo
         return loadProfileConfigurationList;
     }
 
-    private static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
+    public static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
         final String[] obisLetters = obisCode.toString().split("\\.");
         final String letter = String.valueOf(value);
 

@@ -18,7 +18,7 @@ public class CryptoKaifa extends com.energyict.protocolimplv2.nta.dsmr40.ibm.Cry
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2020-01-02";
+        return "Crypto version: 2020-01-22";
     }
 
     @Override
