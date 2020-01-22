@@ -333,10 +333,10 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.AM540_DLMS).get();
                 createBeaconSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AM540).withDeviceType(deviceType).get(), serialNumber, DeviceTypeTpl.AM540_DLMS, devicename);
             } else if (deviceTypeTpl == DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_DLMS) {
-                String devicename = createDevice(configuration, serialNumber, deviceTypeTpl);
+                String deviceName = createDevice(configuration, serialNumber, deviceTypeTpl);
                 DeviceType deviceType = Builders.from(DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE).get();
                 createSlaveDevice(Builders.from(DeviceConfigurationTpl.DEFAULT_AS220_SLAVE).withDeviceType(deviceType).get(),
-                         serialNumber, "Slave " + Constants.Device.GAS_PREFIX, DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE, devicename);
+                         serialNumber, "Slave " + Constants.Device.GAS_PREFIX, DeviceTypeTpl.ELSTER_AS220_AS1440_AM500_MBUS_SLAVE, deviceName);
             } else {
                 String devicename = createDevice(configuration, serialNumber, deviceTypeTpl);
                 if (deviceTypeTpl == DeviceTypeTpl.Elster_AS1440 || deviceTypeTpl == DeviceTypeTpl.Elster_A1800) {
