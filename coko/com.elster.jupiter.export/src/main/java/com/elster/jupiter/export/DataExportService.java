@@ -78,6 +78,4 @@ public interface DataExportService {
     StructureMarker forRoot(String root);
 
     DataExportServiceCallType getDataExportServiceCallType();
-
-    void cancelExportTask(Long historyId, Long taskId);
 }

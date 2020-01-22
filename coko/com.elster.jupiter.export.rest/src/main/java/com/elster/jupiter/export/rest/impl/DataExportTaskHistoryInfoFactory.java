@@ -209,16 +209,13 @@ public class DataExportTaskHistoryInfoFactory {
         if (DataExportStatus.BUSY.equals(dataExportStatus)) {
             info.statusPrefix = thesaurus.getFormat(TranslationKeys.SINCE).format(statusTranslation);
             info.statusDate = info.startedOn;
-            info.statusId = 0;
         } else if ((DataExportStatus.FAILED.equals(dataExportStatus)) || (DataExportStatus.SUCCESS.equals(dataExportStatus))) {
             info.statusPrefix = thesaurus.getFormat(TranslationKeys.ON).format(statusTranslation);
             info.statusDate = info.finishedOn;
-            info.statusId = 1;
         } else {
             info.statusPrefix = statusTranslation;
-            info.statusId = 2;
         }
-
+        info.statusId = DataExportStatus.BUSY.ordinal();
 
     }
 

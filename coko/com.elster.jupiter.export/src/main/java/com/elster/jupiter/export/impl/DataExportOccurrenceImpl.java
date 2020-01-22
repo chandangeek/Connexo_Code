@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
 
@@ -103,11 +104,6 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     @Override
     public DataExportStatus getStatus() {
         return status;
-    }
-
-    @Override
-    public void setStatus(DataExportStatus dataExportStatus){
-        status = dataExportStatus;
     }
 
     @Override
@@ -246,5 +242,17 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     @Override
     public RecurrentTask getRecurrentTask() {
         return this.getTaskOccurrence().getRecurrentTask();
+    }
+
+    @Override
+    public void cancel(){
+        if(getStatus().equals(DataExportStatus.BUSY)) {
+            status = DataExportStatus.FAILED;
+            dataModel.mapper(DataExportOccurrenceImpl.class).update(this, "status");
+
+            Logger logger = Logger.getAnonymousLogger();
+            logger.addHandler(getTaskOccurrence().createTaskLogHandler(getRecurrentTask()).asHandler());
+            logger.info(thesaurus.getSimpleFormat(MessageSeeds.OCCURRENCE_HAS_BEEN_CANCELLED).format());
+        }
     }
 }

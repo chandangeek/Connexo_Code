@@ -558,27 +558,6 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
-    public void cancelExportTask(Long historyId, Long taskId) {
-        findExportTask(taskId).ifPresent(exportTask ->{
-
-            DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
-                    .setId(historyId).stream()
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
-
-            if(dataExportOccurrence.getStatus().equals(DataExportStatus.BUSY)) {
-                dataExportOccurrence.setStatus(DataExportStatus.FAILED);
-                dataModel.mapper(DataExportOccurrenceImpl.class).update((DataExportOccurrenceImpl) dataExportOccurrence, "status");
-
-                Logger logger = Logger.getAnonymousLogger();
-                logger.addHandler(dataExportOccurrence.getTaskOccurrence().createTaskLogHandler(dataExportOccurrence.getRecurrentTask()).asHandler());
-                logger.severe(thesaurus.getSimpleFormat(MessageSeeds.OCCURRENCE_HAS_BEEN_CANCELLED).format());
-            }
-
-        });
-    }
-
-    @Override
     public void removeExportDirectory(AppServer appServer) {
         Optional<DirectoryForAppServer> appServerRef = dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName());
         appServerRef.ifPresent(dataModel::remove);
