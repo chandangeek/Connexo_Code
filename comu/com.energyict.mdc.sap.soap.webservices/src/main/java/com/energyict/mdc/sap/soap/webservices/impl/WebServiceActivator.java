@@ -7,7 +7,10 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -106,7 +109,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHan
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -465,6 +467,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadDivisionCategoryCodeMap();
 
         failOngoingExportTaskServiceCalls();
+        failOngoingExportTaskOccurences();
     }
 
     private void loadDeviceTypesMap() {
@@ -491,7 +494,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                             String[] codes = e[1].split(",");
                             return Pair.of(MacroPeriod.get(Integer.parseInt(codes[0].trim())), TimeAttribute.get(Integer.parseInt(codes[1].trim())));
                         }));
-             } else {
+            } else {
                 recurrenceCodeMap = Collections.emptyMap();
             }
         } catch (Exception ex) {
@@ -540,6 +543,19 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         serviceCalls.stream()
                 .forEach(sC -> dataExportService.getDataExportServiceCallType()
                 .tryFailingServiceCall(sC, MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
+    }
+
+    private void failOngoingExportTaskOccurences() {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            List<Long> dataExportTaskIds = dataExportService.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
+            List<? extends DataExportOccurrence> dataExportOccurrences = dataExportService.getDataExportOccurrenceFinder()
+                    .withExportTask(dataExportTaskIds)
+                    .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
+                    .find();
+            dataExportOccurrences.stream()
+                    .forEach(o -> ((DataExportOccurrence) o).updateStatus(DataExportStatus.FAILED));
+            transactionContext.commit();
+        }
     }
 
     private void createOrUpdateCheckStatusChangeCancellationTask() {

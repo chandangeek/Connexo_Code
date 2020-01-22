@@ -249,4 +249,10 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         exportedDataInterval = Interval.of(instantRange);
         exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
     }
+
+    @Override
+    public void updateStatus(DataExportStatus status) {
+        this.end(status);
+        this.update();
+    }
 }
