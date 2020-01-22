@@ -22,6 +22,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterBulkChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
@@ -93,6 +94,12 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
                         if (!isAnyActiveEndpoint(MeterRegisterBulkChangeConfirmation.NAME)) {
                             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                                     MeterRegisterBulkChangeConfirmation.NAME);
+                        }
+                        if (message.getMeterRegisterChangeMessages().stream().anyMatch(m -> m.getRegisters().size() > 1)) {
+                            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
+                                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
+                                        UtilitiesDeviceRegisteredBulkNotification.NAME);
+                            }
                         }
                         createServiceCallAndTransition(message);
                     });
@@ -193,19 +200,34 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         subParentDomainExtension.setRequestId(message.getId());
         subParentDomainExtension.setUuid(message.getUuid());
         subParentDomainExtension.setDeviceId(message.getDeviceId());
+        if (message.getRegisters().size() == 1) {
+            subParentDomainExtension.setCreateRequest(false);
+        } else if (message.getRegisters().size() > 1) {
+            subParentDomainExtension.setCreateRequest(true);
+        } else {
+            subParentDomainExtension.setCreateRequest(false);
+        }
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(subParentDomainExtension);
         sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         ServiceCall subParent = serviceCallBuilder.create();
 
-        message.getRegisters().forEach(register -> {
-            if (register.isValid()) {
-                createChildServiceCall(subParent, register);
-            } else {
-                sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT);
-            }
-        });
+        RegisterChangeMessage register;
+        if (message.getRegisters().size() == 1) {
+            register = message.getRegisters().get(0);
+        } else if (message.getRegisters().size() > 1) {
+            register = message.getRegisters().get(message.getRegisters().size() - 1);
+        } else {
+            sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            subParent.requestTransition(DefaultState.REJECTED);
+            return;
+        }
+        if (register.isValid()) {
+            createChildServiceCall(subParent, register);
+        } else {
+            sendProcessError(messages, message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+        }
         if (!ServiceCallHelper.findChildren(subParent).isEmpty()) {
             subParent.requestTransition(DefaultState.PENDING);
         } else {
@@ -220,7 +242,12 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         MeterRegisterChangeRequestDomainExtension childDomainExtension = new MeterRegisterChangeRequestDomainExtension();
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setEndDate(message.getEndDate());
+        childDomainExtension.setCreateEndDate(message.getCreateEndDate());
         childDomainExtension.setTimeZone(message.getTimeZone());
+        childDomainExtension.setObis(message.getObis());
+        childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());
+        childDomainExtension.setDivisionCategory(message.getDivisionCategory());
+        childDomainExtension.setStartDate(message.getStartDate());
 
         ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
