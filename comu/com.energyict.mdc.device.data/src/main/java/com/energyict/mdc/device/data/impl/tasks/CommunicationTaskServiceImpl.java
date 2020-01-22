@@ -736,14 +736,55 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private SqlBuilder initComTaskExecFinderSqlBuilder(DataMapper<ComTaskExecution> mapper) {
-        SqlBuilder sqlBuilder = mapper.builder("cte", "FIRST_ROWS(1) LEADING(cte) USE_NL(ct)");
+        SqlBuilder sqlBuilder = new SqlBuilder("SELECT ");
+        sqlBuilder.append("t.ID, t.VERSIONCOUNT, t.CREATETIME, t.MODTIME, " +
+                "t.USERNAME, t.DISCRIMINATOR, t.DEVICE, t.COMTASK, t.COMSCHEDULE, t.NEXTEXECUTIONSPECS, " +
+                "t.LASTEXECUTIONTIMESTAMP, t.NEXTEXECUTIONTIMESTAMP, t.COMPORT, t.OBSOLETE_DATE, t.PRIORITY, " +
+                "t.USEDEFAULTCONNECTIONTASK, t.CURRENTRETRYCOUNT, t.PLANNEDNEXTEXECUTIONTIMESTAMP, t.EXECUTIONPRIORITY, " +
+                "t.EXECUTIONSTART, t.LASTSUCCESSFULCOMPLETION, t.LASTEXECUTIONFAILED, t.ONHOLD, t.CONNECTIONTASK, " +
+                "t.IGNORENEXTEXECSPECS, t.CONNECTIONFUNCTION, t.LASTSESSION, t.LASTSESS_HIGHESTPRIOCOMPLCODE, " +
+                "t.LASTSESS_SUCCESSINDICATOR");
+        sqlBuilder.append(" FROM (");
+        sqlBuilder.append(mapper.builderWithAdditionalColumns("cte", "row_number() over (ORDER BY cte.nextexecutiontimestamp, cte.priority, cte.connectiontask) as rn").toString());
+        sqlBuilder.append(" LEFT JOIN ");
+        sqlBuilder.append(TableSpecs.DDC_HIPRIOCOMTASKEXEC.name());
+        sqlBuilder.append(" hpcte on cte.ID = hpcte.COMTASKEXECUTION");
         sqlBuilder.append(", ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
         sqlBuilder.append(" ct");
-        sqlBuilder.append(" where ct.status = 0");
+        sqlBuilder.append(" WHERE hpcte.COMTASKEXECUTION is null");
+        sqlBuilder.append("   and ct.status = 0");
         sqlBuilder.append("   and ct.comport is null");
         sqlBuilder.append("   and ct.obsolete_date is null");
         return sqlBuilder;
+    }
+
+    private List<ComTaskExecution>  testGetPendingComTasksFor(OutboundComPort comPort) {
+        List<OutboundComPortPool> comPortPools =
+                this.deviceDataModelService
+                        .engineConfigurationService()
+                        .findContainingComPortPoolsForComPort(comPort)
+                        .stream()
+                        .filter(ComPortPool::isActive)
+                        .collect(Collectors.toList());
+        Instant nowInSeconds = this.deviceDataModelService.clock().instant();
+        String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
+        return deviceDataModelService.dataModel().stream(ComTaskExecution.class)
+                .join(ConnectionTask.class)
+                .filter(Where.where(connectionTask + ConnectionTaskFields.STATUS.fieldName()).isNotEqual(0)
+                        .and(Where.where(connectionTask + ConnectionTaskFields.COM_PORT.fieldName()).isNull())
+                        .and(Where.where(connectionTask + ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull())
+                        .and(Where.where(connectionTask + ConnectionTaskFields.COM_PORT_POOL.fieldName()).in(comPortPools))
+                        .and(Where.where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                        .and(Where.where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                        .and(Where.where(connectionTask + ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds))
+                        .and(Where.where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(nowInSeconds))
+                        )
+                .limit(2000)
+                .sorted(Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
+                        Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()),
+                        Order.ascending(ComTaskExecutionFields.CONNECTIONTASK.fieldName()))
+                .select();
     }
 
     @Override
@@ -782,6 +823,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" and (NVL(ct.comwindowend, 99999000) > "); // max possible value of milisecondsSinceMidnight is 86399000
             sqlBuilder.addLong(msSinceMidnight);
             sqlBuilder.append(" or ct.comwindowend = 0) ");
+            sqlBuilder.append(") t");
+            sqlBuilder.append(" WHERE rn <= ");
+            sqlBuilder.addLong(2600);
             sqlBuilder.append(getOrderForPlannedComTaskExecutions());
             return mapper.fetcher(sqlBuilder);
         } else {
