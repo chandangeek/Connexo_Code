@@ -1,20 +1,29 @@
 package com.elster.jupiter.demo.impl.builders.type;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import javax.inject.Inject;
+import java.util.function.Consumer;
 
-public class AttachDeviceSAPInfoCPSPostBuilder extends AbstractAttachDeviceSAPInfoCPSPostBuilder {
+public class AttachDeviceSAPInfoCPSPostBuilder implements Consumer<DeviceType> {
 
     public static final String CPS_ID = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceSAPInfoCustomPropertySet";
 
+    private final CustomPropertySetService customPropertySetService;
+
     @Inject
     public AttachDeviceSAPInfoCPSPostBuilder(CustomPropertySetService customPropertySetService) {
-        super(customPropertySetService);
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
-    protected String getCpsId() {
-        return CPS_ID;
+    public void accept(DeviceType deviceType) {
+        if (deviceType.getCustomPropertySets()
+                .stream()
+                .filter(rcps -> rcps.getCustomPropertySet() != null)
+                .noneMatch(rcps -> CPS_ID.equals(rcps.getCustomPropertySet().getId()))) {
+            this.customPropertySetService.findActiveCustomPropertySet(CPS_ID).ifPresent(deviceType::addCustomPropertySet);
+        }
     }
 }

@@ -20,7 +20,7 @@ public enum ReadingTypeTpl implements Template<ReadingType, ReadingTypeBuilder> 
         this.mrid = mrid;
     }
 
-    public String getMrid(){
+    public String getMRID(){
         return mrid;
     }
 

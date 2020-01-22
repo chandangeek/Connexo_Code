@@ -21,16 +21,6 @@ public enum TranslationKeys implements TranslationKey {
     EMI_PROPERTY_MAX_CURRENT_RATING(DeviceEMeterInfoCustomPropertySet.PREFIX + ".maxCurrentRating", "Max current rating"),
     EMI_PROPERTY_MAX_VOLTAGE(DeviceEMeterInfoCustomPropertySet.PREFIX + ".maxVoltage", "Max voltage"),
 
-    SDI_NAME(DeviceSAPInfoCustomPropertySet.PREFIX + ".name", "End device SAP info"),
-    SDI_PROPERTY_USAGE_TYPE(DeviceSAPInfoCustomPropertySet.PREFIX + ".usageType", "Usage type"),
-    SDI_PROPERTY_IN_USE(DeviceSAPInfoCustomPropertySet.PREFIX + ".inUse", "In use"),
-
-    SCI_NAME(ChannelSAPInfoCustomPropertySet.PREFIX + ".name", "End device channel SAP info"),
-    SCI_PROPERTY_LOGICAL_REGISTER_NUMBER(ChannelSAPInfoCustomPropertySet.PREFIX + ".logicalRegisterNumber", "Logical register number"),
-    SCI_PROPERTY_PROFILE_NUMBER(ChannelSAPInfoCustomPropertySet.PREFIX + ".profileNumber", "Profile number"),
-    SCI_PROPERTY_IN_USE(ChannelSAPInfoCustomPropertySet.PREFIX + ".inUse", "In use"),
-    SCI_PROPERTY_BILLING_FACTOR(ChannelSAPInfoCustomPropertySet.PREFIX + ".billingFactor", "Billing factor"),
-
     DMI_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".name", "Manufacturer-info"),
     DMI_DOMAIN_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".domain.name", "Device type"),
     DMI_MANUFACTURER_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".manufacturername", "Manufacturer Name"),
