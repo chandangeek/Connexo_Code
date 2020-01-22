@@ -50,7 +50,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
             return true;
         }
 
-        boolean hasExecution = false;
+        boolean comTaskEnablementHasExecution = false;
         Map<String, ConnectionTask<?,?>> deviceConnectionTasks = device.getConnectionTasks().stream().collect(Collectors.toMap(ConnectionTask::getName, connectionTask->connectionTask));
 
         for(ComTaskEnablement comTaskEnablement:device.getDeviceConfiguration().getComTaskEnablements()){
@@ -58,9 +58,9 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                 if(comTaskEnablement.getComTask().getId() == comTaskExecution.getComTask().getId()) {
                     Optional<ConnectionTask<?,?>> connectionTask = comTaskExecution.getConnectionTask();
                     if (connectionTask.isPresent()) {
-                        hasExecution = true;
+                        comTaskEnablementHasExecution = true;
                         if(connectionTask.get().getPluggableClass().getPropertySpecs().size()!=0){
-                            return hasUnsetHostOrPort(deviceConnectionTasks.get(connectionTask.get().getName()));
+                            return hasUnsetHostOrPort(connectionTask.get());
                         }
                         if(connectionTask.get().getProperties().stream()
                                 .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
@@ -72,14 +72,15 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                         break;
                     }
                 }else{
-                    hasExecution = false;
+                    comTaskEnablementHasExecution = false;
                 }
             }
 
-            if(!hasExecution){
+            if(!comTaskEnablementHasExecution){
                 Optional<PartialConnectionTask> connectionTask = comTaskEnablement.getPartialConnectionTask();
                 if (connectionTask.isPresent()) {
                     if(connectionTask.get().getPluggableClass().getPropertySpecs().size()!=0){
+                        //Com task enablement doesn't have filled typed properties unlike com task execution( or connection task from device )
                         return hasUnsetHostOrPort(deviceConnectionTasks.get(connectionTask.get().getName()));
                     }
                     if(connectionTask.get().getProperties().stream()
@@ -95,8 +96,8 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
         return false;
     }
 
-    private boolean hasUnsetHostOrPort(ConnectionTask<?,?>  deviceConnectionTask){
-        TypedProperties typedProperties = deviceConnectionTask.getTypedProperties();
+    private boolean hasUnsetHostOrPort(ConnectionTask<?,?>  connectionTask){
+        TypedProperties typedProperties = connectionTask.getTypedProperties();
         return typedProperties.getTypedProperty("host") == null || typedProperties.getTypedProperty("portNumber") == null;
     }
 }
