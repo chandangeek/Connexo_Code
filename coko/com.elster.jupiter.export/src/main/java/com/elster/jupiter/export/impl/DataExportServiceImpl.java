@@ -437,7 +437,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
                             .build());
 
-            try (TransactionContext transactionContext = transactionService.getContext()) {
+//            try (TransactionContext transactionContext = transactionService.getContext()) {
                 List<Long> dataExportTaskIds = this.findExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
                 List<? extends DataExportOccurrence> dataExportOccurrences = this.getDataExportOccurrenceFinder()
                         .withExportTask(dataExportTaskIds)
@@ -448,8 +448,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             ((IDataExportOccurrence) o).end(DataExportStatus.FAILED);
                             ((IDataExportOccurrence) o).update();
                         });
-                transactionContext.commit();
-            }
+/*                transactionContext.commit();
+            }*/
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
