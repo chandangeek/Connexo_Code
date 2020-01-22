@@ -28,6 +28,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -44,6 +45,7 @@ import com.elster.jupiter.webservice.issue.WebServiceOpenIssue;
 import com.elster.jupiter.webservice.issue.impl.entity.WebServiceIssueImpl;
 import com.elster.jupiter.webservice.issue.impl.entity.WebServiceOpenIssueImpl;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -52,7 +54,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,7 +113,7 @@ public class WebServiceIssueServiceImpl implements WebServiceIssueService, Trans
                 InstallIdentifier.identifier("Pulse", WebServiceIssueService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                Collections.emptyMap());
+        ImmutableMap.of(Version.version(10, 7, 2), UpgraderV10_7_2.class));
     }
 
     @Override
@@ -215,6 +216,7 @@ public class WebServiceIssueServiceImpl implements WebServiceIssueService, Trans
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
+
 
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {

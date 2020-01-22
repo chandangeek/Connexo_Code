@@ -67,7 +67,7 @@ class Installer implements FullInstaller {
         issueService.createReason(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON, type,
                 TranslationKeys.WEB_SERVICE_ISSUE_REASON, TranslationKeys.WEB_SERVICE_ISSUE_REASON_DESCRIPTION);
         issueActionService.createActionType(WebServiceIssueActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
-        issueActionService.createActionType(WebServiceIssueActionsFactory.ID, StartProcessWebServiceIssueAction.class.getName(), type, CreationRuleActionPhase.CREATE);
+        issueActionService.createActionType(WebServiceIssueActionsFactory.ID, StartProcessWebServiceIssueAction.class.getName(), type, CreationRuleActionPhase.NOT_APPLICABLE);
     }
 
     private void setAQSubscriber() {
