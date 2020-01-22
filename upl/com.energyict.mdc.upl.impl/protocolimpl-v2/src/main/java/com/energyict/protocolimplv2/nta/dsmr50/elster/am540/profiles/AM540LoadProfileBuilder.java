@@ -4,9 +4,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540;
@@ -20,17 +18,17 @@ import java.util.List;
  * @author sva
  * @since 23/01/2015 - 14:16
  */
-public class AM540LoadProfileBuilder extends LGLoadProfileBuilder {
+public final class AM540LoadProfileBuilder extends LGLoadProfileBuilder<AM540>  {
 
     private IDISProfileDataReader idisProfileDataReader;
 
-    public AM540LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AM540LoadProfileBuilder(AM540 meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
     @Override
     protected boolean isIgnoreDstStatusCode() {
-        return ((AM540) getMeterProtocol()).getDlmsSessionProperties().isIgnoreDstStatusCode();
+        return getMeterProtocol().getDlmsSessionProperties().isIgnoreDstStatusCode();
     }
 
     @Override

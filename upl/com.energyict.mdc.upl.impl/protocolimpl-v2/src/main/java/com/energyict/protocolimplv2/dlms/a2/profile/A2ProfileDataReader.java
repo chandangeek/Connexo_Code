@@ -109,8 +109,7 @@ public class A2ProfileDataReader {
                     Calendar fromCalendar = getFromCalendar(loadProfileReader);
                     Calendar toCalendar = getToCalendar(loadProfileReader);
                     List<IntervalData> intervalData = new ArrayList<>();
-                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode);
-                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer;
                     if (HOURLY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode()) && firmwareVersion.getMajor()==1 && firmwareVersion.getMinor()==4) {
                         Calendar actualCalendar = Calendar.getInstance(protocol.getTimeZone());

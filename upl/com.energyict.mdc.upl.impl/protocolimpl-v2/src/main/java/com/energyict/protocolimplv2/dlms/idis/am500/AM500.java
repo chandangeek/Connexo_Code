@@ -35,6 +35,7 @@ import com.energyict.protocolimpl.dlms.idis.IDISObjectList;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
+import com.energyict.protocolimplv2.dlms.idis.IDISProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
@@ -55,7 +56,7 @@ import java.util.logging.Level;
  * @author khe
  * @since 19/12/2014 - 10:42
  */
-public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
+public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport, IDISProtocol  {
 
     private final EndDeviceType typeMeter = EndDeviceType.DAPDEVICE;
 
@@ -347,5 +348,10 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     public EndDeviceType getTypeMeter() {
         return typeMeter;
+    }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
     }
 }

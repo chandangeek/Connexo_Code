@@ -56,7 +56,7 @@ import java.util.logging.Level;
  * Time: 17:02:07
  * </pre>
  */
-public class LoadProfileBuilder implements DeviceLoadProfileSupport {
+public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements DeviceLoadProfileSupport {
 
     /**
      * Hardcoded ObisCode for the status of the 15min profile
@@ -83,7 +83,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * The used meterProtocol
      */
-    private final AbstractDlmsProtocol meterProtocol;
+    private final T meterProtocol;
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
@@ -122,7 +122,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public LoadProfileBuilder(T meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.meterProtocol = meterProtocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
@@ -474,7 +474,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
+     * channels(com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned in the <CODE>ProfileData</CODE>.
      * </p>
      * <p>
@@ -564,7 +564,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         return channelMaskMap;
     }
 
-    protected AbstractDlmsProtocol getMeterProtocol() {
+    protected T getMeterProtocol() {
         return meterProtocol;
     }
 

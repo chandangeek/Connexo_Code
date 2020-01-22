@@ -13,6 +13,7 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 
@@ -26,16 +27,16 @@ import java.util.List;
  * @author khe
  * @since 19/12/2014 - 9:28
  */
-public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
+public class Dsmr40LoadProfileBuilder<T extends AbstractDlmsProtocol> extends LoadProfileBuilder<T> {
 
     private boolean cumulativeCaptureTimeChannel = false;
 
     /**
      * Default constructor
      *
-     * @param meterProtocol the {@link #meterProtocol}
+     * @param meterProtocol the {com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol}
      */
-    public Dsmr40LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public Dsmr40LoadProfileBuilder(T meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 

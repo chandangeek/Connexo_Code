@@ -474,7 +474,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     public boolean useDsmr4SelectiveAccessFormat() {
-        return true;
+        return false;
     }
 
     /**
