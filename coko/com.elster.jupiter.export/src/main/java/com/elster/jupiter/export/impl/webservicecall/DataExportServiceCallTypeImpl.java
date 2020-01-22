@@ -181,6 +181,15 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
+    public List<ServiceCall> findServiceCalls(DefaultState state) {
+        return dataModel.stream(WebServiceDataExportDomainExtension.class)
+                .join(ServiceCall.class)
+                .map(WebServiceDataExportDomainExtension::getServiceCall)
+                .filter(sC -> sC.getState().equals(state))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ServiceCallStatus tryFailingServiceCall(ServiceCall serviceCall, String errorMessage) {
         if (transactionService.isInTransaction()) {
             return doTryFailingServiceCall(serviceCall, errorMessage);

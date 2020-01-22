@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.webservicecall;
 
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import aQute.bnd.annotation.ProviderType;
@@ -40,6 +41,12 @@ public interface DataExportServiceCallType {
      * @return {@link Optional} of found service call, or empty if not found.
      */
     Optional<ServiceCall> findServiceCall(String uuid);
+
+    /**
+     * @param state DefaultState identifying the service call state.
+     * @return {@link List} of found service calls.
+     */
+    List<ServiceCall> findServiceCalls(DefaultState state);
 
     /**
      * Tries failing a given service call. If it is already closed, does nothing.

@@ -25,6 +25,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -461,6 +463,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         loadRecurrenceCodeMap();
         loadDivisionCategoryCodeMap();
+
+        failOngoingExportTaskServiceCalls();
     }
 
     private void loadDeviceTypesMap() {
@@ -529,6 +533,13 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 TranslationKeys.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME,
                 UPDATE_SAP_EXPORT_TASK_NAME,
                 PeriodicalScheduleExpression.every(frequency).days().at(0, 20, 0).build().encoded());
+    }
+
+    private void failOngoingExportTaskServiceCalls() {
+        List<ServiceCall> serviceCalls = dataExportService.getDataExportServiceCallType().findServiceCalls(DefaultState.ONGOING);
+        serviceCalls.stream()
+                .forEach(sC -> dataExportService.getDataExportServiceCallType()
+                        .tryFailingServiceCall(sC, MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
     }
 
     private void createOrUpdateCheckStatusChangeCancellationTask() {
