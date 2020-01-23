@@ -98,4 +98,6 @@ public abstract class AbstractDataCollectionTemplate implements CreationRuleTemp
     protected void setClock(final Clock clock) {
         this.clock = clock;
     }
+
+
 }
