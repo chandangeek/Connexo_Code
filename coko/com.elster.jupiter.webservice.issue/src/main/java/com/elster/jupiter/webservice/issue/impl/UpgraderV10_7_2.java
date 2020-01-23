@@ -25,6 +25,7 @@ public class UpgraderV10_7_2 implements Upgrader {
     private static final String START_PROCESS_WEBSERVICE_ISSUE_ACTION = "com.elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction";
     private static final String START_PROCESS_SERVICE_CALL_ISSUE_ACTION = "com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction";
     private static final String START_PROCESS_ACTION = "com.elster.jupiter.issue.impl.actions.ProcessAction";
+    private static final String START_PROCESS_NAME = "ProcessAction.processesCombobox";
 
     @Inject
     UpgraderV10_7_2(DataModel dataModel, IssueActionService issueActionService) {
@@ -38,9 +39,9 @@ public class UpgraderV10_7_2 implements Upgrader {
             IssueActionType validActionType = getIsuActionType(START_PROCESS_ACTION);
             IssueActionType webServiceIssueActionType = getIsuActionType(START_PROCESS_WEBSERVICE_ISSUE_ACTION);
             IssueActionType serviceCallIssueActionType = getIsuActionType(START_PROCESS_SERVICE_CALL_ISSUE_ACTION);
-            Map<Long, RuleContent> issueActionIdAndRuleId = getIssueActionIdAndRuleId(connection, validActionType, webServiceIssueActionType, serviceCallIssueActionType);
-            for (Map.Entry<Long, RuleContent> entry : issueActionIdAndRuleId.entrySet()) {
-                for (List<PhaseContent> phaseContent : entry.getValue().values()) {
+            Map<Long, RuleContent> ruleIdAndContentMap = getIssueActionIdAndRuleId(connection, validActionType, webServiceIssueActionType, serviceCallIssueActionType);
+            for (Map.Entry<Long, RuleContent> ruleIdAndContent : ruleIdAndContentMap.entrySet()) {
+                for (List<PhaseContent> phaseContent : ruleIdAndContent.getValue().values()) {
                     if (phaseContent.size() > 1) {
                         deleteIssueAction(connection, validActionType.getId(), phaseContent);
                     } else {
@@ -67,6 +68,7 @@ public class UpgraderV10_7_2 implements Upgrader {
         for (PhaseContent content : contentList) {
             if (content.actionTypeId != actionTypeIdToKeep) {
                 connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
+                connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = %s where CREATIONRULEACTION = %s", START_PROCESS_NAME, content.actionId));
             }
         }
     }
