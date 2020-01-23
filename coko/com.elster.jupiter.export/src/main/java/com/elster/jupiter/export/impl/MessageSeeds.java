@@ -75,7 +75,8 @@ public enum MessageSeeds implements MessageSeed {
 
     DATA_SENDING_FAILED_ALL_DATA_SOURCES(2000, "data.sending.failed.all.data.sources", "Failed to export all data to one or more destinations."),
     DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}."),
-    WEB_SERVICE_EXPORT_NO_SERVICE_CALL(2002, "webservice.export.no.service.call", "Couldn''t find tracking service call for data source {0}.");
+    WEB_SERVICE_EXPORT_NO_SERVICE_CALL(2002, "webservice.export.no.service.call", "Couldn''t find tracking service call for data source {0}."),
+    DATA_EXPORT_TASK_WAS_INTERRUPTED(2003, "DataExportTaskWasInterrupted", "Data export task was interrupted while waiting for data export confirmation.");
 
     private final int number;
     private final String key;

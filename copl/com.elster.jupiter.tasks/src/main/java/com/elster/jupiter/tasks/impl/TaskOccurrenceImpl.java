@@ -245,7 +245,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     }
 
     @Override
-    public void stop() {
+    public void setToFailed() {
         if (!status.isFinal()) {
             this.endDate = clock.instant();
             this.status = this.status.fail();

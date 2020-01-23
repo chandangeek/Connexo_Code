@@ -7,10 +7,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -28,8 +25,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -467,8 +462,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadRecurrenceCodeMap();
         loadDivisionCategoryCodeMap();
 
-        failOngoingExportTaskServiceCalls();
-        failOngoingExportTaskOccurrences();
     }
 
     private void loadDeviceTypesMap() {
@@ -537,26 +530,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 TranslationKeys.UPDATE_SAP_EXPORT_TASK_SUBSCRIBER_NAME,
                 UPDATE_SAP_EXPORT_TASK_NAME,
                 PeriodicalScheduleExpression.every(frequency).days().at(0, 20, 0).build().encoded());
-    }
-
-    private void failOngoingExportTaskServiceCalls() {
-        List<ServiceCall> serviceCalls = dataExportService.getDataExportServiceCallType().findServiceCalls(DefaultState.ONGOING);
-        serviceCalls.stream()
-                .forEach(sC -> dataExportService.getDataExportServiceCallType()
-                .tryFailingServiceCall(sC, MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
-    }
-
-    private void failOngoingExportTaskOccurrences() {
-        try (TransactionContext transactionContext = transactionService.getContext()) {
-            List<Long> dataExportTaskIds = dataExportService.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
-            List<? extends DataExportOccurrence> dataExportOccurrences = dataExportService.getDataExportOccurrenceFinder()
-                    .withExportTask(dataExportTaskIds)
-                    .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
-                    .find();
-            dataExportOccurrences.stream()
-                    .forEach(o -> o.cancel(MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
-            transactionContext.commit();
-        }
     }
 
     private void createOrUpdateCheckStatusChangeCancellationTask() {

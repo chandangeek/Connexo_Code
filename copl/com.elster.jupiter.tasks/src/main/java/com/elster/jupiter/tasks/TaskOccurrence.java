@@ -55,5 +55,5 @@ public interface TaskOccurrence {
 
     void start();
 
-    void stop();
+    void setToFailed();
 }
