@@ -825,7 +825,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(" or ct.comwindowend = 0) ");
             sqlBuilder.append(") t");
             sqlBuilder.append(" WHERE rn <= ");
-            sqlBuilder.addLong(2600);
+            sqlBuilder.addLong(1300L);
             sqlBuilder.append(getOrderForPlannedComTaskExecutions());
             return mapper.fetcher(sqlBuilder);
         } else {
@@ -839,13 +839,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         boolean isRandomizationOn = configPropertiesService.getPropertyValue("COMMUNICATION", ConfigProperties.RANDOMIZATION.value()).map(v -> v.equals("1")).orElse(false);
 
         if (!isTrueMinimizedOn && !isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask";
+            orderClause = " order by t.nextexecutiontimestamp, t.priority, t.connectiontask";
         } else if (isTrueMinimizedOn && !isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, cte.connectiontask, cte.priority";
+            orderClause = " order by t.nextexecutiontimestamp, t.connectiontask, t.priority";
         } else if (!isTrueMinimizedOn && isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.priority, cte.connectiontask";
+            orderClause = " order by t.nextexecutiontimestamp, mod(t.connectiontask, 100), t.priority, t.connectiontask";
         } else if (isTrueMinimizedOn && isRandomizationOn) {
-            orderClause = " order by cte.nextexecutiontimestamp, mod(ct.id, 100), cte.connectiontask, cte.priority";
+            orderClause = " order by t.nextexecutiontimestamp, mod(t.connectiontask, 100), t.connectiontask, t.priority";
         }
         return orderClause;
     }
