@@ -234,7 +234,12 @@ public class DataMapperWriter<T> {
         ColumnImpl[] versionCountColumns = getTable().getVersionColumns();
         List<Pair<ColumnImpl, Long>> versionCounts = new ArrayList<>(versionCountColumns.length);
         try (Connection connection = getConnection(true)) {
-            String sql = getSqlGenerator().updateSql(columns);
+            String sql;
+            if (doJournal(columns)){
+                sql = getSqlGenerator().updateSql(columns);
+            } else {
+                sql = getSqlGenerator().updateSqlWithoutVersionIncrease(columns);
+            }
             List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int index = 1;
@@ -253,11 +258,13 @@ public class DataMapperWriter<T> {
                     column.setObject(statement, index++, object).ifPresent(resources::add);
                 }
                 index = bindPrimaryKey(statement, index, object);
-                for (ColumnImpl column : versionCountColumns) {
-                    Long value = (Long) column.domainValue(object);
-                    versionCounts.add(Pair.of(column, value));
-                    statement.setObject(index++, value);
-                    versions.add(value + 1);
+                if (doJournal(columns)) {
+                    for (ColumnImpl column : versionCountColumns) {
+                        Long value = (Long) column.domainValue(object);
+                        versionCounts.add(Pair.of(column, value));
+                        statement.setObject(index++, value);
+                        versions.add(value + 1);
+                    }
                 }
                 if (macColumn != null) {
                     macColumn.setMACValue(statement, macIndex, object, versions);
