@@ -251,8 +251,9 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     }
 
     @Override
-    public void updateStatus(DataExportStatus status) {
-        this.end(status);
+    public void cancel(String message) {
+        this.getTaskOccurrence().stop();
+        this.end(DataExportStatus.FAILED, message);
         this.update();
     }
 }

@@ -54,4 +54,6 @@ public interface TaskOccurrence {
     boolean wasScheduled();
 
     void start();
+
+    void stop();
 }

@@ -62,5 +62,5 @@ public interface DataExportOccurrence {
 
     TaskOccurrence getTaskOccurrence();
 
-    void updateStatus(DataExportStatus status);
+    void cancel(String message);
 }

@@ -553,7 +553,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                     .withExportStatus(Arrays.asList(DataExportStatus.BUSY))
                     .find();
             dataExportOccurrences.stream()
-                    .forEach(o -> ((DataExportOccurrence) o).updateStatus(DataExportStatus.FAILED));
+                    .forEach(o -> o.cancel(MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
             transactionContext.commit();
         }
     }
