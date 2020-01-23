@@ -4,7 +4,10 @@
 
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.util.HasId;
+
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface ReadingQualityRecord extends com.elster.jupiter.metering.readings.ReadingQuality {
@@ -20,6 +23,13 @@ public interface ReadingQualityRecord extends com.elster.jupiter.metering.readin
     void setComment(String comment);
 
     Optional<BaseReadingRecord> getBaseReadingRecord();
+
+    default List<HasId> getFailedValidationRules() {
+        return null;
+    }
+
+    default void addFailedValidationRule(HasId validationRule) {
+    }
 
     void update();
 

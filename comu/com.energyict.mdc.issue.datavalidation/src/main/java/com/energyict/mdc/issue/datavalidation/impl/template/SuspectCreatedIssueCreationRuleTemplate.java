@@ -144,6 +144,7 @@ public class SuspectCreatedIssueCreationRuleTemplate implements CreationRuleTemp
                 "rule \"Data validation rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : SuspectValueCreatedEvent(deviceConfigurationId in (@{" + DEVICE_CONFIGURATIONS + "}))\n" +
+                "\teval( event.checkValidationRule(\"@{" + THRESHOLD + "}\", \"@{" + VALIDATION_RULES + "}\") == true )\n" +
                 "\teval( event.checkOccurrenceConditions(\"@{" + THRESHOLD + "}\") == true )\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create suspect created issue by datavalidation rule [id = @{ruleId}]\");\n" +

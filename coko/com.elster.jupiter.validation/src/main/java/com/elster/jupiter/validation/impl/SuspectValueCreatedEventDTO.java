@@ -12,6 +12,7 @@ public class SuspectValueCreatedEventDTO {
 
     private long channelId;
     private String readingType;
+    private long readingTimeStamp;
 
     public long getChannelId() {
         return channelId;
@@ -29,6 +30,14 @@ public class SuspectValueCreatedEventDTO {
         this.readingType = readingType;
     }
 
+    public long getReadingTimeStamp() {
+        return readingTimeStamp;
+    }
+
+    public void setReadingTimeStamp(long readingTimeStamp) {
+        this.readingTimeStamp = readingTimeStamp;
+    }
+
     /**
      * @return data transfer object containing information about suspect reading
      */
@@ -36,6 +45,7 @@ public class SuspectValueCreatedEventDTO {
         final SuspectValueCreatedEventDTO suspectValueCreatedEventDTO = new SuspectValueCreatedEventDTO();
         suspectValueCreatedEventDTO.setChannelId(readingQualityRecord.getChannel().getId());
         suspectValueCreatedEventDTO.setReadingType(readingQualityRecord.getReadingType().getMRID());
+        suspectValueCreatedEventDTO.setReadingTimeStamp(readingQualityRecord.getReadingTimestamp().toEpochMilli());
         return suspectValueCreatedEventDTO;
     }
 }

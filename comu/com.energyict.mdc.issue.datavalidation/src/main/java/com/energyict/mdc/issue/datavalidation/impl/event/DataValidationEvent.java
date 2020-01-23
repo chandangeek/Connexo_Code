@@ -11,12 +11,14 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.google.inject.Inject;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -87,11 +89,15 @@ public abstract class DataValidationEvent implements IssueEvent {
         return findChannel().flatMap(channel -> channel.getChannelsContainer().getMeter());
     }
 
-    private Device getDevice() {
+    protected Device getDevice() {
         return findMeter().map(Meter::getAmrId).map(Long::valueOf).flatMap(deviceService::findDeviceById).orElse(null);
     }
 
     protected Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    protected List<LoadProfile> getLoadProfiles() {
+        return getDevice().getLoadProfiles();
     }
 }

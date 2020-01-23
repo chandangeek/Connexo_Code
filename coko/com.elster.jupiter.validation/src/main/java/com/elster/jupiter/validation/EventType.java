@@ -51,6 +51,7 @@ public enum EventType {
                     .scope("System")
                     .withProperty("channelId", ValueType.LONG, "channelId")
                     .withProperty("readingType", ValueType.STRING, "readingType")
+                    .withProperty("readingTimeStamp", ValueType.LONG, "readingTimeStamp")
                     .shouldPublish()
                     .create();
         }
