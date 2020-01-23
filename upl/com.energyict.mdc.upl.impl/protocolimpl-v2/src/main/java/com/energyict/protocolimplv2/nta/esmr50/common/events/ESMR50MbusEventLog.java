@@ -10,6 +10,7 @@ import java.util.List;
 import static com.energyict.protocol.MeterEvent.CLOCK_INVALID;
 import static com.energyict.protocol.MeterEvent.COMMUNICATION_ERROR_MBUS;
 import static com.energyict.protocol.MeterEvent.COMMUNICATION_OK_MBUS;
+import static com.energyict.protocol.MeterEvent.EVENT_LOG_CLEARED;
 import static com.energyict.protocol.MeterEvent.OTHER;
 import static com.energyict.protocol.MeterEvent.WATCHDOG_ERROR;
 
@@ -58,8 +59,9 @@ public class ESMR50MbusEventLog extends AbstractEvent {
         MBUS_COMMUNICATION_ERROR_RESOLVED   (133, COMMUNICATION_OK_MBUS,    "M-Bus communication error resolved"),
         MBUS_SECURITY_ERROR                 (134, COMMUNICATION_ERROR_MBUS, "M-Bus security error"),
         MBUS_SECURITY_ERROR_RESOLVED        (135, COMMUNICATION_OK_MBUS,    "M-Bus security error resolved"),
-        NEW_MBUS_DISCOVERED                 (136, OTHER,                    "New M-Bus device discovered");
+        NEW_MBUS_DISCOVERED                 (136, OTHER,                    "New M-Bus device discovered"),
         // 137-254  reserved for future use
+        LOGBOOK_CLEARED                     (255, EVENT_LOG_CLEARED,        "Mbus event log profile cleared");
 
         private final int protocolCode;
         private final int eiCode;
