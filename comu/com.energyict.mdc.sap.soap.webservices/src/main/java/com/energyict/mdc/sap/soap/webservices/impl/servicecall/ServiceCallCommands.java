@@ -50,10 +50,10 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -417,63 +417,54 @@ public class ServiceCallCommands {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());
     }
 
-    public Finder<ServiceCall> findAvailableServiceCalls(ServiceCallTypes serviceCallType) {
+    public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
+        Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).forEach(filter.states::add);
         return serviceCallService.getServiceCallFinder(filter);
     }
 
     private boolean hasConnectionStatusChangeServiceCall(String id, String uuid) {
-        if (id != null) {
-            return findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getId() != null)
-                    .anyMatch(domainExtension -> domainExtension.getId().equals(id));
-        } else {
-            return findAvailableServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getUuid() != null)
-                    .anyMatch(domainExtension -> domainExtension.getUuid().equals(uuid));
-        }
-    }
-
-    private boolean hasMasterConnectionStatusChangeServiceCall(String id, String uuid) {
-        if (id != null) {
-            return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getRequestID() != null)
-                    .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
-        } else {
-            return findAvailableServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
-                    .stream()
-                    .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
-                    .filter(Objects::nonNull)
-                    .map(Optional::get)
-                    .filter(domainExtension -> domainExtension.getUuid() != null)
-                    .anyMatch(domainExtension -> domainExtension.getUuid().equals(uuid));
-        }
-    }
-
-    private boolean hasMeterReadingRequestServiceCall(String id, String uuid) {
-        return findAvailableServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
+        return findAvailableOpenServiceCalls(ServiceCallTypes.CONNECTION_STATUS_CHANGE)
                 .stream()
-                .map(serviceCall -> serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class))
-                .filter(Objects::nonNull)
+                .map(serviceCall -> serviceCall.getExtension(ConnectionStatusChangeDomainExtension.class))
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(domainExtension -> {
                     if (id != null) {
-                        return domainExtension.getRequestID() != null && domainExtension.getRequestID().equals(id);
+                        return id.equals(domainExtension.getId());
                     } else {
-                        return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
+                        return uuid.equals(domainExtension.getUuid());
+                    }
+                });
+    }
+
+    private boolean hasMasterConnectionStatusChangeServiceCall(String id, String uuid) {
+        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_CONNECTION_STATUS_CHANGE)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterConnectionStatusChangeDomainExtension.class))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> {
+                    if (id != null) {
+                        return id.equals(domainExtension.getRequestID());
+                    } else {
+                        return uuid.equals(domainExtension.getUuid());
+                    }
+                });
+    }
+
+    private boolean hasMeterReadingRequestServiceCall(String id, String uuid) {
+        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> {
+                    if (id != null) {
+                        return id.equals(domainExtension.getRequestID());
+                    } else {
+                        return uuid.equals(domainExtension.getUuid());
                     }
                 });
     }
