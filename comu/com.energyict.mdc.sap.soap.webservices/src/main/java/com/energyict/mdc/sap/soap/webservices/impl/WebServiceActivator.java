@@ -109,6 +109,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHan
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -467,7 +468,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadDivisionCategoryCodeMap();
 
         failOngoingExportTaskServiceCalls();
-        failOngoingExportTaskOccurences();
+        failOngoingExportTaskOccurrences();
     }
 
     private void loadDeviceTypesMap() {
@@ -545,7 +546,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .tryFailingServiceCall(sC, MessageSeeds.UNEXPECTED_SYSTEM_ERROR.getDefaultFormat()));
     }
 
-    private void failOngoingExportTaskOccurences() {
+    private void failOngoingExportTaskOccurrences() {
         try (TransactionContext transactionContext = transactionService.getContext()) {
             List<Long> dataExportTaskIds = dataExportService.findReadingTypeDataExportTasks().stream().map(ExportTask::getId).collect(Collectors.toList());
             List<? extends DataExportOccurrence> dataExportOccurrences = dataExportService.getDataExportOccurrenceFinder()
