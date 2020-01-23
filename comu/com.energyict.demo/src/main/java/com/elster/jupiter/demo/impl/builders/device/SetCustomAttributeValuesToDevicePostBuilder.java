@@ -78,7 +78,7 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
                 CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
                 values.setProperty("device", device.getId());
                 values.setProperty("channelSpec", channel.getChannelSpec());
-                values.setProperty("logicalRegisterNumber", channel.getId());
+                values.setProperty("logicalRegisterNumber", "profile:"+channel.getId());
                 this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), channel.getChannelSpec(), values,
                         values.getEffectiveRange(), device.getId());
             }
@@ -95,7 +95,7 @@ public class SetCustomAttributeValuesToDevicePostBuilder implements Consumer<Dev
                 CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(this.clock.instant());
                 values.setProperty("device", device.getId());
                 values.setProperty("registerSpec", register.getRegisterSpec());
-                values.setProperty("logicalRegisterNumber", register.getRegisterSpecId());
+                values.setProperty("logicalRegisterNumber", String.valueOf(device.getId()) + register.getRegisterSpecId());
                 this.customPropertySetService.setValuesVersionFor(customPropertySet.get(), register.getRegisterSpec(), values,
                         values.getEffectiveRange(), device.getId());
             }
