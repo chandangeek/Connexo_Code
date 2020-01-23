@@ -59,8 +59,8 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                     Optional<ConnectionTask<?,?>> connectionTask = comTaskExecution.getConnectionTask();
                     if (connectionTask.isPresent()) {
                         comTaskEnablementHasExecution = true;
-                        if(connectionTask.get().getPluggableClass().getPropertySpecs().size()!=0){
-                            return hasUnsetHostOrPort(connectionTask.get());
+                        if(connectionTask.get().getPluggableClass().getPropertySpecs().size()!=0 && hasUnsetHostOrPort(connectionTask.get())){
+                            return true;
                         }
                         if(connectionTask.get().getProperties().stream()
                                 .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
@@ -81,7 +81,10 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                 if (connectionTask.isPresent()) {
                     if(connectionTask.get().getPluggableClass().getPropertySpecs().size()!=0){
                         //Com task enablement doesn't have filled typed properties unlike com task execution( or connection task from device )
-                        return hasUnsetHostOrPort(deviceConnectionTasks.get(connectionTask.get().getName()));
+                        Optional<ConnectionTask<?, ?>> devConnectionTask = Optional.ofNullable(deviceConnectionTasks.get(connectionTask.get().getName()));
+                        if (devConnectionTask.isPresent() && hasUnsetHostOrPort(devConnectionTask.get())) {
+                            return true;
+                        }
                     }
                     if(connectionTask.get().getProperties().stream()
                             .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
