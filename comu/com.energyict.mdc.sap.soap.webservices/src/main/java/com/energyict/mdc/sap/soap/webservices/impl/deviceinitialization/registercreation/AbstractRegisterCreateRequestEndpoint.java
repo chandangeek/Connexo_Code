@@ -2,7 +2,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
@@ -32,7 +31,7 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.Objects;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
@@ -207,7 +206,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST)
                 .stream()
                 .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class))
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(domainExtension -> {
                     if (id != null) {
@@ -220,12 +219,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
     public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
-        filter.states.add(DefaultState.CREATED.name());
-        filter.states.add(DefaultState.PENDING.name());
-        filter.states.add(DefaultState.SCHEDULED.name());
-        filter.states.add(DefaultState.ONGOING.name());
-        filter.states.add(DefaultState.PAUSED.name());
-        filter.states.add(DefaultState.WAITING.name());
+        Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).forEach(filter.states::add);
         return serviceCallService.getServiceCallFinder(filter);
     }
 }

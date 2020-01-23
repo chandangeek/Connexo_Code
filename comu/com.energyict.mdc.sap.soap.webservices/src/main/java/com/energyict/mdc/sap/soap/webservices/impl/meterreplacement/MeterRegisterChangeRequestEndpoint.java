@@ -39,7 +39,7 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.Objects;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
@@ -228,7 +228,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_METER_REGISTER_CHANGE_REQUEST)
                 .stream()
                 .map(serviceCall -> serviceCall.getExtension(MasterMeterRegisterChangeRequestDomainExtension.class))
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(domainExtension -> {
                     if (id != null) {
@@ -241,12 +241,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
     public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
-        filter.states.add(DefaultState.CREATED.name());
-        filter.states.add(DefaultState.PENDING.name());
-        filter.states.add(DefaultState.SCHEDULED.name());
-        filter.states.add(DefaultState.ONGOING.name());
-        filter.states.add(DefaultState.PAUSED.name());
-        filter.states.add(DefaultState.WAITING.name());
+        Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).forEach(filter.states::add);
         return serviceCallService.getServiceCallFinder(filter);
     }
 }
