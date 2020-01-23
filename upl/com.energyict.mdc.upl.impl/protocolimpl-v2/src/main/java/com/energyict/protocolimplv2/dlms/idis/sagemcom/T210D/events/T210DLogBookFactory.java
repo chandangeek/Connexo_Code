@@ -8,15 +8,16 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
+import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D;
 
 import java.util.List;
 
 /**
  * Created by cisac on 1/11/2017.
  */
-public class T210DLogBookFactory extends AM130LogBookFactory {
+public final class T210DLogBookFactory extends AM130LogBookFactory<T210D> {
 
-    public T210DLogBookFactory(AM130 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public T210DLogBookFactory(T210D protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
     }
 

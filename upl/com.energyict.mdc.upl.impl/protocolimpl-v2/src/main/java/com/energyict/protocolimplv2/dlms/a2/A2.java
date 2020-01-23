@@ -420,4 +420,9 @@ public class A2 extends AbstractDlmsProtocol {
         }
         return dlmsConfigurationSupport;
     }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
+    }
 }
