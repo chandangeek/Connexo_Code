@@ -3,13 +3,15 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -24,7 +26,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirma
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
 
@@ -33,9 +34,9 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.Objects;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
@@ -43,21 +44,21 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
     private final Clock clock;
-    private final OrmService ormService;
     private final WebServiceActivator webServiceActivator;
     private final DeviceService deviceService;
+    private final ServiceCallService serviceCallService;
 
 
     @Inject
     public AbstractCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                         Clock clock, OrmService ormService, WebServiceActivator webServiceActivator, DeviceService deviceService) {
+                                         Clock clock,WebServiceActivator webServiceActivator, DeviceService deviceService, ServiceCallService serviceCallService) {
         this.thesaurus = webServiceActivator.getThesaurus();
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.clock = clock;
-        this.ormService = ormService;
         this.webServiceActivator = webServiceActivator;
         this.deviceService = deviceService;
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -87,7 +88,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
 
     private void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
         if (message.isValid()) {
-            if (hasUtilDeviceRequestServiceCall(message.getRequestID(), message.getUuid())) {
+            if (hasOpenUtilDeviceRequestServiceCall(message.getRequestID(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST).ifPresent(serviceCallType -> {
@@ -132,19 +133,6 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         }
     }
 
-    private boolean hasUtilDeviceRequestServiceCall(String id, String uuid) {
-        Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceCreateRequestCustomPropertySet.MODEL_NAME);
-        if (id != null) {
-            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
-                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id)))
-                    .orElse(false);
-        } else {
-            return dataModel.map(dataModel1 -> dataModel1.stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
-                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid)))
-                    .orElse(false);
-        }
-    }
-
     private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
         UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
@@ -183,5 +171,31 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
                 .extendedWith(childDomainExtension);
         deviceService.findDeviceByName(message.getSerialId()).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
+    }
+
+    private boolean hasOpenUtilDeviceRequestServiceCall(String id, String uuid) {
+        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceCreateRequestDomainExtension.class))
+                .filter(Objects::nonNull)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> {
+                    if (id != null) {
+                        return domainExtension.getRequestID() != null && domainExtension.getRequestID().equals(id);
+                    } else {
+                        return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
+                    }
+                });
+    }
+    public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.types.add(serviceCallType.getTypeName());
+        filter.states.add(DefaultState.CREATED.name());
+        filter.states.add(DefaultState.PENDING.name());
+        filter.states.add(DefaultState.SCHEDULED.name());
+        filter.states.add(DefaultState.ONGOING.name());
+        filter.states.add(DefaultState.PAUSED.name());
+        filter.states.add(DefaultState.WAITING.name());
+        return serviceCallService.getServiceCallFinder(filter);
     }
 }

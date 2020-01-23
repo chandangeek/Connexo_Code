@@ -4,12 +4,13 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -27,7 +28,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
@@ -39,9 +39,9 @@ import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.Objects;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint implements UtilitiesDeviceERPSmartMeterRegisterChangeRequestCIn, ApplicationSpecific {
@@ -51,20 +51,20 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final SAPCustomPropertySets sapCustomPropertySets;
-    private final OrmService ormService;
     private final WebServiceActivator webServiceActivator;
+    private final ServiceCallService serviceCallService;
 
     @Inject
     MeterRegisterChangeRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
                                        Thesaurus thesaurus, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
-                                       OrmService ormService, WebServiceActivator webServiceActivator) {
+                                       WebServiceActivator webServiceActivator, ServiceCallService serviceCallService) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
-        this.ormService = ormService;
         this.webServiceActivator = webServiceActivator;
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -115,7 +115,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
 
     private void createServiceCallAndTransition(MeterRegisterChangeMessage message) {
         if (message.isValid()) {
-            if (hasMeterChangeRequestServiceCall(message.getId(), message.getUuid())) {
+            if (hasOpenMeterChangeRequestServiceCall(message.getId(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_METER_REGISTER_CHANGE_REQUEST).ifPresent(serviceCallType -> {
@@ -148,20 +148,6 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             serviceCall.requestTransition(DefaultState.REJECTED);
             sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
-    }
-
-    private boolean hasMeterChangeRequestServiceCall(String id, String uuid) {
-        Optional<DataModel> dataModel = ormService.getDataModel(MasterMeterRegisterChangeRequestCustomPropertySet.MODEL_NAME);
-        if (dataModel.isPresent()) {
-            if (id != null) {
-                return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
-                        .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
-            } else {
-                return dataModel.get().stream(MasterMeterRegisterChangeRequestDomainExtension.class)
-                        .anyMatch(where(MasterMeterRegisterChangeRequestDomainExtension.FieldNames.UUID.javaName()).isEqualTo(uuid));
-            }
-        }
-        return false;
     }
 
     private void sendProcessError(MeterRegisterChangeMessage message, MessageSeeds messageSeed) {
@@ -236,5 +222,31 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
         serviceCallBuilder.create();
+    }
+
+    private boolean hasOpenMeterChangeRequestServiceCall(String id, String uuid) {
+        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_METER_REGISTER_CHANGE_REQUEST)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterMeterRegisterChangeRequestDomainExtension.class))
+                .filter(Objects::nonNull)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> {
+                    if (id != null) {
+                        return domainExtension.getRequestId() != null && domainExtension.getRequestId().equals(id);
+                    } else {
+                        return domainExtension.getUuid() != null && domainExtension.getUuid().equals(uuid);
+                    }
+                });
+    }
+    public Finder<ServiceCall> findAvailableOpenServiceCalls(ServiceCallTypes serviceCallType) {
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.types.add(serviceCallType.getTypeName());
+        filter.states.add(DefaultState.CREATED.name());
+        filter.states.add(DefaultState.PENDING.name());
+        filter.states.add(DefaultState.SCHEDULED.name());
+        filter.states.add(DefaultState.ONGOING.name());
+        filter.states.add(DefaultState.PAUSED.name());
+        filter.states.add(DefaultState.WAITING.name());
+        return serviceCallService.getServiceCallFinder(filter);
     }
 }

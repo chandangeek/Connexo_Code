@@ -420,6 +420,12 @@ public class ServiceCallCommands {
     public Finder<ServiceCall> findAvailableServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
+        filter.states.add(DefaultState.CREATED.name());
+        filter.states.add(DefaultState.PENDING.name());
+        filter.states.add(DefaultState.SCHEDULED.name());
+        filter.states.add(DefaultState.ONGOING.name());
+        filter.states.add(DefaultState.PAUSED.name());
+        filter.states.add(DefaultState.WAITING.name());
         return serviceCallService.getServiceCallFinder(filter);
     }
 
