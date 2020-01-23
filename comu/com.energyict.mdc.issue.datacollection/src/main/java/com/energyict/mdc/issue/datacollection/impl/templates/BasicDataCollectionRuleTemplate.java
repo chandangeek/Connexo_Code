@@ -4,17 +4,12 @@
 
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -31,12 +26,9 @@ import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -69,9 +61,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
@@ -184,20 +174,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Override
     public String getDescription() {
         return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION).format();
-    }
-
-    @Override
-    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId)
-    {
-        List<CreationRule> alarmCreationRules = getDataCollectionCreationRules();
-        for (CreationRule alarmCreationRule:alarmCreationRules) {
-            if(((List)(alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
-                    .stream()
-                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceTypeId() == deviceTypeId)
-                    .findFirst().isPresent())
-                return Optional.of(alarmCreationRule);
-        }
-        return Optional.empty();
     }
 
     @Override
@@ -355,17 +331,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         }};
     }
 
-    public List<CreationRule> getDataCollectionCreationRules() {
-        IssueType validationType = issueService.findIssueType(IssueTypes.DATA_COLLECTION.getName()).orElse(null);
-        List<IssueReason> alarmReasons = issueService.query(IssueReason.class)
-                .select(where("issueType").isEqualTo(validationType))
-                .stream()
-                .collect(Collectors.toList());
-
-        Query<CreationRule> query = issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
-        Condition conditionIssue = where("reason").in(alarmReasons);
-        return query.select(conditionIssue, Order.ascending("name"));
-    }
     @XmlRootElement
     private class EventTypeInfo extends HasIdAndName {
 
