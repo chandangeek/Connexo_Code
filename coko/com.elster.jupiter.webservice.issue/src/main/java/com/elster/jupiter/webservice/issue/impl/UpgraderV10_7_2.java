@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.webservice.issue.impl;
 
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
 
@@ -12,12 +16,15 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@LiteralSql
 public class UpgraderV10_7_2 implements Upgrader {
 
     private final DataModel dataModel;
@@ -25,7 +32,7 @@ public class UpgraderV10_7_2 implements Upgrader {
     private static final String START_PROCESS_WEBSERVICE_ISSUE_ACTION = "com.elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction";
     private static final String START_PROCESS_SERVICE_CALL_ISSUE_ACTION = "com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction";
     private static final String START_PROCESS_ACTION = "com.elster.jupiter.issue.impl.actions.ProcessAction";
-    private static final String START_PROCESS_NAME = "ProcessAction.processesCombobox";
+    private static final String START_PROCESS_PROPERTY_NAME = "ProcessAction.processesCombobox";
 
     @Inject
     UpgraderV10_7_2(DataModel dataModel, IssueActionService issueActionService) {
@@ -68,23 +75,14 @@ public class UpgraderV10_7_2 implements Upgrader {
         for (PhaseContent content : contentList) {
             if (content.actionTypeId != actionTypeIdToKeep) {
                 connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
-                connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = %s where CREATIONRULEACTION = %s", START_PROCESS_NAME, content.actionId));
+                connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = %s where CREATIONRULEACTION = %s", START_PROCESS_PROPERTY_NAME, content.actionId));
             }
         }
     }
 
     private Map<Long, RuleContent> getIssueActionIdAndRuleId(Connection connection, IssueActionType ...issueActionTypes) throws SQLException {
-        StringBuilder query = new StringBuilder("select ID, RULE, PHASE, ACTIONTYPE from ISU_CREATIONRULEACTION where");
-        Long ids[] = new Long[issueActionTypes.length];
-        for (int i = 0; i < issueActionTypes.length; i++) {
-            if (i > 0) {
-                query.append(" or ACTIONTYPE = %s");
-            } else {
-                query.append(" ACTIONTYPE = %s");
-            }
-            ids[i] = issueActionTypes[i].getId();
-        }
-        ResultSet rs = connection.createStatement().executeQuery(String.format(query.toString(), ids));
+        String query = "select ID, RULE, PHASE, ACTIONTYPE from ISU_CREATIONRULEACTION where ACTIONTYPE in " + Arrays.stream(issueActionTypes).map(IssueActionType::getId).map(String::valueOf).collect(Collectors.joining(", ", "(", ")"));
+        ResultSet rs = connection.createStatement().executeQuery(query);
         Map<Long, RuleContent> rulesContents = new HashMap<>();
         while (rs.next()) {
             long ruleID = rs.getLong(2);
@@ -103,7 +101,7 @@ public class UpgraderV10_7_2 implements Upgrader {
         if (issueActionTypes.size() == 1) {
             return issueActionTypes.get(0);
         } else {
-            throw new RuntimeException("On issue action type per class");
+            throw new IllegalStateException("Values of ISU_ACTIONTYPE.class_name should be unique");
         }
     }
 

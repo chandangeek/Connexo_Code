@@ -113,7 +113,7 @@ public class WebServiceIssueServiceImpl implements WebServiceIssueService, Trans
                 InstallIdentifier.identifier("Pulse", WebServiceIssueService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-        ImmutableMap.of(Version.version(10, 7, 2), UpgraderV10_7_2.class));
+                ImmutableMap.of(Version.version(10, 7, 2), UpgraderV10_7_2.class));
     }
 
     @Override
@@ -216,7 +216,6 @@ public class WebServiceIssueServiceImpl implements WebServiceIssueService, Trans
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
-
 
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
