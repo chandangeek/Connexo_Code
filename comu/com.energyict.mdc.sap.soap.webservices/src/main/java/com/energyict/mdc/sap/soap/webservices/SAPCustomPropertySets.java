@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
@@ -32,6 +33,9 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(EndDevice endDevice);
 
+    /**
+     * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
+     */
     @Deprecated
     Optional<String> getSapDeviceId(String deviceName);
 
@@ -87,4 +91,12 @@ public interface SAPCustomPropertySets {
     boolean doesRegisterHaveSapCPS(Register register);
 
     boolean doesChannelHaveSapCPS(com.energyict.mdc.common.device.data.Channel channel);
+
+    Map<String, RangeSet<Instant>> getProfileId(ReadingContainer readingContainer, ReadingType readingType, Range<Instant> range);
+
+    /**
+     * This method returns start of the first LRN after the latest transition to operational stage
+     * or the date of this transition, if no such LRN is present.
+     */
+    Optional<Instant> getStartDate(Device device);
 }

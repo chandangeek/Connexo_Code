@@ -560,7 +560,9 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     }
 
     private Optional<DeviceMessageEnablement> findDeviceMessageEnablementFor(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
-        return deviceConfiguration.getDeviceMessageEnablements().stream().filter(dme -> dme.getDeviceMessageId().equals(deviceMessageId)).findAny();
+        return deviceConfiguration.getDeviceMessageEnablements().stream()
+                .filter(dme -> DeviceMessageId.find(dme.getDeviceMessageDbValue()).isPresent())
+                .filter(dme -> dme.getDeviceMessageId().equals(deviceMessageId)).findAny();
     }
 
     @Test
@@ -590,6 +592,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         DeviceConfiguration reloadedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
         Optional<DeviceMessageEnablement> dme = reloadedDeviceConfiguration.getDeviceMessageEnablements()
                 .stream()
+                .filter(deviceMessageEnablement -> DeviceMessageId.find(deviceMessageEnablement.getDeviceMessageDbValue()).isPresent())
                 .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(contactorClose))
                 .findAny();
 

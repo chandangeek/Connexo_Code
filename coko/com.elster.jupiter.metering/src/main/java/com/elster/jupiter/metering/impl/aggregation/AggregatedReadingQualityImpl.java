@@ -47,11 +47,6 @@ class AggregatedReadingQualityImpl implements AggregatedReadingQuality {
     }
 
     @Override
-    public long getId() {
-        return 0;
-    }
-
-    @Override
     public void setComment(String comment) {
         throw new UnsupportedOperationException();
     }

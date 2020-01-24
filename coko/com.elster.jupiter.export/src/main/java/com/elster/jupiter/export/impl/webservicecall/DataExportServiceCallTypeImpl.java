@@ -33,7 +33,10 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -99,7 +102,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
+    public ServiceCall startServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         if (transactionService.isInTransaction()) {
             return doStartServiceCall(uuid, timeout, data);
         } else {
@@ -108,7 +111,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public ServiceCall startServiceCallAsync(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
+    public ServiceCall startServiceCallAsync(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         Principal principal = threadPrincipalService.getPrincipal();
         try {
             return CompletableFuture.supplyAsync(() -> {
@@ -122,11 +125,13 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
         }
     }
 
-    public void createChildServiceCalls(ServiceCall parent, List<ReadingTypeDataExportItem> data) {
-        data.forEach(item -> createChild(parent,
-                item.getDomainObject().getName(),
-                item.getReadingType().getMRID(),
-                item.getId()));
+    private void createChildServiceCalls(ServiceCall parent, Collection<ReadingTypeDataExportItem> data) {
+        data.stream()
+                .distinct()
+                .forEach(item -> createChild(parent,
+                        item.getDomainObject().getName(),
+                        item.getReadingType().getMRID(),
+                        item.getId()));
     }
 
     private void createChild(ServiceCall parent, String deviceName, String readingTypeMrID, long itemId){
@@ -146,11 +151,11 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
 
-    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, List<ReadingTypeDataExportItem>  data) {
+    private ServiceCall startServiceCallInTransaction(String uuid, long timeout, Collection<ReadingTypeDataExportItem>  data) {
         return transactionService.execute(() -> doStartServiceCall(uuid, timeout, data));
     }
 
-    private ServiceCall doStartServiceCall(String uuid, long timeout, List<ReadingTypeDataExportItem> data) {
+    private ServiceCall doStartServiceCall(String uuid, long timeout, Collection<ReadingTypeDataExportItem> data) {
         WebServiceDataExportDomainExtension serviceCallProperties = new WebServiceDataExportDomainExtension(thesaurus);
         serviceCallProperties.setUuid(uuid);
         serviceCallProperties.setTimeout(timeout);
@@ -236,11 +241,23 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     }
 
     @Override
-    public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall serviceCall) {
+    public Set<ReadingTypeDataExportItem> getDataSources(ServiceCall... serviceCalls) {
+        return doGetDataSources(Arrays.asList(serviceCalls));
+    }
+
+    @Override
+    public Set<ReadingTypeDataExportItem> getDataSources(Collection<ServiceCall> serviceCalls) {
+        return doGetDataSources(new ArrayList<>(serviceCalls));
+    }
+
+    private Set<ReadingTypeDataExportItem> doGetDataSources(List<ServiceCall> serviceCalls) {
+        if (serviceCalls.isEmpty()) {
+            return new HashSet<>();
+        }
         Subquery dataSourceIds = ormService.getDataModel(WebServiceDataExportChildPersistentSupport.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for web service data export child CPS isn't found."))
                 .query(WebServiceDataExportChildDomainExtension.class, ServiceCall.class)
-                .asSubquery(Where.where("serviceCall.parent").isEqualTo(serviceCall), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
+                .asSubquery(Where.where("serviceCall.parent").in(serviceCalls), WebServiceDataExportChildDomainExtension.FieldNames.DATA_SOURCE_ID.javaName());
         return ormService.getDataModel(DataExportService.COMPONENTNAME)
                 .orElseThrow(() -> new IllegalStateException("Data model for data export service isn't found."))
                 .stream(ReadingTypeDataExportItem.class)

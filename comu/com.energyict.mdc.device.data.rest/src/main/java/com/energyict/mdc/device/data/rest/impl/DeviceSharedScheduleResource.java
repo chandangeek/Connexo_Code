@@ -30,7 +30,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,19 +64,19 @@ public class DeviceSharedScheduleResource {
                 .collect(Collectors.toList());
         checkValidity(comSchedules, device);
         User user = (User) securityContext.getUserPrincipal();
-        for (ComSchedule comSchedule : comSchedules){
+        for (ComSchedule comSchedule : comSchedules) {
             Optional<ComTask> comTaskWithoutAccess = comSchedule.getComTasks().stream().filter(comTask -> !comTaskExecutionPrivilegeCheck.canExecute(comTask, user)).findAny();
             if (comTaskWithoutAccess.isPresent()) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
         }
-        for (ComSchedule comSchedule : comSchedules){
+        for (ComSchedule comSchedule : comSchedules) {
             try {
                 device.newScheduledComTaskExecution(comSchedule).add();
             } catch (ConstraintViolationException cve) {
                 throw new AlreadyLocalizedException(cve.getConstraintViolations().iterator().next().getMessage());
             }
-        };
+        }
         return Response.status(Response.Status.OK).build();
     }
 
@@ -99,10 +98,12 @@ public class DeviceSharedScheduleResource {
                         return Response.status(Response.Status.UNAUTHORIZED).build();
                     }
                 }
+                device.getComTaskExecutions().stream()
+                        .filter(comTaskExecution -> comSchedule.getComTasks().contains(comTaskExecution.getComTask()))
+                        .forEach(comTaskExecution -> comTaskExecution.schedule(null));
             }
         }
         optionalSchedules.stream().forEach(comSchedule -> comSchedule.ifPresent(device::removeComSchedule));
-
         return Response.status(Response.Status.OK).build();
     }
 

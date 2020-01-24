@@ -78,6 +78,9 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
         if (isLastChild(findChildren(parent))) {
             if (parent.getState().equals(DefaultState.ONGOING)) {
                 if (isCancelling(parent)) {
+                    FirmwareCampaignDomainExtension firmwareCampaignDomainExtension = parent.getExtension(FirmwareCampaignDomainExtension.class).get();
+                    firmwareCampaignDomainExtension.setManuallyCancelled(true);
+                    parent.update(firmwareCampaignDomainExtension);
                     parent.requestTransition(DefaultState.CANCELLED);
                 } else {
                     parent.requestTransition(DefaultState.SUCCESSFUL);

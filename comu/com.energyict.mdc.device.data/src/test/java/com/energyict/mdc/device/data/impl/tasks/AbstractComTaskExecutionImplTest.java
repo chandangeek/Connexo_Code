@@ -74,7 +74,8 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected static InboundComPortPool createInboundComPortPool(String name) {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(1L);
-        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
+        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService()
+                .newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(true);
         inboundComPortPool.update();
         return inboundComPortPool;
@@ -228,21 +229,21 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
                 .build();
     }
 
-    protected ComSchedule createComSchedule(ComTask comTask) {
-        return createComSchedule(comTask, new TemporalExpression(TimeDuration.days(1)));
+    protected ComSchedule createComSchedule(ComTask comTask, Instant when) {
+        return createComSchedule(comTask, new TemporalExpression(TimeDuration.days(1)), when);
     }
 
-    protected ComSchedule createComSchedule(String name, ComTask comTask) {
-        return createComSchedule(name, comTask, new TemporalExpression(TimeDuration.days(1)));
+    protected ComSchedule createComSchedule(String name, ComTask comTask, Instant when) {
+        return createComSchedule(name, comTask, new TemporalExpression(TimeDuration.days(1)), when);
     }
 
-    protected ComSchedule createComSchedule(ComTask comTask, TemporalExpression temporalExpression) {
-        return this.createComSchedule("MyComSchedule", comTask, temporalExpression);
+    protected ComSchedule createComSchedule(ComTask comTask, TemporalExpression temporalExpression, Instant when) {
+        return this.createComSchedule("MyComSchedule", comTask, temporalExpression, when);
     }
 
-    protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression) {
+    protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression, Instant when) {
         return inMemoryPersistence.getSchedulingService()
-                .newComSchedule(name, temporalExpression, Instant.now())
+                .newComSchedule(name, temporalExpression, when)
                 .addComTask(comTask)
                 .build();
     }
@@ -289,7 +290,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected Instant createFixedTimeStamp(int years, int months, int days, int hours, int minutes, int seconds, int millis, TimeZone timeZone) {
-        Calendar calendar = Calendar.getInstance(timeZone == null ? utcTimeZone : timeZone);
+        Calendar calendar = Calendar.getInstance(timeZone == null ? Calendar.getInstance().getTimeZone() : timeZone);
         calendar.set(years, months, days, hours, minutes, seconds);
         calendar.set(Calendar.MILLISECOND, millis);
         return calendar.getTime().toInstant();

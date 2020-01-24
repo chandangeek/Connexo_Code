@@ -121,7 +121,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -158,12 +157,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String REGISTER_RECURRENCE_CODE = "com.elster.jupiter.sap.register.recurrencecode";
     public static final String REGISTER_DIVISION_CATEGORY_CODE = "com.elster.jupiter.sap.register.divisioncategorycode";
 
-    public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
-    public static final String URL_PROPERTY = "url";
     public static final String APPLICATION_NAME = "MultiSense";
-    public static final String METERING_SYSTEM_ID = "CXO";
+    public static final String DEFAULT_METERING_SYSTEM_ID = "HON";
     public static final String PROCESSING_ERROR_CATEGORY_CODE = "PRE";
+    public static final String SUCCESSFUL_PROCESSING_TYPE_ID = "000";
     public static final String UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID = "001";
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -193,6 +191,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_NEW_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.new.data.endpoint";
     public static final String EXPORT_TASK_UPDATED_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.updated.data.endpoint";
 
+    private static final String METERING_SYSTEM_ID = "sap.soap.metering.system.id";
     private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
     private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
@@ -264,6 +263,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private Map<String, String> deviceTypesMap;
     private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
     private Map<String, CIMPattern> divisionCategoryCodeMap;
+    private String meteringSystemId;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -315,6 +315,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public Integer getSapProperty(AdditionalProperties property) {
         return sapProperties.get(property);
+    }
+
+    public String getMeteringSystemId() {
+        return meteringSystemId;
     }
 
     public WebServiceActivator() {
@@ -422,7 +426,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(
                         version(10, 7), UpgraderV10_7.class,
-                        version(10, 7, 1), UpgraderV10_7_1.class
+                        version(10, 7, 1), UpgraderV10_7_1.class,
+                        version(10, 7, 2), UpgraderV10_7_2.class
                 ));
 
         registerServices(bundleContext);
@@ -444,6 +449,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_UPDATE_WINDOW));
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
+
+        meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
 
         loadDeviceTypesMap();
         createOrUpdateUpdateSapExportTask();
@@ -1070,18 +1077,5 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
             LOGGER.log(Level.WARNING, MessageSeeds.PROPERTY_IS_NOT_SET.getDefaultFormat(), propertyName);
         }
         return value;
-    }
-
-    public static Instant getZonedDate(Instant date, String timeZone) {
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId zoneId = utcZoneId;
-        try {
-            if (timeZone != null) {
-                zoneId = ZoneId.of(timeZone);
-            }
-        } catch (DateTimeException e) {
-            // No action, just use UTC zone
-        }
-        return date.atZone(zoneId).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
     }
 }

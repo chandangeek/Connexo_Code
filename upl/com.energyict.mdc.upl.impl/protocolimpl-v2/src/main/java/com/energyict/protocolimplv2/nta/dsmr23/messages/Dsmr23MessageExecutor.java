@@ -227,7 +227,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getData(Dsmr40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
     }
 
-    private void resetAlarmRegister() throws IOException {
+    protected void resetAlarmRegister() throws IOException {
         getCosemObjectFactory().getData(Dsmr23RegisterFactory.ALARM_REGISTER).setValueAttr(new Unsigned32(0));
     }
 
@@ -291,8 +291,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message, there are no channels attached under LoadProfile " + builder
-                        .getProfileObisCode() + "!"));
+                String errorMessage = "Unable to execute the message, there are no channels attached under LoadProfile " + builder .getProfileObisCode() + "!";
+                collectedMessage.setDeviceProtocolInformation(errorMessage);
+                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, errorMessage));
             }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
@@ -303,7 +304,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
+                    String errorMessage = "Load profile with obiscode " + config.getObisCode() + " is not supported by the device";
+                    collectedMessage.setDeviceProtocolInformation(errorMessage);
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMessage));
+                    getProtocol().journal(errorMessage);
                     return collectedMessage;
                 }
             }
@@ -321,7 +325,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             if (intervalDatas == null) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")"));
+                String errorMessage = "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")";
+                collectedMessage.setDeviceProtocolInformation(errorMessage);
+                collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, errorMessage));
+                getProtocol().journal(errorMessage);
                 return collectedMessage;
             }
 
@@ -347,7 +354,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         } catch (SAXException e) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getLocalizedMessage());
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
+            getProtocol().journal(e.getLocalizedMessage());
             return collectedMessage;
         }
     }
@@ -377,7 +386,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 if (!config.isSupportedByMeter()) {   //LP not supported
                     CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
+                    String errorMessage = "Load profile with obiscode " + config.getObisCode() + " is not supported by the device";
+                    collectedMessage.setDeviceProtocolInformation(errorMessage);
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, errorMessage));
+                    getProtocol().journal(errorMessage);
                     return collectedMessage;
                 }
             }
@@ -390,6 +402,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
+            collectedMessage.setDeviceProtocolInformation(e.getLocalizedMessage());
+            getProtocol().journal(e.getLocalizedMessage());
             return collectedMessage;
         }
     }

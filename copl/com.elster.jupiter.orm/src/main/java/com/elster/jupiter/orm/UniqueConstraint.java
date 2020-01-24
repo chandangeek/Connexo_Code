@@ -12,17 +12,20 @@ import com.google.common.collect.Range;
  */
 @ProviderType
 public interface UniqueConstraint extends TableConstraint {
-	@ProviderType
-	interface Builder {
-		Builder on(Column ... columns);
-		UniqueConstraint add();
+    @ProviderType
+    interface Builder {
+        Builder on(Column... columns);
 
-		Builder since(Version version);
+        UniqueConstraint add();
 
-		Builder upTo(Version version);
+        Builder since(Version version);
 
-		Builder during(Range... ranges);
+        Builder upTo(Version version);
 
-		Builder previously(UniqueConstraint uniqueConstraint);
-	}
+        Builder during(Range... ranges);
+
+        Builder previously(UniqueConstraint uniqueConstraint);
+
+        Builder noDdl();
+    }
 }

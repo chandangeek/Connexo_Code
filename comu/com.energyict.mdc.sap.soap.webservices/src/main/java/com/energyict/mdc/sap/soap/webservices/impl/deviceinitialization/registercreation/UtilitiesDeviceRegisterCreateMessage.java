@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public class UtilitiesDeviceRegisterCreateMessage {
 
+    private String requestId;
+    private String uuid;
     private String deviceId;
     private List<UtilitiesDeviceRegisterMessage> utilitiesDeviceRegisterMessages = new ArrayList<>();
 
@@ -18,12 +20,20 @@ public class UtilitiesDeviceRegisterCreateMessage {
         return utilitiesDeviceRegisterMessages;
     }
 
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
     public String getDeviceId() {
         return deviceId;
     }
 
     public boolean isValid() {
-        return deviceId != null && getUtilitiesDeviceRegisterMessages().stream().allMatch(bodyMessage -> bodyMessage.isValid());
+        return (requestId != null || uuid != null) && deviceId != null && getUtilitiesDeviceRegisterMessages().stream().allMatch(bodyMessage -> bodyMessage.isValid());
     }
 
     static UtilitiesDeviceRegisterCreateMessage.Builder builder() {
@@ -35,27 +45,37 @@ public class UtilitiesDeviceRegisterCreateMessage {
         private Builder() {
         }
 
-        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqUtilsDvce requestMessage) {
-            setDeviceId(getDeviceId(requestMessage));
+        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage) {
+            setRequestId(getRequestId(requestMessage.getMessageHeader()));
+            setUuid(getUuid(requestMessage.getMessageHeader()));
+            Optional.ofNullable(requestMessage.getUtilitiesDevice())
+                    .ifPresent(request -> {
+                        setDeviceId(getDeviceId(request));
 
-            requestMessage.getRegister()
-                    .forEach(message ->
-                            utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
-                                    .builder()
-                                    .from(message)
-                                    .build()));
+                        request.getRegister()
+                                .forEach(message ->
+                                        utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
+                                                .builder()
+                                                .from(message)
+                                                .build()));
+                    });
             return this;
         }
 
-        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqUtilsDvce requestMessage) {
-            setDeviceId(getDeviceId(requestMessage));
+        public UtilitiesDeviceRegisterCreateMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqMsg requestMessage) {
+            setRequestId(getRequestId(requestMessage.getMessageHeader()));
+            setUuid(getUuid(requestMessage.getMessageHeader()));
+            Optional.ofNullable(requestMessage.getUtilitiesDevice())
+                    .ifPresent(request -> {
+                        setDeviceId(getDeviceId(request));
 
-            requestMessage.getRegister()
-                    .forEach(message ->
-                            utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
-                                    .builder()
-                                    .from(message)
-                                    .build()));
+                        request.getRegister()
+                                .forEach(message ->
+                                        utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
+                                                .builder()
+                                                .from(message)
+                                                .build()));
+                    });
             return this;
         }
 
@@ -63,8 +83,48 @@ public class UtilitiesDeviceRegisterCreateMessage {
             return UtilitiesDeviceRegisterCreateMessage.this;
         }
 
+        private void setRequestId(String requestId) {
+            UtilitiesDeviceRegisterCreateMessage.this.requestId = requestId;
+        }
+
+        private void setUuid(String uuid) {
+            UtilitiesDeviceRegisterCreateMessage.this.uuid = uuid;
+        }
+
         private void setDeviceId(String deviceId) {
             UtilitiesDeviceRegisterCreateMessage.this.deviceId = deviceId;
+        }
+
+        private String getRequestId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.BusinessDocumentMessageHeader request) {
+            return Optional.ofNullable(request)
+                    .map(m -> m.getID())
+                    .map(id -> id.getValue())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getRequestId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.BusinessDocumentMessageHeader request) {
+            return Optional.ofNullable(request)
+                    .map(m -> m.getID())
+                    .map(id -> id.getValue())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.BusinessDocumentMessageHeader request) {
+            return Optional.ofNullable(request)
+                    .map(m -> m.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUuid(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.BusinessDocumentMessageHeader request) {
+            return Optional.ofNullable(request)
+                    .map(m -> m.getUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UUID::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getDeviceId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqUtilsDvce requestMessage) {

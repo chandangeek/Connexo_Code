@@ -5,6 +5,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.math.BigInteger;
 
 /**
  * Created by cisac on 5/6/2016.
@@ -61,7 +62,7 @@ public class Beacon3100ConnectionDetails {
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getHlsSecret(), "")));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getAuthenticationKey(), "")));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getEncryptionKey(), "")));
-        structure.addDataType(getFrameCounter() >= 0 ? new Integer64Unsigned(getFrameCounter()) : new NullData());
+        structure.addDataType(getFrameCounter() >= 0 ? new Unsigned64(BigInteger.valueOf(getFrameCounter())) : new NullData());
         return structure;
     }
 }

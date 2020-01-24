@@ -34,10 +34,6 @@ public class MasterConnectionStatusChangeCustomPropertySet implements CustomProp
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
-    public MasterConnectionStatusChangeCustomPropertySet() {
-        // for OSGI purpose
-    }
-
     @Inject
     public MasterConnectionStatusChangeCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;

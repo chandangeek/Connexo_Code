@@ -97,6 +97,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()
                         .stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())
                         .contains(deviceMessageId))

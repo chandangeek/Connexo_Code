@@ -134,6 +134,15 @@ Ext.define('Uni.view.widget.WorkList', {
                 me.setLoading(false);
             },
             failure: function (response) {
+                countContainer.removeAll();
+                countContainer.add([
+                    {
+                        xtype: 'label',
+                        itemId: 'lbl-top-most',
+                        style: 'font-weight: normal; margin: 0px 0px 0px 5px',
+                        text: 'Connexo Flow is not available.'
+                    }
+                ]);
                 me.setLoading(false);
             }
         });

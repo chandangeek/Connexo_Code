@@ -461,7 +461,9 @@ public class EstimationResource {
         task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         task.setNextRecurrentTasks(this.findRecurrentTaskOrThrowException(info.nextRecurrentTasks));
         task.setPeriod(getRelativePeriod(info.period));
-        task.setSuspendUntilTime(info.suspendUntilTime);
+        if(info.suspendUntilTime != null){
+            task.setSuspendUntilTime(info.suspendUntilTime);
+        }
 
         if (info.deviceGroup != null) {
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));

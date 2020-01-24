@@ -13,20 +13,21 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesAdvancedMeteringSystemID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceERPSmartMeterRegisteredNotificationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilsDvceERPSmrtMtrRegedNotifMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilsDvceERPSmrtMtrRegedNotifSmrtMtr;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilsDvceERPSmrtMtrRegedNotifUtilsDvce;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.UtilitiesDeviceID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.ObjectFactory;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -41,6 +42,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -60,6 +62,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     private volatile MeteringService meteringService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile DeviceService deviceService;
+    private volatile WebServiceActivator webServiceActivator;
 
     public UtilitiesDeviceRegisteredNotificationProvider() {
         // for OSGI purposes
@@ -69,13 +72,20 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     public UtilitiesDeviceRegisteredNotificationProvider(Clock clock,
                                                          SAPCustomPropertySets sapCustomPropertySets, MeteringService meteringService,
                                                          EndPointConfigurationService endPointConfigurationService,
-                                                         DeviceService deviceService) {
+                                                         DeviceService deviceService,
+                                                         WebServiceActivator webServiceActivator) {
         this();
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.meteringService = meteringService;
         this.endPointConfigurationService = endPointConfigurationService;
         this.deviceService = deviceService;
+        setWebServiceActivator(webServiceActivator);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        this.webServiceActivator = webServiceActivator;
     }
 
     @Reference
@@ -191,20 +201,23 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     private UtilsDvceERPSmrtMtrRegedNotifUtilsDvce createBody(String sapDeviceId) {
-        UtilsDvceERPSmrtMtrRegedNotifUtilsDvce device = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
+        UtilsDvceERPSmrtMtrRegedNotifUtilsDvce utilsDevice = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifUtilsDvce();
         UtilitiesDeviceID deviceId = objectFactory.createUtilitiesDeviceID();
         deviceId.setValue(sapDeviceId);
 
         UtilsDvceERPSmrtMtrRegedNotifSmrtMtr smartMeter = objectFactory.createUtilsDvceERPSmrtMtrRegedNotifSmrtMtr();
         UtilitiesAdvancedMeteringSystemID smartMeterId = objectFactory.createUtilitiesAdvancedMeteringSystemID();
-        smartMeterId.setValue(WebServiceActivator.METERING_SYSTEM_ID);
+        smartMeterId.setValue(webServiceActivator.getMeteringSystemId());
         smartMeter.setUtilitiesAdvancedMeteringSystemID(smartMeterId);
+        Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
+        if (device.isPresent()) {
+            sapCustomPropertySets.getStartDate(device.get()).ifPresent(sD -> smartMeter.setStartDate(sD));
+        }
 
+        utilsDevice.setID(deviceId);
+        utilsDevice.setSmartMeter(smartMeter);
 
-        device.setID(deviceId);
-        device.setSmartMeter(smartMeter);
-
-        return device;
+        return utilsDevice;
     }
 
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
@@ -216,6 +229,8 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
 
         BusinessDocumentMessageHeader header = objectFactory.createBusinessDocumentMessageHeader();
         header.setUUID(createUUID(uuid));
+        header.setSenderBusinessSystemID(webServiceActivator.getMeteringSystemId());
+        header.setReconciliationIndicator(true);
         header.setCreationDateTime(now);
         return header;
     }

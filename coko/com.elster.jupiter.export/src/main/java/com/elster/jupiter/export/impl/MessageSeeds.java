@@ -74,7 +74,8 @@ public enum MessageSeeds implements MessageSeed {
     OCCURRENCE_HAS_BEEN_CANCELLED(1054, "occurrence.has.been.cancelled", "The occurrence has been cancelled", Level.INFO),
 
     DATA_SENDING_FAILED_ALL_DATA_SOURCES(2000, "data.sending.failed.all.data.sources", "Failed to export all data to one or more destinations."),
-    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}.");
+    DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES(2001, "data.sending.failed.specific.data.sources", "Failed to export the following data sources to one or more destinations: {0}."),
+    WEB_SERVICE_EXPORT_NO_SERVICE_CALL(2002, "webservice.export.no.service.call", "Couldn''t find tracking service call for data source {0}.");
 
     private final int number;
     private final String key;

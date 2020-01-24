@@ -61,6 +61,11 @@ abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
     }
 
     @Override
+    public boolean enableHHUSignOn() {
+        return this.innerConnectionType.enableHHUSignOn();
+    }
+
+    @Override
     public boolean supportsComWindow() {
         return this.innerConnectionType.supportsComWindow();
     }

@@ -7,7 +7,10 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpecService;
+
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -22,12 +25,12 @@ public abstract class AbstractCustomPropertySetTest {
 
     @Mock
     protected NlsService nlsService;
-
     @Mock
     protected Thesaurus thesaurus;
-
     @Mock
     protected NlsMessageFormat nlsMessageFormat;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    protected PropertySpecService propertySpecService;
 
     protected void setup() {
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);

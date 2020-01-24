@@ -46,6 +46,7 @@ import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.ServerDeviceMessage;
 import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
@@ -207,6 +208,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .filter(id -> DeviceMessageId.find(id).isPresent())
                         .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 
@@ -384,7 +386,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.requestTransition(DefaultState.FAILED);
             if (e instanceof LimitsExceededForCommandException) {
                 Optional<DeviceMessage> deviceMessage = ((LimitsExceededForCommandException)e).getDeviceMessage();
-                deviceMessage.ifPresent(DeviceMessage::revoke);
+                deviceMessage.ifPresent(msg -> ((ServerDeviceMessage)msg).revokeWithNoUpdateNotification());
             }
             throw e;
         }
