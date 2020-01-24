@@ -20,6 +20,7 @@ import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_6;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_7;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_7_2;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -264,7 +265,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .put(version(10, 4), UpgraderV10_4.class)
                         .put(version(10, 5), UpgraderV10_5.class)
                         .put(version(10, 6), UpgraderV10_6.class)
-                        .put(version(10, 7), UpgraderV10_7.class).build()
+                        .put(version(10, 7), UpgraderV10_7.class)
+                        .put(version(10, 7, 2), UpgraderV10_7_2.class).build()
         );
     }
 
