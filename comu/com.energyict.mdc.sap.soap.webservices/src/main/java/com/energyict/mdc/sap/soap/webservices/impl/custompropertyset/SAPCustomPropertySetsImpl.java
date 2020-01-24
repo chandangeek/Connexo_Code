@@ -620,38 +620,30 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Map<String, RangeSet<Instant>> getLrn(Device device, Channel channel, Range<Instant> range) {
-        return anyPoint(range).flatMap(instant -> channel.isRegular() ?
-                getChannelSpec(device, channel.getReadingTypes(), instant)
-                        .map(spec -> getLrn(device, spec, range)) :
-                getRegisterSpec(device, channel.getReadingTypes(), instant)
-                        .map(spec -> getLrn(device, spec, range)))
-                .orElseGet(Collections::emptyMap);
+        return channel.isRegular() ?
+                getChannelSpec(device, channel.getReadingTypes()).map(spec -> getLrn(device, spec, range)).orElseGet(Collections::emptyMap) :
+                getRegisterSpec(device, channel.getReadingTypes()).map(spec -> getLrn(device, spec, range)).orElseGet(Collections::emptyMap);
     }
 
     private Map<String, RangeSet<Instant>> getProfileId(Device device, Channel channel, Range<Instant> range) {
         Map<String, RangeSet<Instant>> profileIdIntervals = new HashMap<>();
         if (channel.isRegular()) {
-            Optional<Instant> any = anyPoint(range);
-            if (any.isPresent()) {
-                Optional<ChannelSpec> spec = getChannelSpec(device, channel.getReadingTypes(), any.get());
-                if (spec.isPresent()) {
-                    return getProfileId(device, spec.get(), range);
-                }
+            Optional<ChannelSpec> spec = getChannelSpec(device, channel.getReadingTypes());
+            if (spec.isPresent()) {
+                return getProfileId(device, spec.get(), range);
             }
         }
         return profileIdIntervals;
     }
 
-    private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
+    private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes) {
         return device.getDeviceConfiguration().getChannelSpecs().stream()
                 .filter(spec -> readingTypes.contains(spec.getReadingType())).findAny();
     }
 
-    private Optional<RegisterSpec> getRegisterSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
-        return device.getHistory(when)
-                .map(Device::getDeviceConfiguration)
-                .map(DeviceConfiguration::getRegisterSpecs)
-                .flatMap(specs -> specs.stream().filter(spec -> readingTypes.contains(spec.getReadingType())).findAny());
+    private Optional<RegisterSpec> getRegisterSpec(Device device, List<? extends ReadingType> readingTypes) {
+        return device.getDeviceConfiguration().getRegisterSpecs().stream()
+                .filter(spec -> readingTypes.contains(spec.getReadingType())).findAny();
     }
 
     private Map<String, RangeSet<Instant>> getProfileId(Device device, ChannelSpec channelSpec, Range<Instant> range) {
@@ -694,16 +686,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .map(ext -> ext.getLogicalRegisterNumber().map(lrn -> Pair.of(lrn, ImmutableRangeSet.of(ext.getInterval().toOpenClosedRange().intersection(range)))))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, RangeSets::union));
-    }
-
-    private static Optional<Instant> anyPoint(Range<Instant> range) {
-        return range.isEmpty() ? Optional.empty() : Optional.of(
-                range.hasLowerBound() ?
-                        range.lowerEndpoint().plus(LESS_THAN_TIME_STEP) :
-                        range.hasUpperBound() ?
-                                range.upperEndpoint() :
-                                Instant.EPOCH
-        );
     }
 
     private DataModel getDataModel(String modelName) {
