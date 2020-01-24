@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
-package com.elster.jupiter.webservice.issue.impl;
+package com.elster.jupiter.issue.impl.database;
 
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -15,11 +15,13 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -43,21 +45,25 @@ public class UpgraderV10_7_2 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         try (Connection connection = this.dataModel.getConnection(true)) {
-            IssueActionType validActionType = getIsuActionType(START_PROCESS_ACTION);
-            IssueActionType webServiceIssueActionType = getIsuActionType(START_PROCESS_WEBSERVICE_ISSUE_ACTION);
-            IssueActionType serviceCallIssueActionType = getIsuActionType(START_PROCESS_SERVICE_CALL_ISSUE_ACTION);
-            Map<Long, RuleContent> ruleIdAndContentMap = getIssueActionIdAndRuleId(connection, validActionType, webServiceIssueActionType, serviceCallIssueActionType);
+            Optional<IssueActionType> validActionType = getIsuActionType(START_PROCESS_ACTION);
+            Optional<IssueActionType> webServiceIssueActionType = getIsuActionType(START_PROCESS_WEBSERVICE_ISSUE_ACTION);
+            Optional<IssueActionType> serviceCallIssueActionType = getIsuActionType(START_PROCESS_SERVICE_CALL_ISSUE_ACTION);
+            if (!validActionType.isPresent() || !webServiceIssueActionType.isPresent() || !serviceCallIssueActionType.isPresent()) {
+                //nothing to do
+                return;
+            }
+            Map<Long, RuleContent> ruleIdAndContentMap = getIssueActionIdAndRuleId(connection, validActionType.get(), webServiceIssueActionType.get(), serviceCallIssueActionType.get());
             for (Map.Entry<Long, RuleContent> ruleIdAndContent : ruleIdAndContentMap.entrySet()) {
                 for (List<PhaseContent> phaseContent : ruleIdAndContent.getValue().values()) {
                     if (phaseContent.size() > 1) {
-                        deleteIssueAction(connection, validActionType.getId(), phaseContent);
+                        deleteIssueAction(connection, validActionType.get().getId(), phaseContent);
                     } else {
-                        updateIssueAction(connection, validActionType.getId(), phaseContent);
+                        updateIssueAction(connection, validActionType.get().getId(), phaseContent);
                     }
                 }
             }
-            webServiceIssueActionType.delete();
-            serviceCallIssueActionType.delete();
+            webServiceIssueActionType.get().delete();
+            serviceCallIssueActionType.get().delete();
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -82,26 +88,32 @@ public class UpgraderV10_7_2 implements Upgrader {
 
     private Map<Long, RuleContent> getIssueActionIdAndRuleId(Connection connection, IssueActionType ...issueActionTypes) throws SQLException {
         String query = "select ID, RULE, PHASE, ACTIONTYPE from ISU_CREATIONRULEACTION where ACTIONTYPE in " + Arrays.stream(issueActionTypes).map(IssueActionType::getId).map(String::valueOf).collect(Collectors.joining(", ", "(", ")"));
-        ResultSet rs = connection.createStatement().executeQuery(query);
-        Map<Long, RuleContent> rulesContents = new HashMap<>();
-        while (rs.next()) {
-            long ruleID = rs.getLong(2);
-            RuleContent ruleContent = rulesContents.get(ruleID);
-            if (ruleContent == null) {
-                rulesContents.put(ruleID, new RuleContent(rs.getLong(3), rs.getLong(4), rs.getLong(1)));
-            } else {
-                ruleContent.computeIfAbsent(rs.getLong(3), Long -> new ArrayList<>()).add(new PhaseContent(rs.getLong(4), rs.getLong(1)));
+        try (Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(query)) {
+            Map<Long, RuleContent> rulesContents = new HashMap<>();
+            while (rs.next()) {
+                long ruleID = rs.getLong(2);
+                RuleContent ruleContent = rulesContents.get(ruleID);
+                if (ruleContent == null) {
+                    rulesContents.put(ruleID, new RuleContent(rs.getLong(3), rs.getLong(4), rs.getLong(1)));
+                } else {
+                    ruleContent.computeIfAbsent(rs.getLong(3), Long -> new ArrayList<>()).add(new PhaseContent(rs.getLong(4), rs.getLong(1)));
+                }
             }
+            return rulesContents;
         }
-        return rulesContents;
     }
 
-    private IssueActionType getIsuActionType(String className) {
+    private Optional<IssueActionType> getIsuActionType(String className) {
         List<IssueActionType> issueActionTypes = issueActionService.getActionTypeQuery().select(where("className").isEqualTo(className));
-        if (issueActionTypes.size() == 1) {
-            return issueActionTypes.get(0);
-        } else {
-            throw new IllegalStateException("Values of ISU_ACTIONTYPE.class_name should be unique");
+        switch (issueActionTypes.size()) {
+            case 0:
+                return Optional.empty();
+            case 1:
+                return Optional.of(issueActionTypes.get(0));
+            default:
+                throw new IllegalStateException("Values of ISU_ACTIONTYPE.class_name should be unique");
+
         }
     }
 
