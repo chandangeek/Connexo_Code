@@ -147,9 +147,7 @@ import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplat
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.command.impl.CommandRuleModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.cps.ChannelSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.cps.DeviceEMeterInfoCustomPropertySet;
-import com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.DeviceService;
@@ -860,8 +858,6 @@ public class DemoTest {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceEMeterInfoCustomPropertySet.class));
-        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceSAPInfoCustomPropertySet.class));
-        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(ChannelSAPInfoCustomPropertySet.class));
     }
 
     private void createRequiredProtocols() {
