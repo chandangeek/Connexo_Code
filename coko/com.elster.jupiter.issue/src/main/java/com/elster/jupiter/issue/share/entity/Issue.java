@@ -4,11 +4,12 @@
 
 package com.elster.jupiter.issue.share.entity;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.Optional;
