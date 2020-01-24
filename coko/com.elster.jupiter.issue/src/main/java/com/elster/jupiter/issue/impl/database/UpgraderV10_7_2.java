@@ -48,7 +48,7 @@ public class UpgraderV10_7_2 implements Upgrader {
             Optional<IssueActionType> validActionType = getIsuActionType(START_PROCESS_ACTION);
             Optional<IssueActionType> webServiceIssueActionType = getIsuActionType(START_PROCESS_WEBSERVICE_ISSUE_ACTION);
             Optional<IssueActionType> serviceCallIssueActionType = getIsuActionType(START_PROCESS_SERVICE_CALL_ISSUE_ACTION);
-            if (!validActionType.isPresent() || !webServiceIssueActionType.isPresent() || !serviceCallIssueActionType.isPresent()) {
+            if (!webServiceIssueActionType.isPresent() && !serviceCallIssueActionType.isPresent()) {
                 //nothing to do
                 return;
             }
