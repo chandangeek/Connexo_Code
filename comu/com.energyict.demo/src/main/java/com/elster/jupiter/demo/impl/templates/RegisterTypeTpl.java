@@ -69,7 +69,10 @@ public enum RegisterTypeTpl implements Template<RegisterType, RegisterTypeBuilde
     DATA_LOGGER_29("0.0.0.1.0.0.142.0.0.29.1.0.0.0.0.0.111.0", "1.0.128.8.29.255"),
     DATA_LOGGER_30("0.0.0.1.0.0.142.0.0.30.1.0.0.0.0.0.111.0", "1.0.128.8.30.255"),
     DATA_LOGGER_31("0.0.0.1.0.0.142.0.0.31.1.0.0.0.0.0.111.0", "1.0.128.8.31.255"),
-    DATA_LOGGER_32("0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0", "1.0.128.8.32.255");
+    DATA_LOGGER_32("0.0.0.1.0.0.142.0.0.32.1.0.0.0.0.0.111.0", "1.0.128.8.32.255"),
+
+    GAS_MASTER_VALUE(ReadingTypeTpl.GAS_MASTER_VALUE.getMRID(), "0.0.24.2.0.255"),
+    VALVE_STATE(ReadingTypeTpl.VALVE_STATE.getMRID(), "0.0.24.4.129.255");
 
     private String obisCode;
     private String mrid;

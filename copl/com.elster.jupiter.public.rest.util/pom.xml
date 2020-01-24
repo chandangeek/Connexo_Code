@@ -62,7 +62,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
         </dependency>
-
         <!-- Test dependencies-->
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
