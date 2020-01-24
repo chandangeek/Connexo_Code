@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
@@ -177,7 +178,10 @@ public final class ComScheduleImpl implements ComSchedule {
             while (calendar.getTime().before(Date.from(clock.instant()))) {
                 calendar.setTime(this.getNextTimestamp(calendar));
             }
-            return Optional.of(calendar.getTime().toInstant());
+            if (getNextExecutionSpecs().getTemporalExpression().getEvery().getTimeUnit().getCode() < TimeDuration.TimeUnit.HOURS.getCode()) {
+                return Optional.of(calendar.getTime().toInstant());
+            }
+            return Optional.of(this.getNextTimestamp(calendar).toInstant());
         }
     }
 
