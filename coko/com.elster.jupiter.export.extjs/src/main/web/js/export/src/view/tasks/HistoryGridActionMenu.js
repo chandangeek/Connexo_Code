@@ -14,9 +14,9 @@ Ext.define('Dxp.view.tasks.HistoryGridActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
-                itemId: 'cancel-history',
-                text: Uni.I18n.translate('general.cancel', 'DES', 'Cancel'),
-                action: 'cancelHistory',
+                itemId: 'setToFailed-history',
+                text: Uni.I18n.translate('general.setToFailed', 'DES', 'Set to failed'),
+                action: 'setToFailedHistory',
                 section: this.SECTION_ACTION,
                 visible: false
             }

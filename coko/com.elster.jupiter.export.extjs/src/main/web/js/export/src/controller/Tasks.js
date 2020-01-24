@@ -3167,7 +3167,7 @@ Ext.define('Dxp.controller.Tasks', {
          var record = menu.record;
          if (record){
             var statusId = record.get('statusId');
-            menu.down('#cancel-history').setVisible(statusId === 0)//Ongoing
+            menu.down('#setToFailed-history').setVisible(statusId === 0)//Ongoing
          }
     },
 
@@ -3183,8 +3183,8 @@ Ext.define('Dxp.controller.Tasks', {
                     Uni.I18n.translate('exportTasks.runMsgStartedOn', 'DES', "Data export task started on {0} will be queued to run at the earliest possible time.", [menu.record.get('startedOn_formatted')])
             );
             break;
-            case 'cancelHistory':
-                me.submitHistoryCancelTask(menu.record);
+            case 'setToFailedHistory':
+                me.submitHistorySetToFailedTask(menu.record);
             break;
             default:
             break;
@@ -3249,7 +3249,7 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    submitHistoryCancelTask: function (record) {
+    submitHistorySetToFailedTask: function (record) {
         var me = this,
             id = record.get('id'),
             taskModel = me.getModel('Dxp.model.DataExportTaskHistory'),
@@ -3259,11 +3259,11 @@ Ext.define('Dxp.controller.Tasks', {
             view;
 
         Ext.Ajax.request({
-            url: '/api/export/dataexporttask/history/' + id + '/cancel',
+            url: '/api/export/dataexporttask/history/' + id + '/setToFailed',
             method: 'PUT',
             jsonData: record.getProxy().getWriter().getRecordData(record),
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.cancelQueued', 'DES', 'Export task run is cancelled'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.cancelQueued', 'DES', 'Export task is set to failed'));
             },
             failure: function (response) {
                 var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'DES', 'Couldn\'t perform your action');

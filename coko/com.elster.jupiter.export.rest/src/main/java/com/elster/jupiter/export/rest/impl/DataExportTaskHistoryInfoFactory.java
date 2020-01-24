@@ -215,7 +215,7 @@ public class DataExportTaskHistoryInfoFactory {
         } else {
             info.statusPrefix = statusTranslation;
         }
-        info.statusId = DataExportStatus.BUSY.ordinal();
+        info.statusId = dataExportStatus.ordinal();
 
     }
 
