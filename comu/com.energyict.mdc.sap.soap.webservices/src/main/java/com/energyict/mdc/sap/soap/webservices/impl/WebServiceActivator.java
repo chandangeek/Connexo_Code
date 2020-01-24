@@ -426,7 +426,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(
                         version(10, 7), UpgraderV10_7.class,
-                        version(10, 7, 1), UpgraderV10_7_1.class
+                        version(10, 7, 1), UpgraderV10_7_1.class,
+                        version(10, 7, 2), UpgraderV10_7_2.class
                 ));
 
         registerServices(bundleContext);

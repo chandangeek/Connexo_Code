@@ -31,7 +31,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.RangeSets;
-import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
 import com.google.common.collect.Range;
@@ -45,13 +44,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -103,10 +100,8 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         String itemDescription = item.getDescription();
         item.overrideReadingInterval(TimeDuration.hours(1));
 
-        Optional<RangeSet<Instant>> exportRangeSet = adjustedExportPeriod(occurrence, item);
-        currentExportInterval = exportRangeSet
-                .map(RangeSet::span)
-                .orElse(null);
+        RangeSet<Instant> exportRangeSet = adjustedExportPeriod(occurrence, item);
+        currentExportInterval = exportRangeSet.isEmpty() ? null : exportRangeSet.span();
 
         if (currentExportInterval != null && checkIntervalIsLessThanOrEqualToHour(item.getReadingType())) {
             warnIfExportPeriodCoversFuture(occurrence, currentExportInterval);
@@ -115,7 +110,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             Instant instant = truncateToDays(currentExportInterval.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
 
             while (!instant.isAfter(currentExportInterval.upperEndpoint())) {
-                if (exportRangeSet.isPresent() && exportRangeSet.get().contains(instant)) {
+                if (exportRangeSet.contains(instant)) {
                     instants.add(instant);
                 }
                 instant = instant.plus(1, ChronoUnit.HOURS);
@@ -199,25 +194,21 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         return DefaultStructureMarker.createRoot(clock, "export").withPeriod(exportInterval);
     }
 
-    private Optional<RangeSet<Instant>> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+    private RangeSet<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         Range<Instant> readingsContainerInterval = item.getReadingContainer() instanceof Effectivity ? ((Effectivity) item.getReadingContainer()).getRange() : Range.all();
-        Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
+        Range<Instant> exportWindowInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
         Optional<Instant> exportStart = item.getLastExportedPeriodEnd();
-        Optional<RangeSet<Instant>> profileIdIntervals = sapCustomPropertySets.getProfileId(item.getReadingContainer(), item.getReadingType(), exportedDataInterval)
-                .values().stream()
-                .reduce(RangeSets::union);
-        if (!exportStart.isPresent()) {
-            exportStart = Functions.<RangeSet<Instant>>asStream().apply(profileIdIntervals)
-                    .map(RangeSet::asRanges)
-                    .flatMap(Set::stream)
-                    .map(Range::lowerEndpoint) // exportedDataInterval always has lower endpoint, thus all ranges in set must have it too
-                    .min(Comparator.naturalOrder());
-        }
-        return exportStart
-                .flatMap(start -> getRangeSinceRequestedDate(exportedDataInterval, start))
-                .map(range -> profileIdIntervals.map(rs -> rs.subRangeSet(range)).orElseGet(() -> TreeRangeSet.create(Collections.singleton(range))))
-                .map(rs -> rs.subRangeSet(readingsContainerInterval))
-                .filter(rs -> !rs.isEmpty());
+        RangeSet<Instant> profileIdIntervals =  exportStart.map(start -> getRangeSinceRequestedDate(exportWindowInterval, start)) // start from the previous period end if exists
+                .orElse(Optional.of(exportWindowInterval))
+                .map(interval -> getAllProfileIdsRangeSet(item, interval)) // take only the intervals where profile id is set
+                .orElseGet(TreeRangeSet::create); // everything is exported
+        return profileIdIntervals.subRangeSet(readingsContainerInterval);
+    }
+
+    private RangeSet<Instant> getAllProfileIdsRangeSet(ReadingTypeDataExportItem item, Range<Instant> interval) {
+        return sapCustomPropertySets.getProfileId(item.getReadingContainer(), item.getReadingType(), interval).values().stream()
+                .reduce(RangeSets::union)
+                .orElseGet(TreeRangeSet::create);
     }
 
     private Optional<Range<Instant>> getRangeSinceRequestedDate(Range<Instant> exportedDataInterval, Instant date) {

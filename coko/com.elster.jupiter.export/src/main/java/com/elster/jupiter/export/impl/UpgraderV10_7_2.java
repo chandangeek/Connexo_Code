@@ -21,9 +21,11 @@ public class UpgraderV10_7_2 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7, 2));
-        execute(dataModel,
-                "update DES_RTDATAEXPORTITEM set READING_INTERVAL = '1 hours' where READINGINTERVALCOUNT is not null and READINGINTERVALCOUNT != 0",
-                "alter table DES_RTDATAEXPORTITEM drop column READINGINTERVALCOUNT",
-                "alter table DES_RTDATAEXPORTITEM drop column READINGINTERVALUNIT");
+        if (dataModel.doesColumnExist("DES_RTDATAEXPORTITEM", "READINGINTERVALCOUNT")) {
+            execute(dataModel,
+                    "update DES_RTDATAEXPORTITEM set READING_INTERVAL = '1 hours' where READINGINTERVALCOUNT is not null and READINGINTERVALCOUNT != 0",
+                    "alter table DES_RTDATAEXPORTITEM drop column READINGINTERVALCOUNT",
+                    "alter table DES_RTDATAEXPORTITEM drop column READINGINTERVALUNIT");
+        }
     }
 }

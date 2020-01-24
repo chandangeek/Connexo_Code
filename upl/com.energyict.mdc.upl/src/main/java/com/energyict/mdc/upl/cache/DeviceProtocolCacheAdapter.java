@@ -2,22 +2,21 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
+package com.energyict.mdc.upl.cache;
 
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-@XmlRootElement(name = "DeviceProtocolCacheAdapter")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
 
     private static final String legacyDlmsCacheCheck = "<changed>false</changed>";
 
-    @XmlElement(name = "LegacyJson")
     private String jsonCache;
 
     public DeviceProtocolCacheAdapter() {
@@ -33,6 +32,7 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
         // Ignore, dirty aspect is driven by the wrapped json String
     }
 
+    @XmlAttribute
     public String getLegacyJsonCache() {
         return jsonCache;
     }

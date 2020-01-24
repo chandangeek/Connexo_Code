@@ -118,6 +118,13 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.common.protoc
     @Override
     @JsonIgnore
     @XmlTransient
+    public boolean enableHHUSignOn() {
+        return uplConnectionType.enableHHUSignOn();
+    }
+
+    @Override
+    @JsonIgnore
+    @XmlTransient
     public boolean supportsComWindow() {
         return uplConnectionType.supportsComWindow();
     }

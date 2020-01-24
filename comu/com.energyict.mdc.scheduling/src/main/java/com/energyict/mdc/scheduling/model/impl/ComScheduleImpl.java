@@ -174,7 +174,7 @@ public final class ComScheduleImpl implements ComSchedule {
             return Optional.empty();
         } else {
             getNextExecutionSpecs().getTemporalExpression().getEvery().truncate(calendar);
-            while (calendar.getTime().before(Calendar.getInstance().getTime())) {
+            while (calendar.getTime().before(Date.from(clock.instant()))) {
                 calendar.setTime(this.getNextTimestamp(calendar));
             }
             return Optional.of(calendar.getTime().toInstant());

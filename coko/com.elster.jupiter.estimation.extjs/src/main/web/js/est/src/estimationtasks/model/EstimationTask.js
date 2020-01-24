@@ -21,7 +21,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'lastEstimationOccurrence', type: 'auto', defaultValue: null},
         {name: 'nextRun', type: 'number', useNull: true},
         {name: 'lastRun', type: 'number', useNull: true},
-        {name: 'suspendUntilTime', type:'number'},
+        {name: 'suspendUntilTime', type:'number', useNull: true},
         {
             name: 'logLevel',
             type: 'int',
