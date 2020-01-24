@@ -192,9 +192,10 @@ public final class Where {
     public Condition isEffectiveOpenClosed(Range<Instant> range) {
         Condition result = Condition.TRUE;
         if (range.hasLowerBound()) {
+            boolean open = range.lowerBoundType().equals(BoundType.OPEN);
             Where end = Where.where(field + ".end");
             long endpoint = range.lowerEndpoint().toEpochMilli();
-            result = result.and(end.isGreaterThanOrEqual(endpoint));
+            result = result.and(open ? end.isGreaterThan(endpoint) : end.isGreaterThanOrEqual(endpoint));
         }
         if (range.hasUpperBound()) {
             Where start = Where.where(field + ".start");
