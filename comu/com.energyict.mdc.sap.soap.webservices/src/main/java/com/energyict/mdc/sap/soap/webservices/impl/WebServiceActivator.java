@@ -25,6 +25,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
@@ -462,6 +464,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadRecurrenceCodeMap();
         loadDivisionCategoryCodeMap();
 
+        failOngoingExportTaskServiceCalls();
     }
 
     private void loadDeviceTypesMap() {
@@ -1078,5 +1081,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
             LOGGER.log(Level.WARNING, MessageSeeds.PROPERTY_IS_NOT_SET.getDefaultFormat(), propertyName);
         }
         return value;
+    }
+
+    private void failOngoingExportTaskServiceCalls() {
+        List<ServiceCall> serviceCalls = dataExportService.getDataExportServiceCallType().findServiceCalls(EnumSet.of(DefaultState.ONGOING));
+        serviceCalls.stream()
+                .forEach(sC -> dataExportService.getDataExportServiceCallType()
+                        .tryFailingServiceCall(sC, com.elster.jupiter.export.impl.MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
     }
 }

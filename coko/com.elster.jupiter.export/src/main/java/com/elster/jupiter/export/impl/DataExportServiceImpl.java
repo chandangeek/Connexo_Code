@@ -444,7 +444,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                 failOngoingExportTaskOccurrences();
                 transactionContext.commit();
             }
-            failOngoingExportTaskServiceCalls();
+//            failOngoingExportTaskServiceCalls();
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
