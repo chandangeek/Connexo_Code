@@ -441,10 +441,10 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .build());
 
             try (TransactionContext transactionContext = transactionService.getContext()) {
-                failOngoingExportTaskServiceCalls();
                 failOngoingExportTaskOccurrences();
                 transactionContext.commit();
             }
+            failOngoingExportTaskServiceCalls();
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
