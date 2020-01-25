@@ -256,7 +256,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         if(getStatus().equals(DataExportStatus.BUSY)) {
             this.getTaskOccurrence().setToFailed();
             status = DataExportStatus.FAILED;
-            failureReason = thesaurus.getSimpleFormat(MessageSeeds.OCCURRENCE_HAS_BEEN_CANCELLED).format();
+            failureReason = thesaurus.getSimpleFormat(MessageSeeds.OCCURRENCE_HAS_BEEN_SET_TO_FAILED).format();
             dataModel.mapper(DataExportOccurrenceImpl.class).update(this, "status", "failureReason");
 
             Logger logger = Logger.getAnonymousLogger();
