@@ -1087,6 +1087,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         List<ServiceCall> serviceCalls = dataExportService.getDataExportServiceCallType().findServiceCalls(EnumSet.of(DefaultState.ONGOING));
         serviceCalls.stream()
                 .forEach(sC -> dataExportService.getDataExportServiceCallType()
-                        .tryFailingServiceCall(sC, com.elster.jupiter.export.impl.MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
+                        .tryFailingServiceCall(sC, MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
     }
 }
