@@ -444,7 +444,6 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                 failOngoingExportTaskOccurrences();
                 transactionContext.commit();
             }
-//            failOngoingExportTaskServiceCalls();
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
@@ -455,13 +454,6 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public final void deactivate() {
         customPropertySetService.removeCustomPropertySet(serviceCallCPS);
         customPropertySetService.removeCustomPropertySet(childServiceCallCPS);
-    }
-
-    private void failOngoingExportTaskServiceCalls() {
-        List<ServiceCall> serviceCalls = this.getDataExportServiceCallType().findServiceCalls(EnumSet.of(DefaultState.ONGOING));
-        serviceCalls.stream()
-                .forEach(sC -> this.getDataExportServiceCallType()
-                        .tryFailingServiceCall(sC, MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
     }
 
     private void failOngoingExportTaskOccurrences() {
