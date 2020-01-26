@@ -5,6 +5,8 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.util.Pair;
 
+import com.energyict.mdc.common.device.data.Device;
+
 import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
 
@@ -32,7 +34,8 @@ public interface SAPMeterReadingDocumentReason {
 
     /**
      * Pair of Macro and Measuring codes
-     * @return
+     *
+     * @return macro and measuring codes
      */
     Optional<Pair<String, String>> getExtraDataSourceMacroAndMeasuringCodes();
 
@@ -42,17 +45,9 @@ public interface SAPMeterReadingDocumentReason {
     boolean shouldUseCurrentDateTime();
 
     /**
-     * Bulk request support
-     */
-    boolean isBulk();
-
-    /**
-     * Single request support
-     */
-    boolean isSingle();
-
-    /**
      * Invoked by the service call when processing data with reading reason code
      */
     void process(SAPMeterReadingDocumentCollectionData sapMeterReadingDocumentCollectionData);
+
+    boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular);
 }

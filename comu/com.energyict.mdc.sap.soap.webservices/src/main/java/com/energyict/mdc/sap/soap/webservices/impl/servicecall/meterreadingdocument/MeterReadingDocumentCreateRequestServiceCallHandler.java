@@ -5,7 +5,6 @@
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument;
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -15,13 +14,16 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -61,8 +63,11 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
                 if (extension.getCancelledBySap() == null) {
                     extension.setCancelledBySap(false);
-                    serviceCall.update(extension);
+                    extension.setErrorMessage(MessageSeeds.SERVICE_CALL_WAS_CANCELLED_MANUALLY);
+                } else {
+                    extension.setErrorMessage(MessageSeeds.SERVICE_CALL_WAS_CANCELLED_BY_SAP);
                 }
+                serviceCall.update(extension);
                 break;
             default:
                 // No specific action required for these states
@@ -72,9 +77,17 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
     private void processServiceCall(ServiceCall serviceCall) {
         MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterReadingDocumentCreateRequestCustomPropertySet()).get();
+        Optional<SAPMeterReadingDocumentReason> readingReasonProvider = WebServiceActivator.findReadingReasonProvider(extension.getReadingReasonCode());
+        if (!readingReasonProvider.isPresent()) {
+            extension.setErrorMessage(MessageSeeds.UNSUPPORTED_REASON_CODE);
+            serviceCall.update(extension);
+            serviceCall.requestTransition(DefaultState.FAILED);
+            return;
+        }
+
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         Optional<Channel> channel;
-        if (device.isPresent() && device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
+        if (device.isPresent()) {
             extension.setDeviceName(device.get().getName());
             channel = sapCustomPropertySets.getChannel(extension.getLrn(), extension.getScheduledReadingDate());
             if (channel.isPresent()) {
@@ -85,42 +98,61 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                         .findFirst()
                         .ifPresent(readingType -> extension.setDataSource(readingType.getMRID()));
             } else {
-                serviceCall.log(LogLevel.WARNING, "The channel/register isn't found.");
-                serviceCall.update(extension);
-                serviceCall.requestTransition(DefaultState.PAUSED);
+                failedAttempt(extension, MessageSeeds.CHANNEL_REGISTER_IS_NOT_FOUND);
                 return;
             }
 
-            WebServiceActivator.findReadingReasonProvider(extension.getReadingReasonCode()).ifPresent(provider -> {
-                Instant plannedReadingCollectionDate = provider.hasCollectionInterval()
-                        ? extension.getScheduledReadingDate().plusSeconds(webServiceActivator.getSapProperty(AdditionalProperties.READING_COLLECTION_INTERVAL) * 60)
-                        : extension.getScheduledReadingDate();
+            if (!readingReasonProvider.get().validateComTaskExecutionIfNeeded(device.get(), channel.get().isRegular())) {
+                extension.setErrorMessage(MessageSeeds.COM_TASK_COULD_NOT_BE_LOCATED);
+                serviceCall.update(extension);
+                serviceCall.requestTransition(DefaultState.FAILED);
+                return;
+            }
 
-                boolean futureCase = clock.instant().isBefore(plannedReadingCollectionDate);
-                extension.setFutureCase(futureCase);
-                if (futureCase) {
-                    extension.setProcessingDate(plannedReadingCollectionDate);
+            Instant plannedReadingCollectionDate = readingReasonProvider.get().hasCollectionInterval()
+                    ? extension.getScheduledReadingDate().plusSeconds(webServiceActivator.getSapProperty(AdditionalProperties.READING_COLLECTION_INTERVAL) * 60)
+                    : extension.getScheduledReadingDate();
+
+            boolean futureCase = clock.instant().isBefore(plannedReadingCollectionDate);
+            extension.setFutureCase(futureCase);
+            if (futureCase) {
+                extension.setProcessingDate(plannedReadingCollectionDate);
+            }
+
+            if (!channel.get().isRegular()) {
+                Optional<Pair<String, String>> dataSourceInterval = readingReasonProvider.get().getExtraDataSourceMacroAndMeasuringCodes();
+                if (dataSourceInterval.isPresent() && !dataSourceInterval.get().equals(Pair.of("0", "0"))) {
+                    String extraDataSource = dataSourceInterval.get().getFirst()
+                            + extension.getDataSource().substring(1, 4)
+                            + dataSourceInterval.get().getLast()
+                            + extension.getDataSource().substring(5);
+
+                    device.get().getChannels().stream().filter(c -> c.getReadingType().getMRID().equals(extraDataSource))
+                            .findFirst()
+                            .ifPresent(readingType -> extension.setExtraDataSource(extraDataSource));
                 }
-
-                if (!channel.get().isRegular()) {
-                    Optional<Pair<String, String>> dataSourceInterval = provider.getExtraDataSourceMacroAndMeasuringCodes();
-                    if (dataSourceInterval.isPresent() && !dataSourceInterval.get().equals(Pair.of(0, 0))) {
-                        String extraDataSource = dataSourceInterval.get().getFirst()
-                                + extension.getDataSource().substring(1, 4)
-                                + dataSourceInterval.get().getLast()
-                                + extension.getDataSource().substring(5);
-
-                        device.get().getChannels().stream().filter(c -> c.getReadingType().getMRID().equals(extraDataSource))
-                                .findFirst()
-                                .ifPresent(readingType -> extension.setExtraDataSource(extraDataSource));
-                    }
-                }
-            });
+            }
 
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
-            serviceCall.log(LogLevel.WARNING, "The device isn't found or the device is not in operational stage.");
+            failedAttempt(extension, MessageSeeds.DEVICE_IS_NOT_FOUND);
+        }
+    }
+
+    private void failedAttempt(MeterReadingDocumentCreateRequestDomainExtension extension, MessageSeeds error) {
+        ServiceCall serviceCall = extension.getServiceCall();
+        serviceCall.log(LogLevel.WARNING, MessageFormat.format(error.getDefaultFormat(), new Object[0]));
+        extension.setErrorMessage(error);
+        serviceCall.update(extension);
+        MasterMeterReadingDocumentCreateRequestDomainExtension masterExtension = serviceCall.getParent().get()
+                .getExtension(MasterMeterReadingDocumentCreateRequestDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        BigDecimal attempts = new BigDecimal(webServiceActivator.getSapProperty(AdditionalProperties.REGISTER_SEARCH_ATTEMPTS));
+        BigDecimal currentAttempt = masterExtension.getAttemptNumber();
+        if (currentAttempt.compareTo(attempts) != -1) {
+            serviceCall.requestTransition(DefaultState.FAILED);
+        } else {
             serviceCall.requestTransition(DefaultState.PAUSED);
         }
     }
@@ -145,4 +177,3 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
         this.webServiceActivator = webServiceActivator;
     }
 }
-

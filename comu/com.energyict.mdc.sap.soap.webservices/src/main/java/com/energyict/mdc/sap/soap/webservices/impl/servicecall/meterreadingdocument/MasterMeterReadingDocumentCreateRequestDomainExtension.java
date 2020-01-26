@@ -115,4 +115,8 @@ public class MasterMeterReadingDocumentCreateRequestDomainExtension extends Abst
     @Override
     public void validateDelete() {
     }
+
+    public ServiceCall getServiceCall() {
+        return serviceCall.get();
+    }
 }

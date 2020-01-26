@@ -54,14 +54,13 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
         String valueCodes = bundleContext.getProperty(REASON_CODES_ONDEMAND);
         if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
             codes = Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE);
-        }else{
+        } else {
             codes = Arrays.asList((valueCodes.split(",")));
         }
 
         Optional.ofNullable(bundleContext.getProperty(SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND))
-                .ifPresent(property->dateShift = Integer.valueOf(property));
+                .ifPresent(property -> dateShift = Integer.valueOf(property));
     }
-
 
     @Reference
     public final void setDeviceService(DeviceService deviceService) {
@@ -85,7 +84,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     @Override
     public long getShiftDate() {
-        return dateShift* SECONDS_IN_DAY;
+        return dateShift * SECONDS_IN_DAY;
     }
 
     @Override
@@ -99,16 +98,6 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     }
 
     @Override
-    public boolean isBulk() {
-        return true;
-    }
-
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
-
-    @Override
     public void process(SAPMeterReadingDocumentCollectionData collectionData) {
         if (hasCommunicationConnection(collectionData.getServiceCall(),
                 collectionData.getDeviceName(), collectionData.isRegular(), collectionData.getScheduledReadingDate())) {
@@ -116,34 +105,45 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
         }
     }
 
+    @Override
+    public boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular) {
+        return findOrCreateComTaskExecution(device, isRegular).isPresent();
+    }
+
+    private Optional<ComTaskExecution> findOrCreateComTaskExecution(Device device, boolean isRegular) {
+        Optional<ComTaskExecution> comTaskExecution = findLastTaskExecution(device, isRegular);
+        ComTaskExecution execution = null;
+        if (comTaskExecution.isPresent()) {
+            execution = comTaskExecution.get();
+        } else {
+            Optional<ComTaskEnablement> comTaskEnablement = getComTaskEnablementForDevice(device, isRegular);
+            if (comTaskEnablement.isPresent()) {
+                execution = createAdHocComTaskExecution(device, comTaskEnablement.get());
+            }
+        }
+        return Optional.ofNullable(execution);
+    }
+
     private boolean hasCommunicationConnection(ServiceCall serviceCall, String deviceName, boolean isRegular,
                                                Instant scheduledReadingDate) {
         Optional<Device> device = deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
-            Optional<ComTaskExecution> comTaskExecution = findLastTaskExecution(device.get(), isRegular);
-            ComTaskExecution execution;
-            if (comTaskExecution.isPresent()) {
-                execution = comTaskExecution.get();
-            } else {
-                Optional<ComTaskEnablement> comTaskEnablement = getComTaskEnablementForDevice(device.get(), isRegular);
-                if (comTaskEnablement.isPresent()) {
-                    execution = createAdHocComTaskExecution(device.get(), comTaskEnablement.get());
-                } else {
-                    serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages couldn't be located");
-                    serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
-                    return false;
-                }
-            }
+            Optional<ComTaskExecution> comTaskExecution = findOrCreateComTaskExecution(device.get(), isRegular);
 
-            return hasLastTaskExecutionTimestamp(execution, scheduledReadingDate)
-                    ? checkTaskStatus(serviceCall, execution)
-                    : runTask(serviceCall, execution);
+            if (comTaskExecution.isPresent()) {
+                return hasLastTaskExecutionTimestamp(comTaskExecution.get(), scheduledReadingDate)
+                        ? checkTaskStatus(serviceCall, (comTaskExecution.get()))
+                        : runTask(serviceCall, (comTaskExecution.get()));
+            } else {
+                serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages couldn't be located");
+                serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
+                return false;
+            }
         } else {
             serviceCall.log(LogLevel.SEVERE, "Couldn't find device " + deviceName);
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
             return false;
         }
-
     }
 
     private Optional<ComTaskExecution> findLastTaskExecution(Device device, boolean isRegular) {

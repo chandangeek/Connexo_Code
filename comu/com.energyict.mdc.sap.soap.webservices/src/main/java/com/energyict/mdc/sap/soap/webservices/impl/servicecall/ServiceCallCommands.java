@@ -150,7 +150,7 @@ public class ServiceCallCommands {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 getServiceCallType(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST).ifPresent(serviceCallType -> {
-                    sendMessage(createServiceCall(serviceCallType, message), message.isBulk());
+                    createServiceCall(serviceCallType, message);
                 });
             }
         } else {
@@ -377,7 +377,7 @@ public class ServiceCallCommands {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
-    private MeterReadingDocumentRequestConfirmationMessage createServiceCall(ServiceCallType serviceCallType, MeterReadingDocumentCreateRequestMessage requestMessage) {
+    private void createServiceCall(ServiceCallType serviceCallType, MeterReadingDocumentCreateRequestMessage requestMessage) {
         MasterMeterReadingDocumentCreateRequestDomainExtension meterReadingDocumentDomainExtension =
                 new MasterMeterReadingDocumentCreateRequestDomainExtension();
         meterReadingDocumentDomainExtension.setRequestID(requestMessage.getId());
@@ -389,28 +389,23 @@ public class ServiceCallCommands {
                 .extendedWith(meterReadingDocumentDomainExtension)
                 .create();
 
-        requestMessage.getMeterReadingDocumentCreateMessages()
-                .forEach(bodyMessage -> {
-                    if (bodyMessage.isValid() && bodyMessage.isReasonCodeSupported(requestMessage.isBulk())) {
+        if (requestMessage.getMeterReadingDocumentCreateMessages().stream().allMatch(bodyMessage -> bodyMessage.isValid())) {
+            requestMessage.getMeterReadingDocumentCreateMessages()
+                    .forEach(bodyMessage -> {
                         createChildServiceCall(serviceCall, bodyMessage);
-                    }
-                });
+                    });
+        }
 
         if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
-            MessageSeeds errorMessage = requestMessage.isBulk() ? MessageSeeds.BULK_REQUEST_WAS_FAILED : MessageSeeds.REQUEST_WAS_FAILED;
-            return MeterReadingDocumentRequestConfirmationMessage
+            MessageSeeds errorMessage = requestMessage.isBulk() ? MessageSeeds.ONE_OF_MRD_IS_INVALID : MessageSeeds.INVALID_MESSAGE_FORMAT;
+            sendMessage(MeterReadingDocumentRequestConfirmationMessage
                     .builder()
                     .from(requestMessage, errorMessage, clock.instant(), webServiceActivator.getMeteringSystemId())
-                    .build();
+                    .build(), requestMessage.isBulk());
         }
-
-        return MeterReadingDocumentRequestConfirmationMessage
-                .builder()
-                .from(requestMessage, clock.instant(), webServiceActivator.getMeteringSystemId())
-                .build();
     }
 
     public Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
@@ -562,6 +557,4 @@ public class ServiceCallCommands {
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
     }
-
-
 }
