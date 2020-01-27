@@ -25,6 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     BULK_ITEM_PROCESSING_WAS_NOT_STARTED(12, "BulkItemProcessingWasNotStarted", "Bulk item processing hasn''t started due to request issue."),
     UNKNOWN_ERROR(13, "UnknownError", "Unknown error."),
     REQUEST_WAS_FAILED(14, "RequestWasFailed", "Request has failed."),
+    DATA_EXPORT_TASK_WAS_INTERRUPTED(15, "DataExportTaskWasInterrupted", "Data export task was interrupted while waiting for data export confirmation."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
