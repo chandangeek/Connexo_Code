@@ -149,10 +149,13 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
             }
 
             // update/create end device group for export task
-            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
+            String groupName = WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME);
+            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(groupName);
             Set<Long> deviceIds = getDeviceIds(profileIntervals);
             if (endDeviceGroup.isPresent()) {
-                addDevicesToEnumeratedGroup((EnumeratedEndDeviceGroup) endDeviceGroup.get(), deviceIds);
+                EndDeviceGroup lockedEndDeviceGroup = meteringGroupsService.findAndLockEndDeviceGroupByIdAndVersion(endDeviceGroup.get().getId(), endDeviceGroup.get().getVersion())
+                        .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_GROUP_UPDATING, groupName));
+                addDevicesToEnumeratedGroup((EnumeratedEndDeviceGroup) lockedEndDeviceGroup, deviceIds);
             } else {
                 endDeviceGroup = Optional.of(createEnumeratedEndDeviceGroup(deviceIds));
             }
