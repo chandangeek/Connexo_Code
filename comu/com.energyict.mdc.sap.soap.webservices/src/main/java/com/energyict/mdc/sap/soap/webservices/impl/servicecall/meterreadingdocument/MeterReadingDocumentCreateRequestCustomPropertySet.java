@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class MeterReadingDocumentCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MeterReadingDocumentCreateRequestDomainExtension> {
@@ -179,6 +180,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .stringSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REFERENCE_UUID.javaName(), TranslationKeys.REFERENCE_UUID)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -316,6 +322,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName())
+                    .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
+                    .varChar(DESCRIPTION_LENGTH)
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
         }

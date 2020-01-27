@@ -25,6 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     BULK_ITEM_PROCESSING_WAS_NOT_STARTED(12, "BulkItemProcessingWasNotStarted", "Bulk item processing hasn''t started due to request issue."),
     UNKNOWN_ERROR(13, "UnknownError", "Unknown error."),
     REQUEST_WAS_FAILED(14, "RequestWasFailed", "Request has failed."),
+    ONE_OF_MRD_IS_INVALID(15, "OneOfMrdIsInvalid", "One of the meter reading document has invalid message format"),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -37,9 +38,11 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
     COULD_NOT_FIND_DOMAIN_EXTENSION(2003, "CouldNotFindDEForSC", "Couldn''t find domain extension for service call."),
     INVALID_READING_REASON_CODE(2004, "InvalidReadingReasonCode", "Invalid reading reason code {0}."),
-    SERVICE_CALL_WAS_CANCELLED(2005, "ServiceCallWasCancelled", "Service call was cancelled."),
+    REQUEST_CANCELLED(2005, "RequestCancelled", "Request cancelled."),
     REGISTER_SERVICE_CALL_WAS_CANCELLED(2006, "RegisterServiceCallWasCancelled", "Service call for register ''{0}'' was cancelled."),
     REGISTER_LRN_SERVICE_CALL_WAS_CANCELLED(2007, "RegisterLrnServiceCallWasCancelled", "Service call for register with LRN ''{0}'' was cancelled."),
+    REQUEST_CANCELLED_MANUALLY(2008, "RequestCancelledManually", "Request cancelled manually."),
+    REQUEST_CANCELLED_BY_SAP(2009, "RequestCancelledBySap", "Request cancelled by SAP."),
 
     // Web services
     NO_REPLY_ADDRESS(3001, "NoReplyAddress", "Reply address is required"),
@@ -87,13 +90,19 @@ public enum MessageSeeds implements MessageSeed {
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
     ERROR_CANCELLING_STATUS_CHANGE_REQUEST(5002, "ErrorCancellingStatusChangeRequest", "Error while cancelling status change request: ''{0}''."),
-    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_LOG(5003, "ErrorCancellingStatusChangeRequestLog", "''{0}'' of ''{1}'' status change requests per device are cancelled. ''{2}'' status change requests aren''t cancelled."),
-    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS(5004, "ErrorCancellingStatusChangeRequestNoRequests", "No status change requests are found to cancel with id ''{0}'' and category code ''{1}''."),
-    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed", "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_LOG(5003, "ErrorCancellingStatusChangeRequestLog",
+            "''{0}'' of ''{1}'' status change requests per device are cancelled. ''{2}'' status change requests aren''t cancelled."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_NO_REQUESTS(5004, "ErrorCancellingStatusChangeRequestNoRequests",
+            "No status change requests are found to cancel with id ''{0}'' and category code ''{1}''."),
+    ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed",
+            "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
+    CHANNEL_REGISTER_IS_NOT_FOUND(5006, "ChannelRegisterIsNotFound", "The channel/register isn''t found."),
+    DEVICE_IS_NOT_FOUND(5007, "DeviceIsNotFound", "The device isn''t found."),
+    COM_TASK_COULD_NOT_BE_LOCATED(5008, "ComTaskCouldNotBeLocated", "A communication task to execute the device messages couldn''t be located"),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid message format."),
-    UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request"),
+    UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "Unsupported reason code"),
     NO_METER_READING_DOCUMENT(6003, "NoMeterReadingDocument", "No meter reading document found with id ''{0}''."),
     METER_READING_DOCUMENT_IS_PROCESSED(6004, "MeterReadingDocumentIsProcessed", "Meter reading document is processed."),
     ERROR_CANCELLING_METER_READING_DOCUMENT(6005, "ErrorCancellingMeterReadingDocument", "Error while cancelling meter reading document: ''{0}''."),
