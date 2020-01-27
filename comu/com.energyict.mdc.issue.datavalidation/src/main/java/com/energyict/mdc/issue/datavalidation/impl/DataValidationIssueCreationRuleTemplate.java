@@ -229,10 +229,10 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId)
     {
         for (CreationRule creationRule : getExistingCreationRules()) {
-            if(((List)(creationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
-                    .stream()
-                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceTypeId() == deviceTypeId)
-                    .findFirst().isPresent())
+            Object lifecycleStates = creationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES);
+            if((lifecycleStates instanceof List) && ((List)lifecycleStates).stream()
+                    .anyMatch(propertySpec -> (propertySpec instanceof DeviceLifeCycleInDeviceTypeInfo) &&
+                            ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceTypeId() == deviceTypeId))
                 return Optional.of(creationRule);
         }
         return Optional.empty();
