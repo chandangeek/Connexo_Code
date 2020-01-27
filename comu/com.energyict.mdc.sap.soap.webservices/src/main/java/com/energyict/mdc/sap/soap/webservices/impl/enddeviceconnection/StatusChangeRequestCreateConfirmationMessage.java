@@ -82,7 +82,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
             if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat()));
             } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createPartiallySuccessfulLog());
             } else {

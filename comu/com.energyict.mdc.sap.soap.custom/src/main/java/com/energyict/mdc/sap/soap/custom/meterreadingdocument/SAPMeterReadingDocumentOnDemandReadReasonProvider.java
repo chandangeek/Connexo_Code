@@ -133,7 +133,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
             if (comTaskExecution.isPresent()) {
                 return hasLastTaskExecutionTimestamp(comTaskExecution.get(), scheduledReadingDate)
                         ? checkTaskStatus(serviceCall, (comTaskExecution.get()))
-                        : runTask(serviceCall, (comTaskExecution.get()));
+                        : runTask(serviceCall, comTaskExecution.get());
             } else {
                 serviceCall.log(LogLevel.SEVERE, "A communication task to execute the device messages couldn't be located");
                 serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);

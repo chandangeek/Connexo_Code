@@ -63,9 +63,9 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
                 if (extension.getCancelledBySap() == null) {
                     extension.setCancelledBySap(false);
-                    extension.setErrorMessage(MessageSeeds.SERVICE_CALL_WAS_CANCELLED_MANUALLY);
+                    extension.setErrorMessage(MessageSeeds.REQUEST_CANCELLED_MANUALLY);
                 } else {
-                    extension.setErrorMessage(MessageSeeds.SERVICE_CALL_WAS_CANCELLED_BY_SAP);
+                    extension.setErrorMessage(MessageSeeds.REQUEST_CANCELLED_BY_SAP);
                 }
                 serviceCall.update(extension);
                 break;
@@ -133,6 +133,8 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 }
             }
 
+            //clear error message property after previous attempts
+            extension.setErrorMessage("");
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {

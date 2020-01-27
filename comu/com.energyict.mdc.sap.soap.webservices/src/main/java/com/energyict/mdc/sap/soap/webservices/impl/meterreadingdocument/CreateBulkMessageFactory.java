@@ -10,6 +10,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
@@ -52,7 +53,13 @@ public class CreateBulkMessageFactory {
         ServiceCall parent = extension.getServiceCall();
         switch (parent.getState()) {
             case CANCELLED:
-                bulkConfirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(new Object[0])));
+                if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.CANCELLED)) {
+                    bulkConfirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(new Object[0])));
+                } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+                    bulkConfirmationMessage.setLog(createPartiallySuccessfulLog());
+                } else {
+                    bulkConfirmationMessage.setLog(createFailedLog(MessageSeeds.BULK_REQUEST_WAS_FAILED.getDefaultFormat(new Object[0])));
+                }
                 break;
             case SUCCESSFUL:
                 bulkConfirmationMessage.setLog(createSuccessfulLog());

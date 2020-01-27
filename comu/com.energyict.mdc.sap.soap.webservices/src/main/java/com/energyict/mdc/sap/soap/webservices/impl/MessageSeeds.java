@@ -38,11 +38,11 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
     COULD_NOT_FIND_DOMAIN_EXTENSION(2003, "CouldNotFindDEForSC", "Couldn''t find domain extension for service call."),
     INVALID_READING_REASON_CODE(2004, "InvalidReadingReasonCode", "Invalid reading reason code {0}."),
-    SERVICE_CALL_WAS_CANCELLED(2005, "ServiceCallWasCancelled", "Service call was cancelled."),
+    REQUEST_CANCELLED(2005, "RequestCancelled", "Request cancelled."),
     REGISTER_SERVICE_CALL_WAS_CANCELLED(2006, "RegisterServiceCallWasCancelled", "Service call for register ''{0}'' was cancelled."),
     REGISTER_LRN_SERVICE_CALL_WAS_CANCELLED(2007, "RegisterLrnServiceCallWasCancelled", "Service call for register with LRN ''{0}'' was cancelled."),
-    SERVICE_CALL_WAS_CANCELLED_MANUALLY(2008, "ServiceCallWasCancelledManually", "Service call was cancelled manually."),
-    SERVICE_CALL_WAS_CANCELLED_BY_SAP(2009, "ServiceCallWasCancelledBySap", "Service call was cancelled by SAP."),
+    REQUEST_CANCELLED_MANUALLY(2008, "RequestCancelledManually", "Request cancelled manually."),
+    REQUEST_CANCELLED_BY_SAP(2009, "RequestCancelledBySap", "Request cancelled by SAP."),
 
     // Web services
     NO_REPLY_ADDRESS(3001, "NoReplyAddress", "Reply address is required"),
