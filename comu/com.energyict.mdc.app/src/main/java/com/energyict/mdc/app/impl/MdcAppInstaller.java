@@ -191,6 +191,10 @@ public class MdcAppInstaller {
                     com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
                     com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL1,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL2,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL3,
+                    com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_LEVEL4,
 
 
                     //Estimation
