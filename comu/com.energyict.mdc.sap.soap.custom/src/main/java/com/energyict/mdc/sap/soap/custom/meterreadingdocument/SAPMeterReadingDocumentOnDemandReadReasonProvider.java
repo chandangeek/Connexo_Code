@@ -50,7 +50,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private static List<String> codes;
     private static int dateShift = SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE;
-    private static boolean skipCommunicationWaterMeters = false;
+    private static boolean skipCommunicationWaterMeters;
 
     private volatile DeviceService deviceService;
     private volatile SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper;
@@ -78,9 +78,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private void initSkipCommunicationWaterMeters(BundleContext bundleContext) {
         String value = bundleContext.getProperty(ONDEMAND_SKIP_COMMUNICATION_WATER_METERS);
-        if (!is(value).emptyOrOnlyWhiteSpace() && Boolean.parseBoolean(value)) {
-            skipCommunicationWaterMeters = true;
-        }
+        skipCommunicationWaterMeters = !is(value).emptyOrOnlyWhiteSpace() && Boolean.parseBoolean(value);
     }
 
     @Reference
