@@ -5,7 +5,6 @@
 package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -21,6 +20,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfoFactory;
+import com.elster.jupiter.users.rest.actions.UnlockUserTransaction;
 import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
@@ -163,6 +163,19 @@ public class UserResource {
         info.active = false;
         info.id = id;
         transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
+        return getUser(info.id);
+
+    }
+
+    @PUT
+    @Path("/{id}/unlock")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
+    public UserInfo unlockUser(UserInfo info, @PathParam("id") long id) {
+        info.unSuccessfulLoginCount = 0;
+        info.id = id;
+        transactionService.execute(new UnlockUserTransaction(info, userService, conflictFactory));
         return getUser(info.id);
 
     }
