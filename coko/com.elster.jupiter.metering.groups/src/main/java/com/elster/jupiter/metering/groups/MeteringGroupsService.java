@@ -64,7 +64,7 @@ public interface MeteringGroupsService {
 
     Optional<EndDeviceGroup> findAndLockEndDeviceGroupByIdAndVersion(long id, long version);
 
-    EndDeviceGroup findAndLockEndDeviceGroupByName(String name);
+    Optional<EndDeviceGroup> findAndLockEndDeviceGroupByName(String name);
 
     Optional<UsagePointGroup> findAndLockUsagePointGroupByIdAndVersion(long id, long version);
 

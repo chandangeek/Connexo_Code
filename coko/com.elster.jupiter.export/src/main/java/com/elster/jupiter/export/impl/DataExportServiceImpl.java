@@ -242,6 +242,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
+    public Optional<? extends ExportTask> findAndLockReadingTypeDataExportTaskByName(String name) {
+        Optional<? extends ExportTask> exportTask = getReadingTypeDataExportTaskByName(name);
+        return Optional.ofNullable(exportTask.map(et -> dataModel.mapper(IExportTask.class).lock(et.getId())).orElse(null));
+    }
+
+    @Override
     public Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name) {
         Query<IExportTask> query =
                 queryService.wrap(dataModel.query(IExportTask.class, RecurrentTask.class));
