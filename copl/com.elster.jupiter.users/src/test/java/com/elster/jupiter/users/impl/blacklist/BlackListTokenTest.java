@@ -46,7 +46,7 @@ public class BlackListTokenTest {
        BlackListTokenServiceImpl instance = getInstance();
         instance.setOrmService(ormService);
 
-        BlackListTokenService.BlackListTokenBuilder blackListTokenBuilder = instance.newBlackListTokenService();       
+        BlackListTokenService.BlackListTokenBuilder blackListTokenBuilder = instance.getBlackListTokenService();
     }
 
     private BlackListTokenServiceImpl getInstance(){

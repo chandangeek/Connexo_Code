@@ -22,7 +22,7 @@ import java.util.Optional;
 @ProviderType
 public interface BlackListTokenService {
     String COMPONENTNAME = "BLT";
-    BlackListTokenBuilder newBlackListTokenService();
+    BlackListTokenBuilder getBlackListTokenService();
     Query<BlackListToken> getCreationRuleQuery(Class<?>... eagers);
     Optional<BlackListToken> findToken(long userId, String token);
     void deleteExpiredTokens();

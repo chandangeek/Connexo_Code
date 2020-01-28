@@ -433,7 +433,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private void blackListToken(long userId, String cookieValue) {
         try (TransactionContext transactionContext = transactionService.getContext()) {
-            BlackListTokenService.BlackListTokenBuilder blackListTokenBuilder = blackListTokenService.newBlackListTokenService();
+            BlackListTokenService.BlackListTokenBuilder blackListTokenBuilder = blackListTokenService.getBlackListTokenService();
             blackListTokenBuilder.setUerId(userId);
             blackListTokenBuilder.setToken(cookieValue);
             blackListTokenBuilder.save();

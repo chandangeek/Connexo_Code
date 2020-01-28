@@ -162,7 +162,7 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
     }
 
     @Override
-    public BlackListTokenBuilder newBlackListTokenService() {
+    public BlackListTokenBuilder getBlackListTokenService() {
         return new BlackListTokenBuilderImpl(dataModel.getInstance(BlackListTokenImpl.class));
 
     }
@@ -200,7 +200,7 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
         final long TOKEN_EXPTIME = (tokenExpTime != null) ? Integer.parseInt(tokenExpTime) : 1800;
         Instant creationTime = Instant.now().minus(TOKEN_EXPTIME, ChronoUnit.SECONDS);
         SqlBuilder builder = new SqlBuilder("DELETE FROM ");
-        builder.append("BLT_BLACKLISTEDTOKEN");
+        builder.append(TableSpecs.BLT_BLACKLISTEDTOKEN.name());
         builder.append(" WHERE CREATETIME < ");
         builder.append(""+creationTime.getEpochSecond() * 1000);
         return builder;
