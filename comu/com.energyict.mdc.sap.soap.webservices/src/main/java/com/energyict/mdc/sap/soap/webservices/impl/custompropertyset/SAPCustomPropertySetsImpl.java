@@ -984,7 +984,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
                 .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(now).or(Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start").isGreaterThanOrEqual(now.toEpochMilli())))
                 .sorted(Order.ascending(HardCodedFieldNames.INTERVAL.javaName() + ".start"))
-                .map(DeviceChannelSAPInfoDomainExtension::getRange)
+                .map(ext -> ext.getInterval().toOpenClosedRange())
                 .findFirst()
                 .orElse(null);
 
