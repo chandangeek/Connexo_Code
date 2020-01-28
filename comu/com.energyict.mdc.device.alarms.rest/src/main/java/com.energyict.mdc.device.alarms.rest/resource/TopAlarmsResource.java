@@ -66,7 +66,7 @@ public class TopAlarmsResource extends BaseAlarmResource {
         List<OpenIssue> alarms = alarmQuery.select(conditionAlarm.and(conditionStatus)
                 .and(conditionUser.or(conditionNullUser.and(conditionWG))), 1, 5,
                 new Order[]{
-                        Order.ascending("priorityTotal"),
+                        Order.descending("priorityTotal"),
                         Order.ascending("dueDate"),
                         Order.ascending("reason")
         });
