@@ -239,4 +239,9 @@ public class AM130 extends AM500 {
     public DeviceFunction getDeviceFunction() {
         return DeviceFunction.NONE;
     }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return true;
+    }
 }

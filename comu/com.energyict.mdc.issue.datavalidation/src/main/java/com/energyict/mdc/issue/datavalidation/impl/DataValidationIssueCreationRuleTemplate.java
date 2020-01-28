@@ -4,9 +4,12 @@
 
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -20,9 +23,12 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -41,6 +47,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate",
         property = {"name=" + DataValidationIssueCreationRuleTemplate.NAME},
@@ -208,6 +217,25 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
             }
         }
         return issue;
+    }
+
+    protected List<CreationRule> getExistingCreationRules() {
+        Query<CreationRule> query = issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
+        Condition conditionIssue = where("template").isEqualTo(getName());
+        return query.select(conditionIssue, Order.ascending("name"));
+    }
+
+    @Override
+    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId)
+    {
+        for (CreationRule creationRule : getExistingCreationRules()) {
+            Object lifecycleStates = creationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES);
+            if((lifecycleStates instanceof List) && ((List)lifecycleStates).stream()
+                    .anyMatch(propertySpec -> (propertySpec instanceof DeviceLifeCycleInDeviceTypeInfo) &&
+                            ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceTypeId() == deviceTypeId))
+                return Optional.of(creationRule);
+        }
+        return Optional.empty();
     }
 
     private class DeviceConfigurationInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceConfigurationPropertyFactory {

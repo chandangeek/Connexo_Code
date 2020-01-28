@@ -235,7 +235,7 @@ public class DataMapperWriter<T> {
         List<Pair<ColumnImpl, Long>> versionCounts = new ArrayList<>(versionCountColumns.length);
         try (Connection connection = getConnection(true)) {
             String sql;
-            if (doJournal(columns)){
+            if  (columns.size() == 0 || doJournal(columns)){
                 sql = getSqlGenerator().updateSql(columns);
             } else {
                 sql = getSqlGenerator().updateSqlWithoutVersionIncrease(columns);
@@ -258,7 +258,7 @@ public class DataMapperWriter<T> {
                     column.setObject(statement, index++, object).ifPresent(resources::add);
                 }
                 index = bindPrimaryKey(statement, index, object);
-                if (doJournal(columns)) {
+                if (columns.size() == 0 || doJournal(columns)) {
                     for (ColumnImpl column : versionCountColumns) {
                         Long value = (Long) column.domainValue(object);
                         versionCounts.add(Pair.of(column, value));

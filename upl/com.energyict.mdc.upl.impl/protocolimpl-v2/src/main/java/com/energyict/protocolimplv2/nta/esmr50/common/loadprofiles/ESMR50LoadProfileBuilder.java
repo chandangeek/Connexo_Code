@@ -1,14 +1,6 @@
 package com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles;
 
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
@@ -17,6 +9,15 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -26,6 +27,7 @@ import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
+import com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210CatM;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
+public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40LoadProfileBuilder<ESMR50Protocol> {
 
     /*
       15 minutes load profiles
@@ -81,7 +83,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
      * Default constructor
      *
      */
-    public ESMR50LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public ESMR50LoadProfileBuilder(ESMR50Protocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
@@ -204,11 +206,13 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                     }
                     List<IntervalData> parsedIntervals = intervals.parseIntervals(lpc.getProfileInterval(), timeZone);
                     this.getMeterProtocol().journal(" > load profile intervals parsed: " + parsedIntervals.size());
-//                    if (lpObisCode.equals(LTE_MONITORING_LOAD_PROFILE)) {
-//                        profileData.setChannelInfos(lpr.getChannelInfos()); TODO LTE_MONITORING_LOAD_PROFILE must be tested to see if it reads the channels correctly
-//                    }
 
-                    collectedLoadProfile.setCollectedIntervalData(parsedIntervals, getChannelInfoMap().get(lpr));
+                        if (lpObisCode.equals(LTE_MONITORING_LOAD_PROFILE)) {
+                            collectedLoadProfile.setCollectedIntervalData(parsedIntervals, lpc.getChannelInfos());
+                        } else {
+                            collectedLoadProfile.setCollectedIntervalData(parsedIntervals, getChannelInfoMap().get(lpr));
+                        }
+
                 } else {
                     this.getMeterProtocol().journal(Level.WARNING, "Configuration for LoadProfile " + lpObisCode + " not found, will be skipped!");
                 }
@@ -246,7 +250,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         return loadProfileConfigurationList;
     }
 
-    private static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
+    public static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
         final String[] obisLetters = obisCode.toString().split("\\.");
         final String letter = String.valueOf(value);
 

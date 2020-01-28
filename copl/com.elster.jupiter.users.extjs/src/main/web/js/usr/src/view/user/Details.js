@@ -15,7 +15,6 @@ Ext.define('Usr.view.user.Details', {
     ],
     title: Uni.I18n.translate('users.user', 'USR', 'User'),
 
-
     tools: [
         {
             xtype: 'uni-button-action',
@@ -81,6 +80,20 @@ Ext.define('Usr.view.user.Details', {
                                         }
                                         catch(e) {}
                                         return Uni.I18n.translate('general.inactive', 'USR', 'Inactive');
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'isUserLocked',
+                                    fieldLabel: Uni.I18n.translate('user.locked', 'USR', 'Locked'),
+                                    renderer: function (value) {
+                                        try {
+                                            if (JSON.parse(value)) {
+                                                return Uni.I18n.translate('general.userLocked', 'USR', 'Yes');
+                                            }
+                                        }
+                                        catch(e) {}
+                                        return Uni.I18n.translate('general.userUnlocked', 'USR', 'No');
                                     }
                                 },
                                 {
