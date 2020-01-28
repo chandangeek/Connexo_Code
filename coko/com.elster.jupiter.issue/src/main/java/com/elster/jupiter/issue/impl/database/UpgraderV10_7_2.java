@@ -81,7 +81,9 @@ public class UpgraderV10_7_2 implements Upgrader {
         for (PhaseContent content : contentList) {
             if (content.actionTypeId != actionTypeIdToKeep) {
                 connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTION SET ACTIONTYPE = %s where id = %s", actionTypeIdToKeep, content.actionId));
+                connection.commit();
                 connection.createStatement().execute(String.format("update ISU_CREATIONRULEACTIONPROPS SET NAME = %s where CREATIONRULEACTION = %s", START_PROCESS_PROPERTY_NAME, content.actionId));
+                connection.commit();
             }
         }
     }
