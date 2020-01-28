@@ -117,7 +117,7 @@ public enum MessageSeeds implements MessageSeed {
     ENDPOINT_BY_NAME_NOT_FOUND(7007, "EndpointByNameNotFound", "Couldn''t find active endpoint with name ''{0}''."),
     ERROR_PROCESSING_MTA_REQUEST(7009, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
     ERROR_PROCESSING_METER_REPLACEMENT_REQUEST(7010, "ErrorProcessingMeterReplacementRequest", "Error while processing meter replacement request: ''{0}''."),
-    DEVICE_GROUP_UPDATING(7011, "DeviceGroupUpdating", "Export task device group ''{0}'' is currently updating."),
+    DEVICE_GROUP_UPDATE(7011, "DeviceGroupUpdate", "Export task device group ''{0}'' is currently being updated."),
 
     // Smart meter events
     EVENT_CONFIRMED(8000, "EventConfirmed", "Confirmed smart meter event creation request with UUID {0}.", Level.INFO),

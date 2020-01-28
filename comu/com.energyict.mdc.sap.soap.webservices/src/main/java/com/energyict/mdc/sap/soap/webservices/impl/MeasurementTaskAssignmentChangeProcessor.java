@@ -150,26 +150,22 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
 
             // update/create end device group for export task
             String groupName = WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME);
-            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(groupName);
+            EndDeviceGroup endDeviceGroup = meteringGroupsService.findAndLockEndDeviceGroupByName(groupName);
             Set<Long> deviceIds = getDeviceIds(profileIntervals);
-            if (endDeviceGroup.isPresent()) {
-                EndDeviceGroup lockedEndDeviceGroup = meteringGroupsService.findAndLockEndDeviceGroupByIdAndVersion(endDeviceGroup.get().getId(), endDeviceGroup.get().getVersion())
-                        .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_GROUP_UPDATING, groupName));
-                addDevicesToEnumeratedGroup((EnumeratedEndDeviceGroup) lockedEndDeviceGroup, deviceIds);
+            if (endDeviceGroup != null) {
+                addDevicesToEnumeratedGroup((EnumeratedEndDeviceGroup) endDeviceGroup, deviceIds);
             } else {
-                endDeviceGroup = Optional.of(createEnumeratedEndDeviceGroup(deviceIds));
+                endDeviceGroup = createEnumeratedEndDeviceGroup(deviceIds);
             }
 
-            if (endDeviceGroup.isPresent()) {
-                // update/create export task
-                Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
-                        .getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
-                Set<ReadingType> readingTypes = getReadingTypes(profileIntervals);
-                if (exportTask.isPresent()) {
-                    updateExportTask(exportTask.get(), readingTypes, true);
-                } else {
-                    createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
-                }
+            // update/create export task
+            Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
+                    .getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
+            Set<ReadingType> readingTypes = getReadingTypes(profileIntervals);
+            if (exportTask.isPresent()) {
+                updateExportTask(exportTask.get(), readingTypes, true);
+            } else {
+                createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup, readingTypes, selectorName);
             }
         } else {
             Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
