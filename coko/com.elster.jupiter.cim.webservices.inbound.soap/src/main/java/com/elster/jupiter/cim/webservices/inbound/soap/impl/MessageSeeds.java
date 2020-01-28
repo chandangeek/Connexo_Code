@@ -67,6 +67,7 @@ public enum MessageSeeds implements MessageSeed {
     MISSING_REQUIRED_CUSTOMATTRIBUTE_VALUE(2028, "MissingRequiredCustomAttributeValue", "Attribute {0} is required on custom attribute set {1}."),
     CUSTOMPROPERTYSET_VALUES_ON_REQUIRED_RANGE(2029, "CustomPropertySetValuesOnRequiredRange", "Custom property set {0} must have values on the required range {1}."),
     NO_ACTIVE_METROLOGY_CONFIGURATION_WITH_NAME(2030, "NoActiveMetrologyConfigWithName", "Metrology configuration with name ''{0}'' isn''t active."),
+    DUPLICATE_USAGE_POINT_NAME(2031,"usagepoint.name.already.exists", "Usage point name must be unique"),
 
     // master data linkage
     UNABLE_TO_LINK_METER(4001, "UnableToLinkMeter", "Unable to link meter to usage point"),

@@ -926,8 +926,8 @@ public class CreateUsagePointTest extends AbstractMockActivator {
 
         // Business method & assertions
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
-                null,
-                "ErrorMessage");
+                MessageSeeds.DUPLICATE_USAGE_POINT_NAME.getErrorCode(),
+                MessageSeeds.DUPLICATE_USAGE_POINT_NAME.getDefaultFormat());
     }
 
     @Test
@@ -1028,6 +1028,8 @@ public class CreateUsagePointTest extends AbstractMockActivator {
             fail("Expected FaultMessage but got: " + System.lineSeparator() + e.toString());
         }
     }
+
+
 
     private interface RunnableWithFaultMessage {
         void run() throws FaultMessage;

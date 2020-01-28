@@ -183,4 +183,8 @@ public interface UserService {
     Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char [] password);
 
     String[] userAdminPrivileges();
+
+    Optional<UserSecuritySettings> getLockingAccountSettings();
+
+    UserSecuritySettings findOrCreateUserSecuritySettings(boolean activate, int numberOfAttempts, int numberOfMinutes);
 }

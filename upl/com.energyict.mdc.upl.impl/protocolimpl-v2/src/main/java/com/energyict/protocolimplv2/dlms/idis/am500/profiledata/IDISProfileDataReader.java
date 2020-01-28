@@ -23,6 +23,8 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.IDISProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 
@@ -39,7 +41,7 @@ import java.util.*;
  * @author khe
  * @since 6/01/2015 - 10:35
  */
-public class IDISProfileDataReader {
+public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol> {
 
     private static final ObisCode QUARTER_HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
@@ -58,11 +60,11 @@ public class IDISProfileDataReader {
     private Map<ObisCode, Integer> intervalMap;
     private Map<ObisCode, Boolean> hasStatus = new HashMap<>();
 
-    public IDISProfileDataReader(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public IDISProfileDataReader(T protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS, collectedDataFactory, issueFactory);
     }
 
-    public IDISProfileDataReader(AbstractDlmsProtocol protocol, long limitMaxNrOfDays, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public IDISProfileDataReader(T protocol, long limitMaxNrOfDays, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.protocol = protocol;
         this.limitMaxNrOfDays = limitMaxNrOfDays;
         this.collectedDataFactory = collectedDataFactory;
@@ -87,8 +89,7 @@ public class IDISProfileDataReader {
             if (isSupported(loadProfileReader) && (channelInfos != null)) {
 
                 try {
-                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode);
-                    profileGeneric.setDsmr4SelectiveAccessFormat(protocol.useDsmr4SelectiveAccessFormat());
+                    ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer = profileGeneric.getBuffer(getFromCalendar(loadProfileReader), getToCalendar(loadProfileReader));
                     Object[] loadProfileEntries = buffer.getRoot().getElements();
                     List<IntervalData> intervalDatas = new ArrayList<>();

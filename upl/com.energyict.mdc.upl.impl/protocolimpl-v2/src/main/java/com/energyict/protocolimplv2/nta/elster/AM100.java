@@ -27,7 +27,7 @@ import java.util.logging.Level;
  * @author sva
  * @since 30/10/12 (9:58)
  */
-public class AM100 extends WebRTUKP {
+public final class AM100 extends WebRTUKP {
 
     private AM100DlmsProperties dlmsProperties;
 

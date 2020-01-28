@@ -59,6 +59,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.validation.ConstraintViolationException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -143,7 +144,11 @@ public class UsagePointBuilder {
             @Override
             public com.elster.jupiter.metering.UsagePoint create() throws FaultMessage {
                 basicFaultMessage = MessageSeeds.UNABLE_TO_CREATE_USAGE_POINT;
-                return UsagePointBuilder.this.create();
+                try{
+                    return UsagePointBuilder.this.create();
+                }catch(ConstraintViolationException constraintViolationException){
+                    throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,MessageSeeds.DUPLICATE_USAGE_POINT_NAME).get();
+                }
             }
 
             @Override

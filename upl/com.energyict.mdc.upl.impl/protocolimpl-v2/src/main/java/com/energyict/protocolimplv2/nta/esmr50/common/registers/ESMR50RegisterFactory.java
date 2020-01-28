@@ -283,7 +283,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }
             else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
                 String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, bcd);
+                return new RegisterValue(register, bcd);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
