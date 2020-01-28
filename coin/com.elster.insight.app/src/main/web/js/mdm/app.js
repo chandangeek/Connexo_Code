@@ -70,14 +70,26 @@ Ext.onReady(function () {
 
     loader.initPackages(packages);
     // </debug>
-    Ext.Ajax.on("beforerequest", function(conn){
+    Ext.Ajax.on("beforerequest", function(conn, options){
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
         conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
+
+        if (!options.headers) {
+            options.headers = {};
+        }
+        if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {
+            options.headers['X-CSRF-TOKEN'] = Ext.util.Cookies.get('X-CSRF-TOKEN') || "";
+
+        }
 
     });
     Ext.Ajax.on("requestcomplete", function(conn, response){
         if (response.request && JSON.stringify(response.request.headers).match('"X-Requested-With":"XMLHttpRequest"')) {
             localStorage.setItem('X-AUTH-TOKEN',response.getResponseHeader('X-AUTH-TOKEN'));
+        }
+
+        if(response.getResponseHeader('X-CSRF-TOKEN')){
+            Ext.util.Cookies.set('X-CSRF-TOKEN', response.getResponseHeader('X-CSRF-TOKEN'));
         }
     });
 
