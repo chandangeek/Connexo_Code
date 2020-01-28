@@ -926,7 +926,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
 
         // Business method & assertions
         assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
-                "WS12031",
+                MessageSeeds.DUPLICATE_USAGE_POINT_NAME.getErrorCode(),
                 MessageSeeds.DUPLICATE_USAGE_POINT_NAME.getDefaultFormat());
     }
 
