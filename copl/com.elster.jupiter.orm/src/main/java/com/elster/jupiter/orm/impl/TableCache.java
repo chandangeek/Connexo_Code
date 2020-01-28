@@ -8,14 +8,18 @@ import com.elster.jupiter.orm.CacheClearedEvent;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.pubsub.Publisher;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheStats;
+
+import java.util.concurrent.TimeUnit;
 
 interface TableCache<T> {
 	T get(KeyValue key);
 	void put(KeyValue key , T value);
 	void remove(T entity);
 	void renew();
+	CacheStats getCacheStats();
 
 	class NoCache<T> implements TableCache<T> {
 
@@ -39,15 +43,25 @@ interface TableCache<T> {
             // NoCache means no cache
 		}
 
+		@Override
+		public CacheStats getCacheStats() {
+			return null;
+		}
 	}
 
 	class TupleCache<T> implements TableCache<T> {
 
 		private final TableImpl<T> table;
-		private Map<KeyValue, T> cache = new HashMap<>();
+		private Cache<KeyValue, T> cache;
 
-		TupleCache(TableImpl<T> table) {
+		TupleCache(TableImpl<T> table, long ttl, long maximumSize, boolean recordStats) {
 			this.table = table;
+			CacheBuilder cacheBuilder = CacheBuilder.newBuilder().maximumSize(maximumSize)
+					.expireAfterWrite(ttl, TimeUnit.MILLISECONDS);
+			if(recordStats){
+				cacheBuilder = cacheBuilder.recordStats();
+			}
+			this.cache = cacheBuilder.build();
 		}
 
 		private void cacheChange() {
@@ -56,7 +70,7 @@ interface TableCache<T> {
 		}
 
 		public synchronized void renew() {
-			this.cache = new HashMap<>();
+			this.cache.invalidateAll();
 			cacheCleared();
 		}
 
@@ -71,7 +85,7 @@ interface TableCache<T> {
 
 		@Override
         public synchronized T get(KeyValue key) {
-			return cache.get(key);
+			return cache.getIfPresent(key);
 		}
 
 		@Override
@@ -82,9 +96,14 @@ interface TableCache<T> {
 		@Override
         public synchronized void remove(T entity) {
 			if (cache != null) {
-				cache.remove(getKey(entity));
+				cache.invalidate(getKey(entity));
 			}
 			cacheChange();
+		}
+
+		@Override
+		public CacheStats getCacheStats() {
+			return cache.stats();
 		}
 	}
 
