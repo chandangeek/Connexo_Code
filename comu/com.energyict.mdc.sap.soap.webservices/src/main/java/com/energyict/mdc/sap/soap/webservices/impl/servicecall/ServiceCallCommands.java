@@ -223,7 +223,7 @@ public class ServiceCallCommands {
         } else {
             CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand,
                     message.getPlannedProcessingDateTime()
-                            .isBefore(clock.instant()) ? clock.instant().plusSeconds(60) : message.getPlannedProcessingDateTime(),
+                            .isBefore(clock.instant()) ? clock.instant() : message.getPlannedProcessingDateTime(),
                     serviceCall);
             messageService.getDestinationSpec(ConnectionStatusChangeMessageHandlerFactory.DESTINATION)
                     .ifPresent(destinationSpec -> completionOptions
