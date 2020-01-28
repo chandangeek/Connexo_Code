@@ -7,26 +7,20 @@
 
 package com.elster.jupiter.users.blacklist.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7_1SimpleUpgrader;
 import com.elster.jupiter.users.MessageSeeds;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.blacklist.BlackListToken;
 import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -35,7 +29,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.osgi.service.component.annotations.Activate;
@@ -44,7 +37,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
@@ -57,7 +49,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.elster.jupiter.orm.Version.version;
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Insert your comments here.
@@ -168,12 +159,6 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
     }
 
     @Override
-    public Query<BlackListToken> getCreationRuleQuery(Class<?>... eagers) {
-        Query<BlackListToken> query = query(BlackListToken.class, eagers);
-        return query;
-    }
-
-    @Override
     public Optional<BlackListToken> findToken(long userId, String token) {
         Condition userIdCondition = Operator.EQUALIGNORECASE.compare("userId", userId);
         Condition tokenCondition= Operator.EQUALIGNORECASE.compare("token", token);
@@ -206,12 +191,6 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
         return builder;
     }
 
-    private <T extends BlackListToken> Query<T> query(Class<T> clazz, Class<?>... eagers) {
-        QueryExecutor<T> queryExecutor = dataModel.query(clazz, eagers);
-        Query<T> query = queryService.wrap(queryExecutor);
-        query.setEager();
-        return query;
-    }
     @Override
     public Layer getLayer() {
         return Layer.REST;

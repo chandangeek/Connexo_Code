@@ -7,12 +7,8 @@
 
 package com.elster.jupiter.users.blacklist;
 
-import com.elster.jupiter.orm.HasAuditInfo;
-import com.elster.jupiter.util.HasName;
-
 import aQute.bnd.annotation.ProviderType;
 
-import java.security.Principal;
 import java.time.Instant;
 
 /**

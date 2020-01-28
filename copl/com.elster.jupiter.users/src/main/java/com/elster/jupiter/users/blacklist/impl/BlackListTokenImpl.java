@@ -10,19 +10,13 @@ package com.elster.jupiter.users.blacklist.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.blacklist.BlackListToken;
-
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-
 import java.time.Instant;
-
-import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 /**
  * Insert your comments here.

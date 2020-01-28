@@ -8,7 +8,6 @@
 package com.elster.jupiter.users.blacklist;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Query;
 
 import java.util.Optional;
 
@@ -23,7 +22,6 @@ import java.util.Optional;
 public interface BlackListTokenService {
     String COMPONENTNAME = "BLT";
     BlackListTokenBuilder getBlackListTokenService();
-    Query<BlackListToken> getCreationRuleQuery(Class<?>... eagers);
     Optional<BlackListToken> findToken(long userId, String token);
     void deleteExpiredTokens();
     @ProviderType
