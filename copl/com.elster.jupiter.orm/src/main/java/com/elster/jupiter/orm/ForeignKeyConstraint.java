@@ -80,6 +80,8 @@ public interface ForeignKeyConstraint extends TableConstraint {
         Builder during(Range... ranges);
 
         Builder previously(ForeignKeyConstraint foreignKeyConstraint);
+
+        Builder reverseIndex();
     }
 
 }

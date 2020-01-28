@@ -191,7 +191,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         if (!getReferencedTable().getName().equals(fk.getReferencedTable().getName())) {
             return false;
         }
-        return true;
+        return this.isReverseIndex() == other.isReverseIndex();
     }
 
     public Object domainValue(Column column, Object target) {
@@ -477,6 +477,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
         @Override
         public Builder previously(ForeignKeyConstraint foreignKeyConstraint) {
             constraint.setPredecessor(foreignKeyConstraint);
+            return this;
+        }
+
+        @Override
+        public Builder reverseIndex() {
+            constraint.setReverseIndex(true);
             return this;
         }
     }

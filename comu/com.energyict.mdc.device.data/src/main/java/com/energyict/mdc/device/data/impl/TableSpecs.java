@@ -661,6 +661,17 @@ public enum TableSpecs {
             table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).map("message").add();
             table.column("LOGLEVEL").number().notNull().conversion(NUMBER2ENUM).map("logLevel").add();
             table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
+                    upTo(Version.version(10, 7, 1)).
+                    on(comtaskexecsession).
+                    references(DDC_COMTASKEXECSESSION.name()).
+                    onDelete(CASCADE).
+                    map("comTaskExecutionSession").
+                    composition().
+                    reverseMap("comTaskExecutionJournalEntries").
+                    add();
+            table.foreignKey("FK_DDC_COMTASKJENTRY_SESSION").
+                    since(Version.version(10, 7, 1)).
+                    reverseIndex().
                     on(comtaskexecsession).
                     references(DDC_COMTASKEXECSESSION.name()).
                     onDelete(CASCADE).

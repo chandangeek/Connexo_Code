@@ -275,6 +275,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         builder.append(" ON ");
         builder.append(constraint.getTable().getQualifiedName());
         appendColumns(builder, constraint.getColumns(), false, false);
+        if(constraint.isReverseIndex()){
+            builder.append(" REVERSE ");
+        }
         return builder.toString();
     }
 
