@@ -146,7 +146,7 @@ public class UsagePointBuilder {
                 basicFaultMessage = MessageSeeds.UNABLE_TO_CREATE_USAGE_POINT;
                 try{
                     return UsagePointBuilder.this.create();
-                }catch(ConstraintViolationException cve){
+                }catch(ConstraintViolationException constraintViolationException){
                     throw messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,MessageSeeds.DUPLICATE_USAGE_POINT_NAME).get();
                 }
             }
