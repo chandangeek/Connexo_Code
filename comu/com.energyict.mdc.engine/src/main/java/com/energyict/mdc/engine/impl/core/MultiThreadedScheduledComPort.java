@@ -224,7 +224,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         }
 
         private void scheduleGroups(Collection<ScheduledComTaskExecutionGroup> groups) {
-            LOGGER.warning("perf - nb of free connections: " + (threadPoolSize - getActiveJobCount()));
+            LOGGER.warning("perf - nb of free connections: " + (threadPoolSize - getActiveJobCount()) + " enqueued: " + getDeviceCommandExecutor().getCurrentSize());
             for (ScheduledComTaskExecutionGroup group : groups) {
                 try {
                     try {

@@ -57,6 +57,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     public static final Logger LOGGER = Logger.getLogger(ScheduledComPortImpl.class.getName());
     private static final int SEND_TO_SLEEP_THRESHOLD = 100;
+    private static final int THROTTLING_THRESHOLD = 75;
     private final ServiceProvider serviceProvider;
     private final RunningComServer runningComServer;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
@@ -275,9 +276,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     final void executeTasks() {
         int storeTaskQueueLoadPercentage = deviceCommandExecutor.getCurrentLoadPercentage();
-        if (storeTaskQueueLoadPercentage < 100) {
+        if (storeTaskQueueLoadPercentage < THROTTLING_THRESHOLD) {
             getLogger().lookingForWork(getThreadName());
-            LOGGER.warning("[" + Thread.currentThread().getName() + "] looking for work");
+            LOGGER.warning("perf - [" + Thread.currentThread().getName() + "] looking for work");
             long start = System.currentTimeMillis();
             List<ComJob> jobs = getComServerDAO().findExecutableOutboundComTasks(getComPort());
             queriedForTasks();
@@ -285,7 +286,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         } else {
             getLogger().storeTaskQueueIsFull(storeTaskQueueLoadPercentage);
             try {
-                Thread.sleep(5000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
