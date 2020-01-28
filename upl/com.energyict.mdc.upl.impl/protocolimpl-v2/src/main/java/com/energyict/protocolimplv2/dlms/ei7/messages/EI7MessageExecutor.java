@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.ei7.messages;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.NbiotPushSetup;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -19,6 +20,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Calendar;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.threshold;
 
@@ -68,10 +70,11 @@ public class EI7MessageExecutor extends A2MessageExecutor {
             case 3: pushObisCode = PUSH_SCHEDULER_3; break;
             case 4: pushObisCode = PUSH_SCHEDULER_4; break;
         }
-        NbiotPushScheduler nbiotSchedulerSetup = getCosemObjectFactory().getNbiotPushScheduler(pushObisCode);
+        NbiotPushScheduler nbiotPushScheduler = getCosemObjectFactory().getNbiotPushScheduler(pushObisCode);
         String executionTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionTime).getValue();
-        AXDRDateTime axdrExecutionTime = convertUnixToDateTime(Long.valueOf(executionTime), getProtocol().getTimeZone());
-        nbiotSchedulerSetup.writeExecutionTime(new AXDRDateTime[]{axdrExecutionTime});
+        Calendar executionTimeCal = Calendar.getInstance(getProtocol().getTimeZone());
+        executionTimeCal.setTimeInMillis(Long.valueOf(executionTime));
+        nbiotPushScheduler.writeExecutionTime(new Calendar[]{executionTimeCal});
     }
     private void writePushSetup(OfflineDeviceMessage pendingMessage) throws IOException {
         ObisCode pushObisCode = null;

@@ -34,10 +34,10 @@ public class NbiotPushScheduler extends AbstractCosemObject {
         return DLMSClassId.SINGLE_ACTION_SCHEDULE.getClassId();
     }
 
-    public void writeExecutionTime(AXDRDateTime[] executionTimes) throws IOException, ParseException {
+    public void writeExecutionTime(Calendar[] executionTimes) throws IOException {
         Array timesArray = new Array();
-        for(AXDRDateTime execTime: executionTimes) {
-            timesArray.addDataType(execTime);
+        for(Calendar execTime: executionTimes) {
+            timesArray.addDataType(new DateTimeOctetString(execTime));
         }
         write(NbiotPushSchedulerAttributes.EXECUTION_TIME, timesArray.getBEREncodedByteArray());
     }
