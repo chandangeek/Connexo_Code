@@ -26,7 +26,19 @@ Ext.define('Usr.model.User', {
         'createdOn',
         'modifiedOn',
         'lastSuccessfulLogin',
-        'lastUnSuccessfulLogin'
+        'lastUnSuccessfulLogin',
+        'isUserLocked',
+        {
+            name: 'accountLocked',
+            persist: false,
+            mapping: function (data) {
+                if(data.isUserLocked){
+                    return Uni.I18n.translate('general.userLocked', 'USR', 'Yes');
+                } else {
+                    return Uni.I18n.translate('general.userUnlocked', 'USR', 'No');
+                }
+            }
+        },
     ],
     associations: [
         {

@@ -194,32 +194,54 @@ public class A2ProfileDataReader {
         return protocol.getPhysicalAddressCorrectedObisCode(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
     }
 
-    protected int getEiServerStatus(int protocolStatus) {
+   /*
+    bit 0 - Clock Synchronisation Failed
+    bit 1 - Metrological Event Log Full
+    bit 2 - Metrological Event Log >= 90 %
+    bit 3 - Measurement algorithm failure
+    bit 4 - Device General Failure
+            Severe software error
+    bit 5 - Gas Flow Error : overflow detected
+            Gas Flow Error : reverse flow detected
+    bit 6 - Memory failure
+    bit 7 - Less Significant Bit of UNI-TS Status
+    bit 8 - Battery Level Below 10%
+    bit 9 - Battery Critical Level
+    bit 10 - Device Tamper Detection
+    bit 11 - DST (Daylight Saving Time) active
+    bit 12 - Valve closed Because of Leakage
+             Valid Invalid Valve Password
+             Valve is Closed Because No Communication For a configurable time
+             Valve is closed but leakage is presents
+             Valve: cannot open or close
+    bit 13 - Reserved
+    bit 14 - Reserved
+    bit 15 - Reserved
+    */
+
+    private int getEiServerStatus(int protocolStatus) {
         int status = IntervalStateBits.OK;
         BigInteger protocolStatusBig = BigInteger.valueOf(protocolStatus);
-        if (protocolStatusBig.testBit(7)) {
+        if (protocolStatusBig.testBit(10)) {
             status = status | IntervalStateBits.CORRUPTED;
         }
+        if (protocolStatusBig.testBit(9)) {
+            status = status | IntervalStateBits.BATTERY_LOW;
+        }
+        if (protocolStatusBig.testBit(8)) {
+            status = status | IntervalStateBits.BATTERY_LOW;
+        }
         if (protocolStatusBig.testBit(6)) {
-            status = status | IntervalStateBits.SHORTLONG;
+            status = status | IntervalStateBits.DEVICE_ERROR;
         }
         if (protocolStatusBig.testBit(5)) {
             status = status | IntervalStateBits.OVERFLOW;
         }
         if (protocolStatusBig.testBit(4)) {
-            status = status | IntervalStateBits.REVISED;
+            status = status | IntervalStateBits.DEVICE_ERROR;
         }
         if (protocolStatusBig.testBit(3)) {
-            status = status | IntervalStateBits.CONFIGURATIONCHANGE;
-        }
-        if (protocolStatusBig.testBit(2)) {
-            status = status | IntervalStateBits.CURRENTFAILVALIDATION;
-        }
-        if (protocolStatusBig.testBit(1)) {
-            status = status | IntervalStateBits.POWERDOWN;
-        }
-        if (protocolStatusBig.testBit(0)) {
-            status = status | IntervalStateBits.PHASEFAILURE;
+            status = status | IntervalStateBits.DEVICE_ERROR;
         }
         return status;
     }

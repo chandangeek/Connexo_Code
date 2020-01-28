@@ -62,6 +62,7 @@ import static com.elster.jupiter.util.Checks.is;
 public final class BasicAuthentication implements HttpAuthenticationService {
 
     public static final String COMPONENT_NAME = "HTW";
+    private static final String ACCOUNT_LOCKED = "AccountLocked";
     private static final String TIMEOUT = "com.elster.jupiter.timeout";
     private static final String TOKEN_REFRESH_MAX_COUNT = "com.elster.jupiter.token.refresh.maxcount";
     private static final String TOKEN_EXPIRATION_TIME = "com.elster.jupiter.token.expirationtime";
@@ -496,7 +497,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
-        if (isAuthenticated(user)) {
+        if(isUserLocked(user)){
+            return denyAccountLocked(request, response);
+        } else if (isAuthenticated(user)) {
             User returnedUserByAuthentication = user.get();
             //required because user returned by auth has not yet lastSuccessfulLogin set.... This is a vamp. the login mechanism should be changed.
             User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
@@ -525,6 +528,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return user.isPresent() && !user.get().getPrivileges().isEmpty();
     }
 
+    private boolean isUserLocked(Optional<User> user) {
+        return user.isPresent() && user.get().isUserLocked(userService.getLockingAccountSettings());
+    }
+
     private boolean allow(HttpServletRequest request, HttpServletResponse response, User user, String token) {
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);
@@ -533,6 +540,22 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         response.setHeader("X-AUTH-TOKEN", token);
         response.setHeader("Authorization", "Bearer " + token);
         return true;
+    }
+
+    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response)   {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        try {
+            response.getWriter().write(ACCOUNT_LOCKED);
+            response.getWriter().flush();
+            response.getWriter().close();
+        } catch(IOException exception){}
+        Optional<Cookie> tokenCookie = getTokenCookie(request);
+        if (tokenCookie.isPresent()) {
+            removeCookie(response, tokenCookie.get().getName());
+        }
+        invalidateSession(request);
+
+        return false;
     }
 
     private boolean deny(HttpServletRequest request, HttpServletResponse response) {
