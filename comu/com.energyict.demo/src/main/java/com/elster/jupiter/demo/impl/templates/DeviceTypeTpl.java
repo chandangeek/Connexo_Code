@@ -178,6 +178,14 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     ELSTER_AS220_AS1440_AM500_MBUS_SLAVE("Elster AS220/AS1440 AM500 Mbus Slave", "com.energyict.protocolimpl.dlms.as220.GasDevice", 0, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.asList(RegisterTypeTpl.GAS_MASTER_VALUE, RegisterTypeTpl.VALVE_STATE),
             Arrays.asList(LoadProfileTypeTpl.HOURLY_GAS, LoadProfileTypeTpl.MASTER_GAS),
+            Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG), false),
+    ELSTER_AS220_AS1440_AM100_DLMS("Elster AS220/AS1440 AM100 DLMS (PRE-NTA)", "com.energyict.protocolimplv2.nta.elster.AM100", 1, OutboundTCPComPortPoolTpl.ORANGE,
+            Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2),
+            Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY, LoadProfileTypeTpl._15_MIN_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.DAILY_ELECTRICITY_A_PLUS, LoadProfileTypeTpl.MONTHLY_ELECTRICITY_A_PLUS),
+            Arrays.<LogBookTypeTpl>asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG), false),
+    ELSTER_AS220_AS1440_AM100_MBUS_SLAVE("Elster AS220/AS1440 AM100 DLMS (PRE-NTA) Mbus Slave", "com.energyict.protocolimplv2.nta.elster.MbusDevice", 0, OutboundTCPComPortPoolTpl.ORANGE,
+            Collections.singletonList(RegisterTypeTpl.SECONDARY_BULK_A_PLUS),
+            Collections.singletonList(LoadProfileTypeTpl.HOURLY_ELECTRICITY),
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG), false)
     ;
 
