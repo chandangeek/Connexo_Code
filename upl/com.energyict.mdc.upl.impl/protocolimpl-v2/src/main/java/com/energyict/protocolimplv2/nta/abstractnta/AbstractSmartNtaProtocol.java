@@ -45,8 +45,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
-    public static final ObisCode FIRMWARE_VERSION_METER_CORE = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode FIRMWARE_VERSION_COMMS_MODULE = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode FIRMWARE_VERSION_METER_CORE = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode FIRMWARE_VERSION_COMMS_MODULE = ObisCode.fromString("1.2.0.2.0.255");
 
     public static final ObisCode MBUS_DEVICE_CONFIGURATION = ObisCode.fromString("0.x.24.2.2.255");
 

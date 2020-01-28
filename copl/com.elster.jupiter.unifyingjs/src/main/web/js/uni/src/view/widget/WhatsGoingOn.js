@@ -123,6 +123,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             me.store.setProxy({
                 type: 'rest',
                 url: '/api/ddr/devices/'+ encodeURIComponent(this.deviceId) +'/whatsgoingon',
+                timeout: 120000,
                 startParam: 'start',
                 limitParam: 'limit',
                 reader: {
@@ -134,6 +135,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             me.store.setProxy({
                 type: 'rest',
                 url: '/api/udr/usagepoints/'+ encodeURIComponent(this.usagePointId) +'/whatsgoingon',
+                timeout: 120000,
                 startParam: 'start',
                 limitParam: 'limit',
                 reader: {

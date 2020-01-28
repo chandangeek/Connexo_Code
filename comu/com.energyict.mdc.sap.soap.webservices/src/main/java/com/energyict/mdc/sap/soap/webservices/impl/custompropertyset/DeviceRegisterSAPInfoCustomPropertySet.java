@@ -30,7 +30,8 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 
 public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet<RegisterSpec, DeviceRegisterSAPInfoDomainExtension> {
     public static final String CPS_ID = DeviceRegisterSAPInfoCustomPropertySet.class.getName();
-    static final String MODEL_NAME = "DI3";
+    public static final String MODEL_NAME = "DI3";
+    public static final String TABLE_NAME = "SAP_CAS_DI3";
 
     // Common for all domain objects
     private final PropertySpecService propertySpecService;
@@ -98,7 +99,6 @@ public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<RegisterSpec, DeviceRegisterSAPInfoDomainExtension> {
-        private final String TABLE_NAME = "SAP_CAS_DI3";
         private final String FK = "FK_SAP_CAS_DI3";
         private final String IDX = "IDX_SAP_CAS_DI3_LRN";
 

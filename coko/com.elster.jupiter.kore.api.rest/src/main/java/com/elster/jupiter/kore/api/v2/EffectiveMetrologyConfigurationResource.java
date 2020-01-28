@@ -16,6 +16,8 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 
+import com.coverity.security.Escape;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -149,7 +151,8 @@ public class EffectiveMetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Transactional
     public Response editEffectiveMetrologyConfiguration(@PathParam("mRID") String mRID, @PathParam("timestamp") long timestamp, EffectiveMetrologyConfigurationInfo info, @Context UriInfo uriInfo) {
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = meteringService.findUsagePointByMRID(mRID)
+        String sanitizedMRID = Escape.uriParam(mRID);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = meteringService.findUsagePointByMRID(sanitizedMRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
                 .getEffectiveMetrologyConfiguration(Instant.ofEpochMilli(timestamp))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
@@ -160,7 +163,7 @@ public class EffectiveMetrologyConfigurationResource {
         URI uri = uriInfo.getBaseUriBuilder().
                 path(EffectiveMetrologyConfigurationResource.class).
                 path(EffectiveMetrologyConfigurationResource.class, "getMetrologyConfiguration").
-                build(mRID, info.id);
+                build(sanitizedMRID, info.id);
         return Response.ok(uri).build();
     }
 

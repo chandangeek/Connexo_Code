@@ -283,7 +283,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }
             else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
                 String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
-                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, bcd);
+                return new RegisterValue(register, bcd);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
@@ -639,29 +639,29 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                     protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION value:" +abstractDataType.toString()));
                 }
-            }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_METEROLOGICAL_FIRMWARE)) {
+            } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_METEROLOGICAL_FIRMWARE)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
-                if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getMeterologicalFirmware());
+                if (configurationObject.isDecoded()) {
+                    return new RegisterValue(register, configurationObject.getMeterologicalFirmware());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, abstractDataType.toString());
                 }
-            }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE)) {
+            } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
-                if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getOperationalFirmware());
+                if (configurationObject.isDecoded()) {
+                    return new RegisterValue(register, configurationObject.getOperationalFirmware());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE value:" +abstractDataType.toString()));
+                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE value:" +abstractDataType.toString());
                 }
-            }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE)) {
+            } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);
-                if (configurationObject.isDecoded()){
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getAdditionalFirmware());
+                if (configurationObject.isDecoded()) {
+                    return new RegisterValue(register, configurationObject.getAdditionalFirmware());
                 } else {
                     protocol.journal(configurationObject.getErrorMessage());
-                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE value:" +abstractDataType.toString()));
+                    return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE value:" +abstractDataType.toString());
                 }
             }else if (rObisCode.equals(LTE_FW_UPGRADE_STATUS)) {
                 int statusId = abstractDataType.getTypeEnum().intValue();

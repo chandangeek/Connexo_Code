@@ -26,6 +26,7 @@ import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Protocol;
+import com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210CatM;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
+public class ESMR50LoadProfileBuilder<T extends ESMR50Protocol> extends Dsmr40LoadProfileBuilder<ESMR50Protocol> {
 
     /*
       15 minutes load profiles
@@ -81,7 +82,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
      * Default constructor
      *
      */
-    public ESMR50LoadProfileBuilder(AbstractDlmsProtocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public ESMR50LoadProfileBuilder(ESMR50Protocol meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(meterProtocol, collectedDataFactory, issueFactory);
     }
 
@@ -246,7 +247,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
         return loadProfileConfigurationList;
     }
 
-    private static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
+    public static ObisCode setFieldAndGet(ObisCode obisCode, int fieldNo, int value) {
         final String[] obisLetters = obisCode.toString().split("\\.");
         final String letter = String.valueOf(value);
 

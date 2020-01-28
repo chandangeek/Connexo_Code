@@ -58,6 +58,11 @@ public enum Privileges implements TranslationKey {
     ADMINISTER_ESTIMATION_CONFIGURATION(Constants.ADMINISTER_ESTIMATION_CONFIGURATION, "Administrate estimation configuration"),
     ADMINISTRATE_DEVICE_ZONE(ADMINISTRATE_ZONE, "Administrate"),
     VIEW_DEVICE_ZONE(VIEW_ZONE, "View"),
+    VIEW_CUSTOM_PROPERTIES_LEVEL1(Constants.VIEW_CUSTOM_PROPERTIES_LEVEL1, "View"),
+    VIEW_CUSTOM_PROPERTIES_LEVEL2(Constants.VIEW_CUSTOM_PROPERTIES_LEVEL2, "View"),
+    VIEW_CUSTOM_PROPERTIES_LEVEL3(Constants.VIEW_CUSTOM_PROPERTIES_LEVEL3, "View"),
+    VIEW_CUSTOM_PROPERTIES_LEVEL4(Constants.VIEW_CUSTOM_PROPERTIES_LEVEL4, "View")
+
     //   VIEW_AUDIT_LOG_DATA(VIEW_AUDIT_LOG, "View")
     ;
 
@@ -125,6 +130,12 @@ public enum Privileges implements TranslationKey {
         String ADMINISTER_ESTIMATION_CONFIGURATION = "privilege.administer.device.estimationConfiguration";
 
         String ADMINISTRATE_ZONE = "privilege.administrate.zone";
+
+        String VIEW_CUSTOM_PROPERTIES_LEVEL1 = "view.custom.properties.level1";
+        String VIEW_CUSTOM_PROPERTIES_LEVEL2 = "view.custom.properties.level2";
+        String VIEW_CUSTOM_PROPERTIES_LEVEL3 = "view.custom.properties.level3";
+        String VIEW_CUSTOM_PROPERTIES_LEVEL4 = "view.custom.properties.level4";
+
 
     }
 }
