@@ -87,22 +87,27 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         Optional<Channel> channel;
+        Optional<? extends ReadingType> dataSource;
         if (device.isPresent()) {
             extension.setDeviceName(device.get().getName());
             channel = sapCustomPropertySets.getChannel(extension.getLrn(), extension.getScheduledReadingDate());
             if (channel.isPresent()) {
                 extension.setChannelId(new BigDecimal(channel.get().getId()));
-                channel.get().getReadingTypes()
+                dataSource = channel.get().getReadingTypes()
                         .stream()
-                        .filter(ReadingType::isCumulative)
-                        .findFirst()
-                        .ifPresent(readingType -> extension.setDataSource(readingType.getMRID()));
+                        .reduce((a, b) -> b); // we need the collected reading type from the channel, it should be the last
+                if (dataSource.isPresent()) {
+                    extension.setDataSource(dataSource.get().getMRID());
+                } else {
+                    failedAttempt(extension, MessageSeeds.READING_TYPE_IS_NOT_FOUND);
+                    return;
+                }
             } else {
                 failedAttempt(extension, MessageSeeds.CHANNEL_REGISTER_IS_NOT_FOUND);
                 return;
             }
 
-            if (!readingReasonProvider.get().validateComTaskExecutionIfNeeded(device.get(), channel.get().isRegular())) {
+            if (!readingReasonProvider.get().validateComTaskExecutionIfNeeded(device.get(), channel.get().isRegular(), dataSource.get())) {
                 extension.setErrorMessage(MessageSeeds.COM_TASK_COULD_NOT_BE_LOCATED);
                 serviceCall.update(extension);
                 serviceCall.requestTransition(DefaultState.FAILED);
