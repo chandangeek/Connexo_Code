@@ -1,15 +1,19 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.messages.A2Messaging;
-import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
+import java.util.Date;
 import java.util.List;
 
 public class EI7Messaging extends A2Messaging {
@@ -33,9 +37,16 @@ public class EI7Messaging extends A2Messaging {
         if (supportedMessages == null) {
             supportedMessages = super.getSupportedMessages();
             supportedMessages.add(NetworkConnectivityMessage.WRITE_PUSH_SCHEDULER.get(getPropertySpecService(), getNlsService(), getConverter()));
-            supportedMessages.add(NetworkConnectivityMessage.CONFIGURE_PUSH_SETUP_EI7.get(getPropertySpecService(), getNlsService(), getConverter()));
-            supportedMessages.add(NetworkConnectivityMessage.WRITE_ORPHAN_STATE.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.add(NetworkConnectivityMessage.WRITE_PUSH_SETUP.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.add(NetworkConnectivityMessage.WRITE_ORPHAN_STATE_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()));
         }
         return supportedMessages;
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.executionTime))
+            return String.valueOf(((Date) messageAttribute).getTime());
+        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 }

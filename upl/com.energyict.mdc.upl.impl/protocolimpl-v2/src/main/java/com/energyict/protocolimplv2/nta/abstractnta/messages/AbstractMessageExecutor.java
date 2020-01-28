@@ -332,10 +332,20 @@ public abstract class AbstractMessageExecutor {
         return convertUnixToDateTime(time, TimeZone.getTimeZone("GMT"));
     }
 
+    public AXDRDateTime convertUnixToDateTime(long epochInMillis){
+        return convertUnixToDateTime(epochInMillis, TimeZone.getTimeZone("GMT"));
+    }
+
     public AXDRDateTime convertUnixToDateTime(String time, TimeZone timeZone) {
         Calendar cal = Calendar.getInstance(timeZone);
         cal.setTimeInMillis(Long.parseLong(time) * 1000);
         return new AXDRDateTime(cal);
+    }
+
+    public AXDRDateTime convertUnixToDateTime(long epochInMillis, TimeZone timeZone){
+        Calendar cal = Calendar.getInstance(timeZone);
+        cal.setTimeInMillis(epochInMillis);
+        return new AXDRDateTime(cal.getTime(), timeZone);
     }
 
     /**

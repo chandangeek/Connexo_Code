@@ -683,34 +683,91 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.bigDecimalSpec(service, DeviceMessageConstants.simPincode, DeviceMessageConstants.simPincodeDefaultTranslation)
+                    this.bigDecimalSpec(service, DeviceMessageConstants.schedulerNumber, DeviceMessageConstants.schedulerNumberDefaultTranslation, getPossibleValues(1, 4)),
+                    this.dateTimeSpec(service, DeviceMessageConstants.executionTime, DeviceMessageConstants.executionTimeDefaultTranslation)
             );
         }
     },
-    CONFIGURE_PUSH_SETUP_EI7(4081, "Configure push setup for EI7 protocol") {
+    WRITE_PUSH_SETUP(4081, "Write push setup parameters") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectMode, DeviceMessageConstants.autoConnectModeDefaultTranslation, AutoConnectMode.SpecifiedTime.description, AutoConnectMode.InsideWindow.description),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitions, DeviceMessageConstants.autoConnectRepetitionsDefaultTranslation),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitionsDelay, DeviceMessageConstants.autoConnectRepetitionsDelayDefaultTranslation),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.windowAttributeName, DeviceMessageConstants.windowAttributeDefaultTranslation, getPossibleValues(1, 2)),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectDestionation1, DeviceMessageConstants.autoConnectDestionation1DefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.portNumberAttributeName, DeviceMessageConstants.portNumberAttributeDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectDayMap, DeviceMessageConstants.autoConnectDayMapDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectGSMRegistrationTimeout, DeviceMessageConstants.autoConnectGSMRegistrationTimeoutDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeout, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeoutDefaultTranslation)
+                    this.bigDecimalSpec(service, DeviceMessageConstants.pushNumber, DeviceMessageConstants.pushNumberDefaultTranslation, getPossibleValues(1, 4)),
+                    this.stringSpec(service, DeviceMessageConstants.pushObjectList, DeviceMessageConstants.pushObjectListDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.transportTypeAttributeName, DeviceMessageConstants.transportTypeAttributeDefaultTranslation, NetworkConnectivityMessage.TransportType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.destinationAddressAttributeName, DeviceMessageConstants.destinationAddressAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.messageTypeAttributeName, DeviceMessageConstants.messageTypeAttributeDefaultTranslation, NetworkConnectivityMessage.MessageType.getTypes()),
+                    this.stringSpec(service, DeviceMessageConstants.communicationWindow, DeviceMessageConstants.communicationWindowDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.randomizationStartInterval, DeviceMessageConstants.randomizationStartIntervalDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.numberOfRetries, DeviceMessageConstants.numberOfRetriesDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.repetitionDelay, DeviceMessageConstants.repetitionDelayDefaultTranslation)
             );
         }
     },
-    WRITE_ORPHAN_STATE(4082, "Write orphan state") {
+    WRITE_ORPHAN_STATE_THRESHOLD(4082, "Write orphan state threshold") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.bigDecimalSpec(service, DeviceMessageConstants.simPincode, DeviceMessageConstants.simPincodeDefaultTranslation)
+                    this.bigDecimalSpec(service, DeviceMessageConstants.threshold, DeviceMessageConstants.thresholdDefaultTranslation)
             );
         }
     };
+
+    public enum TransportType {
+        TCP(0),
+        UDP(1);
+
+        private final int id;
+
+        TransportType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            return Stream.of(values()).map(NetworkConnectivityMessage.TransportType::name).toArray(String[]::new);
+        }
+
+        public static String getStringValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .map(NetworkConnectivityMessage.TransportType::name)
+                    .orElse("Unknown transport type");
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    public enum MessageType {
+        AXDR(0),
+        XML(1);
+
+        private final int id;
+
+        MessageType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            return Stream.of(values()).map(NetworkConnectivityMessage.MessageType::name).toArray(String[]::new);
+        }
+
+        public static String getStringValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .map(NetworkConnectivityMessage.MessageType::name)
+                    .orElse("Unknown message type");
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
 
     public enum VPNAuthenticationType {
         IKEv2_With_PSK(0, "IKEv2 with PSK"),

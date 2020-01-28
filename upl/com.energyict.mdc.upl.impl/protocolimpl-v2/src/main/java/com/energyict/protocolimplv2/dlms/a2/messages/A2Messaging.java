@@ -28,9 +28,9 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayPr
 
 public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    protected List<DeviceMessageSpec> supportedMessages;
+    private List<DeviceMessageSpec> supportedMessages;
 
-    protected A2MessageExecutor messageExecutor;
+    private A2MessageExecutor messageExecutor;
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
