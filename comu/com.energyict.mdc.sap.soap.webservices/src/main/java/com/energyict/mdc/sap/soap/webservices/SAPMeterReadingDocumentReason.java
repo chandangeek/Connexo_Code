@@ -3,12 +3,12 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Pair;
 
 import com.energyict.mdc.common.device.data.Device;
 
 import aQute.bnd.annotation.ConsumerType;
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,5 +49,5 @@ public interface SAPMeterReadingDocumentReason {
      */
     void process(SAPMeterReadingDocumentCollectionData sapMeterReadingDocumentCollectionData);
 
-    boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular);
+    boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular, ReadingType readingType);
 }

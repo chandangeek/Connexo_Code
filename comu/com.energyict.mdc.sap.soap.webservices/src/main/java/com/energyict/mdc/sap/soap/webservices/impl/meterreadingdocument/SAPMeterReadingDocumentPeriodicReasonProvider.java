@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.data.Device;
@@ -88,7 +89,7 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     }
 
     @Override
-    public boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular) {
+    public boolean validateComTaskExecutionIfNeeded(Device device, boolean isRegular, ReadingType readingType) {
         return true;
     }
 }

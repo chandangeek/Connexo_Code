@@ -99,6 +99,7 @@ public enum MessageSeeds implements MessageSeed {
     CHANNEL_REGISTER_IS_NOT_FOUND(5006, "ChannelRegisterIsNotFound", "The channel/register isn''t found."),
     DEVICE_IS_NOT_FOUND(5007, "DeviceIsNotFound", "The device isn''t found."),
     COM_TASK_COULD_NOT_BE_LOCATED(5008, "ComTaskCouldNotBeLocated", "A communication task to execute the device messages couldn''t be located"),
+    READING_TYPE_IS_NOT_FOUND(5009, "ReadingTypeIsNotFound", "The reading type isn''t found."),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid message format."),
