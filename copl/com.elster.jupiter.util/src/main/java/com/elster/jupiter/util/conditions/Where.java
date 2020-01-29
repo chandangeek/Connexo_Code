@@ -168,6 +168,10 @@ public final class Where {
         return where(field + ".start").isLessThanOrEqual(instant.toEpochMilli()).and(where(field + ".end").isGreaterThan(instant.toEpochMilli()));
     }
 
+    public Condition isEffectiveOpenClosed(Instant instant) {
+        return where(field + ".start").isLessThan(instant.toEpochMilli()).and(where(field + ".end").isGreaterThanOrEqual(instant.toEpochMilli()));
+    }
+
     public Condition isEffective(Range<Instant> range) {
         // for isEffective we know the interval has to interpreted as closedOpen
         Condition result = Condition.TRUE;
@@ -181,6 +185,22 @@ public final class Where {
             Where start = Where.where(field + ".start");
             long endpoint = range.upperEndpoint().toEpochMilli();
             result = result.and(open ? start.isLessThan(endpoint) : start.isLessThanOrEqual(endpoint));
+        }
+        return result;
+    }
+
+    public Condition isEffectiveOpenClosed(Range<Instant> range) {
+        Condition result = Condition.TRUE;
+        if (range.hasLowerBound()) {
+            boolean open = range.lowerBoundType().equals(BoundType.OPEN);
+            Where end = Where.where(field + ".end");
+            long endpoint = range.lowerEndpoint().toEpochMilli();
+            result = result.and(open ? end.isGreaterThan(endpoint) : end.isGreaterThanOrEqual(endpoint));
+        }
+        if (range.hasUpperBound()) {
+            Where start = Where.where(field + ".start");
+            long endpoint = range.upperEndpoint().toEpochMilli();
+            result = result.and(start.isLessThan(endpoint));
         }
         return result;
     }

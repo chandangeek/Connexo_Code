@@ -111,7 +111,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
         if (domainExtension.isFutureCase() && domainExtension.getProcessingDate().isAfter(clock.instant())) {
             serviceCall.transitionWithLockIfPossible(DefaultState.PAUSED);
         } else if (domainExtension.getChannelId() == null) {
-            serviceCall.log(LogLevel.SEVERE, "Channel/register id is null");
+            serviceCall.log(LogLevel.SEVERE, "The channel/register isn't found");
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
             Optional.of(domainExtension)
