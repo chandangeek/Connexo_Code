@@ -76,7 +76,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
                 alarmRuleTemplateInfos.add(new AlarmRuleTemplateInfo(resultSet.getLong("CREATIONRULE"), resultSet.getString("VALUE")));
             }
             alarmRuleTemplateInfos.forEach(info -> info.changeValue(deviceType));
-            alarmRuleTemplateInfos.forEach(info -> updateBD(info, connection));
+            alarmRuleTemplateInfos.forEach(info -> updateDB(info, connection));
             issueService.getIssueCreationService().getCreationRuleQuery()
                     .select(Where.where("id").in(alarmRuleTemplateInfos.stream().map(AlarmRuleTemplateInfo::getId).collect(Collectors.toList())))
                     .forEach(CreationRule::update);
@@ -85,7 +85,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
         }
     }
 
-    private void updateBD(AlarmRuleTemplateInfo info, Connection connection) {
+    private void updateDB(AlarmRuleTemplateInfo info, Connection connection) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE ISU_CREATIONRULEPROPS SET VALUE = '" + info.valuesToString() + "' WHERE CREATIONRULE = " + info.id +
                 "AND NAME IN('BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes','DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes')")) {
             preparedStatement.execute();
@@ -134,7 +134,8 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
             values.stream()
                     .filter(value -> value.deviceTypeId == deviceType.getId())
                     .forEach(value -> {
-                        DeviceLifeCycle oldLifeCycle = deviceLifeCycleConfigurationService.findDeviceLifeCycle(value.lifeCycleId).orElseThrow(() -> new IllegalStateException("wtf"));
+                        DeviceLifeCycle oldLifeCycle = deviceLifeCycleConfigurationService.findDeviceLifeCycle(value.lifeCycleId)
+                                .orElseThrow(() -> new IllegalStateException("Life cycle no longer exist"));
                         DeviceLifeCycle newLifeCycle = deviceType.getDeviceLifeCycle();
                         value.lifeCycleId = newLifeCycle.getId();
                         if (!allOldStatesAreSameAsNew(value, oldLifeCycle, newLifeCycle)) {

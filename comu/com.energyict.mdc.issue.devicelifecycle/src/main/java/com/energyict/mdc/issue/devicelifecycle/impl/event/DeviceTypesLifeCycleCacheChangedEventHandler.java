@@ -75,7 +75,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
                 issueRuleTemplateInfos.add(new IssueRuleTemplateInfo(resultSet.getLong("CREATIONRULE"), resultSet.getString("VALUE")));
             }
             issueRuleTemplateInfos.forEach(info -> info.changeValue(deviceType));
-            issueRuleTemplateInfos.forEach(info -> updateBD(info, connection));
+            issueRuleTemplateInfos.forEach(info -> updateDB(info, connection));
             issueService.getIssueCreationService().getCreationRuleQuery()
                     .select(Where.where("id").in(issueRuleTemplateInfos.stream().map(IssueRuleTemplateInfo::getId).collect(Collectors.toList())))
                     .forEach(CreationRule::update);
@@ -84,7 +84,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
         }
     }
 
-    private void updateBD(IssueRuleTemplateInfo info, Connection connection) {
+    private void updateDB(IssueRuleTemplateInfo info, Connection connection) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE ISU_CREATIONRULEPROPS SET VALUE = '" + info.valuesToString() + "' WHERE CREATIONRULE = " + info.id +
                 "AND NAME = 'DeviceLifecycleIssueCreationRuleTemplate.deviceLifecycleTransitionProps'")) {
             preparedStatement.execute();
@@ -125,7 +125,8 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
         }
 
         public void changeValue(DeviceType deviceType) {
-            DeviceLifeCycle oldLifeCycle = deviceLifeCycleConfigurationService.findDeviceLifeCycle(this.values.get(0).lifeCycleId).orElseThrow(() -> new IllegalStateException("wtf"));
+            DeviceLifeCycle oldLifeCycle = deviceLifeCycleConfigurationService.findDeviceLifeCycle(this.values.get(0).lifeCycleId)
+                    .orElseThrow(() -> new IllegalStateException("Life cycle no longer exist"));
             DeviceLifeCycle newLifeCycle = deviceType.getDeviceLifeCycle();
             if (!allOldTransitionsAreSameAsNew(this.values, oldLifeCycle, newLifeCycle, deviceType)) {
                 this.values.removeIf(value -> value.deviceTypeId == deviceType.getId());

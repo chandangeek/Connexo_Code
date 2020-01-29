@@ -27,6 +27,7 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
@@ -49,6 +50,7 @@ import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeExceptio
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.exceptions.DeviceIconTooBigException;
 import com.energyict.mdc.device.config.exceptions.DeviceMessageFileTooBigException;
+import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
@@ -341,9 +343,8 @@ public class DeviceTypeResource {
         List<String> alarmRules = ruleTemplates
                 .stream()
                 .filter(issueTemplate -> issueTemplate.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE))
-                .map(ruleTemplate1 -> ruleTemplate1.getCreationRuleWhichUsesDeviceType(id))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWhichUsesDeviceType(id))
+                .flatMap(Collection::stream)
                 .map(CreationRule::getName)
                 .collect(Collectors.toList());
 
@@ -351,17 +352,27 @@ public class DeviceTypeResource {
         List<String> issueRules = ruleTemplates
                 .stream()
                 .filter(issueTemplate -> issueTemplate.getName().equals(DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE))
-                .map(ruleTemplate1 -> ruleTemplate1.getCreationRuleWhichUsesDeviceType(id))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWhichUsesDeviceType(id))
+                .flatMap(Collection::stream)
                 .map(CreationRule::getName)
                 .collect(Collectors.toList());
 
-        List<String> issueRules2 = ruleTemplates.stream()
-                .filter(creationRuleTemplate -> creationRuleTemplate.getPropertySpec(DEVICE_LIFECYCLE_IN_DEVICE_TYPE).isPresent())
-                .map(ruleTemplate1 -> ruleTemplate1.getCreationRuleWhichUsesDeviceType(id))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+
+        List<CreationRule> issueCreationRules = issueService.getIssueCreationService().getCreationRuleQuery()
+                .select(Where.where("reason").isNotNull());
+
+        List<CreationRule> rules = new ArrayList<>();
+        issueCreationRules.forEach(issueCreationRule -> {
+            Object props = issueCreationRule.getProperties().get(DEVICE_LIFECYCLE_IN_DEVICE_TYPE);
+            if (props != null && ((List) (props))
+                    .stream()
+                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo) propertySpec).getDeviceTypeId() == id)
+                    .findFirst().isPresent()) {
+                rules.add(issueCreationRule);
+            }
+        });
+
+        List<String> issueRules2 = rules.stream()
                 .map(CreationRule::getName)
                 .collect(Collectors.toList());
 
@@ -391,7 +402,7 @@ public class DeviceTypeResource {
     }
 
     private ChangeCreationRulesInfo createChangeCreationRulesInfo(DeviceTypeInfo deviceTypeInfo, List<String> alarmRules, List<String> issueRules) {
-        return new ChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.THE_NEW_LIFE_CYCLE_DOESNT_HAVE_FULL_COMPLIANCE).format(),
+        return new ChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format(),
                 deviceTypeInfo,
                 thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ALARM_RULES).format(String.join(", ", alarmRules)),
                 thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ISSUED_RULES).format(String.join(", ", issueRules)));

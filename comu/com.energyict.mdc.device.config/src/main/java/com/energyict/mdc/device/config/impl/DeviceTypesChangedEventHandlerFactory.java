@@ -15,8 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
-@Component(name = "com.energyict.mdc.device.config." +
-        "",
+@Component(name = "com.energyict.mdc.device.config.DeviceTypesChangedEventHandlerFactory",
         service = MessageHandlerFactory.class,
         property = {"subscriber=" + "DeviceTypesChanges", "destination=" + EventService.JUPITER_EVENTS},
         immediate = true)

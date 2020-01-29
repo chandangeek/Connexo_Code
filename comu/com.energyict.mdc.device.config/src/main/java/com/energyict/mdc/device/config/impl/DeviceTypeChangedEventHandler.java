@@ -31,7 +31,7 @@ public class DeviceTypeChangedEventHandler implements MessageHandler {
         Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
         if (messageProperties.get("id") != null) {
             if (!deviceConfigurationService.findDeviceType(Integer.toUnsignedLong((Integer) messageProperties.get("id"))).isPresent()) {
-                LOGGER.warning("zhopa");
+                LOGGER.warning("Device type " + messageProperties.get("id") + " not more exist");
             } else {
                 eventService.postEvent(EventType.DEVICE_TYPE_LIFE_CYCLE_CACHE_RECALCULATED.topic(), deviceConfigurationService.findDeviceType(Integer.toUnsignedLong((Integer) messageProperties.get("id")))
                         .get());

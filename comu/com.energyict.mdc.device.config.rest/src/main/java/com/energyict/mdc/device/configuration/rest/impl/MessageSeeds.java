@@ -72,7 +72,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CUSTOMPROPERTYSET(237, "noSuchCPS", "No custom property set with id {0}."),
     DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(238, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''"),
 
-    THE_NEW_LIFE_CYCLE_DOESNT_HAVE_FULL_COMPLIANCE(239, "DeviceLifecycleInUseByCreationRule", "The new life cycle doesn''t have full compliance with the states and transitions of the old life cycle. If at least one previously selected state/transition on an alarm or issue rule is missing on the new lifecycle, all states/transitions of the new lifecycle will be selected. Please check and adjust if necessary the following rules."),
+    THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE(239, "TheNewLifeCycleMightNotHaveFullCompliance", "The new life cycle might not have full compliance with the states and transitions of the old life cycle. If at least one previously selected state/transition on an alarm or issue rule is missing on the new lifecycle, all states/transitions of the new lifecycle will be selected. Please check and adjust if necessary the following rules."),
     AFFECTED_ALARM_RULES(240, "AffectedAlarmRules", "Affected alarm rules: ''{0}''"),
     AFFECTED_ISSUED_RULES(241, "AffectedIssueRules", "Affected issue rules: ''{0}''");
 

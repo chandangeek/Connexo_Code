@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -33,7 +34,6 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.device.config.DeviceType;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
@@ -175,18 +175,33 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     @Override
-    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId)
-    {
+    public Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId) {
         List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
 
-        for (CreationRule alarmCreationRule:alarmCreationRules) {
-            if(((List)(alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
-                        .stream()
-                        .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo)propertySpec).getDeviceType().getId() == deviceTypeId)
-                        .findFirst().isPresent())
+        for (CreationRule alarmCreationRule : alarmCreationRules) {
+            if (((List) (alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
+                    .stream()
+                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo) propertySpec).getDeviceType().getId() == deviceTypeId)
+                    .findFirst().isPresent()) {
                 return Optional.of(alarmCreationRule);
+            }
         }
         return Optional.empty();
+    }
+
+    @Override
+    public List<CreationRule> getCreationRulesWhichUsesDeviceType(Long deviceTypeId) {
+        List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
+        List<CreationRule> rules = new ArrayList<>();
+        for (CreationRule alarmCreationRule : alarmCreationRules) {
+            if (((List) (alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
+                    .stream()
+                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo) propertySpec).getDeviceType().getId() == deviceTypeId)
+                    .findFirst().isPresent()) {
+                rules.add(alarmCreationRule);
+            }
+        }
+        return rules;
     }
 
     //END_DEVICE_EVENT_CREATED
@@ -515,7 +530,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         private List<State> states;
         private MeteringTranslationService meteringTranslationService;
 
-        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, MeteringTranslationService meteringTranslationService ) {
+        DeviceLifeCycleInDeviceTypeInfo(DeviceType deviceType, List<State> states, MeteringTranslationService meteringTranslationService) {
             this.deviceType = deviceType;
             this.states = new CopyOnWriteArrayList<>(states);
             this.meteringTranslationService = meteringTranslationService;
