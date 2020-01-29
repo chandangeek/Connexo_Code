@@ -74,8 +74,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 }
                 fixMBusToDate = true;       //Reset to default for next LP requests
                 getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + toDate);
-                profile = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
-                enableDsmr40SelectiveAccessFormat(profile);
+                profile = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode, useDsmr4SelectiveAccessFormat());
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(getChannelInfoMap().get(lpr));
 
@@ -100,15 +99,15 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 getStatusMasksMap().get(lpr), this.channelMaskMap.get(lpr), getProfileIntervalStatusBits());
     }
 
-    protected void enableDsmr40SelectiveAccessFormat(ProfileGeneric profile) {
-        profile.setDsmr4SelectiveAccessFormat(true);
-    }
-
     public void setFixMBusToDate(boolean fixMBusToDate) {
         this.fixMBusToDate = fixMBusToDate;
     }
 
     public ProfileIntervalStatusBits getProfileIntervalStatusBits() {
         return new DSMRProfileIntervalStatusBits();
+    }
+
+    protected boolean useDsmr4SelectiveAccessFormat() {
+        return true;
     }
 }

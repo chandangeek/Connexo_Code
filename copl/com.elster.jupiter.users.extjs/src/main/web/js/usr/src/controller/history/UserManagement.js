@@ -179,6 +179,13 @@ Ext.define('Usr.controller.history.UserManagement', {
                         },
 
                     }
+                },
+                userSecuritySettings: {
+                    title: Uni.I18n.translate('general.userSecuritySettings', 'USR', 'User security settings'),
+                    route: 'userSecuritySettings',
+                    controller: 'Usr.controller.UserSecuritySettings',
+                    action: 'showOverview',
+                    privileges: Usr.privileges.Users.admin,
                 }
             }
         }

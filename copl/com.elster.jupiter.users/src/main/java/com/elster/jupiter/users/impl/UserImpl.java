@@ -15,15 +15,17 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserInGroup;
+import com.elster.jupiter.users.UserSecuritySettings;
 import com.elster.jupiter.users.WorkGroup;
 
-import com.elster.jupiter.util.Pair;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,6 +64,7 @@ public final class UserImpl implements User {
     private String userName;
     private Instant lastSuccessfulLogin;
     private Instant lastUnSuccessfulLogin;
+    private int unSuccessfulLoginCount;
     @Size(max = 64, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_64 + "}")
     private String languageTag;
     private Reference<UserDirectory> userDirectory = ValueReference.absent();
@@ -387,16 +390,50 @@ public final class UserImpl implements User {
 
     public void setLastSuccessfulLogin(Instant lastSuccessfulLogin) {
         this.lastSuccessfulLogin = lastSuccessfulLogin;
-        this.dataModel.update(this, "lastSuccessfulLogin");
+        this.unSuccessfulLoginCount = 0;
+        this.dataModel.update(this, "lastSuccessfulLogin", "unSuccessfulLoginCount");
     }
 
     public Instant getLastUnSuccessfulLogin() {
         return lastUnSuccessfulLogin;
     }
 
-    public void setLastUnSuccessfulLogin(Instant lastUnSuccessfulLogin) {
-        this.lastUnSuccessfulLogin = lastUnSuccessfulLogin;
-        this.dataModel.update(this, "lastUnSuccessfulLogin");
+    @Override
+    public int getUnSuccessfulLoginCount(){ return unSuccessfulLoginCount;}
+
+    @Override
+    public void setUnSuccessfulLoginCount(int unSuccessfulLoginCount){  this.unSuccessfulLoginCount = unSuccessfulLoginCount;}
+
+    @Override
+    public boolean isUserLocked(Optional<UserSecuritySettings> loginSettings) {
+        if(loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
+            Instant result = Instant.now().minus(loginSettings.get().getLockOutMinutes(), ChronoUnit.MINUTES);
+            return getLastUnSuccessfulLogin() != null && result.isBefore(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
+        }
+        return false;
+    }
+
+    public boolean shouldUnlockUser(Optional<UserSecuritySettings> loginSettings) {
+        if(loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
+            Instant result = Instant.now().minus(loginSettings.get().getLockOutMinutes(), ChronoUnit.MINUTES);
+            return getLastUnSuccessfulLogin() !=  null && result.isAfter(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
+        }
+        return false;
+    }
+
+    @Override
+    public void setLastUnSuccessfulLogin(Instant lastUnSuccessfulLogin, Optional<UserSecuritySettings> loginSettings) {
+        List<String> fields = Lists.newArrayList();
+        if(shouldUnlockUser(loginSettings)) {
+            this.unSuccessfulLoginCount = 0;
+        }
+        if(!isUserLocked(loginSettings)) {
+            unSuccessfulLoginCount++;
+            this.lastUnSuccessfulLogin = lastUnSuccessfulLogin;
+        }
+        fields.add("unSuccessfulLoginCount");
+        fields.add("lastUnSuccessfulLogin");
+        this.dataModel.update(this, fields.toArray(new String[fields.size()]));
     }
 
     @Override

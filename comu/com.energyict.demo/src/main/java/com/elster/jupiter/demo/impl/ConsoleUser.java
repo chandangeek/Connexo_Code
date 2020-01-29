@@ -10,6 +10,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserSecuritySettings;
 import com.elster.jupiter.users.WorkGroup;
 
 import java.time.Instant;
@@ -211,9 +212,18 @@ public class ConsoleUser implements User {
     }
 
     @Override
-    public void setLastUnSuccessfulLogin(Instant lastLoginFail) {
+    public void setLastUnSuccessfulLogin(Instant lastLoginFaill, Optional<UserSecuritySettings> userSecuritySettings) {
 
     }
+
+    @Override
+    public int getUnSuccessfulLoginCount() { return 0;}
+
+    @Override
+    public void setUnSuccessfulLoginCount(int  unSuccessfulLoginCount){ }
+
+    @Override
+    public boolean isUserLocked(Optional<UserSecuritySettings> userSecuritySettings) { return false; }
 
     private static class CustomPropertySetPrivilege implements Privilege {
         private final String privilege;

@@ -17,6 +17,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserSecuritySettings;
 import com.elster.jupiter.users.WorkGroup;
 
 import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
@@ -188,6 +189,7 @@ public enum TableSpecs {
             table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
             table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").notAudited().add();
             table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").notAudited().add();
+            table.column("UNSUCCESSFULLOGINCOUNT").number().conversion(NUMBER2INT).map("unSuccessfulLoginCount").notAudited().since(version(10, 4, 9)).installValue("0").add();
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_USER").on(idColumn).add();
             table.unique("USR_U_USERAUTHNAME").on(userDirColumn, authenticationNameColumn).add();
@@ -288,6 +290,20 @@ public enum TableSpecs {
             table.column("ISDEFAULT").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("isDefault").add();
             table.primaryKey("USR_PK_PREFERENCES").on(locale, key, formatBE, formatFE).add();
         }
+    },
+    USR_SECURITY_SETTINGS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UserSecuritySettings> table = dataModel.addTable(name(), UserSecuritySettings.class);
+            table.map(UserSecuritySettingsImpl.class);
+            table.since(version(10,4, 9));
+            Column id = table.addAutoIdColumn();
+            table.column("LOCKACCOUNT").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("lockAccountOption").add();
+            table.column("FAILEDLOGINSATTEMPTS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("failedLoginAttempts").add();
+            table.column("LOCKOUTMINUTES").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("lockOutMinutes").add();
+            table.primaryKey("USR_PK_LOGINSETTINGS").on(id).add();
+        }
+
     };
 
     abstract void addTo(DataModel dataModel);
