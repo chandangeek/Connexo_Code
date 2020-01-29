@@ -447,6 +447,7 @@
         <module>com.elster.jupiter.metering.zone</module>
         <module>com.elster.jupiter.parties</module>
         <module>com.elster.jupiter.parties.rest</module>
+        <module>com.elster.jupiter.issue</module>
         <module>com.elster.jupiter.issue.servicecall</module>
         <module>com.elster.jupiter.issue.servicecall.rest</module>
         <module>com.elster.jupiter.issue.servicecall.extjs</module>

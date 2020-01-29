@@ -99,7 +99,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 Installer.class,
                 ImmutableMap.of(
                         Version.version(10, 2), UpgraderV10_2.class,
-                        Version.version(10, 7), UpgraderV10_7.class
+                        Version.version(10, 7, 2), UpgraderV10_7_2.class
                 ));
     }
 
