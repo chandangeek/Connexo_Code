@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     UNDERLYING_IO_EXCEPTION(1013, Keys.UNDERLYING_IO_EXCEPTION, "Underlying IO Exception"),
     FIELD_SIZE_BETWEEN_1_AND_4(1014, Keys.FIELD_SIZE_BETWEEN_1_AND_4, "Field text length should be between 1 and 4 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_3(1015, Keys.FIELD_SIZE_BETWEEN_1_AND_3, "Field text length should be between 1 and 3 symbols"),
-    FIELD_SIZE_BETWEEN_1_AND_10(1016, Keys.FIELD_SIZE_BETWEEN_1_AND_10, "Field text length should be between 1 and 10 symbols"),
+    FIELD_SIZE_BETWEEN_1_AND_10(1016, Keys.FIELD_SIZE_BETWEEN_1_AND_36, "Field text length should be between 1 and 10 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_64(1017, Keys.FIELD_SIZE_BETWEEN_1_AND_64, "Field text length should be between 1 and 64 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_65(1018, Keys.FIELD_SIZE_BETWEEN_1_AND_65, "Field text length should be between 1 and 65 symbols"),
     FIELD_SIZE_BETWEEN_1_AND_256(1019, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field text length should be between 1 and 256 symbols"),
@@ -96,6 +96,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_SIZE_BETWEEN_1_AND_3 = "FieldSizeBetween1and3";
         public static final String FIELD_SIZE_BETWEEN_1_AND_4 = "FieldSizeBetween1and4";
         public static final String FIELD_SIZE_BETWEEN_1_AND_10 = "FieldSizeBetween1and10";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_36 = "FieldSizeBetween1and36";
         public static final String FIELD_SIZE_BETWEEN_1_AND_64 = "FieldSizeBetween1and64";
         public static final String FIELD_SIZE_BETWEEN_1_AND_65 = "FieldSizeBetween1and65";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";

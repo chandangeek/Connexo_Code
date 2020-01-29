@@ -4,11 +4,10 @@
 
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.PrimaryKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.TableConstraintImpl;
-
-import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -31,11 +30,15 @@ public interface Table<T> {
     int SHORT_DESCRIPTION_LENGTH = 256;
     int MAX_STRING_LENGTH = 4000;
     int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
+    int UUID_MAX_LENGHT = 36;
 
     // datamodel construction api
     Column.Builder column(String name);
+
     PrimaryKeyConstraint.Builder primaryKey(String name);
+
     UniqueConstraint.Builder unique(String name);
+
     ForeignKeyConstraint.Builder foreignKey(String name);
 
     Index.Builder index(String name);
@@ -145,6 +148,7 @@ public interface Table<T> {
     JournalTableVersionOptions setJournalTableName(String journalTableName);
 
     JournalTableVersionOptions setJournalTableName(String journalTableName, boolean forceJournal);
+
     /*
      * activates caching. The cache is shared between all threads of a Java VM,
      * so implementers must make sure the Java type is thread safe
@@ -165,15 +169,19 @@ public interface Table<T> {
     String getSchema();
 
     String getName();
+
     String getName(Version version);
 
     String getQualifiedName();
 
     String getJournalTableName();
+
     String getJournalTableName(Version version);
 
     boolean hasJournal();
+
     boolean hasForceJournal();
+
     boolean hasJournal(Version version);
 
     boolean isCached();
@@ -183,15 +191,21 @@ public interface Table<T> {
     String getQualifiedName(Version version);
 
     List<? extends Column> getColumns();
+
     List<? extends Column> getColumns(Version version);
+
     Stream<? extends Column> getRealColumns();
+
     Optional<? extends Column> getColumn(String name);
+
     List<? extends TableConstraint> getConstraints();
 
     boolean isAutoInstall();
+
     void doNotAutoInstall();
 
     TableConstraint getPrimaryKeyConstraint();
+
     List<? extends Column> getPrimaryKeyColumns();
 
     PrimaryKeyConstraintImpl getPrimaryKeyConstraint(Version version);
@@ -203,17 +217,22 @@ public interface Table<T> {
     String getComponentName();
 
     Table<T> alsoReferredToAs(Class<? super T> alternativeApi);
+
     Table<T> map(Class<? extends T> implementer);
+
     Table<T> map(Map<String, Class<? extends T>> implementers);
+
     boolean maps(Class<?> implementer);
 
     void partitionOn(Column column);
+
     void autoPartitionOn(Column column, LifeCycleClass lifeCycleClass);
 
-	void dropJournal(Instant upTo, Logger logger);
+    void dropJournal(Instant upTo, Logger logger);
 
-	void dropData(Instant upTo, Logger logger);
-	LifeCycleClass lifeCycleClass();
+    void dropData(Instant upTo, Logger logger);
+
+    LifeCycleClass lifeCycleClass();
 
     boolean isInVersion(Version version);
 
@@ -237,7 +256,9 @@ public interface Table<T> {
 
     interface JournalTableVersionOptions {
         void since(Version version);
+
         void upTo(Version version);
+
         void during(Range<Version>... ranges);
     }
 

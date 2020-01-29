@@ -9,15 +9,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.MessageSeeds;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserInGroup;
-import com.elster.jupiter.users.UserSecuritySettings;
-import com.elster.jupiter.users.WorkGroup;
-
 import com.elster.jupiter.users.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -26,22 +17,13 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.*;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.UUID_MAX_LENGHT;
 import static com.elster.jupiter.util.Checks.is;
 
 public final class UserImpl implements User {
@@ -49,6 +31,8 @@ public final class UserImpl implements User {
     private static final int MINIMAL_PASSWORD_STRENGTH = 4;
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
+
+    @Size(max = UUID_MAX_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
     private String externalId;
     private String authenticationName;
     @Size(max = SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
@@ -412,14 +396,18 @@ public final class UserImpl implements User {
     }
 
     @Override
-    public int getUnSuccessfulLoginCount(){ return unSuccessfulLoginCount;}
+    public int getUnSuccessfulLoginCount() {
+        return unSuccessfulLoginCount;
+    }
 
     @Override
-    public void setUnSuccessfulLoginCount(int unSuccessfulLoginCount){  this.unSuccessfulLoginCount = unSuccessfulLoginCount;}
+    public void setUnSuccessfulLoginCount(int unSuccessfulLoginCount) {
+        this.unSuccessfulLoginCount = unSuccessfulLoginCount;
+    }
 
     @Override
     public boolean isUserLocked(Optional<UserSecuritySettings> loginSettings) {
-        if(loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
+        if (loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
             Instant result = Instant.now().minus(loginSettings.get().getLockOutMinutes(), ChronoUnit.MINUTES);
             return getLastUnSuccessfulLogin() != null && result.isBefore(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
         }
@@ -427,9 +415,9 @@ public final class UserImpl implements User {
     }
 
     public boolean shouldUnlockUser(Optional<UserSecuritySettings> loginSettings) {
-        if(loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
+        if (loginSettings.isPresent() && loginSettings.get().isLockAccountActive()) {
             Instant result = Instant.now().minus(loginSettings.get().getLockOutMinutes(), ChronoUnit.MINUTES);
-            return getLastUnSuccessfulLogin() !=  null && result.isAfter(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
+            return getLastUnSuccessfulLogin() != null && result.isAfter(getLastUnSuccessfulLogin()) && getUnSuccessfulLoginCount() >= loginSettings.get().getFailedLoginAttempts();
         }
         return false;
     }
@@ -437,10 +425,10 @@ public final class UserImpl implements User {
     @Override
     public void setLastUnSuccessfulLogin(Instant lastUnSuccessfulLogin, Optional<UserSecuritySettings> loginSettings) {
         List<String> fields = Lists.newArrayList();
-        if(shouldUnlockUser(loginSettings)) {
+        if (shouldUnlockUser(loginSettings)) {
             this.unSuccessfulLoginCount = 0;
         }
-        if(!isUserLocked(loginSettings)) {
+        if (!isUserLocked(loginSettings)) {
             unSuccessfulLoginCount++;
             this.lastUnSuccessfulLogin = lastUnSuccessfulLogin;
         }
@@ -454,5 +442,4 @@ public final class UserImpl implements User {
         return dataModel.mapper(UsersInWorkGroup.class).find("userId", this.getId())
                 .stream().map(UsersInWorkGroup::getWorkGroup).collect(Collectors.toList());
     }
-
 }

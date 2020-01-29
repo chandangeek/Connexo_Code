@@ -25,8 +25,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.*;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -38,18 +37,26 @@ final class GroupImpl implements Group {
     //persistent fields
     @SuppressWarnings("unused")
     private long id;
+
+    @Size(max = UUID_MAX_LENGHT, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_36 + "}")
     private String externalId;
+
     @Size(max = NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String name;
+
     @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
+
     @SuppressWarnings("unused")
     private long version;
+
     @SuppressWarnings("unused")
     private Instant createTime;
+
     @SuppressWarnings("unused")
     private Instant modTime;
+
     @SuppressWarnings("unused")
     private String userName;
 

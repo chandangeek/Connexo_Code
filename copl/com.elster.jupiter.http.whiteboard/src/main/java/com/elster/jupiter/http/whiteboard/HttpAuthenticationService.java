@@ -6,6 +6,8 @@ package com.elster.jupiter.http.whiteboard;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.users.User;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.NameID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -30,4 +32,5 @@ public interface HttpAuthenticationService {
 
     Cookie createTokenCookie(String cookieValue, String cookiePath);
 
+    LogoutResponse singleLogout(NameID nameID);
 }
