@@ -14,4 +14,6 @@ public interface SchemaInfoProvider {
     }
 
     List<? extends TableSpec> getSchemaInfoTableSpec();
+
+    default boolean isTestSchemaProvider() {return false;}
 }

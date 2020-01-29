@@ -48,8 +48,6 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     private S self;
     boolean noDdl;
 
-    private boolean reverseIndex = false;
-
     TableConstraintImpl(Class<S> selfType) {
         self = selfType.cast(this);
     }
@@ -254,13 +252,5 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
 
     private RangeSet<Version> intersectWithTable(RangeSet<Version> set) {
         return intersection(table.get().getVersions(), set);
-    }
-
-    public boolean isReverseIndex() {
-        return reverseIndex;
-    }
-
-    public void setReverseIndex(boolean reverseIndex) {
-        this.reverseIndex = reverseIndex;
     }
 }
