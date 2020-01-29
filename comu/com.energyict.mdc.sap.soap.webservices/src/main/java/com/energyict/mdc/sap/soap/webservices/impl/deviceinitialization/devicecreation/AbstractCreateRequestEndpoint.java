@@ -95,7 +95,7 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
                 });
             }
         } else {
-            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getNotValidFields());
         }
     }
 
@@ -145,11 +145,11 @@ public class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint imple
         }
     }
 
-    private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format());
+    private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Object...messageSeedArgs) {
+        log(LogLevel.WARNING, messageSeed.getDefaultFormat(messageSeedArgs));
         UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
                 UtilitiesDeviceCreateConfirmationMessage.builder()
-                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant())
+                        .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }

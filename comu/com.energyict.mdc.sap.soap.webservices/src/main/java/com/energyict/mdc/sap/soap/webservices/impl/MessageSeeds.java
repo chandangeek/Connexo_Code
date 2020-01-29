@@ -12,7 +12,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
     // General
     OK_RESULT(0, "OkMessageFormat", "OK", Level.INFO),
-    INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format"),
+    INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format. Missing attributes: {0}."),
     MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message already exists"),
     UNEXPECTED_CONFIRMATION_MESSAGE(3, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
     WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to properly send request to the following web service endpoint(s): {0}."),

@@ -5,14 +5,18 @@
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.UtilitiesConnectionStatusChangeRequestID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscancellationrequest.SmrtMtrUtilsConncnStsChgReqERPCanclnReqMsg;
 
 import java.util.Optional;
 
-public class StatusChangeRequestCancellationRequestMessage {
+public class StatusChangeRequestCancellationRequestMessage extends AbstractSapMessage {
+    private static final String ID_XML_NAME = "UtilitiesConnectionStatusChangeRequest.ID";
+    private static final String CATEGORY_CODE_XML_NAME = "UtilitiesConnectionStatusChangeRequest.CategoryCode";
+
     private String id;
     private String requestId;
     private String uuid;
@@ -41,10 +45,6 @@ public class StatusChangeRequestCancellationRequestMessage {
         return new StatusChangeRequestCancellationRequestMessage().new Builder();
     }
 
-    public boolean isValid() {
-        return (requestId != null || uuid != null) && id != null && categoryCode != null;
-    }
-
     public class Builder {
 
         private Builder() {
@@ -55,6 +55,15 @@ public class StatusChangeRequestCancellationRequestMessage {
             setRequestId(getRequestId(requestMessage));
             setUuid(getUuid(requestMessage));
             setCategoryCode(getCategoryCode(requestMessage));
+            if (requestId == null && uuid == null) {
+                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            if (categoryCode == null) {
+                addNotValidField(CATEGORY_CODE_XML_NAME);
+            }
+            if (id == null) {
+                addNotValidField(ID_XML_NAME);
+            }
             return this;
         }
 

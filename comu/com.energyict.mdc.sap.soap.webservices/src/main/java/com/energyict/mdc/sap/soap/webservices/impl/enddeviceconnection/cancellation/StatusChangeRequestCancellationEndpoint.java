@@ -119,10 +119,9 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
         try {
             if (message.isValid()) {
                 CancelledStatusChangeRequestDocument document = cancelRequestServiceCalls(message);
-
                 sendMessage(MESSAGE_FACTORY.createMessage(message.getRequestId(), message.getUuid(), document, webServiceActivator.getMeteringSystemId(), clock.instant()));
             } else {
-                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+                sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT.getDefaultFormat(message.getNotValidFields()));
             }
         } catch (BaseException be) {
             sendProcessError(message, be.getMessageSeed().getDefaultFormat());
@@ -183,11 +182,6 @@ public class StatusChangeRequestCancellationEndpoint extends AbstractInboundEndP
                 .filter(where(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName()).isEqualTo(categoryCode))
                 .findFirst();
 
-    }
-
-    private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, MessageSeeds messageSeed) {
-        log(LogLevel.SEVERE, thesaurus.getSimpleFormat(messageSeed).format());
-        sendMessage(MESSAGE_FACTORY.createFailedMessage(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant()));
     }
 
     private void sendProcessError(StatusChangeRequestCancellationRequestMessage message, String msg) {

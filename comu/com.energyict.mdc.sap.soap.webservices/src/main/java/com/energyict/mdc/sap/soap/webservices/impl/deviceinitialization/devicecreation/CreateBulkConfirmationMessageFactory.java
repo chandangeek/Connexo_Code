@@ -69,7 +69,7 @@ public class CreateBulkConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+    public UtilsDvceERPSmrtMtrBlkCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
         UtilsDvceERPSmrtMtrBlkCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
         confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         message.getUtilitiesDeviceCreateMessages()
@@ -79,7 +79,7 @@ public class CreateBulkConfirmationMessageFactory {
                             .add(createFailedChildMessage(item, senderBusinessSystemId, now));
 
                 });
-        confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+        confirmationMessage.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
         return confirmationMessage;
     }
 

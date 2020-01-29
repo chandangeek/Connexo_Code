@@ -59,13 +59,13 @@ public class CreateConfirmationMessageFactory {
         return confirmationMessage;
     }
 
-    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now) {
+    public UtilsDvceERPSmrtMtrCrteConfMsg createMessage(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, String senderBusinessSystemId, Instant now, Object ...messageSeedArgs) {
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
         confirmMsg.setMessageHeader(createMessageHeader(message.getRequestID(), message.getUuid(), senderBusinessSystemId, now));
         if (!message.getUtilitiesDeviceCreateMessages().isEmpty()) {
             confirmMsg.setUtilitiesDevice(createUtilitiesDevice(message.getUtilitiesDeviceCreateMessages().get(0).getDeviceId()));
         }
-        confirmMsg.setLog(createFailedLog(messageSeed.getDefaultFormat(null)));
+        confirmMsg.setLog(createFailedLog(messageSeed.getDefaultFormat(messageSeedArgs)));
         return confirmMsg;
     }
 

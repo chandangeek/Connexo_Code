@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrBlkCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UtilitiesDeviceCreateRequestMessage {
+public class UtilitiesDeviceCreateRequestMessage extends AbstractSapMessage {
 
     private String requestID;
     private String uuid;
@@ -40,10 +41,6 @@ public class UtilitiesDeviceCreateRequestMessage {
 
     static UtilitiesDeviceCreateRequestMessage.Builder builder() {
         return new UtilitiesDeviceCreateRequestMessage().new Builder();
-    }
-
-    public boolean isValid() {
-        return requestID != null || uuid != null;
     }
 
     public class Builder {
@@ -80,6 +77,9 @@ public class UtilitiesDeviceCreateRequestMessage {
                             .from(message)
                             .build())
                     );
+            if (requestID == null && uuid == null) {
+                addAtLeastOneNotValid(REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
             return this;
         }
 
