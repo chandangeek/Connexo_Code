@@ -21,6 +21,8 @@ import com.google.inject.AbstractModule;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.wiring.BundleWiring;
@@ -435,6 +437,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         cookie.setMaxAge(securityToken.getCookieMaxAge());
         cookie.setHttpOnly(true);
         return cookie;
+    }
+
+    @Override
+    public LogoutResponse singleLogout(NameID nameID) {
+        return null;
     }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
