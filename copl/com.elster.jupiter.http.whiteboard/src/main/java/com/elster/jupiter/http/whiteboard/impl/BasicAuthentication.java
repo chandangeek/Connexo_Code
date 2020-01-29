@@ -25,7 +25,6 @@ import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -326,11 +325,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return installDir;
     }
 
-    public Optional<String> getSsoAdminUser(){
+    public Optional<String> getSsoAdminUser() {
         return ssoAdminUser;
     }
 
-    public boolean isSsoEnabled(){
+    public boolean isSsoEnabled() {
         return ssoEnabled;
     }
 
@@ -361,7 +360,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (ssoEnabled) {
-                if(isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
+                if (isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
                 ssoAuthentication(request, response);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
@@ -377,7 +376,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }
     }
 
-    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request){
+    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request) {
         return request.getRequestURI().startsWith(LOGIN_URL) &&
                 (StringUtils.isEmpty(request.getParameter("page")) || request.getParameterMap().containsKey("logout"));
     }
@@ -386,9 +385,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
         if (ssoAuthenticationRequestOptional.isPresent()) {
             String redirectUrl;
-            if(StringUtils.isEmpty(request.getParameter("page"))){
+            if (StringUtils.isEmpty(request.getParameter("page"))) {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-            }else{
+            } else {
                 redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getParameter("page"));
             }
             response.sendRedirect(redirectUrl);
@@ -480,7 +479,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
-        if(isUserLocked(user)){
+        if (isUserLocked(user)) {
             return denyAccountLocked(request, response);
         } else if (isAuthenticated(user)) {
             User returnedUserByAuthentication = user.get();
@@ -525,13 +524,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return true;
     }
 
-    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response)   {
+    private boolean denyAccountLocked(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         try {
             response.getWriter().write(ACCOUNT_LOCKED);
             response.getWriter().flush();
             response.getWriter().close();
-        } catch(IOException exception){}
+        } catch (IOException exception) {
+        }
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
@@ -551,7 +551,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return false;
     }
 
-    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
+    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
@@ -577,7 +577,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean unsecureAllowed(String uri) {
-        if(!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
+        if (!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
         return Stream.of(RESOURCES_NOT_SECURED)
                 .filter(uri::startsWith)
                 .findAny().isPresent();
