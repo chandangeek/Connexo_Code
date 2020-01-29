@@ -883,8 +883,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                         conflictingCustomPropertySetValues.setProperty(prop, conflict.getValues().getProperty(prop));
                     }
                     conflictingCustomPropertySetValues.setProperty(property, value);
-                    if (range.intersection(conflict.getConflictingRange()).hasUpperBound()) {
-                        range = getTimeInterval(range.intersection(conflict.getConflictingRange()).upperEndpoint(), range.upperEndpoint());
+                    Range<Instant> intersection = range.intersection(conflict.getConflictingRange());
+                    if (intersection.hasUpperBound() && intersection.upperEndpoint().isBefore(range.upperEndpoint())) {
+                        range = getTimeInterval(intersection.upperEndpoint(), range.upperEndpoint());
                     }
                 }
             }
