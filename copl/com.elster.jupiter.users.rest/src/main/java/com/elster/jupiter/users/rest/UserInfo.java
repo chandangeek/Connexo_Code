@@ -30,6 +30,8 @@ public class UserInfo {
     public String modifiedOn;
     public String lastSuccessfulLogin;
     public String lastUnSuccessfulLogin;
+    public int unSuccessfulLoginCount;
+    public boolean isUserLocked;
     public List<GroupInfo> groups = new ArrayList<>();
 
     public UserInfo() {
@@ -62,6 +64,14 @@ public class UserInfo {
     private boolean updateStatus(User user) {
         if (active != null && !active.equals(user.getStatus())) {
             user.setStatus(active);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean updateUnsuccessfullLoginCount(User user) {
+        if (unSuccessfulLoginCount != user.getUnSuccessfulLoginCount()) {
+            user.setUnSuccessfulLoginCount(unSuccessfulLoginCount);
             return true;
         }
         return false;

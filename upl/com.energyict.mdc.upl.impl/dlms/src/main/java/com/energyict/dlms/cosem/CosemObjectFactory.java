@@ -214,9 +214,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new DedicatedEventLogSimple(protocolLink, getObjectReference(obisCode));
     }
 
-    public ProfileGeneric getProfileGeneric(ObisCode obisCode, boolean dsmr4SelectiveAccessFormat) throws IOException {
-        ProfileGeneric profileGeneric = new ProfileGeneric(protocolLink, getObjectReference(obisCode));
-        profileGeneric.setDsmr4SelectiveAccessFormat(dsmr4SelectiveAccessFormat);
+    public ProfileGeneric getProfileGeneric(ObisCode obisCode, boolean dsmr4SelectiveAccessFormat) throws NotInObjectListException {
+        ProfileGeneric profileGeneric = new ProfileGeneric(protocolLink, getObjectReference(obisCode), dsmr4SelectiveAccessFormat);
         return profileGeneric;
     }
 
@@ -393,7 +392,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @param obisCode the obisCode of the Object
      * @param version  the version of the object (see {@link com.energyict.dlms.cosem.attributes.MbusClientAttributes#version} for more details)
      * @return a newly created MbusClient object
-     * @throws java.io.IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
+     * @throws NotInObjectListException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
      */
     public MBusClient getMbusClient(ObisCode obisCode, int version) throws NotInObjectListException {
         return new MBusClient(protocolLink, getObjectReference(obisCode), version);

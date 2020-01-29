@@ -50,6 +50,10 @@ public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
             return found;
         }
 
+        if(found.get().isUserLocked(userService.getLockingAccountSettings())){
+            return found;
+        }
+
         if (found.get().check(password)) {
             return found;
         }

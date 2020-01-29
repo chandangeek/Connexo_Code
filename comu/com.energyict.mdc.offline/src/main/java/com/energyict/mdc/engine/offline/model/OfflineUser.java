@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.offline.model;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserSecuritySettings;
 import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.engine.users.PrivilegesWrapper;
@@ -187,9 +188,18 @@ public class OfflineUser implements User {
     }
 
     @Override
-    public void setLastUnSuccessfulLogin(Instant lastLoginFail) {
+    public void setLastUnSuccessfulLogin(Instant lastLoginFail, Optional<UserSecuritySettings> userSecuritySettings) {
 
     }
+
+    @Override
+    public int getUnSuccessfulLoginCount() { return 0;}
+
+    @Override
+    public void setUnSuccessfulLoginCount(int  unSuccessfulLoginCount){ }
+
+    @Override
+    public boolean isUserLocked(Optional<UserSecuritySettings> userSecuritySettings) { return false; }
 
     @Override
     public List<WorkGroup> getWorkGroups() {
