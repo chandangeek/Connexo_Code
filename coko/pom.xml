@@ -393,11 +393,11 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>issue.webservice.extjs</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>issue.webservice.extjs</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -447,7 +447,6 @@
         <module>com.elster.jupiter.metering.zone</module>
         <module>com.elster.jupiter.parties</module>
         <module>com.elster.jupiter.parties.rest</module>
-        <module>com.elster.jupiter.issue</module>
         <module>com.elster.jupiter.issue.servicecall</module>
         <module>com.elster.jupiter.issue.servicecall.rest</module>
         <module>com.elster.jupiter.issue.servicecall.extjs</module>

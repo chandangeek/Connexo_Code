@@ -155,7 +155,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
                         Version.version(10, 2), UpgraderV10_2.class,
                         Version.version(10, 3), UpgraderV10_3.class,
                         Version.version(10, 5), V10_5SimpleUpgrader.class,
-                        Version.version(10, 7), UpgraderV10_7.class
+                        Version.version(10, 7), UpgraderV10_7.class,
+                        Version.version(10, 7, 2), UpgraderV10_7_2.class
                 ));
     }
 
