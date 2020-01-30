@@ -8,14 +8,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ChangeCreationRulesInfo {
+public class LifeCycleChangeInfo {
     public String message;
     public List<String> affectedRules;
-    public DeviceTypeInfo deviceTypeInfo;
+    public DeviceTypeInfo deviceType;
 
-    public ChangeCreationRulesInfo(String message, DeviceTypeInfo deviceTypeInfo, String... affectedRules) {
+    public LifeCycleChangeInfo(String message, DeviceTypeInfo deviceType, String... affectedRules) {
         this.message = message;
-        this.deviceTypeInfo = deviceTypeInfo;
+        this.deviceType = deviceType;
         this.affectedRules = Arrays.stream(affectedRules).collect(Collectors.toList());
     }
 }

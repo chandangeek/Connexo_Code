@@ -12,7 +12,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
@@ -32,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @LiteralSql
-@Component(name = "com.energyict.mdc.device.alarms.impl.event.DeviceTypesLifeCycleCacheChangedEventHandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.issue.devicelifecycle.impl.event.DeviceTypesLifeCycleCacheChangedEventHandler", service = TopicHandler.class, immediate = true)
 public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandler {
     private static final String TOPIC = "com/energyict/mdc/device/config/devicetype/LIFE_CYCLE_CACHE_RECALCULATED";
     private volatile IssueService issueService;
@@ -74,8 +73,9 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
             while (resultSet.next()) {
                 issueRuleTemplateInfos.add(new IssueRuleTemplateInfo(resultSet.getLong("CREATIONRULE"), resultSet.getString("VALUE")));
             }
-            issueRuleTemplateInfos.forEach(info -> info.changeValue(deviceType));
-            issueRuleTemplateInfos.forEach(info -> updateDB(info, connection));
+            issueRuleTemplateInfos.stream()
+                    .peek(info -> info.changeValue(deviceType))
+                    .forEach(info -> updateDB(info, connection));
             issueService.getIssueCreationService().getCreationRuleQuery()
                     .select(Where.where("id").in(issueRuleTemplateInfos.stream().map(IssueRuleTemplateInfo::getId).collect(Collectors.toList())))
                     .forEach(CreationRule::update);
@@ -86,7 +86,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
 
     private void updateDB(IssueRuleTemplateInfo info, Connection connection) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE ISU_CREATIONRULEPROPS SET VALUE = '" + info.valuesToString() + "' WHERE CREATIONRULE = " + info.id +
-                "AND NAME = 'DeviceLifecycleIssueCreationRuleTemplate.deviceLifecycleTransitionProps'")) {
+                " AND NAME = 'DeviceLifecycleIssueCreationRuleTemplate.deviceLifecycleTransitionProps'")) {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -99,9 +99,9 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
         return TOPIC;
     }
 
-    class IssueRuleTemplateInfo {
-        long id;
-        List<Value> values;
+    private class IssueRuleTemplateInfo {
+        private long id;
+        private List<Value> values;
 
         public long getId() {
             return id;
@@ -126,9 +126,9 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
 
         public void changeValue(DeviceType deviceType) {
             DeviceLifeCycle oldLifeCycle = deviceLifeCycleConfigurationService.findDeviceLifeCycle(this.values.get(0).lifeCycleId)
-                    .orElseThrow(() -> new IllegalStateException("Life cycle no longer exist"));
+                    .orElseThrow(() -> new IllegalStateException("Life cycle with id " + this.values.get(0).lifeCycleId + " no longer exists"));
             DeviceLifeCycle newLifeCycle = deviceType.getDeviceLifeCycle();
-            if (!allOldTransitionsAreSameAsNew(this.values, oldLifeCycle, newLifeCycle, deviceType)) {
+            if (!changeOldStatesWhichSameAsNew(this.values, oldLifeCycle, newLifeCycle, deviceType)) {
                 this.values.removeIf(value -> value.deviceTypeId == deviceType.getId());
                 newLifeCycle.getFiniteStateMachine()
                         .getTransitions()
@@ -137,25 +137,19 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
 
         }
 
-        private boolean allOldTransitionsAreSameAsNew(List<Value> values, DeviceLifeCycle oldLifeCycle, DeviceLifeCycle newLifeCycle, DeviceType deviceType) {
+        private boolean changeOldStatesWhichSameAsNew(List<Value> values, DeviceLifeCycle oldLifeCycle, DeviceLifeCycle newLifeCycle, DeviceType deviceType) {
             List<StateTransition> oldStateTransitions = oldLifeCycle.getFiniteStateMachine().getTransitions().stream()
                     .filter(transition -> values.stream().anyMatch(value -> value.transition == transition.getId())).collect(Collectors.toList());
             List<StateTransition> newStatesTransitions = newLifeCycle.getFiniteStateMachine().getTransitions();
-            if (newStatesTransitions.size() > oldStateTransitions.size()) {
+            if (newStatesTransitions.size() < oldStateTransitions.size()) {
                 return false;
             }
-            newStatesTransitions = newLifeCycle.getFiniteStateMachine().getTransitions().stream()
-                    .map(stateTransition -> {
-                        List<Pair<StateTransition, StateTransition>> pairs = new ArrayList<>();
-                        oldStateTransitions.stream().filter(oldState -> oldState.getEventType().equals(stateTransition.getEventType()))
-                                .forEach(stateTransition1 -> pairs.add(Pair.of(stateTransition, stateTransition1)));
-                        return pairs;
-                    })
-                    .flatMap(List::stream)
-                    .filter(element -> element.getLast() != null)
-                    .filter(element -> element.getFirst().getFrom().getName().equals(element.getLast().getFrom().getName()))
-                    .filter(element -> element.getFirst().getTo().getName().equals(element.getLast().getTo().getName()))
-                    .map(Pair::getFirst)
+            newStatesTransitions = newStatesTransitions.stream()
+                    .filter(stateTransition ->
+                            oldStateTransitions.stream()
+                                    .filter(oldStateTransition -> oldStateTransition.getEventType().equals(stateTransition.getEventType()))
+                                    .filter(oldStateTransition -> oldStateTransition.getFrom().getName().equals(stateTransition.getFrom().getName()))
+                                    .anyMatch(oldStateTransition -> oldStateTransition.getTo().getName().equals(stateTransition.getTo().getName())))
                     .collect(Collectors.toList());
             boolean same = oldStateTransitions.size() == newStatesTransitions.size();
             if (same) {
@@ -166,13 +160,13 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
             return same;
         }
 
-        class Value {
+        private class Value {
 
-            long deviceTypeId;
-            long lifeCycleId;
-            long transition;
-            long fromState;
-            long toState;
+            private long deviceTypeId;
+            private long lifeCycleId;
+            private long transition;
+            private long fromState;
+            private long toState;
 
             public Value(long deviceTypeId, long lifeCycleId, long transition, long fromState, long toState) {
                 this.deviceTypeId = deviceTypeId;

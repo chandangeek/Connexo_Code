@@ -63,19 +63,16 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_KEY_ACCESSOR_TYPE(228, "NoSuchKeyAccessorType", "No such security accessor"),
     INVALID_VALUE(229, "InvalidValue", "Invalid value"),
     INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years."),
-    DEVICE_TYPE_IN_USE_BY_CREATION_RULE(231, "DeviceTypeInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by alarm creation rule ''{2}''"),
     NO_SUCH_MESSAGE_SPEC(232, "NoSuchMessageSpec", "No such device message specification"),
     SECACC_WRAPPER_IN_USE(233, Keys.SEC_ACCESSOR_WRAPPER_IN_USE, "Security accessor is declared as wrapper by another key ({0})"),
     SECACC_WRAPPER_NOT_SET(234, Keys.SEC_ACCESSOR_NOT_SET, "Not set"),
     SECACC_WRAPPER_IN_USE_BY_DEV(235, Keys.SEC_ACCESSOR_WRAPPER_IN_USE_BY_DEV, "Security accessor is declared as wrapper by another key ({0}) on device {1}"),
     HSM_NOT_CONFIGURED(236, Keys.HSM_NOT_CONFIGURED, "HSM not configured on your system"),
     NO_SUCH_CUSTOMPROPERTYSET(237, "noSuchCPS", "No custom property set with id {0}."),
-    DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(238, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''"),
-
     THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE(239, "TheNewLifeCycleMightNotHaveFullCompliance", "The new life cycle might not have full compliance with the states and transitions of the old life cycle. If at least one previously selected state/transition on an alarm or issue rule is missing on the new lifecycle, all states/transitions of the new lifecycle will be selected. Please check and adjust if necessary the following rules."),
     AFFECTED_ALARM_RULES(240, "AffectedAlarmRules", "Affected alarm rules: ''{0}''"),
-    AFFECTED_ISSUED_RULES(241, "AffectedIssueRules", "Affected issue rules: ''{0}''");
-
+    AFFECTED_ISSUE_RULES(241, "AffectedIssueRules", "Affected issue rules: ''{0}''"),
+    LIFE_CYCLE_CHANGED(242, "LifeCycleChanged", "Life cycle changed successfully");
 
     private final int number;
     private final String key;

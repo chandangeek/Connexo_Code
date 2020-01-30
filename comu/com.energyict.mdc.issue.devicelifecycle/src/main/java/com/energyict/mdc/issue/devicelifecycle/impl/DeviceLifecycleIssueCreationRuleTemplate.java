@@ -122,7 +122,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
         for (CreationRule issueCreationRule : issueCreationRules) {
             if (((List) (issueCreationRule.getProperties().get(DeviceLifecycleIssueCreationRuleTemplate.DEVICE_LIFECYCLE_TRANSITION_PROPS)))
                     .stream()
-                    .filter(propertySpec -> ((DeviceLifeCycleTransitionPropsInfo) propertySpec).getDeviceType().getId() == deviceTypeId)
+                    .filter(property -> ((DeviceLifeCycleTransitionPropsInfo) property).getDeviceType().getId() == deviceTypeId)
                     .findFirst().isPresent()) {
                 return Optional.of(issueCreationRule);
             }
@@ -131,14 +131,14 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
     }
 
     @Override
-    public List<CreationRule> getCreationRulesWhichUsesDeviceType(Long deviceTypeId) {
+    public List<CreationRule> getCreationRulesWithDeviceType(Long deviceTypeId) {
         List<CreationRule> issueCreationRules = DeviceLifecycleIssueUtil.getIssueCreationRules(issueService);
 
         List<CreationRule> rules = new ArrayList<>();
         for (CreationRule issueCreationRule : issueCreationRules) {
             if (((List) (issueCreationRule.getProperties().get(DeviceLifecycleIssueCreationRuleTemplate.DEVICE_LIFECYCLE_TRANSITION_PROPS)))
                     .stream()
-                    .filter(propertySpec -> ((DeviceLifeCycleTransitionPropsInfo) propertySpec).getDeviceTypeId() == deviceTypeId)
+                    .filter(property -> ((DeviceLifeCycleTransitionPropsInfo) property).getDeviceTypeId() == deviceTypeId)
                     .findFirst().isPresent()) {
                 rules.add(issueCreationRule);
             }

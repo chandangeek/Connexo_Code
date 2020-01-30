@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -95,6 +96,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TimeService timeService;
+    private volatile OrmService ormService;
 
     //for OSGI
     public BasicDeviceAlarmRuleTemplate() {
@@ -181,7 +183,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         for (CreationRule alarmCreationRule : alarmCreationRules) {
             if (((List) (alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
                     .stream()
-                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo) propertySpec).getDeviceType().getId() == deviceTypeId)
+                    .filter(property -> ((DeviceLifeCycleInDeviceTypeInfo) property).getDeviceType().getId() == deviceTypeId)
                     .findFirst().isPresent()) {
                 return Optional.of(alarmCreationRule);
             }
@@ -190,13 +192,13 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     @Override
-    public List<CreationRule> getCreationRulesWhichUsesDeviceType(Long deviceTypeId) {
+    public List<CreationRule> getCreationRulesWithDeviceType(Long deviceTypeId) {
         List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
         List<CreationRule> rules = new ArrayList<>();
         for (CreationRule alarmCreationRule : alarmCreationRules) {
             if (((List) (alarmCreationRule.getProperties().get(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES)))
                     .stream()
-                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo) propertySpec).getDeviceType().getId() == deviceTypeId)
+                    .filter(property -> ((DeviceLifeCycleInDeviceTypeInfo) property).getDeviceType().getId() == deviceTypeId)
                     .findFirst().isPresent()) {
                 rules.add(alarmCreationRule);
             }

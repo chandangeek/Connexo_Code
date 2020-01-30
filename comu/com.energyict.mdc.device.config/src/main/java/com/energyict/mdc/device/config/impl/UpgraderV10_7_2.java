@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.common.device.config.EventType;
@@ -18,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.EnumSet;
 
+@LiteralSql
 class UpgraderV10_7_2 implements Upgrader {
     private final DataModel dataModel;
     private final EventService eventService;

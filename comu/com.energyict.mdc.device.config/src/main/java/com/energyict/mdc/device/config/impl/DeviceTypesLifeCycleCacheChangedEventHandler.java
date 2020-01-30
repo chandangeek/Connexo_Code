@@ -2,7 +2,7 @@
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.alarms.impl.event;
+package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
@@ -16,7 +16,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import org.osgi.service.component.annotations.Component;
@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @LiteralSql
-@Component(name = "com.energyict.mdc.device.alarms.impl.event.DeviceTypesLifeCycleCacheChangedEventHandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.config.impl.DeviceTypesLifeCycleCacheChangedEventHandler", service = TopicHandler.class, immediate = true)
 public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandler {
     private static final String TOPIC = "com/energyict/mdc/device/config/devicetype/LIFE_CYCLE_CACHE_RECALCULATED";
     private volatile IssueService issueService;
@@ -53,10 +53,6 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
         this.ormService = ormService;
     }
 
-    @Reference
-    public void setAlarmService(DeviceAlarmService deviceAlarmService) {
-        //  to make sure that datamodel is initialized
-    }
 
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
@@ -66,7 +62,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
     @Override
     public void handle(LocalEvent localEvent) {
         DeviceType deviceType = (DeviceType) localEvent.getSource();
-        DataModel dataModel = ormService.getDataModel(DeviceAlarmService.COMPONENT_NAME).get();
+        DataModel dataModel = ormService.getDataModel(DeviceConfigurationService.COMPONENTNAME).get();
         try (Connection connection = dataModel.getConnection(true);
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM ISU_CREATIONRULEPROPS where NAME IN ('BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes'," +
                      "'DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes') AND REGEXP_LIKE(VALUE, '(^|;)" + deviceType.getId() + ":')");
@@ -75,8 +71,9 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
             while (resultSet.next()) {
                 alarmRuleTemplateInfos.add(new AlarmRuleTemplateInfo(resultSet.getLong("CREATIONRULE"), resultSet.getString("VALUE")));
             }
-            alarmRuleTemplateInfos.forEach(info -> info.changeValue(deviceType));
-            alarmRuleTemplateInfos.forEach(info -> updateDB(info, connection));
+            alarmRuleTemplateInfos.stream()
+                    .peek(info -> info.changeValue(deviceType))
+                    .forEach(info -> updateDB(info, connection));
             issueService.getIssueCreationService().getCreationRuleQuery()
                     .select(Where.where("id").in(alarmRuleTemplateInfos.stream().map(AlarmRuleTemplateInfo::getId).collect(Collectors.toList())))
                     .forEach(CreationRule::update);
@@ -87,7 +84,7 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
 
     private void updateDB(AlarmRuleTemplateInfo info, Connection connection) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE ISU_CREATIONRULEPROPS SET VALUE = '" + info.valuesToString() + "' WHERE CREATIONRULE = " + info.id +
-                "AND NAME IN('BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes','DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes')")) {
+                " AND NAME IN('BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes','DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes')")) {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -100,9 +97,9 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
         return TOPIC;
     }
 
-    class AlarmRuleTemplateInfo {
-        long id;
-        List<Value> values;
+    private class AlarmRuleTemplateInfo {
+        private long id;
+        private List<Value> values;
 
         public long getId() {
             return id;
@@ -135,37 +132,37 @@ public class DeviceTypesLifeCycleCacheChangedEventHandler implements TopicHandle
                     .filter(value -> value.deviceTypeId == deviceType.getId())
                     .forEach(value -> {
                         DeviceLifeCycle oldLifeCycle = deviceLifeCycleConfigurationService.findDeviceLifeCycle(value.lifeCycleId)
-                                .orElseThrow(() -> new IllegalStateException("Life cycle no longer exist"));
+                                .orElseThrow(() -> new IllegalStateException("Life cycle with id " + value.lifeCycleId + " no longer exists"));
                         DeviceLifeCycle newLifeCycle = deviceType.getDeviceLifeCycle();
                         value.lifeCycleId = newLifeCycle.getId();
-                        if (!allOldStatesAreSameAsNew(value, oldLifeCycle, newLifeCycle)) {
+                        if (!changeOldStatesWhichSameAsNew(value, oldLifeCycle, newLifeCycle)) {
                             value.states = deviceType.getDeviceLifeCycle().getFiniteStateMachine().getStates().stream().map(HasId::getId).collect(Collectors.toList());
                         }
                     });
         }
 
-        private boolean allOldStatesAreSameAsNew(Value value, DeviceLifeCycle oldLifeCycle, DeviceLifeCycle newLifeCycle) {
+        private boolean changeOldStatesWhichSameAsNew(Value value, DeviceLifeCycle oldLifeCycle, DeviceLifeCycle newLifeCycle) {
             List<State> oldStates = oldLifeCycle.getFiniteStateMachine().getStates().stream()
                     .filter(state -> value.states.contains(state.getId())).collect(Collectors.toList());
-            List<State> newStatesStream = newLifeCycle.getFiniteStateMachine().getStates();
-            if (newStatesStream.size() > oldStates.size()) {
+            List<State> newStates = newLifeCycle.getFiniteStateMachine().getStates();
+            if (newStates.size() < oldStates.size()) {
                 return false;
             }
-            newStatesStream = newLifeCycle.getFiniteStateMachine().getStates().stream()
+            newStates = newLifeCycle.getFiniteStateMachine().getStates().stream()
                     .filter(state -> oldStates.stream().map(State::getName).anyMatch(stateName -> stateName.equals(state.getName())))
                     .collect(Collectors.toList());
-            boolean same = oldStates.size() == newStatesStream.size();
+            boolean same = oldStates.size() == newStates.size();
             if (same) {
-                value.states = newStatesStream.stream().map(HasId::getId).collect(Collectors.toList());
+                value.states = newStates.stream().map(HasId::getId).collect(Collectors.toList());
             }
             return same;
         }
 
-        class Value {
+        private class Value {
 
-            long deviceTypeId;
-            long lifeCycleId;
-            List<Long> states;
+            private long deviceTypeId;
+            private long lifeCycleId;
+            private List<Long> states;
 
             public Value(long deviceTypeId, long lifeCycleId, List<Long> states) {
                 this.deviceTypeId = deviceTypeId;

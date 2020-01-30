@@ -60,7 +60,7 @@ public interface CreationRuleTemplate extends HasDynamicProperties {
         throw new OperationNotSupportedException("Method is not supported for current rule template");
     }
 
-    default List<CreationRule> getCreationRulesWhichUsesDeviceType(Long deviceTypeId) {
+    default List<CreationRule> getCreationRulesWithDeviceType(Long deviceTypeId) {
         return Collections.emptyList();
     }
 

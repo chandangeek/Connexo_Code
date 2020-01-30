@@ -27,7 +27,7 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
@@ -343,7 +343,7 @@ public class DeviceTypeResource {
         List<String> alarmRules = ruleTemplates
                 .stream()
                 .filter(issueTemplate -> issueTemplate.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE))
-                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWhichUsesDeviceType(id))
+                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWithDeviceType(id))
                 .flatMap(Collection::stream)
                 .map(CreationRule::getName)
                 .collect(Collectors.toList());
@@ -352,21 +352,21 @@ public class DeviceTypeResource {
         List<String> issueRules = ruleTemplates
                 .stream()
                 .filter(issueTemplate -> issueTemplate.getName().equals(DEVICE_LIFECYCLE_ISSUE_RULE_TEMPLATE))
-                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWhichUsesDeviceType(id))
+                .map(ruleTemplate1 -> ruleTemplate1.getCreationRulesWithDeviceType(id))
                 .flatMap(Collection::stream)
                 .map(CreationRule::getName)
                 .collect(Collectors.toList());
 
 
         List<CreationRule> issueCreationRules = issueService.getIssueCreationService().getCreationRuleQuery()
-                .select(Where.where("reason").isNotNull());
+                .select(Condition.TRUE);
 
         List<CreationRule> rules = new ArrayList<>();
         issueCreationRules.forEach(issueCreationRule -> {
             Object props = issueCreationRule.getProperties().get(DEVICE_LIFECYCLE_IN_DEVICE_TYPE);
             if (props != null && ((List) (props))
                     .stream()
-                    .filter(propertySpec -> ((DeviceLifeCycleInDeviceTypeInfo) propertySpec).getDeviceTypeId() == id)
+                    .filter(property -> ((DeviceLifeCycleInDeviceTypeInfo) property).getDeviceTypeId() == id)
                     .findFirst().isPresent()) {
                 rules.add(issueCreationRule);
             }
@@ -395,17 +395,18 @@ public class DeviceTypeResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
         }
         if (alarmRules.size() > 0 || issueRules.size() > 0) {
-            ChangeCreationRulesInfo changeCreationRulesInfo = createChangeCreationRulesInfo(DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
-            return Response.ok(changeCreationRulesInfo).build();
+            LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(MessageSeeds.THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE, DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
+            return Response.ok(lifeCycleChangeInfo).build();
         }
-        return Response.ok(DeviceTypeInfo.from(deviceType)).build();
+        LifeCycleChangeInfo lifeCycleChangeInfo = createChangeCreationRulesInfo(MessageSeeds.LIFE_CYCLE_CHANGED, DeviceTypeInfo.from(deviceType), alarmRules, issueRules);
+        return Response.ok(lifeCycleChangeInfo).build();
     }
 
-    private ChangeCreationRulesInfo createChangeCreationRulesInfo(DeviceTypeInfo deviceTypeInfo, List<String> alarmRules, List<String> issueRules) {
-        return new ChangeCreationRulesInfo(thesaurus.getSimpleFormat(MessageSeeds.THE_NEW_LIFE_CYCLE_MIGHT_NOT_HAVE_FULL_COMPLIANCE).format(),
+    private LifeCycleChangeInfo createChangeCreationRulesInfo(MessageSeeds messageSeeds, DeviceTypeInfo deviceTypeInfo, List<String> alarmRules, List<String> issueRules) {
+        return new LifeCycleChangeInfo(thesaurus.getSimpleFormat(messageSeeds).format(),
                 deviceTypeInfo,
                 thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ALARM_RULES).format(String.join(", ", alarmRules)),
-                thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ISSUED_RULES).format(String.join(", ", issueRules)));
+                thesaurus.getSimpleFormat(MessageSeeds.AFFECTED_ISSUE_RULES).format(String.join(", ", issueRules)));
     }
 
 

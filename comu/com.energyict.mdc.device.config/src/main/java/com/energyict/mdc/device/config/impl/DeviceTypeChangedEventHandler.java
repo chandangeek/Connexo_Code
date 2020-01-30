@@ -30,11 +30,11 @@ public class DeviceTypeChangedEventHandler implements MessageHandler {
         deviceConfigurationService.clearAndRecalculateCache();
         Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
         if (messageProperties.get("id") != null) {
-            if (!deviceConfigurationService.findDeviceType(Integer.toUnsignedLong((Integer) messageProperties.get("id"))).isPresent()) {
-                LOGGER.warning("Device type " + messageProperties.get("id") + " not more exist");
+            long deviceTypeId = ((Number) messageProperties.get("id")).longValue();
+            if (!deviceConfigurationService.findDeviceType(deviceTypeId).isPresent()) {
+                LOGGER.warning("Device type with id " + deviceTypeId + " no longer exists");
             } else {
-                eventService.postEvent(EventType.DEVICE_TYPE_LIFE_CYCLE_CACHE_RECALCULATED.topic(), deviceConfigurationService.findDeviceType(Integer.toUnsignedLong((Integer) messageProperties.get("id")))
-                        .get());
+                eventService.postEvent(EventType.DEVICE_TYPE_LIFE_CYCLE_CACHE_RECALCULATED.topic(), deviceConfigurationService.findDeviceType(deviceTypeId).get());
             }
         }
     }
