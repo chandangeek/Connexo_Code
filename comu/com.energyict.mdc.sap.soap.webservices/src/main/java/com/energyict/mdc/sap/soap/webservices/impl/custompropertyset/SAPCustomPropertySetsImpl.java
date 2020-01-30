@@ -371,7 +371,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
         Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
         stream.forEach(e -> {
-            Range<Instant> range = e.getInterval().toOpenClosedRange();
+            Range<Instant> range = e.getRange();
             Optional<Range<Instant>> cutRange = cutRange(range);
             if (cutRange.isPresent()) {
                 Optional<Device> device = deviceService.findDeviceById(e.getDeviceId());
@@ -517,7 +517,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     private Condition getOverlappedCondition(Range<Instant> range) {
-        return Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffectiveOpenClosed(range);
+        return Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range);
     }
 
     private Condition getIntervalAfterDateCondition(Instant date) {
@@ -533,7 +533,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (start != null && end != null) {
             if (start.isBefore(end)) {
                 if (end.equals(range.upperEndpoint())) {
-                    return Optional.of(Range.openClosed(start, end));
+                    return Optional.of(Range.closedOpen(start, end));
                 } else {
                     return Optional.of(Range.closed(start, end));
                 }
