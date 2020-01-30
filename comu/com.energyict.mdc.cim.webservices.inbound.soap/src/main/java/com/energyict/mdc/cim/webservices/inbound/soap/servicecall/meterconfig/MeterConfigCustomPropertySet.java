@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+
 @Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigCustomPropertySet",
         service = CustomPropertySet.class,
         property = "name=" + MeterConfigCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
@@ -206,7 +208,8 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table.column(MeterConfigDomainExtension.FieldNames.METER.databaseName())
-                    .varChar()
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
                     .map(MeterConfigDomainExtension.FieldNames.METER.javaName())
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.METER_MRID.databaseName())
@@ -223,7 +226,8 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                     .notNull()
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
-                    .varChar()
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
                     .map(MeterConfigDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.ERROR_CODE.databaseName())
