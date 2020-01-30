@@ -54,7 +54,8 @@ public class UsersApplication extends Application implements MessageSeedProvider
                 FindGroupResource.class,
                 FindUserResource.class,
                 WorkGroupResource.class,
-				CSRFContollerService.class);
+                UserSecuritySettingsResource.class,
+                CSRFContollerService.class);
     }
     
     @Reference
