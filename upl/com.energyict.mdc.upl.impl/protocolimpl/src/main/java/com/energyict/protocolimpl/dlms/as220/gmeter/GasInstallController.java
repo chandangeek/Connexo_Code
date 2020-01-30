@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.MeterProtocol;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocolimpl.base.AbstractMbusInstallController;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
@@ -79,9 +78,9 @@ public class GasInstallController extends AbstractMbusInstallController {
      */
     public MBusClient getMbusClient() throws IOException {
         if(getGasDevice().getActiveFirmwareVersion().isHigherOrEqualsThen("2")){
-            return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MbusClientAttributes.VERSION10);
+            return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_10TH_EDITION);
         } else {
-            return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MbusClientAttributes.VERSION9);
+            return getGasDevice().getCosemObjectFactory().getMbusClient(getGasDevice().getMeterConfig().getMbusClient(getGasDevice().getPhysicalAddress()).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
         }
     }
 

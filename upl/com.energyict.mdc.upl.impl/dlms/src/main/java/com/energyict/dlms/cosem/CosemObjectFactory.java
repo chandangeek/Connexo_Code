@@ -10,7 +10,7 @@ import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
 import com.energyict.dlms.cosem.methods.USBSetup;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
@@ -381,20 +381,20 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @return a newly created MbusClient object
      * @throws java.io.IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
      * @deprecated use {@link #getMbusClient(com.energyict.obis.ObisCode, int)} instead
-     */
+
     public MBusClient getMbusClient(ObisCode obisCode) throws NotInObjectListException {
-        return getMbusClient(obisCode, MbusClientAttributes.VERSION10);
-    }
+        return getMbusClient(obisCode, MBusClient.VERSION.VERSION10);
+    } */
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.MBusClient} object (valid for any DLMS version)
      *
      * @param obisCode the obisCode of the Object
-     * @param version  the version of the object (see {@link com.energyict.dlms.cosem.attributes.MbusClientAttributes#version} for more details)
+     * @param version  the version of the object (see {@link MBusClient.VERSION} for more details)
      * @return a newly created MbusClient object
      * @throws NotInObjectListException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
      */
-    public MBusClient getMbusClient(ObisCode obisCode, int version) throws NotInObjectListException {
+    public MBusClient getMbusClient(ObisCode obisCode, MBusClient.VERSION version) throws NotInObjectListException {
         return new MBusClient(protocolLink, getObjectReference(obisCode), version);
     }
 

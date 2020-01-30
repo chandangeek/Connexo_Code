@@ -62,7 +62,6 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -359,7 +358,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
         int installChannel = messageHandler.getMbusInstallChannel();
         int primaryAddress = getMBusPhysicalAddress(installChannel);
         ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
         mbusClient.installSlave(primaryAddress);
     }
 
@@ -1508,7 +1507,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
     private void mBusClientRemoteCommissioning(MessageHandler messageHandler) throws IOException {
         int installChannel = messageHandler.getMbusInstallChannel();
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
         String shortId = messageHandler.getMbusShortId();
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), ((Dsmr23Properties) getProtocol().getProperties()).getFixMbusHexShortId());
         try {
@@ -1524,7 +1523,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
     private void changeMBusClientAttributes(MessageHandler messageHandler) throws IOException {
         int installChannel = messageHandler.getMbusInstallChannel();
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), MBusClient.VERSION.VERSION0_BLUE_BOOK_9TH_EDITION);
         try {
             mbusClient.setManufacturerID(messageHandler.getMbusClientManufacturerID());
             mbusClient.setIdentificationNumber(messageHandler.getMbusClientIdentificationNumber(((Dsmr23Properties) getProtocol().getProperties()).getFixMbusHexShortId()));

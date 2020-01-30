@@ -28,8 +28,13 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         REQUEST_ID("requestId", "REQUEST_ID"), // used up to 10.7.1
         UUID("uuid", "UUID"), // used up to 10.7.1
         LRN("lrn", "LRN"),
-        END_DATE("endDate", "END_DATE"),
+        CREATE_END_DATE("createEndDate", "CREATE_END_DATE"),
         TIME_ZONE("timeZone", "TIME_ZONE"),
+        OBIS("obis", "OBIS"),
+        RECURRENCE_CODE("recurrenceCode", "INTERVAL"),
+        START_DATE("startDate", "START_DATE"),
+        END_DATE("endDate", "END_DATE"),
+        DIVISION_CATEGORY("divisionCategory", "DIVISION_CATEGORY"),
 
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
@@ -65,8 +70,21 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant endDate;
 
+    private Instant createEndDate;
+
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String timeZone;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String obis;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String recurrenceCode;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String divisionCategory;
+
+    private Instant startDate;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorCode;
@@ -98,6 +116,46 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         this.timeZone = timeZone;
     }
 
+    public Instant getCreateEndDate() {
+        return createEndDate;
+    }
+
+    public void setCreateEndDate(Instant createEndDate) {
+        this.createEndDate = createEndDate;
+    }
+
+    public String getObis() {
+        return obis;
+    }
+
+    public void setObis(String obis) {
+        this.obis = obis;
+    }
+
+    public String getRecurrenceCode() {
+        return recurrenceCode;
+    }
+
+    public void setRecurrenceCode(String recurrenceCode) {
+        this.recurrenceCode = recurrenceCode;
+    }
+
+    public String getDivisionCategory() {
+        return divisionCategory;
+    }
+
+    public void setDivisionCategory(String divisionCategory) {
+        this.divisionCategory = divisionCategory;
+    }
+
+    public Instant getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
     public String getErrorCode() {
         return errorCode;
     }
@@ -127,8 +185,13 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
-        this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
+        this.setCreateEndDate((Instant) propertyValues.getProperty(FieldNames.CREATE_END_DATE.javaName()));
         this.setTimeZone((String) propertyValues.getProperty(FieldNames.TIME_ZONE.javaName()));
+        this.setObis((String) propertyValues.getProperty(FieldNames.OBIS.javaName()));
+        this.setRecurrenceCode((String) propertyValues.getProperty(FieldNames.RECURRENCE_CODE.javaName()));
+        this.setStartDate((Instant) propertyValues.getProperty(FieldNames.START_DATE.javaName()));
+        this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
+        this.setDivisionCategory((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -136,8 +199,13 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
-        propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
+        propertySetValues.setProperty(FieldNames.CREATE_END_DATE.javaName(), this.getCreateEndDate());
         propertySetValues.setProperty(FieldNames.TIME_ZONE.javaName(), this.getTimeZone());
+        propertySetValues.setProperty(FieldNames.OBIS.javaName(), this.getObis());
+        propertySetValues.setProperty(FieldNames.RECURRENCE_CODE.javaName(), this.getRecurrenceCode());
+        propertySetValues.setProperty(FieldNames.START_DATE.javaName(), this.getStartDate());
+        propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
+        propertySetValues.setProperty(FieldNames.DIVISION_CATEGORY.javaName(), this.getDivisionCategory());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }
