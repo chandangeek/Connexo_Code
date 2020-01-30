@@ -72,12 +72,19 @@ public class DataSendingStatus {
             if (allDataSourcesWithNewDataFailed || allDataSourcesWithChangedDataFailed) {
                 throw new DestinationFailedException(thesaurus, MessageSeeds.DATA_SENDING_FAILED_ALL_DATA_SOURCES);
             } else {
-                String dataSourcesString = Stream.concat(failedDataSourcesWithNewData.stream(), failedDataSourcesWithChangedData.stream())
-                        .distinct()
+                int maxNumber = 10;
+                Set<ReadingTypeDataExportItem> failedDataSources = new HashSet<>();
+                failedDataSources.addAll(failedDataSourcesWithNewData);
+                failedDataSources.addAll(failedDataSourcesWithChangedData);
+                String dataSourcesString = failedDataSources.stream()
                         .map(dataSource -> '<' + dataSource.getDescription() + '>')
                         .sorted()
+                        .limit(maxNumber)
                         .collect(Collectors.joining(", "));
-                throw new DestinationFailedException(thesaurus, MessageSeeds.DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES, dataSourcesString);
+                if (failedDataSources.size() > maxNumber) {
+                    dataSourcesString = dataSourcesString + ", ...";
+                }
+                throw new DestinationFailedException(thesaurus, MessageSeeds.DATA_SENDING_FAILED_SPECIFIC_DATA_SOURCES, failedDataSources.size(), dataSourcesString);
             }
         }
     }
