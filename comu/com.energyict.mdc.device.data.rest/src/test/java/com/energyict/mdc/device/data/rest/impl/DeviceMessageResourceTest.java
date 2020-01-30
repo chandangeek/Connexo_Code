@@ -359,8 +359,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<String>get("$.deviceMessages[0].properties[0].key")).isEqualTo("ID");
-        assertThat(model.<Integer>get("$.deviceMessages[0].properties[0].propertyValueInfo.value")).isEqualTo(123);
-        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyValueInfo.value")).isEqualTo("123");
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
         assertThat(model.<Boolean>get("$.deviceMessages[0].properties[0].required")).isEqualTo(true);
     }
 
@@ -401,8 +401,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<String>get("$.deviceMessages[0].properties[0].key")).isEqualTo("ID");
-        assertThat(model.<Integer>get("$.deviceMessages[0].properties[0].propertyValueInfo.value")).isEqualTo(123);
-        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyValueInfo.value")).isEqualTo("123");
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
         assertThat(model.<Boolean>get("$.deviceMessages[0].properties[0].required")).isEqualTo(true);
     }
 
