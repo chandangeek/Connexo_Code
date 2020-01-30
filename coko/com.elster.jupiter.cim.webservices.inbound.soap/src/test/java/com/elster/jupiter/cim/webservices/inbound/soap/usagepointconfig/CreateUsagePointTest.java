@@ -1029,8 +1029,6 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         }
     }
 
-
-
     private interface RunnableWithFaultMessage {
         void run() throws FaultMessage;
     }
