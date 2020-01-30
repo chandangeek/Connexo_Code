@@ -5,6 +5,7 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,6 +83,15 @@ public class SecurityTokenImpl {
 
     public String createToken(User user, long count, String ipAddr) {
         return createToken(user, count, ipAddr, new Date(System.currentTimeMillis() + tokenExpiration * 1000));
+    }
+
+    public String generateSessionId(){
+        return base64Encode(UUID.randomUUID().toString());
+    }
+
+    public void createCSRFToken(String sessionId, CSRFService csrfService) {
+        String csrfToken = base64Encode(sessionId + System.currentTimeMillis());
+        csrfService.addCSRFToken(sessionId, csrfToken);
     }
 
     private String createToken(User user, long count, String ipAddr, Date tokenExpiration) {

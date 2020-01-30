@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
@@ -92,6 +93,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public static final String LOGIN_URL = "/apps/login/";
 
     private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
+    private final String USER_SESSIONID = "X-SESSIONID";
+
 
     private volatile UserService userService;
     private volatile DataVaultService dataVaultService;
@@ -103,6 +106,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile SamlRequestService samlRequestService;
+    private volatile CSRFService csrfService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -118,7 +122,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> ssoAdminUser;
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService, BundleContext context) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, 
+					UpgradeService upgradeService, BpmService bpmService, BundleContext context, CSRFService csrfService) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -126,6 +131,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setDataVaultService(dataVaultService);
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
+		setCSRFService(csrfService);
         activate(context);
     }
 
@@ -181,6 +187,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.samlRequestService = samlRequestService;
     }
 
+	@Reference
+    public void setCSRFService(CSRFService csrfService){
+        this.csrfService = csrfService;
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -192,6 +203,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
+				bind(CSRFService.class).toInstance(csrfService);
                 bind(BasicAuthentication.class).toInstance(BasicAuthentication.this);
             }
         });
@@ -409,6 +421,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Object logoutParameter = request.getUserPrincipal();
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
             invalidateSession(request);
         }
         if (logoutParameter instanceof User) {
@@ -436,6 +449,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return cookie;
     }
 
+   public Cookie createSessionCookie(String sessionId, String cookiePath){
+       Cookie sessionCookie = new Cookie(USER_SESSIONID, sessionId);
+       sessionCookie.setPath(cookiePath);
+       sessionCookie.setMaxAge(securityToken.getCookieMaxAge());
+       sessionCookie.setHttpOnly(true);
+       securityToken.createCSRFToken(sessionId, csrfService);
+       return sessionCookie;
+    }
+
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
         SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
                 .getRemoteAddr());
@@ -455,6 +477,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private boolean doBearerAuthorization(HttpServletRequest request, HttpServletResponse response, String authentication) {
         String token = authentication.substring(authentication.lastIndexOf(" ") + 1);
+        if (isFormSubmitRequest(request) && !validateCSRFRequest(request)) {
+                return deny(request, response);
+        }
         Optional<Cookie> xsrf = getTokenCookie(request);
         if (xsrf.isPresent()) {
             token = xsrf.get().getValue();
@@ -470,6 +495,23 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return handleTokenValidation(tokenValidation, token, request, response);
     }
 
+    private boolean isFormSubmitRequest(HttpServletRequest request){
+        if(request.getMethod().equalsIgnoreCase("POST") || request.getMethod().equalsIgnoreCase("PUT") ||
+                request.getMethod().equalsIgnoreCase("DELETE")) {
+                return true;
+        }
+        return false;
+    }
+
+    private boolean validateCSRFRequest(HttpServletRequest request) {
+        Optional<Cookie> sessionId =  getSessionCookie(request);
+        if(sessionId.isPresent()){
+            String csrfToken = request.getParameter("X-CSRF-TOKEN");
+            return csrfToken.equals(csrfService.getCSRFToken(sessionId.get().getValue()));
+        }
+        return false;
+    }
+
     private boolean doBasicAuthentication(HttpServletRequest request, HttpServletResponse response, String authentication) {
         Optional<User> user = userService.authenticateBase64(authentication, request.getRemoteAddr());
         if (isAuthenticated(user)) {
@@ -478,6 +520,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             User usr = userService.findUser(returnedUserByAuthentication.getName(), returnedUserByAuthentication.getDomain()).orElse(returnedUserByAuthentication);
             String token = securityToken.createToken(usr, 0, request.getRemoteAddr());
             response.addCookie(createTokenCookie(token, "/"));
+            response.addCookie(createSessionCookie(securityToken.generateSessionId(),"/"));
             postWhiteboardEvent(WhiteboardEvent.LOGIN.topic(), new LocalEventUserSource(usr));
             return allow(request, response, usr, token);
         } else {
@@ -516,9 +559,18 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
         }
         invalidateSession(request);
         return false;
+    }
+
+    private void invalidateSessionCookie(HttpServletRequest request, HttpServletResponse response) {
+        Optional<Cookie> sessionCookie = getSessionCookie(request);
+        if(sessionCookie.isPresent()) {
+            csrfService.romoveToken(sessionCookie.get().getValue());
+            removeCookie(response, sessionCookie.get().getName());
+        }
     }
 
     private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
@@ -526,6 +578,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> tokenCookie = getTokenCookie(request);
         if (tokenCookie.isPresent()) {
             removeCookie(response, tokenCookie.get().getName());
+            invalidateSessionCookie(request, response);
         }
         invalidateSession(request);
         return false;
@@ -569,6 +622,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         if (request.getCookies() != null) {
             return Arrays.stream(request.getCookies())
                     .filter(cookie -> TOKEN_COOKIE_NAME.equals(cookie.getName()))
+                    .findFirst();
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Cookie> getSessionCookie(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(cookie -> USER_SESSIONID.equals(cookie.getName()))
                     .findFirst();
         }
         return Optional.empty();
