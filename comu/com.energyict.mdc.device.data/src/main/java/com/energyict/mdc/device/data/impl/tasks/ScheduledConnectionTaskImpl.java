@@ -582,7 +582,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         Integer highestPriority = TaskPriorityConstants.DEFAULT_PRIORITY;
         if (!this.strategyChange) {
-            if ((earliestNextExecutionTimeStampAndPriority == null || earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp == null) && !lastExecutionFailed()) {
+            if (earliestNextExecutionTimeStampAndPriority == null || earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp == null) {
                 when = null;
             } else {
                 highestPriority = earliestNextExecutionTimeStampAndPriority.priority;

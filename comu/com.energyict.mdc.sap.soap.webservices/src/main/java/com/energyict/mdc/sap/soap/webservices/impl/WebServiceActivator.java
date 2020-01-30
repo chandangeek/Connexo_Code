@@ -204,7 +204,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     // Search data sources by SAP id's
     private static final String REGISTER_SEARCH_INTERVAL_PROPERTY = "com.elster.jupiter.sap.registersearchinterval";
     private static final String SEARCH_DATA_SOURCE_TASK_NAME = "SearchDataSourceTask";
-    private static final String SEARCH_DATA_SOURCE_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
+    private static final String SEARCH_DATA_SOURCE_TASK_SCHEDULE = "0 0/1 * 1/1 * ? *";
     private static final int SEARCH_DATA_SOURCE_TASK_RETRY_DELAY = 60;
 
     // Check SAP confirmation timeout

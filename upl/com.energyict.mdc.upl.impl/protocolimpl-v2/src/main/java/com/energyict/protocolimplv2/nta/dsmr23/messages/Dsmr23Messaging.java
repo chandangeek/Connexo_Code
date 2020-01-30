@@ -20,7 +20,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -34,7 +33,6 @@ import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
@@ -233,10 +231,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         }
 
         // MBus setup
-        if (supportMBus) {
-            supportedMessages.add(this.get(MBusSetupDeviceMessage.Commission_With_Channel));
-            supportedMessages.add(this.get(MBusSetupDeviceMessage.Reset_MBus_Client));
-        }
+        // No more MBus Setup message for D.S.M.R. 2.3 since COMMUNICATION-3240
 
         // reset
         supportedMessages.add(this.get(DeviceActionMessage.ALARM_REGISTER_RESET));

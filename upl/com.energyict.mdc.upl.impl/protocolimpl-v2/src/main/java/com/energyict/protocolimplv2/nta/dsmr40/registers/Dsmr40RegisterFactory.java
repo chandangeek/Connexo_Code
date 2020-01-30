@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr40.registers;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.dlms.cosem.attributes.DefinableLoadProfileAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -27,7 +28,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.generic.EncryptionStatus;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.attributes.DSMR4_MbusClientAttributes;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -123,11 +123,11 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
                 if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
                     ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(MbusClientObisCode, register.getSerialNumber());
-                    this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.ENCRYPTION_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, MBusClientAttributes.CONFIGURATION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equalsIgnoreBChannel(MbusKeyStatusObisCode)) {
                     ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(MbusClientObisCode, register.getSerialNumber());
-                    this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, MBusClientAttributes.ENCRYPTION_KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 } else if (rObisCode.equals(SecurityPolicyObisCode)) {
                     this.registerMap.put(register, new DLMSAttribute(SecuritySetup.getDefaultObisCode(), 2, DLMSClassId.SECURITY_SETUP.getClassId()));
@@ -207,7 +207,7 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
         } else if (rObisCode.equalsIgnoreBChannel(DEFINABLE_LOAD_PROFILE_CAPTURE_OBJECTS)) {
             if(abstractDataType.isArray()){
                 String dlps = "";
-                List dlp = abstractDataType.getArray().getAllDataTypes();
+                List<AbstractDataType> dlp = abstractDataType.getArray().getAllDataTypes();
                 for (int i=0; i <dlp.size(); i++){
                     Structure element = (Structure) dlp.get(i);
                     dlps += "{" +
@@ -230,37 +230,37 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
             }
             return new RegisterValue(register, abstractDataType.toString());
         } else if (rObisCode.equalsIgnoreBChannel(DEFINABLE_LOAD_PROFILE_CAPTURE_PERIOD)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "Definable Load Profile capture period value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "Definable Load Profile capture period value: " + abstractDataType.longValue());
         } else if (rObisCode.equalsIgnoreBChannel(NR_OF_VOLTAGE_SWELLS_PHASE_L1)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "NUMBER_OF_VOLTAGE_SWELLS_PHASE_L1 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "NUMBER_OF_VOLTAGE_SWELLS_PHASE_L1 value: " + abstractDataType.longValue());
         } else if (rObisCode.equalsIgnoreBChannel(NR_OF_VOLTAGE_SWELLS_PHASE_L2)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "NUMBER_OF_VOLTAGE_SWELLS_PHASE_L2 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "NUMBER_OF_VOLTAGE_SWELLS_PHASE_L2 value: " + abstractDataType.longValue());
         } else if (rObisCode.equalsIgnoreBChannel(NR_OF_VOLTAGE_SWELLS_PHASE_L3)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "NUMBER_OF_VOLTAGE_SWELLS_PHASE_L3 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, "NUMBER_OF_VOLTAGE_SWELLS_PHASE_L3 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_PV_VOLTAGE_SWELLS_PHASE_L1)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_PV_VOLTAGE_SWELLS_PHASE_L1 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_PV_VOLTAGE_SWELLS_PHASE_L1 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_PV_VOLTAGE_SWELLS_PHASE_L2)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_PV_VOLTAGE_SWELLS_PHASE_L2 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_PV_VOLTAGE_SWELLS_PHASE_L2 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_PV_VOLTAGE_SWELLS_PHASE_L3)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_PV_VOLTAGE_SWELLS_PHASE_L3 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_PV_VOLTAGE_SWELLS_PHASE_L3 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_VOLTAGE_SAG_PHASE_L1)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_VOLTAGE_SAG_PHASE_L1 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_VOLTAGE_SAG_PHASE_L1 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_VOLTAGE_SAG_PHASE_L2)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_VOLTAGE_SAG_PHASE_L2 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_VOLTAGE_SAG_PHASE_L2 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_VOLTAGE_SAG_PHASE_L3)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_VOLTAGE_SAG_PHASE_L3 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_VOLTAGE_SAG_PHASE_L3 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_SHORT_VOLTAGE_SAG_PHASE_L1)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_SHORT_VOLTAGE_SAG_PHASE_L1 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_SHORT_VOLTAGE_SAG_PHASE_L1 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_SHORT_VOLTAGE_SAG_PHASE_L2)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_SHORT_VOLTAGE_SAG_PHASE_L2 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_SHORT_VOLTAGE_SAG_PHASE_L2 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_SHORT_VOLTAGE_SAG_PHASE_L3)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_SHORT_VOLTAGE_SAG_PHASE_L3 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "NO_SHORT_VOLTAGE_SAG_PHASE_L3 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_PV_VOLTAGE_SAG_L1)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L1 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L1 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_PV_VOLTAGE_SAG_L2)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L2 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L2 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_PV_VOLTAGE_SAG_L3)) {
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L3 value: " + Long.toString(abstractDataType.longValue()));
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L3 value: " + abstractDataType.longValue());
         }
 
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
@@ -269,7 +269,7 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
 
     private String composeObisCode(byte[] octetStr) {
         String obisCode = "";
-        String separators[] = new String[]{"-", ":", ".", ".", ".", ""};
+        String[] separators = new String[]{"-", ":", ".", ".", ".", ""};
         for(int i =0; i<octetStr.length; i++){
             obisCode += octetStr[i] & 0xFF ;
             obisCode += separators[i];
